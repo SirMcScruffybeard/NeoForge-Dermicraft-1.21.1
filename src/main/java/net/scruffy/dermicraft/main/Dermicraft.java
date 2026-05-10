@@ -1,4 +1,4 @@
-package net.scruffy.main.dermicraft;
+package net.scruffy.dermicraft.main;
 
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -33,6 +33,8 @@ public class Dermicraft {
         // Note that this is necessary if and only if we want *this* class (Dermicraft) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+
+        ModCreativeModeTabs.register(modEventBus);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);

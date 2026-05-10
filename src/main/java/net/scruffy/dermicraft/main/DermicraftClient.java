@@ -1,4 +1,4 @@
-package net.scruffy.main.dermicraft;
+package net.scruffy.dermicraft.main;
 
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;

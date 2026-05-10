@@ -1,4 +1,4 @@
-package net.scruffy.main.dermicraft;
+package net.scruffy.dermicraft.main;
 
 import java.util.List;
 
