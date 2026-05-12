@@ -5,6 +5,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -16,6 +17,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
     @Override
     protected void registerStatesAndModels() {
 
+        ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
+        blockWithItem(ModBlocks.INERT_TUMOR);
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {

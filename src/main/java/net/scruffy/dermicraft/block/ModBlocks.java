@@ -3,9 +3,11 @@ package net.scruffy.dermicraft.block;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.scruffy.dermicraft.block.entity.custom.tumor.InertTumorBlock;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -16,6 +18,10 @@ public class ModBlocks {
     public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
     }
+
+    ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
+    public static final DeferredBlock<Block> INERT_TUMOR = registerBlock("inert_tumor",
+            () -> new InertTumorBlock(BlockBehaviour.Properties.of()));
 
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
