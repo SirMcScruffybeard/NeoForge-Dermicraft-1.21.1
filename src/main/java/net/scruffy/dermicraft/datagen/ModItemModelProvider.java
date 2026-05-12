@@ -3,6 +3,8 @@ package net.scruffy.dermicraft.datagen;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItemModelProvider extends ItemModelProvider {
@@ -13,6 +15,13 @@ public class ModItemModelProvider extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
+
+        ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
+        handheldItem(ModItems.SCALPEL.get());
+
+
+        ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
+        basicItem(ModItems.EYE.get());
 
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.item.ModItems;
 
 import java.util.function.Supplier;
 
@@ -27,6 +28,20 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INERT_TUMOR);
+
+                    }).build());
+
+        public static final Supplier<CreativeModeTab> DERMICRAFT_ITEMS_TAB = CREATIVE_MODE_TAB.register(Dermicraft.MOD_ID +"_items_tab",
+            () -> CreativeModeTab.builder()
+                    .icon(() -> new ItemStack(ModItems.SCALPEL.get()))
+                    .title(Component.translatable("creativetab.dermicraft.dermicraft_items"))
+                    .displayItems((itemDisplayParameters, output) -> {
+
+                        ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModItems.SCALPEL);
+
+                        ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModItems.EYE.get());
 
                     }).build());
 }

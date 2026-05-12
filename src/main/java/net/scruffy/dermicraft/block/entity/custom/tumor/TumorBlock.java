@@ -7,4 +7,6 @@ public abstract class TumorBlock extends Block {
         super(properties
                 .noLootTable());
     }
+    
+
 }
