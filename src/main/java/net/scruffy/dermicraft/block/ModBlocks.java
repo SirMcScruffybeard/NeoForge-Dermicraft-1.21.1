@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.scruffy.dermicraft.block.custom.MarredTumorBlock;
 import net.scruffy.dermicraft.block.entity.custom.tumor.InertTumorBlock;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -22,6 +23,9 @@ public class ModBlocks {
     ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
     public static final DeferredBlock<Block> INERT_TUMOR = registerBlock("inert_tumor",
             () -> new InertTumorBlock(BlockBehaviour.Properties.of()));
+
+    public static final DeferredBlock<Block> MARRED_TUMOR = registerBlock("marred_tumor",
+            () -> new MarredTumorBlock(BlockBehaviour.Properties.of()));
 
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\

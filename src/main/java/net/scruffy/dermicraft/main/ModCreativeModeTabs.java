@@ -3,8 +3,11 @@ package net.scruffy.dermicraft.main;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.item.ModItems;
@@ -28,6 +31,7 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INERT_TUMOR);
+                        output.accept(ModBlocks.MARRED_TUMOR);
 
                     }).build());
 
@@ -41,7 +45,19 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SCALPEL);
 
                         ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
-                        output.accept(ModItems.EYE.get());
+                        output.accept(ModItems.EYE);
+                        output.accept(ModItems.NERVE_CLUSTER);
+                        output.accept(ModItems.DENSE_MUSCLE);
 
                     }).build());
+
+
+
+
+
+
+
+
+    ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
+
 }

@@ -1,14 +1,10 @@
 package net.scruffy.dermicraft.item;
 
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.scruffy.dermicraft.block.entity.custom.tumor.InertTumorBlock;
-import net.scruffy.dermicraft.item.custom.PartItem;
+import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -28,6 +24,12 @@ public class ModItems {
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
+            () -> new PartItem(new Item.Properties()));
+
+    public static  DeferredItem<Item> NERVE_CLUSTER = ITEMS.register("nerve_cluster",
+            () -> new PartItem(new Item.Properties()));
+
+    public static DeferredItem<Item> DENSE_MUSCLE = ITEMS.register("dense_muscle",
             () -> new PartItem(new Item.Properties()));
 
 

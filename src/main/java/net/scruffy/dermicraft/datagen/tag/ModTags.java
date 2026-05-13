@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.datagen;
+package net.scruffy.dermicraft.datagen.tag;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
@@ -13,7 +13,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 public class ModTags {
 
     public static class Blocks {
-
+        public static final TagKey<Block> HARVESTABLE = createTag("harvestable");
 
         private static TagKey<Block> createTag(String name) {
             return BlockTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
@@ -21,7 +21,7 @@ public class ModTags {
     }
 
     public static class Items {
-
+        public static final TagKey<Item> HARVESTER = createTag("harvester");
 
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));

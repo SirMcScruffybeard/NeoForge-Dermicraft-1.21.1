@@ -21,7 +21,9 @@ public class ModItemModelProvider extends ItemModelProvider {
 
 
         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
-        basicItem(ModItems.EYE.get());
+        handheldItem(ModItems.EYE.get());
+        basicItem(ModItems.NERVE_CLUSTER.get());
+        basicItem(ModItems.DENSE_MUSCLE.get());
 
     }
 }

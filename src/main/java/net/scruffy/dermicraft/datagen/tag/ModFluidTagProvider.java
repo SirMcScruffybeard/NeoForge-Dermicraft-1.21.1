@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.datagen;
+package net.scruffy.dermicraft.datagen.tag;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -9,8 +9,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.CompletableFuture;
 
-public class ModFluidTagsProvider extends FluidTagsProvider {
-    public ModFluidTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
+public class ModFluidTagProvider extends FluidTagsProvider {
+    public ModFluidTagProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
         super(output, provider, Dermicraft.MOD_ID, existingFileHelper);
     }
 

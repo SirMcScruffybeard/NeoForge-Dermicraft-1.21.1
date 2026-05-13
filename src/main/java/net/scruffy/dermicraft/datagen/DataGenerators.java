@@ -10,6 +10,9 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.scruffy.dermicraft.datagen.tag.ModBlockTagPorvider;
+import net.scruffy.dermicraft.datagen.tag.ModFluidTagProvider;
+import net.scruffy.dermicraft.datagen.tag.ModItemTagProvider;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.Collections;
@@ -32,7 +35,7 @@ public class DataGenerators {
         BlockTagsProvider blockTagsProvider = new ModBlockTagPorvider(packOutput, lookupProvider, existingFileHelper);
         generator.addProvider(event.includeServer(), blockTagsProvider);
         generator.addProvider(event.includeServer(), new ModItemTagProvider(packOutput, lookupProvider, blockTagsProvider.contentsGetter(),existingFileHelper));
-        generator.addProvider(event.includeServer(), new ModFluidTagsProvider(packOutput, lookupProvider, existingFileHelper));
+        generator.addProvider(event.includeServer(), new ModFluidTagProvider(packOutput, lookupProvider, existingFileHelper));
 
         generator.addProvider(event.includeClient(), new ModItemModelProvider(packOutput, existingFileHelper));
 

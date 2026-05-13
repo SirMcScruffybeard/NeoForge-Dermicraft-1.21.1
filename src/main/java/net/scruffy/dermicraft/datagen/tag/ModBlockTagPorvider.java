@@ -1,9 +1,10 @@
-package net.scruffy.dermicraft.datagen;
+package net.scruffy.dermicraft.datagen.tag;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.main.Dermicraft;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,6 +17,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-
+        tag(ModTags.Blocks.HARVESTABLE)
+                .add(ModBlocks.INERT_TUMOR.get());
     }
 }

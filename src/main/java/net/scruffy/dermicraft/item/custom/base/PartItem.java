@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.item.custom;
+package net.scruffy.dermicraft.item.custom.base;
 
 import net.minecraft.world.item.Item;
 

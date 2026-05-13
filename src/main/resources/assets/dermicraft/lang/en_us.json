@@ -9,7 +9,14 @@
 
 
   "item.dermicraft.eye": "Eye",
+  "item.dermicraft.nerve_cluster": "Nerve Cluster",
+  "item.dermicraft.dense_muscle": "Dense Muscle",
 
 
-  "block.dermicraft.inert_tumor": "Inert Tumor"
+  "block.dermicraft.inert_tumor": "Inert Tumor",
+
+
+
+  "effect.fleshlabsmod.blood_let": "Blood Let",
+  "death.attack.blood_let": "%1$s starved a vampire."
 }

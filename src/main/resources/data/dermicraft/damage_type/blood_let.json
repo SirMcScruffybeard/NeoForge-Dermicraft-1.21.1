@@ -1,0 +1,11 @@
+{
+  "exhaustion": 0.3,
+  "message_id": "blood_let",
+  "scaling": "never",
+  "effects": "hurt",
+  "death_message_type": "default",
+  "bypasses_armor": true,
+  "bypasses_shield": true,
+  "is_fire": false,
+  "is_magic": false
+}
