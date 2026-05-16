@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.block.entity.custom.tumor;
+package net.scruffy.dermicraft.block.custom.tumor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.scruffy.dermicraft.block.ModBlocks;
@@ -22,8 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InertTumorBlock extends TumorBlock implements IHarvestable {
-    public InertTumorBlock(Properties properties) {
-        super(properties
+    public InertTumorBlock() {
+        super(BlockBehaviour.Properties.of().ignitedByLava()
                 .strength(.05f)
                 .explosionResistance(15f)
                 .sound(SoundType.SLIME_BLOCK)
@@ -40,9 +41,11 @@ public class InertTumorBlock extends TumorBlock implements IHarvestable {
            harvest(level, player, stack,pos);
 
            changeState(level, pos, state);
+
+           return ItemInteractionResult.SUCCESS;
         }
 
-        return ItemInteractionResult.SUCCESS;
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override

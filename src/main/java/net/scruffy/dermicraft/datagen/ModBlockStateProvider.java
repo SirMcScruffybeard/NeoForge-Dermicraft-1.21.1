@@ -20,6 +20,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
         blockWithItem(ModBlocks.INERT_TUMOR);
         blockWithItem(ModBlocks.MARRED_TUMOR);
+        blockWithItem(ModBlocks.STITCHED_TUMOR);
+
+        blockWithItem(ModBlocks.EYE_TUMOR);
+        blockWithItem(ModBlocks.MUSCLE_TUMOR);
+        blockWithItem(ModBlocks.NERVE_TUMOR);
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {

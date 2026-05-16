@@ -1,11 +1,16 @@
 {
 
-  "creativetab.dermicraft.dermicraft_blocks": "Dermicraft Items",
+  "creativetab.dermicraft.dermicraft_blocks": "Dermicraft Blocks",
+  "creativetab.dermicraft.dermicraft_items": "Dermicraft Items",
 
 
   "item.dermicraft.scalpel": "Scalpel",
+  "item.dermicraft.suture_kit": "Suture Kit",
+
+  "item.dermicraft.nutrient_slurry_bucket": "Nutrient Slurry Bucket",
 
 
+  "fluid_type.dermicraft.nutrient_slurry_fluid": "Nutrient Slurry",
 
 
   "item.dermicraft.eye": "Eye",
@@ -14,9 +19,13 @@
 
 
   "block.dermicraft.inert_tumor": "Inert Tumor",
+  "block.dermicraft.marred_tumor": "Marred Tumor",
+  "block.dermicraft.stitched_tumor": "Stitched Tumor",
 
+  "block.dermicraft.eye_tumor": "Eye Tumor",
+  "block.dermicraft.muscle_tumor": "Muscle Tumor",
+  "block.dermicraft.nerve_tumor": "Nerve Tumor",
 
-
-  "effect.fleshlabsmod.blood_let": "Blood Let",
+  "effect.dermicraft.blood_let": "Blood Let",
   "death.attack.blood_let": "%1$s starved a vampire."
 }

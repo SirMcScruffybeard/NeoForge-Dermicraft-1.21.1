@@ -21,7 +21,13 @@ public class ModTags {
     }
 
     public static class Items {
-        public static final TagKey<Item> HARVESTER = createTag("harvester");
+        public static final TagKey<Item> HARVESTERS = createTag("harvester");
+
+        public static final TagKey<Item> ANIMAL_MEATS = createTag("animal_meats");
+
+        public static final TagKey<Item> PART_ITEMS = createTag("part_items");
+
+        public static final TagKey<Item> BIOFUELS = createTag("biofuels");
 
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
@@ -29,7 +35,7 @@ public class ModTags {
     }
 
     public static class Fluids {
-
+        public static final TagKey<Fluid> BIOFUELS = createTag("biofuels");
 
         private static TagKey<Fluid> createTag(String name) {
             return FluidTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));

@@ -10,6 +10,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
 
 import java.util.function.Supplier;
@@ -32,6 +33,11 @@ public class ModCreativeModeTabs {
                         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INERT_TUMOR);
                         output.accept(ModBlocks.MARRED_TUMOR);
+                        output.accept(ModBlocks.STITCHED_TUMOR);
+
+                        output.accept(ModBlocks.EYE_TUMOR);
+                        output.accept(ModBlocks.MUSCLE_TUMOR);
+                        output.accept(ModBlocks.NERVE_TUMOR);
 
                     }).build());
 
@@ -43,12 +49,16 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.SCALPEL);
+                        output.accept(ModItems.SUTURE_KIT);
 
                         ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.EYE);
                         output.accept(ModItems.NERVE_CLUSTER);
                         output.accept(ModItems.DENSE_MUSCLE);
 
+
+                        ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModFluids.NUTRIENT_SLURRY_BUCKET);
                     }).build());
 
 

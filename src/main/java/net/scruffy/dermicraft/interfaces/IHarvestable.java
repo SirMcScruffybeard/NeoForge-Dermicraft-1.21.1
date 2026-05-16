@@ -29,6 +29,6 @@ public interface IHarvestable {
     List<ItemStack> harvest(Level level, Player player, ItemStack stack,  BlockPos pos);
 
     default boolean isHarvester(ItemStack stack) {
-        return stack.is(ModTags.Items.HARVESTER);
+        return stack.is(ModTags.Items.HARVESTERS);
     }
 }

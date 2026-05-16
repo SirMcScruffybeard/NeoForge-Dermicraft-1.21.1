@@ -1,14 +1,23 @@
 package net.scruffy.dermicraft.main;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.scruffy.dermicraft.fluid.BaseFluidType;
+import net.scruffy.dermicraft.fluid.ModFluidTypes;
+import net.scruffy.dermicraft.fluid.ModFluids;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = Dermicraft.MOD_ID, dist = Dist.CLIENT)
@@ -24,8 +33,28 @@ public class DermicraftClient {
 
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
-        // Some client setup code
-        Dermicraft.LOGGER.info("HELLO FROM CLIENT SETUP");
-        Dermicraft.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        event.enqueueWork(() -> {
+
+            renderTranslucentFluid(ModFluids.SOURCE_NUTRIENT_SLURRY.get(), ModFluids.FLOWING_NUTRIENT_SLURRY.get());
+        });
+    }
+
+    @SubscribeEvent
+    public static void onClientExtensions(RegisterClientExtensionsEvent event) {
+
+        registerFluidType(event, ModFluidTypes.NUTRIENT_SLURRY_FLUID_TYPE.get());
+    }
+
+    private static void renderTranslucentFluid(Fluid source, Fluid flow) {
+        ItemBlockRenderTypes.setRenderLayer(source, RenderType.translucent());
+        ItemBlockRenderTypes.setRenderLayer(flow, RenderType.translucent());
+
+    }
+
+    private static void registerFluidType(RegisterClientExtensionsEvent event, FluidType fluidType) {
+
+        event.registerFluidType(((BaseFluidType) fluidType).getClientFluidTypeExtensions(),
+                fluidType);
+
     }
 }

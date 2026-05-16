@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.datagen;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -18,6 +19,7 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
         handheldItem(ModItems.SCALPEL.get());
+        handheldItem(ModItems.SUTURE_KIT.get());
 
 
         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
@@ -25,5 +27,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.NERVE_CLUSTER.get());
         basicItem(ModItems.DENSE_MUSCLE.get());
 
+
+        ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
+        basicItem(ModFluids.NUTRIENT_SLURRY_BUCKET.get());
     }
 }

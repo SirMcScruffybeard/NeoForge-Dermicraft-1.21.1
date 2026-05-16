@@ -15,6 +15,8 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.effect.ModEffects;
+import net.scruffy.dermicraft.fluid.ModFluidTypes;
+import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
 import org.slf4j.Logger;
 
@@ -41,11 +43,17 @@ public class Dermicraft {
         ModCreativeModeTabs.register(modEventBus);
 
         ModItems.register(modEventBus);
+
+
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
 
 
         ModEffects.register(modEventBus);
+
+
+        ModFluidTypes.register(modEventBus);
+        ModFluids.register(modEventBus);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);

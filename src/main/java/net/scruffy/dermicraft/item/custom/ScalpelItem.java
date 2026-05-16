@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.effect.ModEffects;
 import net.scruffy.dermicraft.interfaces.IHarvestParts;
 import net.scruffy.dermicraft.main.ModDamageTypes;
@@ -51,7 +50,7 @@ public class ScalpelItem extends Item implements IHarvestParts {
         if (player == null) return InteractionResult.PASS;
 
         if (isHarvestable(context.getLevel(), context.getClickedPos())) {
-            context.getItemInHand().hurtAndBreak(getUseDurabilityDamage(), player, EquipmentSlot.MAINHAND);
+            damageTool(player, context.getItemInHand(), getTotalWear());
         }
 
         return InteractionResult.SUCCESS;
@@ -85,13 +84,13 @@ public class ScalpelItem extends Item implements IHarvestParts {
                         SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH, SoundSource.PLAYERS, 1.5F, 0.5F);
             }
 
-            stack.hurtAndBreak(getUseDurabilityDamage(), player, EquipmentSlot.MAINHAND);
+            stack.hurtAndBreak(getTotalWear(), player, EquipmentSlot.MAINHAND);
         }
 
         return stack;
     }
 
-    private int getUseDurabilityDamage() {
+    private int getTotalWear() {
         return (int) (this.getMaxDamage(new ItemStack(this)) * USE_DAMAGE_MULTIPLIER);
 
     }
