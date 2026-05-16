@@ -6,7 +6,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.ScalpelItem;
-import net.scruffy.dermicraft.item.custom.base.SutureKitItem;
+import net.scruffy.dermicraft.item.custom.SutureKitItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItems {
@@ -22,6 +22,8 @@ public class ModItems {
 
     public static final DeferredItem<Item> SUTURE_KIT = ITEMS.register("suture_kit",
             () -> new SutureKitItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> FORCEPS = ITEMS.register("forceps", ForcepsItem::new);
 
 
 

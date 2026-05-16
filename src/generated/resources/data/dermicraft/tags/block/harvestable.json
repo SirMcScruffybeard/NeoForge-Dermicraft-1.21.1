@@ -1,5 +1,8 @@
 {
   "values": [
-    "dermicraft:inert_tumor"
+    "dermicraft:inert_tumor",
+    "dermicraft:eye_tumor",
+    "dermicraft:muscle_tumor",
+    "dermicraft:nerve_tumor"
   ]
 }

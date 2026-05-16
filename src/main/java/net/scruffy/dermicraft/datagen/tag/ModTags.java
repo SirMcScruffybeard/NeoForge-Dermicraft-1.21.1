@@ -13,7 +13,13 @@ import net.scruffy.dermicraft.main.Dermicraft;
 public class ModTags {
 
     public static class Blocks {
+
+        public static final TagKey<Block> TUMORS = createTag("tumors");
+
         public static final TagKey<Block> HARVESTABLE = createTag("harvestable");
+
+        public static final TagKey<Block>  COLLECTIBLE = createTag("collectible");
+
 
         private static TagKey<Block> createTag(String name) {
             return BlockTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));

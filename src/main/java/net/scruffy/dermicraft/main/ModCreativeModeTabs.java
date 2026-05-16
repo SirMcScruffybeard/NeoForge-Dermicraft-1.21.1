@@ -50,6 +50,7 @@ public class ModCreativeModeTabs {
                         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.SCALPEL);
                         output.accept(ModItems.SUTURE_KIT);
+                        output.accept(ModItems.FORCEPS);
 
                         ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.EYE);
