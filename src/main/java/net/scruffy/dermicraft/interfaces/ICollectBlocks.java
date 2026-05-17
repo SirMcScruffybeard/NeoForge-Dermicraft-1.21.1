@@ -31,12 +31,12 @@ public interface ICollectBlocks {
         return new ItemStack(level.getBlockState(pos).getBlock().asItem());
     }
 
-    default void playPickupSound(Level level, BlockPos pos, SoundEvent sound) {
-        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 0.5F);
+    default void playPickupSound(Level level, BlockPos pos, SoundEvent sound, float volume, float pitch) {
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, volume, pitch);
     }
 
     default void playDefaultPickupSound(Level level, BlockPos pos) {
-        playPickupSound(level, pos, SoundEvents.SCULK_BLOCK_BREAK);
+        playPickupSound(level, pos, SoundEvents.SCULK_BLOCK_BREAK, 1f, 05f);
     }
 
 }

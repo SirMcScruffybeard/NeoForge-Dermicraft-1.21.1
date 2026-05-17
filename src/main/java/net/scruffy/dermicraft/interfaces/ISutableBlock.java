@@ -1,6 +1,7 @@
 package net.scruffy.dermicraft.interfaces;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -19,12 +20,18 @@ public interface ISutableBlock {
         return stack.is(ModTags.Items.SUTURE_TOOLS);
     }
 
-    default void playSutureSound(Level level, Player player) {
-        level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.LEASH_KNOT_PLACE, SoundSource.PLAYERS, 1.0F, 0.8F);
-    }
-
     default void setState(Level level, BlockPos pos, BlockState targetState) {
         level.setBlock(pos, targetState, 3);
     }
+
+    default void playSutureSound(Level level, Player player, SoundEvent sound, float volume, float pitch) {
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                sound, SoundSource.PLAYERS, volume, pitch);
+    }
+
+    default void playDefaultSutureSound(Level level, Player player) {
+        playSutureSound(level, player, SoundEvents.LEASH_KNOT_PLACE, 1f, 0.8f);
+    }
+
+
 }

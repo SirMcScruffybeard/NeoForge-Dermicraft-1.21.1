@@ -39,7 +39,7 @@ public class MarredTumorBlock extends TumorBlock implements ISutableBlock {
     @Override
     public void suture(Level level, Player player, BlockPos pos) {
         changeState(level, pos, ModBlocks.STITCHED_TUMOR.get());
-        playSutureSound(level, player);
+        playDefaultSutureSound(level, player);
     }
 
     @Override

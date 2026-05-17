@@ -1,5 +1,6 @@
 package net.scruffy.dermicraft.interfaces;
 
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -57,8 +58,12 @@ public interface ISuture {
         return consumeItem(player, Tags.Items.STRINGS);
     }
 
-    default void playDefaultSutureSound(Level level, Player player) {
+    default void playSutureSound(Level level, Player player, SoundEvent sound, float volume, float pitch) {
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.LEASH_KNOT_PLACE, SoundSource.PLAYERS, 1.0F, 0.8F);
+                sound, SoundSource.PLAYERS, volume, pitch);
+    }
+
+    default void playDefaultSutureSound(Level level, Player player) {
+        playSutureSound(level, player, SoundEvents.LEASH_KNOT_PLACE, 1f, 0.8f);
     }
 }
