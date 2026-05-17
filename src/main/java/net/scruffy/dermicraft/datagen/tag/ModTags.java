@@ -20,6 +20,8 @@ public class ModTags {
 
         public static final TagKey<Block>  COLLECTIBLE = createTag("collectible");
 
+        public static final TagKey<Block> SUTABLE = createTag("sutable");
+
 
         private static TagKey<Block> createTag(String name) {
             return BlockTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
@@ -27,7 +29,8 @@ public class ModTags {
     }
 
     public static class Items {
-        public static final TagKey<Item> HARVESTERS = createTag("harvester");
+        public static final TagKey<Item> HARVEST_TOOLS = createTag("harvest_tools");
+        public static final TagKey<Item> SUTURE_TOOLS = createTag("suture_tools");
 
         public static final TagKey<Item> ANIMAL_MEATS = createTag("animal_meats");
 

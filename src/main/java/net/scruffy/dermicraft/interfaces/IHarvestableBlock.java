@@ -9,7 +9,7 @@ import net.scruffy.dermicraft.datagen.tag.ModTags;
 
 import java.util.List;
 
-public interface IHarvestable {
+public interface IHarvestableBlock {
 
     /********************************************************************************
      * Handles the transition from the whole state to the harvested/marred state.
@@ -29,6 +29,6 @@ public interface IHarvestable {
     List<ItemStack> harvest(Level level, Player player, ItemStack stack,  BlockPos pos);
 
     default boolean isHarvester(ItemStack stack) {
-        return stack.is(ModTags.Items.HARVESTERS);
+        return stack.is(ModTags.Items.HARVEST_TOOLS);
     }
 }

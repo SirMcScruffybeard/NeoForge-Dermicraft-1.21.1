@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.item;
+package net.scruffy.dermicraft.item.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
@@ -17,10 +17,10 @@ public class ForcepsItem extends ToolItem implements ICollectBlocks {
     @Override
     public InteractionResult useOn(UseOnContext context) {
 
-        Level level=  context.getLevel();
-        if(level.isClientSide) return InteractionResult.SUCCESS;
+        Level level = context.getLevel();
+        if (level.isClientSide) return InteractionResult.SUCCESS;
 
-        if(canCollect(level, context.getClickedPos())) {
+        if (canCollect(level, context.getClickedPos())) {
             collect(level, context.getClickedPos(), context.getPlayer());
         }
 

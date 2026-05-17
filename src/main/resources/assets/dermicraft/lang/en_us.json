@@ -6,6 +6,7 @@
 
   "item.dermicraft.scalpel": "Scalpel",
   "item.dermicraft.suture_kit": "Suture Kit",
+  "item.dermicraft.forceps": "Forceps",
 
   "item.dermicraft.nutrient_slurry_bucket": "Nutrient Slurry Bucket",
 
@@ -27,5 +28,8 @@
   "block.dermicraft.nerve_tumor": "Nerve Tumor",
 
   "effect.dermicraft.blood_let": "Blood Let",
-  "death.attack.blood_let": "%1$s starved a vampire."
+  "death.attack.blood_let": "%1$s starved a vampire.",
+
+  "effect.fleshlabsmod.sutured": "Sutured",
+  "death.attack.rip_stitches": "%1$s couldn't keep it together."
 }

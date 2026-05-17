@@ -4,6 +4,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.scruffy.dermicraft.item.custom.ForcepsItem;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.item.custom.SutureKitItem;

@@ -17,4 +17,7 @@ public class ModEffects {
 
     public static final Holder<MobEffect> BLOOD_LET = MOB_EFFECTS.register("blood_let",
             BloodLet::new);
+
+    public static final Holder<MobEffect> SUTURED = MOB_EFFECTS.register("sutured",
+            SuturedEffect::new);
 }

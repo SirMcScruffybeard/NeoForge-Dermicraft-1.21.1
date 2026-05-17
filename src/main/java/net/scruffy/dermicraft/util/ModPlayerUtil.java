@@ -32,4 +32,8 @@ public class ModPlayerUtil {
     public static void giveDrops(Level level, Player player, BlockPos pos, BlockState state, ItemStack tool) {
         ModItemUtil.giveDrops(level, player, pos, state, tool);
     }
+
+    public static boolean isFullHealth(Player player) {
+        return (player.getHealth() >= player.getMaxHealth());
+    }
 }

@@ -36,7 +36,12 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         ;
 
         tag(ModTags.Blocks.COLLECTIBLE)
-                .addTag(ModTags.Blocks.TUMORS);
+                .addTag(ModTags.Blocks.TUMORS)
+
+        ;
+
+        tag(ModTags.Blocks.SUTABLE)
+                .add(ModBlocks.MARRED_TUMOR.get());
 
     }
 }

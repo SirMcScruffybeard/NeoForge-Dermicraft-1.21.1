@@ -9,11 +9,10 @@ import net.minecraft.world.level.Level;
 
 public class ModDamageTypes {
 
-
-
-
-
     public static final ResourceKey<DamageType> BLOOD_LET = registerDamage("blood_let");
+
+    public static final ResourceKey<DamageType> RIP_STITCHES = registerDamage("rip_stitches");
+
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
     public static ResourceKey<DamageType> registerDamage(String name) {

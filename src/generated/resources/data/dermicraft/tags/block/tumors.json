@@ -1,0 +1,10 @@
+{
+  "values": [
+    "dermicraft:inert_tumor",
+    "dermicraft:marred_tumor",
+    "dermicraft:stitched_tumor",
+    "dermicraft:eye_tumor",
+    "dermicraft:muscle_tumor",
+    "dermicraft:nerve_tumor"
+  ]
+}

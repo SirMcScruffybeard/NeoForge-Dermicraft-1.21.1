@@ -13,11 +13,11 @@ public class BloodLet extends MobEffect {
         super(MobEffectCategory.HARMFUL, 0xFF4500);
 
         addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "sutured_slowness"),
+                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "blood_let_slowness"),
                 -.03, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
 
         addAttributeModifier(Attributes.JUMP_STRENGTH,
-                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "sutured_jump_penalty"),
+                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "blood_let_jump_penalty"),
                 -.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     }
 

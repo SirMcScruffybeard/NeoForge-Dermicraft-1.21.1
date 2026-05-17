@@ -15,14 +15,14 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.scruffy.dermicraft.block.ModBlocks;
-import net.scruffy.dermicraft.interfaces.IHarvestable;
+import net.scruffy.dermicraft.interfaces.IHarvestableBlock;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.util.ModItemUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InertTumorBlock extends TumorBlock implements IHarvestable {
+public class InertTumorBlock extends TumorBlock implements IHarvestableBlock {
     public InertTumorBlock() {
         super(BlockBehaviour.Properties.of().ignitedByLava()
                 .strength(.05f)

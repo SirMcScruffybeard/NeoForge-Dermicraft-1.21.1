@@ -5,8 +5,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -15,12 +13,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.scruffy.dermicraft.effect.ModEffects;
+import net.scruffy.dermicraft.interfaces.IBloodLet;
 import net.scruffy.dermicraft.interfaces.IHarvestParts;
-import net.scruffy.dermicraft.main.ModDamageTypes;
 import org.jetbrains.annotations.NotNull;
 
-public class ScalpelItem extends Item implements IHarvestParts {
+public class ScalpelItem extends Item implements IHarvestParts, IBloodLet {
 
     private static final int DEFAULT_DURABILITY = 100;
     private static final float USE_DAMAGE_MULTIPLIER = .1f;
@@ -44,8 +41,37 @@ public class ScalpelItem extends Item implements IHarvestParts {
     }
 
     @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+
+        player.startUsingItem(usedHand);
+
+        return InteractionResultHolder.sidedSuccess(player.getItemInHand(usedHand), level.isClientSide);
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+
+        if (level.isClientSide) return stack;
+
+        if (livingEntity instanceof Player player) {
+            if (hasPosion(player)) {
+                removePoison(player);
+            }
+            applyBloodLetDamage(player, 2f);
+
+            applyBloodLetEffect(player, 100, 0);
+
+            playDefaultBloodLetSound(level, player);
+
+            damageTool(stack, player, getTotalWear());
+        }
+
+        return stack;
+    }
+
+    @Override
     public InteractionResult useOn(UseOnContext context) {
-        if(context.getLevel().isClientSide) return InteractionResult.SUCCESS;
+        if (context.getLevel().isClientSide) return InteractionResult.SUCCESS;
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
 
@@ -54,40 +80,6 @@ public class ScalpelItem extends Item implements IHarvestParts {
         }
 
         return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
-        ItemStack stack = player.getItemInHand(usedHand);
-
-        if(!level.isClientSide) return InteractionResultHolder.success(stack);
-
-        player.startUsingItem(usedHand);
-
-        return InteractionResultHolder.success(stack);
-    }
-
-    @Override
-    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
-        if(level.isClientSide) return stack;
-
-        if (livingEntity instanceof Player player) {
-            if (player.isCrouching()) {
-                if (player.hasEffect(MobEffects.POISON)) {
-                    player.removeEffect(MobEffects.POISON);
-                }
-                player.hurt(ModDamageTypes.getSource(player.level(), ModDamageTypes.BLOOD_LET), 2f);
-
-                player.addEffect(new MobEffectInstance(ModEffects.BLOOD_LET,100, 0));
-
-                level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                        SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH, SoundSource.PLAYERS, 1.5F, 0.5F);
-            }
-
-            stack.hurtAndBreak(getTotalWear(), player, EquipmentSlot.MAINHAND);
-        }
-
-        return stack;
     }
 
     private int getTotalWear() {

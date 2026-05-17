@@ -22,8 +22,12 @@ public class ModItemTagProvider extends ItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
 
-        tag(ModTags.Items.HARVESTERS)
-                .add(ModItems.SCALPEL.get());
+        tag(ModTags.Items.HARVEST_TOOLS)
+                .add(ModItems.SCALPEL.get())
+        ;
+
+        tag(ModTags.Items.SUTURE_TOOLS)
+                .add(ModItems.SUTURE_KIT.get());
 
         tag(ModTags.Items.ANIMAL_MEATS)
                 .addTag(Tags.Items.FOODS_RAW_MEAT)
