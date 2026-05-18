@@ -54,7 +54,8 @@ public class ModClientEvents {
     }
 
     private static int getLavaTint(){
-        return 0xFFD45400;
+       // return 0xFFD45400; //Used with grayscale backing
+        return getDefaultTint();
     }
 
 }

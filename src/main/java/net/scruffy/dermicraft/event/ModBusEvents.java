@@ -13,7 +13,7 @@ public class ModBusEvents {
     @SubscribeEvent
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 
-        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new SyringeItem.SyringeFluidHandler(stack), ModItems.SYRINGE);
+       // event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new SyringeItem.SyringeFluidHandler(stack), ModItems.SYRINGE);
 
 
     }

@@ -4,11 +4,8 @@
     "layer0": "dermicraft:item/syringe/syringe"
   },
   "overrides": [
-    {
-      "predicate": {
-        "dermicraft:full": 1.0
-      },
-      "model": "dermicraft:item/syringe_full"
-    }
+    {"predicate": {"dermicraft:full": 1.0}, "model": "dermicraft:item/syringe_thin_fluid"},
+    {"predicate": {"dermicraft:full": 2.0}, "model": "dermicraft:item/syringe_thick_fluid"},
+    {"predicate": {"dermicraft:full": 3.0}, "model": "dermicraft:item/syringe_lava"}
   ]
 }

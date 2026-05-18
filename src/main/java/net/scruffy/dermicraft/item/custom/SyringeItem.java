@@ -30,6 +30,7 @@ public class SyringeItem extends ToolItem implements IInject{
         return super.getName(stack);
     }
 
+    //Currently not in use. Keeping for example and in case I decide to use again
     public static class SyringeFluidHandler implements IFluidHandlerItem {
 
         protected ItemStack container;
