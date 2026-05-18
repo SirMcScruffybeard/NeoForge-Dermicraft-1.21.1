@@ -29,6 +29,11 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.SUTURE_TOOLS)
                 .add(ModItems.SUTURE_KIT.get());
 
+        tag(ModTags.Items.INJECTION_TOOLS)
+                .add(ModItems.SYRINGE.get())
+
+        ;
+
         tag(ModTags.Items.ANIMAL_MEATS)
                 .addTag(Tags.Items.FOODS_RAW_MEAT)
                 .add(Items.ROTTEN_FLESH)

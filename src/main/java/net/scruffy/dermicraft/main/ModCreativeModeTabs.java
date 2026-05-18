@@ -6,12 +6,14 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.util.ModItemUtil;
 
 import java.util.function.Supplier;
 
@@ -52,6 +54,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SUTURE_KIT);
                         output.accept(ModItems.FORCEPS);
 
+                        buildSyringeContents(output);
+
                         ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.EYE);
                         output.accept(ModItems.NERVE_CLUSTER);
@@ -63,12 +67,12 @@ public class ModCreativeModeTabs {
                     }).build());
 
 
-
-
-
-
-
-
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
+    private static void buildSyringeContents(CreativeModeTab.Output output) {
+        output.accept(ModItems.SYRINGE.get());
 
+        output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
+        output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
+        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_NUTRIENT_SLURRY.get()));
+    }
 }

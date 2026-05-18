@@ -14,6 +14,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.effect.ModEffects;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.fluid.ModFluids;
@@ -48,6 +49,7 @@ public class Dermicraft {
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
 
+        ModDataComponentTypes.register(modEventBus);
 
         ModEffects.register(modEventBus);
 

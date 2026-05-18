@@ -5,6 +5,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.item.custom.ForcepsItem;
+import net.scruffy.dermicraft.item.custom.SyringeItem;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.item.custom.SutureKitItem;
@@ -18,15 +19,10 @@ public class ModItems {
 
 
     ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
-    public static final DeferredItem<Item> SCALPEL = ITEMS.register("scalpel",
-            () -> new ScalpelItem(new Item.Properties()));
-
-    public static final DeferredItem<Item> SUTURE_KIT = ITEMS.register("suture_kit",
-            () -> new SutureKitItem(new Item.Properties()));
-
     public static final DeferredItem<Item> FORCEPS = ITEMS.register("forceps", ForcepsItem::new);
-
-
+    public static final DeferredItem<Item> SCALPEL = ITEMS.register("scalpel", ScalpelItem::new);
+    public static final DeferredItem<Item> SUTURE_KIT = ITEMS.register("suture_kit", SutureKitItem::new);
+    public static final DeferredItem<Item> SYRINGE = ITEMS.register("syringe", SyringeItem::new);
 
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\

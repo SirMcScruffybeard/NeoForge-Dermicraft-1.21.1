@@ -7,6 +7,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.SyringeItem;
 
 import java.util.List;
 
@@ -36,5 +41,11 @@ public class ModItemUtil {
         List<ItemStack> drops = Block.getDrops(state, (ServerLevel) level, pos, level.getBlockEntity(pos), player, tool);
 
         giveItems(player, drops);
+    }
+
+    public static ItemStack buildSyringeStack(Fluid fluid) {
+        ItemStack stack = new ItemStack(ModItems.SYRINGE.get());
+        stack.set(ModDataComponentTypes.FLUID_DATA.get(), FluidData.createData(fluid, SyringeItem.CAPACITY));
+        return stack;
     }
 }

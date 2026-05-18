@@ -19,8 +19,8 @@ public class ModTags {
         public static final TagKey<Block> HARVESTABLE = createTag("harvestable");
 
         public static final TagKey<Block>  COLLECTIBLE = createTag("collectible");
-
         public static final TagKey<Block> SUTABLE = createTag("sutable");
+        public static final TagKey<Block> INJECTABLE = createTag("injectable");
 
 
         private static TagKey<Block> createTag(String name) {
@@ -31,6 +31,7 @@ public class ModTags {
     public static class Items {
         public static final TagKey<Item> HARVEST_TOOLS = createTag("harvest_tools");
         public static final TagKey<Item> SUTURE_TOOLS = createTag("suture_tools");
+        public static final TagKey<Item> INJECTION_TOOLS = createTag("injection_tools");
 
         public static final TagKey<Item> ANIMAL_MEATS = createTag("animal_meats");
 

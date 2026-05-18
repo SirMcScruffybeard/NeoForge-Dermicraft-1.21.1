@@ -18,6 +18,7 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.fluid.ModFluids;
+import net.scruffy.dermicraft.item.property.ModItemProperties;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = Dermicraft.MOD_ID, dist = Dist.CLIENT)
@@ -34,6 +35,7 @@ public class DermicraftClient {
     @SubscribeEvent
     static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            ModItemProperties.addCustomItemProperties();
 
             renderTranslucentFluid(ModFluids.SOURCE_NUTRIENT_SLURRY.get(), ModFluids.FLOWING_NUTRIENT_SLURRY.get());
         });

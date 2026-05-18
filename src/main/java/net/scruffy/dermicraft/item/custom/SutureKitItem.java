@@ -5,6 +5,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
@@ -14,9 +15,13 @@ import net.scruffy.dermicraft.item.custom.base.ToolItem;
 import net.scruffy.dermicraft.util.ModMath;
 
 public class SutureKitItem extends ToolItem implements ISuture {
-    public SutureKitItem(Properties properties) {
-        super(properties
-                .durability(100));
+
+    private static final int DEFAULT_DURABILITY = 100;
+    private static final float USE_DAMAGE_MODIFIER = .1f;
+
+    public SutureKitItem() {
+        super(new Item.Properties()
+                .durability(DEFAULT_DURABILITY));
     }
 
     @Override
@@ -73,7 +78,7 @@ public class SutureKitItem extends ToolItem implements ISuture {
         ItemStack stack = player.getItemInHand(player.getUsedItemHand());
         //Try to consume string in player inventory. If not damage Suture Kit
         if (!consumeString(player)) {
-            stack.hurtAndBreak(20, player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
+            stack.hurtAndBreak(getTotalWear(USE_DAMAGE_MODIFIER), player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
         }
     }
 

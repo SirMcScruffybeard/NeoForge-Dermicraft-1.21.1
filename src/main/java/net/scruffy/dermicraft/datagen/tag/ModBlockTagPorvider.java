@@ -26,7 +26,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.MUSCLE_TUMOR.get())
                 .add(ModBlocks.NERVE_TUMOR.get())
 
-                ;
+        ;
 
         tag(ModTags.Blocks.HARVESTABLE)
                 .add(ModBlocks.INERT_TUMOR.get())
@@ -42,6 +42,11 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         tag(ModTags.Blocks.SUTABLE)
                 .add(ModBlocks.MARRED_TUMOR.get());
+
+        tag(ModTags.Blocks.INJECTABLE)
+                .add(ModBlocks.STITCHED_TUMOR.get())
+
+        ;
 
     }
 }
