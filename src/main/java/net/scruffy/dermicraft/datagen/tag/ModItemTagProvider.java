@@ -39,6 +39,13 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(Items.ROTTEN_FLESH)
         ;
 
+        tag(ModTags.Items.PLANT_FOOD)
+                .addTag(Tags.Items.FOODS_BREAD)
+                .addTag(Tags.Items.FOODS_FRUIT)
+                .addTag(Tags.Items.FOODS_BERRY)
+                .addTag(Tags.Items.FOODS_VEGETABLE)
+        ;
+
         tag(ModTags.Items.PART_ITEMS)
                 .add(ModItems.EYE.get())
                 .add(ModItems.DENSE_MUSCLE.get())
@@ -48,7 +55,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.BIOFUELS)
                 .add(ModFluids.NUTRIENT_SLURRY_BUCKET.get())
 
-                ;
+        ;
 
     }
 }

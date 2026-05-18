@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "dermicraft:plant_food"
+    },
+    {
+      "tag": "dermicraft:plant_food"
+    },
+    {
+      "tag": "dermicraft:plant_food"
+    },
+    {
+      "tag": "c:buckets/water"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:nutrient_slurry_bucket"
+  }
+}

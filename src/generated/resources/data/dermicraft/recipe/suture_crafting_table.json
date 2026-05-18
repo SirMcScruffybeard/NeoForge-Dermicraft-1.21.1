@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": {
+      "tag": "c:nuggets/iron"
+    },
+    "S": {
+      "tag": "c:strings"
+    }
+  },
+  "pattern": [
+    "SS ",
+    "SI ",
+    "ISI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:suture_kit"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "N": {
+      "tag": "c:nuggets/iron"
+    }
+  },
+  "pattern": [
+    "I I",
+    " N ",
+    "I I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:forceps"
+  }
+}

@@ -35,6 +35,9 @@ public class ModTags {
 
         public static final TagKey<Item> ANIMAL_MEATS = createTag("animal_meats");
 
+
+        public static final TagKey<Item> PLANT_FOOD = createTag("plant_food");
+
         public static final TagKey<Item> PART_ITEMS = createTag("part_items");
 
         public static final TagKey<Item> BIOFUELS = createTag("biofuels");
