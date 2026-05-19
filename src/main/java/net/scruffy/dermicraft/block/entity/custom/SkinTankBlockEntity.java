@@ -29,6 +29,7 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.IFleshBlockEntity;
 import net.scruffy.dermicraft.interfaces.IHaveTank;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.Nullable;
 
@@ -76,6 +77,10 @@ public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IF
         return TANK;
     }
 
+    public IFluidHandler getTank() {
+        return getTank(null);
+    }
+
     IItemHandler getItemHandler(@Nullable Direction face) {
         return INVENTORY;
     }
@@ -84,8 +89,8 @@ public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IF
         drops(level, INVENTORY, worldPosition);
     }
 
-    public void tick(Level level, BlockPos pos, BlockState state) {
-        if (!level.isClientSide) {
+    public void tick(Level sLevel, BlockPos blockPos, BlockState blockState) {
+        if (!sLevel.isClientSide) {
             if (hasFluidHandlerInSlot(INVENTORY, INPUT)) {
                 transferFluidToTank(INVENTORY, INPUT, TANK);
             }
@@ -105,8 +110,8 @@ public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IF
     }
 
     @Override
-    public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return ;
+    public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        return new SkinTankMenu(containerId, inventory, this);
     }
 
     @Override

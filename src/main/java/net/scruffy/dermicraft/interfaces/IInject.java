@@ -38,5 +38,7 @@ public interface IInject {
         return fluidStack.getAmount() == amount;
     }
 
-
+    default boolean isServerSide(Level level) {
+        return !level.isClientSide;
+    }
 }

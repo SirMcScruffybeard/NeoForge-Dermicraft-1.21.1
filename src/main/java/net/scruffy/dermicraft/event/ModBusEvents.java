@@ -4,6 +4,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.SyringeItem;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -14,7 +16,7 @@ public class ModBusEvents {
     public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 
        // event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new SyringeItem.SyringeFluidHandler(stack), ModItems.SYRINGE);
-
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntity::getTank);
 
     }
 

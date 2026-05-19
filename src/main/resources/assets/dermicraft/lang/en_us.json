@@ -36,5 +36,10 @@
   "death.attack.blood_let": "%1$s starved a vampire.",
 
   "effect.fleshlabsmod.sutured": "Sutured",
-  "death.attack.rip_stitches": "%1$s couldn't keep it together."
+  "death.attack.rip_stitches": "%1$s couldn't keep it together.",
+
+
+
+  "tooltip.fleshlabsmod.liquid.amount.with.capacity": "%s / %s mB",
+  "tooltip.fleshlabsmod.liquid.amount": "%s mB"
 }

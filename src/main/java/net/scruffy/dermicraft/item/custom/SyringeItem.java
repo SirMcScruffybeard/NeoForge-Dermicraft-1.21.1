@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -38,19 +39,26 @@ public class SyringeItem extends ToolItem implements IInject {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        return super.useOn(context);
-    }
-
-    private void draw(UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         Direction face = context.getClickedFace();
+        Player player = context.getPlayer();
+
+        if (isServerSide(level)) {
+            if (isValidFluidHandler(getTargetFluidHandler(level, pos, face))) {
+                draw(level, pos, face, player);
+            }
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    private void draw(Level level, BlockPos pos, Direction face, Player player) {
         IFluidHandler handler = getTargetFluidHandler(level, pos, face);
 
-        if (!level.isClientSide) {
+        if (isServerSide(level)) {
             if (isValidFluidHandler(handler)) {
                 if (targetHasEnough(CAPACITY, handler)) {
-                    ItemStack stack = context.getPlayer().getItemInHand(context.getHand());
+                    ItemStack stack = player.getItemInHand(player.getUsedItemHand());
                     FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
                     if (data.isFluidEmpty()) {
                         stack.set(getDataType(), FluidData.createData(handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE)));
@@ -58,7 +66,6 @@ public class SyringeItem extends ToolItem implements IInject {
                 }
             }
         }
-
     }
 
     private void inject(UseOnContext context) {
