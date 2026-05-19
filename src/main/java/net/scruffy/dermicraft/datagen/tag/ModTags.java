@@ -50,6 +50,8 @@ public class ModTags {
     public static class Fluids {
         public static final TagKey<Fluid> BIOFUELS = createTag("biofuels");
 
+        public static final TagKey<Fluid> HAZARDOUS = createTag("hazardous");
+
         private static TagKey<Fluid> createTag(String name) {
             return FluidTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

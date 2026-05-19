@@ -4,8 +4,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -31,6 +29,11 @@ public class ModFluidTagProvider extends FluidTagsProvider {
 
         tag(ModTags.Fluids.BIOFUELS)
                 .add(ModFluids.SOURCE_NUTRIENT_SLURRY.get())
+        ;
+
+        tag(ModTags.Fluids.HAZARDOUS)
+                .addTag(FluidTags.LAVA)
+
         ;
     }
 

@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.scruffy.dermicraft.block.custom.SkinTankBlock;
 import net.scruffy.dermicraft.block.custom.tumor.*;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -21,14 +22,17 @@ public class ModBlocks {
 
     ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
     public static final DeferredBlock<Block> INERT_TUMOR = registerBlock("inert_tumor", InertTumorBlock::new);
-
-    public static final DeferredBlock<Block> MARRED_TUMOR = registerBlock("marred_tumor", MarredTumorBlock::new);
-
-    public static final DeferredBlock<Block> STITCHED_TUMOR = registerBlock("stitched_tumor", StitchedTumor::new);
+    public static final DeferredBlock<Block> MARRED_TUMOR = registerBlock("marred_tumor",
+            () -> new MarredTumorBlock(BlockBehaviour.Properties.of()));
+    public static final DeferredBlock<Block> STITCHED_TUMOR = registerBlock("stitched_tumor",
+            () -> new StitchedTumorBlock(BlockBehaviour.Properties.of()));
 
     public static final DeferredBlock<Block> EYE_TUMOR = registerBlock("eye_tumor", EyeTumorBlock::new);
     public static final DeferredBlock<Block> MUSCLE_TUMOR = registerBlock("muscle_tumor", MuscleTumorBlock::new);
     public static final DeferredBlock<Block> NERVE_TUMOR = registerBlock("nerve_tumor", NerveTumorBlock::new);
+
+    public static final DeferredBlock<Block> SKIN_TANK = registerBlock("skin_tank",
+            () -> new SkinTankBlock(BlockBehaviour.Properties.of()));
 
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\

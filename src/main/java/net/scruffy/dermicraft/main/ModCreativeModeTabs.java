@@ -41,6 +41,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.MUSCLE_TUMOR);
                         output.accept(ModBlocks.NERVE_TUMOR);
 
+                        ////////////////////Machines and Tanks\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.SKIN_TANK);
+
                     }).build());
 
         public static final Supplier<CreativeModeTab> DERMICRAFT_ITEMS_TAB = CREATIVE_MODE_TAB.register(Dermicraft.MOD_ID +"_items_tab",

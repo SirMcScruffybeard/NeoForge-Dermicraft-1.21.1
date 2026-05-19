@@ -25,9 +25,21 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.EYE_TUMOR);
         blockWithItem(ModBlocks.MUSCLE_TUMOR);
         blockWithItem(ModBlocks.NERVE_TUMOR);
+
+        blockWithItemWithRenderTypeWithSideAndEnds("skin_tank", ModBlocks.SKIN_TANK, "translucent");
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {
         simpleBlockWithItem(deferredBlock.get(), cubeAll(deferredBlock.get()));
     }
+
+    private void blockWithItemWithRenderTypeWithSideAndEnds(String name, DeferredBlock<Block> block, String renderType) {
+        simpleBlockWithItem(block.get(), models().cubeBottomTop(block.getId().getPath(),
+                        modLoc("block/" + name + "_side"),
+                        modLoc("block/" + name + "_end"),
+                        modLoc("block/" + name + "_end"))
+                .renderType(renderType));
+    }
+
+
 }

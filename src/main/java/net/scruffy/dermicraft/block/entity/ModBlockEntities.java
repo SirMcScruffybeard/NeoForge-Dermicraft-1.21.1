@@ -4,7 +4,11 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
+
+import java.util.function.Supplier;
 
 public class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
@@ -12,6 +16,10 @@ public class ModBlockEntities {
     public static void register(IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }
+
+    public static final Supplier<BlockEntityType<SkinTankBlockEntity>> SKIN_TANK_BE =
+            BLOCK_ENTITIES.register("skin_tank_be", () -> BlockEntityType.Builder.of(
+                    SkinTankBlockEntity::new, ModBlocks.SKIN_TANK.get()).build(null));
 
 
 }

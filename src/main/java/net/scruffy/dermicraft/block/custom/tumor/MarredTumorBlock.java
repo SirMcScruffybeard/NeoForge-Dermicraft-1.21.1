@@ -16,8 +16,8 @@ import net.scruffy.dermicraft.interfaces.ISutableBlock;
 
 public class MarredTumorBlock extends TumorBlock implements ISutableBlock {
 
-    public MarredTumorBlock() {
-        super(BlockBehaviour.Properties.of()
+    public MarredTumorBlock(Properties properties) {
+        super(properties
                 .strength(.02f)
                 .explosionResistance(5f)
                 .sound(SoundType.SLIME_BLOCK)

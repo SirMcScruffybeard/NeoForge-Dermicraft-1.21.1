@@ -1,10 +1,16 @@
 package net.scruffy.dermicraft.item.custom;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
@@ -12,7 +18,7 @@ import net.scruffy.dermicraft.interfaces.IInject;
 import net.scruffy.dermicraft.item.custom.base.ToolItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
-public class SyringeItem extends ToolItem implements IInject{
+public class SyringeItem extends ToolItem implements IInject {
 
     public static final int CAPACITY = 100;
 
@@ -24,11 +30,52 @@ public class SyringeItem extends ToolItem implements IInject{
     public Component getName(ItemStack stack) {
         FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
         if (!data.isFluidEmpty()) {
-           //Return "Syringe with + fluid name
-           return Component.translatable("item." + Dermicraft.MOD_ID + "syringe.filled", data.getFluidString());
+            //Return "Syringe with + fluid name
+            return Component.translatable("item." + Dermicraft.MOD_ID + ".syringe.filled", data.getFluidString());
         }
         return super.getName(stack);
     }
+
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        return super.useOn(context);
+    }
+
+    private void draw(UseOnContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        Direction face = context.getClickedFace();
+        IFluidHandler handler = getTargetFluidHandler(level, pos, face);
+
+        if (!level.isClientSide) {
+            if (isValidFluidHandler(handler)) {
+                if (targetHasEnough(CAPACITY, handler)) {
+                    ItemStack stack = context.getPlayer().getItemInHand(context.getHand());
+                    FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+                    if (data.isFluidEmpty()) {
+                        stack.set(getDataType(), FluidData.createData(handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE)));
+                    }
+                }
+            }
+        }
+
+    }
+
+    private void inject(UseOnContext context) {
+        Level level = context.getLevel();
+
+        if (!level.isClientSide) {
+
+        }
+    }
+    /*
+
+   Inject
+    get target block
+    check valid block
+    inject
+    drain syringe
+     */
 
     //Currently not in use. Keeping for example and in case I decide to use again
     public static class SyringeFluidHandler implements IFluidHandlerItem {
