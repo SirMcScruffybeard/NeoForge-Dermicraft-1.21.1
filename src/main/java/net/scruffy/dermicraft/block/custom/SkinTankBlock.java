@@ -20,6 +20,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SkinTankBlock extends BaseEntityBlock {
@@ -27,7 +28,7 @@ public class SkinTankBlock extends BaseEntityBlock {
     public static final MapCodec<SkinTankBlock> CODEC = simpleCodec(SkinTankBlock::new);
 
     public SkinTankBlock(Properties properties) {
-        super(BlockBehaviour.Properties.of()
+        super(properties
                 .noLootTable()
                 .noOcclusion()
                 .ignitedByLava()
@@ -52,25 +53,24 @@ public class SkinTankBlock extends BaseEntityBlock {
     @Override
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         if (pState.getBlock() != pNewState.getBlock()) {
-            BlockEntity blockEntity = pLevel.getBlockEntity(pPos);
-            if (blockEntity instanceof SkinTankBlockEntity tankBlockEntity) {
+            if (pLevel.getBlockEntity(pPos) instanceof SkinTankBlockEntity tankBlockEntity) {
                 tankBlockEntity.drops();
             }
         }
-
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 
+    @NotNull
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
-                                              Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected  ItemInteractionResult useItemOn (
+            ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof SkinTankBlockEntity tankBlockEntity) {
             FluidUtil.interactWithFluidHandler(player, hand, tankBlockEntity.getTank(null));
-            //player.openMenu(new SimpleMenuProvider(tankBlockEntity, Component.literal("Tank")), pos);
+            player.openMenu(new SimpleMenuProvider(tankBlockEntity, Component.literal("Tank")), pos);
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
@@ -83,7 +83,7 @@ public class SkinTankBlock extends BaseEntityBlock {
         }
 
         return createTickerHelper(pBlockEntityType, ModBlockEntities.SKIN_TANK_BE.get(),
-                ((level, blockPos, blockState, skinTankBlockEntity) -> skinTankBlockEntity.tick(level, blockPos, blockState)));
+                ((level, blockPos, blockState, skinTankBlockEntity) -> skinTankBlockEntity.tick(level)));
     }
 
 }

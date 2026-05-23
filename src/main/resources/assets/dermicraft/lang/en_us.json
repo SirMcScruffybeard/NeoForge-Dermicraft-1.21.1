@@ -29,6 +29,9 @@
   "block.dermicraft.muscle_tumor": "Muscle Tumor",
   "block.dermicraft.nerve_tumor": "Nerve Tumor",
 
+  "block.dermicraft.drooling_cauldron": "Drooling Cauldron",
+  "blockEntity.dermicraft.drooling_cauldron_be": "Drooling Cauldron",
+
   "block.dermicraft.skin_tank": "Skin Tank",
   "blockEntity.dermicraft.skin_tank_be": "Skin Tank",
 

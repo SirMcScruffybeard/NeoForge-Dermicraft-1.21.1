@@ -34,7 +34,7 @@ public class TumorSynthesisEvent {
     public static void onLevelTick(LevelTickEvent.Post event) {
         Level level = event.getLevel();
 
-        if (level.isClientSide || !ModMath.time.hasTicksPassed(level, ModMath.time.getSecondsToTicks(10))) return;
+        if (level.isClientSide || !ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(10))) return;
 
         for (Player player : level.players()) {
             BlockPos playerPos = player.blockPosition();

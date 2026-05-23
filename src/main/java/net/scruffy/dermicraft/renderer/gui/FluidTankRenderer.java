@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.renderer;
+package net.scruffy.dermicraft.renderer.gui;
 
 
 import com.google.common.base.Preconditions;
