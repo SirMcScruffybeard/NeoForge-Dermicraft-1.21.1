@@ -4,7 +4,7 @@ import net.minecraft.world.level.Level;
 
 public class ModMath {
 
-    public static class time {
+    public static class Time {
         public static final int TICKS_PER_SECOND = 20;
 
         public static int getSecondsToTicks(int seconds) {
@@ -21,6 +21,10 @@ public class ModMath {
 
         public static boolean hasTicksPassed(Level level, int ticks) {
             return level.getGameTime() % ticks == 0;
+        }
+
+        public static boolean isTaskFinished(int progress, int maxTime) {
+            return progress >= maxTime;
         }
     }
 }

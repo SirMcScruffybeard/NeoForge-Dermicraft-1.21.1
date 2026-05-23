@@ -9,14 +9,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.LadderBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -25,6 +22,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.entity.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.IFleshBlockEntity;
 import net.scruffy.dermicraft.interfaces.IHaveTank;
@@ -33,7 +31,7 @@ import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.Nullable;
 
-public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IFleshBlockEntity, IHaveTank {
+public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IFleshBlockEntity, IHaveTank {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 10;
 
@@ -53,17 +51,13 @@ public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IF
         }
     };
 
-    private final VulnerableTank TANK = createTank();
-
-    private VulnerableTank createTank() {
-        return new VulnerableTank(CAPACITY) {
+    private final VulnerableTank TANK =  new VulnerableTank(CAPACITY) {
             @Override
             protected void onContentsChanged() {
                 setChanged();
                 updateBlock();
             }
         };
-    }
 
     public SkinTankBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.SKIN_TANK_BE.get(), pos, blockState);
@@ -86,10 +80,10 @@ public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IF
     }
 
     public void drops(){
-        drops(level, INVENTORY, worldPosition);
+        dropItems(level, INVENTORY, worldPosition);
     }
 
-    public void tick(Level sLevel, BlockPos blockPos, BlockState blockState) {
+    public void tick(Level sLevel) {
         if (!sLevel.isClientSide) {
             if (hasFluidHandlerInSlot(INVENTORY, INPUT)) {
                 transferFluidToTank(INVENTORY, INPUT, TANK);
@@ -103,10 +97,9 @@ public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IF
         }
     }
 
-
     @Override
     public Component getDisplayName() {
-        return Component.translatable("blockentity." + Dermicraft.MOD_ID + "." + ModBlocks.SKIN_TANK.getId());
+        return getDisplayName(ModBlocks.SKIN_TANK);
     }
 
     @Override
@@ -128,25 +121,7 @@ public class SkinTankBlockEntity extends BlockEntity implements MenuProvider, IF
         TANK.readFromNBT(registries, tag);
     }
 
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
-        return saveWithoutMetadata(pRegistries);
-    }
-
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.Provider pRegistries) {
-        super.onDataPacket(net, pkt, pRegistries);
-    }
-
     private void updateBlock() {
-        if(isServerSide(level)){
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-        }
+        super.updateBlock(level);
     }
 }

@@ -69,7 +69,7 @@ public class SutureKitItem extends ToolItem implements ISuture {
     @Override
     public void suturePlayer(Level level, Player player, ItemStack stack) {
         useMaterials(player);
-        applySutureEffect(player, ModMath.time.getSecondsToTicks(15), 0);
+        applySutureEffect(player, ModMath.Time.getSecondsToTicks(15), 0);
         playDefaultSutureSound(level, player);
     }
 

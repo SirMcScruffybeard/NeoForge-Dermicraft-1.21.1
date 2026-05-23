@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.skin_tank;
+package net.scruffy.dermicraft.screen.custom.drooling_cauldron;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,22 +9,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.util.MouseUtil;
 
 import java.util.Optional;
 
-public class SkinTankScreen extends AbstractContainerScreen<SkinTankMenu> {
+public class DroolingCauldronScreen extends AbstractContainerScreen<DroolingCauldronMenu> {
+
     private static final ResourceLocation GUI_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID,"textures/gui/tank_gui.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/drooling_cauldron/drooling_cauldron_gui.png");
+
+    private static final ResourceLocation ARROW_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID,  "textures/gui/arrows/arrow_progress_green_15x8.png");
+
     private FluidTankRenderer fluidRenderer;
 
-    public SkinTankScreen(SkinTankMenu menu, Inventory playerInventory, Component title) {
+    public DroolingCauldronScreen(DroolingCauldronMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
-
     @Override
     protected void init() {
         super.init();
@@ -36,12 +40,12 @@ public class SkinTankScreen extends AbstractContainerScreen<SkinTankMenu> {
     }
 
     private void assignFluidRenderer() {
-        fluidRenderer = new FluidTankRenderer(SkinTankBlockEntity.CAPACITY, true, 16, 64);
+        fluidRenderer = new FluidTankRenderer(DroolingCauldronBlockEntity.CAPACITY, true, 16, 64);
     }
 
     private void renderFluidTooltipArea(GuiGraphics guiGraphics, int pMouseX, int pMouseY, int x, int y,
                                         FluidStack stack, int offsetX, int offsetY, FluidTankRenderer renderer) {
-        if(isMouseAboveArea(pMouseX, pMouseY, x, y, offsetX, offsetY, renderer)) {
+        if (isMouseAboveArea(pMouseX, pMouseY, x, y, offsetX, offsetY, renderer)) {
             guiGraphics.renderTooltip(this.font, renderer.getTooltip(stack, TooltipFlag.Default.NORMAL),
                     Optional.empty(), pMouseX - x, pMouseY - y);
         }
@@ -65,7 +69,9 @@ public class SkinTankScreen extends AbstractContainerScreen<SkinTankMenu> {
 
         guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
 
+        renderProgressArrow(guiGraphics, x, y);
         fluidRenderer.render(guiGraphics, x + 80, y + 8, menu.be.getFluid());
+
     }
 
     @Override
@@ -73,6 +79,12 @@ public class SkinTankScreen extends AbstractContainerScreen<SkinTankMenu> {
         renderBackground(guiGraphics, mouseX, mouseY, delta);
         super.render(guiGraphics, mouseX, mouseY, delta);
         renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
+        if(menu.isCrafting()) {
+            guiGraphics.blit(ARROW_TEXTURE,x + 62, y + 38, 0, 0, menu.getScaledArrowProgress(), 8, 15, 8);
+        }
     }
 
     public static boolean isMouseAboveArea(int pMouseX, int pMouseY, int x, int y, int offsetX, int offsetY, FluidTankRenderer renderer) {

@@ -7,6 +7,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -15,6 +16,9 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
 public interface IHaveTank {
+
+    int BUCKET_VOLUME = FluidType.BUCKET_VOLUME;
+
     FluidStack getFluid();
     IFluidHandler getTank(@Nullable Direction face);
 
@@ -80,4 +84,14 @@ public interface IHaveTank {
             itemHandler.setStackInSlot(itemSlot, result.result);
         }
     }
+
+    default void transferResultFluidToTank(IFluidHandler tank, FluidStack resource) {
+        if (hasRoom(tank, resource)) {
+            tank.fill(resource, IFluidHandler.FluidAction.EXECUTE);
+        }
+    }
+
+    //////////Spill\\\\\\\\\\
+
+
 }

@@ -22,8 +22,10 @@ import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.property.ModItemProperties;
+import net.scruffy.dermicraft.renderer.DroolingCauldronBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.SkinTankBlockEntityRenderer;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
+import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronScreen;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankScreen;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
@@ -56,11 +58,13 @@ public class DermicraftClient {
     @SubscribeEvent
     public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.SKIN_TANK_MENU.get(), SkinTankScreen::new);
+        event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

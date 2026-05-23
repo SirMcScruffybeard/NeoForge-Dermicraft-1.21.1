@@ -9,6 +9,7 @@ import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 
 public class ModMenuTypes {
@@ -17,6 +18,9 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<SkinTankMenu>> SKIN_TANK_MENU =
             registerMenuType("skin_tank_menu", SkinTankMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<DroolingCauldronMenu>> DROOLING_CAULDRON_MENU =
+            registerMenuType("drooling_cauldron_menu", DroolingCauldronMenu::new);
 
 
 
