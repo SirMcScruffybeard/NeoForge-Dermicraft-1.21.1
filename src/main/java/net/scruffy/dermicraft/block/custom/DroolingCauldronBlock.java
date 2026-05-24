@@ -14,15 +14,15 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -71,9 +71,20 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        BlockEntity entity = level.getBlockEntity(pos);
-        if (entity instanceof DroolingCauldronBlockEntity be) {
-            player.openMenu(new SimpleMenuProvider(be, Component.literal("Tank")), pos);
+        if (!level.isClientSide) {
+            if (level.getBlockEntity(pos) instanceof DroolingCauldronBlockEntity be) {
+                //player.openMenu(new SimpleMenuProvider(be, Component.literal("Tank")), pos);
+                IFluidHandler tank = be.getTank(null);
+
+                FluidUtil.interactWithFluidHandler(player, hand, tank);
+
+                if (be.isFood(stack) || be.isPartItem(stack)) {
+                    be.insertInput(stack, player, hand);
+
+                } else if (player.getItemInHand(hand).isEmpty()) {
+                    be.extractInput(player);
+                }
+            }
         }
 
         return ItemInteractionResult.SUCCESS;
@@ -81,6 +92,13 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!level.isClientSide) {
+            if (state.getBlock() != newState.getBlock()) {
+                if (level.getBlockEntity(pos) instanceof DroolingCauldronBlockEntity be) {
+                    be.drops();
+                }
+            }
+        }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 

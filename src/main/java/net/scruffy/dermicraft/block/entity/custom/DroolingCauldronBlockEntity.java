@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -23,15 +24,17 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.IFleshBlockEntity;
+import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IHaveTank;
 import net.scruffy.dermicraft.interfaces.IProcessFood;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
 import net.scruffy.dermicraft.tank.WaterTank;
 import net.scruffy.dermicraft.util.ModMath;
+import net.scruffy.dermicraft.util.ModPlayerUtil;
 import org.jetbrains.annotations.Nullable;
 
-public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IFleshBlockEntity, IHaveTank, IProcessFood {
+public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IFleshBlockEntity, IHaveTank, IHaveInventory, IProcessFood {
 
     private final int PROCESSES_TICKS = 10;
     private final int AUTO_TICKS = 20;
@@ -128,13 +131,23 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         return null;
     }
 
-    public IItemHandler getItemHandler(){
+    public IItemHandler getItemHandler() {
         return getItemHandler(null);
     }
 
     @Override
     public void drops() {
         dropItems(level, INVENTORY, worldPosition);
+    }
+
+    public void insertInput(ItemStack stack, Player player, InteractionHand hand) {
+        ItemStack remainder = insertItem(INVENTORY, INPUT, stack);
+        player.setItemInHand(hand, remainder);
+    }
+
+    public void extractInput(Player player) {
+        ItemStack stack = extractItem(INVENTORY, INPUT, Integer.MAX_VALUE);
+        ModPlayerUtil.giveItem(player, stack);
     }
 
 
@@ -159,16 +172,20 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
         //////////Auto-fill\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, AUTO_TICKS)) {
-            transferResultFluidToTank(TANK, new FluidStack(Fluids.WATER, AUTO_RATE));
+            transferResultFluidToTank(TANK, createWater(AUTO_RATE));
         }
 
         //////////Craft\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, PROCESSES_TICKS)) {
-            if (isFood(INVENTORY.getStackInSlot(INPUT))) {
-                maxProgress = getProcessTime(INVENTORY.getStackInSlot(INPUT), PROCESSES_TICKS);
 
-                if (ModMath.Time.isTaskFinished(progress, maxProgress)) {
-                    craftWater(INVENTORY.getStackInSlot(INPUT));
+            ItemStack stack = INVENTORY.getStackInSlot(INPUT);
+            int amount = getCraftedAmount(stack);
+
+            if (isFood(stack) && hasRoom(TANK, amount, 0)) {
+                maxProgress = getProcessTime(stack, PROCESSES_TICKS);
+
+                if (ModMath.Time.isTaskFinished(progress, maxProgress) ) {
+                    craftWater(amount);
                     resetProgress();
                 } else {
                     incrementProgress();
@@ -179,15 +196,20 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         }
     }
 
-    private void craftWater(ItemStack stack) {
-        if (IProcessFood.hasNutrition(stack)) {
+    private int getCraftedAmount(ItemStack stack) {
+        if (hasNutrition(stack)) {
             int mod = isFood(stack) ? FOOD_MODIFIER : 1;
             mod = isPartItem(stack) ? FLESH_MODIFIER : mod;
-            FluidStack resource = new FluidStack(Fluids.WATER, getProcessAmount(stack, mod, 1, PROCESSES_TICKS));
-            if (hasRoom(TANK, resource)) {
-                transferResultFluidToTank(TANK, resource);
-                consumeSingleItem(INVENTORY, INPUT);
-            }
+            return getProcessAmount(stack, mod, 1);
+        }
+        return 0;
+    }
+
+    private void craftWater(int amount) {
+        FluidStack resource = createWater(amount);
+        if (hasRoom(TANK, resource)) {
+            transferResultFluidToTank(TANK, resource);
+            consumeSingleItem(INVENTORY, INPUT);
         }
     }
 

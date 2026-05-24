@@ -28,13 +28,13 @@ public interface IProcessFood {
         return stack.is(ModTags.Items.PART_ITEMS);
     }
 
-    static boolean hasNutrition(ItemStack stack) {
+    default boolean hasNutrition(ItemStack stack) {
         FoodProperties prop = stack.getFoodProperties(null);
         return prop != null && prop.nutrition() > 0;
     }
 
     default float getNutrition(ItemStack stack) {
-        if (!IProcessFood.hasNutrition(stack)) return 0;
+        if (!hasNutrition(stack)) return 0;
         return stack.getFoodProperties(null).nutrition();
     }
 
@@ -57,24 +57,27 @@ public interface IProcessFood {
      * @param stack
      * @param modifier total of extra modifiers to be used. If there aren't any use 1
      * @param min minimum amount to be made
-     * @param ticks number of ticks to wait between processes. If process every tick use 1
      * @return the amount of fluid to be made in mB
      ***************************************************************************************/
-    default int getProcessAmount(ItemStack stack, float modifier, int min, int ticks) {
+    default int getProcessAmount(ItemStack stack, float modifier, int min) {
         if(!hasNutrition(stack)) return 0;
-        return (int)Math.max(min * ticks, (getNutrition(stack)* modifier) * ticks);
+        return (int)Math.max(min, (getNutrition(stack)* modifier));
     }
 
-    default FluidStack getResultFluid(ItemStack stack, Fluid fluid, float modifier, int min, int ticks) {
-        return new FluidStack(fluid, getProcessAmount(stack, modifier, min, ticks));
+    default FluidStack getResultFluid(ItemStack stack, Fluid fluid, float modifier, int min) {
+        return new FluidStack(fluid, getProcessAmount(stack, modifier, min));
     }
 
-    default FluidStack createWater(ItemStack stack, float modifier, int min, int ticks) {
-        return getResultFluid(stack, Fluids.WATER, modifier, min, ticks);
+    default FluidStack createWater(ItemStack stack, float modifier, int min) {
+        return getResultFluid(stack, Fluids.WATER, modifier, min);
     }
 
-    default  FluidStack createNutrientSlurry(ItemStack stack, float multiplier, int min, int ticks) {
-        return getResultFluid(stack, ModFluids.SOURCE_NUTRIENT_SLURRY.get(), multiplier, min, ticks);
+    default FluidStack createWater(int amount) {
+        return new FluidStack(Fluids.WATER, amount);
+    }
+
+    default  FluidStack createNutrientSlurry(ItemStack stack, float multiplier, int min) {
+        return getResultFluid(stack, ModFluids.SOURCE_NUTRIENT_SLURRY.get(), multiplier, min);
     }
 
 

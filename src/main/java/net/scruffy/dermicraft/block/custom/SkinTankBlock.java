@@ -70,7 +70,7 @@ public class SkinTankBlock extends BaseEntityBlock {
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof SkinTankBlockEntity tankBlockEntity) {
             FluidUtil.interactWithFluidHandler(player, hand, tankBlockEntity.getTank(null));
-            player.openMenu(new SimpleMenuProvider(tankBlockEntity, Component.literal("Tank")), pos);
+           // player.openMenu(new SimpleMenuProvider(tankBlockEntity, Component.literal("Tank")), pos);
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }

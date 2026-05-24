@@ -37,6 +37,8 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)
+                .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.SKIN_TANK.get())
 
         ;
 

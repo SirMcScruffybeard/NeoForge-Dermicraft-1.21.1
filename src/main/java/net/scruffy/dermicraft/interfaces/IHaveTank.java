@@ -28,6 +28,15 @@ public interface IHaveTank {
         return accepted >= resource.getAmount();
     }
 
+    default boolean hasRoom (IFluidHandler tank, int amount, int slot) {
+        if (amount == 0) return false;
+        return amount < getRoom(tank, slot);
+    }
+
+    default int getRoom(IFluidHandler tank, int slot) {
+        return tank.getTankCapacity(slot) - tank.getFluidInTank(slot).getAmount();
+    }
+
     default boolean isFull(IFluidHandler tank, int index) {
         return tank.getFluidInTank(index).getAmount() >= tank.getTankCapacity(index);
     }

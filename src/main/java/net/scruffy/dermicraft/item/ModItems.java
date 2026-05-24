@@ -9,6 +9,7 @@ import net.scruffy.dermicraft.item.custom.SyringeItem;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.item.custom.SutureKitItem;
+import net.scruffy.dermicraft.item.property.ModFoodProperties;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItems {
@@ -27,13 +28,13 @@ public class ModItems {
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
-            () -> new PartItem(new Item.Properties()));
+            () -> new PartItem(new Item.Properties().food(ModFoodProperties.EYE)));
 
     public static  DeferredItem<Item> NERVE_CLUSTER = ITEMS.register("nerve_cluster",
-            () -> new PartItem(new Item.Properties()));
+            () -> new PartItem(new Item.Properties().food(ModFoodProperties.NERVE_CLUSTER)));
 
     public static DeferredItem<Item> DENSE_MUSCLE = ITEMS.register("dense_muscle",
-            () -> new PartItem(new Item.Properties()));
+            () -> new PartItem(new Item.Properties().food(ModFoodProperties.DENSE_MUSCLE)));
 
 
 
