@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "dermicraft:eye"
+    },
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "N": {
+      "item": "dermicraft:nerve_cluster"
+    }
+  },
+  "pattern": [
+    "III",
+    "IEI",
+    "INI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:outerface"
+  }
+}
