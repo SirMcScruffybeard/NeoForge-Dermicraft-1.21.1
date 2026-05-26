@@ -14,13 +14,12 @@ public class ModTags {
 
     public static class Blocks {
 
-        public static final TagKey<Block> TUMORS = createTag("tumors");
-
-        public static final TagKey<Block> HARVESTABLE = createTag("harvestable");
-
         public static final TagKey<Block>  COLLECTIBLE = createTag("collectible");
-        public static final TagKey<Block> SUTABLE = createTag("sutable");
+        public static final TagKey<Block> HARVESTABLE = createTag("harvestable");
         public static final TagKey<Block> INJECTABLE = createTag("injectable");
+       public static final TagKey<Block> HAS_SCREEN = createTag("has_screen");
+        public static final TagKey<Block> SUTABLE = createTag("sutable");
+        public static final TagKey<Block> TUMORS = createTag("tumors");
 
 
         private static TagKey<Block> createTag(String name) {

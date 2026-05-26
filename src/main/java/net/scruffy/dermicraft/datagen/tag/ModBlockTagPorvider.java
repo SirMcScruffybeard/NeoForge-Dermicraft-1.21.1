@@ -17,14 +17,11 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
-        tag(ModTags.Blocks.TUMORS)
-                .add(ModBlocks.INERT_TUMOR.get())
-                .add(ModBlocks.MARRED_TUMOR.get())
-                .add(ModBlocks.STITCHED_TUMOR.get())
-
-                .add(ModBlocks.EYE_TUMOR.get())
-                .add(ModBlocks.MUSCLE_TUMOR.get())
-                .add(ModBlocks.NERVE_TUMOR.get())
+        tag(ModTags.Blocks.COLLECTIBLE)
+                .addTag(ModTags.Blocks.TUMORS)
+                .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.OUTERFACE.get())
+                .add(ModBlocks.SKIN_TANK.get())
 
         ;
 
@@ -35,20 +32,30 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.NERVE_TUMOR.get())
         ;
 
-        tag(ModTags.Blocks.COLLECTIBLE)
-                .addTag(ModTags.Blocks.TUMORS)
+        tag(ModTags.Blocks.HAS_SCREEN)
                 .add(ModBlocks.DROOLING_CAULDRON.get())
                 .add(ModBlocks.SKIN_TANK.get())
-
         ;
-
-        tag(ModTags.Blocks.SUTABLE)
-                .add(ModBlocks.MARRED_TUMOR.get());
 
         tag(ModTags.Blocks.INJECTABLE)
                 .add(ModBlocks.STITCHED_TUMOR.get())
 
         ;
 
+        tag(ModTags.Blocks.SUTABLE)
+                .add(ModBlocks.MARRED_TUMOR.get())
+
+        ;
+
+        tag(ModTags.Blocks.TUMORS)
+                .add(ModBlocks.INERT_TUMOR.get())
+                .add(ModBlocks.MARRED_TUMOR.get())
+                .add(ModBlocks.STITCHED_TUMOR.get())
+
+                .add(ModBlocks.EYE_TUMOR.get())
+                .add(ModBlocks.MUSCLE_TUMOR.get())
+                .add(ModBlocks.NERVE_TUMOR.get())
+
+        ;
     }
 }

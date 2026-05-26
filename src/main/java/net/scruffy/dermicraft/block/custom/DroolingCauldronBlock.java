@@ -73,7 +73,6 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (!level.isClientSide) {
             if (level.getBlockEntity(pos) instanceof DroolingCauldronBlockEntity be) {
-                //player.openMenu(new SimpleMenuProvider(be, Component.literal("Tank")), pos);
                 IFluidHandler tank = be.getTank(null);
 
                 FluidUtil.interactWithFluidHandler(player, hand, tank);

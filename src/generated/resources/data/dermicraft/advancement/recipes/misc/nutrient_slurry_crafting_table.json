@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "dermicraft:nutrient_slurry_crafting_table7"
+        "recipe": "dermicraft:nutrient_slurry_crafting_table"
       },
       "trigger": "minecraft:recipe_unlocked"
     },
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "dermicraft:nutrient_slurry_crafting_table7"
+      "dermicraft:nutrient_slurry_crafting_table"
     ]
   }
 }

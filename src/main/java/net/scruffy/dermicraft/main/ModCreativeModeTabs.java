@@ -42,7 +42,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.NERVE_TUMOR);
 
                         ////////////////////Machines and Tanks\\\\\\\\\\\\\\\\\\\\
-                       output.accept(ModBlocks.DROOLING_CAULDRON);
+                       output.accept(ModBlocks.OUTERFACE);
+
+                        output.accept(ModBlocks.DROOLING_CAULDRON);
 
                         output.accept(ModBlocks.SKIN_TANK);
 
