@@ -1,0 +1,19 @@
+{
+  "type": "dermicraft:early_implant",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "dermicraft:source_nutrient_slurry"
+  },
+  "ingredients": [
+    {
+      "tag": "c:foods/raw_meat"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:inert_tumor"
+  },
+  "suture_tool": {
+    "tag": "dermicraft:suture_tools"
+  }
+}

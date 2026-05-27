@@ -1,18 +1,32 @@
 package net.scruffy.dermicraft.datagen;
 
+import com.jcraft.jorbis.Block;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementRequirements;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -79,6 +93,24 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('N', ModItems.NERVE_CLUSTER)
                 .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
                 .save(recipeOutput, getResourceLocation("outerface_crafting_table"));
+
+        simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_from_implant", ModBlocks.INERT_TUMOR.asItem());
+
+        simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem());
+        simpleEarlyImplant(recipeOutput, ModItems.EYE.get(), "eye_tumor_from_implant", ModBlocks.EYE_TUMOR.asItem());
+        simpleEarlyImplant(recipeOutput, ModItems.NERVE_CLUSTER.get(), "nerve_tumor_from_implant", ModBlocks.NERVE_TUMOR.asItem());
+
+        buildEarlyImplant(recipeOutput, getResourceLocation("drooling_cauldron_from_implant"),
+                List.of(
+                        Ingredient.of(net.minecraft.world.level.block.Blocks.CAULDRON),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()), Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()), Ingredient.of(ModItems.DENSE_MUSCLE.get())
+                ),
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS),
+                ModFluids.SOURCE_NUTRIENT_SLURRY.get(), 100,
+                new ItemStack(ModBlocks.DROOLING_CAULDRON.asItem()),
+                InventoryChangeTrigger.TriggerInstance.hasItems(Items.CAULDRON)
+        );
     }
 
     ////////////////////Other Crafting Methods\\\\\\\\\\\\\\\\\\\\
@@ -106,4 +138,45 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     private ResourceLocation getResourceLocation(String name) {
         return ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name);
     }
+
+    ////////////////////EarlyImplant Methods\\\\\\\\\\\\\\\\\\\\
+    private void buildEarlyImplant(RecipeOutput output, ResourceLocation id,
+                                   List<Ingredient> ingredients, Ingredient sutureTool,
+                                   Fluid fluid, int amount, ItemStack result,
+                                   Criterion<?> unlockCriterion) {
+
+        FluidStack fluidStack = new FluidStack(fluid, amount);
+
+        EarlyImplantRecipe recipe = new EarlyImplantRecipe(ingredients, sutureTool, fluidStack, result);
+
+        Advancement.Builder advancementBuilder = output.advancement()
+                .addCriterion("has_the_item", unlockCriterion)
+                .rewards(net.minecraft.advancements.AdvancementRewards.Builder.recipe(id))
+                .requirements(AdvancementRequirements.Strategy.OR);
+
+        output.accept(id, recipe, advancementBuilder.build(id.withPrefix("recipes/")));
+
+
+    }
+
+    private void simpleEarlyImplant(RecipeOutput recipeOutput, Item ingredient, String name, Item result){
+        buildEarlyImplant(recipeOutput, getResourceLocation(name),
+                List.of(Ingredient.of(ingredient)),
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS),
+                ModFluids.SOURCE_NUTRIENT_SLURRY.get(), 100,
+                new ItemStack(result),
+                InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DIRT).build())
+                );
+    }
+
+    private void simpleEarlyImplant(RecipeOutput recipeOutput, TagKey<Item> ingredient, String name, Item result){
+        buildEarlyImplant(recipeOutput, getResourceLocation(name),
+                List.of(Ingredient.of(ingredient)),
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS),
+                ModFluids.SOURCE_NUTRIENT_SLURRY.get(), 100,
+                new ItemStack(result),
+                InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DIRT).build())
+        );
+    }
+
 }

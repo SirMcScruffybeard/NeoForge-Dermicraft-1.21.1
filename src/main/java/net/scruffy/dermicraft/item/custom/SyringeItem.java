@@ -68,22 +68,6 @@ public class SyringeItem extends ToolItem implements IInject {
         }
     }
 
-    private void inject(UseOnContext context) {
-        Level level = context.getLevel();
-
-        if (!level.isClientSide) {
-
-        }
-    }
-    /*
-
-   Inject
-    get target block
-    check valid block
-    inject
-    drain syringe
-     */
-
     //Currently not in use. Keeping for example and in case I decide to use again
     public static class SyringeFluidHandler implements IFluidHandlerItem {
 

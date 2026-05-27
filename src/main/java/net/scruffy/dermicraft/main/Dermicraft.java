@@ -19,6 +19,7 @@ import net.scruffy.dermicraft.effect.ModEffects;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 import org.slf4j.Logger;
 
@@ -58,6 +59,8 @@ public class Dermicraft {
 
         ModFluidTypes.register(modEventBus);
         ModFluids.register(modEventBus);
+
+        ModRecipes.register(modEventBus);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);

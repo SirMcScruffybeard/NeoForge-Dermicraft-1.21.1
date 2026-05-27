@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.interfaces;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -40,5 +41,9 @@ public interface IInject {
 
     default boolean isServerSide(Level level) {
         return !level.isClientSide;
+    }
+
+    default void removeFluid(ItemStack stack) {
+        stack.set(getDataType(), FluidData.EMPTY);
     }
 }

@@ -11,7 +11,7 @@ import net.scruffy.dermicraft.datagen.tag.ModTags;
 public interface IHarvestParts {
 
     default boolean isHarvestable(BlockState state) {
-        return state.is(ModTags.Blocks.HARVESTABLE);
+        return state.is(ModTags.Blocks.EXTRACTABLE);
     }
 
     default boolean isHarvestable(Level level, BlockPos pos) {

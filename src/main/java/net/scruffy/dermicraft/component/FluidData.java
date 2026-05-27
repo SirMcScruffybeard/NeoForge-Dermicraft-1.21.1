@@ -12,13 +12,14 @@ import net.neoforged.neoforge.fluids.FluidType;
 public record FluidData(FluidStack fluidStack) {
 
     ////////////////CODECS\\\\\\\\\\\\\\\\
-    public static final Codec<FluidData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                    FluidStack.CODEC.fieldOf("fluid").forGetter(FluidData::fluidStack))
-            .apply(instance, FluidData::new));
+    public static final Codec<FluidData> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    FluidStack.OPTIONAL_CODEC.fieldOf("fluid").forGetter(FluidData::fluidStack))
+                    .apply(instance, FluidData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidData> STREAM_CODEC =
             StreamCodec.composite(
-                    FluidStack.STREAM_CODEC, FluidData::fluidStack,
+                    FluidStack.OPTIONAL_STREAM_CODEC, FluidData::fluidStack,
                     FluidData::new);
 
     public static FluidData EMPTY = createData(FluidStack.EMPTY);

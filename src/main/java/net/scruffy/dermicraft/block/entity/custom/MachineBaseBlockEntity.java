@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.block.entity;
+package net.scruffy.dermicraft.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

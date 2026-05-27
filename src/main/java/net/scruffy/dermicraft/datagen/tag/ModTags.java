@@ -14,10 +14,10 @@ public class ModTags {
 
     public static class Blocks {
 
-        public static final TagKey<Block>  COLLECTIBLE = createTag("collectible");
-        public static final TagKey<Block> HARVESTABLE = createTag("harvestable");
+        public static final TagKey<Block> COLLECTIBLE = createTag("collectible");
+        public static final TagKey<Block> EXTRACTABLE = createTag("harvestable");
         public static final TagKey<Block> INJECTABLE = createTag("injectable");
-       public static final TagKey<Block> HAS_SCREEN = createTag("has_screen");
+        public static final TagKey<Block> HAS_SCREEN = createTag("has_screen");
         public static final TagKey<Block> SUTABLE = createTag("sutable");
         public static final TagKey<Block> TUMORS = createTag("tumors");
 
@@ -28,9 +28,11 @@ public class ModTags {
     }
 
     public static class Items {
-        public static final TagKey<Item> HARVEST_TOOLS = createTag("harvest_tools");
-        public static final TagKey<Item> SUTURE_TOOLS = createTag("suture_tools");
+        public static final TagKey<Item> COLLECTION_TOOLS = createTag("collection_tools");
+        public static final TagKey<Item> EXTRACTION_TOOLS = createTag("harvest_tools");
         public static final TagKey<Item> INJECTION_TOOLS = createTag("injection_tools");
+        public static final TagKey<Item> SUTURE_TOOLS = createTag("suture_tools");
+
 
         public static final TagKey<Item> ANIMAL_MEATS = createTag("animal_meats");
 

@@ -25,7 +25,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         ;
 
-        tag(ModTags.Blocks.HARVESTABLE)
+        tag(ModTags.Blocks.EXTRACTABLE)
                 .add(ModBlocks.INERT_TUMOR.get())
                 .add(ModBlocks.EYE_TUMOR.get())
                 .add(ModBlocks.MUSCLE_TUMOR.get())

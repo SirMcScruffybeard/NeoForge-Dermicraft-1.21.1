@@ -1,0 +1,19 @@
+{
+  "type": "dermicraft:early_implant",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "dermicraft:source_nutrient_slurry"
+  },
+  "ingredients": [
+    {
+      "item": "dermicraft:dense_muscle"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:muscle_tumor"
+  },
+  "suture_tool": {
+    "tag": "dermicraft:suture_tools"
+  }
+}
