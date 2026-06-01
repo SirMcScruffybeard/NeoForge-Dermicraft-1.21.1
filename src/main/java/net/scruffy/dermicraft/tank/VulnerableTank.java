@@ -1,11 +1,22 @@
 package net.scruffy.dermicraft.tank;
 
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 
-public class VulnerableTank extends FluidTank {
+public class VulnerableTank extends ModFluidTank {
 
     public VulnerableTank(int capacity) {
         super(capacity, (fluidStack -> !fluidStack.is(ModTags.Fluids.HAZARDOUS)));
+    }
+
+    public void transferToHandler(ItemStackHandler inventory, int slot) {
+        if (hasEmptyFluidHandlerInSlot(inventory, slot, this)) {
+            super.transferFluidFromTankToHandler(inventory, slot, this);
+        }
+    }
+
+    public void internalFluidTransfer(ItemStackHandler inventory, int slot) {
+        super.internalFluidTransfer(inventory, slot, this);
     }
 }

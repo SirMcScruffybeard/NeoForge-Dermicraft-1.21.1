@@ -14,7 +14,7 @@ public record FluidData(FluidStack fluidStack) {
     ////////////////CODECS\\\\\\\\\\\\\\\\
     public static final Codec<FluidData> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    FluidStack.OPTIONAL_CODEC.fieldOf("fluid").forGetter(FluidData::fluidStack))
+                    FluidStack.OPTIONAL_CODEC.fieldOf("ingredientFluid").forGetter(FluidData::fluidStack))
                     .apply(instance, FluidData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, FluidData> STREAM_CODEC =

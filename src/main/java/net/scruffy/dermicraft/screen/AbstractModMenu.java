@@ -13,6 +13,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import org.jetbrains.annotations.Nullable;
 
+/********************************************************************
+ * AbstractModMenu
+ *  A base class for machine block menus.
+ *  Contains methods for:
+ *      quickMoveStack()
+ *      addPlayerInventory()
+ *      addPlayerHotbar()
+ ********************************************************************/
 public abstract class AbstractModMenu extends AbstractContainerMenu {
 
     private final int TE_INVENTORY_SLOT_COUNT;
@@ -38,7 +46,7 @@ public abstract class AbstractModMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
-     // must be the number of slots you have!
+    // must be the number of slots you have!
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
         Slot sourceSlot = slots.get(pIndex);
@@ -79,8 +87,7 @@ public abstract class AbstractModMenu extends AbstractContainerMenu {
         return stillValid(ContainerLevelAccess.create(level, be.getBlockPos()), player, block.get());
     }
 
-    protected
-    void addPlayerInventory(Inventory playerInventory) {
+    protected void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
                 this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));

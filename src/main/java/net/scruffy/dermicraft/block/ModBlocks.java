@@ -8,6 +8,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.custom.DroolingCauldronBlock;
+import net.scruffy.dermicraft.block.custom.MasticatorBlock;
 import net.scruffy.dermicraft.block.custom.OuterfaceBlock;
 import net.scruffy.dermicraft.block.custom.SkinTankBlock;
 import net.scruffy.dermicraft.block.custom.tumor.*;
@@ -38,6 +39,9 @@ public class ModBlocks {
             () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()));
 
     public static final DeferredBlock<Block> OUTERFACE = registerBlock("outerface", OuterfaceBlock::new);
+
+    public static final DeferredBlock<Block> MASTICATOR = registerBlock("masticator",
+            () -> new  MasticatorBlock(BlockBehaviour.Properties.of()));
 
     public static final DeferredBlock<Block> SKIN_TANK = registerBlock("skin_tank",
             () -> new SkinTankBlock(BlockBehaviour.Properties.of()));

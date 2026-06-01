@@ -5,10 +5,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
-import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.*;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.function.Supplier;
@@ -32,6 +29,10 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<DroolingCauldronBlockEntity>> DROOLING_CAULDRON_BE =
             BLOCK_ENTITIES.register("drooling_cauldron_be", () -> BlockEntityType.Builder.of(
                     DroolingCauldronBlockEntity::new, ModBlocks.DROOLING_CAULDRON.get()).build(null));
+
+    public static final Supplier<BlockEntityType<MasticatorBlockEntity>> MASTICATOR_BE =
+            BLOCK_ENTITIES.register("masticator_be", () -> BlockEntityType.Builder.of(
+                    MasticatorBlockEntity::new, ModBlocks.MASTICATOR.get()).build(null));
 
     public static final Supplier<BlockEntityType<SkinTankBlockEntity>> SKIN_TANK_BE =
             BLOCK_ENTITIES.register("skin_tank_be", () -> BlockEntityType.Builder.of(

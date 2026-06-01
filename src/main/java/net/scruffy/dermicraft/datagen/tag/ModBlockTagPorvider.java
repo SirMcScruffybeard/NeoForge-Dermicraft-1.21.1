@@ -34,6 +34,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         tag(ModTags.Blocks.HAS_SCREEN)
                 .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.SKIN_TANK.get())
         ;
 

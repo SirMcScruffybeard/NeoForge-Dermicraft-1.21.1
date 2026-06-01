@@ -34,7 +34,7 @@ public class ModClientEvents {
             // 2. Fluid Type's color
             int color = IClientFluidTypeExtensions.of(fluid).getTintColor(data.fluidStack());
 
-            // 3. If the fluid returns "no color" (like -1), give it a default gray or water-blue
+            // 3. If the ingredientFluid returns "no color" (like -1), give it a default gray or water-blue
             return color == -1 ? getDefaultTint() : color;
         }, ModItems.SYRINGE.get());
 

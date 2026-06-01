@@ -21,9 +21,7 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.interfaces.IFleshBlockEntity;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
-import net.scruffy.dermicraft.interfaces.IHaveTank;
 import net.scruffy.dermicraft.interfaces.IProcessFood;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
@@ -32,14 +30,14 @@ import net.scruffy.dermicraft.util.ModMath;
 import net.scruffy.dermicraft.util.ModPlayerUtil;
 import org.jetbrains.annotations.Nullable;
 
-public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IFleshBlockEntity, IHaveTank, IHaveInventory, IProcessFood {
+public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IProcessFood {
 
     private final int PROCESSES_TICKS = 10;
     private final int AUTO_TICKS = 20;
     private final int AUTO_RATE = 1;
     private final int FOOD_MODIFIER = 10;
     private final int FLESH_MODIFIER = 15; //Use instead of FOOD_MODIFIER when processing PART_ITEMS
-    public final static int CAPACITY = BUCKET_VOLUME * 5;
+    public static final  int CAPACITY = WaterTank.BUCKET_VOLUME * 5;
 
     public final static int INPUT = 0;
     public final static int OUTPUT = 1;
@@ -49,38 +47,19 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
     private final ContainerData data;
 
-    public final ItemStackHandler INVENTORY = new ItemStackHandler(2) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            updateBlock();
-        }
+    public final ItemStackHandler INVENTORY = createItemHandler(2, OUTPUT);
 
-        @Override
-        public int getSlotLimit(int slot) {
-            return slot == 1 ? 1 : super.getSlotLimit(slot);
-        }
-    };
-
-    private final WaterTank TANK = new WaterTank(CAPACITY) {
-        @Override
-        protected void onContentsChanged() {
-            setChanged();
-            updateBlock();
-        }
-    };
+    private final WaterTank TANK = createWaterTank(CAPACITY);
 
     public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
         this.data = createContainerData();
     }
 
-    @Override
     public FluidStack getFluid() {
         return TANK.getFluid();
     }
 
-    @Override
     public IFluidHandler getTank(@Nullable Direction face) {
         return TANK;
     }
@@ -155,22 +134,22 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
         //////////Transfer\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, 5)) {
-            if (hasFluidHandlerInSlot(INVENTORY, INPUT)) {
-                transferFluidToTank(INVENTORY, INPUT, TANK);
+            if (TANK.hasFluidHandlerInSlot(INVENTORY, INPUT)) {
+                TANK.transferFluidToTank(INVENTORY, INPUT, TANK);
             }
 
-            if (hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT, TANK)) {
-                transferFluidFromTankToHandler(INVENTORY, OUTPUT, TANK);
+            if (TANK.hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT, TANK)) {
+                TANK.transferFluidFromTankToHandler(INVENTORY, OUTPUT, TANK);
             }
 
-            pushFluidToBelowNeighbour(level, worldPosition, TANK);
+           TANK.pushFluidToBelowNeighbour(level, worldPosition);
             setChanged();
             updateBlock();
         }
 
         //////////Auto-fill\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, AUTO_TICKS)) {
-            transferResultFluidToTank(TANK, createWater(AUTO_RATE));
+            TANK.transferResultFluidToTank(createWater(AUTO_RATE));
         }
 
         //////////Craft\\\\\\\\\\
@@ -179,7 +158,7 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
             ItemStack stack = INVENTORY.getStackInSlot(INPUT);
             int amount = getCraftedAmount(stack);
 
-            if (isFood(stack) && hasRoom(TANK, amount, 0)) {
+            if (isFood(stack) && TANK.hasRoom(amount)) {
                 maxProgress = getProcessTime(stack, PROCESSES_TICKS);
 
                 if (ModMath.Time.isTaskFinished(progress, maxProgress) ) {
@@ -205,8 +184,8 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
     private void craftWater(int amount) {
         FluidStack resource = createWater(amount);
-        if (hasRoom(TANK, resource)) {
-            transferResultFluidToTank(TANK, resource);
+        if (TANK.hasRoom(resource)) {
+            TANK.transferResultFluidToTank(resource);
             consumeSingleItem(INVENTORY, INPUT);
         }
     }
@@ -250,10 +229,6 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         this.maxProgress = tag.getInt("dc_max");
     }
 
-    private void updateBlock() {
-        super.updateBlock(level);
-    }
-
     private ContainerData createContainerData() {
         return new ContainerData() {
             @Override
@@ -285,6 +260,6 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     }
 
     public boolean isStillCrafting() {
-        return isStillCrafting(progress);
+        return progress < maxProgress;
     }
 }

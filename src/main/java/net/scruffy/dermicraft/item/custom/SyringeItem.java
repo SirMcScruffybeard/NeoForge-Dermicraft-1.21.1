@@ -31,7 +31,7 @@ public class SyringeItem extends ToolItem implements IInject {
     public Component getName(ItemStack stack) {
         FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
         if (!data.isFluidEmpty()) {
-            //Return "Syringe with + fluid name
+            //Return "Syringe with + ingredientFluid name
             return Component.translatable("item." + Dermicraft.MOD_ID + ".syringe.filled", data.getFluidString());
         }
         return super.getName(stack);

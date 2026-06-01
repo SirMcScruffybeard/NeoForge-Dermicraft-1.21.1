@@ -1,0 +1,8 @@
+{
+  "values": {
+    "dermicraft:source_nutrient_slurry": {
+      "speed": 0.1,
+      "use_rate": 1.0
+    }
+  }
+}

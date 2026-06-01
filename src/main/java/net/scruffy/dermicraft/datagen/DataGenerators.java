@@ -10,6 +10,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.scruffy.dermicraft.datagen.datamaps.ModDataMapProvider;
 import net.scruffy.dermicraft.datagen.tag.ModBlockTagPorvider;
 import net.scruffy.dermicraft.datagen.tag.ModFluidTagProvider;
 import net.scruffy.dermicraft.datagen.tag.ModItemTagProvider;

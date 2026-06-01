@@ -19,7 +19,6 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.ISutableBlock;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import org.jetbrains.annotations.Nullable;
@@ -32,12 +31,7 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
     public static final MapCodec<MarredTumorBlock> CODEC = simpleCodec(MarredTumorBlock::new);
 
     public MarredTumorBlock(Properties properties) {
-        super(properties
-                .strength(.02f)
-                .explosionResistance(5f)
-                .sound(SoundType.SLIME_BLOCK)
-                .friction(0.8f)
-                .ignitedByLava());
+        super(properties.strength(.02f).explosionResistance(5f).sound(SoundType.SLIME_BLOCK).friction(0.8f).ignitedByLava());
     }
 
     @Override
@@ -193,6 +187,4 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
     public void changeState(Level level, BlockPos pos, Block targetBlock) {
         setState(level, pos, targetBlock.defaultBlockState());
     }
-
-
 }

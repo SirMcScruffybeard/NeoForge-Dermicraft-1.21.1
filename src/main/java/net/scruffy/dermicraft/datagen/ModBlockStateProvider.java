@@ -1,6 +1,7 @@
 package net.scruffy.dermicraft.datagen;
 
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -17,6 +18,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
     @Override
     protected void registerStatesAndModels() {
 
+        String skinTankEnd = "block/skin_tank_end";
+
         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
         blockWithItem(ModBlocks.INERT_TUMOR);
         blockWithItem(ModBlocks.MARRED_TUMOR);
@@ -29,6 +32,20 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItemWithRenderTypeWithSideAndEnds("skin_tank", ModBlocks.SKIN_TANK, "translucent");
 
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
+
+
+        horizontalBlock(ModBlocks.MASTICATOR.get(), models().cube(
+                ModBlocks.MASTICATOR.getId().getPath(),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd),
+                modLoc("block/masticator_front"),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/masticator_front")));
+        itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),
+                modLoc("block/" + ModBlocks.MASTICATOR.getId().getPath()));
+
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {

@@ -3,12 +3,9 @@ package net.scruffy.dermicraft.main;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.fluid.ModFluids;
@@ -26,7 +23,7 @@ public class ModCreativeModeTabs {
         CREATIVE_MODE_TAB.register(eventBus);
     }
 
-    public static final Supplier<CreativeModeTab> DERMICRAFT_BLOCKS_TAB = CREATIVE_MODE_TAB.register(Dermicraft.MOD_ID +"_blocks_tab",
+    public static final Supplier<CreativeModeTab> DERMICRAFT_BLOCKS_TAB = CREATIVE_MODE_TAB.register(Dermicraft.MOD_ID + "_blocks_tab",
             () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(ModBlocks.INERT_TUMOR.get()))
                     .title(Component.translatable("creativetab.dermicraft.dermicraft_blocks"))
@@ -42,15 +39,14 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.NERVE_TUMOR);
 
                         ////////////////////Machines and Tanks\\\\\\\\\\\\\\\\\\\\
-                       output.accept(ModBlocks.OUTERFACE);
-
+                        output.accept(ModBlocks.OUTERFACE);
                         output.accept(ModBlocks.DROOLING_CAULDRON);
-
+                        output.accept(ModBlocks.MASTICATOR);
                         output.accept(ModBlocks.SKIN_TANK);
 
                     }).build());
 
-        public static final Supplier<CreativeModeTab> DERMICRAFT_ITEMS_TAB = CREATIVE_MODE_TAB.register(Dermicraft.MOD_ID +"_items_tab",
+    public static final Supplier<CreativeModeTab> DERMICRAFT_ITEMS_TAB = CREATIVE_MODE_TAB.register(Dermicraft.MOD_ID + "_items_tab",
             () -> CreativeModeTab.builder()
                     .icon(() -> new ItemStack(ModItems.SCALPEL.get()))
                     .title(Component.translatable("creativetab.dermicraft.dermicraft_items"))
@@ -70,6 +66,7 @@ public class ModCreativeModeTabs {
 
 
                         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModFluids.CALCIUM_BLEND_BUCKET);
                         output.accept(ModFluids.NUTRIENT_SLURRY_BUCKET);
                     }).build());
 
@@ -80,6 +77,7 @@ public class ModCreativeModeTabs {
 
         output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
         output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
+        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_NUTRIENT_SLURRY.get()));
     }
 }

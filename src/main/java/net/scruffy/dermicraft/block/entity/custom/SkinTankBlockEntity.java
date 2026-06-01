@@ -18,31 +18,19 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.interfaces.IFleshBlockEntity;
-import net.scruffy.dermicraft.interfaces.IHaveTank;
+import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.Nullable;
 
-public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IFleshBlockEntity, IHaveTank {
+public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 10;
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
 
-    public final ItemStackHandler INVENTORY = new ItemStackHandler(2) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            updateBlock();
-        }
-
-        @Override
-        public int getSlotLimit(int slot) {
-            return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
-        }
-    };
+    public final ItemStackHandler INVENTORY = createItemHandler(2, OUTPUT);
 
     private final VulnerableTank TANK =  new VulnerableTank(CAPACITY) {
             @Override
@@ -78,15 +66,15 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
 
     public void tick(Level sLevel) {
         if (!sLevel.isClientSide) {
-            if (hasFluidHandlerInSlot(INVENTORY, INPUT)) {
-                transferFluidToTank(INVENTORY, INPUT, TANK);
+            if (TANK.hasFluidHandlerInSlot(INVENTORY, INPUT)) {
+               TANK.transferFluidToTank(INVENTORY, INPUT, TANK);
             }
 
-            if (hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT, TANK)) {
-                transferFluidFromTankToHandler(INVENTORY, OUTPUT, TANK);
+            if (TANK.hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT, TANK)) {
+                TANK.transferFluidFromTankToHandler(INVENTORY, OUTPUT, TANK);
             }
 
-            pushFluidToBelowNeighbour(level, worldPosition, TANK);
+            TANK.pushFluidToBelowNeighbour(level, worldPosition);
         }
     }
 
@@ -112,9 +100,5 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
         super.loadAdditional(tag, registries);
         INVENTORY.deserializeNBT(registries, tag.getCompound("skin_tank_inv"));
         TANK.readFromNBT(registries, tag);
-    }
-
-    private void updateBlock() {
-        super.updateBlock(level);
     }
 }
