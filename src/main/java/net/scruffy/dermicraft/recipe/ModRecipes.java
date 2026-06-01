@@ -8,6 +8,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
+import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
+import net.scruffy.dermicraft.recipe.masticating.VagueMasticatingRecipe;
 
 public class ModRecipes {
 
@@ -27,7 +29,25 @@ public class ModRecipes {
                 }
             });
 
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MasticatingRecipe>> MASTICATING_SERIALIZER =
+            SERIALIZERS.register("masticating", MasticatingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MasticatingRecipe>> MASTICATING_TYPE =
+            TYPES.register("masticating", () -> new RecipeType<MasticatingRecipe>() {
+                @Override
+                public String toString() {
+                    return "masticating";
+                }
+            });
 
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<VagueMasticatingRecipe>> VAGUE_MASTICATING_SERIALIZER =
+            SERIALIZERS.register("vague-masticating", VagueMasticatingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<VagueMasticatingRecipe>> VAGUE_MASTICATING_TYPE =
+            TYPES.register("vague_masticating", () -> new RecipeType<VagueMasticatingRecipe>() {
+                @Override
+                public String toString() {
+                    return "vague_masticating";
+                }
+            });
 
 
 

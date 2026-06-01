@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.item.property;
+package net.scruffy.dermicraft.property;
 
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;

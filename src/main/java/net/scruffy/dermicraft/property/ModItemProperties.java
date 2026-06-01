@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.item.property;
+package net.scruffy.dermicraft.property;
 
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponentType;

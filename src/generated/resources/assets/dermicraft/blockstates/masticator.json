@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "dermicraft:block/masticator",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "dermicraft:block/masticator"
+    },
+    "facing=south": {
+      "model": "dermicraft:block/masticator",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "dermicraft:block/masticator",
+      "y": 270
+    }
+  }
+}

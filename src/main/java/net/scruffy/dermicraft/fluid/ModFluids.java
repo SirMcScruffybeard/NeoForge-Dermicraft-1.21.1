@@ -24,6 +24,23 @@ public class ModFluids {
     public static final DeferredRegister<Fluid> FLUIDS =
             DeferredRegister.create(BuiltInRegistries.FLUID, Dermicraft.MOD_ID);
 
+    //////////////////////////////Calcium Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_CALCIUM_BLEND = FLUIDS.register("source_calcium_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.CALCIUM_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_CALCIUM_BLEND = FLUIDS.register("flowing_calcium_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.CALCIUM_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> CALCIUM_BLEND_BLOCK = ModBlocks.BLOCKS.register("calcium_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_CALCIUM_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> CALCIUM_BLEND_BUCKET = getBucket("calcium_blend_bucket", ModFluids.SOURCE_CALCIUM_BLEND);
+
+    public static final BaseFlowingFluid.Properties CALCIUM_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE, SOURCE_CALCIUM_BLEND, FLOWING_CALCIUM_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.CALCIUM_BLEND_BLOCK)
+            .bucket(ModFluids.CALCIUM_BLEND_BUCKET);
 
     //////////////////////////////Nutrient Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_NUTRIENT_SLURRY = FLUIDS.register("source_nutrient_slurry",

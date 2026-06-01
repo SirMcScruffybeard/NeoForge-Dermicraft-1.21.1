@@ -2,28 +2,25 @@ package net.scruffy.dermicraft.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SkinTankBlock extends BaseEntityBlock {
+public class SkinTankBlock extends ModBaseEntityBlock {
 
     public static final MapCodec<SkinTankBlock> CODEC = simpleCodec(SkinTankBlock::new);
 
@@ -41,23 +38,20 @@ public class SkinTankBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
-    }
-
-    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new SkinTankBlockEntity(blockPos, blockState);
     }
 
     @Override
-    public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
-        if (pState.getBlock() != pNewState.getBlock()) {
-            if (pLevel.getBlockEntity(pPos) instanceof SkinTankBlockEntity tankBlockEntity) {
-                tankBlockEntity.drops();
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!level.isClientSide) {
+            if (state.getBlock() != newState.getBlock()) {
+                if (level.getBlockEntity(pos) instanceof SkinTankBlockEntity skinTankBlockEntity) {
+                    skinTankBlockEntity.drops();
+                }
             }
+            super.onRemove(state, level, pos, newState, movedByPiston);
         }
-        super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
     }
 
     @NotNull

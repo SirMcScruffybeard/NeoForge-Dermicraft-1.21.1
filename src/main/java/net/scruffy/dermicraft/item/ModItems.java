@@ -9,7 +9,7 @@ import net.scruffy.dermicraft.item.custom.SyringeItem;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.item.custom.SutureKitItem;
-import net.scruffy.dermicraft.item.property.ModFoodProperties;
+import net.scruffy.dermicraft.property.ModFoodProperties;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItems {

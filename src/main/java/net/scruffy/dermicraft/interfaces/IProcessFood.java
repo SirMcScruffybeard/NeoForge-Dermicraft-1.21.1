@@ -21,7 +21,7 @@ public interface IProcessFood {
     }
 
     default boolean isFood(ItemStack stack) {
-       return isMeatFood(stack) || isPlantFood(stack);
+      return (isPlantFood(stack) || isMeatFood(stack) || isPartItem(stack)) && hasNutrition(stack);
     }
 
     default boolean isPartItem(ItemStack stack) {
@@ -57,27 +57,19 @@ public interface IProcessFood {
      * @param stack
      * @param modifier total of extra modifiers to be used. If there aren't any use 1
      * @param min minimum amount to be made
-     * @return the amount of fluid to be made in mB
+     * @return the amount of ingredientFluid to be made in mB
      ***************************************************************************************/
     default int getProcessAmount(ItemStack stack, float modifier, int min) {
         if(!hasNutrition(stack)) return 0;
         return (int)Math.max(min, (getNutrition(stack)* modifier));
     }
 
-    default FluidStack getResultFluid(ItemStack stack, Fluid fluid, float modifier, int min) {
-        return new FluidStack(fluid, getProcessAmount(stack, modifier, min));
-    }
-
-    default FluidStack createWater(ItemStack stack, float modifier, int min) {
-        return getResultFluid(stack, Fluids.WATER, modifier, min);
-    }
-
     default FluidStack createWater(int amount) {
         return new FluidStack(Fluids.WATER, amount);
     }
 
-    default  FluidStack createNutrientSlurry(ItemStack stack, float multiplier, int min) {
-        return getResultFluid(stack, ModFluids.SOURCE_NUTRIENT_SLURRY.get(), multiplier, min);
+    default  FluidStack createNutrientSlurry(int amount) {
+        return new FluidStack(ModFluids.SOURCE_NUTRIENT_SLURRY.get(), amount);
     }
 
 

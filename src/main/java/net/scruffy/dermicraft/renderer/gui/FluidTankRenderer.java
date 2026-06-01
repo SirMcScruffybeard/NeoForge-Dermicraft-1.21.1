@@ -33,7 +33,7 @@ import java.util.List;
 public class FluidTankRenderer {
     private static final NumberFormat nf = NumberFormat.getIntegerInstance();
     private static final int TEXTURE_SIZE = 16;
-    private static final int MIN_FLUID_HEIGHT = 1; // ensure tiny amounts of fluid are still visible
+    private static final int MIN_FLUID_HEIGHT = 1; // ensure tiny amounts of ingredientFluid are still visible
 
     private final long capacity;
     private final TooltipMode tooltipMode;
@@ -173,7 +173,7 @@ public class FluidTankRenderer {
         try {
             if (fluidType.isSame(Fluids.EMPTY)) {
                 tooltip.add(Component.literal("Empty"));
-                tooltip.add(Component.translatable("tooltip.fleshlabsmod.liquid.amount.with.capacity", 0, nf.format(capacity)).withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity", 0, nf.format(capacity)).withStyle(ChatFormatting.GRAY));
                 return tooltip;
             }
 
@@ -184,14 +184,14 @@ public class FluidTankRenderer {
             long milliBuckets = (amount * 1000) / FluidType.BUCKET_VOLUME;
 
             if (tooltipMode == TooltipMode.SHOW_AMOUNT_AND_CAPACITY) {
-                MutableComponent amountString = Component.translatable("tooltip.fleshlabsmod.liquid.amount.with.capacity", nf.format(milliBuckets), nf.format(capacity));
+                MutableComponent amountString = Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity", nf.format(milliBuckets), nf.format(capacity));
                 tooltip.add(amountString.withStyle(ChatFormatting.GRAY));
             } else if (tooltipMode == TooltipMode.SHOW_AMOUNT) {
-                MutableComponent amountString = Component.translatable("tooltip.fleshlabsmod.liquid.amount", nf.format(milliBuckets));
+                MutableComponent amountString = Component.translatable("tooltip.dermicraft.liquid.amount", nf.format(milliBuckets));
                 tooltip.add(amountString.withStyle(ChatFormatting.GRAY));
             }
         } catch (RuntimeException e) {
-            Dermicraft.LOGGER.error("Failed to get tooltip for fluid: " + e);
+            Dermicraft.LOGGER.error("Failed to get tooltip for ingredientFluid: " + e);
         }
 
         return tooltip;

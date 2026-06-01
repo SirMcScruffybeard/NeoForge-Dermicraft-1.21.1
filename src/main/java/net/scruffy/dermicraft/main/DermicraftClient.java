@@ -1,9 +1,7 @@
 package net.scruffy.dermicraft.main;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -21,11 +19,12 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.fluid.ModFluids;
-import net.scruffy.dermicraft.item.property.ModItemProperties;
+import net.scruffy.dermicraft.property.ModItemProperties;
 import net.scruffy.dermicraft.renderer.DroolingCauldronBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.SkinTankBlockEntityRenderer;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronScreen;
+import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankScreen;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
@@ -46,6 +45,7 @@ public class DermicraftClient {
             ModItemProperties.addCustomItemProperties();
 
             renderTranslucentFluid(ModFluids.SOURCE_NUTRIENT_SLURRY.get(), ModFluids.FLOWING_NUTRIENT_SLURRY.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CALCIUM_BLEND.get(), ModFluids.FLOWING_CALCIUM_BLEND.get());
         });
     }
 
@@ -53,6 +53,7 @@ public class DermicraftClient {
     public static void onClientExtensions(RegisterClientExtensionsEvent event) {
 
         registerFluidType(event, ModFluidTypes.NUTRIENT_SLURRY_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE.get());
     }
 
     @SubscribeEvent
@@ -65,6 +66,7 @@ public class DermicraftClient {
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.SKIN_TANK_MENU.get(), SkinTankScreen::new);
         event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
+        event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

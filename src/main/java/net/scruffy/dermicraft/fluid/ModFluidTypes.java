@@ -24,10 +24,24 @@ public class ModFluidTypes {
     public static final DeferredRegister<FluidType> FLUID_TYPES =
             DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, Dermicraft.MOD_ID);
 
-    //////////////////////////////Slurry Fuels\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    //////////////////////////////Organic Fluids\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FluidType> CALCIUM_BLEND_FLUID_TYPE = registerFluidType("calcium_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFFCE1E4,
+                    setColorVector(239, 288, 227),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1300)
+                            .temperature(300)
+                            .motionScale(0.08)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)
+            ));
+
+    //////////////////////////////Slurries\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FluidType> NUTRIENT_SLURRY_FLUID_TYPE = registerFluidType("nutrient_slurry_fluid",
-            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xD24FA757,
-                    setColorVector(79, 167, 87),
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF4FA757,
+                    setColorVector(252, 225, 228),
                     FluidType.Properties.create()
                             .viscosity(4000)
                             .density(3000)
