@@ -28,7 +28,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
         ;
 
         tag(ModTags.Fluids.BIOFUELS)
-                .add(ModFluids.SOURCE_NUTRIENT_SLURRY.get())
+                .add(ModFluids.SOURCE_CRUDE_SLURRY.get())
         ;
 
         tag(ModTags.Fluids.HAZARDOUS)

@@ -16,12 +16,16 @@ public abstract class ModFluidTank extends FluidTank {
 
     public static int BUCKET_VOLUME = FluidType.BUCKET_VOLUME;
 
-    public ModFluidTank(int capacity, Predicate<FluidStack> validator) {
+    public final int SLOT;
+
+    public ModFluidTank(int capacity, int slot, Predicate<FluidStack> validator) {
         super(capacity, validator);
+        SLOT = slot;
     }
 
-    public ModFluidTank(int capacity) {
+    public ModFluidTank(int capacity, int slot) {
         super(capacity);
+        SLOT = slot;
     }
     
     public boolean hasRoom(FluidStack resource) {
@@ -40,31 +44,25 @@ public abstract class ModFluidTank extends FluidTank {
         return tank.getFluid().getAmount() >= targetAmount;
     }
 
+    public void useFluid(int amount) {
+        this.drain(amount, FluidAction.EXECUTE);
+    }
+
     public boolean hasFluidHandlerInSlot(IItemHandler itemHandler, int slot) {
         return ModFluidUtil.hasFluidHandlerInSlot(itemHandler,slot);
     }
 
     public boolean hasEmptyFluidHandlerInSlot(ItemStackHandler itemHandler, int slot, FluidTank tank) {
-        return ModFluidUtil.hasEmptyFluidHandlerInSlot(itemHandler, slot, tank);
+        return ModFluidUtil.hasEmptyFluidHandlerInSlotForTransfer(itemHandler, slot, tank);
     }
 
     public void transferFluidToTank(ItemStackHandler itemHandler, int slot, FluidTank tank) {
         ModFluidUtil.transferFluidToTank(itemHandler, slot, tank);
     }
 
-    public void transferResultFluidToTank(FluidStack resource) {
+    public void safeFill(FluidStack resource) {
         if (hasRoom(resource)) {
             fill(resource, IFluidHandler.FluidAction.EXECUTE);
-        }
-    }
-
-    public void internalFluidTransfer(ItemStackHandler inventory, int slot, FluidTank tank) {
-
-        if (ModFluidUtil.hasFluidHandlerInSlot(inventory, slot)) {
-            ModFluidUtil.transferFluidToTank(inventory, slot, tank);
-
-        } else if (ModFluidUtil.hasEmptyFluidHandlerInSlot(inventory, slot, tank)) {
-            ModFluidUtil.transferFluidFromTankToHandler(inventory, slot, tank);
         }
     }
 

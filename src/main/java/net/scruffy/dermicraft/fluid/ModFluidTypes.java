@@ -39,7 +39,7 @@ public class ModFluidTypes {
             ));
 
     //////////////////////////////Slurries\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    public static final Supplier<FluidType> NUTRIENT_SLURRY_FLUID_TYPE = registerFluidType("nutrient_slurry_fluid",
+    public static final Supplier<FluidType> CRUDE_SLURRY_FLUID_TYPE = registerFluidType("crude_slurry_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF4FA757,
                     setColorVector(252, 225, 228),
                     FluidType.Properties.create()

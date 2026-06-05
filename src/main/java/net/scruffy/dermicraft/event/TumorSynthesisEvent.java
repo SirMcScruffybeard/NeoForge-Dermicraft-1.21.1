@@ -49,7 +49,7 @@ public class TumorSynthesisEvent {
                     .collect(Collectors.groupingBy(item -> item.blockPosition()));
 
             itemsByPos.forEach(((pos, itemList) -> {
-                if (level.getBlockState(pos).is(ModFluids.NUTRIENT_SLURRY_BLOCK)) {
+                if (level.getBlockState(pos).is(ModFluids.CRUDE_SLURRY_BLOCK)) {
 
                     //Get total of items with the tag
                     int totalFleshItems = itemList.stream()

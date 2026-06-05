@@ -42,23 +42,23 @@ public class ModFluids {
             .block(ModFluids.CALCIUM_BLEND_BLOCK)
             .bucket(ModFluids.CALCIUM_BLEND_BUCKET);
 
-    //////////////////////////////Nutrient Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    public static final Supplier<FlowingFluid> SOURCE_NUTRIENT_SLURRY = FLUIDS.register("source_nutrient_slurry",
-            () -> new BaseFlowingFluid.Source(ModFluids.NUTRIENT_SLURRY_PROPERTIES));
+    //////////////////////////////Crude Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_CRUDE_SLURRY = FLUIDS.register("source_crude_slurry",
+            () -> new BaseFlowingFluid.Source(ModFluids.CRUDE_SLURRY_PROPERTIES));
 
-    public static final Supplier<FlowingFluid> FLOWING_NUTRIENT_SLURRY = FLUIDS.register("flowing_nutrient_slurry",
-            () -> new BaseFlowingFluid.Flowing(ModFluids.NUTRIENT_SLURRY_PROPERTIES));
+    public static final Supplier<FlowingFluid> FLOWING_CRUDE_SLURRY = FLUIDS.register("flowing_crude_slurry",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.CRUDE_SLURRY_PROPERTIES));
 
-    public static final DeferredBlock<LiquidBlock> NUTRIENT_SLURRY_BLOCK = ModBlocks.BLOCKS.register("nutrient_slurry_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_NUTRIENT_SLURRY.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+    public static final DeferredBlock<LiquidBlock> CRUDE_SLURRY_BLOCK = ModBlocks.BLOCKS.register("crude_slurry_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_CRUDE_SLURRY.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
-    public static final DeferredItem<Item> NUTRIENT_SLURRY_BUCKET = getBucket("nutrient_slurry_bucket", ModFluids.SOURCE_NUTRIENT_SLURRY);
+    public static final DeferredItem<Item> CRUDE_SLURRY_BUCKET = getBucket("crude_slurry_bucket", ModFluids.SOURCE_CRUDE_SLURRY);
 
-    public static final BaseFlowingFluid.Properties NUTRIENT_SLURRY_PROPERTIES = new BaseFlowingFluid.Properties(
-            ModFluidTypes.NUTRIENT_SLURRY_FLUID_TYPE, SOURCE_NUTRIENT_SLURRY, FLOWING_NUTRIENT_SLURRY)
+    public static final BaseFlowingFluid.Properties CRUDE_SLURRY_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE, SOURCE_CRUDE_SLURRY, FLOWING_CRUDE_SLURRY)
             .slopeFindDistance(2).levelDecreasePerBlock(1)
-            .block(ModFluids.NUTRIENT_SLURRY_BLOCK)
-            .bucket(ModFluids.NUTRIENT_SLURRY_BUCKET);
+            .block(ModFluids.CRUDE_SLURRY_BLOCK)
+            .bucket(ModFluids.CRUDE_SLURRY_BUCKET);
 
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static void register(IEventBus eventBus) {

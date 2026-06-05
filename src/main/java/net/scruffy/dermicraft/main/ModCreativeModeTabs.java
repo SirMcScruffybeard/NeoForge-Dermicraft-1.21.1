@@ -67,7 +67,7 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModFluids.CALCIUM_BLEND_BUCKET);
-                        output.accept(ModFluids.NUTRIENT_SLURRY_BUCKET);
+                        output.accept(ModFluids.CRUDE_SLURRY_BUCKET);
                     }).build());
 
 
@@ -78,6 +78,6 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
         output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
-        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_NUTRIENT_SLURRY.get()));
+        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
     }
 }

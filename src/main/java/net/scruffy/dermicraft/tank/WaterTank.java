@@ -5,7 +5,7 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class WaterTank extends ModFluidTank {
 
-    public WaterTank(int capacity) {
-        super(capacity, (fluidStack -> fluidStack.is(Tags.Fluids.WATER)));
+    public WaterTank(int capacity, int slot) {
+        super(capacity, slot, (fluidStack -> fluidStack.is(Tags.Fluids.WATER)));
     }
 }

@@ -112,7 +112,6 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
         if (pLevel.isClientSide()) {
             return null;
         }
-
         return createTickerHelper(pBlockEntityType, ModBlockEntities.DROOLING_CAULDRON_BE.get(),
                 ((level, blockPos, blockState, DcBlockEntity) -> DcBlockEntity.tick(level)));
     }

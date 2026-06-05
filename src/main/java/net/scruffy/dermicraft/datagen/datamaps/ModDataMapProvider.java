@@ -27,7 +27,7 @@ public class ModDataMapProvider extends DataMapProvider {
     protected void gather(HolderLookup.Provider provider) {
 
         this.builder(ModDataMaps.BIOFUELS)
-                .add(getResourceLocation(ModFluids.SOURCE_NUTRIENT_SLURRY),
+                .add(getResourceLocation(ModFluids.SOURCE_CRUDE_SLURRY),
                         new BiofuelProperties(.1f, 1f), false)
 
                 ;

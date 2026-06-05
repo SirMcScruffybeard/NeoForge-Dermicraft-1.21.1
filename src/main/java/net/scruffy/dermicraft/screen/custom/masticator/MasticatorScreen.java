@@ -32,9 +32,9 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     protected void init() {
         super.init();
 
-        fuelRenderer = createFluidRenderer16x40(menu.BE.FUEL_CAPACITY);
-        ingredientRenderer = createFluidRenderer16x40(menu.BE.INGREDIENT_CAPACITY);
-        resultRenderer = createFluidRenderer16x40(menu.BE.RESULT_CAPACITY);
+        fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        ingredientRenderer = createFluidRenderer16x40(menu.BE.getIngredientTank().getCapacity());
+        resultRenderer = createFluidRenderer16x40(menu.BE.getResultTank().getCapacity());
     }
 
     @Override
@@ -43,13 +43,13 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         int y = (height - imageHeight) / 2;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.FUEL_SLOT), 27, 11, fuelRenderer);
+                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), 27, 11, fuelRenderer);
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.INGREDIENT_SLOT), 80, 11, ingredientRenderer);
+                menu.BE.getFluid(menu.BE.getIngredientTank().SLOT), 80, 11, ingredientRenderer);
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.RESULT_SLOT), 133, 11, resultRenderer);
+                menu.BE.getFluid(menu.BE.getResultTank().SLOT), 133, 11, resultRenderer);
 
     }
 
@@ -65,9 +65,9 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
 
         renderProgressArrow(guiGraphics, x, y);
 
-        fuelRenderer.render(guiGraphics, x + 27, y + 11, menu.BE.getFluid(menu.BE.FUEL_SLOT));
-        ingredientRenderer.render(guiGraphics, x + 80, y + 11, menu.BE.getFluid(menu.BE.INGREDIENT_SLOT));
-        resultRenderer.render(guiGraphics, x + 133, y + 11, menu.BE.getFluid(menu.BE.RESULT_SLOT));
+        fuelRenderer.render(guiGraphics, x + 27, y + 11, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+        ingredientRenderer.render(guiGraphics, x + 80, y + 11, menu.BE.getFluid(menu.BE.getIngredientTank().SLOT));
+        resultRenderer.render(guiGraphics, x + 133, y + 11, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
     }
 
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {

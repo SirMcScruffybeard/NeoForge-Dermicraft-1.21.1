@@ -9,12 +9,31 @@ import net.neoforged.neoforge.items.IItemHandler;
 
 public interface IHaveInventory {
 
-    default ItemStack insertItem(IItemHandler inventory, int slot, ItemStack stack) {
-      return inventory.insertItem(slot, stack, false);
+    default ItemStack insertItemStack(IItemHandler inventory, int slot, ItemStack stack) {
+
+        if (!stack.isEmpty()) {
+            ItemStack remainder =  inventory.insertItem(slot, stack, true);
+
+            if (remainder.getCount() == stack.getCount()) {
+                return stack;
+            }
+            ItemStack realRemainder = inventory.insertItem(slot, stack, false);
+            return realRemainder;
+        }
+        return ItemStack.EMPTY;
+
     }
 
     default ItemStack extractItem(IItemHandler inventory, int slot, int amount) {
         return inventory.extractItem(slot, amount, false);
+    }
+
+    default ItemStack extractItemStack(IItemHandler inventory, int slot) {
+        if (!inventory.getStackInSlot(slot).isEmpty()) {
+            return inventory.extractItem(slot, inventory.getStackInSlot(slot).getCount(), false);
+        }
+
+        return ItemStack.EMPTY;
     }
 
     void drops();

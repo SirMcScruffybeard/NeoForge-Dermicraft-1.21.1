@@ -4,5 +4,5 @@
     "tag": "dermicraft:plant_food"
   },
   "ingredient_fluid": "minecraft:water",
-  "result_fluid": "dermicraft:source_nutrient_slurry"
+  "result_fluid": "dermicraft:source_crude_slurry"
 }

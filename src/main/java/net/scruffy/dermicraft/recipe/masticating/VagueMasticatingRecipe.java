@@ -19,10 +19,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 
 public record VagueMasticatingRecipe(Ingredient ingredientItem, Fluid ingredientFluid,
-                                     Fluid result) implements Recipe<MasticatingRecipeInput> {
+                                     Fluid result) implements Recipe<OneFluidOneItemRecipeInput> {
 
 
     @Override
@@ -33,7 +34,7 @@ public record VagueMasticatingRecipe(Ingredient ingredientItem, Fluid ingredient
     }
 
     @Override
-    public boolean matches(MasticatingRecipeInput input, Level level) {
+    public boolean matches(OneFluidOneItemRecipeInput input, Level level) {
         if (level.isClientSide()) return false;
 
         return testIngredient(input.getItem(0))
@@ -41,7 +42,7 @@ public record VagueMasticatingRecipe(Ingredient ingredientItem, Fluid ingredient
     }
 
     public boolean matches(Level level, ItemStack stack, FluidStack fluidStack) {
-        return matches(new MasticatingRecipeInput(stack, fluidStack), level);
+        return matches(new OneFluidOneItemRecipeInput(stack, fluidStack), level);
     }
 
     public boolean testIngredient(ItemStack stack) {
@@ -53,7 +54,7 @@ public record VagueMasticatingRecipe(Ingredient ingredientItem, Fluid ingredient
     }
 
     @Override
-    public ItemStack assemble(MasticatingRecipeInput vagueMasticatingRecipeInput, HolderLookup.Provider provider) {
+    public ItemStack assemble(OneFluidOneItemRecipeInput vagueMasticatingRecipeInput, HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
 

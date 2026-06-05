@@ -23,7 +23,6 @@ public interface IProcessFood {
     default boolean isFood(ItemStack stack) {
       return (isPlantFood(stack) || isMeatFood(stack) || isPartItem(stack)) && hasNutrition(stack);
     }
-
     default boolean isPartItem(ItemStack stack) {
         return stack.is(ModTags.Items.PART_ITEMS);
     }
@@ -36,16 +35,6 @@ public interface IProcessFood {
     default float getNutrition(ItemStack stack) {
         if (!hasNutrition(stack)) return 0;
         return stack.getFoodProperties(null).nutrition();
-    }
-
-    default float getSaturation(ItemStack stack) {
-        FoodProperties props = stack.getFoodProperties(null);
-        if (props == null) return 0;
-        return props.saturation();
-    }
-
-    default float getSaturationModifier(ItemStack stack, int ticks) {
-        return getSaturation(stack) * ticks;
     }
 
     default int getProcessTime(ItemStack stack, int ticks) {
@@ -67,13 +56,6 @@ public interface IProcessFood {
     default FluidStack createWater(int amount) {
         return new FluidStack(Fluids.WATER, amount);
     }
-
-    default  FluidStack createNutrientSlurry(int amount) {
-        return new FluidStack(ModFluids.SOURCE_NUTRIENT_SLURRY.get(), amount);
-    }
-
-
-
 
     default void consumeItem(IItemHandler inventory, int slot, int amount) {
         inventory.extractItem(slot, amount, false);

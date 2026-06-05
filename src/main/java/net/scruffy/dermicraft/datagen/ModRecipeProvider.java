@@ -29,6 +29,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.VagueMasticatingRecipe;
+import net.scruffy.dermicraft.util.ModMath;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -49,7 +50,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SYRINGE).pattern("  N").pattern(" G ").pattern("I  ").define('N', Tags.Items.NUGGETS_IRON).define('G', Tags.Items.GLASS_BLOCKS_CHEAP).define('I', Tags.Items.INGOTS_IRON).unlockedBy("has_iron_nugget", has(Tags.Items.NUGGETS_IRON)).save(recipeOutput, getResourceLocation("syringe_crafting_table"));
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModFluids.NUTRIENT_SLURRY_BUCKET).requires(ModTags.Items.PLANT_FOOD).requires(ModTags.Items.PLANT_FOOD).requires(ModTags.Items.PLANT_FOOD).requires(Tags.Items.BUCKETS_WATER).unlockedBy("has_water_bucket", has(Tags.Items.BUCKETS_WATER)).save(recipeOutput, getResourceLocation("nutrient_slurry_crafting_table"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModFluids.CRUDE_SLURRY_BUCKET).requires(ModTags.Items.PLANT_FOOD).requires(ModTags.Items.PLANT_FOOD).requires(ModTags.Items.PLANT_FOOD).requires(Tags.Items.BUCKETS_WATER).unlockedBy("has_water_bucket", has(Tags.Items.BUCKETS_WATER)).save(recipeOutput, getResourceLocation("nutrient_slurry_crafting_table"));
 
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.OUTERFACE)
@@ -74,12 +75,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_NUTRIENT_SLURRY.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 new ItemStack(ModBlocks.DROOLING_CAULDRON.asItem()),
                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.CAULDRON));
 
+        buildMasticating(recipeOutput, "calcium_blend_masticating", Ingredient.of(Items.BONE),
+                Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000,
+                ModMath.Time.getMinutesToTicks(1),
+                InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE));
+
         buildVagueMasticating(recipeOutput, "crude_slurry_vague_masticating", Ingredient.of(ModTags.Items.PLANT_FOOD),
-                Fluids.WATER, ModFluids.SOURCE_NUTRIENT_SLURRY.get(),
+                Fluids.WATER, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.MASTICATOR));
     }
 
@@ -123,7 +129,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     private void simpleEarlyImplant(RecipeOutput recipeOutput, Item ingredient, String name, Item result) {
         buildEarlyImplant(recipeOutput, getResourceLocation(name), List.of(Ingredient.of(ingredient)),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS),
-                ModFluids.SOURCE_NUTRIENT_SLURRY.get(), 100,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 new ItemStack(result),
                 InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DIRT).build()));
     }
@@ -131,14 +137,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     private void simpleEarlyImplant(RecipeOutput recipeOutput, TagKey<Item> ingredient, String name, Item result) {
         buildEarlyImplant(recipeOutput, getResourceLocation(name), List.of(Ingredient.of(ingredient)),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS),
-                ModFluids.SOURCE_NUTRIENT_SLURRY.get(), 100,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 new ItemStack(result),
                 InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DIRT).build()));
     }
 
     ////////////////////Masticating\\\\\\\\\\\\\\\\\\\\
-    private void buildMasticating(RecipeOutput output, ResourceLocation id, Ingredient ingredient, Fluid fluid, int ingredientFluidAmount,
-                                Fluid result, int resultAmount, int ticks, Criterion<?> unlockCriterion) {
+    private void buildMasticating(RecipeOutput output, String name, Ingredient ingredient, Fluid fluid, int ingredientFluidAmount,
+                                  Fluid result, int resultAmount, int ticks, Criterion<?> unlockCriterion) {
+        ResourceLocation id = getResourceLocation(name);
 
         MasticatingRecipe recipe = new MasticatingRecipe(ingredient, fluid, ingredientFluidAmount, result, resultAmount, ticks);
 
@@ -151,7 +158,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     private void buildVagueMasticating(RecipeOutput output, String name, Ingredient ingredient,
                                        Fluid fluid, Fluid result, Criterion<?> unlockCriterion) {
 
-        ResourceLocation id  = getResourceLocation(name);
+        ResourceLocation id = getResourceLocation(name);
 
         VagueMasticatingRecipe recipe = new VagueMasticatingRecipe(ingredient, fluid, result);
 

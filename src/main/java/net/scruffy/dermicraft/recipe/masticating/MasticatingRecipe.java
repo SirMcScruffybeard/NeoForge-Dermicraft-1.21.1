@@ -18,11 +18,12 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 
 
 public record MasticatingRecipe(Ingredient ingredient, Fluid ingredientFluid, int ingredientFluidAmount ,
-                                Fluid result, int resultAmount, int ticks) implements Recipe<MasticatingRecipeInput> {
+                                Fluid result, int resultAmount, int ticks) implements Recipe<OneFluidOneItemRecipeInput> {
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
@@ -32,7 +33,7 @@ public record MasticatingRecipe(Ingredient ingredient, Fluid ingredientFluid, in
     }
 
     @Override
-    public boolean matches(MasticatingRecipeInput input, Level level) {
+    public boolean matches(OneFluidOneItemRecipeInput input, Level level) {
         if (level.isClientSide()) return false;
 
         return testIngredient(input.getItem(0))
@@ -40,7 +41,7 @@ public record MasticatingRecipe(Ingredient ingredient, Fluid ingredientFluid, in
     }
 
     public boolean matches(Level level, ItemStack stack, FluidStack fluidStack) {
-        return matches(new MasticatingRecipeInput(stack, fluidStack), level);
+        return matches(new OneFluidOneItemRecipeInput(stack, fluidStack), level);
     }
 
     public boolean testIngredient(ItemStack stack) {
@@ -53,7 +54,7 @@ public record MasticatingRecipe(Ingredient ingredient, Fluid ingredientFluid, in
     }
 
     @Override
-    public ItemStack assemble(MasticatingRecipeInput input, HolderLookup.Provider registries) {
+    public ItemStack assemble(OneFluidOneItemRecipeInput input, HolderLookup.Provider registries) {
         return ItemStack.EMPTY;
     }
 
@@ -75,6 +76,10 @@ public record MasticatingRecipe(Ingredient ingredient, Fluid ingredientFluid, in
     @Override
     public RecipeType<?> getType() {
         return ModRecipes.MASTICATING_TYPE.get();
+    }
+
+    public FluidStack getResultFluidStack() {
+        return new FluidStack(result, resultAmount);
     }
 
     /*******************************************************************************

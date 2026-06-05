@@ -16,11 +16,11 @@
 
   "item.dermicraft.calcium_blend_fluid": "Calcium Blend Bucket",
 
-  "item.dermicraft.nutrient_slurry_bucket": "Nutrient Slurry Bucket",
+  "item.dermicraft.calcium_blend_bucket": "Calcium Blend Bucket",
+  "item.dermicraft.crude_slurry_bucket": "Crude Slurry Bucket",
 
   "fluid_type.dermicraft.calcium_blend_fluid": "Calcium Blend",
-
-  "fluid_type.dermicraft.nutrient_slurry_fluid": "Nutrient Slurry",
+  "fluid_type.dermicraft.crude_slurry_fluid": "Crude Slurry",
 
   "block.dermicraft.inert_tumor": "Inert Tumor",
   "block.dermicraft.marred_tumor": "Marred Tumor",

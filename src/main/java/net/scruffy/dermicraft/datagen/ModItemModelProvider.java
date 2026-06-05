@@ -5,7 +5,6 @@ import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
-import net.scruffy.dermicraft.item.custom.ScalpelItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItemModelProvider extends ItemModelProvider {
@@ -31,6 +30,6 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
         basicItem(ModFluids.CALCIUM_BLEND_BUCKET.get());
-        basicItem(ModFluids.NUTRIENT_SLURRY_BUCKET.get());
+        basicItem(ModFluids.CRUDE_SLURRY_BUCKET.get());
     }
 }

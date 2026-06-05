@@ -33,9 +33,9 @@ public class MasticatorMenu extends AbstractModMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.FUEL_SLOT, 27, 59));
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.INGREDIENT_SLOT, 80, 59));
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.RESULT_SLOT, 133, 59));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 27, 59));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getIngredientTank().SLOT, 80, 59));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 133, 59));
 
         addDataSlots(data);
     }

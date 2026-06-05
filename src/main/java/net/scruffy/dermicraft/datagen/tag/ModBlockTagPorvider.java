@@ -22,7 +22,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.DROOLING_CAULDRON.get())
                 .add(ModBlocks.OUTERFACE.get())
                 .add(ModBlocks.SKIN_TANK.get())
-
+                .add(ModBlocks.MASTICATOR.get())
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)

@@ -10,29 +10,27 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.tank.WaterTank;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public abstract class MachineBaseBlockEntity extends BlockEntity {
+
+    protected int progress = 0;
+    protected int maxProgress = 0;
+
     public MachineBaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -52,22 +50,12 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         };
     }
 
-    protected VulnerableTank createVulnerableTank(int capacity) {
-        return new VulnerableTank(capacity) {
+    protected VulnerableTank createVulnerableTank(int capacity, int slot) {
+        return new VulnerableTank(capacity, slot) {
             @Override
             protected void onContentsChanged()
             {
-                setChanged();
-                updateBlock();
-            }
-        };
-    }
-
-    protected FuelTank createFuelTank(int capacity) {
-        return new FuelTank(capacity) {
-            @Override
-            protected void onContentsChanged() {
-                if (!level.isClientSide()) {
+                if (!level.isClientSide) {
                     setChanged();
                     updateBlock();
                 }
@@ -75,8 +63,20 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         };
     }
 
-    protected WaterTank createWaterTank(int capacity) {
-        return new WaterTank(capacity) {
+    protected FuelTank createFuelTank(int capacity, int slot) {
+        return new FuelTank(capacity, slot) {
+            @Override
+            protected void onContentsChanged() {
+                if (!level.isClientSide) {
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
+    protected WaterTank createWaterTank(int capacity, int slot) {
+        return new WaterTank(capacity, slot) {
             @Override
             protected void onContentsChanged() {
                 setChanged();
@@ -101,6 +101,10 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         return recipe != null;
     }
 
+    public int getScaledProgress(int scale) {
+        return getScaledProgress(scale, progress, maxProgress);
+    }
+
     public int getScaledProgress(int scale, int progress, int maxProgress) {
         if (maxProgress <= 0 || progress <= 0) {
             return 0;
@@ -111,6 +115,18 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
 
     public Component getDisplayName(DeferredBlock<Block> block) {
         return Component.translatable("blockentity." + Dermicraft.MOD_ID + "." + block.getId());
+    }
+
+    protected void resetProgress() {
+        progress = 0;
+    }
+
+    protected void resetMaxProgress() {
+        maxProgress = 0;
+    }
+
+    public boolean isStillCrafting() {
+        return progress < maxProgress;
     }
 
     @Nullable

@@ -32,13 +32,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
 
     public final ItemStackHandler INVENTORY = createItemHandler(2, OUTPUT);
 
-    private final VulnerableTank TANK =  new VulnerableTank(CAPACITY) {
-            @Override
-            protected void onContentsChanged() {
-                setChanged();
-                updateBlock();
-            }
-        };
+    private final VulnerableTank TANK =  createVulnerableTank(FluidType.BUCKET_VOLUME * 10, -1);
 
     public SkinTankBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.SKIN_TANK_BE.get(), pos, blockState);

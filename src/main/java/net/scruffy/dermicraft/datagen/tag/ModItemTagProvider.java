@@ -64,7 +64,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         ;
 
         tag(ModTags.Items.BIOFUELS)
-                .add(ModFluids.NUTRIENT_SLURRY_BUCKET.get())
+                .add(ModFluids.CRUDE_SLURRY_BUCKET.get())
 
         ;
 

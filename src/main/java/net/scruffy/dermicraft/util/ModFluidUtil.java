@@ -23,7 +23,7 @@ public class ModFluidUtil {
         return accepted >= resource.getAmount();
     }
 
-    public static boolean hasRoom (IFluidHandler tank, int amount, int slot) {
+    public static boolean hasRoom(IFluidHandler tank, int amount, int slot) {
         if (amount == 0) return false;
         return amount < getRoom(tank, slot);
     }
@@ -37,6 +37,14 @@ public class ModFluidUtil {
     }
 
     //////////Slot Check & Internal Transfer Methods\\\\\\\\\\
+
+    /********************************************************************************
+     *  Checks if the item of the passed slot of the passed itemHandler is a valid
+     * fluid handler and has fluid in it to be emptied
+     * @param itemHandler
+     * @param slot
+     * @return
+     ********************************************************************************/
     public static boolean hasFluidHandlerInSlot(IItemHandler itemHandler, int slot) {
         ItemStack stack = itemHandler.getStackInSlot(slot);
         return !stack.isEmpty()
@@ -44,7 +52,7 @@ public class ModFluidUtil {
                 && !stack.getCapability(Capabilities.FluidHandler.ITEM, null).getFluidInTank(0).isEmpty();
     }
 
-    public static boolean hasEmptyFluidHandlerInSlot(ItemStackHandler itemHandler, int slot, FluidTank tank) {
+    public static boolean hasEmptyFluidHandlerInSlotForTransfer(ItemStackHandler itemHandler, int slot, FluidTank tank) {
         ItemStack stack = itemHandler.getStackInSlot(slot);
         return !stack.isEmpty()
                 && stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null
@@ -53,9 +61,16 @@ public class ModFluidUtil {
                         tank, Integer.MAX_VALUE, false) != FluidStack.EMPTY);
     }
 
+    public static boolean hasEmptyFluidHandlerInSlot(ItemStackHandler itemHandler, int slot) {
+        ItemStack stack = itemHandler.getStackInSlot(slot);
+        return !stack.isEmpty()
+                && stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null
+                && (stack.getCapability(Capabilities.FluidHandler.ITEM, null).getFluidInTank(0).isEmpty());
+    }
+
     public static void transferFluidToTank(ItemStackHandler itemHandler, int slot, FluidTank tank) {
         FluidActionResult result = net.neoforged.neoforge.fluids.FluidUtil.tryEmptyContainer(itemHandler.getStackInSlot(slot), tank, Integer.MAX_VALUE, null, true);
-        if(result.result != ItemStack.EMPTY) {
+        if (result.result != ItemStack.EMPTY) {
             itemHandler.setStackInSlot(slot, result.result);
         }
     }

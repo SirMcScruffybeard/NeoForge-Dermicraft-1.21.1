@@ -28,6 +28,7 @@ import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMe
 import net.scruffy.dermicraft.tank.WaterTank;
 import net.scruffy.dermicraft.util.ModMath;
 import net.scruffy.dermicraft.util.ModPlayerUtil;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IProcessFood {
@@ -42,14 +43,11 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     public final static int INPUT = 0;
     public final static int OUTPUT = 1;
 
-    private int progress = 0;
-    private int maxProgress = 0;
-
     private final ContainerData data;
 
     public final ItemStackHandler INVENTORY = createItemHandler(2, OUTPUT);
 
-    private final WaterTank TANK = createWaterTank(CAPACITY);
+    private final WaterTank TANK = createWaterTank(CAPACITY, -1);
 
     public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
@@ -118,7 +116,7 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     }
 
     public void insertInput(ItemStack stack, Player player, InteractionHand hand) {
-        ItemStack remainder = insertItem(INVENTORY, INPUT, stack);
+        ItemStack remainder = insertItemStack(INVENTORY, INPUT, stack);
         player.setItemInHand(hand, remainder);
     }
 
@@ -149,7 +147,7 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
         //////////Auto-fill\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, AUTO_TICKS)) {
-            TANK.transferResultFluidToTank(createWater(AUTO_RATE));
+            TANK.safeFill(createWater(AUTO_RATE));
         }
 
         //////////Craft\\\\\\\\\\
@@ -185,13 +183,9 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     private void craftWater(int amount) {
         FluidStack resource = createWater(amount);
         if (TANK.hasRoom(resource)) {
-            TANK.transferResultFluidToTank(resource);
+            TANK.safeFill(resource);
             consumeSingleItem(INVENTORY, INPUT);
         }
-    }
-
-    private void resetProgress() {
-        progress = 0;
     }
 
     private void incrementProgress() {
@@ -199,13 +193,13 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     }
 
 
-    @Override
-    public Component getDisplayName() {
-        return Component.translatable("blockentity." + Dermicraft.MOD_ID + "." + ModBlocks.DROOLING_CAULDRON.getId());
+    @Override @NotNull
+    public  Component getDisplayName() {
+        return super.getDisplayName(ModBlocks.DROOLING_CAULDRON);
     }
 
-    @Override
-    public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+    @Override @Nullable
+    public  AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         return new DroolingCauldronMenu(containerId, inventory, this, this.data);
     }
 
@@ -253,13 +247,5 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
                 return 2;
             }
         };
-    }
-
-    public int getScaledProgress(int scale) {
-        return getScaledProgress(progress, maxProgress, scale);
-    }
-
-    public boolean isStillCrafting() {
-        return progress < maxProgress;
     }
 }
