@@ -7,6 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.VagueMasticatingRecipe;
@@ -40,12 +41,22 @@ public class ModRecipes {
             });
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<VagueMasticatingRecipe>> VAGUE_MASTICATING_SERIALIZER =
-            SERIALIZERS.register("vague-masticating", VagueMasticatingRecipe.Serializer::new);
+            SERIALIZERS.register("vague_masticating", VagueMasticatingRecipe.Serializer::new);
     public static final DeferredHolder<RecipeType<?>, RecipeType<VagueMasticatingRecipe>> VAGUE_MASTICATING_TYPE =
             TYPES.register("vague_masticating", () -> new RecipeType<VagueMasticatingRecipe>() {
                 @Override
                 public String toString() {
                     return "vague_masticating";
+                }
+            });
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<VagueDroolingRecipe>> VAGUE_DROOLING_SERIALIZER =
+            SERIALIZERS.register("vague_drooling", VagueDroolingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<VagueDroolingRecipe>> VAGUE_DROOLING_TYPE =
+            TYPES.register("vague_drooling", () -> new RecipeType<VagueDroolingRecipe>() {
+                @Override
+                public String toString() {
+                    return "vague_drooling";
                 }
             });
 

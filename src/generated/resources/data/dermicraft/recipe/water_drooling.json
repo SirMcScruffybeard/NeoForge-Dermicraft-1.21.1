@@ -1,0 +1,8 @@
+{
+  "type": "dermicraft:vague_drooling",
+  "ingredient": {
+    "tag": "c:foods"
+  },
+  "modifier": 1,
+  "result_fluid": "minecraft:water"
+}

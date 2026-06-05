@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -69,19 +70,20 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
-    @Override
-    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    @Override @NotNull
+    protected  ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (!level.isClientSide) {
             if (level.getBlockEntity(pos) instanceof DroolingCauldronBlockEntity be) {
                 IFluidHandler tank = be.getTank(null);
 
                 FluidUtil.interactWithFluidHandler(player, hand, tank);
 
-                if (be.isFood(stack) || be.isPartItem(stack)) {
-                    be.insertInput(stack, player, hand);
+                if (player.getItemInHand(hand).isEmpty()) {
+                    player.setItemInHand(hand, be.extractItemStack());
 
-                } else if (player.getItemInHand(hand).isEmpty()) {
-                    be.extractInput(player);
+                } else if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
+                    player.setItemInHand(hand, be.insetItemStack(stack));
+                    return ItemInteractionResult.SUCCESS;
                 }
             }
         }

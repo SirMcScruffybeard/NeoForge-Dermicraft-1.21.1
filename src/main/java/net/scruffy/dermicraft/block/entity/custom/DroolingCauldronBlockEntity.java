@@ -3,17 +3,22 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -22,36 +27,33 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
-import net.scruffy.dermicraft.interfaces.IProcessFood;
-import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.recipe.ModRecipes;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
 import net.scruffy.dermicraft.tank.WaterTank;
 import net.scruffy.dermicraft.util.ModMath;
-import net.scruffy.dermicraft.util.ModPlayerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IProcessFood {
+import java.util.Optional;
 
-    private final int PROCESSES_TICKS = 10;
-    private final int AUTO_TICKS = 20;
-    private final int AUTO_RATE = 1;
-    private final int FOOD_MODIFIER = 10;
-    private final int FLESH_MODIFIER = 15; //Use instead of FOOD_MODIFIER when processing PART_ITEMS
-    public static final  int CAPACITY = WaterTank.BUCKET_VOLUME * 5;
+public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
+
+    private final int CRAFT_TICKS = 10;
 
     public final static int INPUT = 0;
     public final static int OUTPUT = 1;
 
-    private final ContainerData data;
+    public final ItemStackHandler INVENTORY = createInventory();
+    private final WaterTank TANK = createTank();
 
-    public final ItemStackHandler INVENTORY = createItemHandler(2, OUTPUT);
+    private RecipeHolder<VagueDroolingRecipe> activeRecipe = null;
+    private Item activeItem = Items.AIR;
 
-    private final WaterTank TANK = createWaterTank(CAPACITY, -1);
+    private int resultAmount = 0;
 
     public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
-        this.data = createContainerData();
     }
 
     public FluidStack getFluid() {
@@ -106,64 +108,47 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         return null;
     }
 
-    public IItemHandler getItemHandler() {
-        return getItemHandler(null);
-    }
-
     @Override
     public void drops() {
         dropItems(level, INVENTORY, worldPosition);
     }
 
-    public void insertInput(ItemStack stack, Player player, InteractionHand hand) {
-        ItemStack remainder = insertItemStack(INVENTORY, INPUT, stack);
-        player.setItemInHand(hand, remainder);
+    public ItemStack insetItemStack(ItemStack stack) {
+        return insertItemStack(INVENTORY, INPUT, stack);
     }
 
-    public void extractInput(Player player) {
-        ItemStack stack = extractItem(INVENTORY, INPUT, Integer.MAX_VALUE);
-        ModPlayerUtil.giveItem(player, stack);
+    public ItemStack extractItemStack() {
+        return extractItem(INVENTORY, INPUT, Integer.MAX_VALUE);
     }
-
 
     public void tick(Level level) {
-
         if (level.isClientSide) return;
 
-        //////////Transfer\\\\\\\\\\
-        if (ModMath.Time.hasTicksPassed(level, 5)) {
-            if (TANK.hasFluidHandlerInSlot(INVENTORY, INPUT)) {
-                TANK.transferFluidToTank(INVENTORY, INPUT, TANK);
-            }
-
-            if (TANK.hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT, TANK)) {
-                TANK.transferFluidFromTankToHandler(INVENTORY, OUTPUT, TANK);
-            }
-
-           TANK.pushFluidToBelowNeighbour(level, worldPosition);
+        //////////Every Second (20 ticks)\\\\\\\\\\
+        if (ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(1))) {
+            TANK.safeFill(new FluidStack(Fluids.WATER, 1));
             setChanged();
             updateBlock();
         }
 
-        //////////Auto-fill\\\\\\\\\\
-        if (ModMath.Time.hasTicksPassed(level, AUTO_TICKS)) {
-            TANK.safeFill(createWater(AUTO_RATE));
-        }
-
         //////////Craft\\\\\\\\\\
-        if (ModMath.Time.hasTicksPassed(level, PROCESSES_TICKS)) {
-
-            ItemStack stack = INVENTORY.getStackInSlot(INPUT);
-            int amount = getCraftedAmount(stack);
-
-            if (isFood(stack) && TANK.hasRoom(amount)) {
-                maxProgress = getProcessTime(stack, PROCESSES_TICKS);
-
-                if (ModMath.Time.isTaskFinished(progress, maxProgress) ) {
-                    craftWater(amount);
+        if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
+            if (!isRecipeValid(activeRecipe)) {
+                if (progress > 0) {
                     resetProgress();
-                } else {
+                }
+                return;
+            }
+
+            if (isMaxProgressValid() && hasIngredients() && TANK.hasRoom(resultAmount)) {
+                if (isStillCrafting()) {
                     incrementProgress();
+                    setChanged();
+
+                } else {
+                    TANK.fill(activeRecipe.value().getResultFluidStack(resultAmount), IFluidHandler.FluidAction.EXECUTE);
+                    INVENTORY.extractItem(INPUT, 1, false);
+                    resetProgress();
                 }
             } else {
                 resetProgress();
@@ -171,36 +156,55 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         }
     }
 
-    private int getCraftedAmount(ItemStack stack) {
-        if (hasNutrition(stack)) {
-            int mod = isFood(stack) ? FOOD_MODIFIER : 1;
-            mod = isPartItem(stack) ? FLESH_MODIFIER : mod;
-            return getProcessAmount(stack, mod, 1);
-        }
-        return 0;
+    private boolean hasIngredients() {
+        return !INVENTORY.getStackInSlot(INPUT).isEmpty();
     }
 
-    private void craftWater(int amount) {
-        FluidStack resource = createWater(amount);
-        if (TANK.hasRoom(resource)) {
-            TANK.safeFill(resource);
-            consumeSingleItem(INVENTORY, INPUT);
-        }
+    private void setActiveRecipe() {
+        if (level == null) activeRecipe = null;
+
+        Optional<RecipeHolder<VagueDroolingRecipe>> opt = level.getRecipeManager()
+                .getRecipeFor(ModRecipes.VAGUE_DROOLING_TYPE.get(),
+                        new SingleRecipeInput(INVENTORY.getStackInSlot(INPUT)), level);
+
+        opt.ifPresent(vagueDroolingRecipeRecipeHolder -> activeRecipe = vagueDroolingRecipeRecipeHolder);
+
+    }
+
+    public void setResultAmount() {
+        resultAmount = activeRecipe.value().getCraftingAmount(INVENTORY.getStackInSlot(INPUT));
+    }
+
+    private void resetActiveRecipe() {
+        activeRecipe = null;
+    }
+
+    private void resetActiveItem() {
+        activeItem = Items.AIR;
+    }
+
+    private void resetResultAmount() {
+        resultAmount = 0;
+    }
+
+    private void setMaxProgress() {
+        maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INPUT));
     }
 
     private void incrementProgress() {
-        progress += PROCESSES_TICKS;
+        progress += CRAFT_TICKS;
     }
 
-
-    @Override @NotNull
-    public  Component getDisplayName() {
+    @Override
+    @NotNull
+    public Component getDisplayName() {
         return super.getDisplayName(ModBlocks.DROOLING_CAULDRON);
     }
 
-    @Override @Nullable
-    public  AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        return new DroolingCauldronMenu(containerId, inventory, this, this.data);
+    @Override
+    @Nullable
+    public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
+        return new DroolingCauldronMenu(containerId, inventory, this);
     }
 
     @Override
@@ -209,42 +213,96 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         tag.put("dc_tank", TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("dc_progress", progress);
         tag.putInt("dc_max", maxProgress);
-
+        tag.putInt("result", resultAmount);
+        if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
+        ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
+        tag.putString("activeItem", itemKey.toString());
         super.saveAdditional(tag, registries);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-
         if (tag.contains("dc_items")) INVENTORY.deserializeNBT(registries, tag.getCompound("dc_items"));
         if (tag.contains("dc_tank")) TANK.readFromNBT(registries, tag.getCompound("dc_tank"));
         this.progress = tag.getInt("dc_progress");
         this.maxProgress = tag.getInt("dc_max");
+        resultAmount = tag.getInt("result");
+
+        if (this.level != null && tag.contains("SavedRecipeId", CompoundTag.TAG_STRING)) {
+            ResourceLocation id = ResourceLocation.parse(tag.getString("SavedRecipeId"));
+            this.level.getRecipeManager().byKey(id).ifPresent(recipeHolder -> {
+                if (recipeHolder.value() instanceof VagueDroolingRecipe) {
+                    this.activeRecipe = (RecipeHolder<VagueDroolingRecipe>) recipeHolder;
+                }
+            });
+        }
     }
 
-    private ContainerData createContainerData() {
-        return new ContainerData() {
+    private ItemStackHandler createInventory() {
+        return new ItemStackHandler(2) {
             @Override
-            public int get(int index) {
-                return switch (index) {
-                    case 0 -> DroolingCauldronBlockEntity.this.progress;
-                    case 1 -> DroolingCauldronBlockEntity.this.maxProgress;
-                    default -> 0;
-                };
-            }
+            protected void onContentsChanged(int slot) {
+                if (level != null && !level.isClientSide()) {
 
-            @Override
-            public void set(int index, int value) {
-                switch (index) {
-                    case 0 -> DroolingCauldronBlockEntity.this.progress = value;
-                    case 1 -> DroolingCauldronBlockEntity.this.maxProgress = value;
+                    if (slot == INPUT) {
+                        ItemStack stack = getStackInSlot(INPUT);
+                        Item currentItem = stack.getItem();
+
+                        if (stack.isEmpty()) {
+                            resetProgress();
+                            resetMaxProgress();
+                            resetActiveItem();
+                            resetActiveRecipe();
+                            resetResultAmount();
+                        }
+
+                        if (currentItem != activeItem) {
+                            activeItem = currentItem;
+                            resetProgress();
+                            resetMaxProgress();
+
+                            setActiveRecipe();
+
+                            if (isRecipeValid(activeRecipe)) {
+                                setMaxProgress();
+                                setResultAmount();
+                            } else {
+                                resetActiveRecipe();
+                                resetProgress();
+                                resetMaxProgress();
+                                resetResultAmount();
+                            }
+                        }
+                    }
+
+                    if (slot == OUTPUT) {
+                        if (TANK.hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT)) {
+                            TANK.transferFluidFromTankToHandler(INVENTORY, OUTPUT);
+                        }
+                    }
+
+                    setChanged();
+                    updateBlock();
                 }
             }
 
             @Override
-            public int getCount() {
-                return 2;
+            public int getSlotLimit(int slot) {
+                return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
+            }
+        };
+    }
+
+    private WaterTank createTank() {
+        return new WaterTank(WaterTank.BUCKET_VOLUME * 5, -1) {
+
+            @Override
+            protected void onContentsChanged() {
+                if (level != null && !level.isClientSide()) {
+                    this.pushFluidToBelowNeighbour(level, worldPosition);
+                    setChanged();
+                }
             }
         };
     }

@@ -63,29 +63,6 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         };
     }
 
-    protected FuelTank createFuelTank(int capacity, int slot) {
-        return new FuelTank(capacity, slot) {
-            @Override
-            protected void onContentsChanged() {
-                if (!level.isClientSide) {
-                    setChanged();
-                    updateBlock();
-                }
-            }
-        };
-    }
-
-    protected WaterTank createWaterTank(int capacity, int slot) {
-        return new WaterTank(capacity, slot) {
-            @Override
-            protected void onContentsChanged() {
-                setChanged();
-                updateBlock();
-            }
-        };
-    }
-
-
     public void drops(IItemHandler itemHandler) {
         if (level != null) {
             SimpleContainer inventory = new SimpleContainer(itemHandler.getSlots());
@@ -99,6 +76,10 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
 
     protected boolean isRecipeValid(RecipeHolder<?> recipe) {
         return recipe != null;
+    }
+
+    protected boolean isMaxProgressValid() {
+        return maxProgress > 0;
     }
 
     public int getScaledProgress(int scale) {

@@ -18,14 +18,15 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.ModRecipes;
+import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
+import org.jetbrains.annotations.NotNull;
 
 
 public record MasticatingRecipe(Ingredient ingredient, Fluid ingredientFluid, int ingredientFluidAmount ,
                                 Fluid result, int resultAmount, int ticks) implements Recipe<OneFluidOneItemRecipeInput> {
 
-    @Override
+    @Override @NotNull
     public NonNullList<Ingredient> getIngredients() {
         NonNullList<Ingredient> list = NonNullList.create();
         list.add(ingredient);

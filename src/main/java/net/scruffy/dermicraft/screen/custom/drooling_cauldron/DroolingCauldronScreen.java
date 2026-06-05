@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
@@ -17,25 +16,26 @@ public class DroolingCauldronScreen extends AbstractModScreen<DroolingCauldronMe
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/drooling_cauldron/drooling_cauldron_gui.png");
 
     private static final ResourceLocation ARROW_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID,  "textures/gui/arrows/arrow_progress_green_15x8.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/arrows/arrow_progress_green_15x8.png");
 
     private FluidTankRenderer fluidRenderer;
 
     public DroolingCauldronScreen(DroolingCauldronMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
+
     @Override
     protected void init() {
         super.init();
 
-         fluidRenderer = createFluidRenderer16x64(DroolingCauldronBlockEntity.CAPACITY);
+        fluidRenderer = createFluidRenderer16x64(menu.BE.getTank(null).getTankCapacity(0));
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.be.getFluid(), 80, 8, fluidRenderer);
+        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.BE.getFluid(), 80, 8, fluidRenderer);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class DroolingCauldronScreen extends AbstractModScreen<DroolingCauldronMe
         guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
 
         renderProgressArrow(guiGraphics, x, y);
-        fluidRenderer.render(guiGraphics, x + 80, y + 8, menu.be.getFluid());
+        fluidRenderer.render(guiGraphics, x + 80, y + 8, menu.BE.getFluid());
 
     }
 
@@ -61,8 +61,8 @@ public class DroolingCauldronScreen extends AbstractModScreen<DroolingCauldronMe
     }
 
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
-        if(menu.isCrafting()) {
-            guiGraphics.blit(ARROW_TEXTURE,x + 62, y + 38, 0, 0, menu.getScaledArrowProgress(), 8, 15, 8);
+        if (menu.isCrafting()) {
+            guiGraphics.blit(ARROW_TEXTURE, x + 62, y + 38, 0, 0, menu.getScaledArrowProgress(), 8, 15, 8);
         }
     }
 }

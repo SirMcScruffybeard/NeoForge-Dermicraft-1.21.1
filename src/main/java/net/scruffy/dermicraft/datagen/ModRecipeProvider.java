@@ -26,6 +26,7 @@ import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.VagueMasticatingRecipe;
@@ -79,12 +80,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 new ItemStack(ModBlocks.DROOLING_CAULDRON.asItem()),
                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.CAULDRON));
 
+        buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER,
+                InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.DROOLING_CAULDRON));
+
         buildMasticating(recipeOutput, "calcium_blend_masticating", Ingredient.of(Items.BONE),
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000,
                 ModMath.Time.getMinutesToTicks(1),
                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE));
 
-        buildVagueMasticating(recipeOutput, "crude_slurry_vague_masticating", Ingredient.of(ModTags.Items.PLANT_FOOD),
+        buildVagueMasticating(recipeOutput, "crude_slurry_vague_masticating", Ingredient.of(ModTags.Items.PLANT_FOOD), 1,
                 Fluids.WATER, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.MASTICATOR));
     }
@@ -112,6 +116,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     private Advancement.Builder getAdvancement(RecipeOutput output, ResourceLocation id, Criterion<?> unlockCriterion) {
         return output.advancement().addCriterion("has_the_item", unlockCriterion)
                 .rewards(net.minecraft.advancements.AdvancementRewards.Builder.recipe(id)).requirements(AdvancementRequirements.Strategy.OR);
+    }
+
+    ////////////////////Drooling\\\\\\\\\\\\\\\\\\\\
+    private void buildVagueDrooling(RecipeOutput output, String name, Ingredient ingredient, int modifier,
+                                        Fluid result, Criterion<?> unlockCriterion) {
+
+        ResourceLocation id = getResourceLocation(name);
+
+        VagueDroolingRecipe recipe = new VagueDroolingRecipe(ingredient, modifier, result);
+
+        output.accept(id, recipe, getAdvancement(output, id, unlockCriterion).build(id.withPrefix("recipes/")));
     }
 
     ////////////////////EarlyImplant\\\\\\\\\\\\\\\\\\\\
@@ -155,12 +170,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         output.accept(id, recipe, advancementBuilder.build(id.withPrefix("recipes/")));
     }
 
-    private void buildVagueMasticating(RecipeOutput output, String name, Ingredient ingredient,
+    private void buildVagueMasticating(RecipeOutput output, String name, Ingredient ingredient, int modifier,
                                        Fluid fluid, Fluid result, Criterion<?> unlockCriterion) {
 
         ResourceLocation id = getResourceLocation(name);
 
-        VagueMasticatingRecipe recipe = new VagueMasticatingRecipe(ingredient, fluid, result);
+        VagueMasticatingRecipe recipe = new VagueMasticatingRecipe(ingredient, modifier, fluid, result);
 
         output.accept(id, recipe, getAdvancement(output, id, unlockCriterion).build(id.withPrefix("recipes/")));
     }

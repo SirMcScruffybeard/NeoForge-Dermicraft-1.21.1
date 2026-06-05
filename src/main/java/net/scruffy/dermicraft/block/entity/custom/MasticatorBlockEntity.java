@@ -170,30 +170,38 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     }
 
     public void tick(Level level) {
-        if (!level.isClientSide) {
-            //INVENTORY'S onContentChange handles:
-            // grabbing and setting the recipe
-            // and setting maxProgress
-            if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
-                if (isMaxProgressValid() && hasIngredients() && RESULT_TANK.hasRoom(resultAmount)) {
-                    if (isStillCrafting()) {
-                        if (FUEL_TANK.hasEnoughFuel(fuelUseRate)) {
-                            incrementProgress();
-                            useFuel();
-                            setChanged();
-                        }
-                    } else {
-                        INGREDIENT_TANK.useFluid(resultAmount);
-                        RESULT_TANK.fill(craftResult(resultAmount), IFluidHandler.FluidAction.EXECUTE);
-                        INVENTORY.extractItem(INGREDIENT_TANK.SLOT, 1, false);
-                        resetProgress();
-                    }
+        if (level.isClientSide) return;
+        //INVENTORY'S onContentChange handles:
+        // grabbing and setting the recipe
+        // and setting maxProgress
+        if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
+
+            if (!isRecipeValid(activePreciseRecipe) && !isRecipeValid(activeVagueRecipe)) {
+                if (progress > 0) {
+                    resetProgress();
                 }
-                setChanged();
-                updateBlock();
+                return;
             }
+
+            if (isMaxProgressValid() && hasIngredients() && RESULT_TANK.hasRoom(resultAmount)) {
+                if (isStillCrafting()) {
+                    if (FUEL_TANK.hasEnoughFuel(fuelUseRate)) {
+                        incrementProgress();
+                        useFuel();
+                        setChanged();
+                    }
+                } else {
+                    INGREDIENT_TANK.useFluid(resultAmount);
+                    RESULT_TANK.fill(craftResult(resultAmount), IFluidHandler.FluidAction.EXECUTE);
+                    INVENTORY.extractItem(INGREDIENT_TANK.SLOT, 1, false);
+                    resetProgress();
+                }
+            }
+            setChanged();
+            updateBlock();
         }
     }
+
 
     private void setSpeed() {
         speed = Math.max(SPEED_DEFAULT, FUEL_TANK.getSpeed()) * CRAFT_TICKS;
@@ -300,7 +308,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         if (isRecipeValid(activePreciseRecipe)) {
             return activePreciseRecipe.value().getResultFluidStack();
         } else if (isRecipeValid(activeVagueRecipe)) {
-            return activeVagueRecipe.value().getResultStack(craftAmount);
+            return activeVagueRecipe.value().getResultFluidStack(craftAmount);
         }
         return FluidStack.EMPTY;
     }
@@ -317,10 +325,6 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     private void setMaxProgressVague() {
         maxProgress =
                 activeVagueRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
-    }
-
-    private boolean isMaxProgressValid() {
-        return maxProgress > 0;
     }
 
     @Override
@@ -391,43 +395,43 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide()) {
 
-                    ItemStack stack = getStackInSlot(INGREDIENT_TANK.SLOT);
-                    Item currentItem = stack.getItem();
+                    if(slot == INGREDIENT_TANK.SLOT) {
+                        ItemStack stack = getStackInSlot(INGREDIENT_TANK.SLOT);
+                        Item currentItem = stack.getItem();
 
-                    if (stack.isEmpty()) {
-                        resetActiveRecipes();
-                        resetActiveItem();
-                        resetProgress();
-                        resetMaxProgress();
-                        resetResultAmount();
-                    }
-
-                    if (currentItem != activeItem) {
-                        activeItem = currentItem;
-                        resetProgress();
-                        resetMaxProgress();
-
-                        Optional<RecipeHolder<?>> recipeOpt = getRecipeOptional();
-                        setActiveRecipe(recipeOpt);
-
-                        if (isRecipeValid(activePreciseRecipe)) {
-                            setMaxProgressPrecise();
-                            setPreciseResultAmount();
-
-                        } else if (isRecipeValid(activeVagueRecipe)) {
-                            setMaxProgressVague();
-                            setVagueResultAmount();
-                        } else {
+                        if (stack.isEmpty()) {
                             resetActiveRecipes();
-                            resetMaxProgress();
+                            resetActiveItem();
                             resetProgress();
+                            resetMaxProgress();
                             resetResultAmount();
+                        }
+
+                        if (currentItem != activeItem) {
+                            activeItem = currentItem;
+                            resetProgress();
+                            resetMaxProgress();
+
+                            Optional<RecipeHolder<?>> recipeOpt = getRecipeOptional();
+                            setActiveRecipe(recipeOpt);
+
+                            if (isRecipeValid(activePreciseRecipe)) {
+                                setMaxProgressPrecise();
+                                setPreciseResultAmount();
+
+                            } else if (isRecipeValid(activeVagueRecipe)) {
+                                setMaxProgressVague();
+                                setVagueResultAmount();
+                            } else {
+                                resetActiveRecipes();
+                                resetMaxProgress();
+                                resetProgress();
+                                resetResultAmount();
+                            }
                         }
                     }
 
-                    if (isTransferringFluids) {
-                        return;
-                    }
+                    if (isTransferringFluids) return;
 
                     biDirectionalFluidTransfer(FUEL_TANK, FUEL_TANK.SLOT);
                     biDirectionalFluidTransfer(INGREDIENT_TANK, INGREDIENT_TANK.SLOT);
@@ -486,7 +490,6 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                     if (!getStackInSlot(slot).isEmpty()) {
                         return stack;
                     }
-
                     if (stack.getCount() > 1) {
                         if (simulate) {
                             ItemStack remainder = stack.copy();
