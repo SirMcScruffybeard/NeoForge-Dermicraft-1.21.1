@@ -1,0 +1,11 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:coal"
+  },
+  "ingredient_fluid": "minecraft:water",
+  "ingredient_fluid_amount": 110,
+  "result_fluid": "dermicraft:source_carbon_blend",
+  "result_fluid_amount": 110,
+  "ticks": 600
+}

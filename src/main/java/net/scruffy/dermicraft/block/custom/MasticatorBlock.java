@@ -91,10 +91,16 @@ public class MasticatorBlock extends ModBaseEntityBlock {
 
         if (!level.isClientSide) {
             if (level.getBlockEntity(pos) instanceof MasticatorBlockEntity masticator) {
-                FluidUtil.interactWithFluidHandler(player, hand, level, pos, face);
+
+                if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, face)){
+                    masticator.setChanged();
+                    masticator.updateBlock();
+                    return ItemInteractionResult.SUCCESS;
+                }
 
                 if (player.getItemInHand(hand).isEmpty()) {
                     player.setItemInHand(hand ,masticator.extractIngredients());
+                    return ItemInteractionResult.SUCCESS;
 
                 }else if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
                     player.setItemInHand(hand, masticator.insetItemStack(stack));

@@ -126,7 +126,7 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         super.onDataPacket(net, pkt, pRegistries);
     }
 
-    protected void updateBlock() {
+    public void updateBlock() {
         if (level != null) {
             updateBlock(level);
         }

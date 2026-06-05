@@ -42,6 +42,26 @@ public class ModFluids {
             .block(ModFluids.CALCIUM_BLEND_BLOCK)
             .bucket(ModFluids.CALCIUM_BLEND_BUCKET);
 
+    //////////////////////////////Carbon Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_CARBON_BLEND = FLUIDS.register("source_carbon_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.CARBON_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_CARBON_BLEND = FLUIDS.register("flowing_carbon_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.CARBON_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> CARBON_BLEND_BLOCK = ModBlocks.BLOCKS.register("carbon_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_CARBON_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> CARBON_BLEND_BUCKET = getBucket("carbon_blend_bucket", ModFluids.SOURCE_CARBON_BLEND);
+
+    public static final BaseFlowingFluid.Properties CARBON_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.CARBON_BLEND_FLUID_TYPE, SOURCE_CARBON_BLEND, FLOWING_CARBON_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.CARBON_BLEND_BLOCK)
+            .bucket(ModFluids.CARBON_BLEND_BUCKET);
+
+
+
     //////////////////////////////Crude Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_CRUDE_SLURRY = FLUIDS.register("source_crude_slurry",
             () -> new BaseFlowingFluid.Source(ModFluids.CRUDE_SLURRY_PROPERTIES));

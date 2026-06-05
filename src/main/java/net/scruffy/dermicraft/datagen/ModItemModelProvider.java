@@ -30,6 +30,8 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
         basicItem(ModFluids.CALCIUM_BLEND_BUCKET.get());
+        basicItem(ModFluids.CARBON_BLEND_BUCKET.get());
+
         basicItem(ModFluids.CRUDE_SLURRY_BUCKET.get());
     }
 }

@@ -14,12 +14,15 @@
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",
 
-  "item.dermicraft.calcium_blend_fluid": "Calcium Blend Bucket",
 
   "item.dermicraft.calcium_blend_bucket": "Calcium Blend Bucket",
+  "item.dermicraft.carbon_blend_bucket": "Carbon Blend Bucket",
+
   "item.dermicraft.crude_slurry_bucket": "Crude Slurry Bucket",
 
   "fluid_type.dermicraft.calcium_blend_fluid": "Calcium Blend",
+  "fluid_type.dermicraft.carbon_blend_fluid": "Carbon Blend",
+
   "fluid_type.dermicraft.crude_slurry_fluid": "Crude Slurry",
 
   "block.dermicraft.inert_tumor": "Inert Tumor",

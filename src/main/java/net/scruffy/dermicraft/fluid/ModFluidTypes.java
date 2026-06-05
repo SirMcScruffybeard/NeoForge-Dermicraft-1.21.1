@@ -24,15 +24,28 @@ public class ModFluidTypes {
     public static final DeferredRegister<FluidType> FLUID_TYPES =
             DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, Dermicraft.MOD_ID);
 
-    //////////////////////////////Organic Fluids\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    //////////////////////////////Material Fluids\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FluidType> CALCIUM_BLEND_FLUID_TYPE = registerFluidType("calcium_blend_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFFCE1E4,
                     setColorVector(239, 288, 227),
                     FluidType.Properties.create()
-                            .viscosity(1500)
-                            .density(1300)
+                            .viscosity(2500)
+                            .density(2000)
                             .temperature(300)
-                            .motionScale(0.08)
+                            .motionScale(0.012)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)
+            ));
+
+    public static final Supplier<FluidType> CARBON_BLEND_FLUID_TYPE = registerFluidType("carbon_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF343434,
+                    setColorVector(52,52,52),
+                    FluidType.Properties.create()
+                            .viscosity(3000)
+                            .density(2500)
+                            .temperature(280)
+                            .motionScale(0.012D)
                             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)

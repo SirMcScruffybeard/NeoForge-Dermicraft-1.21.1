@@ -76,10 +76,16 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
             if (level.getBlockEntity(pos) instanceof DroolingCauldronBlockEntity be) {
                 IFluidHandler tank = be.getTank(null);
 
-                FluidUtil.interactWithFluidHandler(player, hand, tank);
+                if (FluidUtil.interactWithFluidHandler(player, hand, tank)) {
+                    be.setChanged();
+                    be.updateBlock();
+                    return ItemInteractionResult.SUCCESS;
+                }
+
 
                 if (player.getItemInHand(hand).isEmpty()) {
                     player.setItemInHand(hand, be.extractItemStack());
+                    return ItemInteractionResult.SUCCESS;
 
                 } else if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
                     player.setItemInHand(hand, be.insetItemStack(stack));

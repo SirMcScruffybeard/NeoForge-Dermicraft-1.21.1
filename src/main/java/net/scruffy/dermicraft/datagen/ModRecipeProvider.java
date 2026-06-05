@@ -88,6 +88,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModMath.Time.getMinutesToTicks(1),
                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE));
 
+        masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 1000,
+                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+
+        masticateWithWater(recipeOutput, "carbon_blend_masticating_coal", Items.COAL, 110,
+                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+
+        masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 110,
+                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+
         buildVagueMasticating(recipeOutput, "crude_slurry_vague_masticating", Ingredient.of(ModTags.Items.PLANT_FOOD), 1,
                 Fluids.WATER, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.MASTICATOR));
@@ -123,9 +132,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                                         Fluid result, Criterion<?> unlockCriterion) {
 
         ResourceLocation id = getResourceLocation(name);
-
         VagueDroolingRecipe recipe = new VagueDroolingRecipe(ingredient, modifier, result);
-
         output.accept(id, recipe, getAdvancement(output, id, unlockCriterion).build(id.withPrefix("recipes/")));
     }
 
@@ -133,11 +140,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     private void buildEarlyImplant(RecipeOutput output, ResourceLocation id, List<Ingredient> ingredients, Ingredient sutureTool, Fluid fluid, int amount, ItemStack result, Criterion<?> unlockCriterion) {
 
         FluidStack fluidStack = new FluidStack(fluid, amount);
-
         EarlyImplantRecipe recipe = new EarlyImplantRecipe(ingredients, sutureTool, fluidStack, result);
-
-        Advancement.Builder advancementBuilder = output.advancement().addCriterion("has_the_item", unlockCriterion).rewards(net.minecraft.advancements.AdvancementRewards.Builder.recipe(id)).requirements(AdvancementRequirements.Strategy.OR);
-
+        Advancement.Builder advancementBuilder = output.advancement().addCriterion("has_the_item", unlockCriterion)
+                .rewards(net.minecraft.advancements.AdvancementRewards.Builder.recipe(id)).requirements(AdvancementRequirements.Strategy.OR);
         output.accept(id, recipe, advancementBuilder.build(id.withPrefix("recipes/")));
     }
 
@@ -161,23 +166,24 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     private void buildMasticating(RecipeOutput output, String name, Ingredient ingredient, Fluid fluid, int ingredientFluidAmount,
                                   Fluid result, int resultAmount, int ticks, Criterion<?> unlockCriterion) {
         ResourceLocation id = getResourceLocation(name);
-
         MasticatingRecipe recipe = new MasticatingRecipe(ingredient, fluid, ingredientFluidAmount, result, resultAmount, ticks);
-
         Advancement.Builder advancementBuilder = output.advancement().addCriterion("has_the_item", unlockCriterion)
                 .rewards(net.minecraft.advancements.AdvancementRewards.Builder.recipe(id)).requirements(AdvancementRequirements.Strategy.OR);
-
         output.accept(id, recipe, advancementBuilder.build(id.withPrefix("recipes/")));
     }
 
     private void buildVagueMasticating(RecipeOutput output, String name, Ingredient ingredient, int modifier,
                                        Fluid fluid, Fluid result, Criterion<?> unlockCriterion) {
-
         ResourceLocation id = getResourceLocation(name);
-
         VagueMasticatingRecipe recipe = new VagueMasticatingRecipe(ingredient, modifier, fluid, result);
-
         output.accept(id, recipe, getAdvancement(output, id, unlockCriterion).build(id.withPrefix("recipes/")));
+    }
+
+    private void masticateWithWater(RecipeOutput recipeOutput, String name, Item item, int ingredientFluidAmount,
+                                    Fluid result, int resultAmount, int ticks) {
+        buildMasticating(recipeOutput, name, Ingredient.of(item),
+                Fluids.WATER, ingredientFluidAmount, result, resultAmount, ticks,
+                InventoryChangeTrigger.TriggerInstance.hasItems(item));
     }
 
 }
