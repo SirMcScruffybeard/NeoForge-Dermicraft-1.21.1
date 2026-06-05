@@ -21,6 +21,7 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
+import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
 
 public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
@@ -30,7 +31,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
 
-    public final ItemStackHandler INVENTORY = createItemHandler(2, OUTPUT);
+    public final ItemStackHandler INVENTORY = createInventory();
 
     private final VulnerableTank TANK =  createVulnerableTank(FluidType.BUCKET_VOLUME * 10, -1);
 
@@ -60,15 +61,10 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
 
     public void tick(Level sLevel) {
         if (!sLevel.isClientSide) {
-            if (TANK.hasFluidHandlerInSlot(INVENTORY, INPUT)) {
-               TANK.transferFluidToTank(INVENTORY, INPUT, TANK);
-            }
 
-            if (TANK.hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT, TANK)) {
-                TANK.transferFluidFromTankToHandler(INVENTORY, OUTPUT, TANK);
+            if (ModMath.Time.hasTicksPassed(sLevel, 20)) {
+                TANK.pushFluidToBelowNeighbour(level, worldPosition);
             }
-
-            TANK.pushFluidToBelowNeighbour(level, worldPosition);
         }
     }
 
@@ -95,4 +91,31 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
         INVENTORY.deserializeNBT(registries, tag.getCompound("skin_tank_inv"));
         TANK.readFromNBT(registries, tag);
     }
+
+    private ItemStackHandler createInventory() {
+        return new ItemStackHandler(2) {
+           @Override
+           protected void onContentsChanged(int slot) {
+                if (level != null && !level.isClientSide) {
+
+                    if (TANK.hasFluidHandlerInSlot(this, INPUT)) {
+                        TANK.transferFluidToTank(this, INPUT, TANK);
+                    }
+
+                    if (TANK.hasEmptyFluidHandlerInSlot(this, OUTPUT, TANK)) {
+                        TANK.transferFluidFromTankToHandler(this, OUTPUT, TANK);
+                    }
+
+                    setChanged();
+                    updateBlock();
+                }
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
+            }
+        };
+    }
+
 }

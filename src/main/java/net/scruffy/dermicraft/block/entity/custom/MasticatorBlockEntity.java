@@ -12,7 +12,6 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -45,12 +43,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-@SuppressWarnings("unchecked")
+
 public class MasticatorBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
 
     private final FuelTank FUEL_TANK = createFuelTank();
     private final VulnerableTank INGREDIENT_TANK = createIngredientTank();
-    private final VulnerableTank RESULT_TANK = createVulnerableTank(FluidType.BUCKET_VOLUME * 5, 2);
+    private final VulnerableTank RESULT_TANK = createResultTank();
 
     private boolean isTransferringFluids = false;
 
@@ -72,12 +70,8 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     private RecipeHolder<VagueMasticatingRecipe> activeVagueRecipe = null;
     private Item activeItem = Items.AIR;
 
-    protected final ContainerData data;
-
     public MasticatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
-
-        data = setContainerData();
     }
 
     public IFluidHandler getTank(@Nullable Direction direction) {
@@ -133,16 +127,19 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
             }
 
             @Override
+            @NotNull
             public ItemStack getStackInSlot(int slot) {
                 return INVENTORY.getStackInSlot(targetSlot);
             }
 
             @Override
+            @NotNull
             public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
                 return INVENTORY.insertItem(targetSlot, stack, simulate);
             }
 
             @Override
+            @NotNull
             public ItemStack extractItem(int slot, int amount, boolean simulate) {
                 return INVENTORY.extractItem(targetSlot, amount, simulate);
             }
@@ -192,7 +189,6 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                         resetProgress();
                     }
                 }
-
                 setChanged();
                 updateBlock();
             }
@@ -386,33 +382,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new MasticatorMenu(containerId, playerInventory, this, this.data);
-    }
-
-    private ContainerData setContainerData() {
-        return new ContainerData() {
-            @Override
-            public int get(int index) {
-                return switch (index) {
-                    case 0 -> progress;
-                    case 1 -> maxProgress;
-                    default -> 0;
-                };
-            }
-
-            @Override
-            public void set(int index, int value) {
-                switch (index) {
-                    case 0 -> progress = value;
-                    case 1 -> maxProgress = value;
-                }
-            }
-
-            @Override
-            public int getCount() {
-                return 2;
-            }
-        };
+        return new MasticatorMenu(containerId, playerInventory, this);
     }
 
     protected ItemStackHandler createItemHandler(int size) {
@@ -510,6 +480,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
             }
 
             @Override
+            @NotNull
             public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
                 if (ModFluidUtil.hasFluidHandlerInSlot(this, slot)) {
                     if (!getStackInSlot(slot).isEmpty()) {
@@ -565,13 +536,24 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                     } else if (isRecipeValid(activeVagueRecipe)) {
                         setMaxProgressVague();
                     } else {
-                        resetActivePreciseRecipe();
-                        resetActiveVagueRecipe();
+                        resetActiveRecipes();
                         resetMaxProgress();
                         resetProgress();
                     }
                 }
                 setChanged();
+            }
+        };
+    }
+
+    private VulnerableTank createResultTank() {
+        return new VulnerableTank(FluidType.BUCKET_VOLUME * 5, 2) {
+            @Override
+            protected void onContentsChanged() {
+                if (level != null && !level.isClientSide()) {
+                    this.pushFluidToBelowNeighbour(level, worldPosition);
+                    setChanged();
+                }
             }
         };
     }

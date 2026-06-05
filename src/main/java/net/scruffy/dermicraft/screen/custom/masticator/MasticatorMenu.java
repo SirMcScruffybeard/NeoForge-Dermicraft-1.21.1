@@ -17,18 +17,17 @@ public class MasticatorMenu extends AbstractModMenu {
 
     public final MasticatorBlockEntity BE;
     private Level level;
-    private final ContainerData data;
 
     public MasticatorMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), new SimpleContainerData(2));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
-    public MasticatorMenu(int containerId, Inventory inv, BlockEntity blockEntity, ContainerData data) {
+    public MasticatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.MASTICATOR_MENU.get(), containerId, 3);
         checkContainerSize(inv, 2);
         this.BE = ((MasticatorBlockEntity) blockEntity);
         this.level = inv.player.level();
-        this.data = data;
+
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
@@ -37,7 +36,7 @@ public class MasticatorMenu extends AbstractModMenu {
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getIngredientTank().SLOT, 80, 59));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 133, 59));
 
-        addDataSlots(data);
+
     }
 
     @Override

@@ -100,7 +100,6 @@ public class MasticatorBlock extends ModBaseEntityBlock {
                     player.setItemInHand(hand, masticator.insetItemStack(stack));
                     return ItemInteractionResult.SUCCESS;
                 }
-
             }
         }
         return ItemInteractionResult.SUCCESS;
