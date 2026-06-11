@@ -4,7 +4,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-public interface VagueRecipe{
+public interface IVagueRecipe {
 
     default boolean hasNutrition(ItemStack stack) {
         FoodProperties prop = stack.getFoodProperties(null);
@@ -33,7 +33,7 @@ public interface VagueRecipe{
 
     int getCraftingAmount(ItemStack stack);
 
-    default int getCraftingAmount(ItemStack stack, int modifier) {
+    default int getCraftingAmount(ItemStack stack, float modifier) {
         int baseMultiplier =  25;
         return Math.round(baseMultiplier * getFoodWeight(stack) * modifier);
     }

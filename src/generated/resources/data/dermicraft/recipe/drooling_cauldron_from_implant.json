@@ -21,10 +21,7 @@
       "item": "dermicraft:dense_muscle"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "dermicraft:drooling_cauldron"
-  },
+  "resultFluid": "dermicraft:drooling_cauldron",
   "suture_tool": {
     "tag": "dermicraft:suture_tools"
   }

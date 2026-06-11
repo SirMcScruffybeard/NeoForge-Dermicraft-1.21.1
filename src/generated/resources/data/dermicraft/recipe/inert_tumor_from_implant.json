@@ -9,10 +9,7 @@
       "tag": "c:foods/raw_meat"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "dermicraft:inert_tumor"
-  },
+  "resultFluid": "dermicraft:inert_tumor",
   "suture_tool": {
     "tag": "dermicraft:suture_tools"
   }

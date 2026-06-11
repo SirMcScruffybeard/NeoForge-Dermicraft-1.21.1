@@ -34,13 +34,13 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
      ************************************************************************************/
     protected FluidTankRenderer createFluidRenderer(int capacity, int width, int height) {
         return new FluidTankRenderer(capacity, true, width, height);
-        //width and height are measured from the inside of the "fluid gauge"
+        //width and height are measured from the inside of the "puddle gauge"
     }
 
     /************************************************************************************
      *
      * @param capacity
-     * @return fluid renderer that is 16px X 64px.
+     * @return puddle renderer that is 16px X 64px.
      *      Used by DroolingCauldronScreen, SkinTankScreen
      *************************************************************************************/
     protected FluidTankRenderer createFluidRenderer16x64(int capacity) {
@@ -50,7 +50,7 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
     /************************************************************************************
      *
      * @param capacity
-     * @return fluid renderer that is 16px X 40px.
+     * @return puddle renderer that is 16px X 40px.
      *      Used by MasticatorScreen
      *************************************************************************************/
     protected FluidTankRenderer createFluidRenderer16x40(int capacity) {

@@ -1,0 +1,22 @@
+{
+  "type": "dermicraft:puddle_fluid_crafting",
+  "ingredients": [
+    {
+      "tag": "dermicraft:animal_meats"
+    },
+    {
+      "tag": "dermicraft:animal_meats"
+    },
+    {
+      "tag": "dermicraft:animal_meats"
+    },
+    {
+      "tag": "dermicraft:animal_meats"
+    }
+  ],
+  "item_amount": 1,
+  "puddle": "dermicraft:source_crude_slurry",
+  "result_fluid": "minecraft:empty",
+  "result_item": "dermicraft:inert_tumor",
+  "ticks": 200
+}

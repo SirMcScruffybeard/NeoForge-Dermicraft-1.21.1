@@ -60,6 +60,24 @@ public class ModFluids {
             .block(ModFluids.CARBON_BLEND_BLOCK)
             .bucket(ModFluids.CARBON_BLEND_BUCKET);
 
+    //////////////////////////////Protein Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_PROTEIN_BLEND = FLUIDS.register("source_protein_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.PROTEIN_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_PROTEIN_BLEND = FLUIDS.register("flowing_protein_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.PROTEIN_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> PROTEIN_BLEND_BLOCK = ModBlocks.BLOCKS.register("protein_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_PROTEIN_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> PROTEIN_BLEND_BUCKET = getBucket("protein_blend_bucket", ModFluids.SOURCE_PROTEIN_BLEND);
+
+    public static final BaseFlowingFluid.Properties PROTEIN_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.PROTEIN_BLEND_FLUID_TYPE, SOURCE_PROTEIN_BLEND, FLOWING_PROTEIN_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.PROTEIN_BLEND_BLOCK)
+            .bucket(ModFluids.PROTEIN_BLEND_BUCKET);
+
 
 
     //////////////////////////////Crude Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\

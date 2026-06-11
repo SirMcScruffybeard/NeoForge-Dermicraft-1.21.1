@@ -46,6 +46,7 @@ public class DermicraftClient {
 
             renderTranslucentFluid(ModFluids.SOURCE_CALCIUM_BLEND.get(), ModFluids.FLOWING_CALCIUM_BLEND.get());
             renderTranslucentFluid(ModFluids.SOURCE_CARBON_BLEND.get(), ModFluids.FLOWING_CARBON_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_PROTEIN_BLEND.get(), ModFluids.FLOWING_PROTEIN_BLEND.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.FLOWING_CRUDE_SLURRY.get());
         });
@@ -55,6 +56,8 @@ public class DermicraftClient {
     public static void onClientExtensions(RegisterClientExtensionsEvent event) {
         registerFluidType(event, ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.CARBON_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.PROTEIN_BLEND_FLUID_TYPE.get());
+
         registerFluidType(event, ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get());
 
     }

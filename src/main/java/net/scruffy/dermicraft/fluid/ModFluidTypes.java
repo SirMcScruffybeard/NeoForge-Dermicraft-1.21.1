@@ -51,6 +51,22 @@ public class ModFluidTypes {
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)
             ));
 
+    public static final Supplier<FluidType> PROTEIN_BLEND_FLUID_TYPE = registerFluidType("protein_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF630606,
+                    setColorVector(99, 6, 6),
+                    FluidType.Properties.create()
+                            .viscosity(2500)
+                            .density(1200)
+                            .temperature(310)
+                            .motionScale(0.08)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(true)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
     //////////////////////////////Slurries\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FluidType> CRUDE_SLURRY_FLUID_TYPE = registerFluidType("crude_slurry_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF4FA757,

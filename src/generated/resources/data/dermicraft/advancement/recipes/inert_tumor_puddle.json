@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "dermicraft:drooling_cauldron"
+            "items": "dermicraft:crude_slurry_bucket"
           }
         ]
       },
@@ -19,7 +19,7 @@
   ],
   "rewards": {
     "recipes": [
-      "dermicraft:crude_slurry_vague_masticating"
+      "dermicraft:inert_tumor_puddle"
     ]
   }
 }

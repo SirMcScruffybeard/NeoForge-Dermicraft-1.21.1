@@ -40,7 +40,7 @@ public class ModFluidUtil {
 
     /********************************************************************************
      *  Checks if the item of the passed slot of the passed itemHandler is a valid
-     * fluid handler and has fluid in it to be emptied
+     * puddle handler and has puddle in it to be emptied
      * @param itemHandler
      * @param slot
      * @return

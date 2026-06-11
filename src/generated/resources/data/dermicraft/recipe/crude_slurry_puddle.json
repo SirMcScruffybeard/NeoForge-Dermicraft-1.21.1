@@ -1,0 +1,14 @@
+{
+  "type": "dermicraft:puddle_fluid_crafting",
+  "ingredients": [
+    { "tag": "dermicraft:plant_food" },
+    { "tag": "dermicraft:plant_food" },
+    { "tag": "dermicraft:plant_food" },
+    { "tag": "dermicraft:plant_food" }
+  ],
+  "puddle": "minecraft:water",
+  "result_fluid": "dermicraft:source_crude_slurry",
+  "result_item": "minecraft:air",
+  "item_amount": 0,
+  "ticks": 200
+}

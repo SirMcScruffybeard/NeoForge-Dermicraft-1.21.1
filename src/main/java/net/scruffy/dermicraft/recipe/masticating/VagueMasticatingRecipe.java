@@ -18,12 +18,12 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.interfaces.VagueRecipe;
+import net.scruffy.dermicraft.interfaces.IVagueRecipe;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 
-public record VagueMasticatingRecipe(Ingredient ingredientItem, int modifier, Fluid ingredientFluid,
-                                     Fluid result) implements Recipe<OneFluidOneItemRecipeInput>, VagueRecipe {
+public record VagueMasticatingRecipe(Ingredient ingredientItem, float modifier, Fluid ingredientFluid,
+                                     Fluid result) implements Recipe<OneFluidOneItemRecipeInput>, IVagueRecipe {
 
     @Override
     public NonNullList<Ingredient> getIngredients() {
@@ -107,7 +107,7 @@ public record VagueMasticatingRecipe(Ingredient ingredientItem, int modifier, Fl
         public static final MapCodec<VagueMasticatingRecipe> CODEC =
                 RecordCodecBuilder.mapCodec(inst ->
                         inst.group(Ingredient.CODEC.fieldOf("ingredient").forGetter(VagueMasticatingRecipe::ingredientItem),
-                                        Codec.INT.fieldOf("modifier").forGetter(VagueMasticatingRecipe::modifier),
+                                        Codec.FLOAT.fieldOf("modifier").forGetter(VagueMasticatingRecipe::modifier),
                                         BuiltInRegistries.FLUID.byNameCodec().fieldOf("ingredient_fluid").forGetter(VagueMasticatingRecipe::ingredientFluid),
                                         BuiltInRegistries.FLUID.byNameCodec().fieldOf("result_fluid").forGetter(VagueMasticatingRecipe::result))
                                 .apply(inst, VagueMasticatingRecipe::new));
@@ -115,7 +115,7 @@ public record VagueMasticatingRecipe(Ingredient ingredientItem, int modifier, Fl
         public static final StreamCodec<RegistryFriendlyByteBuf, VagueMasticatingRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, VagueMasticatingRecipe::ingredientItem,
-                        ByteBufCodecs.VAR_INT, VagueMasticatingRecipe::modifier,
+                        ByteBufCodecs.FLOAT, VagueMasticatingRecipe::modifier,
                         ByteBufCodecs.registry(Registries.FLUID), VagueMasticatingRecipe::ingredientFluid,
                         ByteBufCodecs.registry(Registries.FLUID), VagueMasticatingRecipe::result,
                         VagueMasticatingRecipe::new);

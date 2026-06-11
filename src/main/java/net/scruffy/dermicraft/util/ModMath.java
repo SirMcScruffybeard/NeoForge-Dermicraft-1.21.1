@@ -23,6 +23,10 @@ public class ModMath {
             return level.getGameTime() % ticks == 0;
         }
 
+        public static boolean hasSecondsPassed(Level level, int seconds) {
+            return level.getGameTime() % getSecondsToTicks(seconds) == 0;
+        }
+
         public static boolean isTaskFinished(int progress, int maxTime) {
             return progress >= maxTime;
         }

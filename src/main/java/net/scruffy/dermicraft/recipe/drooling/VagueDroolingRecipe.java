@@ -15,11 +15,11 @@ import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.interfaces.VagueRecipe;
+import net.scruffy.dermicraft.interfaces.IVagueRecipe;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import org.jetbrains.annotations.NotNull;
 
-public record VagueDroolingRecipe(Ingredient ingredient, int modifier, Fluid result) implements Recipe<SingleRecipeInput>, VagueRecipe {
+public record VagueDroolingRecipe(Ingredient ingredient, float modifier, Fluid result) implements Recipe<SingleRecipeInput>, IVagueRecipe {
 
     @Override
     public boolean matches(SingleRecipeInput input, Level level) {
@@ -97,14 +97,14 @@ public record VagueDroolingRecipe(Ingredient ingredient, int modifier, Fluid res
         public static final MapCodec<VagueDroolingRecipe> CODEC =
                 RecordCodecBuilder.mapCodec(inst ->
                         inst.group(Ingredient.CODEC.fieldOf("ingredient").forGetter(VagueDroolingRecipe::ingredient),
-                                        Codec.INT.fieldOf("modifier").forGetter(VagueDroolingRecipe::modifier),
+                                        Codec.FLOAT.fieldOf("modifier").forGetter(VagueDroolingRecipe::modifier),
                                         BuiltInRegistries.FLUID.byNameCodec().fieldOf("result_fluid").forGetter(VagueDroolingRecipe::result))
                                 .apply(inst, VagueDroolingRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, VagueDroolingRecipe> STREAM_CODEC =
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, VagueDroolingRecipe::ingredient,
-                        ByteBufCodecs.VAR_INT, VagueDroolingRecipe::modifier,
+                        ByteBufCodecs.FLOAT, VagueDroolingRecipe::modifier,
                         ByteBufCodecs.registry(Registries.FLUID), VagueDroolingRecipe::result,
                         VagueDroolingRecipe::new);
     }

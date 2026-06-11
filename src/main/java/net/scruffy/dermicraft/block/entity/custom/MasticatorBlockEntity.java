@@ -336,7 +336,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         tag.put("output", RESULT_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putFloat("speed", speed);
         tag.putInt("use", fuelUseRate);
-        tag.putInt("result", resultAmount);
+        tag.putInt("resultFluid", resultAmount);
         tag.putInt("progress", progress);
         tag.putInt("maxProgress", maxProgress);
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
@@ -354,7 +354,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
         speed = tag.getFloat("speed");
         fuelUseRate = tag.getInt("use");
-        resultAmount = tag.getInt("result");
+        resultAmount = tag.getInt("resultFluid");
         this.progress = tag.getInt("progress");
         this.maxProgress = tag.getInt("maxProgress");
 
@@ -530,7 +530,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
             protected void onContentsChanged() {
 
                 if (level != null && !level.isClientSide()) {
-                    // Bypass the item optimization check entirely because a fluid update occurred
+                    // Bypass the item optimization check entirely because a puddle update occurred
                     Optional<RecipeHolder<?>> recipeOpt = getRecipeOptional();
                     setActiveRecipe(recipeOpt);
 

@@ -68,6 +68,8 @@ public class ModCreativeModeTabs {
                         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModFluids.CALCIUM_BLEND_BUCKET);
                         output.accept(ModFluids.CARBON_BLEND_BUCKET);
+                        output.accept(ModFluids.PROTEIN_BLEND_BUCKET);
+
                         output.accept(ModFluids.CRUDE_SLURRY_BUCKET);
                     }).build());
 

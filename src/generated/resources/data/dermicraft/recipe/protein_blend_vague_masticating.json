@@ -1,9 +1,9 @@
 {
   "type": "dermicraft:vague_masticating",
   "ingredient": {
-    "tag": "dermicraft:plant_food"
+    "tag": "dermicraft:meat_food"
   },
   "ingredient_fluid": "minecraft:water",
   "modifier": 1.0,
-  "result_fluid": "dermicraft:source_crude_slurry"
+  "result_fluid": "dermicraft:source_protein_blend"
 }

@@ -9,10 +9,7 @@
       "item": "dermicraft:eye"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "dermicraft:eye_tumor"
-  },
+  "resultFluid": "dermicraft:eye_tumor",
   "suture_tool": {
     "tag": "dermicraft:suture_tools"
   }

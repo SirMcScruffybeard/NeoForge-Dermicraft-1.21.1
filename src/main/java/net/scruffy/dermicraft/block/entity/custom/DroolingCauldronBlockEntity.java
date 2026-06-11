@@ -213,7 +213,7 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         tag.put("dc_tank", TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("dc_progress", progress);
         tag.putInt("dc_max", maxProgress);
-        tag.putInt("result", resultAmount);
+        tag.putInt("resultFluid", resultAmount);
         if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
         tag.putString("activeItem", itemKey.toString());
@@ -227,7 +227,7 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         if (tag.contains("dc_tank")) TANK.readFromNBT(registries, tag.getCompound("dc_tank"));
         this.progress = tag.getInt("dc_progress");
         this.maxProgress = tag.getInt("dc_max");
-        resultAmount = tag.getInt("result");
+        resultAmount = tag.getInt("resultFluid");
 
         if (this.level != null && tag.contains("SavedRecipeId", CompoundTag.TAG_STRING)) {
             ResourceLocation id = ResourceLocation.parse(tag.getString("SavedRecipeId"));

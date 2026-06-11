@@ -9,10 +9,7 @@
       "item": "dermicraft:dense_muscle"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "dermicraft:muscle_tumor"
-  },
+  "resultFluid": "dermicraft:muscle_tumor",
   "suture_tool": {
     "tag": "dermicraft:suture_tools"
   }

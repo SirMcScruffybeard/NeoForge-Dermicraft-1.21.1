@@ -9,10 +9,7 @@
       "item": "dermicraft:nerve_cluster"
     }
   ],
-  "result": {
-    "count": 1,
-    "id": "dermicraft:nerve_tumor"
-  },
+  "resultFluid": "dermicraft:nerve_tumor",
   "suture_tool": {
     "tag": "dermicraft:suture_tools"
   }

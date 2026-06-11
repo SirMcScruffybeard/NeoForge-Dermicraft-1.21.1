@@ -148,7 +148,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
      * the new processing machine block directly in place.
      */
     private void evolveImplant(Level level, BlockPos pos, EarlyImplantRecipe recipe) {
-        // Fetch the output item block associated with this recipe result
+        // Fetch the output item block associated with this recipe resultFluid
         ItemStack resultStack = recipe.getResultItem(level.registryAccess());
         Block finalMachineBlock = Block.byItem(resultStack.getItem());
 
