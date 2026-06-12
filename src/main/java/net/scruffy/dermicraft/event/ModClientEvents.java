@@ -20,6 +20,7 @@ public class ModClientEvents {
     @SubscribeEvent
     public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
 
+        //////////////Syringe\\\\\\\\\\\\\\
         event.register((stack, tintIndex) -> {
             if(tintIndex != 0) return -1;
 
@@ -28,15 +29,32 @@ public class ModClientEvents {
 
             Fluid fluid = data.getFluid();
 
-            // 1. Manual Check for Lava
             if (fluid.isSame(Fluids.LAVA)) return getLavaTint();
 
-            // 2. Fluid Type's color
+            // Fluid Type's color
             int color = IClientFluidTypeExtensions.of(fluid).getTintColor(data.fluidStack());
 
-            // 3. If the ingredientFluid returns "no color" (like -1), give it a default gray or water-blue
+            //If the ingredientFluid returns "no color" (like -1), give it a default gray or water-blue
             return color == -1 ? getDefaultTint() : color;
         }, ModItems.SYRINGE.get());
+
+        //////////////Flask\\\\\\\\\\\\\\
+        event.register((stack, tintIndex) -> {
+            if(tintIndex != 0) return -1;
+
+            FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
+            if(data.isFluidEmpty()) return -1;
+
+            Fluid fluid = data.getFluid();
+
+            if (fluid.isSame(Fluids.LAVA)) return getLavaTint();
+
+            // Fluid Type's color
+            int color = IClientFluidTypeExtensions.of(fluid).getTintColor(data.fluidStack());
+
+            //If the ingredientFluid returns "no color" (like -1), give it a default gray or water-blue
+            return color == -1 ? getDefaultTint() : color;
+        }, ModItems.GLASS_FLASK.get());
 
     }
 

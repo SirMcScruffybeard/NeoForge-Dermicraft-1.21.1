@@ -3,7 +3,6 @@ package net.scruffy.dermicraft.property;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -36,13 +35,24 @@ public class ModItemProperties {
         ItemProperties.register(ModItems.SYRINGE.get(),
                 getResourceLocation("full"),
                 (stack, level, entity, seed) -> {
-            FluidData data= stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
-       if (data.getFluidType() == Fluids.LAVA.getFluidType()) return 3;
-       if (data.getFluidStack().is(FluidTags.WATER)) return 1;
-       if(data.getFluidStack().is(ModTags.Fluids.BIOFUELS)) return 2;
-       if (!data.isFluidEmpty()) return 1;
-       return 0;
-        });
+                    FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
+                    if (data.getFluidType() == Fluids.LAVA.getFluidType()) return 3;
+                    if (data.getFluidStack().is(ModTags.Fluids.THIN)) return 1;
+                    if (data.getFluidStack().is(ModTags.Fluids.THICK)) return 2;
+                    if (!data.isFluidEmpty()) return 1;
+                    return 0;
+                });
+
+        ItemProperties.register(ModItems.GLASS_FLASK.get(),
+                getResourceLocation("full"),
+                (stack, level, entity, seed) -> {
+                    FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
+                    if (data.getFluidType() == Fluids.LAVA.getFluidType()) return 3;
+                    if (data.getFluidStack().is(ModTags.Fluids.THIN)) return 1;
+                    if (data.getFluidStack().is(ModTags.Fluids.THICK)) return 2;
+                    if (!data.isFluidEmpty()) return 1;
+                    return 0;
+                });
     }
 
     //////////////HelperMethods\\\\\\\\\\\\\\

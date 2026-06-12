@@ -4,6 +4,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.FluidTagsProvider;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -34,6 +36,18 @@ public class ModFluidTagProvider extends FluidTagsProvider {
         tag(ModTags.Fluids.HAZARDOUS)
                 .addTag(FluidTags.LAVA)
 
+        ;
+
+        tag(ModTags.Fluids.THICK)
+                .add(ModFluids.SOURCE_CALCIUM_BLEND.get())
+                .add(ModFluids.SOURCE_CARBON_BLEND.get())
+                .add(ModFluids.SOURCE_PROTEIN_BLEND.get())
+
+                .add(ModFluids.SOURCE_CRUDE_SLURRY.get())
+        ;
+
+        tag(ModTags.Fluids.THIN)
+                .add(Fluids.WATER);
         ;
     }
 

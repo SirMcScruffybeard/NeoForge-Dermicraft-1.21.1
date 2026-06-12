@@ -57,6 +57,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SUTURE_KIT);
                         output.accept(ModItems.FORCEPS);
 
+                        buildFlaskContents(output);
                         buildSyringeContents(output);
 
                         ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
@@ -78,9 +79,23 @@ public class ModCreativeModeTabs {
     private static void buildSyringeContents(CreativeModeTab.Output output) {
         output.accept(ModItems.SYRINGE.get());
 
-        output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
+        //output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
         output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
-        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
+
+        //output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
+    }
+
+    private static void buildFlaskContents(CreativeModeTab.Output output) {
+        output.accept(ModItems.GLASS_FLASK.get());
+
+        output.accept(ModItemUtil.buildFlaskStack(Fluids.WATER));
+        output.accept(ModItemUtil.buildFlaskStack(Fluids.LAVA));
+
+        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
+        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CARBON_BLEND.get()));
+        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
+
+        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
     }
 }

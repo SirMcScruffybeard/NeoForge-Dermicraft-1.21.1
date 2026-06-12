@@ -129,14 +129,14 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
     private void inject(Level level,  ItemStack stack, StitchedTumorBlockEntity blockEntity) {
         if (stack.getItem() instanceof IInject syringe) {
 
-            FluidData data = stack.getOrDefault(syringe.getDataType(), FluidData.EMPTY);
+            FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);
             if (data.isFluidEmpty()) return;
 
             FluidStack fluidStack = data.getFluidStack();
             EarlyImplantRecipe recipe = blockEntity.getCachedRecipe();
 
             if (recipe != null && recipe.testFluid(fluidStack)) {
-                syringe.removeFluid(stack);
+                syringe.emptyDataFluid(stack);
 
                 this.evolveImplant(level, blockEntity.getBlockPos(), recipe);
             }

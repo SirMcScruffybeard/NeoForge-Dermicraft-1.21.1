@@ -1,0 +1,11 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/flask/glass_flask"
+  },
+  "overrides": [
+    {"predicate": {"dermicraft:full": 1.0}, "model": "dermicraft:item/flask/flask_thin_fluid"},
+    {"predicate": {"dermicraft:full": 2.0}, "model": "dermicraft:item/flask/flask_thick_fluid"},
+    {"predicate": {"dermicraft:full": 3.0}, "model": "dermicraft:item/flask/flask_lava"}
+  ]
+}

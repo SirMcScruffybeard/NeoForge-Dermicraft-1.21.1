@@ -4,11 +4,8 @@ import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.scruffy.dermicraft.item.custom.ForcepsItem;
-import net.scruffy.dermicraft.item.custom.SyringeItem;
+import net.scruffy.dermicraft.item.custom.*;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
-import net.scruffy.dermicraft.item.custom.ScalpelItem;
-import net.scruffy.dermicraft.item.custom.SutureKitItem;
 import net.scruffy.dermicraft.property.ModFoodProperties;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -24,7 +21,7 @@ public class ModItems {
     public static final DeferredItem<Item> SCALPEL = ITEMS.register("scalpel", ScalpelItem::new);
     public static final DeferredItem<Item> SUTURE_KIT = ITEMS.register("suture_kit", SutureKitItem::new);
     public static final DeferredItem<Item> SYRINGE = ITEMS.register("syringe", SyringeItem::new);
-
+    public static final DeferredItem<Item> GLASS_FLASK = ITEMS.register("glass_flask", GlassFlaskItem::new);
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",

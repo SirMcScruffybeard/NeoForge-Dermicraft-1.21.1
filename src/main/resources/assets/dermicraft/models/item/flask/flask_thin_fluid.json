@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/flask/flask_thin_fluid",
+    "layer1": "dermicraft:item/flask/glass_flask"
+  }
+}

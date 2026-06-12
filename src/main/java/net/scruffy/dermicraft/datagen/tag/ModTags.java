@@ -54,6 +54,9 @@ public class ModTags {
 
         public static final TagKey<Fluid> HAZARDOUS = createTag("hazardous");
 
+        public static final TagKey<Fluid> THICK = createTag("thick");
+        public static final TagKey<Fluid> THIN = createTag("thin");
+
         private static TagKey<Fluid> createTag(String name) {
             return FluidTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

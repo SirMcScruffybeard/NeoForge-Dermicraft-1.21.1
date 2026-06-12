@@ -10,6 +10,9 @@
   "item.dermicraft.syringe": "Syringe",
   "item.dermicraft.syringe.filled": "Syringe of %s",
 
+  "item.dermicraft.glass_flask": "Glass Flask",
+  "item.dermicraft.flask.filled": "Flask of %s",
+
   "item.dermicraft.eye": "Eye",
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",
