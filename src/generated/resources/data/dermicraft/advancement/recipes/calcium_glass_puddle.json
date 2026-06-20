@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "minecraft:cauldron"
+            "items": "dermicraft:calcium_glass"
           }
         ]
       },
@@ -19,7 +19,7 @@
   ],
   "rewards": {
     "recipes": [
-      "dermicraft:drooling_cauldron_from_implant"
+      "dermicraft:calcium_glass_puddle"
     ]
   }
 }

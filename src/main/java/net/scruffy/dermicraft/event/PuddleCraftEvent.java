@@ -34,7 +34,7 @@ public class PuddleCraftEvent {
     public static void onLevelTick(LevelTickEvent.Post event) {
         Level level = event.getLevel();
 
-        // 1. Performance Gate: Server-side only, on a 10-second heartbeat
+        //Performance Gate: Server-side only, every 10-ticks
         if (level.isClientSide || !ModMath.Time.hasTicksPassed(level, 10)) {
             return;
         }
@@ -47,15 +47,15 @@ public class PuddleCraftEvent {
                 BlockPos playerPos = player.blockPosition();
                 AABB searchArea = new AABB(playerPos).inflate(16);
 
-                // 2. Gather ALL item entities near the player
+                //Gather ALL item entities near the player
                 List<ItemEntity> items = serverLevel.getEntitiesOfClass(ItemEntity.class, searchArea);
 
-                // 3. Group the items by the exact block coordinate they are currently bobbing in
+                //Group the items by the exact block coordinate they are currently bobbing in
                 Map<BlockPos, List<ItemEntity>> itemsByPos = items.stream()
                         .filter(item -> !item.getItem().isEmpty())
                         .collect(java.util.stream.Collectors.groupingBy(item -> item.blockPosition()));
 
-                // 4. Process each puddle coordinate found
+                //Process each puddle coordinate found
                 itemsByPos.forEach((pos, itemList) -> {
                     if (processedPositions.contains(pos)) return;
 

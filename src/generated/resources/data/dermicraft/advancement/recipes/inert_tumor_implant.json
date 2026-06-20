@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "dermicraft:dense_muscle"
+            "items": "dermicraft:inert_tumor"
           }
         ]
       },
@@ -19,7 +19,7 @@
   ],
   "rewards": {
     "recipes": [
-      "dermicraft:muscle_tumor_from_implant"
+      "dermicraft:inert_tumor_implant"
     ]
   }
 }

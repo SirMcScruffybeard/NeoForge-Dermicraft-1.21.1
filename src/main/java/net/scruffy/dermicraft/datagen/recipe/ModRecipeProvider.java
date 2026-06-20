@@ -7,6 +7,7 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
@@ -66,13 +67,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_iron_nugget", has(Tags.Items.NUGGETS_IRON))
                 .save(recipeOutput, builder.getResourceLocation("syringe_crafting_table"));
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModFluids.CRUDE_SLURRY_BUCKET)
-                .requires(ModTags.Items.PLANT_FOOD)
-                .requires(ModTags.Items.PLANT_FOOD)
-                .requires(ModTags.Items.PLANT_FOOD)
-                .requires(Tags.Items.BUCKETS_WATER)
-                .unlockedBy("has_water_bucket", has(Tags.Items.BUCKETS_WATER))
-                .save(recipeOutput, builder.getResourceLocation("nutrient_slurry_crafting_table"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.GLASS_FLASK, 4)
+                .pattern(" G ")
+                .pattern(" G ")
+                .pattern("G G")
+                .define('G', Tags.Items.GLASS_BLOCKS_CHEAP)
+                        .unlockedBy("has_glass", has(Tags.Items.GLASS_BLOCKS_CHEAP))
+                                .save(recipeOutput, builder.getResourceLocation("flask_crafting_table"));
 
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.OUTERFACE)
@@ -85,23 +86,33 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
                 .save(recipeOutput, builder.getResourceLocation("outerface_crafting_table"));
 
-        builder.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_from_implant",  ModBlocks.INERT_TUMOR.asItem());
+        builder.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem(), ModBlocks.INERT_TUMOR.asItem());
 
-        builder.simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem());
-        builder.simpleEarlyImplant(recipeOutput, ModItems.EYE.get(), "eye_tumor_from_implant", ModBlocks.EYE_TUMOR.asItem());
-        builder.simpleEarlyImplant(recipeOutput, ModItems.NERVE_CLUSTER.get(), "nerve_tumor_from_implant", ModBlocks.NERVE_TUMOR.asItem());
+        builder.simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem(), ModItems.DENSE_MUSCLE.get());
+        builder.simpleEarlyImplant(recipeOutput, ModItems.EYE.get(), "eye_tumor_implant", ModBlocks.EYE_TUMOR.asItem(), ModItems.EYE.get());
+        builder.simpleEarlyImplant(recipeOutput, ModItems.NERVE_CLUSTER.get(), "nerve_tumor_implant", ModBlocks.NERVE_TUMOR.asItem(), ModItems.NERVE_CLUSTER.get());
 
-        builder.buildEarlyImplant(recipeOutput, builder.getResourceLocation("drooling_cauldron_from_implant"),
-                List.of(Ingredient.of(net.minecraft.world.level.block.Blocks.CAULDRON),
+        builder.buildEarlyImplant(recipeOutput,"drooling_cauldron_implant",
+                List.of(Ingredient.of(Blocks.CAULDRON),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get())),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 ModBlocks.DROOLING_CAULDRON.asItem(),
-                InventoryChangeTrigger.TriggerInstance.hasItems(Items.CAULDRON));
+                Items.CAULDRON);
 
-        //TODO masticator recipe, skin tank recipe
+        builder.buildEarlyImplant(recipeOutput, "masticator_implant",
+                List.of(Ingredient.of(Items.BONE),
+                        Ingredient.of(Items.BONE),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
+                ModBlocks.MASTICATOR.asItem(),
+                ModBlocks.INERT_TUMOR.asItem());
+
+        //TODO skin tank recipe
 
         builder.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER,
                 InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.DROOLING_CAULDRON));
@@ -135,6 +146,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         puddleItemBuilder.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 ModBlocks.INERT_TUMOR.asItem(), 1, ModMath.Time.getSecondsToTicks(10), ModFluids.CRUDE_SLURRY_BUCKET.get());
+
+        puddleItemBuilder.makeFromOneItem(recipeOutput, "calcium_glass_puddle", Items.BONE_MEAL, 1, ModFluids.SOURCE_CALCIUM_BLEND.get(),
+                ModBlocks.CALCIUM_GLASS.asItem(), 1, ModMath.Time.getSecondsToTicks(20),  ModBlocks.CALCIUM_GLASS.asItem());
     }
 
     ////////////////////Other Crafting Methods\\\\\\\\\\\\\\\\\\\\

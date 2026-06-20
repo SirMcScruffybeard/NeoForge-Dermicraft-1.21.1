@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "#minecraft:dirt"
+            "items": "dermicraft:eye"
           }
         ]
       },
@@ -19,7 +19,7 @@
   ],
   "rewards": {
     "recipes": [
-      "dermicraft:eye_tumor_from_implant"
+      "dermicraft:eye_tumor_implant"
     ]
   }
 }

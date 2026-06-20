@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:puddle_fluid_crafting",
+  "ingredients": [
+    {
+      "item": "minecraft:bone_meal"
+    }
+  ],
+  "item_amount": 1,
+  "puddle": "dermicraft:source_calcium_blend",
+  "result_fluid": "minecraft:empty",
+  "result_item": "dermicraft:calcium_glass",
+  "ticks": 400
+}

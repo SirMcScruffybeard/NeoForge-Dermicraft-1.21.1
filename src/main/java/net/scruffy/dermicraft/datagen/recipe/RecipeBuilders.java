@@ -15,6 +15,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -40,30 +41,31 @@ public class RecipeBuilders {
     }
 
     ////////////////////EarlyImplant\\\\\\\\\\\\\\\\\\\\
-    public void buildEarlyImplant(RecipeOutput output, ResourceLocation id, List<Ingredient> ingredients,
-                                  Ingredient sutureTool, Fluid fluid, int amount, Item result, Criterion<?> unlockCriterion) {
-
+    public void buildEarlyImplant(RecipeOutput output, String name, List<Ingredient> ingredients,
+                                  Ingredient sutureTool, Fluid fluid, int amount, Item result, Item advandementItem) {
+        ResourceLocation id = getResourceLocation(name);
         FluidStack fluidStack = new FluidStack(fluid, amount);
         EarlyImplantRecipe recipe = new EarlyImplantRecipe(ingredients, sutureTool, fluidStack, result);
+        Criterion<?> unlockCriterion = InventoryChangeTrigger.TriggerInstance.hasItems(advandementItem);
         Advancement.Builder advancementBuilder = output.advancement().addCriterion("has_the_item", unlockCriterion)
                 .rewards(net.minecraft.advancements.AdvancementRewards.Builder.recipe(id)).requirements(AdvancementRequirements.Strategy.OR);
         output.accept(id, recipe, advancementBuilder.build(id.withPrefix("recipes/")));
     }
 
-    public void simpleEarlyImplant(RecipeOutput recipeOutput, Item ingredient, String name, Item result) {
-        buildEarlyImplant(recipeOutput, getResourceLocation(name), List.of(Ingredient.of(ingredient)),
+    public void simpleEarlyImplant(RecipeOutput recipeOutput, Item ingredient, String name, Item result, Item advanceItem) {
+        buildEarlyImplant(recipeOutput, name, List.of(Ingredient.of(ingredient)),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 result,
-                InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DIRT).build()));
+                advanceItem);
     }
 
-    public void simpleEarlyImplant(RecipeOutput recipeOutput, TagKey<Item> ingredient, String name, Item result) {
-        buildEarlyImplant(recipeOutput, getResourceLocation(name), List.of(Ingredient.of(ingredient)),
+    public void simpleEarlyImplant(RecipeOutput recipeOutput, TagKey<Item> ingredient, String name, Item result, Item advanceItem) {
+        buildEarlyImplant(recipeOutput, name, List.of(Ingredient.of(ingredient)),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 result,
-                InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(ItemTags.DIRT).build()));
+                advanceItem);
     }
 
     ////////////////////Masticating\\\\\\\\\\\\\\\\\\\\
@@ -158,7 +160,15 @@ public class RecipeBuilders {
                 for (int i = 0; i < amount; i++) {
                     ingredients.add(Ingredient.of(ingredientTag));
                 }
+                make(output, name, ingredients, puddle, resultItem, resultAmount, ticks, advanceItem);
+            }
 
+            public void makeFromOneItem(RecipeOutput output, String name, Item ingredient, int amount, Fluid puddle,
+                                        Item resultItem, int resultAmount, int ticks, Item advanceItem) {
+                List<Ingredient> ingredients = new ArrayList<>();
+                for (int i = 0; i < amount; i++) {
+                    ingredients.add(Ingredient.of(ingredient));
+                }
                 make(output, name, ingredients, puddle, resultItem, resultAmount, ticks, advanceItem);
             }
         }

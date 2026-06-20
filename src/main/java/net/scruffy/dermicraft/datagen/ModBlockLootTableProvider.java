@@ -26,6 +26,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
     @Override
     protected void generate() {
 
+        dropSelf(ModBlocks.CALCIUM_GLASS.get());
         dropSelf(ModBlocks.OUTERFACE.get());
 
     }

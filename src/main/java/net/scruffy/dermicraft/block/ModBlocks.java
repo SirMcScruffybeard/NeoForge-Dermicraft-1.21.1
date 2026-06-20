@@ -3,18 +3,16 @@ package net.scruffy.dermicraft.block;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.scruffy.dermicraft.block.custom.DroolingCauldronBlock;
-import net.scruffy.dermicraft.block.custom.MasticatorBlock;
-import net.scruffy.dermicraft.block.custom.OuterfaceBlock;
-import net.scruffy.dermicraft.block.custom.SkinTankBlock;
+import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.tumor.*;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
-import org.checkerframework.checker.units.qual.N;
 
 import java.util.function.Supplier;
 
@@ -34,6 +32,18 @@ public class ModBlocks {
     public static final DeferredBlock<Block> EYE_TUMOR = registerBlock("eye_tumor", EyeTumorBlock::new);
     public static final DeferredBlock<Block> MUSCLE_TUMOR = registerBlock("muscle_tumor", MuscleTumorBlock::new);
     public static final DeferredBlock<Block> NERVE_TUMOR = registerBlock("nerve_tumor", NerveTumorBlock::new);
+
+    public static final DeferredBlock<Block> CALCIUM_GLASS = registerBlock("calcium_glass",
+            () -> new ModGlassBlock(BlockBehaviour.Properties.of()
+                    .instrument(NoteBlockInstrument.HAT) // Makes hat sound on note blocks
+                    .sound(SoundType.GLASS)             // Glass breaking/walking sounds
+                    .strength(0.3F)                     // Instantly breakable with fist, like vanilla
+                    .noOcclusion()                      // Allows rendering behind the block
+                    .isValidSpawn((state, getter, pos, entityType) -> false) // Prevents mobs spawning on it
+                    .isRedstoneConductor((state, getter, pos) -> false)      // Redstone doesn't pass through
+                    .isSuffocating((state, getter, pos) -> false)           // Prevents suffocation damage
+                    .isViewBlocking((state, getter, pos) -> false)          // Allows line-of-sight (e.g., endermen)
+            ));
 
     public static final DeferredBlock<Block> DROOLING_CAULDRON = registerBlock("drooling_cauldron",
             () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()));

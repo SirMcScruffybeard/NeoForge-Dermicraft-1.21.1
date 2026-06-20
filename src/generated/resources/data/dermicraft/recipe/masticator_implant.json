@@ -1,0 +1,28 @@
+{
+  "type": "dermicraft:early_implant",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "dermicraft:source_crude_slurry"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:bone"
+    },
+    {
+      "item": "minecraft:bone"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:nerve_cluster"
+    }
+  ],
+  "resultFluid": "dermicraft:masticator",
+  "suture_tool": {
+    "tag": "dermicraft:suture_tools"
+  }
+}

@@ -15,7 +15,6 @@ import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipeInput;
 
 import java.util.ArrayList;
-import java.util.Formattable;
 import java.util.List;
 import java.util.Optional;
 
