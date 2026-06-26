@@ -24,9 +24,10 @@ import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.interfaces.IInject;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
+import net.scruffy.dermicraft.util.ModItemUtil;
+import net.scruffy.dermicraft.util.ToolUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
@@ -80,12 +81,12 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
             return ItemInteractionResult.FAIL;
         }
 
-        if (isExtractionTool(stack)) {
+        if (ToolUtil.isExtractionTool(stack)) {
             cutStitches(level, pos, player, stack, stitchedEntity);
             return ItemInteractionResult.SUCCESS;
         }
 
-        if (isInjectionTool(stack)) {
+        if (ToolUtil.isInjectionTool(stack)) {
 
             inject(level, stack, stitchedEntity);
             return ItemInteractionResult.SUCCESS;
@@ -96,13 +97,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
 
     private void cutStitches(Level level, BlockPos pos, Player player, ItemStack scalpelStack, StitchedTumorBlockEntity stitchedEntity) {
         // Take an exact snapshot of the incubating contents
-        ItemStackHandler lockedInv = stitchedEntity.getInventory();
-        List<ItemStack> savedItems = new ArrayList<>();
-        for (int i = 0; i < lockedInv.getSlots(); i++) {
-            if (!lockedInv.getStackInSlot(i).isEmpty()) {
-                savedItems.add(lockedInv.getStackInSlot(i).copy());
-            }
-        }
+        List<ItemStack> savedItems = ModItemUtil.snapshotInventory(stitchedEntity.getInventory());
 
         // Damage the scalpel tool
         if (!player.isCreative()) {
@@ -116,10 +111,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
         // Feed the captured snapshot right back into the open block entity
         BlockEntity openBE = level.getBlockEntity(pos);
         if (openBE instanceof MarredTumorBlockEntity tumorEntity) {
-            ItemStackHandler openInv = tumorEntity.getInventory();
-            for (int i = 0; i < savedItems.size(); i++) {
-                openInv.setStackInSlot(i, savedItems.get(i));
-            }
+            ModItemUtil.restoreInventory(tumorEntity.getInventory(), savedItems);
             tumorEntity.updateRecipeCache();
         }
 

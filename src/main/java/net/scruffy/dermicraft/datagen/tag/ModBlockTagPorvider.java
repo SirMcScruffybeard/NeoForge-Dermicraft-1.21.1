@@ -2,6 +2,7 @@ package net.scruffy.dermicraft.datagen.tag;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.block.ModBlocks;
@@ -17,6 +18,11 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
+        tag(Tags.Blocks.GLASS_BLOCKS_CHEAP)
+                .add(ModBlocks.CALCIUM_GLASS.get())
+
+        ;
+
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)
                 .add(ModBlocks.DROOLING_CAULDRON.get())

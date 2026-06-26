@@ -21,9 +21,9 @@ import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
 import net.scruffy.dermicraft.interfaces.ISutableBlock;
 import net.scruffy.dermicraft.util.ModItemUtil;
+import net.scruffy.dermicraft.util.ToolUtil;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutableBlock {
@@ -80,12 +80,12 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
             return ItemInteractionResult.FAIL;
         }
 
-        if (isSutureTool(stack)) {
+        if (ToolUtil.isSutureTool(stack)) {
             suture(level, pos, player, stack, tumorEntity);
             return ItemInteractionResult.SUCCESS;
         }
 
-        if (isCollectionTool(stack)) {
+        if (ToolUtil.isCollectionTool(stack)) {
             emptyTumorToWorld(level, pos, tumorEntity);
             return ItemInteractionResult.SUCCESS;
         }
@@ -109,14 +109,6 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
 
         tumorEntity.updateRecipeCache();
         var recipe = tumorEntity.getCachedRecipe();
-/*
-        if (recipe == null) {
-            System.out.println("Suture Failed: Server sees " + tumorEntity.getInventory().getSlots() + " slots checked.");
-            level.playSound(null, pos, SoundEvents.VILLAGER_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
-            return;
-        }
-
- */
 
         if (recipe == null || !recipe.testSuture(sutureStack)) {
             level.playSound(null, pos, SoundEvents.CHICKEN_EGG, SoundSource.BLOCKS, 1.0F, 0.5F);
@@ -124,27 +116,15 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
         }
 
         // Take a safe deep snapshot copy of the items inside before we destroy the block entity data
-        ItemStackHandler oldInventory = tumorEntity.getInventory();
-        List<ItemStack> inventorySnapshot = new ArrayList<>();
-        for (int i = 0; i < oldInventory.getSlots(); i++) {
-            if (!oldInventory.getStackInSlot(i).isEmpty()) {
-                inventorySnapshot.add(oldInventory.getStackInSlot(i).copy());
-            }
-        }
+        List<ItemStack> inventorySnapshot = ModItemUtil.snapshotInventory(tumorEntity.getInventory());
 
         changeState(level, pos, ModBlocks.STITCHED_TUMOR.get());
 
         BlockEntity newBe = level.getBlockEntity(pos);
         if (newBe instanceof StitchedTumorBlockEntity stitchedEntity) {
-            ItemStackHandler newInv = stitchedEntity.getInventory();
-            for (int i = 0; i < inventorySnapshot.size(); i++) {
-                newInv.setStackInSlot(i, inventorySnapshot.get(i));
-            }
-
+            ModItemUtil.restoreInventory(stitchedEntity.getInventory(), inventorySnapshot);
             stitchedEntity.setEvolvingRecipe(recipe);
         }
-
-
     }
 
     private void insertItem(MarredTumorBlockEntity blockEntity, Player player, ItemStack stack) {
@@ -178,9 +158,7 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
 
 
     protected void emptyTumorToWorld(Level level, BlockPos pos, MarredTumorBlockEntity blockEntity) {
-        if (blockEntity instanceof MarredTumorBlockEntity be) {
-            be.drops();
-        }
+        blockEntity.drops();
     }
 
     @Override

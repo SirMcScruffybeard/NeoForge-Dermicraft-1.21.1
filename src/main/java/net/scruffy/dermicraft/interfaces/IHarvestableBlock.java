@@ -52,7 +52,7 @@ public interface IHarvestableBlock {
     }
 
     default void playHarvestSound(Level level, BlockPos pos, SoundEvent sound, float volume, float pitch) {
-        level.playSound(null, pos, SoundEvents.SLIME_BLOCK_BREAK, SoundSource.BLOCKS, volume, pitch);
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, volume, pitch);
     }
 
     default void playDefaultHarvestSound(Level level, BlockPos pos) {
@@ -64,7 +64,7 @@ public interface IHarvestableBlock {
     }
 
     default int getDropCount(RandomSource random, int origin, int bound) {
-        return random.nextInt(2, 5);
+        return random.nextInt(origin, bound);
     }
 
     default void changeToMarredTumor(Level level, BlockPos pos, BlockState oldState) {

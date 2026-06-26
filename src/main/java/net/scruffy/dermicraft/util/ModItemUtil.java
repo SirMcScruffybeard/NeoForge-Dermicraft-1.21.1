@@ -8,12 +8,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.GlassFlaskItem;
 import net.scruffy.dermicraft.item.custom.SyringeItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModItemUtil {
@@ -56,5 +58,20 @@ public class ModItemUtil {
         return stack;
     }
 
+    public static List<ItemStack> snapshotInventory(ItemStackHandler inventory) {
+        List<ItemStack> snapshot = new ArrayList<>();
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            ItemStack stack = inventory.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                snapshot.add(stack.copy());
+            }
+        }
+        return snapshot;
+    }
 
+    public static void restoreInventory(ItemStackHandler inventory, List<ItemStack> snapshot) {
+        for (int i = 0; i < snapshot.size(); i++) {
+            inventory.setStackInSlot(i, snapshot.get(i));
+        }
+    }
 }

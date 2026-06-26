@@ -52,7 +52,7 @@ public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
         if (level.isClientSide) return stack;
 
         if (livingEntity instanceof Player player) {
-            if (hasPosion(player)) {
+            if (hasPoison(player)) {
                 removePoison(player);
             }
             applyBloodLetDamage(player, 2f);

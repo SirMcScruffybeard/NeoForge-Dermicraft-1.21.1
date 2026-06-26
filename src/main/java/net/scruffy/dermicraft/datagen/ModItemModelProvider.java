@@ -34,5 +34,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModFluids.PROTEIN_BLEND_BUCKET.get());
 
         basicItem(ModFluids.CRUDE_SLURRY_BUCKET.get());
+
+        basicItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
     }
 }

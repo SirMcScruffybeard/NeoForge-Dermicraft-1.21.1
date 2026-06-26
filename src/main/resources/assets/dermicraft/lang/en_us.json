@@ -24,11 +24,15 @@
 
   "item.dermicraft.crude_slurry_bucket": "Crude Slurry Bucket",
 
+  "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
+
   "fluid_type.dermicraft.calcium_blend_fluid": "Calcium Blend",
   "fluid_type.dermicraft.carbon_blend_fluid": "Carbon Blend",
   "fluid_type.dermicraft.protein_blend_fluid": "Protein Blend",
 
   "fluid_type.dermicraft.crude_slurry_fluid": "Crude Slurry",
+
+  "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
 
   "block.dermicraft.inert_tumor": "Inert Tumor",
   "block.dermicraft.marred_tumor": "Marred Tumor",
