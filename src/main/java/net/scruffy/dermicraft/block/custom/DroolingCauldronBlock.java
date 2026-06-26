@@ -88,7 +88,7 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
                     return ItemInteractionResult.SUCCESS;
 
                 } else if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
-                    player.setItemInHand(hand, be.insetItemStack(stack));
+                    player.setItemInHand(hand, be.insertItemStack(stack));
                     return ItemInteractionResult.SUCCESS;
                 }
             }

@@ -1,48 +1,24 @@
 package net.scruffy.dermicraft.effect;
 
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.main.ModDamageTypes;
 import net.scruffy.dermicraft.util.ModPlayerUtil;
 
-import java.util.logging.Level;
-
-
-public class SuturedEffect extends MobEffect {
-
+public class SuturedEffect extends MovementDebuffEffect {
 
     public SuturedEffect() {
-        super(MobEffectCategory.HARMFUL, 0x8B0000);
-
-        addAttributeModifier(Attributes.MOVEMENT_SPEED,
-                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "sutured_slowness"),
-                -.03, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-
-        addAttributeModifier(Attributes.JUMP_STRENGTH,
-                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "sutured_jump_penalty"),
-                -.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
-    }
-
-    @Override
-    public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
-        return true;
+        super(MobEffectCategory.HARMFUL, 0x8B0000, "sutured");
     }
 
     @Override
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
         if (livingEntity instanceof Player player) {
-
 
             if (player.isSprinting() || player.hurtTime > 0) {
                 ruptureStitches(player);

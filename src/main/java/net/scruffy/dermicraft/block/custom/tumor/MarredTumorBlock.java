@@ -109,9 +109,9 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
         if (level.isClientSide) return;
 
         tumorEntity.updateRecipeCache();
-        var recipe = tumorEntity.getCachedRecipe();
+        var recipeHolder = tumorEntity.getCachedRecipeHolder();
 
-        if (recipe == null || !recipe.testSuture(sutureStack)) {
+        if (recipeHolder == null || !recipeHolder.value().testSuture(sutureStack)) {
             level.playSound(null, pos, SoundEvents.CHICKEN_EGG, SoundSource.BLOCKS, 1.0F, 0.5F);
             return;
         }
@@ -128,7 +128,7 @@ public class MarredTumorBlock extends EarlySurgeryTumorBlock implements ISutable
         BlockEntity newBe = level.getBlockEntity(pos);
         if (newBe instanceof StitchedTumorBlockEntity stitchedEntity) {
             ModItemUtil.restoreInventory(stitchedEntity.getInventory(), inventorySnapshot);
-            stitchedEntity.setEvolvingRecipe(recipe);
+            stitchedEntity.setEvolvingRecipe(recipeHolder);
         }
     }
 

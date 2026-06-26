@@ -4,7 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
@@ -40,27 +39,22 @@ public class SyringeItem extends Item implements IInject, IHaveFluidData {
 
         BlockPos pos = context.getClickedPos();
         Direction face = context.getClickedFace();
-        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
 
         if (isValidFluidHandler(getTargetFluidHandler(level, pos, face))) {
-            draw(level, pos, face, player);
+            draw(level, pos, face, stack);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }
 
-    private void draw(Level level, BlockPos pos, Direction face, Player player) {
+    private void draw(Level level, BlockPos pos, Direction face, ItemStack stack) {
         IFluidHandler handler = getTargetFluidHandler(level, pos, face);
 
-        if (isServerSide(level)) {
-            if (isValidFluidHandler(handler)) {
-                if (targetHasEnough(CAPACITY, handler)) {
-                    ItemStack stack = player.getItemInHand(player.getUsedItemHand());
-                    FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
-                    if (data.isFluidEmpty()) {
-                        stack.set(getFluidDataType(), FluidData.createData(handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE)));
-                    }
-                }
+        if (isValidFluidHandler(handler) && targetHasEnough(CAPACITY, handler)) {
+            FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
+            if (data.isFluidEmpty()) {
+                stack.set(getFluidDataType(), FluidData.createData(handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE)));
             }
         }
     }

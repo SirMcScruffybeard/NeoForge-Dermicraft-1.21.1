@@ -88,7 +88,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
 
         if (ToolUtil.isInjectionTool(stack)) {
 
-            inject(level, stack, stitchedEntity);
+            inject(level, player, stack, stitchedEntity);
             return ItemInteractionResult.SUCCESS;
         }
 
@@ -118,7 +118,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
         level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 0.7F);
     }
 
-    private void inject(Level level,  ItemStack stack, StitchedTumorBlockEntity blockEntity) {
+    private void inject(Level level, Player player, ItemStack stack, StitchedTumorBlockEntity blockEntity) {
         if (stack.getItem() instanceof IInject syringe) {
 
             FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);
@@ -128,7 +128,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
             EarlyImplantRecipe recipe = blockEntity.getCachedRecipe();
 
             if (recipe != null && recipe.testFluid(fluidStack)) {
-                syringe.emptyDataFluid(stack);
+                syringe.emptyDataFluidIfSurvival(stack, player);
 
                 this.evolveImplant(level, blockEntity.getBlockPos(), recipe);
             }

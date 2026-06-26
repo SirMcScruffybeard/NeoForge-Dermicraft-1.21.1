@@ -3,39 +3,25 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.recipe.ModRecipes;
-import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipeInput;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
 
-    protected final ItemStackHandler INVENTORY = new ItemStackHandler(16) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            setChanged();
-            if (level != null && !level.isClientSide) {
-                // Instantly re-evaluate if the items inside form a valid recipe
-                updateRecipeCache();
-                // Synchronize inventory changes to the client for rendering purposes
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            }
-        }
-    };
+    private static final int INVENTORY_SIZE = 16;
+    private static final String RECIPE_KEY = "held_recipe_id";
 
-    protected @Nullable RecipeHolder<EarlyImplantRecipe> cachedRecipeHolder = null;
+    protected final ItemStackHandler INVENTORY = createInventory(INVENTORY_SIZE);
 
     public MarredTumorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MARRED_TUMOR_BE.get(), pos, blockState);
@@ -45,15 +31,23 @@ public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
         return this.INVENTORY;
     }
 
-    public @Nullable EarlyImplantRecipe getCachedRecipe() {
-        return this.cachedRecipeHolder != null ? this.cachedRecipeHolder.value() : null;
+    @Override
+    protected void onInventoryChanged(int slot) {
+        super.onInventoryChanged(slot);
+        if (level != null && !level.isClientSide) {
+            // Instantly re-evaluate if the items inside form a valid recipe
+            updateRecipeCache();
+            // Synchronize inventory changes to the client for rendering purposes
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
     }
 
     public void drops() {
         SimpleContainer inv = new SimpleContainer(INVENTORY.getSlots());
         for (int i = 0; i < INVENTORY.getSlots(); i++) {
-            if (!inv.getItem(i).isEmpty()) {
-                inv.setItem(i, INVENTORY.getStackInSlot(i));
+            ItemStack stack = INVENTORY.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                inv.setItem(i, stack);
             }
         }
         Containers.dropContents(level, worldPosition, inv);
@@ -84,8 +78,6 @@ public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
      * @return true if the item was successfully taken and absorbed into the mass.
      */
     public boolean insertItem(ItemStack playerHandStack) {
-        if (this.currentState != TumorState.EMPTY) return false;
-
         for (int i = 0; i < INVENTORY.getSlots(); i++) {
             if (INVENTORY.getStackInSlot(i).isEmpty()) {
                 // Split 1 unit to insert cleanly into the empty slot
@@ -104,11 +96,7 @@ public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
     protected void saveAdditional(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", this.INVENTORY.serializeNBT(registries));
-        tag.putString("state", this.currentState.name());
-
-        if (this.cachedRecipeHolder != null) {
-            tag.putString("held_recipe_id", this.cachedRecipeHolder.id().toString());
-        }
+        saveRecipeHolder(tag, RECIPE_KEY);
     }
 
     @Override
@@ -117,16 +105,7 @@ public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
         if (tag.contains("inventory")) {
             this.INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
         }
-        if (tag.contains("state")) {
-            try {
-                this.currentState = TumorState.valueOf(tag.getString("state"));
-            } catch (IllegalArgumentException e) {
-                this.currentState = TumorState.EMPTY;
-            }
-        }
-        if (tag.contains("held_recipe_id")) {
-            this.lazyRecipeId = ResourceLocation.parse(tag.getString("held_recipe_id"));
-        }
+        loadLazyRecipeId(tag, RECIPE_KEY);
     }
 
     @Override
@@ -135,15 +114,7 @@ public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
         // Once the block entity is fully bound to the world, safely map our lazy loaded ID back to the recipe object
         if (this.level != null && !this.level.isClientSide) {
             if (this.lazyRecipeId != null) {
-                this.level.getRecipeManager().byKey(this.lazyRecipeId).ifPresent(holder -> {
-                    if (holder.value() instanceof EarlyImplantRecipe) {
-                        // Suppress warnings by casting cleanly to our explicit type holder
-                        //lmdx-escape-checked
-                        @SuppressWarnings("unchecked") RecipeHolder<EarlyImplantRecipe> typeSafeHolder = (RecipeHolder<EarlyImplantRecipe>) holder;
-                        this.cachedRecipeHolder = typeSafeHolder;
-                    }
-                });
-                this.lazyRecipeId = null;
+                resolveLazyRecipeHolder();
             } else {
                 updateRecipeCache();
             }

@@ -103,7 +103,7 @@ public class MasticatorBlock extends ModBaseEntityBlock {
                     return ItemInteractionResult.SUCCESS;
 
                 }else if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
-                    player.setItemInHand(hand, masticator.insetItemStack(stack));
+                    player.setItemInHand(hand, masticator.insertItemStack(stack));
                     return ItemInteractionResult.SUCCESS;
                 }
             }

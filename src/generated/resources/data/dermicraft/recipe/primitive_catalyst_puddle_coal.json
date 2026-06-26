@@ -1,0 +1,19 @@
+{
+  "type": "dermicraft:puddle_fluid_crafting",
+  "ingredients": [
+    {
+      "item": "minecraft:coal"
+    },
+    {
+      "item": "minecraft:bone"
+    },
+    {
+      "tag": "c:foods/raw_meat"
+    }
+  ],
+  "item_amount": 0,
+  "puddle": "dermicraft:source_crude_slurry",
+  "result_fluid": "dermicraft:source_primitive_catalyst",
+  "result_item": "minecraft:air",
+  "ticks": 200
+}

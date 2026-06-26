@@ -112,7 +112,7 @@ public interface IHaveFluidData {
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
             FluidStack contained = getFluidInTank(0);
-            if (contained.isEmpty() || maxDrain < 250) return FluidStack.EMPTY;
+            if (contained.isEmpty() || maxDrain < CAPACITY) return FluidStack.EMPTY;
 
             if (action.execute()) {
                 container.set(getDataType(), FluidData.EMPTY);

@@ -75,6 +75,8 @@ public class SutureKitItem extends ToolItem implements ISuture {
 
     @Override
     public void useMaterials(Player player, InteractionHand hand) {
+        if (player.isCreative()) return;
+
         ItemStack stack = player.getItemInHand(hand);
         //Try to consume string in player inventory. If not damage Suture Kit
         if (!consumeString(player)) {

@@ -2,7 +2,7 @@
   "type": "dermicraft:early_implant",
   "fluid_ingredient": {
     "amount": 100,
-    "id": "dermicraft:source_crude_slurry"
+    "id": "dermicraft:source_primitive_catalyst"
   },
   "ingredients": [
     {

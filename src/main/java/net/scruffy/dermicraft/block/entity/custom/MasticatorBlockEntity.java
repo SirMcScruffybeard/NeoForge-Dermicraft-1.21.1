@@ -54,10 +54,6 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
     private final ItemStackHandler INVENTORY = createItemHandler(3);
 
-    public final Direction FUEL_FACE = Direction.UP;
-    public final Direction OUTPUT_FACE = Direction.DOWN;
-    public final Direction INGREDIENT_FACE = Direction.NORTH;
-
     private final int FUEL_USE_DEFAULT = 1;
     private int fuelUseRate = FUEL_USE_DEFAULT;
     private final float SPEED_DEFAULT = 1f;
@@ -164,7 +160,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         super.drops(INVENTORY);
     }
 
-    public ItemStack insetItemStack(ItemStack stack) {
+    public ItemStack insertItemStack(ItemStack stack) {
         return insertItemStack(INVENTORY, INGREDIENT_TANK.SLOT, stack);
     }
 
@@ -548,8 +544,10 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
                     if (isRecipeValid(activePreciseRecipe)) {
                         setMaxProgressPrecise();
+                        setPreciseResultAmount();
                     } else if (isRecipeValid(activeVagueRecipe)) {
                         setMaxProgressVague();
+                        setVagueResultAmount();
                     } else {
                         resetActiveRecipes();
                         resetMaxProgress();

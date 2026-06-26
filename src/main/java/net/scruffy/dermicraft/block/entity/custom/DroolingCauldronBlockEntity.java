@@ -116,7 +116,7 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         dropItems(level, INVENTORY, worldPosition);
     }
 
-    public ItemStack insetItemStack(ItemStack stack) {
+    public ItemStack insertItemStack(ItemStack stack) {
         return insertItemStack(INVENTORY, INPUT, stack);
     }
 

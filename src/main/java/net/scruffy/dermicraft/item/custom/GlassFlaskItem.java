@@ -68,31 +68,28 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
+        if (!isServerSide(level)) return InteractionResult.SUCCESS;
+
         BlockPos pos = context.getClickedPos();
+        Player player = context.getPlayer();
+        ItemStack stack = context.getItemInHand();
+        FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
 
-        if (isServerSide(level)) {
-            Player player = context.getPlayer();
-            ItemStack stack = context.getItemInHand();
-            FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
-
-            if (data.isFluidEmpty()) {
-                return InteractionResult.SUCCESS;
-            }
-
-            FluidStack fluidStack = data.fluidStack();
-
-            if (fluidStack.is(ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE.get())) {
-
-                return new CalciumBlend().useOn(level, player, pos, stack);
-            }
-
-            if (fluidStack.is(ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get())) {
-                return new CrudeSlurry().useOn(level, pos, player, stack);
-            }
-
+        if (data.isFluidEmpty()) {
+            return InteractionResult.PASS;
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        FluidStack fluidStack = data.fluidStack();
+
+        if (fluidStack.is(ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE.get())) {
+            return new CalciumBlend().useOn(level, player, pos, stack);
+        }
+
+        if (fluidStack.is(ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get())) {
+            return new CrudeSlurry().useOn(level, pos, player, stack);
+        }
+
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -240,9 +237,6 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
                         0.5, 0.5, 0.5, // Spread (Oxygen/Box size)
                         0.05        // Speed/Motion
                 );
-
-                // Always include the sound so the player feels the "oomph"
-                level.playSound(null, pos, SoundEvents.BONE_MEAL_USE, SoundSource.BLOCKS, 1.0F, 1.0F);
             }
         }
     }
