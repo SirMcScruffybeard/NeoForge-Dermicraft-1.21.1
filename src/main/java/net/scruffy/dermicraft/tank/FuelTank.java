@@ -1,7 +1,5 @@
 package net.scruffy.dermicraft.tank;
 
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.util.ModFluidUtil;
 
 public class FuelTank extends ModFluidTank {
@@ -17,13 +15,17 @@ public class FuelTank extends ModFluidTank {
         return ModFluidUtil.isBiofuel(this.getFluid());
     }
 
+    private boolean isValidBiofuel() {
+        return !this.isEmpty() && isBiofuel();
+    }
+
     public int getUseRate() {
-        if (this.isEmpty() || !isBiofuel()) return 0;
+        if (!isValidBiofuel()) return 0;
         return Math.round(ModFluidUtil.getUseRate(this.getFluid()));
     }
 
     public float getFuelSpeedModifier() {
-        if (this.isEmpty() || !isBiofuel()) return 0;
+        if (!isValidBiofuel()) return 0;
         return ModFluidUtil.getSpeed(this.getFluid());
     }
 
@@ -32,33 +34,10 @@ public class FuelTank extends ModFluidTank {
     }
 
     public boolean hasEnoughFuel(int targetAmount) {
-        return hasEnoughFluid(this, targetAmount);
+        return hasEnoughFluid(targetAmount);
     }
 
     public void useFuel(int amount) {
         if (hasEnoughFuel(amount)) useFluid(amount);
     }
-
-    public boolean hasEmptyFluidHandlerInSlot(ItemStackHandler inventory, int fuelSlot) {
-        return super.hasEmptyFluidHandlerInSlot(inventory, fuelSlot, this);
-    }
-
-    public void transferFuelToTankWithCheck(ItemStackHandler inventory, int fuelSlot) {
-        if (super.hasFluidHandlerInSlot(inventory, fuelSlot))
-            super.transferFluidToTank(inventory, fuelSlot, this);
-    }
-
-    public void transferFuelToTank(ItemStackHandler inventory, int fuelSlot) {
-        super.transferFluidToTank(inventory, fuelSlot, this);
-    }
-
-    public void transferFuelToHandlerWithCheck(ItemStackHandler inventory, int fuelSlot) {
-        if (hasEmptyFluidHandlerInSlot(inventory, fuelSlot))
-            super.transferFluidFromTankToHandler(inventory, fuelSlot, this);
-    }
-
-    public void transferFuelToHandler(ItemStackHandler inventory, int fuelSlot) {
-        super.transferFluidFromTankToHandler(inventory, fuelSlot, this);
-    }
-
 }

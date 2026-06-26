@@ -117,19 +117,25 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         builder.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER,
                 InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.DROOLING_CAULDRON));
 
-        builder.buildMasticating(recipeOutput, "calcium_blend_masticating", Ingredient.of(Items.BONE),
+        builder.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE),
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000,
                 ModMath.Time.getMinutesToTicks(1),
                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE));
+
+        builder.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL),
+                Fluids.WATER, 334, ModFluids.SOURCE_CALCIUM_BLEND.get(), 330,
+                ModMath.Time.getMinutesToTicks(1),
+                InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE_MEAL));
+
 
         builder.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 1000,
                 ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
 
         builder.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal", Items.COAL, 110,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_CARBON_BLEND.get(), 112, ModMath.Time.getSecondsToTicks(30));
 
         builder.masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 110,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_CARBON_BLEND.get(), 11, ModMath.Time.getSecondsToTicks(30));
 
         builder.vagueMasticateWithTagAndWater(recipeOutput, "crude_slurry_vague_masticating", ModTags.Items.PLANT_FOOD, 1,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModBlocks.DROOLING_CAULDRON.asItem());

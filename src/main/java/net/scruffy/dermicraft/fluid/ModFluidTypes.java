@@ -32,7 +32,7 @@ public class ModFluidTypes {
                             .viscosity(2500)
                             .density(2000)
                             .temperature(300)
-                            .motionScale(0.012)
+                            .motionScale(0.010)
                             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)
@@ -45,7 +45,7 @@ public class ModFluidTypes {
                             .viscosity(3000)
                             .density(2500)
                             .temperature(280)
-                            .motionScale(0.012D)
+                            .motionScale(0.012)
                             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)
@@ -58,7 +58,7 @@ public class ModFluidTypes {
                             .viscosity(2500)
                             .density(1200)
                             .temperature(310)
-                            .motionScale(0.08)
+                            .motionScale(0.008)
                             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
@@ -66,6 +66,23 @@ public class ModFluidTypes {
                             .canHydrate(false)
                             .canConvertToSource(false)
             ));
+
+    //////////////////////////////Catalysts\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FluidType> PRIMITIVE_CATALYST_FLUID_TYPE = registerFluidType("primitive_catalyst_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF5C4A30,
+                    setColorVector(92,74, 48),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1500)
+                            .temperature(305)
+                            .motionScale(0.025)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)));
+
 
     //////////////////////////////Slurries\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FluidType> CRUDE_SLURRY_FLUID_TYPE = registerFluidType("crude_slurry_fluid",

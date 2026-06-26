@@ -73,6 +73,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.PROTEIN_BLEND_BUCKET);
 
                         output.accept(ModFluids.CRUDE_SLURRY_BUCKET);
+
+                        output.accept(ModFluids.PRIMITIVE_CATALYST_BUCKET);
                     }).build());
 
 
@@ -85,6 +87,8 @@ public class ModCreativeModeTabs {
 
         //output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
+
+        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
     }
 
     private static void buildFlaskContents(CreativeModeTab.Output output) {
@@ -98,5 +102,7 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
 
         output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
+
+        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
     }
 }

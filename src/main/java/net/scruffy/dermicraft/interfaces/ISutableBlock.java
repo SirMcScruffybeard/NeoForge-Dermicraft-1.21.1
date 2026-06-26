@@ -4,24 +4,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
-import net.scruffy.dermicraft.util.ToolUtil;
 
 public interface ISutableBlock {
 
-    void suture(Level level, BlockPos pos, Player player, ItemStack sutureStack, MarredTumorBlockEntity tumorEntity);
+    void suture(Level level, BlockPos pos, Player player, ItemStack sutureStack, MarredTumorBlockEntity tumorEntity, InteractionHand hand);
 
     void changeState(Level level, BlockPos pos, Block block);
-
-    default boolean isSutureTool(ItemStack stack) {
-        return ToolUtil.isSutureTool(stack);
-    }
 
     default void setState(Level level, BlockPos pos, BlockState targetState) {
         level.setBlock(pos, targetState, 3);

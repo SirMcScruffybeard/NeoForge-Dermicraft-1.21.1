@@ -27,11 +27,11 @@ public abstract class ModFluidTank extends FluidTank {
         super(capacity);
         SLOT = slot;
     }
-    
+
     public boolean hasRoom(FluidStack resource) {
         return getSpace() >= resource.getAmount();
     }
-    
+
     public boolean hasRoom(int amount) {
         return getSpace() >= amount;
     }
@@ -40,8 +40,8 @@ public abstract class ModFluidTank extends FluidTank {
         return this.getSpace() <= 0;
     }
 
-    public boolean hasEnoughFluid(FluidTank tank, int targetAmount) {
-        return tank.getFluid().getAmount() >= targetAmount;
+    public boolean hasEnoughFluid(int targetAmount) {
+        return this.getFluid().getAmount() >= targetAmount;
     }
 
     public void useFluid(int amount) {
@@ -49,15 +49,15 @@ public abstract class ModFluidTank extends FluidTank {
     }
 
     public boolean hasFluidHandlerInSlot(IItemHandler itemHandler, int slot) {
-        return ModFluidUtil.hasFluidHandlerInSlot(itemHandler,slot);
+        return ModFluidUtil.hasFluidHandlerInSlot(itemHandler, slot);
     }
 
-    public boolean hasEmptyFluidHandlerInSlot(ItemStackHandler itemHandler, int slot, FluidTank tank) {
-        return ModFluidUtil.hasEmptyFluidHandlerInSlotForTransfer(itemHandler, slot, tank);
+    public boolean hasEmptyFluidHandlerInSlot(ItemStackHandler itemHandler, int slot) {
+        return ModFluidUtil.hasEmptyFluidHandlerInSlotForTransfer(itemHandler, slot, this);
     }
 
-    public void transferFluidToTank(ItemStackHandler itemHandler, int slot, FluidTank tank) {
-        ModFluidUtil.transferFluidToTank(itemHandler, slot, tank);
+    public void transferFluidToTank(ItemStackHandler itemHandler, int slot) {
+        ModFluidUtil.transferFluidToTank(itemHandler, slot, this);
     }
 
     public void safeFill(FluidStack resource) {
@@ -66,19 +66,15 @@ public abstract class ModFluidTank extends FluidTank {
         }
     }
 
-    public void transferFluidFromTankToHandler(ItemStackHandler itemHandler, int itemSlot, FluidTank tank) {
-        ModFluidUtil.transferFluidFromTankToHandler(itemHandler, itemSlot, tank);
+    public void transferFluidFromTankToHandler(ItemStackHandler itemHandler, int itemSlot) {
+        ModFluidUtil.transferFluidFromTankToHandler(itemHandler, itemSlot, this);
     }
 
-    public void  pushFluidToAboveNeighbour(Level level, BlockPos worldPosition){
+    public void pushFluidToAboveNeighbour(Level level, BlockPos worldPosition) {
         ModFluidUtil.pushFluidToAboveNeighbour(level, worldPosition, this);
     }
 
-    public void  pushFluidToBelowNeighbour(Level level, BlockPos worldPosition){
+    public void pushFluidToBelowNeighbour(Level level, BlockPos worldPosition) {
         ModFluidUtil.pushFluidToBelowNeighbour(level, worldPosition, this);
     }
-
-
-    
-    
 }

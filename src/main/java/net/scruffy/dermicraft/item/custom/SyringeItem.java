@@ -36,16 +36,17 @@ public class SyringeItem extends Item implements IInject, IHaveFluidData {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
+        if (!isServerSide(level)) return InteractionResult.SUCCESS;
+
         BlockPos pos = context.getClickedPos();
         Direction face = context.getClickedFace();
         Player player = context.getPlayer();
 
-        if (isServerSide(level)) {
-            if (isValidFluidHandler(getTargetFluidHandler(level, pos, face))) {
-                draw(level, pos, face, player);
-            }
+        if (isValidFluidHandler(getTargetFluidHandler(level, pos, face))) {
+            draw(level, pos, face, player);
+            return InteractionResult.SUCCESS;
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     private void draw(Level level, BlockPos pos, Direction face, Player player) {

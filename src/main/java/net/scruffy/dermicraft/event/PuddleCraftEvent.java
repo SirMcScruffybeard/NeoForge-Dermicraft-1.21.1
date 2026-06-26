@@ -24,6 +24,7 @@ import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipeInput;
 import net.scruffy.dermicraft.util.ModMath;
 import net.scruffy.dermicraft.util.PuddleCraftHelper;
+import net.scruffy.dermicraft.util.RecipeUtil;
 
 import java.util.*;
 
@@ -63,7 +64,7 @@ public class PuddleCraftEvent {
                     PuddleCraftingRecipeInput input = PuddleCraftHelper.getInput(serverLevel, pos);
                     var recipeOptional = PuddleCraftHelper.getRecipe(serverLevel, input);
 
-                    if (PuddleCraftHelper.isRecipeValid(recipeOptional)) {
+                    if (RecipeUtil.isRecipeValid(recipeOptional)) {
                         PuddleCraftingRecipe recipe = recipeOptional.value();
 
 

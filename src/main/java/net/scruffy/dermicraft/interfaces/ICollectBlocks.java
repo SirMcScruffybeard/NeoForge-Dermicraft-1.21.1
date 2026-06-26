@@ -9,7 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
-import net.scruffy.dermicraft.util.ModPlayerUtil;
+import net.scruffy.dermicraft.util.ModItemUtil;
 
 public interface ICollectBlocks {
 
@@ -24,7 +24,7 @@ public interface ICollectBlocks {
     }
 
     default void grabItem(Player player, ItemStack stack) {
-        ModPlayerUtil.giveItem(player, stack);
+        ModItemUtil.giveItem(player, stack);
     }
 
     default ItemStack getBlockItem(Level level, BlockPos pos) {
@@ -36,7 +36,7 @@ public interface ICollectBlocks {
     }
 
     default void playDefaultPickupSound(Level level, BlockPos pos) {
-        playPickupSound(level, pos, SoundEvents.SCULK_BLOCK_BREAK, 1f, 05f);
+        playPickupSound(level, pos, SoundEvents.SCULK_BLOCK_BREAK, 1f, 0.5f);
     }
 
 }

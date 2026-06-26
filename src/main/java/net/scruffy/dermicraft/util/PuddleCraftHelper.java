@@ -56,12 +56,9 @@ public class PuddleCraftHelper {
         }
 
         for (Ingredient ingredient : recipe.ingredients()) {
-            boolean ingredientSatisfied = false;
-
             for (ItemStack poolStack : availablePool) {
                 if (!poolStack.isEmpty() && ingredient.test(poolStack)) {
                     poolStack.shrink(1);
-                    ingredientSatisfied = true;
                     break;
                 }
             }
@@ -71,6 +68,8 @@ public class PuddleCraftHelper {
             if (entity.getItem().isEmpty()) {
                 entity.discard();
             } else {
+                // shrink() mutates the stack in place without notifying tracked clients;
+                // re-setting it forces the synced entity data to update.
                 entity.setItem(entity.getItem());
             }
         }
@@ -81,12 +80,8 @@ public class PuddleCraftHelper {
                 .getRecipeFor(ModRecipes.PUDDLE_FLUID_CRAFTING_TYPE.get(), input, level);
 
         if (match.isPresent()) {
-            return  match.get();
+            return match.get();
         }
         return null;
-    }
-
-    public static boolean isRecipeValid(RecipeHolder<PuddleCraftingRecipe> recipe) {
-        return RecipeUtil.isRecipeValid(recipe);
     }
 }

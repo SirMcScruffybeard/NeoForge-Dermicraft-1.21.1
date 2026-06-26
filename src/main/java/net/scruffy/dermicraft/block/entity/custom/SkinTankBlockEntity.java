@@ -99,11 +99,11 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
                 if (level != null && !level.isClientSide) {
 
                     if (TANK.hasFluidHandlerInSlot(this, INPUT)) {
-                        TANK.transferFluidToTank(this, INPUT, TANK);
+                        TANK.transferFluidToTank(this, INPUT);
                     }
 
-                    if (TANK.hasEmptyFluidHandlerInSlot(this, OUTPUT, TANK)) {
-                        TANK.transferFluidFromTankToHandler(this, OUTPUT, TANK);
+                    if (TANK.hasEmptyFluidHandlerInSlot(this, OUTPUT)) {
+                        TANK.transferFluidFromTankToHandler(this, OUTPUT);
                     }
 
                     setChanged();

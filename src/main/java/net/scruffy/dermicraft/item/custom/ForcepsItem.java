@@ -22,17 +22,16 @@ public class ForcepsItem extends ToolItem implements ICollectBlocks {
 
         if (canCollect(level, context.getClickedPos())) {
             collect(level, context.getClickedPos(), context.getPlayer());
+            return InteractionResult.SUCCESS;
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override
     public void collect(Level level, BlockPos pos, Player player) {
         grabItem(player, getBlockItem(level, pos));
-
         changeToAir(level, pos);
-
         playDefaultPickupSound(level, pos);
     }
 }

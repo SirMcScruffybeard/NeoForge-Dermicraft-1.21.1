@@ -1,0 +1,11 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:bone_meal"
+  },
+  "ingredient_fluid": "minecraft:water",
+  "ingredient_fluid_amount": 334,
+  "result_fluid": "dermicraft:source_calcium_blend",
+  "result_fluid_amount": 330,
+  "ticks": 1200
+}

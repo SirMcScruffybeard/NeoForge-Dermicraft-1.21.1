@@ -21,7 +21,7 @@ public interface IBloodLet {
         return player.hasEffect(effect);
     }
 
-    default boolean hasPosion(Player player) {
+    default boolean hasPoison(Player player) {
         return hasEffect(player, MobEffects.POISON);
     }
 

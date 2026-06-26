@@ -41,11 +41,11 @@ public class SutureKitItem extends ToolItem implements ISuture {
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
         if (isSutable(level.getBlockState(context.getClickedPos()))) {
-
-            useMaterials(context.getPlayer());
+            useMaterials(context.getPlayer(), context.getHand());
+            return InteractionResult.SUCCESS;
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -68,17 +68,17 @@ public class SutureKitItem extends ToolItem implements ISuture {
 
     @Override
     public void suturePlayer(Level level, Player player, ItemStack stack) {
-        useMaterials(player);
+        useMaterials(player, player.getUsedItemHand());
         applySutureEffect(player, ModMath.Time.getSecondsToTicks(15), 0);
         playDefaultSutureSound(level, player);
     }
 
     @Override
-    public void useMaterials(Player player) {
-        ItemStack stack = player.getItemInHand(player.getUsedItemHand());
+    public void useMaterials(Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
         //Try to consume string in player inventory. If not damage Suture Kit
         if (!consumeString(player)) {
-            stack.hurtAndBreak(getTotalWear(USE_DAMAGE_MODIFIER), player, LivingEntity.getSlotForHand(player.getUsedItemHand()));
+            stack.hurtAndBreak(getTotalWear(USE_DAMAGE_MODIFIER), player, LivingEntity.getSlotForHand(hand));
         }
     }
 

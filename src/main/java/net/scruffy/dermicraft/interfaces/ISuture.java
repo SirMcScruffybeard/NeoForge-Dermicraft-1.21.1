@@ -4,6 +4,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -18,7 +19,7 @@ import net.scruffy.dermicraft.util.ModPlayerUtil;
 public interface ISuture {
 
     void suturePlayer(Level level, Player player, ItemStack stack);
-    void useMaterials(Player player);
+    void useMaterials(Player player, InteractionHand hand);
 
     default boolean isSutable(BlockState state) {
         return state.is(ModTags.Blocks.SUTABLE);

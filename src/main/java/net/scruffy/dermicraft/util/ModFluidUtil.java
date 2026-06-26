@@ -9,11 +9,14 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.property.BiofuelProperties;
+import org.jetbrains.annotations.Nullable;
 
 public class ModFluidUtil {
 
@@ -45,39 +48,39 @@ public class ModFluidUtil {
      * @param slot
      * @return
      ********************************************************************************/
+    @Nullable
+    private static IFluidHandlerItem getItemFluidHandler(ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        return stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+    }
+
     public static boolean hasFluidHandlerInSlot(IItemHandler itemHandler, int slot) {
-        ItemStack stack = itemHandler.getStackInSlot(slot);
-        return !stack.isEmpty()
-                && stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null
-                && !stack.getCapability(Capabilities.FluidHandler.ITEM, null).getFluidInTank(0).isEmpty();
+        IFluidHandlerItem handler = getItemFluidHandler(itemHandler.getStackInSlot(slot));
+        return handler != null && !handler.getFluidInTank(0).isEmpty();
     }
 
     public static boolean hasEmptyFluidHandlerInSlotForTransfer(ItemStackHandler itemHandler, int slot, FluidTank tank) {
-        ItemStack stack = itemHandler.getStackInSlot(slot);
-        return !stack.isEmpty()
-                && stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null
-                && (stack.getCapability(Capabilities.FluidHandler.ITEM, null).getFluidInTank(0).isEmpty() ||
-                net.neoforged.neoforge.fluids.FluidUtil.tryFluidTransfer(stack.getCapability(Capabilities.FluidHandler.ITEM, null),
-                        tank, Integer.MAX_VALUE, false) != FluidStack.EMPTY);
+        IFluidHandlerItem handler = getItemFluidHandler(itemHandler.getStackInSlot(slot));
+        return handler != null
+                && (handler.getFluidInTank(0).isEmpty()
+                || FluidUtil.tryFluidTransfer(handler, tank, Integer.MAX_VALUE, false) != FluidStack.EMPTY);
     }
 
     public static boolean hasEmptyFluidHandlerInSlot(ItemStackHandler itemHandler, int slot) {
-        ItemStack stack = itemHandler.getStackInSlot(slot);
-        return !stack.isEmpty()
-                && stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null
-                && (stack.getCapability(Capabilities.FluidHandler.ITEM, null).getFluidInTank(0).isEmpty());
+        IFluidHandlerItem handler = getItemFluidHandler(itemHandler.getStackInSlot(slot));
+        return handler != null && handler.getFluidInTank(0).isEmpty();
     }
 
     public static void transferFluidToTank(ItemStackHandler itemHandler, int slot, FluidTank tank) {
-        FluidActionResult result = net.neoforged.neoforge.fluids.FluidUtil.tryEmptyContainer(itemHandler.getStackInSlot(slot), tank, Integer.MAX_VALUE, null, true);
-        if (result.result != ItemStack.EMPTY) {
+        FluidActionResult result = FluidUtil.tryEmptyContainer(itemHandler.getStackInSlot(slot), tank, Integer.MAX_VALUE, null, true);
+        if (!result.result.isEmpty()) {
             itemHandler.setStackInSlot(slot, result.result);
         }
     }
 
     public static void transferFluidFromTankToHandler(ItemStackHandler itemHandler, int itemSlot, FluidTank tank) {
-        FluidActionResult result = net.neoforged.neoforge.fluids.FluidUtil.tryFillContainer(itemHandler.getStackInSlot(itemSlot), tank, Integer.MAX_VALUE, null, true);
-        if (result.result != ItemStack.EMPTY && result.isSuccess()) {
+        FluidActionResult result = FluidUtil.tryFillContainer(itemHandler.getStackInSlot(itemSlot), tank, Integer.MAX_VALUE, null, true);
+        if (result.isSuccess() && !result.result.isEmpty()) {
             itemHandler.setStackInSlot(itemSlot, result.result);
         }
     }
@@ -101,23 +104,23 @@ public class ModFluidUtil {
     }
 
     //////////Biofuel Checkers, Getters, Setters\\\\\\\\\\
+    @Nullable
+    private static BiofuelProperties getBiofuelData(FluidStack fluidStack) {
+        if (fluidStack.isEmpty()) return null;
+        return BuiltInRegistries.FLUID.wrapAsHolder(fluidStack.getFluid()).getData(ModDataMaps.BIOFUELS);
+    }
+
     public static boolean isBiofuel(FluidStack fluidStack) {
-        if (fluidStack.isEmpty()) return false;
-
-        var holder = BuiltInRegistries.FLUID.wrapAsHolder(fluidStack.getFluid());
-
-        return holder.getData(ModDataMaps.BIOFUELS) != null;
+        return getBiofuelData(fluidStack) != null;
     }
 
     public static float getUseRate(FluidStack fluidStack) {
-        if (!isBiofuel(fluidStack)) return 0;
-
-        return BuiltInRegistries.FLUID.wrapAsHolder(fluidStack.getFluid()).getData(ModDataMaps.BIOFUELS).useRate();
+        BiofuelProperties data = getBiofuelData(fluidStack);
+        return data == null ? 0 : data.useRate();
     }
 
     public static float getSpeed(FluidStack fluidStack) {
-        if (!isBiofuel(fluidStack)) return 0;
-
-        return BuiltInRegistries.FLUID.wrapAsHolder(fluidStack.getFluid()).getData(ModDataMaps.BIOFUELS).speed();
+        BiofuelProperties data = getBiofuelData(fluidStack);
+        return data == null ? 0 : data.speed();
     }
 }

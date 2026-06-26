@@ -52,7 +52,7 @@ public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
         if (level.isClientSide) return stack;
 
         if (livingEntity instanceof Player player) {
-            if (hasPosion(player)) {
+            if (hasPoison(player)) {
                 removePoison(player);
             }
             applyBloodLetDamage(player, 2f);
@@ -71,13 +71,13 @@ public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
     public InteractionResult useOn(UseOnContext context) {
         if (context.getLevel().isClientSide) return InteractionResult.SUCCESS;
         Player player = context.getPlayer();
-        if (player == null) return InteractionResult.PASS;
 
         if (isHarvestable(context.getLevel(), context.getClickedPos())) {
-            damageTool(player, context.getItemInHand(), getTotalWear(USE_DAMAGE_MODIFIER));
+            damageTool(player, context.getItemInHand(), getTotalWear(USE_DAMAGE_MODIFIER), context.getHand());
+            return InteractionResult.SUCCESS;
         }
 
-        return InteractionResult.SUCCESS;
+        return InteractionResult.PASS;
     }
 
 

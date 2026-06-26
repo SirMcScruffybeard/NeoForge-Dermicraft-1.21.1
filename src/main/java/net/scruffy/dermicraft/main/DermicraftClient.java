@@ -53,6 +53,8 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_PROTEIN_BLEND.get(), ModFluids.FLOWING_PROTEIN_BLEND.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.FLOWING_CRUDE_SLURRY.get());
+
+            renderTranslucentFluid(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.FLOWING_PRIMITIVE_CATALYST.get());
         });
     }
 
@@ -63,6 +65,8 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.PROTEIN_BLEND_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get());
+
+        registerFluidType(event, ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE.get());
 
     }
 

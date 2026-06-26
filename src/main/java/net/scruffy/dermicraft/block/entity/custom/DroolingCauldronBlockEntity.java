@@ -52,6 +52,9 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
     private int resultAmount = 0;
 
+    @Nullable
+    private ResourceLocation pendingRecipeId = null;
+
     public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
     }
@@ -124,6 +127,8 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     public void tick(Level level) {
         if (level.isClientSide) return;
 
+        resolvePendingRecipe(level);
+
         //////////Every Second (20 ticks)\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(1))) {
             TANK.safeFill(new FluidStack(Fluids.WATER, 1));
@@ -160,8 +165,22 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         return !INVENTORY.getStackInSlot(INPUT).isEmpty();
     }
 
+    private void resolvePendingRecipe(Level level) {
+        if (pendingRecipeId == null) return;
+
+        level.getRecipeManager().byKey(pendingRecipeId).ifPresent(recipeHolder -> {
+            if (recipeHolder.value() instanceof VagueDroolingRecipe) {
+                this.activeRecipe = (RecipeHolder<VagueDroolingRecipe>) recipeHolder;
+            }
+        });
+        pendingRecipeId = null;
+    }
+
     private void setActiveRecipe() {
-        if (level == null) activeRecipe = null;
+        if (level == null) {
+            activeRecipe = null;
+            return;
+        }
 
         Optional<RecipeHolder<VagueDroolingRecipe>> opt = level.getRecipeManager()
                 .getRecipeFor(ModRecipes.VAGUE_DROOLING_TYPE.get(),
@@ -229,13 +248,8 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         this.maxProgress = tag.getInt("dc_max");
         resultAmount = tag.getInt("resultFluid");
 
-        if (this.level != null && tag.contains("SavedRecipeId", CompoundTag.TAG_STRING)) {
-            ResourceLocation id = ResourceLocation.parse(tag.getString("SavedRecipeId"));
-            this.level.getRecipeManager().byKey(id).ifPresent(recipeHolder -> {
-                if (recipeHolder.value() instanceof VagueDroolingRecipe) {
-                    this.activeRecipe = (RecipeHolder<VagueDroolingRecipe>) recipeHolder;
-                }
-            });
+        if (tag.contains("saved_recipe", CompoundTag.TAG_STRING)) {
+            pendingRecipeId = ResourceLocation.parse(tag.getString("saved_recipe"));
         }
     }
 

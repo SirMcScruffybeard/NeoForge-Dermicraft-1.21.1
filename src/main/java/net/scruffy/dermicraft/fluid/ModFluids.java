@@ -78,7 +78,26 @@ public class ModFluids {
             .block(ModFluids.PROTEIN_BLEND_BLOCK)
             .bucket(ModFluids.PROTEIN_BLEND_BUCKET);
 
+    //////////////////////////////Primitive Catalyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_PRIMITIVE_CATALYST = FLUIDS.register("source_primitive_catalyst",
+            () -> new BaseFlowingFluid.Source(ModFluids.PRIMITIVE_CATALYST_PROPERTIES));
 
+    public static final Supplier<FlowingFluid> FLOWING_PRIMITIVE_CATALYST = FLUIDS.register("flowing_primitive_catalyst",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.PRIMITIVE_CATALYST_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> PRIMITIVE_CATALYST_BLOCK = ModBlocks.BLOCKS.register("primitive_catalyst_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> PRIMITIVE_CATALYST_BUCKET = ModItems.ITEMS.registerItem("primitive_catalyst_bucket",
+            properties -> new BucketItem(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), properties
+                    .craftRemainder(Items.BUCKET)
+                    .stacksTo(1)));
+
+    public static final BaseFlowingFluid.Properties PRIMITIVE_CATALYST_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE, SOURCE_PRIMITIVE_CATALYST, FLOWING_PRIMITIVE_CATALYST)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.PRIMITIVE_CATALYST_BLOCK)
+            .bucket(ModFluids.PRIMITIVE_CATALYST_BUCKET);
 
     //////////////////////////////Crude Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_CRUDE_SLURRY = FLUIDS.register("source_crude_slurry",

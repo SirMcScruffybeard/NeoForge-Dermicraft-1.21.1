@@ -70,6 +70,9 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     private RecipeHolder<VagueMasticatingRecipe> activeVagueRecipe = null;
     private Item activeItem = Items.AIR;
 
+    @Nullable
+    private ResourceLocation pendingRecipeId = null;
+
     public MasticatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
     }
@@ -171,6 +174,9 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
     public void tick(Level level) {
         if (level.isClientSide) return;
+
+        resolvePendingRecipe(level);
+
         //INVENTORY'S onContentChange handles:
         // grabbing and setting the recipe
         // and setting maxProgress
@@ -202,6 +208,19 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         }
     }
 
+
+    private void resolvePendingRecipe(Level level) {
+        if (pendingRecipeId == null) return;
+
+        level.getRecipeManager().byKey(pendingRecipeId).ifPresent(recipeHolder -> {
+            if (recipeHolder.value() instanceof MasticatingRecipe) {
+                this.activePreciseRecipe = (RecipeHolder<MasticatingRecipe>) recipeHolder;
+            } else if (recipeHolder.value() instanceof VagueMasticatingRecipe) {
+                this.activeVagueRecipe = (RecipeHolder<VagueMasticatingRecipe>) recipeHolder;
+            }
+        });
+        pendingRecipeId = null;
+    }
 
     private void setSpeed() {
         speed = Math.max(SPEED_DEFAULT, FUEL_TANK.getSpeed()) * CRAFT_TICKS;
@@ -358,15 +377,8 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         this.progress = tag.getInt("progress");
         this.maxProgress = tag.getInt("maxProgress");
 
-        if (this.level != null && tag.contains("SavedRecipeId", CompoundTag.TAG_STRING)) {
-            ResourceLocation id = ResourceLocation.parse(tag.getString("SavedRecipeId"));
-            this.level.getRecipeManager().byKey(id).ifPresent(recipeHolder -> {
-                if (recipeHolder.value() instanceof MasticatingRecipe) {
-                    this.activePreciseRecipe = (RecipeHolder<MasticatingRecipe>) recipeHolder;
-                } else if (recipeHolder.value() instanceof VagueMasticatingRecipe) {
-                    this.activeVagueRecipe = (RecipeHolder<VagueMasticatingRecipe>) recipeHolder;
-                }
-            });
+        if (tag.contains("saved_recipe", CompoundTag.TAG_STRING)) {
+            pendingRecipeId = ResourceLocation.parse(tag.getString("saved_recipe"));
         }
 
         if (tag.contains("activeItem", CompoundTag.TAG_STRING)) {
@@ -448,7 +460,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
                 if (tank.hasFluidHandlerInSlot(this, slot)) {
                     isTransferringFluids = true;
-                    tank.transferFluidToTank(this, slot, tank);
+                    tank.transferFluidToTank(this, slot);
 
                 } else {
                     transferToHandler(tank, slot);
@@ -457,7 +469,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
             }
 
             private void transferToHandler(ModFluidTank tank, int slot) {
-                if (tank.hasEmptyFluidHandlerInSlot(this, slot, tank)) {
+                if (tank.hasEmptyFluidHandlerInSlot(this, slot)) {
                     isTransferringFluids = true;
 
                     ItemStack stack = getStackInSlot(slot);
@@ -474,7 +486,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                     } else {
                         setStackInSlot(slot, stack);
                     }
-                    tank.transferFluidFromTankToHandler(this, slot, tank);
+                    tank.transferFluidFromTankToHandler(this, slot);
                 }
             }
 
