@@ -151,6 +151,67 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 1,
                 ModFluids.SOURCE_PROTEIN_BLEND.get());
 
+        // Placeholder yields - Sediment Blend balance values not yet finalized, see crafting notes.
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating", ModTags.Items.STONE_BLEND_ROSTER, 1000,
+                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_masticating", ModTags.Items.SILICA_BLEND_ROSTER, 1000,
+                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_masticating", ModTags.Items.CLAY_BLEND_ROSTER, 1000,
+                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_recycling_masticating", ModTags.Items.SILICA_BLEND_RECYCLING, 1000,
+                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_recycling_masticating", ModTags.Items.CLAY_BLEND_RECYCLING, 1000,
+                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+
+        // Cross-feed recipes - sibling-fluid feed instead of water, boosted yield (placeholder +25% over base 1000 mB).
+        // Silica Blend is the hub: cross-feeds with both Stone Blend and Clay Blend.
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_blend_masticating_boosted_with_stone_blend",
+                Ingredient.of(ModTags.Items.SILICA_BLEND_ROSTER), 1,
+                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModFluids.SOURCE_SILICA_BLEND.get(), 1250, -1,
+                ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "stone_blend_masticating_boosted_with_silica_blend",
+                Ingredient.of(ModTags.Items.STONE_BLEND_ROSTER), 1,
+                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModFluids.SOURCE_STONE_BLEND.get(), 1250, -1,
+                ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_blend_masticating_boosted_with_clay_blend",
+                Ingredient.of(ModTags.Items.SILICA_BLEND_ROSTER), 1,
+                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModFluids.SOURCE_SILICA_BLEND.get(), 1250, -1,
+                ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "clay_blend_masticating_boosted_with_silica_blend",
+                Ingredient.of(ModTags.Items.CLAY_BLEND_ROSTER), 1,
+                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModFluids.SOURCE_CLAY_BLEND.get(), 1250, -1,
+                ModMath.Time.getSecondsToTicks(60));
+
+        // Metal Blends - Ingot/Nugget tiers use Water 1:1; Raw tier uses a flat 250 mB Primitive Catalyst dose for 2000 mB output.
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_ingot", Items.IRON_INGOT, 1000,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_nugget", Items.IRON_NUGGET, 110,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_raw",
+                Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_ingot", Items.COPPER_INGOT, 1000,
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+        RecipeBuilders.buildMasticating(recipeOutput, "cuprous_blend_masticating_raw",
+                Ingredient.of(Items.RAW_COPPER), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
+
+        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_ingot", Items.GOLD_INGOT, 1000,
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_nugget", Items.GOLD_NUGGET, 110,
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.buildMasticating(recipeOutput, "aurous_blend_masticating_raw",
+                Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
+
 
         RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
                 ModFluids.SOURCE_CARBON_BLEND.get(), 75, Items.TORCH, 4);

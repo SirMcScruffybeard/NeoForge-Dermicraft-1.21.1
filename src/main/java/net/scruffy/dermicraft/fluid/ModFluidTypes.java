@@ -102,6 +102,110 @@ public class ModFluidTypes {
             ));
 
 
+    //////////////////////////////Sediment Blends\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // Placeholder numeric values (density/viscosity/motionScale) - exact balance not yet decided, see crafting notes.
+    public static final Supplier<FluidType> STONE_BLEND_FLUID_TYPE = registerFluidType("stone_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF7D7D7D,
+                    setColorVector(125, 125, 125),
+                    FluidType.Properties.create()
+                            .viscosity(3500)
+                            .density(3500)
+                            .temperature(290)
+                            .motionScale(0.006)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> SILICA_BLEND_FLUID_TYPE = registerFluidType("silica_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFD9C18C,
+                    setColorVector(217, 193, 140),
+                    FluidType.Properties.create()
+                            .viscosity(4000)
+                            .density(3000)
+                            .temperature(290)
+                            .motionScale(0.003)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> CLAY_BLEND_FLUID_TYPE = registerFluidType("clay_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFA1A8AB,
+                    setColorVector(161, 168, 171),
+                    FluidType.Properties.create()
+                            .viscosity(4500)
+                            .density(2800)
+                            .temperature(290)
+                            .motionScale(0.005)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+
+    //////////////////////////////Metal Blends\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // Ferrous Blend - base metal: Iron
+    public static final Supplier<FluidType> FERROUS_BLEND_FLUID_TYPE = registerFluidType("ferrous_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFD8D8D8,
+                    setColorVector(216, 216, 216),
+                    FluidType.Properties.create()
+                            .viscosity(2000)
+                            .density(2200)
+                            .temperature(290)
+                            .motionScale(0.015)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    // Cuprous Blend - base metal: Copper
+    public static final Supplier<FluidType> CUPROUS_BLEND_FLUID_TYPE = registerFluidType("cuprous_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB87333,
+                    setColorVector(184, 115, 51),
+                    FluidType.Properties.create()
+                            .viscosity(2000)
+                            .density(2200)
+                            .temperature(290)
+                            .motionScale(0.015)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    // Aurous Blend - base metal: Gold
+    public static final Supplier<FluidType> AUROUS_BLEND_FLUID_TYPE = registerFluidType("aurous_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFD4AF37,
+                    setColorVector(212, 175, 55),
+                    FluidType.Properties.create()
+                            .viscosity(2000)
+                            .density(2200)
+                            .temperature(290)
+                            .motionScale(0.015)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     private static Vector3f setColorVector(float r, float g, float b) {
         return new Vector3f(r/255f, g/255f, b/255f);

@@ -3,6 +3,12 @@
     "dermicraft:source_calcium_blend",
     "dermicraft:source_carbon_blend",
     "dermicraft:source_protein_blend",
-    "dermicraft:source_crude_slurry"
+    "dermicraft:source_crude_slurry",
+    "dermicraft:source_stone_blend",
+    "dermicraft:source_silica_blend",
+    "dermicraft:source_clay_blend",
+    "dermicraft:source_ferrous_blend",
+    "dermicraft:source_cuprous_blend",
+    "dermicraft:source_aurous_blend"
   ]
 }

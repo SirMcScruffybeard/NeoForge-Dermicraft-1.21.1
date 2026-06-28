@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "tag": "dermicraft:silica_blend_roster"
+  },
+  "ingredient_fluid": "dermicraft:source_stone_blend",
+  "ingredient_fluid_amount": 1000,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_silica_blend",
+  "result_fluid_amount": 1250,
+  "ticks": 1200
+}

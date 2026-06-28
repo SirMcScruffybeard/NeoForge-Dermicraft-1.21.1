@@ -26,6 +26,14 @@
 
   "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
 
+  "item.dermicraft.stone_blend_bucket": "Stone Blend Bucket",
+  "item.dermicraft.silica_blend_bucket": "Silica Blend Bucket",
+  "item.dermicraft.clay_blend_bucket": "Clay Blend Bucket",
+
+  "item.dermicraft.ferrous_blend_bucket": "Ferrous Blend Bucket",
+  "item.dermicraft.cuprous_blend_bucket": "Cuprous Blend Bucket",
+  "item.dermicraft.aurous_blend_bucket": "Aurous Blend Bucket",
+
   "fluid_type.dermicraft.calcium_blend_fluid": "Calcium Blend",
   "fluid_type.dermicraft.carbon_blend_fluid": "Carbon Blend",
   "fluid_type.dermicraft.protein_blend_fluid": "Protein Blend",
@@ -33,6 +41,14 @@
   "fluid_type.dermicraft.crude_slurry_fluid": "Crude Slurry",
 
   "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
+
+  "fluid_type.dermicraft.stone_blend_fluid": "Stone Blend",
+  "fluid_type.dermicraft.silica_blend_fluid": "Silica Blend",
+  "fluid_type.dermicraft.clay_blend_fluid": "Clay Blend",
+
+  "fluid_type.dermicraft.ferrous_blend_fluid": "Ferrous Blend",
+  "fluid_type.dermicraft.cuprous_blend_fluid": "Cuprous Blend",
+  "fluid_type.dermicraft.aurous_blend_fluid": "Aurous Blend",
 
   "block.dermicraft.inert_tumor": "Inert Tumor",
   "block.dermicraft.marred_tumor": "Marred Tumor",

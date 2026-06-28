@@ -77,6 +77,14 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.CRUDE_SLURRY_BUCKET);
 
                         output.accept(ModFluids.PRIMITIVE_CATALYST_BUCKET);
+
+                        output.accept(ModFluids.STONE_BLEND_BUCKET);
+                        output.accept(ModFluids.SILICA_BLEND_BUCKET);
+                        output.accept(ModFluids.CLAY_BLEND_BUCKET);
+
+                        output.accept(ModFluids.FERROUS_BLEND_BUCKET);
+                        output.accept(ModFluids.CUPROUS_BLEND_BUCKET);
+                        output.accept(ModFluids.AUROUS_BLEND_BUCKET);
                     }).build());
 
 
@@ -106,6 +114,14 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
+
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SILICA_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CLAY_BLEND.get()));
+
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_FERROUS_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CUPROUS_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_AUROUS_BLEND.get()));
     }
 
     private static void buildFlaskContents(CreativeModeTab.Output output) {

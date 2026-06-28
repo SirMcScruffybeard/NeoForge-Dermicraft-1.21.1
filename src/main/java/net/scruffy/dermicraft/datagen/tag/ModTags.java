@@ -45,6 +45,13 @@ public class ModTags {
 
         public static final TagKey<Item> BIOFUELS = createTag("biofuels");
 
+        public static final TagKey<Item> STONE_BLEND_ROSTER = createTag("stone_blend_roster");
+        public static final TagKey<Item> SILICA_BLEND_ROSTER = createTag("silica_blend_roster");
+        public static final TagKey<Item> CLAY_BLEND_ROSTER = createTag("clay_blend_roster");
+
+        public static final TagKey<Item> SILICA_BLEND_RECYCLING = createTag("silica_blend_recycling");
+        public static final TagKey<Item> CLAY_BLEND_RECYCLING = createTag("clay_blend_recycling");
+
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "dermicraft:item/primitive_catalyst_bucket"
+    "layer0": "dermicraft:item/bucket/primitive_catalyst_bucket"
   }
 }

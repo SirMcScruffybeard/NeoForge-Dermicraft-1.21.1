@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "dermicraft:item/carbon_blend_bucket"
+    "layer0": "dermicraft:item/bucket/carbon_blend_bucket"
   }
 }

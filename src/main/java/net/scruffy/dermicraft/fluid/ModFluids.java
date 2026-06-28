@@ -117,6 +117,117 @@ public class ModFluids {
             .block(ModFluids.CRUDE_SLURRY_BLOCK)
             .bucket(ModFluids.CRUDE_SLURRY_BUCKET);
 
+    //////////////////////////////Stone Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_STONE_BLEND = FLUIDS.register("source_stone_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.STONE_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_STONE_BLEND = FLUIDS.register("flowing_stone_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.STONE_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> STONE_BLEND_BLOCK = ModBlocks.BLOCKS.register("stone_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_STONE_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> STONE_BLEND_BUCKET = getBucket("stone_blend_bucket", ModFluids.SOURCE_STONE_BLEND);
+
+    public static final BaseFlowingFluid.Properties STONE_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.STONE_BLEND_FLUID_TYPE, SOURCE_STONE_BLEND, FLOWING_STONE_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.STONE_BLEND_BLOCK)
+            .bucket(ModFluids.STONE_BLEND_BUCKET);
+
+    //////////////////////////////Silica Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_SILICA_BLEND = FLUIDS.register("source_silica_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.SILICA_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_SILICA_BLEND = FLUIDS.register("flowing_silica_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.SILICA_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> SILICA_BLEND_BLOCK = ModBlocks.BLOCKS.register("silica_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_SILICA_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> SILICA_BLEND_BUCKET = getBucket("silica_blend_bucket", ModFluids.SOURCE_SILICA_BLEND);
+
+    public static final BaseFlowingFluid.Properties SILICA_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.SILICA_BLEND_FLUID_TYPE, SOURCE_SILICA_BLEND, FLOWING_SILICA_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.SILICA_BLEND_BLOCK)
+            .bucket(ModFluids.SILICA_BLEND_BUCKET);
+
+    //////////////////////////////Clay Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_CLAY_BLEND = FLUIDS.register("source_clay_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.CLAY_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_CLAY_BLEND = FLUIDS.register("flowing_clay_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.CLAY_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> CLAY_BLEND_BLOCK = ModBlocks.BLOCKS.register("clay_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_CLAY_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> CLAY_BLEND_BUCKET = getBucket("clay_blend_bucket", ModFluids.SOURCE_CLAY_BLEND);
+
+    public static final BaseFlowingFluid.Properties CLAY_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.CLAY_BLEND_FLUID_TYPE, SOURCE_CLAY_BLEND, FLOWING_CLAY_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.CLAY_BLEND_BLOCK)
+            .bucket(ModFluids.CLAY_BLEND_BUCKET);
+
+    //////////////////////////////Ferrous Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // Base metal: Iron
+    public static final Supplier<FlowingFluid> SOURCE_FERROUS_BLEND = FLUIDS.register("source_ferrous_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.FERROUS_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_FERROUS_BLEND = FLUIDS.register("flowing_ferrous_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.FERROUS_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> FERROUS_BLEND_BLOCK = ModBlocks.BLOCKS.register("ferrous_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_FERROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> FERROUS_BLEND_BUCKET = getBucket("ferrous_blend_bucket", ModFluids.SOURCE_FERROUS_BLEND);
+
+    public static final BaseFlowingFluid.Properties FERROUS_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.FERROUS_BLEND_FLUID_TYPE, SOURCE_FERROUS_BLEND, FLOWING_FERROUS_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.FERROUS_BLEND_BLOCK)
+            .bucket(ModFluids.FERROUS_BLEND_BUCKET);
+
+    //////////////////////////////Cuprous Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // Base metal: Copper
+    public static final Supplier<FlowingFluid> SOURCE_CUPROUS_BLEND = FLUIDS.register("source_cuprous_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.CUPROUS_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_CUPROUS_BLEND = FLUIDS.register("flowing_cuprous_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.CUPROUS_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> CUPROUS_BLEND_BLOCK = ModBlocks.BLOCKS.register("cuprous_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_CUPROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> CUPROUS_BLEND_BUCKET = getBucket("cuprous_blend_bucket", ModFluids.SOURCE_CUPROUS_BLEND);
+
+    public static final BaseFlowingFluid.Properties CUPROUS_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.CUPROUS_BLEND_FLUID_TYPE, SOURCE_CUPROUS_BLEND, FLOWING_CUPROUS_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.CUPROUS_BLEND_BLOCK)
+            .bucket(ModFluids.CUPROUS_BLEND_BUCKET);
+
+    //////////////////////////////Aurous Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // Base metal: Gold
+    public static final Supplier<FlowingFluid> SOURCE_AUROUS_BLEND = FLUIDS.register("source_aurous_blend",
+            () -> new BaseFlowingFluid.Source(ModFluids.AUROUS_BLEND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_AUROUS_BLEND = FLUIDS.register("flowing_aurous_blend",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.AUROUS_BLEND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> AUROUS_BLEND_BLOCK = ModBlocks.BLOCKS.register("aurous_blend_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_AUROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> AUROUS_BLEND_BUCKET = getBucket("aurous_blend_bucket", ModFluids.SOURCE_AUROUS_BLEND);
+
+    public static final BaseFlowingFluid.Properties AUROUS_BLEND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.AUROUS_BLEND_FLUID_TYPE, SOURCE_AUROUS_BLEND, FLOWING_AUROUS_BLEND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.AUROUS_BLEND_BLOCK)
+            .bucket(ModFluids.AUROUS_BLEND_BUCKET);
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static void register(IEventBus eventBus) {
         FLUIDS.register(eventBus);

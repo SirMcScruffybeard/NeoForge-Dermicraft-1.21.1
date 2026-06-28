@@ -68,5 +68,75 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         ;
 
+        tag(ModTags.Items.STONE_BLEND_ROSTER)
+                .add(Items.STONE)
+                .add(Items.COBBLESTONE)
+                .add(Items.ANDESITE)
+                .add(Items.DIORITE)
+                .add(Items.GRANITE)
+                .add(Items.DEEPSLATE)
+                .add(Items.COBBLED_DEEPSLATE)
+                .add(Items.CALCITE)
+                .add(Items.TUFF)
+                .add(Items.GRAVEL)
+                .add(Items.DRIPSTONE_BLOCK)
+                .add(Items.POINTED_DRIPSTONE)
+        ;
+
+        tag(ModTags.Items.SILICA_BLEND_ROSTER)
+                .add(Items.SAND)
+                .add(Items.RED_SAND)
+                .add(Items.SANDSTONE)
+                .add(Items.RED_SANDSTONE)
+        ;
+
+        tag(ModTags.Items.CLAY_BLEND_ROSTER)
+                .add(Items.CLAY)
+        ;
+
+        tag(ModTags.Items.SILICA_BLEND_RECYCLING)
+                .add(Items.GLASS)
+        ;
+
+        tag(ModTags.Items.CLAY_BLEND_RECYCLING)
+                .add(Items.CLAY_BALL)
+                .add(Items.BRICK)
+                .add(Items.BRICKS)
+                .add(Items.FLOWER_POT)
+                .add(Items.TERRACOTTA)
+                .add(Items.WHITE_TERRACOTTA)
+                .add(Items.ORANGE_TERRACOTTA)
+                .add(Items.MAGENTA_TERRACOTTA)
+                .add(Items.LIGHT_BLUE_TERRACOTTA)
+                .add(Items.YELLOW_TERRACOTTA)
+                .add(Items.LIME_TERRACOTTA)
+                .add(Items.PINK_TERRACOTTA)
+                .add(Items.GRAY_TERRACOTTA)
+                .add(Items.LIGHT_GRAY_TERRACOTTA)
+                .add(Items.CYAN_TERRACOTTA)
+                .add(Items.PURPLE_TERRACOTTA)
+                .add(Items.BLUE_TERRACOTTA)
+                .add(Items.BROWN_TERRACOTTA)
+                .add(Items.GREEN_TERRACOTTA)
+                .add(Items.RED_TERRACOTTA)
+                .add(Items.BLACK_TERRACOTTA)
+                .add(Items.WHITE_GLAZED_TERRACOTTA)
+                .add(Items.ORANGE_GLAZED_TERRACOTTA)
+                .add(Items.MAGENTA_GLAZED_TERRACOTTA)
+                .add(Items.LIGHT_BLUE_GLAZED_TERRACOTTA)
+                .add(Items.YELLOW_GLAZED_TERRACOTTA)
+                .add(Items.LIME_GLAZED_TERRACOTTA)
+                .add(Items.PINK_GLAZED_TERRACOTTA)
+                .add(Items.GRAY_GLAZED_TERRACOTTA)
+                .add(Items.LIGHT_GRAY_GLAZED_TERRACOTTA)
+                .add(Items.CYAN_GLAZED_TERRACOTTA)
+                .add(Items.PURPLE_GLAZED_TERRACOTTA)
+                .add(Items.BLUE_GLAZED_TERRACOTTA)
+                .add(Items.BROWN_GLAZED_TERRACOTTA)
+                .add(Items.GREEN_GLAZED_TERRACOTTA)
+                .add(Items.RED_GLAZED_TERRACOTTA)
+                .add(Items.BLACK_GLAZED_TERRACOTTA)
+        ;
+
     }
 }

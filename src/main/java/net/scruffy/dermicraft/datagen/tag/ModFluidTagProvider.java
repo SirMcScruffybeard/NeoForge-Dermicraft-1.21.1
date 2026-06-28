@@ -44,6 +44,14 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_PROTEIN_BLEND.get())
 
                 .add(ModFluids.SOURCE_CRUDE_SLURRY.get())
+
+                .add(ModFluids.SOURCE_STONE_BLEND.get())
+                .add(ModFluids.SOURCE_SILICA_BLEND.get())
+                .add(ModFluids.SOURCE_CLAY_BLEND.get())
+
+                .add(ModFluids.SOURCE_FERROUS_BLEND.get())
+                .add(ModFluids.SOURCE_CUPROUS_BLEND.get())
+                .add(ModFluids.SOURCE_AUROUS_BLEND.get())
         ;
 
         tag(ModTags.Fluids.THIN)

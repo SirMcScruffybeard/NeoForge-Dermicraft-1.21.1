@@ -56,6 +56,14 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.FLOWING_CRUDE_SLURRY.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.FLOWING_PRIMITIVE_CATALYST.get());
+
+            renderTranslucentFluid(ModFluids.SOURCE_STONE_BLEND.get(), ModFluids.FLOWING_STONE_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_SILICA_BLEND.get(), ModFluids.FLOWING_SILICA_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CLAY_BLEND.get(), ModFluids.FLOWING_CLAY_BLEND.get());
+
+            renderTranslucentFluid(ModFluids.SOURCE_FERROUS_BLEND.get(), ModFluids.FLOWING_FERROUS_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CUPROUS_BLEND.get(), ModFluids.FLOWING_CUPROUS_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_AUROUS_BLEND.get(), ModFluids.FLOWING_AUROUS_BLEND.get());
         });
     }
 
@@ -68,6 +76,14 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE.get());
+
+        registerFluidType(event, ModFluidTypes.STONE_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.SILICA_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CLAY_BLEND_FLUID_TYPE.get());
+
+        registerFluidType(event, ModFluidTypes.FERROUS_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CUPROUS_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.AUROUS_BLEND_FLUID_TYPE.get());
 
     }
 

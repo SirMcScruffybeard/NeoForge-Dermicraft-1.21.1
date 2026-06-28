@@ -71,6 +71,12 @@ public class RecipeBuilders {
                 Fluids.WATER, ingredientFluidAmount, result, resultAmount, -1, ticks);
     }
 
+    public static void masticateWithWater(RecipeOutput recipeOutput, String name, TagKey<Item> itemTag, int ingredientFluidAmount,
+                                          Fluid result, int resultAmount, int ticks) {
+        buildMasticating(recipeOutput, name, Ingredient.of(itemTag), 1,
+                Fluids.WATER, ingredientFluidAmount, result, resultAmount, -1, ticks);
+    }
+
     public static void vagueMasticateWithTagAndWater(RecipeOutput recipeOutput, String name, TagKey<Item> itemTag, float modifier,
                                                      Fluid result) {
         buildMasticating(recipeOutput, name, Ingredient.of(itemTag), 1,
