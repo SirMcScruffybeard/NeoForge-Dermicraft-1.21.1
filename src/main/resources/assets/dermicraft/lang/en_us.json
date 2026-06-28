@@ -56,14 +56,21 @@
   "block.dermicraft.skin_tank": "Skin Tank",
   "blockEntity.dermicraft.skin_tank_be": "Skin Tank",
 
+  "block.dermicraft.beaker": "Beaker",
+  "item.dermicraft.beaker.filled": "Beaker of %s",
+
   "effect.dermicraft.blood_let": "Blood Let",
   "death.attack.blood_let": "%1$s starved a vampire.",
 
   "effect.dermicraft.sutured": "Sutured",
-  "death.attack.rip_stitches": "%1$s couldn't keep it together.",
+  "death.attack.rip_stitches": "%1$s couldn't hold it together.",
+
+  "effect.dermicraft.spicy_regret": "Spicy Regret",
+  "death.attack.spicy_regret": "%1$s succumbed to spicy regret",
 
 
 
   "tooltip.dermicraft.liquid.amount.with.capacity": "%s / %s mB",
-  "tooltip.dermicraft.liquid.amount": "%s mB"
+  "tooltip.dermicraft.liquid.amount": "%s mB",
+  "tooltip.dermicraft.hold_shift_for_amount": "Hold Shift for fluid amount"
 }

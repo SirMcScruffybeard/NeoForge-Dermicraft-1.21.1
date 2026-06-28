@@ -31,7 +31,6 @@ import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
-import net.scruffy.dermicraft.recipe.masticating.VagueMasticatingRecipe;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
@@ -62,8 +61,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
     private int resultAmount = 0;
 
-    private RecipeHolder<MasticatingRecipe> activePreciseRecipe = null;
-    private RecipeHolder<VagueMasticatingRecipe> activeVagueRecipe = null;
+    private RecipeHolder<MasticatingRecipe> activeRecipe = null;
     private Item activeItem = Items.AIR;
 
     @Nullable
@@ -171,6 +169,10 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     public void tick(Level level) {
         if (level.isClientSide) return;
 
+        if (ModMath.Time.hasSecondsPassed(level, 5) && !RESULT_TANK.isEmpty()) {
+            RESULT_TANK.pushFluidToBelowNeighbour(level, worldPosition);
+        }
+
         resolvePendingRecipe(level);
 
         //INVENTORY'S onContentChange handles:
@@ -178,7 +180,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         // and setting maxProgress
         if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
 
-            if (!isRecipeValid(activePreciseRecipe) && !isRecipeValid(activeVagueRecipe)) {
+            if (!isRecipeValid(activeRecipe)) {
                 if (progress > 0) {
                     resetProgress();
                 }
@@ -210,9 +212,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
         level.getRecipeManager().byKey(pendingRecipeId).ifPresent(recipeHolder -> {
             if (recipeHolder.value() instanceof MasticatingRecipe) {
-                this.activePreciseRecipe = (RecipeHolder<MasticatingRecipe>) recipeHolder;
-            } else if (recipeHolder.value() instanceof VagueMasticatingRecipe) {
-                this.activeVagueRecipe = (RecipeHolder<VagueMasticatingRecipe>) recipeHolder;
+                this.activeRecipe = (RecipeHolder<MasticatingRecipe>) recipeHolder;
             }
         });
         pendingRecipeId = null;
@@ -243,54 +243,28 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         return INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT).isEmpty();
     }
 
-    private Optional<RecipeHolder<?>> getRecipeOptional() {
+    private Optional<RecipeHolder<MasticatingRecipe>> getRecipeOptional() {
         if (level == null) return Optional.empty();
 
         RecipeManager recipeManager = level.getRecipeManager();
         ItemStack stack = INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT);
         FluidStack fluid = INGREDIENT_TANK.getFluid();
 
-        Optional<RecipeHolder<MasticatingRecipe>> preciseMatch =
-                recipeManager.getRecipeFor(ModRecipes.MASTICATING_TYPE.get(),
-                        new OneFluidOneItemRecipeInput(stack, fluid), this.level);
-
-        if (preciseMatch.isPresent()) return Optional.of(preciseMatch.get());
-
-        Optional<RecipeHolder<VagueMasticatingRecipe>> vagueMatch =
-                recipeManager.getRecipeFor(ModRecipes.VAGUE_MASTICATING_TYPE.get(), new OneFluidOneItemRecipeInput(stack, fluid), this.level);
-
-        if (vagueMatch.isPresent()) return Optional.of(vagueMatch.get());
-
-        return Optional.empty();
+        return recipeManager.getRecipeFor(ModRecipes.MASTICATING_TYPE.get(),
+                new OneFluidOneItemRecipeInput(stack, fluid), this.level);
     }
 
-    private void setActiveRecipe(Optional<RecipeHolder<?>> opt) {
+    private void setActiveRecipe(Optional<RecipeHolder<MasticatingRecipe>> opt) {
         if (opt.isPresent()) {
-            RecipeHolder<?> holder = opt.get();
-            Object recipeValue = holder.value();
-
-            if (recipeValue instanceof MasticatingRecipe) {
-                this.activePreciseRecipe = (RecipeHolder<MasticatingRecipe>) holder;
-                this.resetActiveVagueRecipe(); // Sets vague to null
-            } else if (recipeValue instanceof VagueMasticatingRecipe) {
-                this.resetActivePreciseRecipe(); // Sets precise to null
-                this.activeVagueRecipe = (RecipeHolder<VagueMasticatingRecipe>) holder;
-            }
-        }
-        // SCENARIO 2: No recipe matched (Clear the machine's state completely!)
-        else {
-            this.resetActivePreciseRecipe();
-            this.resetActiveVagueRecipe();
+            this.activeRecipe = opt.get();
+        } else {
+            this.resetActiveRecipe();
             resetMaxProgress(); // Ensures the machine safely idles
         }
     }
 
-    private void setPreciseResultAmount() {
-        resultAmount = activePreciseRecipe.value().resultAmount();
-    }
-
-    private void setVagueResultAmount() {
-        resultAmount = activeVagueRecipe.value().getCraftingAmount(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
+    private void setResultAmount() {
+        resultAmount = activeRecipe.value().getCraftingAmount(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
     }
 
     private void resetResultAmount() {
@@ -301,29 +275,13 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         activeItem = Items.AIR;
     }
 
-    private void resetActivePreciseRecipe() {
-        activePreciseRecipe = null;
-    }
-
-    public void resetActiveVagueRecipe() {
-        activeVagueRecipe = null;
-    }
-
-    /**
-     * ***************************
-     * Resets both active recipes
-     * ***************************
-     */
-    public void resetActiveRecipes() {
-        resetActivePreciseRecipe();
-        resetActiveVagueRecipe();
+    public void resetActiveRecipe() {
+        activeRecipe = null;
     }
 
     private FluidStack craftResult(int craftAmount) {
-        if (isRecipeValid(activePreciseRecipe)) {
-            return activePreciseRecipe.value().getResultFluidStack();
-        } else if (isRecipeValid(activeVagueRecipe)) {
-            return activeVagueRecipe.value().getResultFluidStack(craftAmount);
+        if (isRecipeValid(activeRecipe)) {
+            return activeRecipe.value().getResultFluidStack(craftAmount);
         }
         return FluidStack.EMPTY;
     }
@@ -333,13 +291,8 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         progress += Math.max(1, workDoneInCycle);
     }
 
-    private void setMaxProgressPrecise() {
-        maxProgress = activePreciseRecipe.value().ticks();
-    }
-
-    private void setMaxProgressVague() {
-        maxProgress =
-                activeVagueRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
+    private void setMaxProgress() {
+        maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
     }
 
     @Override
@@ -356,8 +309,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         tag.putInt("maxProgress", maxProgress);
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
         tag.putString("activeItem", itemKey.toString());
-        if (isRecipeValid(activePreciseRecipe)) tag.putString("saved_recipe", activePreciseRecipe.id().toString());
-        else if (isRecipeValid(activeVagueRecipe)) tag.putString("saved_recipe", activeVagueRecipe.id().toString());
+        if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
     }
 
     @Override
@@ -408,7 +360,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                         Item currentItem = stack.getItem();
 
                         if (stack.isEmpty()) {
-                            resetActiveRecipes();
+                            resetActiveRecipe();
                             resetActiveItem();
                             resetProgress();
                             resetMaxProgress();
@@ -420,18 +372,14 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                             resetProgress();
                             resetMaxProgress();
 
-                            Optional<RecipeHolder<?>> recipeOpt = getRecipeOptional();
+                            Optional<RecipeHolder<MasticatingRecipe>> recipeOpt = getRecipeOptional();
                             setActiveRecipe(recipeOpt);
 
-                            if (isRecipeValid(activePreciseRecipe)) {
-                                setMaxProgressPrecise();
-                                setPreciseResultAmount();
-
-                            } else if (isRecipeValid(activeVagueRecipe)) {
-                                setMaxProgressVague();
-                                setVagueResultAmount();
+                            if (isRecipeValid(activeRecipe)) {
+                                setMaxProgress();
+                                setResultAmount();
                             } else {
-                                resetActiveRecipes();
+                                resetActiveRecipe();
                                 resetMaxProgress();
                                 resetProgress();
                                 resetResultAmount();
@@ -539,17 +487,14 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
                 if (level != null && !level.isClientSide()) {
                     // Bypass the item optimization check entirely because a puddle update occurred
-                    Optional<RecipeHolder<?>> recipeOpt = getRecipeOptional();
+                    Optional<RecipeHolder<MasticatingRecipe>> recipeOpt = getRecipeOptional();
                     setActiveRecipe(recipeOpt);
 
-                    if (isRecipeValid(activePreciseRecipe)) {
-                        setMaxProgressPrecise();
-                        setPreciseResultAmount();
-                    } else if (isRecipeValid(activeVagueRecipe)) {
-                        setMaxProgressVague();
-                        setVagueResultAmount();
+                    if (isRecipeValid(activeRecipe)) {
+                        setMaxProgress();
+                        setResultAmount();
                     } else {
-                        resetActiveRecipes();
+                        resetActiveRecipe();
                         resetMaxProgress();
                         resetProgress();
                     }

@@ -13,6 +13,8 @@ public class ModDamageTypes {
 
     public static final ResourceKey<DamageType> RIP_STITCHES = registerDamage("rip_stitches");
 
+    public static final ResourceKey<DamageType> SPICY_REGRET = registerDamage("spicy_regret");
+
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
     public static ResourceKey<DamageType> registerDamage(String name) {

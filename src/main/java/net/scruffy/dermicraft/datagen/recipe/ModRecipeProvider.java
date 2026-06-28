@@ -73,6 +73,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_glass", has(Tags.Items.GLASS_BLOCKS_CHEAP))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("flask_crafting_table"));
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.BEAKER_ITEM)
+                .pattern("G G")
+                .pattern(" G ")
+                .define('G', Tags.Items.GLASS_BLOCKS_CHEAP)
+                .unlockedBy("has_glass", has(Tags.Items.GLASS_BLOCKS_CHEAP))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("beaker_crafting_table"));
+
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.OUTERFACE)
                 .pattern("III")
@@ -111,18 +118,27 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModBlocks.MASTICATOR.asItem(),
                 ModBlocks.INERT_TUMOR.asItem());
 
-        //TODO skin tank recipe
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "skin_tank_implant",
+                List.of(
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModBlocks.BEAKER_ITEM.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.SKIN_TANK.asItem(),
+                ModBlocks.INERT_TUMOR.asItem());
 
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER,
                 InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.DROOLING_CAULDRON));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE),
-                Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000,
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
+                Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,
                 ModMath.Time.getMinutesToTicks(1),
                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL),
-                Fluids.WATER, 334, ModFluids.SOURCE_CALCIUM_BLEND.get(), 330,
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL), 1,
+                Fluids.WATER, 334, ModFluids.SOURCE_CALCIUM_BLEND.get(), 330, -1,
                 ModMath.Time.getMinutesToTicks(1),
                 InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE_MEAL));
 

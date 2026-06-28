@@ -52,13 +52,14 @@ public interface IHaveFluidData {
 
     /**
      * General use Fluid Handler for use with FluidData data component.
+     * Only fills/drains all-or-nothing, full capacity at a time.
      */
-    class FluidDataFluidHandler implements IFluidHandlerItem {
+    class RigidFluidDataFluidHandler implements IFluidHandlerItem {
 
         protected ItemStack container;
         protected final int CAPACITY;
 
-        public FluidDataFluidHandler(ItemStack stack, int capacity) {
+        public RigidFluidDataFluidHandler(ItemStack stack, int capacity) {
             container = stack;
             CAPACITY = capacity;
         }
@@ -118,6 +119,100 @@ public interface IHaveFluidData {
                 container.set(getDataType(), FluidData.EMPTY);
             }
             return contained;
+        }
+
+        private DataComponentType<FluidData> getDataType() {
+            return ModDataComponentTypes.FLUID_DATA.get();
+        }
+    }
+
+    /**
+     * General use Fluid Handler for use with FluidData data component.
+     * Allows partial fills/drains, up to the remaining room/amount available.
+     */
+    class FlexibleFluidDataFluidHandler implements IFluidHandlerItem {
+
+        protected ItemStack container;
+        protected final int CAPACITY;
+
+        public FlexibleFluidDataFluidHandler(ItemStack stack, int capacity) {
+            container = stack;
+            CAPACITY = capacity;
+        }
+
+        @Override
+        public ItemStack getContainer() {
+            return container;
+        }
+
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            FluidData data = container.getOrDefault(getDataType(), FluidData.EMPTY);
+            return data.getFluidStack();
+        }
+
+        @Override
+        public int getTankCapacity(int i) {
+            return CAPACITY;
+        }
+
+        @Override
+        public boolean isFluidValid(int i, FluidStack fluidStack) {
+            return true;
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            if (resource.isEmpty()) return 0;
+
+            FluidStack contained = getFluidInTank(0);
+            if (!contained.isEmpty() && !contained.is(resource.getFluid())) return 0;
+
+            int space = CAPACITY - contained.getAmount();
+            int amountToFill = Math.min(space, resource.getAmount());
+            if (amountToFill <= 0) return 0;
+
+            if (action.execute()) {
+                FluidStack newStack = contained.isEmpty() ? resource.copy() : contained.copy();
+                newStack.setAmount(contained.getAmount() + amountToFill);
+                container.set(getDataType(), FluidData.createData(newStack));
+            }
+            return amountToFill;
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            if (resource.is(getFluidInTank(0).getFluid())) {
+                return drain(resource.getAmount(), action);
+            }
+            return FluidStack.EMPTY;
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            FluidStack contained = getFluidInTank(0);
+            if (contained.isEmpty()) return FluidStack.EMPTY;
+
+            int amountToDrain = Math.min(maxDrain, contained.getAmount());
+            FluidStack drained = contained.copy();
+            drained.setAmount(amountToDrain);
+
+            if (action.execute()) {
+                int remaining = contained.getAmount() - amountToDrain;
+                if (remaining <= 0) {
+                    container.set(getDataType(), FluidData.EMPTY);
+                } else {
+                    FluidStack remainingStack = contained.copy();
+                    remainingStack.setAmount(remaining);
+                    container.set(getDataType(), FluidData.createData(remainingStack));
+                }
+            }
+            return drained;
         }
 
         private DataComponentType<FluidData> getDataType() {

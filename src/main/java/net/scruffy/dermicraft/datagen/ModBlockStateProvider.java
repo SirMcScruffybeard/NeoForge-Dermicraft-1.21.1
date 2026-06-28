@@ -46,6 +46,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),
                 modLoc("block/" + ModBlocks.MASTICATOR.getId().getPath()));
 
+        simpleBlock(ModBlocks.BEAKER.get(), models().cubeBottomTop(
+                ModBlocks.BEAKER.getId().getPath(),
+                modLoc("block/beaker/beaker_side"),
+                modLoc("block/beaker/beaker_bottom"),
+                modLoc("block/beaker/beaker_top"))
+                .renderType("translucent"));
+
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {

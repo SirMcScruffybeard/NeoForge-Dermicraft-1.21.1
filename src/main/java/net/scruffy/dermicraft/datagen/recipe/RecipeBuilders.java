@@ -22,7 +22,6 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
-import net.scruffy.dermicraft.recipe.masticating.VagueMasticatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 
 import java.util.ArrayList;
@@ -67,30 +66,26 @@ public class RecipeBuilders {
     }
 
     ////////////////////Masticating\\\\\\\\\\\\\\\\\\\\
-    public static void buildMasticating(RecipeOutput output, String name, Ingredient ingredient, Fluid fluid, int ingredientFluidAmount,
-                                        Fluid result, int resultAmount, int ticks, Criterion<?> unlockCriterion) {
+    public static void buildMasticating(RecipeOutput output, String name, Ingredient ingredient, int itemAmount, Fluid fluid,
+                                        int ingredientFluidAmount, Fluid result, int resultAmount, float modifier, int ticks,
+                                        Criterion<?> unlockCriterion) {
         ResourceLocation id = getResourceLocation(name);
-        MasticatingRecipe recipe = new MasticatingRecipe(ingredient, fluid, ingredientFluidAmount, result, resultAmount, ticks);
-        output.accept(id, recipe, getAdvancement(output, id, unlockCriterion).build(id.withPrefix("recipes/")));
-    }
-
-    public static void buildVagueMasticating(RecipeOutput output, String name, Ingredient ingredient, float modifier,
-                                             Fluid fluid, Fluid result, Criterion<?> unlockCriterion) {
-        ResourceLocation id = getResourceLocation(name);
-        VagueMasticatingRecipe recipe = new VagueMasticatingRecipe(ingredient, modifier, fluid, result);
+        MasticatingRecipe recipe = new MasticatingRecipe(ingredient, itemAmount, fluid, ingredientFluidAmount,
+                result, resultAmount, modifier, ticks);
         output.accept(id, recipe, getAdvancement(output, id, unlockCriterion).build(id.withPrefix("recipes/")));
     }
 
     public static void masticateWithWater(RecipeOutput recipeOutput, String name, Item item, int ingredientFluidAmount,
                                           Fluid result, int resultAmount, int ticks) {
-        buildMasticating(recipeOutput, name, Ingredient.of(item),
-                Fluids.WATER, ingredientFluidAmount, result, resultAmount, ticks,
+        buildMasticating(recipeOutput, name, Ingredient.of(item), 1,
+                Fluids.WATER, ingredientFluidAmount, result, resultAmount, -1, ticks,
                 InventoryChangeTrigger.TriggerInstance.hasItems(item));
     }
 
     public static void vagueMasticateWithTagAndWater(RecipeOutput recipeOutput, String name, TagKey<Item> itemTag, float modifier,
                                                      Fluid result, Item advItem) {
-        buildVagueMasticating(recipeOutput, name, Ingredient.of(itemTag), modifier, Fluids.WATER, result,
+        buildMasticating(recipeOutput, name, Ingredient.of(itemTag), 1,
+                Fluids.WATER, -1, result, -1, modifier, -50,
                 InventoryChangeTrigger.TriggerInstance.hasItems(advItem));
     }
 

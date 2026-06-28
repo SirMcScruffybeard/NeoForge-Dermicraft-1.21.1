@@ -9,14 +9,17 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -26,10 +29,13 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.effect.ModEffects;
+import net.scruffy.dermicraft.effect.SpicyRegretEffect;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.item.custom.base.ToolItem;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 
 public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
@@ -103,6 +109,18 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
                 new Air().startUsing(player, usedHand);
                 return InteractionResultHolder.consume(stack);
             }
+
+            FluidStack fluidStack = data.fluidStack();
+
+            if (fluidStack.is(Fluids.WATER)) {
+                new Water().startUsing(player, usedHand);
+                return InteractionResultHolder.consume(stack);
+            }
+
+            if (fluidStack.is(Fluids.LAVA)) {
+                new Lava().startUsing(player, usedHand);
+                return InteractionResultHolder.consume(stack);
+            }
         }
 
         return InteractionResultHolder.success(stack);
@@ -118,6 +136,18 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
 
                 if (data.isFluidEmpty()) {
                     new Air().finishUsing(level, player, stack);
+                    return stack;
+                }
+
+                FluidStack fluidStack = data.fluidStack();
+
+                if (fluidStack.is(Fluids.WATER)) {
+                    new Water().finishUsing(level, player, stack);
+                    return stack;
+                }
+
+                if (fluidStack.is(Fluids.LAVA)) {
+                    new Lava().finishUsing(level, player, stack);
                     return stack;
                 }
             }
@@ -164,6 +194,42 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
             player.setAirSupply(Math.min(player.getMaxAirSupply(), playerAir + airSupply));
 
             setFlaskIfSurvival(player, stack, FluidData.createData(Fluids.WATER, 250));
+        }
+    }
+
+    protected class Water {
+
+        public void startUsing(Player player, InteractionHand usedHand) {
+            player.startUsingItem(usedHand);
+        }
+
+        private void finishUsing(Level level, Player player, ItemStack stack) {
+            if (level.isClientSide) return;
+
+            if (player.hasEffect(ModEffects.SPICY_REGRET)) {
+                player.removeEffect(ModEffects.SPICY_REGRET);
+
+                Containers.dropItemStack(level, player.getX(), player.getY(), player.getZ(),
+                        new ItemStack(Items.OBSIDIAN));
+            }
+
+            consumeFlaskIfSurvival(player, stack);
+        }
+    }
+
+    protected class Lava {
+
+        public void startUsing(Player player, InteractionHand usedHand) {
+            player.startUsingItem(usedHand);
+        }
+
+        private void finishUsing(Level level, Player player, ItemStack stack) {
+            if (level.isClientSide) return;
+
+            player.addEffect(new MobEffectInstance(ModEffects.SPICY_REGRET,
+                    ModMath.Time.getSecondsToTicks(SpicyRegretEffect.DURATION_IN_SECONDS), 0));
+
+            consumeFlaskIfSurvival(player, stack);
         }
     }
 

@@ -22,6 +22,7 @@ import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.property.ModItemProperties;
+import net.scruffy.dermicraft.renderer.BeakerBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.DroolingCauldronBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.SkinTankBlockEntityRenderer;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
@@ -74,6 +75,7 @@ public class DermicraftClient {
     public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntityRenderer::new);
     }
 
     @SubscribeEvent

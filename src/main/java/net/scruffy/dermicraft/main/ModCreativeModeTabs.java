@@ -45,6 +45,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.MASTICATOR);
                         output.accept(ModBlocks.SKIN_TANK);
 
+                        buildBeakerContents(output);
+
                     }).build());
 
     public static final Supplier<CreativeModeTab> DERMICRAFT_ITEMS_TAB = CREATIVE_MODE_TAB.register(Dermicraft.MOD_ID + "_items_tab",
@@ -89,6 +91,21 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
+    }
+
+    private static void buildBeakerContents(CreativeModeTab.Output output) {
+        output.accept(ModBlocks.BEAKER_ITEM.get());
+
+        output.accept(ModItemUtil.buildBeakerStack(Fluids.WATER));
+        output.accept(ModItemUtil.buildBeakerStack(Fluids.LAVA));
+
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CARBON_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
+
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
+
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
     }
 
     private static void buildFlaskContents(CreativeModeTab.Output output) {

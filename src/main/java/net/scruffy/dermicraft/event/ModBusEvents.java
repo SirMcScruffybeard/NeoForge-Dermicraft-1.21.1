@@ -4,12 +4,14 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.BeakerItem;
 import net.scruffy.dermicraft.item.custom.GlassFlaskItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -28,7 +30,9 @@ public class ModBusEvents {
 
 
 
-        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.FluidDataFluidHandler(stack, GlassFlaskItem.CAPACITY), ModItems.GLASS_FLASK.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.RigidFluidDataFluidHandler(stack, GlassFlaskItem.CAPACITY), ModItems.GLASS_FLASK.get());
+
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.FlexibleFluidDataFluidHandler(stack, BeakerItem.CAPACITY), ModBlocks.BEAKER_ITEM.get());
     }
 
 }

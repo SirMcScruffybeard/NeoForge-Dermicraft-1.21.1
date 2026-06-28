@@ -10,7 +10,6 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
-import net.scruffy.dermicraft.recipe.masticating.VagueMasticatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 
 public class ModRecipes {
@@ -47,16 +46,6 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "masticating";
-                }
-            });
-
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<VagueMasticatingRecipe>> VAGUE_MASTICATING_SERIALIZER =
-            SERIALIZERS.register("vague_masticating", VagueMasticatingRecipe.Serializer::new);
-    public static final DeferredHolder<RecipeType<?>, RecipeType<VagueMasticatingRecipe>> VAGUE_MASTICATING_TYPE =
-            TYPES.register("vague_masticating", () -> new RecipeType<VagueMasticatingRecipe>() {
-                @Override
-                public String toString() {
-                    return "vague_masticating";
                 }
             });
 

@@ -55,11 +55,8 @@ public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
             if (hasPoison(player)) {
                 removePoison(player);
             }
-            applyBloodLetDamage(player, 2f);
 
-            applyBloodLetEffect(player, 100, 0);
-
-            playDefaultBloodLetSound(level, player);
+            applyBloodLet(player);
 
             damageTool(stack, player, getTotalWear(USE_DAMAGE_MODIFIER));
         }

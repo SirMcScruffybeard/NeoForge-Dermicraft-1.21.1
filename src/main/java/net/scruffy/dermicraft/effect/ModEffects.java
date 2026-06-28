@@ -20,4 +20,7 @@ public class ModEffects {
 
     public static final Holder<MobEffect> SUTURED = MOB_EFFECTS.register("sutured",
             SuturedEffect::new);
+
+    public static final Holder<MobEffect> SPICY_REGRET = MOB_EFFECTS.register("spicy_regret",
+            SpicyRegretEffect::new);
 }

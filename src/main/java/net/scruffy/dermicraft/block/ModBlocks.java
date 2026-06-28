@@ -8,10 +8,12 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.tumor.*;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.BeakerItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.function.Supplier;
@@ -55,6 +57,11 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> SKIN_TANK = registerBlock("skin_tank",
             () -> new SkinTankBlock(BlockBehaviour.Properties.of()));
+
+    public static final DeferredBlock<Block> BEAKER = BLOCKS.register("beaker",
+            () -> new BeakerBlock(BlockBehaviour.Properties.of()));
+    public static final DeferredItem<Item> BEAKER_ITEM = ModItems.ITEMS.register("beaker",
+            () -> new BeakerItem(BEAKER.get(), new Item.Properties().stacksTo(1)));
 
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\

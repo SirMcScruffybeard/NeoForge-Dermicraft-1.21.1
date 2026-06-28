@@ -9,9 +9,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.BeakerItem;
 import net.scruffy.dermicraft.item.custom.GlassFlaskItem;
 import net.scruffy.dermicraft.item.custom.SyringeItem;
 
@@ -55,6 +57,12 @@ public class ModItemUtil {
     public static ItemStack buildSyringeStack(Fluid fluid) {
         ItemStack stack = new ItemStack(ModItems.SYRINGE.get());
         stack.set(ModDataComponentTypes.FLUID_DATA.get(), FluidData.createData(fluid, SyringeItem.CAPACITY));
+        return stack;
+    }
+
+    public static ItemStack buildBeakerStack(Fluid fluid) {
+        ItemStack stack = new ItemStack(ModBlocks.BEAKER_ITEM.get());
+        stack.set(ModDataComponentTypes.FLUID_DATA.get(), FluidData.createData(fluid, BeakerItem.CAPACITY));
         return stack;
     }
 

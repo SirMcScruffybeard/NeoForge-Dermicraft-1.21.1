@@ -78,4 +78,3 @@ public class TankBlockEntityRenderer {
         drawVertex(builder, poseStack, x1, y0, z0, u1, v0, packedLight, color);
     }
 }
-

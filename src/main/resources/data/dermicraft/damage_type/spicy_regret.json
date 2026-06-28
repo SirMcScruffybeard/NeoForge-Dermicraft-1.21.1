@@ -1,0 +1,9 @@
+{
+  "message_id": "spicy_regret",
+  "scaling": "never",
+  "exhaustion": 0.5,
+  "bypasses_armor": true,
+  "bypasses_shield": true,
+  "is_fire": false,
+  "is_magic": false
+}

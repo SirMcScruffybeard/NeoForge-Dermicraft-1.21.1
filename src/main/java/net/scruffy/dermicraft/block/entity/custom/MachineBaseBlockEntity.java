@@ -22,6 +22,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.tank.FuelTank;
+import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.tank.WaterTank;
 import org.jetbrains.annotations.Nullable;
@@ -55,6 +56,18 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
             @Override
             protected void onContentsChanged()
             {
+                if (!level.isClientSide) {
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
+    protected ModFluidTank createFluidTank(int capacity, int slot) {
+        return new ModFluidTank(capacity, slot) {
+            @Override
+            protected void onContentsChanged() {
                 if (!level.isClientSide) {
                     setChanged();
                     updateBlock();
