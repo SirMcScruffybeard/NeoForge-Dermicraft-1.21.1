@@ -71,6 +71,11 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         super(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
     }
 
+    @Override
+    public boolean hasTank() {
+        return true;
+    }
+
     public IFluidHandler getTank(@Nullable Direction direction) {
         if (direction == null) return INGREDIENT_TANK;
 

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "bottom": "dermicraft:block/beaker/beaker_bottom",
+    "side": "dermicraft:block/beaker/beaker_side",
+    "top": "dermicraft:block/beaker/beaker_top"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "G": {
+      "tag": "c:glass_blocks/cheap"
+    }
+  },
+  "pattern": [
+    "G G",
+    " G "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:beaker"
+  }
+}

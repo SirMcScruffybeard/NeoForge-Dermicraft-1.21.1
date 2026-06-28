@@ -1,6 +1,5 @@
 package net.scruffy.dermicraft.datagen.recipe;
 
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
@@ -91,11 +90,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("outerface_crafting_table"));
 
-        RecipeBuilders.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem(), ModBlocks.INERT_TUMOR.asItem());
+        RecipeBuilders.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem());
 
-        RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem(), ModItems.DENSE_MUSCLE.get());
-        RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.EYE.get(), "eye_tumor_implant", ModBlocks.EYE_TUMOR.asItem(), ModItems.EYE.get());
-        RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.NERVE_CLUSTER.get(), "nerve_tumor_implant", ModBlocks.NERVE_TUMOR.asItem(), ModItems.NERVE_CLUSTER.get());
+        RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem());
+        RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.EYE.get(), "eye_tumor_implant", ModBlocks.EYE_TUMOR.asItem());
+        RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.NERVE_CLUSTER.get(), "nerve_tumor_implant", ModBlocks.NERVE_TUMOR.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput,"drooling_cauldron_implant",
                 List.of(Ingredient.of(Blocks.CAULDRON),
@@ -104,8 +103,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get())),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
-                ModBlocks.DROOLING_CAULDRON.asItem(),
-                Items.CAULDRON);
+                ModBlocks.DROOLING_CAULDRON.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "masticator_implant",
                 List.of(
@@ -115,8 +113,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
-                ModBlocks.MASTICATOR.asItem(),
-                ModBlocks.INERT_TUMOR.asItem());
+                ModBlocks.MASTICATOR.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "skin_tank_implant",
                 List.of(
@@ -126,21 +123,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModBlocks.BEAKER_ITEM.get())),
                 Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
-                ModBlocks.SKIN_TANK.asItem(),
-                ModBlocks.INERT_TUMOR.asItem());
+                ModBlocks.SKIN_TANK.asItem());
 
-        RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER,
-                InventoryChangeTrigger.TriggerInstance.hasItems(ModBlocks.DROOLING_CAULDRON));
+        RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER);
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,
-                ModMath.Time.getMinutesToTicks(1),
-                InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE));
+                ModMath.Time.getMinutesToTicks(1));
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL), 1,
                 Fluids.WATER, 334, ModFluids.SOURCE_CALCIUM_BLEND.get(), 330, -1,
-                ModMath.Time.getMinutesToTicks(1),
-                InventoryChangeTrigger.TriggerInstance.hasItems(Items.BONE_MEAL));
+                ModMath.Time.getMinutesToTicks(1));
 
 
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 1000,
@@ -150,33 +143,36 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CARBON_BLEND.get(), 112, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 110,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 11, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "crude_slurry_vague_masticating", ModTags.Items.PLANT_FOOD, 1,
-                ModFluids.SOURCE_CRUDE_SLURRY.get(), ModBlocks.DROOLING_CAULDRON.asItem());
+                ModFluids.SOURCE_CRUDE_SLURRY.get());
 
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 1,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), ModBlocks.DROOLING_CAULDRON.asItem());
+                ModFluids.SOURCE_PROTEIN_BLEND.get());
 
+
+        RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
+                ModFluids.SOURCE_CARBON_BLEND.get(), 75, Items.TORCH, 4);
 
         RecipeBuilders.PuddleCraft.MakeFluids.makeFromTag(recipeOutput, "crude_slurry_puddle", ModTags.Items.PLANT_FOOD, 4, Fluids.WATER,
-                ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10), Items.WATER_BUCKET);
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10));
 
         RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "primitive_catalyst_puddle_coal",
                 List.of(Ingredient.of(Items.COAL), Ingredient.of(Items.BONE), Ingredient.of(Tags.Items.FOODS_RAW_MEAT)),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(),
-                ModMath.Time.getSecondsToTicks(10), ModFluids.CRUDE_SLURRY_BUCKET.get());
+                ModMath.Time.getSecondsToTicks(10));
 
         RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "primitive_catalyst_puddle_charcoal",
                 List.of(Ingredient.of(Items.CHARCOAL), Ingredient.of(Items.BONE), Ingredient.of(Tags.Items.FOODS_RAW_MEAT)),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(),
-                ModMath.Time.getSecondsToTicks(10), ModFluids.CRUDE_SLURRY_BUCKET.get());
+                ModMath.Time.getSecondsToTicks(10));
 
         RecipeBuilders.PuddleCraft.MakeItems.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
-                ModBlocks.INERT_TUMOR.asItem(), 1, ModMath.Time.getSecondsToTicks(10), ModFluids.CRUDE_SLURRY_BUCKET.get());
+                ModBlocks.INERT_TUMOR.asItem(), 1, ModMath.Time.getSecondsToTicks(10));
 
         RecipeBuilders.PuddleCraft.MakeItems.makeFromOneItem(recipeOutput, "calcium_glass_puddle", Items.BONE_MEAL, 1, ModFluids.SOURCE_CALCIUM_BLEND.get(),
-                ModBlocks.CALCIUM_GLASS.asItem(), 1, ModMath.Time.getSecondsToTicks(20),  ModBlocks.CALCIUM_GLASS.asItem());
+                ModBlocks.CALCIUM_GLASS.asItem(), 1, ModMath.Time.getSecondsToTicks(20));
     }
 
     ////////////////////Other Crafting Methods\\\\\\\\\\\\\\\\\\\\

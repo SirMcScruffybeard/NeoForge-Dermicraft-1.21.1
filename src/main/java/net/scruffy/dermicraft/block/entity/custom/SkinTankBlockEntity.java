@@ -39,6 +39,11 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
         super(ModBlockEntities.SKIN_TANK_BE.get(), pos, blockState);
     }
 
+    @Override
+    public boolean hasTank() {
+        return true;
+    }
+
     public FluidStack getFluid() {
         return TANK.getFluid();
     }

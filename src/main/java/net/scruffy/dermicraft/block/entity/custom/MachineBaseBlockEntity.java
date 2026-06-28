@@ -36,6 +36,10 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         super(type, pos, blockState);
     }
 
+    public boolean hasTank() {
+        return false;
+    }
+
     protected ItemStackHandler createItemHandler(int size, int limitedSlot) {
         return new ItemStackHandler(size) {
             @Override

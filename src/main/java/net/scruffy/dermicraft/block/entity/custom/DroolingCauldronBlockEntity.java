@@ -59,6 +59,11 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
     }
 
+    @Override
+    public boolean hasTank() {
+        return true;
+    }
+
     public FluidStack getFluid() {
         return TANK.getFluid();
     }

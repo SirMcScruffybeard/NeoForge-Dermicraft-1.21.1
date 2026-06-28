@@ -7,6 +7,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
@@ -61,6 +62,16 @@ public class ModRecipes {
 
 
 
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<DippingRecipe>> DIPPING_SERIALIZER =
+            SERIALIZERS.register("dipping", DippingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<DippingRecipe>> DIPPING_TYPE =
+            TYPES.register("dipping", () -> new RecipeType<DippingRecipe>() {
+                @Override
+                public String toString() {
+                    return "dipping";
+                }
+            });
 
 
     public static void register(IEventBus eventBus) {

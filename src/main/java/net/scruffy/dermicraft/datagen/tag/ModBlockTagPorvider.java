@@ -54,6 +54,13 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         ;
 
+        tag(ModTags.Blocks.DIPPING_TANKS)
+                .add(ModBlocks.BEAKER.get())
+                .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.MASTICATOR.get())
+                .add(ModBlocks.SKIN_TANK.get())
+        ;
+
         tag(ModTags.Blocks.TUMORS)
                 .add(ModBlocks.INERT_TUMOR.get())
                 .add(ModBlocks.MARRED_TUMOR.get())
