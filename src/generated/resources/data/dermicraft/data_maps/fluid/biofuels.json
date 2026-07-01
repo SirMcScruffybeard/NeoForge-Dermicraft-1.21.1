@@ -1,6 +1,7 @@
 {
   "values": {
     "dermicraft:source_crude_slurry": {
+      "heal": 0.1,
       "speed": 0.1,
       "use_rate": 1.0
     }

@@ -53,4 +53,12 @@ public class MasticatorMenu extends AbstractModMenu {
         int arrowPixels = 15;
         return BE.getScaledProgress(arrowPixels);
     }
+
+    public int getHealth() {
+        return BE.getHealth();
+    }
+
+    public int getMaxHealth() {
+        return BE.getMaxHealth();
+    }
 }

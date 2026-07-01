@@ -123,4 +123,9 @@ public class ModFluidUtil {
         BiofuelProperties data = getBiofuelData(fluidStack);
         return data == null ? 0 : data.speed();
     }
+
+    public static float getHeal(FluidStack fluidStack) {
+        BiofuelProperties data = getBiofuelData(fluidStack);
+        return data == null ? 0 : data.heal();
+    }
 }

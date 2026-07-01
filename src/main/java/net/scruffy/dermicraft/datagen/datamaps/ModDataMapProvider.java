@@ -28,7 +28,7 @@ public class ModDataMapProvider extends DataMapProvider {
 
         this.builder(ModDataMaps.BIOFUELS)
                 .add(getResourceLocation(ModFluids.SOURCE_CRUDE_SLURRY),
-                        new BiofuelProperties(.1f, 1f), false)
+                        new BiofuelProperties(.1f, 1f, .1f), false)
 
                 ;
 

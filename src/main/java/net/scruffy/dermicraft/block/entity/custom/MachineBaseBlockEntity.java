@@ -29,8 +29,14 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class MachineBaseBlockEntity extends BlockEntity {
 
+    protected static final int CRAFT_TICKS = 10;
+
     protected int progress = 0;
     protected int maxProgress = 0;
+
+    // Health mechanic is opt-in: maxHealth stays 0 (disabled) unless a subclass sets it.
+    protected int health = 0;
+    protected int maxHealth = 0;
 
     public MachineBaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -125,6 +131,26 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
 
     public boolean isStillCrafting() {
         return progress < maxProgress;
+    }
+
+    protected void damageMachine(int amount) {
+        health = Math.max(0, health - amount);
+    }
+
+    protected void healMachine(int amount) {
+        health = Math.min(maxHealth, health + amount);
+    }
+
+    protected boolean isStarved() {
+        return maxHealth > 0 && health <= 0;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
     @Nullable

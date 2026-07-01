@@ -57,9 +57,13 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     private int fuelUseRate = FUEL_USE_DEFAULT;
     private final float SPEED_DEFAULT = 1f;
     private float speed = SPEED_DEFAULT;
-    private final int CRAFT_TICKS = 10; //How many ticks between processing logic firings
-
     private int resultAmount = 0;
+
+    private static final int MAX_HEALTH = 200;
+    private static final int HUNGER_RATE = 1; // HP lost per cycle while unfueled and processing
+    private static final float UNFUELED_SPEED_MODIFIER = 0.1f; // flat rate when running with no fuel at all
+    private static final float RECOVERY_SPEED_FACTOR = 0.1f; // 10% of the fuel's own normal speed while healing
+    private static final int BASE_HEAL_RATE = 2; // HP restored per cycle at a heal modifier of 1.0 (provisional)
 
     private RecipeHolder<MasticatingRecipe> activeRecipe = null;
     private Item activeItem = Items.AIR;
@@ -69,6 +73,8 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
     public MasticatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
+        maxHealth = MAX_HEALTH;
+        health = MAX_HEALTH;
     }
 
     @Override
@@ -185,6 +191,11 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         // and setting maxProgress
         if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
 
+            // Healing runs every cycle regardless of whether a recipe is active -- an idle,
+            // fueled machine below max health should still recover.
+            boolean fueled = FUEL_TANK.hasEnoughFuel(fuelUseRate);
+            boolean healedThisCycle = tickHealing(fueled);
+
             if (!isRecipeValid(activeRecipe)) {
                 if (progress > 0) {
                     resetProgress();
@@ -194,11 +205,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
             if (isMaxProgressValid() && hasIngredients() && RESULT_TANK.hasRoom(resultAmount)) {
                 if (isStillCrafting()) {
-                    if (FUEL_TANK.hasEnoughFuel(fuelUseRate)) {
-                        incrementProgress();
-                        useFuel();
-                        setChanged();
-                    }
+                    tickProgress(fueled, healedThisCycle);
                 } else {
                     INGREDIENT_TANK.useFluid(resultAmount);
                     RESULT_TANK.fill(craftResult(resultAmount), IFluidHandler.FluidAction.EXECUTE);
@@ -224,7 +231,9 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     }
 
     private void setSpeed() {
-        speed = Math.max(SPEED_DEFAULT, FUEL_TANK.getSpeed()) * CRAFT_TICKS;
+        // No floor here: an unfueled/starved machine's progress is handled explicitly
+        // in tickHealthAndProgress(), not by falling back to this cached fueled-speed value.
+        speed = FUEL_TANK.getSpeed() * CRAFT_TICKS;
     }
 
     private void setUseRate() {
@@ -291,9 +300,48 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         return FluidStack.EMPTY;
     }
 
-    private void incrementProgress() {
-        int workDoneInCycle = Math.round(CRAFT_TICKS * speed);
+    // NOTE: today's fueled full-speed path applies CRAFT_TICKS twice (once caching into
+    // `speed` in setSpeed(), once here) -- for Crude Slurry (speed modifier 1.0) that's
+    // invisible, but a future fuel with a different modifier will see this 10x scale-up.
+    // Left as-is to avoid changing today's live balance; the unfueled/recovery paths below
+    // are deliberately defined relative to this existing shape, not the "intended" formula.
+    private void incrementProgress(float speedOverride) {
+        int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride);
         progress += Math.max(1, workDoneInCycle);
+    }
+
+    private int getHealAmount() {
+        return Math.round(BASE_HEAL_RATE * FUEL_TANK.getHeal());
+    }
+
+    // Runs every cycle regardless of recipe state -- heals an idle-but-fueled machine too.
+    // Returns whether healing (and its fuel consumption) actually happened this cycle, so
+    // tickProgress() knows not to consume fuel a second time for the same cycle.
+    private boolean tickHealing(boolean fueled) {
+        if (fueled && health < maxHealth) {
+            useFuel();
+            healMachine(getHealAmount());
+            return true;
+        }
+        return false;
+    }
+
+    private void tickProgress(boolean fueled, boolean healedThisCycle) {
+        if (isStarved()) {
+            return; // fuel/heal already handled by tickHealing(); no progress while starved
+        }
+
+        if (fueled) {
+            if (healedThisCycle) {
+                incrementProgress(RECOVERY_SPEED_FACTOR * speed); // fuel already spent healing this cycle
+            } else {
+                useFuel();
+                incrementProgress(speed);
+            }
+        } else {
+            damageMachine(HUNGER_RATE);
+            incrementProgress(UNFUELED_SPEED_MODIFIER * CRAFT_TICKS);
+        }
     }
 
     private void setMaxProgress() {
@@ -312,6 +360,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         tag.putInt("resultFluid", resultAmount);
         tag.putInt("progress", progress);
         tag.putInt("maxProgress", maxProgress);
+        tag.putInt("health", health);
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
         tag.putString("activeItem", itemKey.toString());
         if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
@@ -329,6 +378,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         resultAmount = tag.getInt("resultFluid");
         this.progress = tag.getInt("progress");
         this.maxProgress = tag.getInt("maxProgress");
+        this.health = tag.contains("health") ? tag.getInt("health") : maxHealth;
 
         if (tag.contains("saved_recipe", CompoundTag.TAG_STRING)) {
             pendingRecipeId = ResourceLocation.parse(tag.getString("saved_recipe"));

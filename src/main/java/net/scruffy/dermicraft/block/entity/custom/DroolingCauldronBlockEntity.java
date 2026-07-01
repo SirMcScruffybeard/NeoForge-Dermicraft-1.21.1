@@ -39,8 +39,6 @@ import java.util.Optional;
 
 public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
 
-    private final int CRAFT_TICKS = 10;
-
     public final static int INPUT = 0;
     public final static int OUTPUT = 1;
 
