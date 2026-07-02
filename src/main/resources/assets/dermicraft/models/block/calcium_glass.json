@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:block/cube_all",
   "ambientocclusion": false,
+  "render_type": "minecraft:translucent",
   "textures": {
     "all": "dermicraft:block/calcium_glass"
   }

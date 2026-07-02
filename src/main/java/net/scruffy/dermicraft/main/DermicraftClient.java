@@ -2,7 +2,6 @@ package net.scruffy.dermicraft.main;
 
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,7 +15,6 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
@@ -27,6 +25,7 @@ import net.scruffy.dermicraft.renderer.DroolingCauldronBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.SkinTankBlockEntityRenderer;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronScreen;
+import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankScreen;
 
@@ -46,8 +45,6 @@ public class DermicraftClient {
     static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ModItemProperties.addCustomItemProperties();
-
-            renderTranslucentBlock(ModBlocks.CALCIUM_GLASS.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_CALCIUM_BLEND.get(), ModFluids.FLOWING_CALCIUM_BLEND.get());
             renderTranslucentFluid(ModFluids.SOURCE_CARBON_BLEND.get(), ModFluids.FLOWING_CARBON_BLEND.get());
@@ -99,14 +96,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.SKIN_TANK_MENU.get(), SkinTankScreen::new);
         event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
-    }
-
-    private static void renderTranslucentBlock(Block block) {
-        ItemBlockRenderTypes.setRenderLayer(block, RenderType.TRANSLUCENT);
-    }
-
-    private static void renderCutoutBlock(Block block) {
-        ItemBlockRenderTypes.setRenderLayer(block, RenderType.CUTOUT);
+        event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

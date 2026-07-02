@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.masticator;
+package net.scruffy.dermicraft.screen.custom.effluentcer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,7 +12,7 @@ import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
-public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
+public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
 
     private static final String PARTS_DIR = "textures/gui/screen_parts/";
 
@@ -44,15 +44,24 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     private static final int HP_BAR_HEIGHT = 66;
     private static final int HP_BAR_INTERIOR_HEIGHT = 64; // opaque interior height used for the fill crop
 
+    // "Inline pair" layout: HP far-left, fuel far-right, the two ingredient tanks together
+    // left of center, a single progress arrow right of center, result beyond it.
+    private static final int HEALTH_BAR_X = 8;
+    private static final int HEALTH_BAR_Y = 11;
+    private static final int INPUT_A_X = 40;
+    private static final int INPUT_B_X = 60;
+    private static final int ARROW_X = 86;
+    private static final int ARROW_Y = 38;
+    private static final int RESULT_X = 112;
+    private static final int FUEL_X = 150;
+    private static final int TANK_Y = 11;
+
     private FluidTankRenderer fuelRenderer;
-    private FluidTankRenderer ingredientRenderer;
+    private FluidTankRenderer inputARenderer;
+    private FluidTankRenderer inputBRenderer;
     private FluidTankRenderer resultRenderer;
 
-    private static final int HEALTH_BAR_X = 8; // evenly spaced with fuel/ingredient/arrow/result
-    private static final int HEALTH_BAR_Y = 11; // top of the fluid tank renderers
-
-
-    public MasticatorScreen(MasticatorMenu menu, Inventory playerInventory, Component title) {
+    public EffluentcerScreen(EffluentcerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
@@ -61,7 +70,8 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         super.init();
 
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
-        ingredientRenderer = createFluidRenderer16x40(menu.BE.getIngredientTank().getCapacity());
+        inputARenderer = createFluidRenderer16x40(menu.BE.getInputATank().getCapacity());
+        inputBRenderer = createFluidRenderer16x40(menu.BE.getInputBTank().getCapacity());
         resultRenderer = createFluidRenderer16x40(menu.BE.getResultTank().getCapacity());
     }
 
@@ -71,13 +81,16 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         int y = (height - imageHeight) / 2;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), 151, 12, fuelRenderer);
+                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer);
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getIngredientTank().SLOT), 51, 12, ingredientRenderer);
+                menu.BE.getFluid(menu.BE.getInputATank().SLOT), INPUT_A_X + 1, TANK_Y + 1, inputARenderer);
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getResultTank().SLOT), 110, 12, resultRenderer);
+                menu.BE.getFluid(menu.BE.getInputBTank().SLOT), INPUT_B_X + 1, TANK_Y + 1, inputBRenderer);
+
+        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                menu.BE.getFluid(menu.BE.getResultTank().SLOT), RESULT_X + 1, TANK_Y + 1, resultRenderer);
 
         if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
             int maxHealth = menu.getMaxHealth();
@@ -98,16 +111,18 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
 
-        renderTankAndSlot(guiGraphics, x + 150, y + 11);
-        renderTankAndSlot(guiGraphics, x + 50, y + 11);
-        renderTankAndSlot(guiGraphics, x + 109, y + 11);
+        renderTankAndSlot(guiGraphics, x + FUEL_X, y + TANK_Y);
+        renderTankAndSlot(guiGraphics, x + INPUT_A_X, y + TANK_Y);
+        renderTankAndSlot(guiGraphics, x + INPUT_B_X, y + TANK_Y);
+        renderTankAndSlot(guiGraphics, x + RESULT_X, y + TANK_Y);
 
         renderProgressArrow(guiGraphics, x, y);
         renderHealthBar(guiGraphics, x, y);
 
-        fuelRenderer.render(guiGraphics, x + 151, y + 12, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
-        ingredientRenderer.render(guiGraphics, x + 51, y + 12, menu.BE.getFluid(menu.BE.getIngredientTank().SLOT));
-        resultRenderer.render(guiGraphics, x + 110, y + 12, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
+        fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+        inputARenderer.render(guiGraphics, x + INPUT_A_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputATank().SLOT));
+        inputBRenderer.render(guiGraphics, x + INPUT_B_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputBTank().SLOT));
+        resultRenderer.render(guiGraphics, x + RESULT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {
@@ -117,9 +132,9 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
 
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
         // Textures carry a 1px transparent margin around a 15x8 opaque arrow, so the draw
-        // origin is offset by 1px to keep the arrow aligned with its old (111,39) position.
-        int arrowX = x + 80;
-        int arrowY = y + 38;
+        // origin is offset by 1px to keep the arrow visually aligned.
+        int arrowX = x + ARROW_X;
+        int arrowY = y + ARROW_Y;
 
         guiGraphics.blit(ARROW_BACKGROUND_TEXTURE, arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT,
                 ARROW_WIDTH, ARROW_HEIGHT);

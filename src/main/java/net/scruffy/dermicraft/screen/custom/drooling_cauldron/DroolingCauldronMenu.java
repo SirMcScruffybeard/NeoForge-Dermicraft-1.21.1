@@ -29,8 +29,8 @@ public class DroolingCauldronMenu extends AbstractModMenu {
         super.addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.BE.INVENTORY, 0, 44, 34));
-        this.addSlot(new SlotItemHandler(this.BE.INVENTORY, 1, 116, 34) {
+        this.addSlot(new SlotItemHandler(this.BE.INVENTORY, 0, 43, 34));
+        this.addSlot(new SlotItemHandler(this.BE.INVENTORY, 1, 117, 34) {
             @Override
             public int getMaxStackSize() {
                 return 1;

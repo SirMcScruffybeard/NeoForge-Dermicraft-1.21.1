@@ -46,6 +46,18 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),
                 modLoc("block/" + ModBlocks.MASTICATOR.getId().getPath()));
 
+        horizontalBlock(ModBlocks.EFFLUENTCER.get(), models().cube(
+                ModBlocks.EFFLUENTCER.getId().getPath(),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd),
+                modLoc("block/effluentcer_side"),
+                modLoc("block/effluentcer_side"),
+                modLoc("block/effluentcer_side"),
+                modLoc("block/effluentcer_side"))
+                .texture("particle", modLoc("block/effluentcer_side")));
+        itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
+                modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
+
         simpleBlock(ModBlocks.BEAKER.get(), models().cubeBottomTop(
                 ModBlocks.BEAKER.getId().getPath(),
                 modLoc("block/beaker/beaker_side"),

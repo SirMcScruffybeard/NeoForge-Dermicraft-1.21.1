@@ -31,8 +31,8 @@ public class SkinTankMenu extends AbstractModMenu {
         addPlayerInventory(inventory);
         addPlayerHotbar(inventory);
 
-        this.addSlot(new SlotItemHandler(be.INVENTORY, 0, 44, 34));
-        this.addSlot(new SlotItemHandler(be.INVENTORY, 1, 116, 34) {
+        this.addSlot(new SlotItemHandler(be.INVENTORY, 0, 43, 34));
+        this.addSlot(new SlotItemHandler(be.INVENTORY, 1, 117, 34) {
             @Override
             public int getMaxStackSize() {
                 return 1;

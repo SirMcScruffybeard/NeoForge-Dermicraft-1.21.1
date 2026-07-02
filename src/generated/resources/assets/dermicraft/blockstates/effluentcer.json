@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "dermicraft:block/effluentcer"
+    },
+    "facing=south": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 270
+    }
+  }
+}

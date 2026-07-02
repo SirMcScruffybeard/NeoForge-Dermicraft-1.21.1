@@ -44,6 +44,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.DROOLING_CAULDRON);
                         output.accept(ModBlocks.MASTICATOR);
                         output.accept(ModBlocks.SKIN_TANK);
+                        output.accept(ModBlocks.EFFLUENTCER);
 
                         buildBeakerContents(output);
 

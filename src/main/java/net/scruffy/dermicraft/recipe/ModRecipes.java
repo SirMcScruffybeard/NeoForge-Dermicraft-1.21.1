@@ -10,6 +10,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
+import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 
@@ -47,6 +48,16 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "masticating";
+                }
+            });
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EffluencingRecipe>> EFFLUENCING_SERIALIZER =
+            SERIALIZERS.register("effluencing", EffluencingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<EffluencingRecipe>> EFFLUENCING_TYPE =
+            TYPES.register("effluencing", () -> new RecipeType<EffluencingRecipe>() {
+                @Override
+                public String toString() {
+                    return "effluencing";
                 }
             });
 
