@@ -230,9 +230,17 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
                 if (isStillCrafting()) {
                     tickProgress(fueled, healedThisCycle);
                 } else {
-                    INPUT_A_TANK.useFluid(requiredAmountForA);
-                    INPUT_B_TANK.useFluid(requiredAmountForB);
-                    RESULT_TANK.fill(craftResult(resultAmount), IFluidHandler.FluidAction.EXECUTE);
+                    // Captured before draining: draining INPUT_A_TANK fires its
+                    // onContentsChanged() synchronously, which re-resolves the recipe against
+                    // the now-partially-drained tanks and can reset requiredAmountForB/
+                    // resultAmount/activeRecipe to zero/null before this method reaches them.
+                    int amountA = requiredAmountForA;
+                    int amountB = requiredAmountForB;
+                    FluidStack output = craftResult(resultAmount);
+
+                    INPUT_A_TANK.useFluid(amountA);
+                    INPUT_B_TANK.useFluid(amountB);
+                    RESULT_TANK.fill(output, IFluidHandler.FluidAction.EXECUTE);
                     resetProgress();
                 }
             }

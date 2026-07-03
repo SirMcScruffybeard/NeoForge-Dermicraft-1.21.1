@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_crude_slurry",
+  "fluid_a_amount": 250,
+  "fluid_b": "dermicraft:source_protein_blend",
+  "fluid_b_amount": 250,
+  "result_fluid": "dermicraft:source_f_stuff",
+  "result_fluid_amount": 500,
+  "ticks": -120
+}

@@ -125,6 +125,36 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.SKIN_TANK.asItem());
 
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "effluentcer_implant",
+                List.of(
+                        Ingredient.of(ModItems.GLASS_FLASK.get()),
+                        Ingredient.of(ModItems.GLASS_FLASK.get()),
+                        Ingredient.of(ModItems.GLASS_FLASK.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.EFFLUENTCER.asItem());
+
+        // F-Stuff/C-Stuff: 30-second (600-tick) craft time, dynamically scaled. `ticks` is
+        // negative -- EffluencingRecipe.getCraftingTime() scales it per 100 mB of result
+        // output, so the value here is "ticks per 100 mB" (600 / (resultAmount / 100)), not
+        // a raw tick count.
+        RecipeBuilders.buildEffluencing(recipeOutput, "f_stuff_effluencing",
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 250, ModFluids.SOURCE_PROTEIN_BLEND.get(), 250,
+                ModFluids.SOURCE_F_STUFF.get(), 500, -120);
+
+        RecipeBuilders.buildEffluencing(recipeOutput, "c_stuff_effluencing",
+                ModFluids.SOURCE_CARBON_BLEND.get(), 250, ModFluids.SOURCE_CALCIUM_BLEND.get(), 250,
+                ModFluids.SOURCE_C_STUFF.get(), 500, -120);
+
+        // Primitive Catalyst: fixed 45-second craft time, not dynamic (positive ticks are
+        // used directly by EffluencingRecipe.getCraftingTime()).
+        RecipeBuilders.buildEffluencing(recipeOutput, "primitive_catalyst_effluencing",
+                ModFluids.SOURCE_F_STUFF.get(), 500, ModFluids.SOURCE_C_STUFF.get(), 500,
+                ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
+
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER);
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,

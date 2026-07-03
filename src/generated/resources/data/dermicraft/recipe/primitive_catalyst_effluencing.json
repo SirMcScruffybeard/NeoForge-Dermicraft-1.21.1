@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_f_stuff",
+  "fluid_a_amount": 500,
+  "fluid_b": "dermicraft:source_c_stuff",
+  "fluid_b_amount": 500,
+  "result_fluid": "dermicraft:source_primitive_catalyst",
+  "result_fluid_amount": 750,
+  "ticks": 900
+}

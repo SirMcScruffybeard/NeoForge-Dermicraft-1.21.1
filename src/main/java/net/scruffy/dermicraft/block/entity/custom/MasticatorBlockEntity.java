@@ -200,10 +200,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                 if (progress > 0) {
                     resetProgress();
                 }
-                return;
-            }
-
-            if (isMaxProgressValid() && hasIngredients() && RESULT_TANK.hasRoom(resultAmount)) {
+            } else if (isMaxProgressValid() && hasIngredients() && RESULT_TANK.hasRoom(resultAmount)) {
                 if (isStillCrafting()) {
                     tickProgress(fueled, healedThisCycle);
                 } else {
@@ -213,6 +210,8 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
                     resetProgress();
                 }
             }
+            // Always sync, even when idle -- otherwise healing that happens with no active
+            // recipe never reaches the client, and the GUI health bar appears frozen.
             setChanged();
             updateBlock();
         }

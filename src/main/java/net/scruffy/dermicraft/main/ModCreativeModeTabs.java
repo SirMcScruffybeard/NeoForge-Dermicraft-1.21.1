@@ -74,6 +74,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.CALCIUM_BLEND_BUCKET);
                         output.accept(ModFluids.CARBON_BLEND_BUCKET);
                         output.accept(ModFluids.PROTEIN_BLEND_BUCKET);
+                        output.accept(ModFluids.F_STUFF_BUCKET);
+                        output.accept(ModFluids.C_STUFF_BUCKET);
 
                         output.accept(ModFluids.CRUDE_SLURRY_BUCKET);
 
@@ -86,6 +88,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.FERROUS_BLEND_BUCKET);
                         output.accept(ModFluids.CUPROUS_BLEND_BUCKET);
                         output.accept(ModFluids.AUROUS_BLEND_BUCKET);
+
+
                     }).build());
 
 
@@ -111,6 +115,8 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CARBON_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_F_STUFF.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_C_STUFF.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
@@ -123,6 +129,8 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_FERROUS_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CUPROUS_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_AUROUS_BLEND.get()));
+
+
     }
 
     private static void buildFlaskContents(CreativeModeTab.Output output) {

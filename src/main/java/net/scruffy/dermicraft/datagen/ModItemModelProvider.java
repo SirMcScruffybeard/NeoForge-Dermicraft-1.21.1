@@ -51,6 +51,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         bucketItem(ModFluids.FERROUS_BLEND_BUCKET.get());
         bucketItem(ModFluids.CUPROUS_BLEND_BUCKET.get());
         bucketItem(ModFluids.AUROUS_BLEND_BUCKET.get());
+
+        bucketItem(ModFluids.F_STUFF_BUCKET.get());
+        bucketItem(ModFluids.C_STUFF_BUCKET.get());
     }
 
     // Bucket textures live under textures/bucket/ rather than the default textures/item/.

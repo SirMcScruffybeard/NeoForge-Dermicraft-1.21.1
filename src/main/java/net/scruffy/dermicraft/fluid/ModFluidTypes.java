@@ -206,6 +206,42 @@ public class ModFluidTypes {
             ));
 
 
+    //////////////////////////////Effluentcer Outputs\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // F-Stuff - Crude Slurry + Protein Blend, also directly cookable into MRE
+    public static final Supplier<FluidType> F_STUFF_FLUID_TYPE = registerFluidType("f_stuff_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF8B5A2B,
+                    setColorVector(139, 90, 43),
+                    FluidType.Properties.create()
+                            .viscosity(3250)
+                            .density(2100)
+                            .temperature(297)
+                            .motionScale(0.02)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    // C-Stuff - Carbon Blend + Calcium Blend, also used in a standalone Syringe on Creepers
+    public static final Supplier<FluidType> C_STUFF_FLUID_TYPE = registerFluidType("c_stuff_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF8C7B8A,
+                    setColorVector(140, 123, 138),
+                    FluidType.Properties.create()
+                            .viscosity(2750)
+                            .density(2250)
+                            .temperature(290)
+                            .motionScale(0.011)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     private static Vector3f setColorVector(float r, float g, float b) {
         return new Vector3f(r/255f, g/255f, b/255f);

@@ -61,6 +61,9 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_FERROUS_BLEND.get(), ModFluids.FLOWING_FERROUS_BLEND.get());
             renderTranslucentFluid(ModFluids.SOURCE_CUPROUS_BLEND.get(), ModFluids.FLOWING_CUPROUS_BLEND.get());
             renderTranslucentFluid(ModFluids.SOURCE_AUROUS_BLEND.get(), ModFluids.FLOWING_AUROUS_BLEND.get());
+
+            renderTranslucentFluid(ModFluids.SOURCE_F_STUFF.get(), ModFluids.FLOWING_F_STUFF.get());
+            renderTranslucentFluid(ModFluids.SOURCE_C_STUFF.get(), ModFluids.FLOWING_C_STUFF.get());
         });
     }
 
@@ -81,6 +84,9 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.FERROUS_BLEND_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.CUPROUS_BLEND_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.AUROUS_BLEND_FLUID_TYPE.get());
+
+        registerFluidType(event, ModFluidTypes.F_STUFF_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.C_STUFF_FLUID_TYPE.get());
 
     }
 

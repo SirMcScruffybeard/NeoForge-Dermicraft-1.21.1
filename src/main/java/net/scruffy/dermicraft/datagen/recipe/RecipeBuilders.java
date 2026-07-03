@@ -15,6 +15,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
+import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 
@@ -81,6 +82,16 @@ public class RecipeBuilders {
                                                      Fluid result) {
         buildMasticating(recipeOutput, name, Ingredient.of(itemTag), 1,
                 Fluids.WATER, -1, result, -1, modifier, -50);
+    }
+
+
+    ////////////////////Effluencing\\\\\\\\\\\\\\\\\\\\
+    public static void buildEffluencing(RecipeOutput output, String name, Fluid fluidA, int fluidAAmount,
+                                        Fluid fluidB, int fluidBAmount, Fluid result, int resultAmount, int ticks) {
+        ResourceLocation id = getResourceLocation(name);
+        EffluencingRecipe recipe = new EffluencingRecipe(fluidA, fluidAAmount, fluidB, fluidBAmount,
+                result, resultAmount, ticks);
+        output.accept(id, recipe, null);
     }
 
 

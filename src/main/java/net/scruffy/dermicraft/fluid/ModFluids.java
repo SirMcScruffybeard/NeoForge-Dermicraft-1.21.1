@@ -228,6 +228,42 @@ public class ModFluids {
             .block(ModFluids.AUROUS_BLEND_BLOCK)
             .bucket(ModFluids.AUROUS_BLEND_BUCKET);
 
+    //////////////////////////////F-Stuff\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_F_STUFF = FLUIDS.register("source_f_stuff",
+            () -> new BaseFlowingFluid.Source(ModFluids.F_STUFF_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_F_STUFF = FLUIDS.register("flowing_f_stuff",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.F_STUFF_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> F_STUFF_BLOCK = ModBlocks.BLOCKS.register("f_stuff_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_F_STUFF.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> F_STUFF_BUCKET = getBucket("f_stuff_bucket", ModFluids.SOURCE_F_STUFF);
+
+    public static final BaseFlowingFluid.Properties F_STUFF_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.F_STUFF_FLUID_TYPE, SOURCE_F_STUFF, FLOWING_F_STUFF)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.F_STUFF_BLOCK)
+            .bucket(ModFluids.F_STUFF_BUCKET);
+
+    //////////////////////////////C-Stuff\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_C_STUFF = FLUIDS.register("source_c_stuff",
+            () -> new BaseFlowingFluid.Source(ModFluids.C_STUFF_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_C_STUFF = FLUIDS.register("flowing_c_stuff",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.C_STUFF_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> C_STUFF_BLOCK = ModBlocks.BLOCKS.register("c_stuff_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_C_STUFF.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> C_STUFF_BUCKET = getBucket("c_stuff_bucket", ModFluids.SOURCE_C_STUFF);
+
+    public static final BaseFlowingFluid.Properties C_STUFF_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.C_STUFF_FLUID_TYPE, SOURCE_C_STUFF, FLOWING_C_STUFF)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.C_STUFF_BLOCK)
+            .bucket(ModFluids.C_STUFF_BUCKET);
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static void register(IEventBus eventBus) {
         FLUIDS.register(eventBus);
