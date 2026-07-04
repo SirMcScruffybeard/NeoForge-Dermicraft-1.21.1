@@ -31,6 +31,11 @@ public class ModFoodProperties {
             .build();
 
 
+    public static final FoodProperties MRE = new FoodProperties.Builder()
+            .nutrition(6)
+            .saturationModifier(0.6f) //Final Saturation is calculated nutrition * saturationModifier * 2 -- on par with cooked chicken
+            .build();
+
     public static final FoodProperties MEAT_FLAVORED_MEAT = new FoodProperties.Builder()
             .nutrition(5)
             .saturationModifier(0.5f) //Final Saturation is calculated nutrition * saturationModifier * 2

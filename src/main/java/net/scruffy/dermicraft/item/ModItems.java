@@ -33,7 +33,12 @@ public class ModItems {
     public static DeferredItem<Item> DENSE_MUSCLE = ITEMS.register("dense_muscle",
             () -> new PartItem(new Item.Properties().food(ModFoodProperties.DENSE_MUSCLE)));
 
+    ////////////////////Food\\\\\\\\\\\\\\\\\\\\
+    public static final DeferredItem<Item> MRE = ITEMS.register("mre",
+            () -> new Item(new Item.Properties().food(ModFoodProperties.MRE)));
 
+    public static final DeferredItem<Item> MEAT_FLAVORED_MEAT = ITEMS.register("meat_flavored_meat",
+            () -> new Item(new Item.Properties().food(ModFoodProperties.MEAT_FLAVORED_MEAT)));
 
 
 

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_stone_blend",
+  "fluid_amount": 250,
+  "pattern": {
+    "item": "minecraft:pointed_dripstone"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:pointed_dripstone"
+  },
+  "ticks": 50
+}

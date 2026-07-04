@@ -58,6 +58,24 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
                 modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
 
+        horizontalBlock(ModBlocks.METASTASIZER.get(), models().cube(
+                ModBlocks.METASTASIZER.getId().getPath(),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd),
+                modLoc("block/metastasizer_front"),
+                modLoc("block/metastasizer_side"),
+                modLoc("block/metastasizer_side"),
+                modLoc("block/metastasizer_side"))
+                .texture("particle", modLoc("block/metastasizer_front")));
+        itemModels().withExistingParent(ModBlocks.METASTASIZER.getId().getPath(),
+                modLoc("block/" + ModBlocks.METASTASIZER.getId().getPath()));
+
+        simpleBlockWithItem(ModBlocks.CRAW.get(), models().cubeBottomTop(
+                ModBlocks.CRAW.getId().getPath(),
+                modLoc("block/craw_side"),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd)));
+
         simpleBlock(ModBlocks.BEAKER.get(), models().cubeBottomTop(
                 ModBlocks.BEAKER.getId().getPath(),
                 modLoc("block/beaker/beaker_side"),

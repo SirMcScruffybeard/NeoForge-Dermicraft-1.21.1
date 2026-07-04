@@ -4,8 +4,10 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -17,6 +19,7 @@ import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
+import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 
 import java.util.ArrayList;
@@ -82,6 +85,20 @@ public class RecipeBuilders {
                                                      Fluid result) {
         buildMasticating(recipeOutput, name, Ingredient.of(itemTag), 1,
                 Fluids.WATER, -1, result, -1, modifier, -50);
+    }
+
+
+    ////////////////////Metastasizing\\\\\\\\\\\\\\\\\\\\
+    public static void buildMetastasizing(RecipeOutput output, String name, Ingredient pattern, Fluid fluid,
+                                          int fluidAmount, ItemStack result, int ticks) {
+        ResourceLocation id = getResourceLocation(name);
+        MetastasizingRecipe recipe = new MetastasizingRecipe(pattern, fluid, fluidAmount, result, ticks);
+        output.accept(id, recipe, null);
+    }
+
+    // Duplication: the pattern block is also the (non-consumed) result -- one copy per craft.
+    public static void duplicate(RecipeOutput output, String name, ItemLike block, Fluid fluid, int fluidAmount, int ticks) {
+        buildMetastasizing(output, name, Ingredient.of(block), fluid, fluidAmount, new ItemStack(block), ticks);
     }
 
 

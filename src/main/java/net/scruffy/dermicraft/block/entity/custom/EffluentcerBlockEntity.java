@@ -260,8 +260,12 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
         pendingRecipeId = null;
     }
 
+    // `speed` is the fuel's raw multiplier (~1.0 for base Crude Slurry). Progress advances
+    // CRAFT_TICKS per cycle at speed 1.0, so a recipe's `ticks` maps 1:1 to real wall-clock
+    // ticks (previously this applied CRAFT_TICKS twice, running ~10x faster than stated;
+    // fixed to match the Metastasizer/Masticator timing model).
     private void setSpeed() {
-        speed = FUEL_TANK.getSpeed() * CRAFT_TICKS;
+        speed = FUEL_TANK.getSpeed();
     }
 
     private void setUseRate() {
@@ -380,7 +384,7 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
             }
         } else {
             damageMachine(HUNGER_RATE);
-            incrementProgress(UNFUELED_SPEED_MODIFIER * CRAFT_TICKS);
+            incrementProgress(UNFUELED_SPEED_MODIFIER);
         }
     }
 

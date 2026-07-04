@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_silica_blend",
+  "fluid_amount": 750,
+  "pattern": {
+    "item": "minecraft:red_sand"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:red_sand"
+  },
+  "ticks": 120
+}

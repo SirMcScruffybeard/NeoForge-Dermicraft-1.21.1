@@ -7,9 +7,11 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.BeakerBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.EffluentcerBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.MetastasizerBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.item.ModItems;
@@ -34,6 +36,11 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntity::getTank);
+
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.METASTASIZER_BE.get(), MetastasizerBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.METASTASIZER_BE.get(), MetastasizerBlockEntity::getTank);
+
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 
 
 

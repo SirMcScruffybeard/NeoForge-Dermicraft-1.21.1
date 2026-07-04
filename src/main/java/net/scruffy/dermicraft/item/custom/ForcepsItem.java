@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.scruffy.dermicraft.interfaces.ICollectBlocks;
@@ -14,24 +15,24 @@ public class ForcepsItem extends ToolItem implements ICollectBlocks {
         super(new Item.Properties());
     }
 
+    // onItemUseFirst runs before the clicked block's own useItemOn (and before the crouch/
+    // secondary-use check), so the Forceps can pick up an interactive block — a machine, a
+    // storage block — without the player having to crouch to bypass that block's right-click.
     @Override
-    public InteractionResult useOn(UseOnContext context) {
-
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
         Level level = context.getLevel();
-        if (level.isClientSide) return InteractionResult.SUCCESS;
+        BlockPos pos = context.getClickedPos();
+        Player player = context.getPlayer();
 
-        if (canCollect(level, context.getClickedPos())) {
-            collect(level, context.getClickedPos(), context.getPlayer());
+        if (player == null || !canCollect(level, pos)) {
+            return InteractionResult.PASS;
+        }
+
+        if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
 
-        return InteractionResult.PASS;
-    }
-
-    @Override
-    public void collect(Level level, BlockPos pos, Player player) {
-        grabItem(player, getBlockItem(level, pos));
-        changeToAir(level, pos);
-        playDefaultPickupSound(level, pos);
+        collect(level, pos, player);
+        return InteractionResult.SUCCESS;
     }
 }

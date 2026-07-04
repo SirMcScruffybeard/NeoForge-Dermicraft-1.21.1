@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_f_stuff",
+  "fluid_amount": 900,
+  "pattern": {
+    "item": "dermicraft:mre"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:mre"
+  },
+  "ticks": 160
+}

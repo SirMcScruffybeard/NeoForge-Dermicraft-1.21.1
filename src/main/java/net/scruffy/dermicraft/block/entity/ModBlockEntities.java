@@ -46,4 +46,12 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("beaker_be", () -> BlockEntityType.Builder.of(
                     BeakerBlockEntity::new, ModBlocks.BEAKER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<MetastasizerBlockEntity>> METASTASIZER_BE =
+            BLOCK_ENTITIES.register("metastasizer_be", () -> BlockEntityType.Builder.of(
+                    MetastasizerBlockEntity::new, ModBlocks.METASTASIZER.get()).build(null));
+
+    public static final Supplier<BlockEntityType<CrawBlockEntity>> CRAW_BE =
+            BLOCK_ENTITIES.register("craw_be", () -> BlockEntityType.Builder.of(
+                    CrawBlockEntity::new, ModBlocks.CRAW.get()).build(null));
+
 }

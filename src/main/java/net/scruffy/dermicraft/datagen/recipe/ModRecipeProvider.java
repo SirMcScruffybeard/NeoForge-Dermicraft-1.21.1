@@ -137,6 +137,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.EFFLUENTCER.asItem());
 
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "craw_implant",
+                List.of(
+                        Ingredient.of(Items.CHEST),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.CRAW.asItem());
+
         // F-Stuff/C-Stuff: 30-second (600-tick) craft time, dynamically scaled. `ticks` is
         // negative -- EffluencingRecipe.getCraftingTime() scales it per 100 mB of result
         // output, so the value here is "ticks per 100 mB" (600 / (resultAmount / 100)), not
@@ -219,6 +229,56 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModFluids.SOURCE_CLAY_BLEND.get(), 1250, -1,
                 ModMath.Time.getSecondsToTicks(60));
 
+        // Metastasizer sediment duplication - one copy of the pattern block, fluid consumed, pattern retained.
+        // Cost by tier: aggregate 750, cobble 900, solid 1000, small/light 250. Craft time by metaphorical
+        // density of the result (lighter = faster; solid blocks = 10s), see crafting notes.
+        int aggregateTicks = ModMath.Time.getSecondsToTicks(6);
+        int cobbleTicks = ModMath.Time.getSecondsToTicks(8);
+        int solidTicks = ModMath.Time.getSecondsToTicks(10);
+        int lightTicks = ModMath.Time.getSecondsToTicks(2.5f);
+
+        // Stone Blend roster
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gravel", Items.GRAVEL, ModFluids.SOURCE_STONE_BLEND.get(), 750, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone", Items.COBBLESTONE, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate", Items.COBBLED_DEEPSLATE, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone", Items.STONE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite", Items.ANDESITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite", Items.DIORITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite", Items.GRANITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_deepslate", Items.DEEPSLATE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcite", Items.CALCITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_tuff", Items.TUFF, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_dripstone_block", Items.DRIPSTONE_BLOCK, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_pointed_dripstone", Items.POINTED_DRIPSTONE, ModFluids.SOURCE_STONE_BLEND.get(), 250, lightTicks);
+
+        // Silica Blend roster
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_BLEND.get(), 750, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sand", Items.RED_SAND, ModFluids.SOURCE_SILICA_BLEND.get(), 750, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sandstone", Items.SANDSTONE, ModFluids.SOURCE_SILICA_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sandstone", Items.RED_SANDSTONE, ModFluids.SOURCE_SILICA_BLEND.get(), 1000, solidTicks);
+
+        // Clay Blend roster
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay", Items.CLAY, ModFluids.SOURCE_CLAY_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay_ball", Items.CLAY_BALL, ModFluids.SOURCE_CLAY_BLEND.get(), 250, lightTicks);
+
+        // MRE - F-Stuff (900 mB) + an existing MRE (non-consumed pattern) -> another MRE.
+        RecipeBuilders.duplicate(recipeOutput, "mre_metastasizing", ModItems.MRE.get(), ModFluids.SOURCE_F_STUFF.get(), 900, cobbleTicks);
+
+        // Meat Flavored Meat - same trio as MRE, using Protein Blend as the ingredient instead of F-Stuff.
+        RecipeBuilders.duplicate(recipeOutput, "meat_flavored_meat_metastasizing", ModItems.MEAT_FLAVORED_MEAT.get(),
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 900, cobbleTicks);
+
+        // Tumor/part duplication - all Protein Blend. Inert Tumor at the solid 1000 mB tier, the three
+        // tumor-drop parts (Dense Muscle, Nerve Cluster, Eye) at the light 250 mB tier.
+        RecipeBuilders.duplicate(recipeOutput, "inert_tumor_metastasizing", ModBlocks.INERT_TUMOR.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "dense_muscle_metastasizing", ModItems.DENSE_MUSCLE.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "nerve_cluster_metastasizing", ModItems.NERVE_CLUSTER.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "eye_metastasizing", ModItems.EYE.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
+
+        // Bone/Bone Meal - mirrors the Calcium Blend Masticator recipes above, using the same output fluid amounts.
+        RecipeBuilders.duplicate(recipeOutput, "bone_metastasizing", Items.BONE, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "bone_meal_metastasizing", Items.BONE_MEAL, ModFluids.SOURCE_CALCIUM_BLEND.get(), 330, lightTicks);
+
         // Metal Blends - Ingot/Nugget tiers use Water 1:1; Raw tier uses a flat 250 mB Primitive Catalyst dose for 2000 mB output.
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_ingot", Items.IRON_INGOT, 1000,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
@@ -242,6 +302,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
 
+        // Metal Blends - Metastasizer reverse route (Blend -> Ingot/Nugget), mirroring the Masticator's
+        // Ingot/Nugget fluid amounts above 1:1. No Cuprous Nugget, same reason as the Masticator side.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_BLEND.get(), 110, lightTicks);
+
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cuprous_ingot", Items.COPPER_INGOT, ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, solidTicks);
+
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_ingot", Items.GOLD_INGOT, ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_nugget", Items.GOLD_NUGGET, ModFluids.SOURCE_AUROUS_BLEND.get(), 110, lightTicks);
+
 
         RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
                 ModFluids.SOURCE_CARBON_BLEND.get(), 75, Items.TORCH, 4);
@@ -264,6 +334,29 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         RecipeBuilders.PuddleCraft.MakeItems.makeFromOneItem(recipeOutput, "calcium_glass_puddle", Items.BONE_MEAL, 1, ModFluids.SOURCE_CALCIUM_BLEND.get(),
                 ModBlocks.CALCIUM_GLASS.asItem(), 1, ModMath.Time.getSecondsToTicks(20));
+
+        // MRE - bootstrap route: 1 Filled F-Stuff Bucket smelts into 1 MRE.
+        // Cook times mirror vanilla raw beef/chicken: 200 ticks (furnace), 100 ticks (smoker).
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModFluids.F_STUFF_BUCKET.get()), RecipeCategory.FOOD,
+                        ModItems.MRE.get(), 0.35f, ModMath.Time.getSecondsToTicks(10))
+                .unlockedBy("has_f_stuff_bucket", has(ModFluids.F_STUFF_BUCKET.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("mre_smelting"));
+
+        SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModFluids.F_STUFF_BUCKET.get()), RecipeCategory.FOOD,
+                        ModItems.MRE.get(), 0.35f, ModMath.Time.getSecondsToTicks(5))
+                .unlockedBy("has_f_stuff_bucket", has(ModFluids.F_STUFF_BUCKET.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("mre_smoking"));
+
+        // Meat Flavored Meat - same trio as MRE, using Protein Blend Bucket as the ingredient instead of F-Stuff.
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModFluids.PROTEIN_BLEND_BUCKET.get()), RecipeCategory.FOOD,
+                        ModItems.MEAT_FLAVORED_MEAT.get(), 0.35f, ModMath.Time.getSecondsToTicks(10))
+                .unlockedBy("has_protein_blend_bucket", has(ModFluids.PROTEIN_BLEND_BUCKET.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("meat_flavored_meat_smelting"));
+
+        SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModFluids.PROTEIN_BLEND_BUCKET.get()), RecipeCategory.FOOD,
+                        ModItems.MEAT_FLAVORED_MEAT.get(), 0.35f, ModMath.Time.getSecondsToTicks(5))
+                .unlockedBy("has_protein_blend_bucket", has(ModFluids.PROTEIN_BLEND_BUCKET.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("meat_flavored_meat_smoking"));
     }
 
     ////////////////////Other Crafting Methods\\\\\\\\\\\\\\\\\\\\

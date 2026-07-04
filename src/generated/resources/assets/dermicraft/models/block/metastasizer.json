@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "dermicraft:block/skin_tank_end",
+    "east": "dermicraft:block/metastasizer_side",
+    "north": "dermicraft:block/metastasizer_front",
+    "particle": "dermicraft:block/metastasizer_front",
+    "south": "dermicraft:block/metastasizer_side",
+    "up": "dermicraft:block/skin_tank_end",
+    "west": "dermicraft:block/metastasizer_side"
+  }
+}

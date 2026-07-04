@@ -232,7 +232,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     private void setSpeed() {
         // No floor here: an unfueled/starved machine's progress is handled explicitly
         // in tickHealthAndProgress(), not by falling back to this cached fueled-speed value.
-        speed = FUEL_TANK.getSpeed() * CRAFT_TICKS;
+        speed = FUEL_TANK.getSpeed();
     }
 
     private void setUseRate() {
@@ -299,11 +299,11 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         return FluidStack.EMPTY;
     }
 
-    // NOTE: today's fueled full-speed path applies CRAFT_TICKS twice (once caching into
-    // `speed` in setSpeed(), once here) -- for Crude Slurry (speed modifier 1.0) that's
-    // invisible, but a future fuel with a different modifier will see this 10x scale-up.
-    // Left as-is to avoid changing today's live balance; the unfueled/recovery paths below
-    // are deliberately defined relative to this existing shape, not the "intended" formula.
+    // `speed` is the fuel's raw multiplier (~1.0 for base Crude Slurry). Progress is measured
+    // in ticks and advances CRAFT_TICKS per cycle at speed 1.0, so a recipe's `ticks` maps
+    // 1:1 to real wall-clock ticks (previously this applied CRAFT_TICKS twice -- once caching
+    // into `speed` in setSpeed(), once here -- making every recipe run ~10x faster than its
+    // stated tick count; fixed to match the Metastasizer's timing model).
     private void incrementProgress(float speedOverride) {
         int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride);
         progress += Math.max(1, workDoneInCycle);
@@ -339,7 +339,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
             }
         } else {
             damageMachine(HUNGER_RATE);
-            incrementProgress(UNFUELED_SPEED_MODIFIER * CRAFT_TICKS);
+            incrementProgress(UNFUELED_SPEED_MODIFIER);
         }
     }
 

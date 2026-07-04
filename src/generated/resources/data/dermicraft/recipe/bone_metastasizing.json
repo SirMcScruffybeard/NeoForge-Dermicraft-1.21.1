@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_calcium_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:bone"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:bone"
+  },
+  "ticks": 200
+}

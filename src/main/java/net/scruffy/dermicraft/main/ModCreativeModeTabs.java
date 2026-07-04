@@ -45,6 +45,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.MASTICATOR);
                         output.accept(ModBlocks.SKIN_TANK);
                         output.accept(ModBlocks.EFFLUENTCER);
+                        output.accept(ModBlocks.METASTASIZER);
+                        output.accept(ModBlocks.CRAW);
 
                         buildBeakerContents(output);
 
@@ -68,6 +70,10 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.EYE);
                         output.accept(ModItems.NERVE_CLUSTER);
                         output.accept(ModItems.DENSE_MUSCLE);
+
+                        ////////////////////Food\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModItems.MRE);
+                        output.accept(ModItems.MEAT_FLAVORED_MEAT);
 
 
                         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\

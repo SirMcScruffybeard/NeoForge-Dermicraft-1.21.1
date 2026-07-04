@@ -61,6 +61,12 @@ public class ModBlocks {
     public static final DeferredBlock<Block> EFFLUENTCER = registerBlock("effluentcer",
             () -> new EffluentcerBlock(BlockBehaviour.Properties.of()));
 
+    public static final DeferredBlock<Block> METASTASIZER = registerBlock("metastasizer",
+            () -> new MetastasizerBlock(BlockBehaviour.Properties.of()));
+
+    public static final DeferredBlock<Block> CRAW = registerBlock("craw",
+            () -> new CrawBlock(BlockBehaviour.Properties.of()));
+
     public static final DeferredBlock<Block> BEAKER = BLOCKS.register("beaker",
             () -> new BeakerBlock(BlockBehaviour.Properties.of()));
     public static final DeferredItem<Item> BEAKER_ITEM = ModItems.ITEMS.register("beaker",

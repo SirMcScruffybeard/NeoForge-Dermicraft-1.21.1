@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "dermicraft:inert_tumor"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:inert_tumor"
+  },
+  "ticks": 200
+}

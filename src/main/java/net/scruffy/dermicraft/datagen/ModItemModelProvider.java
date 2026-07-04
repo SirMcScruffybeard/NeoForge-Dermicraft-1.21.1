@@ -33,6 +33,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         handheldItem(ModItems.EYE.get());
         basicItem(ModItems.NERVE_CLUSTER.get());
         basicItem(ModItems.DENSE_MUSCLE.get());
+        basicItem(ModItems.MRE.get());
+        basicItem(ModItems.MEAT_FLAVORED_MEAT.get());
 
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\

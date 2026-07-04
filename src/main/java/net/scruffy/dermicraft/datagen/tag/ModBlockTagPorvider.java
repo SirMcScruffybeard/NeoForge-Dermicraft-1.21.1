@@ -30,6 +30,8 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.SKIN_TANK.get())
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.EFFLUENTCER.get())
+                .add(ModBlocks.METASTASIZER.get())
+                .add(ModBlocks.CRAW.get())
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)
@@ -44,6 +46,8 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.SKIN_TANK.get())
                 .add(ModBlocks.EFFLUENTCER.get())
+                .add(ModBlocks.METASTASIZER.get())
+                .add(ModBlocks.CRAW.get())
         ;
 
         tag(ModTags.Blocks.INJECTABLE)

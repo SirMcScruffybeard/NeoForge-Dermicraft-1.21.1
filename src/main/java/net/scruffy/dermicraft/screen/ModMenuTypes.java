@@ -9,9 +9,11 @@ import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
+import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerMenu;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 
 public class ModMenuTypes {
@@ -29,6 +31,12 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<EffluentcerMenu>> EFFLUENTCER_MENU =
             registerMenuType("effluentcer_menu", EffluentcerMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<MetastasizerMenu>> METASTASIZER_MENU =
+            registerMenuType("metastasizer_menu", MetastasizerMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<CrawMenu>> CRAW_MENU =
+            registerMenuType("craw_menu", CrawMenu::new);
 
 
 

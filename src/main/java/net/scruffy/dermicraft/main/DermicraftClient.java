@@ -24,9 +24,11 @@ import net.scruffy.dermicraft.renderer.BeakerBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.DroolingCauldronBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.SkinTankBlockEntityRenderer;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
+import net.scruffy.dermicraft.screen.custom.craw.CrawScreen;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronScreen;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
+import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerScreen;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankScreen;
 
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
@@ -103,6 +105,8 @@ public class DermicraftClient {
         event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
+        event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);
+        event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

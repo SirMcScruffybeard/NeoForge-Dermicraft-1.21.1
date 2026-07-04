@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:smoking",
+  "category": "food",
+  "cookingtime": 100,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "dermicraft:protein_blend_bucket"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:meat_flavored_meat"
+  }
+}

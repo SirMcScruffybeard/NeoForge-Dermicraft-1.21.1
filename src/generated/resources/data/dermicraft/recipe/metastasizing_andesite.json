@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_stone_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:andesite"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:andesite"
+  },
+  "ticks": 200
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_f_stuff_bucket": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dermicraft:f_stuff_bucket"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "dermicraft:mre_smoking"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_f_stuff_bucket"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "dermicraft:mre_smoking"
+    ]
+  }
+}

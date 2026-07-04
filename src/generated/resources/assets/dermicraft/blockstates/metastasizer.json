@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "dermicraft:block/metastasizer",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "dermicraft:block/metastasizer"
+    },
+    "facing=south": {
+      "model": "dermicraft:block/metastasizer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "dermicraft:block/metastasizer",
+      "y": 270
+    }
+  }
+}

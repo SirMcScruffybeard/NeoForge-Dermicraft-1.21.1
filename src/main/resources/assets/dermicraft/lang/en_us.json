@@ -16,6 +16,8 @@
   "item.dermicraft.eye": "Eye",
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",
+  "item.dermicraft.mre": "MRE",
+  "item.dermicraft.meat_flavored_meat": "Meat Flavored Meat",
 
 
   "item.dermicraft.calcium_blend_bucket": "Calcium Blend Bucket",
@@ -78,6 +80,12 @@
 
   "block.dermicraft.effluentcer": "Effluentcer",
   "blockEntity.dermicraft.effluentcer_be": "Effluentcer",
+
+  "block.dermicraft.metastasizer": "Metastasizer",
+  "blockEntity.dermicraft.metastasizer_be": "Metastasizer",
+
+  "block.dermicraft.craw": "Craw",
+  "blockEntity.dermicraft.craw_be": "Craw",
 
   "block.dermicraft.beaker": "Beaker",
   "item.dermicraft.beaker.filled": "Beaker of %s",
