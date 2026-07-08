@@ -38,31 +38,42 @@ public class ModItemModelProvider extends ItemModelProvider {
 
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
-        bucketItem(ModFluids.CALCIUM_BLEND_BUCKET.get());
-        bucketItem(ModFluids.CARBON_BLEND_BUCKET.get());
-        bucketItem(ModFluids.PROTEIN_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.CALCIUM_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.CARBON_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.PROTEIN_BLEND_BUCKET.get());
 
-        bucketItem(ModFluids.CRUDE_SLURRY_BUCKET.get());
+        chunkyBucketItem(ModFluids.CRUDE_SLURRY_BUCKET.get());
 
-        bucketItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
+        thinBucketItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
 
-        bucketItem(ModFluids.STONE_BLEND_BUCKET.get());
-        bucketItem(ModFluids.SILICA_BLEND_BUCKET.get());
-        bucketItem(ModFluids.CLAY_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.STONE_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.SILICA_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.CLAY_BLEND_BUCKET.get());
 
-        bucketItem(ModFluids.FERROUS_BLEND_BUCKET.get());
-        bucketItem(ModFluids.CUPROUS_BLEND_BUCKET.get());
-        bucketItem(ModFluids.AUROUS_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.FERROUS_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.CUPROUS_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.AUROUS_BLEND_BUCKET.get());
 
-        bucketItem(ModFluids.F_STUFF_BUCKET.get());
-        bucketItem(ModFluids.C_STUFF_BUCKET.get());
+        thinBucketItem(ModFluids.F_STUFF_BUCKET.get());
+        thinBucketItem(ModFluids.C_STUFF_BUCKET.get());
     }
 
-    // Bucket textures live under textures/bucket/ rather than the default textures/item/.
-    private ItemModelBuilder bucketItem(Item item) {
+    // Chunky fluids (blends/slurries) use the chunky fill overlay; layer1 gets tinted at runtime per-fluid.
+    private ItemModelBuilder chunkyBucketItem(Item item) {
+        return bucketItem(item, "item/bucket/bucket_chunky_fluid");
+    }
+
+    // Thin fluids (catalysts, F/C-Stuff) use the thin, water-like fill overlay.
+    private ItemModelBuilder thinBucketItem(Item item) {
+        return bucketItem(item, "item/bucket/bucket_fluid_thin");
+    }
+
+    // layer0 is the untinted vanilla bucket body; layer1 is the fill overlay, tinted per-fluid via item color handlers.
+    private ItemModelBuilder bucketItem(Item item, String fillTexturePath) {
         ResourceLocation id = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item));
         return getBuilder(id.toString())
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
-                .texture("layer0", ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "item/bucket/" + id.getPath()));
+                .texture("layer0", ResourceLocation.withDefaultNamespace("item/bucket"))
+                .texture("layer1", ResourceLocation.fromNamespaceAndPath(id.getNamespace(), fillTexturePath));
     }
 }

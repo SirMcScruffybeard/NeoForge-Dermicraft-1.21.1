@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "dermicraft:item/bucket/crude_slurry_bucket"
+    "layer0": "minecraft:item/bucket",
+    "layer1": "dermicraft:item/bucket/bucket_chunky_fluid"
   }
 }
