@@ -48,6 +48,10 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.METASTASIZER);
                         output.accept(ModBlocks.CRAW);
 
+                        ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.INNARDS_DUCT);
+                        output.accept(ModBlocks.INNARDS_NODE);
+
                         buildBeakerContents(output);
 
                     }).build());

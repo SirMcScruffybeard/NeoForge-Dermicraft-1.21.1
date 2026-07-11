@@ -11,6 +11,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.custom.*;
+import net.scruffy.dermicraft.block.custom.duct.InnardsDuctBlock;
+import net.scruffy.dermicraft.block.custom.duct.NodeBlock;
 import net.scruffy.dermicraft.block.custom.tumor.*;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BeakerItem;
@@ -66,6 +68,26 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
             () -> new CrawBlock(BlockBehaviour.Properties.of()));
+
+    // Ducts and Nodes are the exception to the "destroyed on normal break" rule: they drop
+    // themselves (see ModBlockLootTableProvider) so players aren't punished for pipe re-fiddling.
+    // They still keep the mod-wide Forceps pickup via the COLLECTIBLE tag.
+    public static final DeferredBlock<Block> INNARDS_DUCT = registerBlock("innards_duct",
+            () -> new InnardsDuctBlock(BlockBehaviour.Properties.of()
+                    .strength(0.5f)
+                    .sound(SoundType.HONEY_BLOCK)
+                    .noOcclusion()));
+
+    public static final DeferredBlock<Block> INNARDS_DUCT_ARM = registerBlock("innards_duct_arm",
+            () -> new Block(BlockBehaviour.Properties.of().noOcclusion().noLootTable()));
+
+    public static final DeferredBlock<Block> INNARDS_DUCT_END = registerBlock("innards_duct_end",
+            () -> new Block(BlockBehaviour.Properties.of().noOcclusion().noLootTable()));
+
+    public static final DeferredBlock<Block> INNARDS_NODE = registerBlock("innards_node",
+            () -> new NodeBlock(BlockBehaviour.Properties.of()
+                    .strength(0.8f)
+                    .sound(SoundType.HONEY_BLOCK)));
 
     public static final DeferredBlock<Block> BEAKER = BLOCKS.register("beaker",
             () -> new BeakerBlock(BlockBehaviour.Properties.of()));

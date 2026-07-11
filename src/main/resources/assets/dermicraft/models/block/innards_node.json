@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "dermicraft:block/skin_tank_end",
+    "down": "dermicraft:block/skin_tank_end",
+    "up": "dermicraft:block/innards_duct/node_face",
+    "north": "dermicraft:block/skin_tank_end",
+    "south": "dermicraft:block/skin_tank_end",
+    "east": "dermicraft:block/skin_tank_end",
+    "west": "dermicraft:block/skin_tank_end"
+  }
+}

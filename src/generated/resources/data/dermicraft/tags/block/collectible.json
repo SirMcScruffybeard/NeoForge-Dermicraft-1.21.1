@@ -7,6 +7,8 @@
     "dermicraft:masticator",
     "dermicraft:effluentcer",
     "dermicraft:metastasizer",
-    "dermicraft:craw"
+    "dermicraft:craw",
+    "dermicraft:innards_duct",
+    "dermicraft:innards_node"
   ]
 }

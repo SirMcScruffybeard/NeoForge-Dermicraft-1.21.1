@@ -32,6 +32,7 @@ import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModFluidUtil;
+import net.scruffy.dermicraft.util.ModItemUtil;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -174,6 +175,12 @@ public class MetastasizerBlockEntity extends MachineBaseBlockEntity implements M
 
     public void tick(Level level) {
         if (level.isClientSide) return;
+
+        // Mirrors the fluid machines' RESULT_TANK.pushFluidToBelowNeighbour drain cadence -- the
+        // Metastasizer's output is an item slot instead of a tank, so it uses the item counterpart.
+        if (ModMath.Time.hasSecondsPassed(level, 5) && !INVENTORY.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
+            ModItemUtil.pushItemToBelowNeighbour(level, worldPosition, INVENTORY, OUTPUT_SLOT);
+        }
 
         resolvePendingRecipe(level);
 

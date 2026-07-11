@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -14,9 +15,14 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.scruffy.dermicraft.block.custom.duct.AbstractInnardsDuctBlock;
+import net.scruffy.dermicraft.block.custom.duct.AbstractNodeBlock;
+import net.scruffy.dermicraft.block.custom.duct.DuctRunResolver;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public class ModFluidUtil {
 
@@ -96,11 +102,45 @@ public class ModFluidUtil {
 
     public static void pushFluidToNeighbour(Level level, BlockPos worldPosition, FluidTank tank, Direction direction) {
         BlockPos neighborPos = worldPosition.relative(direction);
-        Direction hitSide = direction.getOpposite();
+        BlockState neighborState = level.getBlockState(neighborPos);
 
+        // A Node is never a passive auto-push target: every hop into the duct network is supposed
+        // to be a decision the Node itself makes (its own IN leg + Item/Fluid toggles), not something
+        // any adjacent block can force by simply existing there. Without this check a machine set
+        // directly against a Node would dump straight into its tank -- unlimited amount, ignoring
+        // the leg's direction mode and Fluid toggle entirely -- bypassing the whole routing model.
+        if (neighborState.getBlock() instanceof AbstractNodeBlock) return;
+
+        // Machine-direct duct drain: a duct directly below has no capability of its own, so walk the
+        // run to whatever's on the far end (bounded to the 3x3 footprint below) instead of the usual
+        // direct capability lookup. Only DOWN is wired up for this -- pushFluidToAboveNeighbour has
+        // no current callers, so there's no "3x3 above" case to support yet.
+        if (direction == Direction.DOWN && neighborState.getBlock() instanceof AbstractInnardsDuctBlock) {
+            pushFluidThroughDuct(level, worldPosition, tank);
+            return;
+        }
+
+        Direction hitSide = direction.getOpposite();
         FluidUtil.getFluidHandler(level, neighborPos, hitSide).ifPresent(neighborHandler -> {
             FluidUtil.tryFluidTransfer(neighborHandler, tank, Integer.MAX_VALUE, true);
         });
+    }
+
+    private static void pushFluidThroughDuct(Level level, BlockPos worldPosition, FluidTank tank) {
+        Optional<DuctRunResolver.Endpoint> endpointOpt =
+                DuctRunResolver.resolveWithinFootprint(level, worldPosition, Direction.DOWN, DuctRunResolver.DRAIN_MAX_HOPS);
+        if (endpointOpt.isEmpty()) return;
+        DuctRunResolver.Endpoint endpoint = endpointOpt.get();
+
+        // The run may end at a Node -- same rule as direct adjacency: never push into one, it must
+        // pull deliberately via its own leg config.
+        if (level.getBlockState(endpoint.pos()).getBlock() instanceof AbstractNodeBlock) return;
+
+        FluidStack current = tank.getFluid();
+        if (current.isEmpty() || !endpoint.fluidFilter().test(current)) return;
+
+        FluidUtil.getFluidHandler(level, endpoint.pos(), endpoint.accessDirection()).ifPresent(neighborHandler ->
+                FluidUtil.tryFluidTransfer(neighborHandler, tank, Integer.MAX_VALUE, true));
     }
 
     //////////Biofuel Checkers, Getters, Setters\\\\\\\\\\

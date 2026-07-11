@@ -87,6 +87,11 @@
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
 
+  "block.dermicraft.innards_duct": "Innards Duct",
+  "block.dermicraft.innards_duct_arm": "Innards Duct Arm",
+  "block.dermicraft.innards_duct_end": "Innards Duct End",
+  "block.dermicraft.innards_node": "Innards Node",
+
   "block.dermicraft.beaker": "Beaker",
   "item.dermicraft.beaker.filled": "Beaker of %s",
 

@@ -32,6 +32,8 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.EFFLUENTCER.get())
                 .add(ModBlocks.METASTASIZER.get())
                 .add(ModBlocks.CRAW.get())
+                .add(ModBlocks.INNARDS_DUCT.get())
+                .add(ModBlocks.INNARDS_NODE.get())
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)

@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class OuterfaceBlock extends Block {
 
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
     // status: 0 = OFF (valid machine, idle), 1 = ON (valid machine, active player), 2 = ERROR (no valid machine)
     public static final IntegerProperty STATUS = IntegerProperty.create("status", 0, 2);
 
@@ -42,6 +42,8 @@ public class OuterfaceBlock extends Block {
     private static final VoxelShape SHAPE_SOUTH = Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 2.0);
     private static final VoxelShape SHAPE_EAST = Block.box(0.0, 0.0, 0.0, 2.0, 16.0, 16.0);
     private static final VoxelShape SHAPE_WEST = Block.box(14.0, 0.0, 0.0, 16.0, 16.0, 16.0);
+    private static final VoxelShape SHAPE_UP = Block.box(0.0, 0.0, 0.0, 16.0, 2.0, 16.0);
+    private static final VoxelShape SHAPE_DOWN = Block.box(0.0, 14.0, 0.0, 16.0, 16.0, 16.0);
 
     public OuterfaceBlock() {
         super(BlockBehaviour.Properties.of()
@@ -74,7 +76,7 @@ public class OuterfaceBlock extends Block {
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction facing = context.getHorizontalDirection().getOpposite();
+        Direction facing = context.getClickedFace();
         BlockPos machinePos = getBlockBehind(context.getClickedPos(), facing);
         int status = getStatus(context.getLevel(), machinePos);
         return this.defaultBlockState()
@@ -98,6 +100,12 @@ public class OuterfaceBlock extends Block {
             }
             case WEST -> {
                 return SHAPE_WEST;
+            }
+            case UP -> {
+                return SHAPE_UP;
+            }
+            case DOWN -> {
+                return SHAPE_DOWN;
             }
             default -> {
                 return SHAPE_NORTH;

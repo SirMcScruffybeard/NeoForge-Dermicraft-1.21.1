@@ -29,6 +29,11 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.CALCIUM_GLASS.get());
         dropSelf(ModBlocks.OUTERFACE.get());
 
+        // Ducts and Nodes are the exception to the mod's "destroyed on break" rule -- they drop
+        // themselves so players aren't punished for pipe re-fiddling (they keep Forceps pickup too).
+        dropSelf(ModBlocks.INNARDS_DUCT.get());
+        dropSelf(ModBlocks.INNARDS_NODE.get());
+
     }
 
     protected LootTable.Builder createMultipleOreDrops(Block pBlock, Item item, float minDrops, float maxDrops) {

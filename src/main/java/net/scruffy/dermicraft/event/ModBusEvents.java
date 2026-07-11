@@ -12,6 +12,7 @@ import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.EffluentcerBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MetastasizerBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.item.ModItems;
@@ -41,6 +42,12 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.METASTASIZER_BE.get(), MetastasizerBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CRAW_BE.get(), CrawBlockEntity::getItemHandler);
+
+        // Node: item automation is exposed via getItemHandler(Direction), which restricts any
+        // direction-based (capability) query to the transport buffer slot only -- the GUI-only
+        // fluid-handler slot stays unreachable by pipes/hoppers/other Nodes regardless.
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.INNARDS_NODE_BE.get(), NodeBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.INNARDS_NODE_BE.get(), NodeBlockEntity::getTank);
 
 
 
