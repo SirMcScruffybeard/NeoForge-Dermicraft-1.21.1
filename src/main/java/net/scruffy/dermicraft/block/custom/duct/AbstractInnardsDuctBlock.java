@@ -14,12 +14,11 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 /**
  * Shared base for the Innards Duct family (the dumb transport segment).
@@ -29,7 +28,8 @@ import java.util.function.Predicate;
  * <b>no block entity</b> - a duct is pure geometry; all routing/flow state lives on the Node.
  *
  * <p>Kept abstract so upgrade tiers can subclass and override the small tier-specific hooks
- * (currently just {@link #canConnectToPipe}) without duplicating the connection machinery.
+ * ({@link #hazardProfile()} and, if ever needed, {@link #maxConnections()}) without duplicating the
+ * connection machinery.
  */
 public abstract class AbstractInnardsDuctBlock extends Block {
 
@@ -116,10 +116,10 @@ public abstract class AbstractInnardsDuctBlock extends Block {
      * (Node-routed or the direct machine-to-machine drain) they're travelling. Mirrors
      * {@link net.scruffy.dermicraft.tank.VulnerableTank} exactly, since a duct is otherwise a
      * tankless conduit — this is the one place fluid tier is enforced for a run that never passes
-     * through a Node's tank. {@link DuctRunResolver} accumulates every duct's filter along a run
+     * through a Node's tank. {@link DuctRunResolver} intersects every duct's profile along a run
      * (weakest-link semantics), so upgrade tiers only need to override this to accept more.
      */
-    public abstract Predicate<FluidStack> fluidFilter();
+    public abstract HazardProfile hazardProfile();
 
     /** How many faces of {@code state} currently hold a connection (PIPE or END). */
     protected int countConnections(BlockState state) {

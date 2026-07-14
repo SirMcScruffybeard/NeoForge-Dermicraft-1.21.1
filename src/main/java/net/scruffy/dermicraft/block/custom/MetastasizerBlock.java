@@ -25,19 +25,35 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.MetastasizerBlockEntity;
+import net.scruffy.dermicraft.machine.MachineTier;
+import net.scruffy.dermicraft.machine.TieredMachine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MetastasizerBlock extends ModBaseEntityBlock {
+public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachine {
 
     public static final MapCodec<MetastasizerBlock> CODEC = simpleCodec(MetastasizerBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
+    private final MachineTier tier;
+
+    // simpleCodec needs a Properties-only constructor; it produces the progenitor (BASIC) tier.
+    // A future upgrade tier registers its own block via the (Properties, MachineTier) constructor.
     public MetastasizerBlock(Properties properties) {
+        this(properties, MachineTier.BASIC);
+    }
+
+    public MetastasizerBlock(Properties properties, MachineTier tier) {
         super(properties
                 .noLootTable()
                 .ignitedByLava()
         );
+        this.tier = tier;
+    }
+
+    @Override
+    public MachineTier getTier() {
+        return tier;
     }
 
     @Override

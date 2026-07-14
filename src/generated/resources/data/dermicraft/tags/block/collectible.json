@@ -9,6 +9,9 @@
     "dermicraft:metastasizer",
     "dermicraft:craw",
     "dermicraft:innards_duct",
-    "dermicraft:innards_node"
+    "dermicraft:innards_node",
+    "dermicraft:innards_gate_controller",
+    "dermicraft:innards_gate_buffer",
+    "dermicraft:innards_gate_port"
   ]
 }

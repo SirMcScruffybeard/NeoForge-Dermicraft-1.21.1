@@ -8,6 +8,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.util.ModFluidUtil;
 
 import java.util.function.Predicate;
@@ -20,6 +21,11 @@ public abstract class ModFluidTank extends FluidTank {
 
     public ModFluidTank(int capacity, int slot, Predicate<FluidStack> validator) {
         super(capacity, validator);
+        SLOT = slot;
+    }
+
+    public ModFluidTank(int capacity, int slot, HazardProfile hazardProfile) {
+        super(capacity, hazardProfile::accepts);
         SLOT = slot;
     }
 

@@ -18,13 +18,17 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.interfaces.Channel;
+import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
 
-public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
+import java.util.List;
+
+public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IHasChannels {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 10;
 
@@ -52,12 +56,37 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
         return TANK;
     }
 
+    /** See {@link IHasChannels#describeFace} -- getTank/getItemHandler ignore the face entirely. */
+    @Override
+    public Component describeFace(Direction face) {
+        return Component.translatable("tooltip.dermicraft.idep.face.skin_tank_storage");
+    }
+
     public IFluidHandler getTank() {
         return getTank(null);
     }
 
     IItemHandler getItemHandler(@Nullable Direction face) {
         return INVENTORY;
+    }
+
+    /**
+     * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}.
+     * Unlike every other machine here, {@code getTank(Direction)} already ignores the face entirely
+     * -- Skin Tank is a plain storage tank, not a machine with distinct crafting input/output tanks,
+     * so it was never face-locked to begin with. Modelled as {@link Channel.IO#BOTH} rather than
+     * IN or OUT, matching that existing bidirectional behaviour. Native faces are all 6; like the
+     * Drooling Cauldron's result tank, this is rarely the actual bottleneck given how permissive it
+     * already is, but the self-filter still applies correctly to the fully-isolated case.
+     */
+    @Override
+    public List<Channel> getChannels() {
+        if (level != null && isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.values())) {
+            return List.of();
+        }
+        return List.of(
+                new Channel.FluidChannel("storage", Component.literal("Storage"), Channel.IO.BOTH, TANK)
+        );
     }
 
     public void drops(){

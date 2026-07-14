@@ -26,6 +26,8 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.interfaces.Channel;
+import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
@@ -35,9 +37,11 @@ import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
+public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IHasChannels {
 
     public final static int INPUT = 0;
     public final static int OUTPUT = 1;
@@ -64,6 +68,15 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
     public FluidStack getFluid() {
         return TANK.getFluid();
+    }
+
+    /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler}
+     * literally. TANK is reachable from every face (getTank ignores the face entirely), UP alone
+     * also reaches the ingredient item slot. */
+    @Override
+    public Component describeFace(Direction face) {
+        if (face == Direction.UP) return Component.translatable("tooltip.dermicraft.idep.face.drooling_cauldron_ingredient");
+        return Component.translatable("tooltip.dermicraft.idep.face.drooling_cauldron_result");
     }
 
     public IFluidHandler getTank(@Nullable Direction face) {
@@ -112,6 +125,72 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
             };
         }
         return null;
+    }
+
+    /**
+     * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}.
+     * Direction-unlocked from what {@code getItemHandler(Direction)} currently only exposes on UP
+     * (the INPUT slot) and {@code getTank(Direction)} exposes everywhere. OUTPUT is a pure
+     * bucket-filling passthrough for TANK (see {@code createInventory}'s {@code onContentsChanged}),
+     * not an independent item channel -- matching the Effluentcer precedent, only the underlying
+     * fluid tank gets a channel, not its bucket-passthrough slot. TANK is auto-fed with water every
+     * second (never player/Gate-fed), so it's OUT-only here, same as every other machine's result tank.
+     *
+     * <p>ingredient's native face is UP only. result's native faces are all 6 (getTank ignores the
+     * face entirely) -- it's essentially never the bottleneck since almost any adjacent block already
+     * reaches it, but the check is still correct for the rare fully-isolated case.
+     */
+    @Override
+    public List<Channel> getChannels() {
+        List<Channel> channels = new ArrayList<>();
+
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.UP)) {
+            channels.add(new Channel.ItemChannel("ingredient", Component.literal("Ingredient"), Channel.IO.IN, ingredientChannelHandler()));
+        }
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.values())) {
+            channels.add(new Channel.FluidChannel("result", Component.literal("Result"), Channel.IO.OUT, TANK));
+        }
+
+        return channels;
+    }
+
+    private IItemHandler ingredientChannelHandler() {
+        return new IItemHandlerModifiable() {
+            @Override
+            public void setStackInSlot(int slot, ItemStack stack) {
+                INVENTORY.setStackInSlot(INPUT, stack);
+            }
+
+            @Override
+            public int getSlots() {
+                return 1;
+            }
+
+            @Override
+            public ItemStack getStackInSlot(int slot) {
+                return INVENTORY.getStackInSlot(INPUT);
+            }
+
+            @Override
+            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+                return INVENTORY.insertItem(INPUT, stack, simulate);
+            }
+
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                return INVENTORY.extractItem(INPUT, amount, simulate);
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return INVENTORY.getSlotLimit(INPUT);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return INVENTORY.isItemValid(INPUT, stack);
+            }
+        };
     }
 
     @Override

@@ -9,6 +9,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.component.HeldItemData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.item.ModItems;
@@ -63,6 +64,22 @@ public class ModItemProperties {
                     if (data.getFluidStack().is(ModTags.Fluids.THICK)) return 2;
                     if (!data.isFluidEmpty()) return 1;
                     return 0;
+                });
+
+        // I.D.E.P.'s two independent boolean indicator lights -- not a fill-level gauge like the
+        // fluid containers above, just held/not-held for each of its two internal stores.
+        ItemProperties.register(ModItems.IDEP.get(),
+                getResourceLocation("fluid_held"),
+                (stack, level, entity, seed) -> {
+                    FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
+                    return data.isFluidEmpty() ? 0 : 1;
+                });
+
+        ItemProperties.register(ModItems.IDEP.get(),
+                getResourceLocation("item_held"),
+                (stack, level, entity, seed) -> {
+                    HeldItemData data = stack.getOrDefault(ModDataComponentTypes.HELD_ITEM_DATA.get(), HeldItemData.EMPTY);
+                    return data.isEmpty() ? 0 : 1;
                 });
     }
 

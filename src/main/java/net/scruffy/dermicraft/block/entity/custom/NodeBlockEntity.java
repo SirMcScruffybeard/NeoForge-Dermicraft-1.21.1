@@ -26,10 +26,11 @@ import net.scruffy.dermicraft.block.custom.duct.DuctConnection;
 import net.scruffy.dermicraft.block.custom.duct.DuctRunResolver;
 import net.scruffy.dermicraft.block.custom.duct.NodeDirectionMode;
 import net.scruffy.dermicraft.block.custom.duct.NodeDistributionMode;
+import net.scruffy.dermicraft.block.custom.duct.NodeTier;
+import net.scruffy.dermicraft.block.custom.duct.TieredNode;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
-import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,22 +58,26 @@ import java.util.Optional;
  * {@link #targetNodeAccepts}) — so a two-Node run behaves exactly like the documented "conflicting
  * direction = inert" rule, and chaining through several Nodes to a distant machine falls out for
  * free: each Node just forwards whatever lands in its buffer on its own next tick.
- * Item/fluid moved per leg per cycle is rate-capped (see {@link #ITEM_TRANSFER_PER_CYCLE} /
- * {@link #FLUID_TRANSFER_PER_CYCLE}) rather than unlimited — tune those constants as needed.
+ * Item/fluid moved per leg per cycle is rate-capped (see {@link #itemTransferPerCycle()} /
+ * {@link #fluidTransferPerCycle()}) rather than unlimited — tune those constants as needed.
  */
 public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvider {
 
     public static final int BUFFER_SLOT = 0;     // transport item buffer (automation-facing later)
     public static final int FLUID_ITEM_SLOT = 1; // GUI-only slot for a bucket/Beaker; never exposed to automation
+
+    // The tank is a transport buffer, not storage -- its capacity is fixed across every Node tier
+    // (only throughput and hazard tolerance vary; see NodeTier).
     public static final int TANK_CAPACITY = 1000;
 
     private boolean isTransferringFluids = false;
 
-    // VulnerableTank rejects HAZARDOUS-tagged fluids -- the mod-wide Tier 1 restriction. Since a
-    // duct has no block entity/fluid state of its own, this tank is the ONLY place fluid ever sits
-    // in the whole system (every hop, in or out, passes through it), so gating it here is enough
-    // to protect the entire duct network for free -- no per-duct check needed.
-    private final VulnerableTank TANK = new VulnerableTank(TANK_CAPACITY, 0) {
+    // The tank's hazard profile comes from this Node's tier (TIER_1 rejects HAZARDOUS-tagged fluids,
+    // the mod-wide baseline; higher tiers accept more). Since a duct has no block entity/fluid state
+    // of its own, this tank is the ONLY place fluid ever sits in the whole system (every hop, in or
+    // out, passes through it), so gating it here is enough to protect the entire duct network for
+    // free -- no per-duct check needed.
+    private final ModFluidTank TANK = new ModFluidTank(TANK_CAPACITY, 0, getNodeTier().hazardProfile()) {
         @Override
         protected void onContentsChanged() {
             if (level != null && !level.isClientSide) {
@@ -91,7 +96,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     // an idle timer. Both default OFF: a leg set to In/Out carries nothing until the player
     // explicitly enables a type, rather than immediately carrying both. Fully independent of
     // direction mode and of each other -- a leg can carry both, either, or neither. Both types are
-    // already rate-capped per leg per cycle (see ITEM_TRANSFER_PER_CYCLE/FLUID_TRANSFER_PER_CYCLE),
+    // already rate-capped per leg per cycle (see itemTransferPerCycle()/fluidTransferPerCycle()),
     // so running both simultaneously on a leg is not a server-load concern.
     private final Map<Direction, Boolean> itemsEnabled = new EnumMap<>(Direction.class);
     private final Map<Direction, Boolean> fluidsEnabled = new EnumMap<>(Direction.class);
@@ -131,6 +136,11 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
     public NodeBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.INNARDS_NODE_BE.get(), pos, blockState);
+    }
+
+    /** This Node's tier, read from its block (defaults to TIER_1 if the block isn't tiered). */
+    public NodeTier getNodeTier() {
+        return getBlockState().getBlock() instanceof TieredNode tiered ? tiered.getTier() : NodeTier.TIER_1;
     }
 
     @Override
@@ -242,9 +252,14 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         updateBlock();
     }
 
-    // Flow amount restrictions -- per leg, per CRAFT_TICKS cycle. Placeholder defaults, tune freely.
-    private static final int ITEM_TRANSFER_PER_CYCLE = 4;
-    private static final int FLUID_TRANSFER_PER_CYCLE = 100; // mB
+    // Flow amount restrictions -- per leg, per CRAFT_TICKS cycle. Sourced from this Node's tier.
+    private int itemTransferPerCycle() {
+        return getNodeTier().itemThroughput();
+    }
+
+    private int fluidTransferPerCycle() {
+        return getNodeTier().fluidThroughput();
+    }
 
     // Independent round-robin cursors -- items and fluids can be enabled on entirely different leg
     // sets, so each type rotates through its own eligible legs rather than sharing one index.
@@ -287,22 +302,22 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
         if (distributionMode == NodeDistributionMode.EQUAL_SPREAD) {
             if (!fluidOutLegs.isEmpty()) {
-                int fluidShare = Math.max(1, Math.min(FLUID_TRANSFER_PER_CYCLE, TANK.getFluidAmount()) / fluidOutLegs.size());
+                int fluidShare = Math.max(1, Math.min(fluidTransferPerCycle(), TANK.getFluidAmount()) / fluidOutLegs.size());
                 for (Direction dir : fluidOutLegs) pushFluidTo(level, dir, fluidShare);
             }
             if (!itemOutLegs.isEmpty()) {
-                int itemShare = Math.max(1, Math.min(ITEM_TRANSFER_PER_CYCLE, INVENTORY.getStackInSlot(BUFFER_SLOT).getCount()) / itemOutLegs.size());
+                int itemShare = Math.max(1, Math.min(itemTransferPerCycle(), INVENTORY.getStackInSlot(BUFFER_SLOT).getCount()) / itemOutLegs.size());
                 for (Direction dir : itemOutLegs) pushItemTo(level, dir, itemShare);
             }
         } else {
             if (!fluidOutLegs.isEmpty()) {
                 Direction dir = fluidOutLegs.get(fluidRoundRobinIndex % fluidOutLegs.size());
-                pushFluidTo(level, dir, FLUID_TRANSFER_PER_CYCLE);
+                pushFluidTo(level, dir, fluidTransferPerCycle());
                 fluidRoundRobinIndex = (fluidRoundRobinIndex + 1) % fluidOutLegs.size();
             }
             if (!itemOutLegs.isEmpty()) {
                 Direction dir = itemOutLegs.get(itemRoundRobinIndex % itemOutLegs.size());
-                pushItemTo(level, dir, ITEM_TRANSFER_PER_CYCLE);
+                pushItemTo(level, dir, itemTransferPerCycle());
                 itemRoundRobinIndex = (itemRoundRobinIndex + 1) % itemOutLegs.size();
             }
         }
@@ -327,7 +342,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
         if (handler == null) return;
 
-        int amount = Math.min(FLUID_TRANSFER_PER_CYCLE, TANK.getSpace());
+        int amount = Math.min(fluidTransferPerCycle(), TANK.getSpace());
         FluidStack simulated = handler.drain(amount, IFluidHandler.FluidAction.SIMULATE);
         if (simulated.isEmpty()) return;
 
@@ -335,7 +350,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         // accept fluids this Node's own tank doesn't, or vice versa -- both must agree) and the
         // Node's own tank tier. Don't actually drain the source unless both will accept it --
         // otherwise a rejected fluid would be pulled out and then silently voided.
-        if (!endpoint.fluidFilter().test(simulated)) return;
+        if (!endpoint.hazardProfile().accepts(simulated)) return;
         if (TANK.fill(simulated, IFluidHandler.FluidAction.SIMULATE) <= 0) return;
 
         FluidStack drained = handler.drain(simulated.getAmount(), IFluidHandler.FluidAction.EXECUTE);
@@ -349,7 +364,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         if (handler == null) return;
 
         for (int i = 0; i < handler.getSlots(); i++) {
-            ItemStack simulated = handler.extractItem(i, ITEM_TRANSFER_PER_CYCLE, true);
+            ItemStack simulated = handler.extractItem(i, itemTransferPerCycle(), true);
             if (simulated.isEmpty()) continue;
             ItemStack extracted = handler.extractItem(i, simulated.getCount(), false);
             INVENTORY.setStackInSlot(BUFFER_SLOT, extracted);
@@ -371,7 +386,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         if (amount <= 0) return;
         FluidStack simulated = TANK.drain(amount, IFluidHandler.FluidAction.SIMULATE);
         if (simulated.isEmpty()) return;
-        if (!endpoint.fluidFilter().test(simulated)) return;
+        if (!endpoint.hazardProfile().accepts(simulated)) return;
 
         int accepted = handler.fill(simulated, IFluidHandler.FluidAction.SIMULATE);
         if (accepted <= 0) return;

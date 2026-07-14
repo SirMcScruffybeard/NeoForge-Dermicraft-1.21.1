@@ -7,6 +7,7 @@
   "item.dermicraft.scalpel": "Scalpel",
   "item.dermicraft.suture_kit": "Suture Kit",
   "item.dermicraft.forceps": "Forceps",
+  "item.dermicraft.idep": "I.D.E.P.",
   "item.dermicraft.syringe": "Syringe",
   "item.dermicraft.syringe.filled": "Syringe of %s",
 
@@ -91,6 +92,42 @@
   "block.dermicraft.innards_duct_arm": "Innards Duct Arm",
   "block.dermicraft.innards_duct_end": "Innards Duct End",
   "block.dermicraft.innards_node": "Innards Node",
+
+  "block.dermicraft.innards_gate_controller": "Innards Gate Controller",
+  "block.dermicraft.innards_gate_buffer": "Innards Gate Buffer",
+  "block.dermicraft.innards_gate_port": "Innards Gate Port",
+
+  "tooltip.dermicraft.idep.prefix": "I.D.E.P.",
+  "tooltip.dermicraft.idep.buffer_servicing": "Servicing: %s",
+  "tooltip.dermicraft.idep.buffer_unassigned": "Unassigned",
+  "tooltip.dermicraft.idep.buffer_empty": "Empty",
+  "tooltip.dermicraft.idep.buffer_holding": "Holding contents",
+  "tooltip.dermicraft.idep.controller_no_target": "No target machine bonded",
+  "tooltip.dermicraft.idep.controller_all_serviced": "All channels serviced",
+  "tooltip.dermicraft.idep.controller_waiting": "Waiting on: %s",
+  "tooltip.dermicraft.idep.cleared": "Cleared",
+  "tooltip.dermicraft.idep.nothing_cleared": "Nothing cleared (I.D.E.P. full, or already empty)",
+  "tooltip.dermicraft.idep.deposited_fluid": "Deposited fluid",
+
+  "tooltip.dermicraft.idep.face.masticator_fuel": "Fuel tank (+ fuel bucket slot)",
+  "tooltip.dermicraft.idep.face.masticator_result": "Result tank (+ result bucket slot)",
+  "tooltip.dermicraft.idep.face.masticator_ingredient": "Ingredient tank (+ ingredient slot)",
+
+  "tooltip.dermicraft.idep.face.metastasizer_fuel": "Fuel tank (+ fuel bucket slot)",
+  "tooltip.dermicraft.idep.face.metastasizer_output": "Reagent tank (+ Output slot, pull-only)",
+  "tooltip.dermicraft.idep.face.metastasizer_pattern": "Reagent tank (+ Pattern slot)",
+
+  "tooltip.dermicraft.idep.face.effluentcer_fuel": "Fuel tank",
+  "tooltip.dermicraft.idep.face.effluentcer_result": "Result tank",
+  "tooltip.dermicraft.idep.face.effluentcer_input_a": "Input A tank",
+  "tooltip.dermicraft.idep.face.effluentcer_input_b": "Input B tank",
+
+  "tooltip.dermicraft.idep.face.drooling_cauldron_ingredient": "Ingredient slot (+ Result tank)",
+  "tooltip.dermicraft.idep.face.drooling_cauldron_result": "Result tank",
+
+  "tooltip.dermicraft.idep.face.skin_tank_storage": "Storage tank (+ fill/drain bucket slots)",
+
+  "tooltip.dermicraft.idep.face.craw_storage": "Bulk storage",
 
   "block.dermicraft.beaker": "Beaker",
   "item.dermicraft.beaker.filled": "Beaker of %s",

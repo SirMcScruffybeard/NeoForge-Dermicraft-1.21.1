@@ -83,6 +83,14 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc("block/beaker/beaker_top"))
                 .renderType("translucent"));
 
+        ////////////////////Innards Gate\\\\\\\\\\\\\\\\\\\\
+        simpleBlockWithItem(ModBlocks.INNARDS_GATE_CONTROLLER.get(), models().cubeAll("innards_gate_controller",
+                modLoc("block/innards_gate/innards_gate_controller")));
+        simpleBlockWithItem(ModBlocks.INNARDS_GATE_BUFFER.get(), models().cubeAll("innards_gate_buffer",
+                modLoc("block/innards_gate/innards_gate_buffer")));
+        simpleBlockWithItem(ModBlocks.INNARDS_GATE_PORT.get(), models().cubeAll("innards_gate_port",
+                modLoc("block/innards_gate/innards_gate_port")));
+
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {

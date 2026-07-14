@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/idep/idep",
+    "layer1": "dermicraft:item/idep/idep_fluid_on"
+  }
+}

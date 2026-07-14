@@ -34,6 +34,12 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.INNARDS_DUCT.get());
         dropSelf(ModBlocks.INNARDS_NODE.get());
 
+        // Gate blocks follow the same duct/node exception -- automation infrastructure that gets
+        // re-fiddled, so it drops itself on a normal break (and keeps Forceps pickup via COLLECTIBLE).
+        dropSelf(ModBlocks.INNARDS_GATE_CONTROLLER.get());
+        dropSelf(ModBlocks.INNARDS_GATE_BUFFER.get());
+        dropSelf(ModBlocks.INNARDS_GATE_PORT.get());
+
     }
 
     protected LootTable.Builder createMultipleOreDrops(Block pBlock, Item item, float minDrops, float maxDrops) {

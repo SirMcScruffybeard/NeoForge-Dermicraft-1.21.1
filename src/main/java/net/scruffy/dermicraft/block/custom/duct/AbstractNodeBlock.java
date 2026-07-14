@@ -18,12 +18,23 @@ import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
  * <p>Non-directional block (fixed orientation, no {@code FACING}, like Skin Tank) whose top face
  * carries a north-pointing arrow so the orientation is readable. Empty-hand right-click opens the
  * routing/buffer GUI. On break the block entity drops its buffered items but never spills its fluid
- * (see design notes). Routing/flow logic itself is not built yet. Kept abstract so upgrade tiers slot in.
+ * (see design notes). Kept abstract so upgrade tiers slot in as sibling subclasses.
+ *
+ * <p>Carries a {@link NodeTier} (capacity / throughput / hazard tolerance) that the block entity
+ * reads off its block state, so a stat-only tier is just a new subclass with a different NodeTier.
  */
-public abstract class AbstractNodeBlock extends ModBaseEntityBlock {
+public abstract class AbstractNodeBlock extends ModBaseEntityBlock implements TieredNode {
 
-    protected AbstractNodeBlock(Properties properties) {
+    private final NodeTier tier;
+
+    protected AbstractNodeBlock(Properties properties, NodeTier tier) {
         super(properties);
+        this.tier = tier;
+    }
+
+    @Override
+    public NodeTier getTier() {
+        return tier;
     }
 
     @Override

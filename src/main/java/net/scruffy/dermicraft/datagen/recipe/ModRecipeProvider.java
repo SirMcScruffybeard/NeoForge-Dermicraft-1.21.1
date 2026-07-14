@@ -79,6 +79,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_glass", has(Tags.Items.GLASS_BLOCKS_CHEAP))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("beaker_crafting_table"));
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.IDEP)
+                .pattern("NII")
+                .pattern("IFI")
+                .pattern("NI ")
+                .define('N', ModItems.NERVE_CLUSTER)
+                .define('I', Tags.Items.INGOTS_IRON)
+                .define('F', ModItems.GLASS_FLASK)
+                .unlockedBy("has_nerve_cluster", has(ModItems.NERVE_CLUSTER))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("idep_crafting_table"));
+
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.OUTERFACE)
                 .pattern("III")
@@ -146,6 +156,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
                 Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.CRAW.asItem());
+
+        // Pricier than the other implants (8 items) to reflect its powerful duplication ability;
+        // the Eye fits the "3D printer" framing as the scanner that reads the pattern.
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "metastasizer_implant",
+                List.of(
+                        Ingredient.of(ModBlocks.BEAKER_ITEM.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.EYE.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.METASTASIZER.asItem());
 
         // F-Stuff/C-Stuff: 30-second (600-tick) craft time, dynamically scaled. `ticks` is
         // negative -- EffluencingRecipe.getCraftingTime() scales it per 100 mB of result

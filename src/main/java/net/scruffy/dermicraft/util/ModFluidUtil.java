@@ -137,7 +137,7 @@ public class ModFluidUtil {
         if (level.getBlockState(endpoint.pos()).getBlock() instanceof AbstractNodeBlock) return;
 
         FluidStack current = tank.getFluid();
-        if (current.isEmpty() || !endpoint.fluidFilter().test(current)) return;
+        if (current.isEmpty() || !endpoint.hazardProfile().accepts(current)) return;
 
         FluidUtil.getFluidHandler(level, endpoint.pos(), endpoint.accessDirection()).ifPresent(neighborHandler ->
                 FluidUtil.tryFluidTransfer(neighborHandler, tank, Integer.MAX_VALUE, true));

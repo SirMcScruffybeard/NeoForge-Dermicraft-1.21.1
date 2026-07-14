@@ -5,7 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -22,11 +22,11 @@ import java.util.function.Predicate;
  * whether the transfer is actually allowed based on the target Node's own leg mode. The only case
  * resolved as inert here is a run that loops straight back to its own origin Node.
  *
- * <p>Every duct hop's {@link AbstractInnardsDuctBlock#fluidFilter()} is accumulated along the walk
- * (weakest-link AND) and returned on the {@link Endpoint} -- the one place fluid hazard tier is
+ * <p>Every duct hop's {@link AbstractInnardsDuctBlock#hazardProfile()} is intersected along the walk
+ * (weakest-link semantics) and returned on the {@link Endpoint} -- the one place fluid hazard tier is
  * enforced for a run that never passes through a Node's tank (e.g. the direct machine-to-machine
- * drain). A zero-hop endpoint (no duct at all between origin and target) carries an always-true
- * filter, since no duct's tier ever applies.
+ * drain). A zero-hop endpoint (no duct at all between origin and target) carries
+ * {@link HazardProfile#ALL} (tolerates everything), since no duct's tier ever applies.
  */
 public class DuctRunResolver {
 
@@ -39,8 +39,8 @@ public class DuctRunResolver {
     public static final int DRAIN_MAX_HOPS = 8;
 
     /** Where a resolved run ends: the block to interact with, the face touching the duct, and the
-     * combined fluid-hazard filter of every duct hop crossed to get there. */
-    public record Endpoint(BlockPos pos, Direction accessDirection, Predicate<FluidStack> fluidFilter) {
+     * combined hazard profile of every duct hop crossed to get there. */
+    public record Endpoint(BlockPos pos, Direction accessDirection, HazardProfile hazardProfile) {
     }
 
     private DuctRunResolver() {
@@ -69,7 +69,7 @@ public class DuctRunResolver {
                                             Predicate<BlockPos> withinBounds) {
         BlockPos currentPos = originPos;
         Direction currentDir = leg;
-        Predicate<FluidStack> combinedFilter = fluidStack -> true;
+        HazardProfile combinedProfile = HazardProfile.ALL;
 
         for (int hop = 0; hop < maxHops; hop++) {
             BlockPos nextPos = currentPos.relative(currentDir);
@@ -81,11 +81,11 @@ public class DuctRunResolver {
                 // A run that loops straight back to its own origin isn't a real destination --
                 // guard it here rather than let a Node try to push/pull into itself.
                 if (nextPos.equals(originPos)) return Optional.empty();
-                return Optional.of(new Endpoint(nextPos, currentDir.getOpposite(), combinedFilter));
+                return Optional.of(new Endpoint(nextPos, currentDir.getOpposite(), combinedProfile));
             }
 
             if (!(nextState.getBlock() instanceof AbstractInnardsDuctBlock duct)) {
-                return Optional.of(new Endpoint(nextPos, currentDir.getOpposite(), combinedFilter));
+                return Optional.of(new Endpoint(nextPos, currentDir.getOpposite(), combinedProfile));
             }
 
             // Hopped into a duct -- confirm it actually connects back to us (mutual connection),
@@ -95,7 +95,7 @@ public class DuctRunResolver {
             if (nextState.getValue(incomingProperty) == DuctConnection.NONE) {
                 return Optional.empty();
             }
-            combinedFilter = combinedFilter.and(duct.fluidFilter());
+            combinedProfile = combinedProfile.intersect(duct.hazardProfile());
 
             Direction far = null;
             for (Direction dir : Direction.values()) {

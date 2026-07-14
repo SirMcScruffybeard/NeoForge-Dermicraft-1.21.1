@@ -13,6 +13,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.duct.InnardsDuctBlock;
 import net.scruffy.dermicraft.block.custom.duct.NodeBlock;
+import net.scruffy.dermicraft.block.custom.gate.GateBufferBlock;
+import net.scruffy.dermicraft.block.custom.gate.GateControllerBlock;
+import net.scruffy.dermicraft.block.custom.gate.GatePortBlock;
 import net.scruffy.dermicraft.block.custom.tumor.*;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BeakerItem;
@@ -88,6 +91,23 @@ public class ModBlocks {
             () -> new NodeBlock(BlockBehaviour.Properties.of()
                     .strength(0.8f)
                     .sound(SoundType.HONEY_BLOCK)));
+
+    ////////////////////Innards Gate (channel automation multiblock)\\\\\\\\\\\\\\\\\\\\
+    public static final DeferredBlock<Block> INNARDS_GATE_CONTROLLER = registerBlock("innards_gate_controller",
+            () -> new GateControllerBlock(BlockBehaviour.Properties.of()
+                    .strength(0.8f)
+                    .sound(SoundType.HONEY_BLOCK)));
+
+    public static final DeferredBlock<Block> INNARDS_GATE_BUFFER = registerBlock("innards_gate_buffer",
+            () -> new GateBufferBlock(BlockBehaviour.Properties.of()
+                    .strength(0.8f)
+                    .sound(SoundType.HONEY_BLOCK)));
+
+    public static final DeferredBlock<Block> INNARDS_GATE_PORT = registerBlock("innards_gate_port",
+            () -> new GatePortBlock(BlockBehaviour.Properties.of()
+                    .strength(0.5f)
+                    .sound(SoundType.HONEY_BLOCK)
+                    .noOcclusion()));
 
     public static final DeferredBlock<Block> BEAKER = BLOCKS.register("beaker",
             () -> new BeakerBlock(BlockBehaviour.Properties.of()));

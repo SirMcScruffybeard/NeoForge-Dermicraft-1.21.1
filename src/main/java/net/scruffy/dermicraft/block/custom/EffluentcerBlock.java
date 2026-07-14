@@ -24,19 +24,35 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.EffluentcerBlockEntity;
+import net.scruffy.dermicraft.machine.MachineTier;
+import net.scruffy.dermicraft.machine.TieredMachine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class EffluentcerBlock extends ModBaseEntityBlock {
+public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachine {
 
     public static final MapCodec<EffluentcerBlock> CODEC = simpleCodec(EffluentcerBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
+    private final MachineTier tier;
+
+    // simpleCodec needs a Properties-only constructor; it produces the progenitor (BASIC) tier.
+    // A future upgrade tier registers its own block via the (Properties, MachineTier) constructor.
     public EffluentcerBlock(Properties properties) {
+        this(properties, MachineTier.BASIC);
+    }
+
+    public EffluentcerBlock(Properties properties, MachineTier tier) {
         super(properties
                 .noLootTable()
                 .ignitedByLava()
         );
+        this.tier = tier;
+    }
+
+    @Override
+    public MachineTier getTier() {
+        return tier;
     }
 
     @Override

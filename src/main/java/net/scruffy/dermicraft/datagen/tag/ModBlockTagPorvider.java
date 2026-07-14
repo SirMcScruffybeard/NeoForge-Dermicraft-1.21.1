@@ -34,6 +34,9 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.CRAW.get())
                 .add(ModBlocks.INNARDS_DUCT.get())
                 .add(ModBlocks.INNARDS_NODE.get())
+                .add(ModBlocks.INNARDS_GATE_CONTROLLER.get())
+                .add(ModBlocks.INNARDS_GATE_BUFFER.get())
+                .add(ModBlocks.INNARDS_GATE_PORT.get())
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "dermicraft:block/innards_gate/innards_gate_port"
+  }
+}

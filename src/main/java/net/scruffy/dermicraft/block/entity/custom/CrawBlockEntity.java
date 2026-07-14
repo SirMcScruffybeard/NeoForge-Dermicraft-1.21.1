@@ -17,12 +17,17 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.interfaces.Channel;
+import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import org.jetbrains.annotations.Nullable;
 
-public class CrawBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IPreserveContentsOnPickup {
+import java.util.List;
+
+public class CrawBlockEntity extends MachineBaseBlockEntity
+        implements MenuProvider, IHaveInventory, IPreserveContentsOnPickup, IHasChannels {
 
     public static final int STACKS = 10;
     public static final int CAPACITY = 64 * STACKS; // 640 items of one type
@@ -105,6 +110,30 @@ public class CrawBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
     public IItemHandler getItemHandler(@Nullable Direction face) {
         return INVENTORY; // any-face access -- ignore the face
+    }
+
+    /** See {@link IHasChannels#describeFace} -- getItemHandler ignores the face entirely. */
+    @Override
+    public Component describeFace(Direction face) {
+        return Component.translatable("tooltip.dermicraft.idep.face.craw_storage");
+    }
+
+    /**
+     * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}.
+     * Like Skin Tank, {@code getItemHandler(Direction)} already ignores the face -- Craw is bulk
+     * storage, not a machine with distinct crafting slots, so {@link Channel.IO#BOTH} matches its
+     * existing deposit/withdraw behaviour. INPUT is a GUI-only staging slot (see its own doc comment
+     * above) with known simulate-probe corruption risk if touched by real automation -- deliberately
+     * not exposed as a channel, only the real STORAGE_SLOT via INVENTORY is. Native faces are all 6.
+     */
+    @Override
+    public List<Channel> getChannels() {
+        if (level != null && isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.values())) {
+            return List.of();
+        }
+        return List.of(
+                new Channel.ItemChannel("storage", Component.literal("Storage"), Channel.IO.BOTH, INVENTORY)
+        );
     }
 
     public ItemStack getStoredStack() {

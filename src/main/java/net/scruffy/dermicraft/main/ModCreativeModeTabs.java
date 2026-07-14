@@ -52,6 +52,11 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.INNARDS_DUCT);
                         output.accept(ModBlocks.INNARDS_NODE);
 
+                        ////////////////////Gate\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.INNARDS_GATE_CONTROLLER);
+                        output.accept(ModBlocks.INNARDS_GATE_BUFFER);
+                        output.accept(ModBlocks.INNARDS_GATE_PORT);
+
                         buildBeakerContents(output);
 
                     }).build());
@@ -66,6 +71,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SCALPEL);
                         output.accept(ModItems.SUTURE_KIT);
                         output.accept(ModItems.FORCEPS);
+                        output.accept(ModItems.IDEP);
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);

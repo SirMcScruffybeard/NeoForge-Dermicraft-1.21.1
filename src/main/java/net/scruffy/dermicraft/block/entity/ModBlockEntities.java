@@ -58,4 +58,12 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("innards_node_be", () -> BlockEntityType.Builder.of(
                     NodeBlockEntity::new, ModBlocks.INNARDS_NODE.get()).build(null));
 
+    public static final Supplier<BlockEntityType<GateControllerBlockEntity>> INNARDS_GATE_CONTROLLER_BE =
+            BLOCK_ENTITIES.register("innards_gate_controller_be", () -> BlockEntityType.Builder.of(
+                    GateControllerBlockEntity::new, ModBlocks.INNARDS_GATE_CONTROLLER.get()).build(null));
+
+    public static final Supplier<BlockEntityType<GateBufferBlockEntity>> INNARDS_GATE_BUFFER_BE =
+            BLOCK_ENTITIES.register("innards_gate_buffer_be", () -> BlockEntityType.Builder.of(
+                    GateBufferBlockEntity::new, ModBlocks.INNARDS_GATE_BUFFER.get()).build(null));
+
 }

@@ -25,19 +25,35 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
+import net.scruffy.dermicraft.machine.MachineTier;
+import net.scruffy.dermicraft.machine.TieredMachine;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class MasticatorBlock extends ModBaseEntityBlock {
+public class MasticatorBlock extends ModBaseEntityBlock implements TieredMachine {
 
     public static final MapCodec<MasticatorBlock> CODEC = simpleCodec(MasticatorBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
+    private final MachineTier tier;
+
+    // simpleCodec needs a Properties-only constructor; it produces the progenitor (BASIC) tier.
+    // A future upgrade tier registers its own block via the (Properties, MachineTier) constructor.
     public MasticatorBlock(Properties properties) {
+        this(properties, MachineTier.BASIC);
+    }
+
+    public MasticatorBlock(Properties properties, MachineTier tier) {
         super(properties
                 .noLootTable()
                 .ignitedByLava()
         );
+        this.tier = tier;
+    }
+
+    @Override
+    public MachineTier getTier() {
+        return tier;
     }
 
     @Override

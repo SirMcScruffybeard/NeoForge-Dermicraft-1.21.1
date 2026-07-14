@@ -1,0 +1,11 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/idep/idep"
+  },
+  "overrides": [
+    {"predicate": {"dermicraft:fluid_held": 1.0}, "model": "dermicraft:item/idep/idep_fluid_on"},
+    {"predicate": {"dermicraft:item_held": 1.0}, "model": "dermicraft:item/idep/idep_item_on"},
+    {"predicate": {"dermicraft:fluid_held": 1.0, "dermicraft:item_held": 1.0}, "model": "dermicraft:item/idep/idep_both_on"}
+  ]
+}

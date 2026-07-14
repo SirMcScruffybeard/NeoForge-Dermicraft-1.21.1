@@ -22,7 +22,7 @@ public class NodeBlock extends AbstractNodeBlock {
     public static final MapCodec<NodeBlock> CODEC = simpleCodec(NodeBlock::new);
 
     public NodeBlock(Properties properties) {
-        super(properties);
+        super(properties, NodeTier.TIER_1);
     }
 
     @Override

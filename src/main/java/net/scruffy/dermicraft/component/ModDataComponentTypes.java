@@ -19,6 +19,11 @@ public class ModDataComponentTypes {
                     .persistent(FluidData.CODEC)
                     .networkSynchronized(FluidData.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<HeldItemData>> HELD_ITEM_DATA =
+            register("held_item_data", builder -> builder
+                    .persistent(HeldItemData.CODEC)
+                    .networkSynchronized(HeldItemData.STREAM_CODEC));
+
 
 
 

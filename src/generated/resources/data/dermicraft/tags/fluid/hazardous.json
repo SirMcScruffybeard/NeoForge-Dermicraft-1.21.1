@@ -1,5 +1,10 @@
 {
   "values": [
-    "#minecraft:lava"
+    "#dermicraft:hazard/extreme_heat",
+    "#dermicraft:hazard/radiation_mild",
+    "#dermicraft:hazard/radiation_severe",
+    "#dermicraft:hazard/biohazard",
+    "#dermicraft:hazard/metaphysical_mild",
+    "#dermicraft:hazard/metaphysical_severe"
   ]
 }

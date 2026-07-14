@@ -17,35 +17,38 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.interfaces.Channel;
+import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
-import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModFluidUtil;
-import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
-public class MasticatorBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
+public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<MasticatingRecipe>
+        implements MenuProvider, IHaveInventory, IHasChannels {
 
-    private final FuelTank FUEL_TANK = createFuelTank();
     private final VulnerableTank INGREDIENT_TANK = createIngredientTank();
     private final VulnerableTank RESULT_TANK = createResultTank();
 
@@ -53,33 +56,27 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
 
     private final ItemStackHandler INVENTORY = createItemHandler(3);
 
-    private final int FUEL_USE_DEFAULT = 1;
-    private int fuelUseRate = FUEL_USE_DEFAULT;
-    private final float SPEED_DEFAULT = 1f;
-    private float speed = SPEED_DEFAULT;
     private int resultAmount = 0;
 
-    private static final int MAX_HEALTH = 200;
-    private static final int HUNGER_RATE = 1; // HP lost per cycle while unfueled and processing
-    private static final float UNFUELED_SPEED_MODIFIER = 0.1f; // flat rate when running with no fuel at all
-    private static final float RECOVERY_SPEED_FACTOR = 0.1f; // 10% of the fuel's own normal speed while healing
-    private static final int BASE_HEAL_RATE = 2; // HP restored per cycle at a heal modifier of 1.0 (provisional)
-
-    private RecipeHolder<MasticatingRecipe> activeRecipe = null;
     private Item activeItem = Items.AIR;
-
-    @Nullable
-    private ResourceLocation pendingRecipeId = null;
 
     public MasticatorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
-        maxHealth = MAX_HEALTH;
-        health = MAX_HEALTH;
     }
 
     @Override
-    public boolean hasTank() {
-        return true;
+    protected RecipeType<MasticatingRecipe> getRecipeType() {
+        return ModRecipes.MASTICATING_TYPE.get();
+    }
+
+    /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler} literally. */
+    @Override
+    public Component describeFace(Direction face) {
+        return switch (face) {
+            case UP -> Component.translatable("tooltip.dermicraft.idep.face.masticator_fuel");
+            case DOWN -> Component.translatable("tooltip.dermicraft.idep.face.masticator_result");
+            default -> Component.translatable("tooltip.dermicraft.idep.face.masticator_ingredient");
+        };
     }
 
     public IFluidHandler getTank(@Nullable Direction direction) {
@@ -92,16 +89,103 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         };
     }
 
-    public FuelTank getFuelTank() {
-        return FUEL_TANK;
-    }
-
     public VulnerableTank getIngredientTank() {
         return INGREDIENT_TANK;
     }
 
     public VulnerableTank getResultTank() {
         return RESULT_TANK;
+    }
+
+    /**
+     * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}. The three
+     * tanks, direction-unlocked from what {@code getTank(Direction)} currently hard-binds to
+     * UP/sides/DOWN, plus the solid-ingredient item slot ({@code INGREDIENT_TANK.SLOT}) -- that
+     * slot is a real recipe input (see {@code onCraftComplete}/{@code OneFluidOneItemRecipeInput}),
+     * not just a bucket passthrough, so it needs its own item channel independent of the ingredient
+     * fluid tank. Fluid containers are filtered out of that channel (see
+     * {@link #getIngredientItemChannelHandler}) so a Gate can't use it to sneak fluid in sideways --
+     * bucket-emptying stays exclusive to the ingredient fluid channel / manual interaction, exactly
+     * matching how the slot already behaves for direct player/hopper access today.
+     *
+     * <p>Each channel is omitted if its native face(s) -- the same faces {@code getTank}/
+     * {@code getItemHandler} already bind it to -- already has a direct connection (see
+     * {@link #isFaceServiced}). Ingredient's native faces are all 4 sides (the "default" branch of
+     * both direction switches above), so either sub-channel is considered serviced if ANY side
+     * already reaches it.
+     */
+    @Override
+    public List<Channel> getChannels() {
+        List<Channel> channels = new ArrayList<>();
+
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.UP)) {
+            channels.add(new Channel.FluidChannel("fuel", Component.literal("Fuel"), Channel.IO.IN, FUEL_TANK));
+        }
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID,
+                Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST)) {
+            channels.add(new Channel.FluidChannel("ingredient_fluid", Component.literal("Ingredient (fluid)"), Channel.IO.IN, INGREDIENT_TANK));
+        }
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.ITEM,
+                Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST)) {
+            channels.add(new Channel.ItemChannel("ingredient_item", Component.literal("Ingredient (item)"), Channel.IO.IN, getIngredientItemChannelHandler()));
+        }
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.DOWN)) {
+            channels.add(new Channel.FluidChannel("result", Component.literal("Result"), Channel.IO.OUT, RESULT_TANK));
+        }
+
+        return channels;
+    }
+
+    /**
+     * The solid-ingredient slot, restricted to non-fluid-container items -- a fluid container
+     * dropped in here would otherwise silently drain into INGREDIENT_TANK via the slot's existing
+     * bi-directional bucket handling (see {@code createItemHandler}), letting a Gate bypass the
+     * dedicated ingredient_fluid channel. Rejecting anything that exposes a FluidHandler.ITEM
+     * capability closes that off while leaving every other item free to pass through normally.
+     */
+    private IItemHandler getIngredientItemChannelHandler() {
+        int slot = INGREDIENT_TANK.SLOT;
+        return new IItemHandlerModifiable() {
+            @Override
+            public void setStackInSlot(int i, ItemStack stack) {
+                INVENTORY.setStackInSlot(slot, stack);
+            }
+
+            @Override
+            public int getSlots() {
+                return 1;
+            }
+
+            @NotNull
+            @Override
+            public ItemStack getStackInSlot(int i) {
+                return INVENTORY.getStackInSlot(slot);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack insertItem(int i, ItemStack stack, boolean simulate) {
+                if (stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null) return stack;
+                return INVENTORY.insertItem(slot, stack, simulate);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack extractItem(int i, int amount, boolean simulate) {
+                return INVENTORY.extractItem(slot, amount, simulate);
+            }
+
+            @Override
+            public int getSlotLimit(int i) {
+                return INVENTORY.getSlotLimit(slot);
+            }
+
+            @Override
+            public boolean isItemValid(int i, ItemStack stack) {
+                return stack.getCapability(Capabilities.FluidHandler.ITEM, null) == null
+                        && INVENTORY.isItemValid(slot, stack);
+            }
+        };
     }
 
     public FluidStack getFluid(int slot) {
@@ -177,70 +261,28 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         return extractItemStack(INVENTORY, INGREDIENT_TANK.SLOT);
     }
 
-    public void tick(Level level) {
-        if (level.isClientSide) return;
-
-        if (ModMath.Time.hasSecondsPassed(level, 5) && !RESULT_TANK.isEmpty()) {
+    @Override
+    protected void drainOutputs(Level level) {
+        if (!RESULT_TANK.isEmpty()) {
             RESULT_TANK.pushFluidToBelowNeighbour(level, worldPosition);
         }
-
-        resolvePendingRecipe(level);
-
-        //INVENTORY'S onContentChange handles:
-        // grabbing and setting the recipe
-        // and setting maxProgress
-        if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
-
-            // Healing runs every cycle regardless of whether a recipe is active -- an idle,
-            // fueled machine below max health should still recover.
-            boolean fueled = FUEL_TANK.hasEnoughFuel(fuelUseRate);
-            boolean healedThisCycle = tickHealing(fueled);
-
-            if (!isRecipeValid(activeRecipe)) {
-                if (progress > 0) {
-                    resetProgress();
-                }
-            } else if (isMaxProgressValid() && hasIngredients() && RESULT_TANK.hasRoom(resultAmount)) {
-                if (isStillCrafting()) {
-                    tickProgress(fueled, healedThisCycle);
-                } else {
-                    INGREDIENT_TANK.useFluid(resultAmount);
-                    RESULT_TANK.fill(craftResult(resultAmount), IFluidHandler.FluidAction.EXECUTE);
-                    INVENTORY.extractItem(INGREDIENT_TANK.SLOT, 1, false);
-                    resetProgress();
-                }
-            }
-            // Always sync, even when idle -- otherwise healing that happens with no active
-            // recipe never reaches the client, and the GUI health bar appears frozen.
-            setChanged();
-            updateBlock();
-        }
     }
 
-
-    private void resolvePendingRecipe(Level level) {
-        if (pendingRecipeId == null) return;
-
-        level.getRecipeManager().byKey(pendingRecipeId).ifPresent(recipeHolder -> {
-            if (recipeHolder.value() instanceof MasticatingRecipe) {
-                this.activeRecipe = (RecipeHolder<MasticatingRecipe>) recipeHolder;
-            }
-        });
-        pendingRecipeId = null;
+    @Override
+    protected boolean hasCraftingInputs() {
+        return hasIngredients();
     }
 
-    private void setSpeed() {
-        // No floor here: an unfueled/starved machine's progress is handled explicitly
-        // in tickHealthAndProgress(), not by falling back to this cached fueled-speed value.
-        speed = FUEL_TANK.getSpeed();
+    @Override
+    protected boolean hasCraftingOutputRoom() {
+        return RESULT_TANK.hasRoom(resultAmount);
     }
 
-    private void setUseRate() {
-        fuelUseRate = Math.max(FUEL_USE_DEFAULT, FUEL_TANK.getUseRate()) * CRAFT_TICKS;
-    }
-
-    private void useFuel() {
-        FUEL_TANK.useFuel(fuelUseRate);
+    @Override
+    protected void onCraftComplete() {
+        INGREDIENT_TANK.useFluid(resultAmount);
+        RESULT_TANK.fill(craftResult(resultAmount), IFluidHandler.FluidAction.EXECUTE);
+        INVENTORY.extractItem(INGREDIENT_TANK.SLOT, 1, false);
     }
 
     private boolean hasIngredients() {
@@ -299,50 +341,6 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         return FluidStack.EMPTY;
     }
 
-    // `speed` is the fuel's raw multiplier (~1.0 for base Crude Slurry). Progress is measured
-    // in ticks and advances CRAFT_TICKS per cycle at speed 1.0, so a recipe's `ticks` maps
-    // 1:1 to real wall-clock ticks (previously this applied CRAFT_TICKS twice -- once caching
-    // into `speed` in setSpeed(), once here -- making every recipe run ~10x faster than its
-    // stated tick count; fixed to match the Metastasizer's timing model).
-    private void incrementProgress(float speedOverride) {
-        int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride);
-        progress += Math.max(1, workDoneInCycle);
-    }
-
-    private int getHealAmount() {
-        return Math.round(BASE_HEAL_RATE * FUEL_TANK.getHeal());
-    }
-
-    // Runs every cycle regardless of recipe state -- heals an idle-but-fueled machine too.
-    // Returns whether healing (and its fuel consumption) actually happened this cycle, so
-    // tickProgress() knows not to consume fuel a second time for the same cycle.
-    private boolean tickHealing(boolean fueled) {
-        if (fueled && health < maxHealth) {
-            useFuel();
-            healMachine(getHealAmount());
-            return true;
-        }
-        return false;
-    }
-
-    private void tickProgress(boolean fueled, boolean healedThisCycle) {
-        if (isStarved()) {
-            return; // fuel/heal already handled by tickHealing(); no progress while starved
-        }
-
-        if (fueled) {
-            if (healedThisCycle) {
-                incrementProgress(RECOVERY_SPEED_FACTOR * speed); // fuel already spent healing this cycle
-            } else {
-                useFuel();
-                incrementProgress(speed);
-            }
-        } else {
-            damageMachine(HUNGER_RATE);
-            incrementProgress(UNFUELED_SPEED_MODIFIER);
-        }
-    }
-
     private void setMaxProgress() {
         maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
     }
@@ -351,44 +349,26 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
-        tag.put("fuel", FUEL_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("craft", INGREDIENT_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("output", RESULT_TANK.writeToNBT(registries, new CompoundTag()));
-        tag.putFloat("speed", speed);
-        tag.putInt("use", fuelUseRate);
         tag.putInt("resultFluid", resultAmount);
-        tag.putInt("progress", progress);
-        tag.putInt("maxProgress", maxProgress);
-        tag.putInt("health", health);
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
         tag.putString("activeItem", itemKey.toString());
-        if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
-        if (tag.contains("fuel")) FUEL_TANK.readFromNBT(registries, tag.getCompound("fuel"));
         if (tag.contains("craft")) INGREDIENT_TANK.readFromNBT(registries, tag.getCompound("craft"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
-        speed = tag.getFloat("speed");
-        fuelUseRate = tag.getInt("use");
         resultAmount = tag.getInt("resultFluid");
-        this.progress = tag.getInt("progress");
-        this.maxProgress = tag.getInt("maxProgress");
-        this.health = tag.contains("health") ? tag.getInt("health") : maxHealth;
-
-        if (tag.contains("saved_recipe", CompoundTag.TAG_STRING)) {
-            pendingRecipeId = ResourceLocation.parse(tag.getString("saved_recipe"));
-        }
 
         if (tag.contains("activeItem", CompoundTag.TAG_STRING)) {
             String itemStringId = tag.getString("activeItem");
             ResourceLocation itemKey = ResourceLocation.parse(itemStringId);
             this.activeItem = BuiltInRegistries.ITEM.get(itemKey);
         } else resetActiveItem();
-
     }
 
     @NotNull
@@ -519,23 +499,8 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
         };
     }
 
-    protected FuelTank createFuelTank() {
-        return new FuelTank(FluidType.BUCKET_VOLUME * 5, 0) {
-            @Override
-            protected void onContentsChanged() {
-                if (!level.isClientSide) {
-
-                    setSpeed();
-                    setUseRate();
-
-                    setChanged();
-                }
-            }
-        };
-    }
-
     private VulnerableTank createIngredientTank() {
-        return new VulnerableTank(FluidType.BUCKET_VOLUME * 5, 1) {
+        return new VulnerableTank(getTier().tankCapacity(), 1) {
             @Override
             protected void onContentsChanged() {
 
@@ -559,7 +524,7 @@ public class MasticatorBlockEntity extends MachineBaseBlockEntity implements Men
     }
 
     private VulnerableTank createResultTank() {
-        return new VulnerableTank(FluidType.BUCKET_VOLUME * 5, 2) {
+        return new VulnerableTank(getTier().tankCapacity(), 2) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {

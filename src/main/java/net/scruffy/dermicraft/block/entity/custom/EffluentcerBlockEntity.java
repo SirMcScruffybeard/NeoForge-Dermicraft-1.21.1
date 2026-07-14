@@ -5,7 +5,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -14,11 +13,11 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
@@ -26,24 +25,26 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.interfaces.Channel;
+import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.TwoFluidRecipeInput;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerMenu;
-import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
-import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 
-public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
+public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<EffluencingRecipe>
+        implements MenuProvider, IHaveInventory, IHasChannels {
 
-    private final FuelTank FUEL_TANK = createFuelTank();
     private final VulnerableTank INPUT_A_TANK = createInputTank(1);
     private final VulnerableTank INPUT_B_TANK = createInputTank(2);
     private final VulnerableTank RESULT_TANK = createResultTank();
@@ -57,34 +58,17 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
     @Nullable
     private Player interactingPlayer;
 
-    private final int FUEL_USE_DEFAULT = 1;
-    private int fuelUseRate = FUEL_USE_DEFAULT;
-    private final float SPEED_DEFAULT = 1f;
-    private float speed = SPEED_DEFAULT;
     private int resultAmount = 0;
     private int requiredAmountForA = 0;
     private int requiredAmountForB = 0;
 
-    private static final int MAX_HEALTH = 200;
-    private static final int HUNGER_RATE = 1; // HP lost per cycle while unfueled and processing
-    private static final float UNFUELED_SPEED_MODIFIER = 0.1f; // flat rate when running with no fuel at all
-    private static final float RECOVERY_SPEED_FACTOR = 0.1f; // 10% of the fuel's own normal speed while healing
-    private static final int BASE_HEAL_RATE = 2; // HP restored per cycle at a heal modifier of 1.0 (provisional)
-
-    private RecipeHolder<EffluencingRecipe> activeRecipe = null;
-
-    @Nullable
-    private ResourceLocation pendingRecipeId = null;
-
     public EffluentcerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.EFFLUENTCER_BE.get(), pos, blockState);
-        maxHealth = MAX_HEALTH;
-        health = MAX_HEALTH;
     }
 
     @Override
-    public boolean hasTank() {
-        return true;
+    protected RecipeType<EffluencingRecipe> getRecipeType() {
+        return ModRecipes.EFFLUENCING_TYPE.get();
     }
 
     public IFluidHandler getTank(@Nullable Direction direction) {
@@ -99,8 +83,15 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
         return INPUT_B_TANK;
     }
 
-    public FuelTank getFuelTank() {
-        return FUEL_TANK;
+    /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler} literally. */
+    @Override
+    public Component describeFace(Direction face) {
+        if (face == Direction.UP) return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_fuel");
+        if (face == Direction.DOWN) return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_result");
+
+        Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
+        if (face == facing || face == facing.getOpposite()) return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_input_a");
+        return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_input_b");
     }
 
     public VulnerableTank getInputATank() {
@@ -113,6 +104,44 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
 
     public VulnerableTank getResultTank() {
         return RESULT_TANK;
+    }
+
+    /**
+     * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}.
+     * Direction-unlocked from what {@code getTank(Direction)} currently hard-binds to UP/DOWN/the
+     * facing-relative sides. All four of the Effluentcer's item slots are pure bucket-passthrough
+     * for their matching tank (see {@code createItemHandler}'s biDirectionalFluidTransfer calls) --
+     * there's no independent item-ingredient slot like the Masticator's, so only the four fluid
+     * tanks need channels.
+     *
+     * <p>input_a/input_b's native faces depend on the block's own {@code FACING} state (read fresh
+     * here, same as {@code getTank} does) -- input_a is {@code facing}+{@code facing.getOpposite()},
+     * input_b is the other two horizontals. Each channel is omitted once its native face(s) already
+     * have a direct connection (see {@link #isFaceServiced}).
+     */
+    @Override
+    public List<Channel> getChannels() {
+        List<Channel> channels = new ArrayList<>();
+
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.UP)) {
+            channels.add(new Channel.FluidChannel("fuel", Component.literal("Fuel"), Channel.IO.IN, FUEL_TANK));
+        }
+
+        Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, facing, facing.getOpposite())) {
+            channels.add(new Channel.FluidChannel("input_a", Component.literal("Input A"), Channel.IO.IN, INPUT_A_TANK));
+        }
+        Direction otherA = facing.getClockWise();
+        Direction otherB = facing.getCounterClockWise();
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, otherA, otherB)) {
+            channels.add(new Channel.FluidChannel("input_b", Component.literal("Input B"), Channel.IO.IN, INPUT_B_TANK));
+        }
+
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.DOWN)) {
+            channels.add(new Channel.FluidChannel("result", Component.literal("Result"), Channel.IO.OUT, RESULT_TANK));
+        }
+
+        return channels;
     }
 
     public FluidStack getFluid(int slot) {
@@ -203,81 +232,35 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
         this.interactingPlayer = player;
     }
 
-    public void tick(Level level) {
-        if (level.isClientSide) return;
-
-        if (ModMath.Time.hasSecondsPassed(level, 5) && !RESULT_TANK.isEmpty()) {
+    @Override
+    protected void drainOutputs(Level level) {
+        if (!RESULT_TANK.isEmpty()) {
             RESULT_TANK.pushFluidToBelowNeighbour(level, worldPosition);
         }
-
-        resolvePendingRecipe(level);
-
-        if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
-
-            // Healing runs every cycle regardless of whether a recipe is active -- an idle,
-            // fueled machine below max health should still recover.
-            boolean fueled = FUEL_TANK.hasEnoughFuel(fuelUseRate);
-            boolean healedThisCycle = tickHealing(fueled);
-
-            if (!isRecipeValid(activeRecipe)) {
-                if (progress > 0) {
-                    resetProgress();
-                }
-                return;
-            }
-
-            if (isMaxProgressValid() && hasIngredients() && RESULT_TANK.hasRoom(resultAmount)) {
-                if (isStillCrafting()) {
-                    tickProgress(fueled, healedThisCycle);
-                } else {
-                    // Captured before draining: draining INPUT_A_TANK fires its
-                    // onContentsChanged() synchronously, which re-resolves the recipe against
-                    // the now-partially-drained tanks and can reset requiredAmountForB/
-                    // resultAmount/activeRecipe to zero/null before this method reaches them.
-                    int amountA = requiredAmountForA;
-                    int amountB = requiredAmountForB;
-                    FluidStack output = craftResult(resultAmount);
-
-                    INPUT_A_TANK.useFluid(amountA);
-                    INPUT_B_TANK.useFluid(amountB);
-                    RESULT_TANK.fill(output, IFluidHandler.FluidAction.EXECUTE);
-                    resetProgress();
-                }
-            }
-            setChanged();
-            updateBlock();
-        }
     }
 
-    private void resolvePendingRecipe(Level level) {
-        if (pendingRecipeId == null) return;
-
-        level.getRecipeManager().byKey(pendingRecipeId).ifPresent(recipeHolder -> {
-            if (recipeHolder.value() instanceof EffluencingRecipe) {
-                this.activeRecipe = (RecipeHolder<EffluencingRecipe>) recipeHolder;
-            }
-        });
-        pendingRecipeId = null;
-    }
-
-    // `speed` is the fuel's raw multiplier (~1.0 for base Crude Slurry). Progress advances
-    // CRAFT_TICKS per cycle at speed 1.0, so a recipe's `ticks` maps 1:1 to real wall-clock
-    // ticks (previously this applied CRAFT_TICKS twice, running ~10x faster than stated;
-    // fixed to match the Metastasizer/Masticator timing model).
-    private void setSpeed() {
-        speed = FUEL_TANK.getSpeed();
-    }
-
-    private void setUseRate() {
-        fuelUseRate = Math.max(FUEL_USE_DEFAULT, FUEL_TANK.getUseRate()) * CRAFT_TICKS;
-    }
-
-    private void useFuel() {
-        FUEL_TANK.useFuel(fuelUseRate);
-    }
-
-    private boolean hasIngredients() {
+    @Override
+    protected boolean hasCraftingInputs() {
         return INPUT_A_TANK.hasEnoughFluid(requiredAmountForA) && INPUT_B_TANK.hasEnoughFluid(requiredAmountForB);
+    }
+
+    @Override
+    protected boolean hasCraftingOutputRoom() {
+        return RESULT_TANK.hasRoom(resultAmount);
+    }
+
+    @Override
+    protected void onCraftComplete() {
+        // Captured before draining: draining INPUT_A_TANK fires its onContentsChanged()
+        // synchronously, which re-resolves the recipe against the now-partially-drained tanks and
+        // can reset requiredAmountForB/resultAmount/activeRecipe before this method reaches them.
+        int amountA = requiredAmountForA;
+        int amountB = requiredAmountForB;
+        FluidStack output = craftResult(resultAmount);
+
+        INPUT_A_TANK.useFluid(amountA);
+        INPUT_B_TANK.useFluid(amountB);
+        RESULT_TANK.fill(output, IFluidHandler.FluidAction.EXECUTE);
     }
 
     private Optional<RecipeHolder<EffluencingRecipe>> getRecipeOptional() {
@@ -351,43 +334,6 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
         return FluidStack.EMPTY;
     }
 
-    private void incrementProgress(float speedOverride) {
-        int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride);
-        progress += Math.max(1, workDoneInCycle);
-    }
-
-    private int getHealAmount() {
-        return Math.round(BASE_HEAL_RATE * FUEL_TANK.getHeal());
-    }
-
-    // Runs every cycle regardless of recipe state -- heals an idle-but-fueled machine too.
-    private boolean tickHealing(boolean fueled) {
-        if (fueled && health < maxHealth) {
-            useFuel();
-            healMachine(getHealAmount());
-            return true;
-        }
-        return false;
-    }
-
-    private void tickProgress(boolean fueled, boolean healedThisCycle) {
-        if (isStarved()) {
-            return; // fuel/heal already handled by tickHealing(); no progress while starved
-        }
-
-        if (fueled) {
-            if (healedThisCycle) {
-                incrementProgress(RECOVERY_SPEED_FACTOR * speed); // fuel already spent healing this cycle
-            } else {
-                useFuel();
-                incrementProgress(speed);
-            }
-        } else {
-            damageMachine(HUNGER_RATE);
-            incrementProgress(UNFUELED_SPEED_MODIFIER);
-        }
-    }
-
     private void setMaxProgress() {
         maxProgress = activeRecipe.value().getCraftingTime();
     }
@@ -396,41 +342,24 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
-        tag.put("fuel", FUEL_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("inputA", INPUT_A_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("inputB", INPUT_B_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("output", RESULT_TANK.writeToNBT(registries, new CompoundTag()));
-        tag.putFloat("speed", speed);
-        tag.putInt("use", fuelUseRate);
         tag.putInt("resultFluid", resultAmount);
         tag.putInt("requiredA", requiredAmountForA);
         tag.putInt("requiredB", requiredAmountForB);
-        tag.putInt("progress", progress);
-        tag.putInt("maxProgress", maxProgress);
-        tag.putInt("health", health);
-        if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
-        if (tag.contains("fuel")) FUEL_TANK.readFromNBT(registries, tag.getCompound("fuel"));
         if (tag.contains("inputA")) INPUT_A_TANK.readFromNBT(registries, tag.getCompound("inputA"));
         if (tag.contains("inputB")) INPUT_B_TANK.readFromNBT(registries, tag.getCompound("inputB"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
-        speed = tag.getFloat("speed");
-        fuelUseRate = tag.getInt("use");
         resultAmount = tag.getInt("resultFluid");
         requiredAmountForA = tag.getInt("requiredA");
         requiredAmountForB = tag.getInt("requiredB");
-        this.progress = tag.getInt("progress");
-        this.maxProgress = tag.getInt("maxProgress");
-        this.health = tag.contains("health") ? tag.getInt("health") : maxHealth;
-
-        if (tag.contains("saved_recipe", CompoundTag.TAG_STRING)) {
-            pendingRecipeId = ResourceLocation.parse(tag.getString("saved_recipe"));
-        }
     }
 
     @NotNull
@@ -519,23 +448,8 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
         }
     }
 
-    protected FuelTank createFuelTank() {
-        return new FuelTank(FluidType.BUCKET_VOLUME * 5, 0) {
-            @Override
-            protected void onContentsChanged() {
-                if (!level.isClientSide) {
-
-                    setSpeed();
-                    setUseRate();
-
-                    setChanged();
-                }
-            }
-        };
-    }
-
     private VulnerableTank createInputTank(int slot) {
-        return new VulnerableTank(FluidType.BUCKET_VOLUME * 5, slot) {
+        return new VulnerableTank(getTier().tankCapacity(), slot) {
             @Override
             protected void onContentsChanged() {
 
@@ -548,7 +462,7 @@ public class EffluentcerBlockEntity extends MachineBaseBlockEntity implements Me
     }
 
     private VulnerableTank createResultTank() {
-        return new VulnerableTank(FluidType.BUCKET_VOLUME * 5, 3) {
+        return new VulnerableTank(getTier().tankCapacity(), 3) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {

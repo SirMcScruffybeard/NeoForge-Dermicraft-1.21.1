@@ -33,9 +33,34 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_CRUDE_SLURRY.get())
         ;
 
-        tag(ModTags.Fluids.HAZARDOUS)
+        // --- Hazard kinds ---
+        tag(ModTags.Fluids.EXTREME_HEAT)
                 .addTag(FluidTags.LAVA)
+        ;
 
+        tag(ModTags.Fluids.RADIATION_MILD)
+        ;
+
+        tag(ModTags.Fluids.RADIATION_SEVERE)
+        ;
+
+        tag(ModTags.Fluids.BIOHAZARD)
+        ;
+
+        tag(ModTags.Fluids.METAPHYSICAL_MILD)
+        ;
+
+        tag(ModTags.Fluids.METAPHYSICAL_SEVERE)
+        ;
+
+        // Union of every hazard kind above.
+        tag(ModTags.Fluids.HAZARDOUS)
+                .addTag(ModTags.Fluids.EXTREME_HEAT)
+                .addTag(ModTags.Fluids.RADIATION_MILD)
+                .addTag(ModTags.Fluids.RADIATION_SEVERE)
+                .addTag(ModTags.Fluids.BIOHAZARD)
+                .addTag(ModTags.Fluids.METAPHYSICAL_MILD)
+                .addTag(ModTags.Fluids.METAPHYSICAL_SEVERE)
         ;
 
         tag(ModTags.Fluids.THICK)
