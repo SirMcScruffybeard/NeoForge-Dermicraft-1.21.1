@@ -292,7 +292,11 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Family purpose — confirmed, narrower than "everything gets a lava version."** The Molten family exists specifically to give **rare or otherwise-hard-to-liquefy materials** a fluid form, gated behind Stage 2 lava access — it is not a blanket "reprocess any material with lava" option. This is why the Metal Blends (Ferrous/Cuprous/Aurous — iron, copper, gold) deliberately **don't** get Molten versions: they were never gated materials to begin with, so a Molten Iron/Copper/Gold would add a step without adding a gate. Living Iron/Copper/Gold (once Living Catalyst exists) go straight from the existing Blend, no Molten intermediate.
 
-**Naming split — "Molten" for minerals, "Essence" for mob drops.** Mineral/ore-sourced members use **Molten [material]** (literally liquefied by lava). Creature-drop-sourced members drop the "Molten" prefix entirely and use **[material] Essence** instead (Blaze Essence, Ghast Essence, Wither Essence) — signaling these are lava-*processed* biological/magical drops, not literally melted rock. Dragon's Milk stays unrenamed since it's harvested directly, with no Masticator/Lava step at all.
+**Naming split — "Molten" for minerals, "Essence" for mob drops.** Mineral/ore-sourced members use **Molten [material]** (literally liquefied by lava). Creature-drop-sourced members drop the "Molten" prefix entirely and use **[material] Essence** instead (Blaze Essence, Ghast Essence, Wither Essence, Ender Essence) — signaling these are lava-*processed* biological/magical drops, not literally melted rock. Dragon's Milk stays unrenamed since it's harvested directly, with no Masticator/Lava step at all.
+
+**Hazard tagging (confirmed, blanket rule):** every member of this family carries **Extreme Heat** (`hazard/extreme_heat`), inherited directly from Lava as their base fluid — masticating anything with Lava makes the result Extreme-Heat-hazardous, no per-fluid decision needed. This is a rule for the *whole* family, not something to re-confirm fluid-by-fluid (see `dermicraft-project-primer.md` → Hazard tag hierarchy, and [[project_hazard_profile_system]] in Claude Code memory for the code-level tag). Dragon's Milk is the one exception worth double-checking when it's built, since it skips the Masticator/Lava step entirely.
+
+**Reachability gap (flagged, blocking the whole family) — no Tier 2 Masticator exists yet.** The Tier 1 Masticator's tanks reject Lava (`HazardProfile.TIER_1`), so nothing in this family can actually be crafted until an evolved Masticator exists — see `dermicraft-machine-notes.md` → Masticator entry for the full note. Don't implement any Molten-family recipe ahead of that evolution.
 
 ### Molten Redstone
 
@@ -434,6 +438,24 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Open questions:** Exact item input(s) and yields. What it's used for. Liquid Nether Star remains fully undefined beyond being reserved as a name/concept.
 
+### Ender Essence
+
+**Status:** Source, naming, placement, and hazard classification confirmed; item input/yield and use case not yet decided.
+
+**What it is:** Ender Pearl processed with Lava — a creature-drop "Essence" (see naming split above), sourced from Endermen. **Placement note:** Endermen spawn in both the Nether and the Overworld, so despite Ender Pearl's End association, gathering it doesn't actually require Stage 3/End access — this is why Ender Essence sits here in Stage 2, earlier than the rest of the mod's End-tier content (deferred elsewhere — see the Sediment Blend blacklist's "End rocks deferred to a later Stage" note), on the strength of *when the player can acquire the material* rather than its thematic dimension.
+
+**Base fluid:** Lava.
+
+**Item inputs & yield:** Presumably Ender Pearl. Not yet decided.
+
+**Color:** Intended to read as a liquefied Ender Pearl — leaning on the pearl's own color rather than a generic Lava-derived tint. Exact value not yet decided.
+
+**Hazard tags (confirmed):** `hazard/metaphysical_severe` + `hazard/extreme_heat` (the latter inherited from the family-wide Lava-base rule above). Metaphysical Severe fits thematically — its signature effects (hallucination-made-real, or a telegraphed instant dimensional round-trip — see `dermicraft-hazard-effects-notes.md`) mirror Enderman/End teleportation almost exactly. Second confirmed use of the Metaphysical tag family (after Molten Soul Silica's Metaphysical Mild), and the first confirmed use of the Severe half — another dual-hazard-axis fluid, same shape as Molten Soul Silica.
+
+**Recipe use:** Deliberately left open — no confirmed consumer yet, same status as Ghast Essence.
+
+**Open questions:** Exact item inputs and yield. What Tier/machine capability is required to handle Metaphysical Severe (no confirmed handling solution yet — same open status as Severe Radiation). What consumes Ender Essence. Exact color value.
+
 ### Molten Soul Silica
 
 **Status:** Confirmed as a Stage 2 fluid, standalone (not part of the Sediment Blend cross-feed web); item input/yield not yet decided.
@@ -446,9 +468,11 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Possible future hook — Silica Blend conversion:** A possible (not committed) future recipe converting Silica Blend directly into Molten Soul Silica, Create-mod-style, has been floated — no mechanic or machine decided yet.
 
-**Possible future hook — hazard carryover:** Soul Sand's real hazards (mob-spawn suppression, entity slow) could carry over as a pooled-fluid property, echoing how Stone/Clay/Silica Blend each model a real trapping hazard. Not committed.
+**Possible future hook — gameplay-effect carryover:** Soul Sand's real block effects (mob-spawn suppression, entity slow) could carry over as a pooled-fluid property, echoing how Stone/Clay/Silica Blend each model a real trapping hazard. Not committed. (Separate from the hazard-*tag* below — this is about mimicking the block's actual gameplay behavior, not the `hazard/*` tag system.)
 
-**Open questions:** Exact item inputs and yields. Whether the Silica Blend conversion hook gets built. Whether the Soul Sand hazard carryover gets built, and what machine (if any) the Silica→Soul Silica conversion would run on.
+**Hazard tag — Metaphysical Mild (confirmed, new, distinct from the gameplay-effect hook above).** Molten Soul Silica carries **Metaphysical Mild** (`hazard/metaphysical_mild`) — the first confirmed use of the Metaphysical hazard tag, which had otherwise been added speculatively with no assigned content. Also carries **Extreme Heat** per the family-wide Lava-base rule above, so Molten Soul Silica is hazardous on two independent axes at once — a real test case for the set-based `HazardProfile` model (see `dermicraft-project-primer.md` → Hazard tag hierarchy implementation note) rather than a single-tag fluid.
+
+**Open questions:** Exact item inputs and yields. Whether the Silica Blend conversion hook gets built. Whether the gameplay-effect carryover hook gets built. What Tier/machine capability is required to handle Metaphysical Mild (no confirmed handling solution yet, same open status as Severe Radiation).
 
 ### Molten Prismarine (reserved)
 

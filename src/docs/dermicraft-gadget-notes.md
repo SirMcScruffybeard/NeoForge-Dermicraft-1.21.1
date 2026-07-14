@@ -316,6 +316,8 @@ Housed under Gadgets as their own subsection — melee/combat-focused Gadgets sh
 
 **Decluttering via lock/unlock:** The player can manually lock and unlock sections of the Tablet's content, purely for personal organization — no mechanical cost or restriction tied to it, just letting the player control how much information is visible at once.
 
+**First concretely-scoped guide content: fluid hazard info (confirmed).** Which specific hazard tag(s) a fluid carries is shown in tooltips whenever the Notebook or Tablet is anywhere in the player's inventory (possession, not held) — vanilla lava excepted, which needs no gate. The Tablet inherits the Notebook's Stage-2-capped knowledge wholesale on construction, then grows past it only through in-world discovery (many-to-one — one find can unlock several entries). Full detail, including the narrative reasoning, lives in `dermicraft-misc-notes.md` → In-game Guide System.
+
 **Operating cost — tied to capabilities, not yet set.** If the Tablet's role stays purely informational (guide/reference only), it carries **no operating cost** — the core promise of an always-available in-game reference stays protected. Any cost only enters the picture if/when the Tablet gains active (non-informational) capabilities beyond guide functions; those costs would be balanced against whatever those capabilities turn out to be.
 
 **Open questions:** Full capability list beyond the guide function. Exact mechanic for the physical player-connection. Does it fit the acronym naming convention or stay an exception? Operating cost, once capabilities are set. Whether OT-built living items are a one-off (just the Tablet) or a pattern for future OT-crafted Gadgets.

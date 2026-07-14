@@ -37,6 +37,8 @@ Running log of decided design choices for Machines and the reasoning behind them
 
 **Why this matters going forward:** when a new Machine or structure gets a Tier 2+ form, default to the **forced/Evolution Catalyst path** unless there's a specific thematic reason (the thing is framed as intelligent/living, like the OT or Gear Stations) to give it the willing/button-press path instead.
 
+**Hazard rejection is instinctive, not intelligent (confirmed flavor, ties "dumb" to the hazard-hard-stop rule).** A Tier 1 "dumb" Machine still hard-refuses to process a fluid above its hazard tolerance (see `dermicraft-project-primer.md` → Hazard tag hierarchy) even with no Brain anywhere in its recipe. In-fiction framing: the machine **literally feels the fluid and recoils from it** — a reflexive, sensory response, not a decision. This is consistent with (not a new mechanic layered on) every Machine implant recipe already requiring **Nerve Cluster** tissue — the sensory capacity was always built in, it just doesn't require intelligence (Brain) to act on. A future upgrade tier tolerating more hazards isn't "getting smarter about it," it's growing a *thicker hide*, not a *bigger brain*.
+
 **Concrete "smart" test (confirmed) — the Brain as ingredient.** Rather than a judgment call per new addition, "smart" status is defined by a checkable recipe rule: **a structure only qualifies as smart if the Brain (or a Brain-derived ingredient) is required in its recipe.**
 - **OT's control block:** obviously qualifies — the Brain **is** the thing being built/evolved (Brain Block → Core).
 - **Gear Stations (Dock/Workbench/Growth Chamber):** qualify via their **initial construction recipe** — the Brain is a required ingredient when a Gear Station is first built, not necessarily in its later tier-up/evolution recipes. Building with the Brain from birth is what earns willing-evolution status going forward; exact quantities/other ingredients still TBD (see Gear Stations notes).
@@ -64,7 +66,7 @@ This is a deliberate thematic echo of vanilla obsidian generation (lava + water)
 
 ## Known machines
 
-Every Machine here is physically born from an Inert Tumor block — recipe items sutured in, the tumor stitched closed, then injected (most likely with Primitive Catalyst) via Syringe. Full mechanic in `dermicraft-tools-notes.md`. **Drooling Cauldron, Masticator, Skin Tank, Effluentcer, and Craw all have their tumor-genesis (implant) recipes written and live in code.** **Metastasizer is the one built machine still missing its tumor recipe** — flagged as a standing ToDo. Machines still in concept stage (Gestator, Drooling Crucible, Filling Station) don't have one yet either, for the obvious reason.
+Every Machine here is physically born from an Inert Tumor block — recipe items sutured in, the tumor stitched closed, then injected (most likely with Primitive Catalyst) via Syringe. Full mechanic in `dermicraft-tools-notes.md`. **Drooling Cauldron, Masticator, Skin Tank, Effluentcer, Craw, and Metastasizer all have their tumor-genesis (implant) recipes written and live in code** — the Metastasizer's (the last outstanding one) is now implemented per the spec in its entry below. Machines still in concept stage (Gestator, Drooling Crucible, Filling Station) don't have one yet, for the obvious reason.
 
 ### Skin Tank
 
@@ -134,7 +136,9 @@ Every Machine here is physically born from an Inert Tumor block — recipe items
 
 **OT-native recipe:** 2 Bone + 1310 mB Protein Blend + 100 mB Primitive Catalyst, OT-assembled (no suture) — full worked-out math with the other worked examples (see OT-native machine recipes, under the Core section).
 
-**Open questions:** Exact item lists are now set for Carbon/Calcium/Protein/Metal Blends and the Sediment Blends (see companion doc) — remaining open items live there, including a flagged intent to rework the original six fluids' yields once the Sediment Blends' numbers are set. Internal fluid-input capacity (separate from the output buffer)? Tier restriction beyond the confirmed Tier 1 metal-grinding capability?
+**Reachability gap (flagged, blocking) — no Tier 2 Masticator exists yet, name undecided.** The Tier 1 Masticator's fluid tanks are `VulnerableTank` (`HazardProfile.TIER_1` — rejects Lava/Extreme-Heat), so **the entire Stage 2 "Molten" fluid family is currently unreachable** — none of Molten Redstone, Molten Quartz, Molten Glowstone, etc., or Molten Soul Silica can actually be made in-game until an evolved Masticator with at least `TIER_2` hazard tolerance exists (presumably via the same forced-evolution/Evolution Catalyst pattern as Skin Tank → Chitin Tank — see that entry above for the template). Not a bug, just sequencing: don't build/register any Molten-family fluid's recipe before this evolution exists, or a survival player will have a fluid with no way to produce it. See [[feedback_survival_reachability_check]] in Claude Code memory.
+
+**Open questions:** Exact item lists are now set for Carbon/Calcium/Protein/Metal Blends and the Sediment Blends (see companion doc) — remaining open items live there, including a flagged intent to rework the original six fluids' yields once the Sediment Blends' numbers are set. Internal fluid-input capacity (separate from the output buffer)? Tier restriction beyond the confirmed Tier 1 metal-grinding capability? **Tier 2 Masticator** — name, evolution recipe, and buffer size all undecided (also the confirmed unblock for the Cuprous Ore 7500 mB output-buffer issue noted above).
 
 **ToDo:** Add support for processing **multiples of one item per cycle** — currently strictly one item per process. Blocked on this: a clean single-cycle "3 Bone Meal → 990 mB Calcium Blend" batch recipe (see `dermicraft-crafting-notes.md`), and likely other future batch-style recipes.
 
@@ -193,7 +197,7 @@ Every Machine here is physically born from an Inert Tumor block — recipe items
 
 **Conceptual framing:** essentially a **small 3D printer** — it scans a pattern item and prints copies from fluid "ink." This framing is also the root of the OT's "printing vs combining" recipe method (see OT — Brain OT-only recipes), and it's why the OT can run it **pattern-free** (it conjures a transient pattern to scan; see the OT's Metastasizer invocation rule).
 
-**Recipe (implant) — resolves the previously-missing Metastasizer creation recipe:** 1× **Beaker** + 2× **Dense Muscle** + 4× **Nerve Cluster** + 1× **Eye**, injected with **100 mB Primitive Catalyst** (sutured). Deliberately pricier than the other machine implants (8 items vs. ~5) to reflect its powerful duplication ability. The Eye fits the 3D-printer framing (the scanner that reads the pattern).
+**Recipe (implant) — now live in code:** 1× **Beaker** + 2× **Dense Muscle** + 4× **Nerve Cluster** + 1× **Eye**, sutured with the **Suture Kit** → injected with **100 mB Primitive Catalyst**. Deliberately pricier than the other machine implants (8 items vs. ~5) to reflect its powerful duplication ability. The Eye fits the 3D-printer framing (the scanner that reads the pattern). This was the last built machine without an implant recipe; the gap is now closed.
 
 **Confirmed — works on a recipe-by-recipe basis.** Not a generic "any fluid + any item" machine — each valid fluid+item combination needs its own defined recipe, the same granularity the Masticator already uses for its fluid+item pairs. This resolves the earlier open question of whether any fluid would work; it doesn't.
 
@@ -555,25 +559,49 @@ Because machines must be within the control block's range to be used, the contro
 
 ## Farming automation concepts (early planning)
 
-Three related ideas from early planning, sharing a personified-name pattern (Farming John, Mr. Shepard, Lumbering Jack) and the same status: preserved for future consideration, not committed as finished concepts, placement within the mod's Stage/Tier timeline undecided for all three.
+Three related ideas from early planning, sharing a personified-name pattern (Mr. Farmer, Mr. Shepard, Lumbering Jack) and the same status: preserved for future consideration, not committed as finished concepts, placement within the mod's Stage/Tier timeline undecided for all three.
 
-### Farming John
+### Shared mechanics (starting point, not locked)
+
+- **Visual design:** shared body model with per-block textures to begin with; individual models later.
+- **Range/placement:** starts small (3x3), grows under certain conditions.
+- **Fuel-driven range (replaces fuel-optional/HP pattern):** unfueled, range is just the single block the machine is placed on/above. Range is tied to fuel quality via the existing `FuelTank.getSpeed()` ratio (fuel speed / `BASE_SPEED_MODIFIER`) — Crude Slurry (ratio 1.0) gives 3x3, and range grows in odd steps (5x5, 7x7, ...) as the ratio increases. Reuses the existing speed stat rather than adding a new fuel property; may split into an independent stat later if playtesting shows crafting speed and range need to be tuned apart. **Open question:** exact step formula and max range/cap.
+- **Output handling:** internal buffer, player-accessible, drained by automation (e.g. Node/duct). If the buffer is full, items drop on the ground instead.
+- **Stage/tier timing:** confirmed to release together as a set. **Open question:** which tier/stage.
+- **Hazard interaction:** the machines won't consume or produce hazardous materials themselves, but nearby hazardous fluids may disrupt their operation. **Open question:** the disruption mechanism isn't designed yet — no hazard-tag/tolerance work exists for this family.
+
+### Mr. Farmer
 
 **What it is:** Conceived as a machine that vaguely resembles a human head in pain. Placed in the middle of, or above, a garden plot. Automatically keeps the garden hydrated and lit, and harvests/replants crops — a full auto-farm device for crops.
 
-**Open questions:** Exact mechanics (range of effect, how hydration/lighting actually work, harvest/replant timing) not worked out — current description is closer to a concept pitch than a spec. Is "Farming John" a final name or just what it's been called since early planning?
+**Mechanics (starting point):**
+- **Hydration:** the machine itself hydrates tiles in range — no vanilla water-source requirement. In-fiction, it runs off the nutrition in its fuel slurry and waters farmland with the water left behind as byproduct.
+- **Lighting:** actively lights the area in range (not just a spawn/growth check bypass).
+- **Harvest/replant timing:** batches ring by ring, closest to farthest, from the block outward. Delay between rings is noticeable but not slow enough to feel like a bottleneck — reads as a visible wave sweeping outward.
+- **Crop scope:** any crop tagged `c:crops` (NeoForge's common-tags convention) — leans on the existing cross-mod convention rather than a Dermicraft-specific tag, so any actively-maintained crop mod that supports common tags works with zero extra effort.
+
+**Open questions:** Exact range step formula and cap (see Shared mechanics). Does hazardous-fluid disruption (see Shared mechanics) apply here in a specific way, e.g. contaminating hydration?
 
 ### Mr. Shepard
 
-**What it is:** Working name for a machine to automate animal farming — the livestock counterpart to Farming John's crop automation.
+**What it is:** Working name for a machine to automate animal farming — the livestock counterpart to Mr. Farmer's crop automation.
 
-**Open questions:** What "automate" covers here (breeding, feeding, collecting animal products, something else)? Visual design — personified like Farming John, or different? Range of effect (single pen vs. area-based)?
+**Mechanics (starting point):**
+- **Scope:** collects dropped items on the ground in range, shears sheep, and encourages breeding/growth. Wave behavior (ring-by-ring, closest to farthest) likely carries over from Mr. Farmer.
+- **Culling:** player-configured population cap. Uses the same accessible-buffer UI Mr. Farmer and this family already have (player can hand-remove collected items), extended with cap config.
+- **Species tracking:** UI has a one-species/many-species toggle rather than per-species switches — too many herdable mobs to give each its own control. Exact behavior of "many species" mode (shared cap vs. per-species cap once toggled on) not yet worked out.
+
+**Open questions:** Visual design — personified like Mr. Farmer, or different? Exact cull logic (which animal gets culled when over cap — oldest, random, etc.)? In "many species" mode, is the population cap shared across all species in range or tracked per species? Does feeding factor in (does it need to supply food items to encourage breeding, or does breeding happen automatically once population is under cap)?
 
 ### Lumbering Jack
 
 **What it is:** Working name for a machine to automate tree farming (planting/harvesting trees for wood).
 
-**Open questions:** Exact mechanics (auto-replanting saplings, harvest timing/conditions, area covered)? Visual design?
+**Mechanics (starting point):**
+- **Scope:** auto-plants saplings and auto-harvests grown trees in range. Wave behavior (ring-by-ring, closest to farthest) applies to both planting and harvesting passes.
+- **Harvest trigger:** listens for a tree-growth event rather than polling/timing growth itself. Likely candidate is NeoForge's `BlockGrowFeatureEvent` (successor to the old `SaplingGrowTreeEvent`), which fires when a sapling/tree feature grows — not yet confirmed against this project's NeoForge version, needs verification at implementation time.
+
+**Open questions:** Visual design — personified like Mr. Farmer, or different? Does it clear leaves along with logs, or leave them? Does it handle multiple tree/wood types simultaneously (mirrors Mr. Shepard's multi-species question), or is that not a concern since saplings are more uniform?
 
 ---
 
