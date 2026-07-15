@@ -14,6 +14,9 @@
   "item.dermicraft.glass_flask": "Glass Flask",
   "item.dermicraft.flask.filled": "Flask of %s",
 
+  "item.dermicraft.bladder": "Bladder",
+  "item.dermicraft.bladder.filled": "Bladder of %s",
+
   "item.dermicraft.eye": "Eye",
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",
@@ -88,6 +91,9 @@
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
 
+  "block.dermicraft.mr_farmer": "Mr. Farmer",
+  "blockEntity.dermicraft.mr_farmer_be": "Mr. Farmer",
+
   "block.dermicraft.innards_duct": "Innards Duct",
   "block.dermicraft.innards_duct_arm": "Innards Duct Arm",
   "block.dermicraft.innards_duct_end": "Innards Duct End",
@@ -123,7 +129,6 @@
   "tooltip.dermicraft.idep.face.effluentcer_input_b": "Input B tank",
 
   "tooltip.dermicraft.idep.face.drooling_cauldron_ingredient": "Ingredient slot (+ Result tank)",
-  "tooltip.dermicraft.idep.face.drooling_cauldron_result": "Result tank",
 
   "tooltip.dermicraft.idep.face.skin_tank_storage": "Storage tank (+ fill/drain bucket slots)",
 
@@ -145,5 +150,7 @@
 
   "tooltip.dermicraft.liquid.amount.with.capacity": "%s / %s mB",
   "tooltip.dermicraft.liquid.amount": "%s mB",
+
+  "gui.dermicraft.mr_farmer.range": "Range: %1$sx%1$s",
   "tooltip.dermicraft.hold_shift_for_amount": "Hold Shift for fluid amount"
 }

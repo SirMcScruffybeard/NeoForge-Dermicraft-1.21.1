@@ -116,7 +116,7 @@ public interface IHaveFluidData {
             if (contained.isEmpty() || maxDrain < CAPACITY) return FluidStack.EMPTY;
 
             if (action.execute()) {
-                container.set(getDataType(), FluidData.EMPTY);
+                container.remove(getDataType());
             }
             return contained;
         }
@@ -205,7 +205,7 @@ public interface IHaveFluidData {
             if (action.execute()) {
                 int remaining = contained.getAmount() - amountToDrain;
                 if (remaining <= 0) {
-                    container.set(getDataType(), FluidData.EMPTY);
+                    container.remove(getDataType());
                 } else {
                     FluidStack remainingStack = contained.copy();
                     remainingStack.setAmount(remaining);

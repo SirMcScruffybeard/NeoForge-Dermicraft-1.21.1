@@ -79,6 +79,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_glass", has(Tags.Items.GLASS_BLOCKS_CHEAP))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("beaker_crafting_table"));
 
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.BLADDER)
+                .requires(ModItems.DENSE_MUSCLE, 5)
+                .requires(ModItems.SUTURE_KIT)
+                .unlockedBy("has_dense_muscle", has(ModItems.DENSE_MUSCLE))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("bladder_crafting_table"));
+
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.IDEP)
                 .pattern("NII")
                 .pattern("IFI")
@@ -210,10 +216,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 110,
                 ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "crude_slurry_vague_masticating", ModTags.Items.PLANT_FOOD, 1,
+        RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "crude_slurry_vague_masticating", ModTags.Items.PLANT_FOOD, 2.6f,
                 ModFluids.SOURCE_CRUDE_SLURRY.get());
 
-        RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 1,
+        RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 2.6f,
                 ModFluids.SOURCE_PROTEIN_BLEND.get());
 
         // Placeholder yields - Sediment Blend balance values not yet finalized, see crafting notes.

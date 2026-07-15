@@ -72,6 +72,9 @@ public class ModBlocks {
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
             () -> new CrawBlock(BlockBehaviour.Properties.of()));
 
+    public static final DeferredBlock<Block> MR_FARMER = registerBlock("mr_farmer",
+            () -> new MrFarmerBlock(BlockBehaviour.Properties.of()));
+
     // Ducts and Nodes are the exception to the "destroyed on normal break" rule: they drop
     // themselves (see ModBlockLootTableProvider) so players aren't punished for pipe re-fiddling.
     // They still keep the mod-wide Forceps pickup via the COLLECTIBLE tag.
@@ -112,7 +115,7 @@ public class ModBlocks {
     public static final DeferredBlock<Block> BEAKER = BLOCKS.register("beaker",
             () -> new BeakerBlock(BlockBehaviour.Properties.of()));
     public static final DeferredItem<Item> BEAKER_ITEM = ModItems.ITEMS.register("beaker",
-            () -> new BeakerItem(BEAKER.get(), new Item.Properties().stacksTo(1)));
+            () -> new BeakerItem(BEAKER.get(), new Item.Properties()));
 
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\

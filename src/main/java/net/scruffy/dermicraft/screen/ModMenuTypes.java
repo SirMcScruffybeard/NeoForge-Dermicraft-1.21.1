@@ -14,6 +14,7 @@ import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMe
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerMenu;
+import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerMenu;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 
@@ -41,6 +42,9 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<NodeMenu>> INNARDS_NODE_MENU =
             registerMenuType("innards_node_menu", NodeMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<MrFarmerMenu>> MR_FARMER_MENU =
+            registerMenuType("mr_farmer_menu", MrFarmerMenu::new);
 
 
 

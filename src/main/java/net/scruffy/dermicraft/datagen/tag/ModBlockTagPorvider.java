@@ -37,6 +37,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.INNARDS_GATE_CONTROLLER.get())
                 .add(ModBlocks.INNARDS_GATE_BUFFER.get())
                 .add(ModBlocks.INNARDS_GATE_PORT.get())
+                .add(ModBlocks.MR_FARMER.get())
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)
@@ -53,6 +54,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.EFFLUENTCER.get())
                 .add(ModBlocks.METASTASIZER.get())
                 .add(ModBlocks.CRAW.get())
+                .add(ModBlocks.MR_FARMER.get())
         ;
 
         tag(ModTags.Blocks.INJECTABLE)

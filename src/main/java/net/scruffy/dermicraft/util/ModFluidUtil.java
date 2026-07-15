@@ -168,4 +168,9 @@ public class ModFluidUtil {
         BiofuelProperties data = getBiofuelData(fluidStack);
         return data == null ? 0 : data.heal();
     }
+
+    public static int getTier(FluidStack fluidStack) {
+        BiofuelProperties data = getBiofuelData(fluidStack);
+        return data == null ? 0 : data.tier();
+    }
 }

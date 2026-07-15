@@ -47,6 +47,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.EFFLUENTCER);
                         output.accept(ModBlocks.METASTASIZER);
                         output.accept(ModBlocks.CRAW);
+                        output.accept(ModBlocks.MR_FARMER);
 
                         ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_DUCT);
@@ -72,6 +73,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SUTURE_KIT);
                         output.accept(ModItems.FORCEPS);
                         output.accept(ModItems.IDEP);
+                        output.accept(ModItems.BLADDER);
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);

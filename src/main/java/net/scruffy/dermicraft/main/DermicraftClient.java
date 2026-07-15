@@ -29,6 +29,7 @@ import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronSc
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerScreen;
+import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerScreen;
 import net.scruffy.dermicraft.screen.custom.node.NodeScreen;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankScreen;
 
@@ -109,6 +110,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);
         event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
         event.register(ModMenuTypes.INNARDS_NODE_MENU.get(), NodeScreen::new);
+        event.register(ModMenuTypes.MR_FARMER_MENU.get(), MrFarmerScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

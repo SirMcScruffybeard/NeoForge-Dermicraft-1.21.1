@@ -6,8 +6,8 @@
   "ingredient_fluid": "minecraft:water",
   "ingredient_fluid_amount": -1,
   "item_amount": 1,
-  "modifier": 1.0,
+  "modifier": 2.6,
   "result_fluid": "dermicraft:source_crude_slurry",
   "result_fluid_amount": -1,
-  "ticks": -50
+  "ticks": -30
 }

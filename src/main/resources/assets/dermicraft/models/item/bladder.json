@@ -1,0 +1,9 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/bladder/fluid_bladder_empty"
+  },
+  "overrides": [
+    {"predicate": {"dermicraft:full": 1.0}, "model": "dermicraft:item/bladder/bladder_filled"}
+  ]
+}

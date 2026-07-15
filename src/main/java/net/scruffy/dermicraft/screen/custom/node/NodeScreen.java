@@ -91,11 +91,17 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "spread_button.png");
 
     // Per-leg item/fluid toggles, acting on the currently selected leg (same interaction model as
-    // the shared In/Out button). ON uses the dedicated icon; OFF reuses the existing "no use" icon.
+    // the shared In/Out button). ON uses the dedicated icon; OFF now has its own dedicated icon per
+    // type too (originally reused the shared "no use" icon, but that made it unclear which toggle
+    // was off -- both off states looked identical).
     private static final ResourceLocation ITEM_TOGGLE_BUTTON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "item_button.png");
+    private static final ResourceLocation ITEM_TOGGLE_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "item_off_button.png");
     private static final ResourceLocation FLUID_TOGGLE_BUTTON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "fluid_button.png");
+    private static final ResourceLocation FLUID_TOGGLE_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "fluid__off_button.png");
 
     // tank_and_slot origin (tank gauge on top; the GUI fluid-handler slot sits at its base).
     // Right edge aligned with the player inventory's right edge (rightmost slot at x=152,
@@ -293,12 +299,12 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
 
     private ResourceLocation getItemToggleTexture() {
         if (selectedDirection == null || !menu.BE.isConnected(selectedDirection)) return NULL_BUTTON_TEXTURE;
-        return menu.BE.isItemsEnabled(selectedDirection) ? ITEM_TOGGLE_BUTTON_TEXTURE : NO_USE_BUTTON_TEXTURE;
+        return menu.BE.isItemsEnabled(selectedDirection) ? ITEM_TOGGLE_BUTTON_TEXTURE : ITEM_TOGGLE_OFF_TEXTURE;
     }
 
     private ResourceLocation getFluidToggleTexture() {
         if (selectedDirection == null || !menu.BE.isConnected(selectedDirection)) return NULL_BUTTON_TEXTURE;
-        return menu.BE.isFluidsEnabled(selectedDirection) ? FLUID_TOGGLE_BUTTON_TEXTURE : NO_USE_BUTTON_TEXTURE;
+        return menu.BE.isFluidsEnabled(selectedDirection) ? FLUID_TOGGLE_BUTTON_TEXTURE : FLUID_TOGGLE_OFF_TEXTURE;
     }
 
     @Override

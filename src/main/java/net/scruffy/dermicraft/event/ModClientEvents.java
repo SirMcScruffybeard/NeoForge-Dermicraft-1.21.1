@@ -28,6 +28,7 @@ public class ModClientEvents {
         registerFluidTint(event, ModItems.SYRINGE.get());
         registerFluidTint(event, ModItems.GLASS_FLASK.get());
         registerFluidTint(event, ModBlocks.BEAKER_ITEM.get());
+        registerFluidTint(event, ModItems.BLADDER.get());
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
         registerBucketTint(event, ModFluids.CALCIUM_BLEND_BUCKET.get(), ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE);

@@ -15,12 +15,14 @@ import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.EffluentcerBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.GateBufferBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.MrFarmerBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MetastasizerBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BeakerItem;
+import net.scruffy.dermicraft.item.custom.BladderItem;
 import net.scruffy.dermicraft.item.custom.GlassFlaskItem;
 import net.scruffy.dermicraft.item.custom.IdepItem;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -51,6 +53,11 @@ public class ModBusEvents {
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 
+        // Mr. Farmer: both capabilities on all six faces. Fluid = the fuel tank (biofuel-filtered fill,
+        // drain). Items = the automation wrapper (buffer extract-only, fuel slot accepts containers).
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MR_FARMER_BE.get(), MrFarmerBlockEntity::getTank);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_FARMER_BE.get(), MrFarmerBlockEntity::getAutomationItemHandler);
+
         // Node: item automation is exposed via getItemHandler(Direction), which restricts any
         // direction-based (capability) query to the transport buffer slot only -- the GUI-only
         // fluid-handler slot stays unreachable by pipes/hoppers/other Nodes regardless.
@@ -78,6 +85,9 @@ public class ModBusEvents {
         // I.D.E.P.'s fluid storage is flexible (partial fills), same shape as the Beaker -- it's a
         // maintenance tool draining a Buffer's fluid, not a fixed-dose container like a Flask/Syringe.
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.FlexibleFluidDataFluidHandler(stack, IdepItem.FLUID_CAPACITY), ModItems.IDEP.get());
+
+        // Bladder: bulk mobile storage, same flexible (partial-fill) shape as Beaker/I.D.E.P.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.FlexibleFluidDataFluidHandler(stack, BladderItem.CAPACITY), ModItems.BLADDER.get());
     }
 
     @Nullable

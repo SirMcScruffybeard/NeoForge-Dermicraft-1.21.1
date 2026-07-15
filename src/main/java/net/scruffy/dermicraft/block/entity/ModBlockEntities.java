@@ -66,4 +66,8 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("innards_gate_buffer_be", () -> BlockEntityType.Builder.of(
                     GateBufferBlockEntity::new, ModBlocks.INNARDS_GATE_BUFFER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<MrFarmerBlockEntity>> MR_FARMER_BE =
+            BLOCK_ENTITIES.register("mr_farmer_be", () -> BlockEntityType.Builder.of(
+                    MrFarmerBlockEntity::new, ModBlocks.MR_FARMER.get()).build(null));
+
 }

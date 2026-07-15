@@ -12,6 +12,7 @@
     "dermicraft:innards_node",
     "dermicraft:innards_gate_controller",
     "dermicraft:innards_gate_buffer",
-    "dermicraft:innards_gate_port"
+    "dermicraft:innards_gate_port",
+    "dermicraft:mr_farmer"
   ]
 }

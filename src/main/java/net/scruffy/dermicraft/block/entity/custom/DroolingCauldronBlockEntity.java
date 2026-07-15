@@ -71,12 +71,12 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     }
 
     /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler}
-     * literally. TANK is reachable from every face (getTank ignores the face entirely), UP alone
-     * also reaches the ingredient item slot. */
+     * literally. Both the TANK (result) and the ingredient item slot are reachable from every face
+     * (getTank ignores the face entirely; getItemHandler exposes the INPUT slot on all sides), so
+     * every face gets the same combined description. */
     @Override
     public Component describeFace(Direction face) {
-        if (face == Direction.UP) return Component.translatable("tooltip.dermicraft.idep.face.drooling_cauldron_ingredient");
-        return Component.translatable("tooltip.dermicraft.idep.face.drooling_cauldron_result");
+        return Component.translatable("tooltip.dermicraft.idep.face.drooling_cauldron_ingredient");
     }
 
     public IFluidHandler getTank(@Nullable Direction face) {
@@ -84,67 +84,29 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     }
 
     public IItemHandler getItemHandler(@Nullable Direction face) {
+        // null = internal/GUI access to the full inventory (INPUT + OUTPUT bucket passthrough).
+        // Any side exposes only the ingredient INPUT slot, so automation can reach it from every face.
         if (face == null) return INVENTORY;
-
-        if (face == Direction.UP) {
-            return new IItemHandlerModifiable() {
-                @Override
-                public void setStackInSlot(int slot, ItemStack itemStack) {
-                    INVENTORY.setStackInSlot(INPUT, itemStack);
-                }
-
-                @Override
-                public int getSlots() {
-                    return 1;
-                }
-
-                @Override
-                public ItemStack getStackInSlot(int slot) {
-                    return INVENTORY.getStackInSlot(INPUT);
-                }
-
-                @Override
-                public ItemStack insertItem(int slot, ItemStack itemStack, boolean simulate) {
-                    return INVENTORY.insertItem(INPUT, itemStack, simulate);
-                }
-
-                @Override
-                public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                    return INVENTORY.extractItem(INPUT, amount, simulate);
-                }
-
-                @Override
-                public int getSlotLimit(int i) {
-                    return INVENTORY.getSlotLimit(INPUT);
-                }
-
-                @Override
-                public boolean isItemValid(int i, ItemStack itemStack) {
-                    return INVENTORY.isItemValid(INPUT, itemStack);
-                }
-            };
-        }
-        return null;
+        return ingredientChannelHandler();
     }
 
     /**
      * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}.
-     * Direction-unlocked from what {@code getItemHandler(Direction)} currently only exposes on UP
-     * (the INPUT slot) and {@code getTank(Direction)} exposes everywhere. OUTPUT is a pure
+     * Mirrors {@code getItemHandler(Direction)} and {@code getTank(Direction)}, both of which now
+     * expose their slot/tank on every face (INPUT slot for items, TANK for fluid). OUTPUT is a pure
      * bucket-filling passthrough for TANK (see {@code createInventory}'s {@code onContentsChanged}),
      * not an independent item channel -- matching the Effluentcer precedent, only the underlying
      * fluid tank gets a channel, not its bucket-passthrough slot. TANK is auto-fed with water every
      * second (never player/Gate-fed), so it's OUT-only here, same as every other machine's result tank.
      *
-     * <p>ingredient's native face is UP only. result's native faces are all 6 (getTank ignores the
-     * face entirely) -- it's essentially never the bottleneck since almost any adjacent block already
-     * reaches it, but the check is still correct for the rare fully-isolated case.
+     * <p>Both ingredient and result reach all 6 faces, so each self-service check scans every face --
+     * if any adjacent block already services that kind, the Gate skips the redundant channel.
      */
     @Override
     public List<Channel> getChannels() {
         List<Channel> channels = new ArrayList<>();
 
-        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.UP)) {
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.values())) {
             channels.add(new Channel.ItemChannel("ingredient", Component.literal("Ingredient"), Channel.IO.IN, ingredientChannelHandler()));
         }
         if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.values())) {
@@ -213,7 +175,7 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
 
         //////////Every Second (20 ticks)\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(1))) {
-            TANK.safeFill(new FluidStack(Fluids.WATER, 1));
+            TANK.safeFill(new FluidStack(Fluids.WATER, 4));
             setChanged();
             updateBlock();
         }

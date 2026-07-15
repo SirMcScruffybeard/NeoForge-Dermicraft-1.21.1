@@ -39,6 +39,7 @@ public class FluidTankRenderer {
     private final TooltipMode tooltipMode;
     private final int width;
     private final int height;
+    private final Orientation orientation;
 
     enum TooltipMode {
         SHOW_AMOUNT,
@@ -46,11 +47,22 @@ public class FluidTankRenderer {
         ITEM_LIST
     }
 
-    public FluidTankRenderer(long capacity, boolean showCapacity, int width, int height) {
-        this(capacity, showCapacity ? TooltipMode.SHOW_AMOUNT_AND_CAPACITY : TooltipMode.SHOW_AMOUNT, width, height);
+    public enum Orientation {
+        /** Fills bottom-up, like a thermometer (default). */
+        VERTICAL,
+        /** Fills left-to-right, like a long horizontal bar. */
+        HORIZONTAL
     }
 
-    private FluidTankRenderer(long capacity, TooltipMode tooltipMode, int width, int height) {
+    public FluidTankRenderer(long capacity, boolean showCapacity, int width, int height) {
+        this(capacity, showCapacity, width, height, Orientation.VERTICAL);
+    }
+
+    public FluidTankRenderer(long capacity, boolean showCapacity, int width, int height, Orientation orientation) {
+        this(capacity, showCapacity ? TooltipMode.SHOW_AMOUNT_AND_CAPACITY : TooltipMode.SHOW_AMOUNT, width, height, orientation);
+    }
+
+    private FluidTankRenderer(long capacity, TooltipMode tooltipMode, int width, int height, Orientation orientation) {
         Preconditions.checkArgument(capacity > 0, "capacity must be > 0");
         Preconditions.checkArgument(width > 0, "width must be > 0");
         Preconditions.checkArgument(height > 0, "height must be > 0");
@@ -59,6 +71,7 @@ public class FluidTankRenderer {
         this.tooltipMode = tooltipMode;
         this.width = width;
         this.height = height;
+        this.orientation = orientation;
     }
 
     public void render(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack) {
@@ -83,16 +96,21 @@ public class FluidTankRenderer {
         int fluidColor = getColorTint(fluidStack);
 
         long amount = fluidStack.getAmount();
-        long scaledAmount = (amount * height) / capacity;
+        int fillAxis = orientation == Orientation.HORIZONTAL ? width : height;
+        long scaledAmount = (amount * fillAxis) / capacity;
 
         if (amount > 0 && scaledAmount < MIN_FLUID_HEIGHT) {
             scaledAmount = MIN_FLUID_HEIGHT;
         }
-        if (scaledAmount > height) {
-            scaledAmount = height;
+        if (scaledAmount > fillAxis) {
+            scaledAmount = fillAxis;
         }
 
-        drawTiledSprite(guiGraphics, width, height, fluidColor, scaledAmount, fluidStillSprite);
+        if (orientation == Orientation.HORIZONTAL) {
+            drawTiledSpriteHorizontal(guiGraphics, width, height, fluidColor, scaledAmount, fluidStillSprite);
+        } else {
+            drawTiledSprite(guiGraphics, width, height, fluidColor, scaledAmount, fluidStillSprite);
+        }
     }
 
     private TextureAtlasSprite getStillFluidSprite(FluidStack fluidStack) {
@@ -132,6 +150,33 @@ public class FluidTankRenderer {
                     long maskTop = TEXTURE_SIZE - height;
                     int maskRight = TEXTURE_SIZE - width;
 
+                    drawTextureWithMasking(matrix, x, y, sprite, maskTop, maskRight, 100);
+                }
+            }
+        }
+    }
+
+    // Left-to-right counterpart of drawTiledSprite: tiles across the filled width (scaledAmount px)
+    // at full height, masking the right edge of the last column so the fill grows sideways.
+    private static void drawTiledSpriteHorizontal(GuiGraphics guiGraphics, final int tiledWidth, final int tiledHeight, int color, long scaledAmount, TextureAtlasSprite sprite) {
+        RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
+        Matrix4f matrix = guiGraphics.pose().last().pose();
+        setGLColorFromInt(color);
+
+        final long xTileCount = scaledAmount / TEXTURE_SIZE;
+        final long xRemainder = scaledAmount - (xTileCount * TEXTURE_SIZE);
+        final int yTileCount = tiledHeight / TEXTURE_SIZE;
+        final int yRemainder = tiledHeight - (yTileCount * TEXTURE_SIZE);
+
+        for (int yTile = 0; yTile <= yTileCount; yTile++) {
+            for (long xTile = 0; xTile <= xTileCount; xTile++) {
+                long width = (xTile == xTileCount) ? xRemainder : TEXTURE_SIZE;
+                int height = (yTile == yTileCount) ? yRemainder : TEXTURE_SIZE;
+                int x = (int) (xTile * TEXTURE_SIZE);
+                int y = tiledHeight - ((yTile + 1) * TEXTURE_SIZE);
+                if (width > 0 && height > 0) {
+                    long maskRight = TEXTURE_SIZE - width;
+                    long maskTop = TEXTURE_SIZE - height;
                     drawTextureWithMasking(matrix, x, y, sprite, maskTop, maskRight, 100);
                 }
             }

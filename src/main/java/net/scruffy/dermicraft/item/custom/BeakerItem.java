@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -38,6 +39,11 @@ public class BeakerItem extends BlockItem implements IHaveFluidData {
 
     public BeakerItem(Block block, Item.Properties properties) {
         super(block, properties);
+    }
+
+    @Override
+    public int getMaxStackSize(ItemStack stack) {
+        return !stack.has(getDataType()) ? 16 : 1;
     }
 
     @Override
@@ -113,7 +119,7 @@ public class BeakerItem extends BlockItem implements IHaveFluidData {
         }
 
         if (!player.isCreative()) {
-            player.setItemInHand(hand, actionResult.getResult());
+            player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, actionResult.getResult()));
         }
 
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
@@ -121,17 +127,17 @@ public class BeakerItem extends BlockItem implements IHaveFluidData {
 
     @Override
     public InteractionResult place(BlockPlaceContext context) {
+        // Snapshot the fluid before super.place(), which consumes (shrinks) the held
+        // stack and would leave a count-1 filled beaker empty by the time we read it.
+        FluidData data = context.getItemInHand().getOrDefault(getDataType(), FluidData.EMPTY);
+
         InteractionResult result = super.place(context);
 
-        if (result.consumesAction() && isServerSide(context.getLevel())) {
+        if (result.consumesAction() && isServerSide(context.getLevel()) && !data.isFluidEmpty()) {
             BlockEntity entity = context.getLevel().getBlockEntity(context.getClickedPos());
 
             if (entity instanceof BeakerBlockEntity beakerBlockEntity) {
-                FluidData data = context.getItemInHand().getOrDefault(getDataType(), FluidData.EMPTY);
-
-                if (!data.isFluidEmpty()) {
-                    beakerBlockEntity.getTank(null).fill(data.fluidStack().copy(), IFluidHandler.FluidAction.EXECUTE);
-                }
+                beakerBlockEntity.getTank(null).fill(data.fluidStack().copy(), IFluidHandler.FluidAction.EXECUTE);
             }
         }
 

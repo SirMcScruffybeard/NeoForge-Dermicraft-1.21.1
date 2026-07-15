@@ -38,6 +38,11 @@ public class FuelTank extends ModFluidTank {
         return ModFluidUtil.getHeal(this.getFluid());
     }
 
+    public int getFuelTier() {
+        if (!isValidBiofuel()) return 0;
+        return ModFluidUtil.getTier(this.getFluid());
+    }
+
     public float getHeal() {
         return getHealModifier() / BASE_SPEED_MODIFIER;
     }

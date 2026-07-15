@@ -81,6 +81,14 @@ public class ModItemProperties {
                     HeldItemData data = stack.getOrDefault(ModDataComponentTypes.HELD_ITEM_DATA.get(), HeldItemData.EMPTY);
                     return data.isEmpty() ? 0 : 1;
                 });
+
+        // Bladder: simple empty/filled swap -- no thin/thick/lava variants, just the two textures.
+        ItemProperties.register(ModItems.BLADDER.get(),
+                getResourceLocation("full"),
+                (stack, level, entity, seed) -> {
+                    FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
+                    return data.isFluidEmpty() ? 0 : 1;
+                });
     }
 
     //////////////HelperMethods\\\\\\\\\\\\\\

@@ -3,6 +3,7 @@
     "dermicraft:source_crude_slurry": {
       "heal": 0.1,
       "speed": 0.1,
+      "tier": 1,
       "use_rate": 1.0
     }
   }

@@ -84,7 +84,7 @@ public class RecipeBuilders {
     public static void vagueMasticateWithTagAndWater(RecipeOutput recipeOutput, String name, TagKey<Item> itemTag, float modifier,
                                                      Fluid result) {
         buildMasticating(recipeOutput, name, Ingredient.of(itemTag), 1,
-                Fluids.WATER, -1, result, -1, modifier, -50);
+                Fluids.WATER, -1, result, -1, modifier, -30);
     }
 
 

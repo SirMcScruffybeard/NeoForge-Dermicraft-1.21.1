@@ -21,7 +21,18 @@ public class SutureKitItem extends ToolItem implements ISuture {
 
     public SutureKitItem() {
         super(new Item.Properties()
-                .durability(DEFAULT_DURABILITY));
+                .durability(DEFAULT_DURABILITY)
+        );
+    }
+
+    @Override
+    public boolean hasCraftingRemainingItem(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public ItemStack getCraftingRemainingItem(ItemStack stack) {
+        return stack.copy();
     }
 
     @Override
