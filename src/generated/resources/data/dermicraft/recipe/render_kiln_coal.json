@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_carbon_blend",
+  "fluid_amount": 112,
+  "result": {
+    "count": 1,
+    "id": "minecraft:coal"
+  },
+  "ticks": 50
+}

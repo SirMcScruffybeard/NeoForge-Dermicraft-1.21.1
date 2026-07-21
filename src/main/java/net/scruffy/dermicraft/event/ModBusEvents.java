@@ -26,6 +26,7 @@ import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.GraftingTableBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.RenderFurnaceBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.RenderKilnBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
@@ -70,6 +71,9 @@ public class ModBusEvents {
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.GRAFTING_TABLE_BE.get(), GraftingTableBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.GRAFTING_TABLE_BE.get(), GraftingTableBlockEntity::getTank);
+
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.RENDER_KILN_BE.get(), RenderKilnBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.RENDER_KILN_BE.get(), RenderKilnBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 

@@ -849,6 +849,48 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
             String c = color.getName();
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + c + "_dye", dyeItem(c), dyeFluid(color), 100, lightTicks);
         }
+
+        ////////////////////Render Kiln\\\\\\\\\\\\\\\\\\\\
+        // Fluid alone -> a fixed default item, no pattern/no ingredient item -- see machine notes and
+        // the Render Kiln build plan doc. Deliberately mirrors the existing Metastasizer reverse-
+        // duplication recipes' exact mB/ticks (no discount -- the missing pattern requirement is the
+        // reward on its own).
+        //
+        // Two implant routes to the same machine: 2 Dense Muscle + 2 Nerve Cluster + Furnace +
+        // (Bucket or Beaker), sutured, injected with 100 mB Primitive Catalyst.
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "render_kiln_implant",
+                List.of(
+                        Ingredient.of(Items.FURNACE),
+                        Ingredient.of(Items.BUCKET),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.RENDER_KILN.asItem());
+
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "render_kiln_implant_alt",
+                List.of(
+                        Ingredient.of(Items.FURNACE),
+                        Ingredient.of(ModBlocks.BEAKER_ITEM.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.RENDER_KILN.asItem());
+
+        RecipeBuilders.render(recipeOutput, "render_kiln_stone", ModFluids.SOURCE_STONE_BLEND.get(), 1000, Items.STONE, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_sand", ModFluids.SOURCE_SILICA_BLEND.get(), 750, Items.SAND, aggregateTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_clay_ball", ModFluids.SOURCE_CLAY_BLEND.get(), 250, Items.CLAY_BALL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_iron_ingot", ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, Items.IRON_INGOT, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_copper_ingot", ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, Items.COPPER_INGOT, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_gold_ingot", ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, Items.GOLD_INGOT, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_coal", ModFluids.SOURCE_CARBON_BLEND.get(), 112, Items.COAL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, Items.BONE_MEAL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_meat_flavored_meat", ModFluids.SOURCE_PROTEIN_BLEND.get(), 900, ModItems.MEAT_FLAVORED_MEAT.get(), 160);
+        RecipeBuilders.render(recipeOutput, "render_kiln_mre", ModFluids.SOURCE_F_STUFF.get(), 900, ModItems.MRE.get(), 160);
+        // Deliberately excluded: Crude Slurry (no solid form defined anywhere in the design notes).
     }
 
     ////////////////////Vanilla item lookup helpers (for the dye-keyed loops above)\\\\\\\\\\\\\\\\\\\\

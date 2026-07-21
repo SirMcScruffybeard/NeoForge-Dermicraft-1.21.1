@@ -49,6 +49,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.MUTATOR);
                         output.accept(ModBlocks.RENDER_FURNACE);
                         output.accept(ModBlocks.GRAFTING_TABLE);
+                        output.accept(ModBlocks.RENDER_KILN);
                         output.accept(ModBlocks.CRAW);
                         output.accept(ModBlocks.MR_FARMER);
 

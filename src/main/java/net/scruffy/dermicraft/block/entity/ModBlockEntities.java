@@ -62,6 +62,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("grafting_table_be", () -> BlockEntityType.Builder.of(
                     GraftingTableBlockEntity::new, ModBlocks.GRAFTING_TABLE.get()).build(null));
 
+    public static final Supplier<BlockEntityType<RenderKilnBlockEntity>> RENDER_KILN_BE =
+            BLOCK_ENTITIES.register("render_kiln_be", () -> BlockEntityType.Builder.of(
+                    RenderKilnBlockEntity::new, ModBlocks.RENDER_KILN.get()).build(null));
+
     public static final Supplier<BlockEntityType<CrawBlockEntity>> CRAW_BE =
             BLOCK_ENTITIES.register("craw_be", () -> BlockEntityType.Builder.of(
                     CrawBlockEntity::new, ModBlocks.CRAW.get()).build(null));

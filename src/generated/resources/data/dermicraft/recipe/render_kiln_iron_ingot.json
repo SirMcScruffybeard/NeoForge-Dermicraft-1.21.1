@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid_amount": 1000,
+  "result": {
+    "count": 1,
+    "id": "minecraft:iron_ingot"
+  },
+  "ticks": 200
+}

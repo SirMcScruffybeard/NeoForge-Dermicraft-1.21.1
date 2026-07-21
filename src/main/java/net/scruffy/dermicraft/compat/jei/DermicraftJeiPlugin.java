@@ -19,6 +19,7 @@ import net.scruffy.dermicraft.compat.jei.category.MasticatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MetastasizingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MutatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.PuddleCraftingCategory;
+import net.scruffy.dermicraft.compat.jei.category.RenderingCategory;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.ModRecipes;
@@ -51,7 +52,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 new MutatingCategory(gui),
                 new DippingCategory(gui),
                 new PuddleCraftingCategory(gui),
-                new EarlyImplantCategory(gui)
+                new EarlyImplantCategory(gui),
+                new RenderingCategory(gui)
         );
     }
 
@@ -73,6 +75,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 recipeManager.getAllRecipesFor(ModRecipes.PUDDLE_FLUID_CRAFTING_TYPE.get()));
         registration.addRecipes(DermicraftRecipeTypes.EARLY_IMPLANT,
                 recipeManager.getAllRecipesFor(ModRecipes.EARLY_IMPLANT_TYPE.get()));
+        registration.addRecipes(DermicraftRecipeTypes.RENDERING,
+                recipeManager.getAllRecipesFor(ModRecipes.RENDERING_TYPE.get()));
     }
 
     @Override
@@ -83,6 +87,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.METASTASIZER.get()), DermicraftRecipeTypes.METASTASIZING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MUTATOR.get()), DermicraftRecipeTypes.MUTATING);
         registration.addRecipeCatalyst(new ItemStack(ModItems.SUTURE_KIT.get()), DermicraftRecipeTypes.EARLY_IMPLANT);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.RENDER_KILN.get()), DermicraftRecipeTypes.RENDERING);
     }
 
     // Drooling Cauldron recipes are always nutrition-scaled (IVagueRecipe) -- expand each

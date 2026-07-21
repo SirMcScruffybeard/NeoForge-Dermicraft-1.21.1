@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_calcium_blend",
+  "fluid_amount": 334,
+  "result": {
+    "count": 1,
+    "id": "minecraft:bone_meal"
+  },
+  "ticks": 50
+}

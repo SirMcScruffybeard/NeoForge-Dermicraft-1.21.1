@@ -15,6 +15,7 @@ import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
+import net.scruffy.dermicraft.recipe.rendering.RenderingRecipe;
 
 public class ModRecipes {
 
@@ -103,6 +104,17 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "dipping";
+                }
+            });
+
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<RenderingRecipe>> RENDERING_SERIALIZER =
+            SERIALIZERS.register("rendering", RenderingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<RenderingRecipe>> RENDERING_TYPE =
+            TYPES.register("rendering", () -> new RecipeType<RenderingRecipe>() {
+                @Override
+                public String toString() {
+                    return "rendering";
                 }
             });
 

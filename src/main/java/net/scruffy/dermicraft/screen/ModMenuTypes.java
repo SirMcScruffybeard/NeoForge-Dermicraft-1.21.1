@@ -19,6 +19,7 @@ import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableMenu;
 import net.scruffy.dermicraft.screen.custom.mutator.MutatorMenu;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
 import net.scruffy.dermicraft.screen.custom.render_furnace.RenderFurnaceMenu;
+import net.scruffy.dermicraft.screen.custom.render_kiln.RenderKilnMenu;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 
 public class ModMenuTypes {
@@ -57,6 +58,9 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<GraftingTableMenu>> GRAFTING_TABLE_MENU =
             registerMenuType("grafting_table_menu", GraftingTableMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<RenderKilnMenu>> RENDER_KILN_MENU =
+            registerMenuType("render_kiln_menu", RenderKilnMenu::new);
 
 
 

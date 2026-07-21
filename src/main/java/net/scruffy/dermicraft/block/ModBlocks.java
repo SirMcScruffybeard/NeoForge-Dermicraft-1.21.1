@@ -78,6 +78,9 @@ public class ModBlocks {
     public static final DeferredBlock<Block> GRAFTING_TABLE = registerBlock("grafting_table",
             () -> new GraftingTableBlock(BlockBehaviour.Properties.of()));
 
+    public static final DeferredBlock<Block> RENDER_KILN = registerBlock("render_kiln",
+            () -> new RenderKilnBlock(BlockBehaviour.Properties.of()));
+
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
             () -> new CrawBlock(BlockBehaviour.Properties.of()));
 

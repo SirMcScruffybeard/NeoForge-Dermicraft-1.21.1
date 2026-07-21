@@ -795,6 +795,44 @@ So once a player has a Mutator they'd realistically never hand-craft these again
 
 ---
 
+### Render Kiln (implemented, 2026-07-20)
+
+**Status:** Built and verified in-game — crafting, GUI (all slots/gauges), HP bar, and idle/on/error textures all confirmed working. See `dermicraft-render-kiln-build-plan.md` for the implementation record.
+
+**Bug hit and fixed during bring-up:** `FluidOnlyRecipeInput` (the new zero-item `RecipeInput` this machine introduced) never matched any recipe even with the correct fluid loaded, because `RecipeInput.isEmpty()` defaults to an item-based check that short-circuits to `true` whenever `size() == 0` — and `RecipeManager.getRecipeFor` uses `isEmpty()` as an early-out *before* ever calling `matches()`. Fixed by overriding `isEmpty()` to check the fluid directly, mirroring the identical fix already in `TwoFluidRecipeInput` (used by the Effluentcer, which hit the same bug earlier). See [[feedback_item_less_recipe_input_isempty]].
+
+**What it is:** A furnace-style machine that cooks a **fluid alone** (no item input) into a **default item** — the fluid's "natural solid form." Genuinely new shape, distinct from every existing machine:
+- **Not the Render Furnace** — that's item→item via vanilla's `SmeltingRecipe`. This is fluid→item, which vanilla has no recipe type for at all, so it needs its **own Dermicraft recipe type** (same family as Masticator/Metastasizer/Mutator's recipe types), unlike the Furnace/Grafting Table pair which got to freeload on vanilla.
+- **Not the Metastasizer** — that's fluid + a *player-supplied pattern item* → duplicate of that pattern. The Kiln has no pattern slot; the output is fixed per-fluid, not "whatever you show it." Its real differentiator from the Metastasizer's existing reverse-duplication recipes (Ingot/Nugget, Sediment Blends, Carbon Blend→Coal, etc.) is exactly this: no pattern item to already own, which matters for unattended automation loops.
+
+**Decided:**
+- **Slot layout confirmed:** fuel tank + fuel slot, 1 fluid input tank (renamed `INPUT_TANK`, not "reagent" — the fluid *is* the whole recipe) + its own fill slot, 1 output item slot. No reagent tank, no second item input, no pattern slot at all.
+- **Fuel/HP: standard template** (Masticator convention — fuel-optional, HP-gated, unfueled trickle) — explicitly **not** the newer `NO_HEALTH`/hard-stop pattern used by the Render Furnace/Grafting Table pair.
+- **Name: Render Kiln** — reuses "Render" from the Render Furnace's own naming logic (reducing something to its base material via heat); this machine does the same thing in the opposite direction (fluid rendered down into its default solid). Backups considered: Curing Kiln, Sediment Kiln (narrower — only fits if scope ends up limited to the Stone/Silica/Clay Blend family specifically).
+- **Tier 1 launch roster confirmed, mirroring the Metastasizer's existing reverse-recipe mB/ticks exactly (no discount — the missing pattern requirement is the reward on its own):**
+
+  | Fluid | Default item | mB | Ticks |
+  |---|---|---|---|
+  | Stone Blend | Stone | 1000 | 200 |
+  | Silica Blend | Sand | 750 | 120 |
+  | Clay Blend | Clay Ball | 250 | 50 |
+  | Ferrous Blend | Iron Ingot | 1000 | 200 |
+  | Cuprous Blend | Copper Ingot | 1000 | 200 |
+  | Aurous Blend | Gold Ingot | 1000 | 200 |
+  | Carbon Blend | Coal | 112 | 50 |
+  | Calcium Blend | Bone Meal | 334 | 50 |
+  | Protein Blend | Meat Flavored Meat | 900 | 160 |
+  | F-Stuff | MRE | 900 | 160 |
+
+  **Deliberately excluded:** Crude Slurry — confirmed, no solid form defined anywhere in the design notes.
+
+- **Implant recipe confirmed:** 2 Dense Muscle + 2 Nerve Cluster + Furnace + Bucket, sutured, injected with 100 mB Primitive Catalyst. **Alternate recipe:** same ingredients with Beaker swapped in for Bucket — two implant routes to the same machine, a shape not used elsewhere in the mod yet.
+
+**Open questions:**
+- Whether Crude Slurry ever gets a Kiln recipe if a genuine solid form is defined for it later — currently a deliberate gap, not a locked exclusion.
+
+---
+
 ## Farming automation concepts (early planning)
 
 Four related ideas from early planning, sharing a personified-name pattern (Mr. Farmer, Mr. Shepard, Mr. Logger, Mr. Hunter) and the same status: preserved for future consideration, not committed as finished concepts, placement within the mod's Stage/Tier timeline undecided for all four.

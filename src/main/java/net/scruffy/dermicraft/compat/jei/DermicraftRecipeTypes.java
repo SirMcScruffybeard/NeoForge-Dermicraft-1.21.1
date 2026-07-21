@@ -11,6 +11,7 @@ import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
+import net.scruffy.dermicraft.recipe.rendering.RenderingRecipe;
 
 /**
  * JEI {@link RecipeType} identifiers for every machine category this plugin registers.
@@ -36,6 +37,8 @@ public final class DermicraftRecipeTypes {
             RecipeType.create(Dermicraft.MOD_ID, "puddle_crafting", uncheckedCast(RecipeHolder.class));
     public static final RecipeType<RecipeHolder<EarlyImplantRecipe>> EARLY_IMPLANT =
             RecipeType.create(Dermicraft.MOD_ID, "early_implant", uncheckedCast(RecipeHolder.class));
+    public static final RecipeType<RecipeHolder<RenderingRecipe>> RENDERING =
+            RecipeType.create(Dermicraft.MOD_ID, "rendering", uncheckedCast(RecipeHolder.class));
 
     @SuppressWarnings("unchecked")
     private static <T> Class<T> uncheckedCast(Class<?> clazz) {

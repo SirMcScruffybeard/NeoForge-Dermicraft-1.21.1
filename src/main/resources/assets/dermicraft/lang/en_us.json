@@ -109,6 +109,9 @@
   "block.dermicraft.grafting_table": "Grafting Table",
   "blockEntity.dermicraft.grafting_table_be": "Grafting Table",
 
+  "block.dermicraft.render_kiln": "Render Kiln",
+  "blockEntity.dermicraft.render_kiln_be": "Render Kiln",
+
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
 
@@ -156,6 +159,10 @@
   "tooltip.dermicraft.idep.face.grafting_table_output": "Output slot (pull-only)",
   "tooltip.dermicraft.idep.face.grafting_table_grid": "3x3 crafting grid",
 
+  "tooltip.dermicraft.idep.face.render_kiln_fuel": "Fuel tank (+ fuel bucket slot)",
+  "tooltip.dermicraft.idep.face.render_kiln_output": "Output slot (pull-only)",
+  "tooltip.dermicraft.idep.face.render_kiln_input": "Input tank (+ input bucket slot)",
+
   "tooltip.dermicraft.mutator.mode_mutate": "Mode: Mutate (item + reagent -> new item)",
   "tooltip.dermicraft.mutator.mode_fill": "Mode: Fill (fluid -> container)",
 
@@ -195,10 +202,12 @@
   "tooltip.dermicraft.gauge.result": "Result",
   "tooltip.dermicraft.gauge.input_a": "Input A",
   "tooltip.dermicraft.gauge.input_b": "Input B",
+  "tooltip.dermicraft.gauge.input": "Input",
 
   "tooltip.dermicraft.slot.fuel_container": "Fuel Container",
   "tooltip.dermicraft.slot.reagent_container": "Reagent Container",
   "tooltip.dermicraft.slot.result_container": "Result Container",
+  "tooltip.dermicraft.slot.input_container": "Input Container",
   "tooltip.dermicraft.slot.input_a_container": "Input A Container",
   "tooltip.dermicraft.slot.input_b_container": "Input B Container",
   "tooltip.dermicraft.slot.ingredient": "Ingredient",

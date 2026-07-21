@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_silica_blend",
+  "fluid_amount": 750,
+  "result": {
+    "count": 1,
+    "id": "minecraft:sand"
+  },
+  "ticks": 120
+}

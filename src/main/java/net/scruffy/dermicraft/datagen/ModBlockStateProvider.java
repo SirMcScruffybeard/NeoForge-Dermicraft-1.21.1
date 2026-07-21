@@ -17,6 +17,8 @@ import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
 import net.scruffy.dermicraft.block.custom.MutatorBlock;
 import net.scruffy.dermicraft.block.custom.MutatorVisualState;
 import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
+import net.scruffy.dermicraft.block.custom.RenderKilnBlock;
+import net.scruffy.dermicraft.block.custom.RenderKilnVisualState;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -92,6 +94,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc("block/beaker/beaker_bottom"),
                 modLoc("block/beaker/beaker_top"))
                 .renderType("translucent"));
+
+        renderKilnBlockState(skinTankEnd);
+        itemModels().withExistingParent(ModBlocks.RENDER_KILN.getId().getPath(),
+                modLoc("block/" + ModBlocks.RENDER_KILN.getId().getPath()));
 
         mrFarmerBlockState();
         itemModels().getBuilder(ModBlocks.MR_FARMER.getId().getPath())
@@ -194,6 +200,40 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(off).rotationY(rotY).addModel();
         builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.ACTIVE, true)
                 .modelForState().modelFile(on).rotationY(rotY).addModel();
+    }
+
+    // Same shape as mutatorBlockState -- 4 horizontal facings x 3 RenderKilnVisualState values, only
+    // the front (north-authored) face texture differs between the three models; skin_tank_end covers
+    // every other face in all three.
+    private void renderKilnBlockState(String skinTankEnd) {
+        ModelFile idle = models().cube(ModBlocks.RENDER_KILN.getId().getPath(),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/render_kiln_face"));
+        ModelFile running = models().cube("render_kiln_on",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/render_kiln_face_on"));
+        ModelFile recovering = models().cube("render_kiln_error",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln_face_error"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/render_kiln_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.RENDER_KILN.get());
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
+    private void putRenderKilnVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+                                      ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(RenderKilnBlock.STATE, RenderKilnVisualState.IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(RenderKilnBlock.STATE, RenderKilnVisualState.RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(RenderKilnBlock.STATE, RenderKilnVisualState.RECOVERING)
+                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
     // Mirrors mutatorBlockState -- 4 horizontal facings x 3 MasticatorVisualState values, only the

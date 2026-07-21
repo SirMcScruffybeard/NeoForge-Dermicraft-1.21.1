@@ -22,6 +22,7 @@ import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
+import net.scruffy.dermicraft.recipe.rendering.RenderingRecipe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,6 +117,22 @@ public class RecipeBuilders {
     public static void mutate(RecipeOutput output, String name, ItemLike ingredient, Fluid fluid, int fluidAmount,
                               ItemLike result, int ticks) {
         buildMutating(output, name, Ingredient.of(ingredient), fluid, fluidAmount, new ItemStack(result), ticks);
+    }
+
+
+    ////////////////////Rendering\\\\\\\\\\\\\\\\\\\\
+    // Render Kiln: fluid alone -> a fixed default item. No pattern, no ingredient item --
+    // the fluid IS the whole recipe.
+    public static void buildRendering(RecipeOutput output, String name, Fluid fluid, int fluidAmount,
+                                      ItemStack result, int ticks) {
+        ResourceLocation id = getResourceLocation(name);
+        RenderingRecipe recipe = new RenderingRecipe(fluid, fluidAmount, result, ticks);
+        output.accept(id, recipe, null);
+    }
+
+    public static void render(RecipeOutput output, String name, Fluid fluid, int fluidAmount,
+                              ItemLike result, int ticks) {
+        buildRendering(output, name, fluid, fluidAmount, new ItemStack(result), ticks);
     }
 
 
