@@ -2,6 +2,7 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "dermicraft:item/bladder/fluid_bladder_full",
-    "layer1": "dermicraft:item/bladder/feeder_bladder_adapter"
+    "layer1": "dermicraft:item/bladder/fluid_bladder_full_skin",
+    "layer2": "dermicraft:item/bladder/feeder_bladder_adapter"
   }
 }
