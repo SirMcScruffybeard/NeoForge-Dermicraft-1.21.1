@@ -47,7 +47,7 @@ public class PuddleCraftingCategory implements IRecipeCategory<RecipeHolder<Pudd
     private final IDrawable background;
     private final IDrawable icon;
     private final IDrawable itemSlot;
-    private final IDrawable tankAndSlot;
+    private final IDrawable tallTank;
     private final IDrawable arrowBackground;
     private final IDrawable arrowFull;
 
@@ -55,7 +55,7 @@ public class PuddleCraftingCategory implements IRecipeCategory<RecipeHolder<Pudd
         this.background = gui.createBlankDrawable(WIDTH, HEIGHT);
         this.icon = gui.createDrawableItemStack(new ItemStack(Items.WATER_BUCKET));
         this.itemSlot = JeiTextures.itemSlot(gui);
-        this.tankAndSlot = JeiTextures.tankAndSlot(gui);
+        this.tallTank = JeiTextures.tallTank(gui);
         this.arrowBackground = JeiTextures.arrowBackground(gui);
         this.arrowFull = JeiTextures.arrowFull(gui);
     }
@@ -88,9 +88,9 @@ public class PuddleCraftingCategory implements IRecipeCategory<RecipeHolder<Pudd
         for (int i = 0; i < Math.min(ingredients.size(), MAX_INGREDIENTS); i++) {
             itemSlot.draw(guiGraphics, GRID_X + i * 20, GRID_Y);
         }
-        tankAndSlot.draw(guiGraphics, TANK_X, TANK_Y);
+        tallTank.draw(guiGraphics, TANK_X, TANK_Y);
         if (recipe.resultFluid() != null && recipe.resultFluid() != Fluids.EMPTY) {
-            tankAndSlot.draw(guiGraphics, RESULT_TANK_X, RESULT_TANK_Y);
+            tallTank.draw(guiGraphics, RESULT_TANK_X, RESULT_TANK_Y);
         }
         if (recipe.resultItem() != null && recipe.resultItem() != Items.AIR) {
             itemSlot.draw(guiGraphics, RESULT_ITEM_X, RESULT_ITEM_Y);
@@ -116,14 +116,14 @@ public class PuddleCraftingCategory implements IRecipeCategory<RecipeHolder<Pudd
         Fluid puddle = recipe.puddle();
         FluidStack puddleStack = new FluidStack(puddle, FluidType.BUCKET_VOLUME);
         builder.addSlot(RecipeIngredientRole.INPUT, TANK_X + 1, TANK_Y + 1)
-                .setFluidRenderer(FluidType.BUCKET_VOLUME, false, 16, 40)
+                .setFluidRenderer(FluidType.BUCKET_VOLUME, false, 16, 64)
                 .addIngredient(NeoForgeTypes.FLUID_STACK, puddleStack);
 
         Fluid resultFluid = recipe.resultFluid();
         if (resultFluid != null && resultFluid != Fluids.EMPTY) {
             FluidStack resultStack = new FluidStack(resultFluid, FluidType.BUCKET_VOLUME);
             builder.addSlot(RecipeIngredientRole.OUTPUT, RESULT_TANK_X + 1, RESULT_TANK_Y + 1)
-                    .setFluidRenderer(FluidType.BUCKET_VOLUME, false, 16, 40)
+                    .setFluidRenderer(FluidType.BUCKET_VOLUME, false, 16, 64)
                     .addIngredient(NeoForgeTypes.FLUID_STACK, resultStack);
         }
 

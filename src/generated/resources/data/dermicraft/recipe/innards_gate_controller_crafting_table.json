@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": {
+      "item": "dermicraft:nerve_cluster"
+    },
+    "R": {
+      "item": "minecraft:repeater"
+    },
+    "T": {
+      "item": "dermicraft:inert_tumor"
+    }
+  },
+  "pattern": [
+    "NRN",
+    "   ",
+    " T "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:innards_gate_controller"
+  }
+}

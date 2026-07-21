@@ -62,6 +62,15 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.INNARDS_GATE_BUFFER);
                         output.accept(ModBlocks.INNARDS_GATE_PORT);
 
+                        ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.STONE_LAB_FLOOR);
+                        output.accept(ModBlocks.COBBLESTONE_LAB_FLOOR);
+                        output.accept(ModBlocks.DEEPSLATE_LAB_FLOOR);
+                        output.accept(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR);
+                        output.accept(ModBlocks.DIORITE_LAB_FLOOR);
+                        output.accept(ModBlocks.ANDESITE_LAB_FLOOR);
+                        output.accept(ModBlocks.GRANITE_LAB_FLOOR);
+
                         buildBeakerContents(output);
 
                     }).build());

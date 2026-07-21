@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 1200,
+  "pattern": {
+    "item": "dermicraft:bladder"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:bladder"
+  },
+  "ticks": 554
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "dermicraft:dense_muscle"
+    },
+    "N": {
+      "item": "dermicraft:nerve_cluster"
+    },
+    "S": {
+      "item": "minecraft:diorite"
+    }
+  },
+  "pattern": [
+    "DND",
+    "NSN",
+    "DND"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:diorite_lab_floor"
+  }
+}

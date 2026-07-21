@@ -1,0 +1,8 @@
+{
+	"parent": "dermicraft:block/flesh_lab/floor_template",
+	"textures": {
+		"base_top": "minecraft:block/andesite",
+		"base_side": "minecraft:block/andesite",
+		"overlay": "dermicraft:block/flesh_lab/floor_overlay"
+	}
+}

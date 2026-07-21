@@ -17,6 +17,13 @@
     "dermicraft:innards_gate_controller",
     "dermicraft:innards_gate_buffer",
     "dermicraft:innards_gate_port",
-    "dermicraft:mr_farmer"
+    "dermicraft:mr_farmer",
+    "dermicraft:stone_lab_floor",
+    "dermicraft:cobblestone_lab_floor",
+    "dermicraft:deepslate_lab_floor",
+    "dermicraft:cobbled_deepslate_lab_floor",
+    "dermicraft:diorite_lab_floor",
+    "dermicraft:andesite_lab_floor",
+    "dermicraft:granite_lab_floor"
   ]
 }

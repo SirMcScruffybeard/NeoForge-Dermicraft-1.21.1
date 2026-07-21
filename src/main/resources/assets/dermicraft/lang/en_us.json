@@ -127,6 +127,14 @@
   "block.dermicraft.innards_gate_buffer": "Innards Gate Buffer",
   "block.dermicraft.innards_gate_port": "Innards Gate Port",
 
+  "block.dermicraft.stone_lab_floor": "Stone Lab Floor",
+  "block.dermicraft.cobblestone_lab_floor": "Cobblestone Lab Floor",
+  "block.dermicraft.deepslate_lab_floor": "Deepslate Lab Floor",
+  "block.dermicraft.cobbled_deepslate_lab_floor": "Cobbled Deepslate Lab Floor",
+  "block.dermicraft.diorite_lab_floor": "Diorite Lab Floor",
+  "block.dermicraft.andesite_lab_floor": "Andesite Lab Floor",
+  "block.dermicraft.granite_lab_floor": "Granite Lab Floor",
+
   "tooltip.dermicraft.idep.prefix": "I.D.E.P.",
   "tooltip.dermicraft.idep.buffer_servicing": "Servicing: %s",
   "tooltip.dermicraft.idep.buffer_unassigned": "Unassigned",

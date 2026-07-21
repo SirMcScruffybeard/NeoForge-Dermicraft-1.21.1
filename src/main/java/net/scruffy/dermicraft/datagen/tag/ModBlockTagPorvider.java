@@ -42,6 +42,13 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.INNARDS_GATE_BUFFER.get())
                 .add(ModBlocks.INNARDS_GATE_PORT.get())
                 .add(ModBlocks.MR_FARMER.get())
+                .add(ModBlocks.STONE_LAB_FLOOR.get())
+                .add(ModBlocks.COBBLESTONE_LAB_FLOOR.get())
+                .add(ModBlocks.DEEPSLATE_LAB_FLOOR.get())
+                .add(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.get())
+                .add(ModBlocks.DIORITE_LAB_FLOOR.get())
+                .add(ModBlocks.ANDESITE_LAB_FLOOR.get())
+                .add(ModBlocks.GRANITE_LAB_FLOOR.get())
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)

@@ -1,0 +1,8 @@
+{
+	"parent": "dermicraft:block/flesh_lab/floor_template",
+	"textures": {
+		"base_top": "minecraft:block/cobbled_deepslate",
+		"base_side": "minecraft:block/cobbled_deepslate",
+		"overlay": "dermicraft:block/flesh_lab/floor_overlay"
+	}
+}

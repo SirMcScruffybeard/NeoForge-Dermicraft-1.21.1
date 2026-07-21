@@ -276,6 +276,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_mutton", Items.COOKED_MUTTON, ModFluids.SOURCE_PROTEIN_BLEND.get(), 702, 324);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_rotten_flesh", Items.ROTTEN_FLESH, ModFluids.SOURCE_PROTEIN_BLEND.get(), 286, 132);
 
+        // Fluid Bladder -- same Protein Blend duplication family as the meats above, ticks kept on
+        // the same ~0.4615 ticks-per-mB ratio (e.g. cooked beef: 936 mB / 432 ticks) for consistency.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bladder", ModItems.BLADDER.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 1200, 554);
+
         // Placeholder yields - Sediment Blend balance values not yet finalized, see crafting notes.
         RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating", ModTags.Items.STONE_BLEND_ROSTER, 1000,
                 ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
@@ -611,6 +615,24 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_muscle_tumor", ModItems.DENSE_MUSCLE.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, ModBlocks.MUSCLE_TUMOR.asItem(), solidTicks);
 
+        // Flesh Lab Floor - Mutator route: structural block + 2000 mB Protein Blend -> the matching
+        // Lab Floor variant. Same structural-block-defines-the-variant pattern as the crafting-table
+        // recipes, priced at 2x the tumors' flat 1000 mB since it's producing infrastructure, not a print.
+        RecipeBuilders.mutate(recipeOutput, "mutating_stone_lab_floor", Items.STONE,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.STONE_LAB_FLOOR.asItem(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_cobblestone_lab_floor", Items.COBBLESTONE,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.COBBLESTONE_LAB_FLOOR.asItem(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_deepslate_lab_floor", Items.DEEPSLATE,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.DEEPSLATE_LAB_FLOOR.asItem(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_cobbled_deepslate_lab_floor", Items.COBBLED_DEEPSLATE,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.asItem(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_diorite_lab_floor", Items.DIORITE,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.DIORITE_LAB_FLOOR.asItem(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_andesite_lab_floor", Items.ANDESITE,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.ANDESITE_LAB_FLOOR.asItem(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_granite_lab_floor", Items.GRANITE,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.GRANITE_LAB_FLOOR.asItem(), solidTicks);
+
         // Overgrowth family (Crude Slurry as the life/growth agent) - Mossy Cobblestone set. 10 mB
         // flat across the whole family (block/stairs/wall/slab alike) -- other mods gate this behind
         // plain water, so this is deliberately a token cost, not a scaled-by-volume one; the
@@ -869,6 +891,92 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
+        ////////////////////Mr. Farmer\\\\\\\\\\\\\\\\\\\\
+        // Carved Pumpkin as the structural item -- matches the "head in pain" flavor -- plus a Hoe
+        // for the farming function, sutured with the standard Masticator-tier 5-item cost.
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "mr_farmer_implant",
+                List.of(
+                        Ingredient.of(Items.CARVED_PUMPKIN),
+                        Ingredient.of(Items.IRON_HOE),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.MR_FARMER.asItem());
+
+        ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
+        // Crafting-table roster: structural block in the center, Nerve Cluster on the four edge-middles
+        // (plumbing), Dense Muscle on the four corners (connective casing). Structural block is the
+        // only thing that varies per variant.
+        buildLabFloorRecipe(recipeOutput, "stone_lab_floor", Blocks.STONE, ModBlocks.STONE_LAB_FLOOR);
+        buildLabFloorRecipe(recipeOutput, "cobblestone_lab_floor", Blocks.COBBLESTONE, ModBlocks.COBBLESTONE_LAB_FLOOR);
+        buildLabFloorRecipe(recipeOutput, "deepslate_lab_floor", Blocks.DEEPSLATE, ModBlocks.DEEPSLATE_LAB_FLOOR);
+        buildLabFloorRecipe(recipeOutput, "cobbled_deepslate_lab_floor", Blocks.COBBLED_DEEPSLATE, ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR);
+        buildLabFloorRecipe(recipeOutput, "diorite_lab_floor", Blocks.DIORITE, ModBlocks.DIORITE_LAB_FLOOR);
+        buildLabFloorRecipe(recipeOutput, "andesite_lab_floor", Blocks.ANDESITE, ModBlocks.ANDESITE_LAB_FLOOR);
+        buildLabFloorRecipe(recipeOutput, "granite_lab_floor", Blocks.GRANITE, ModBlocks.GRANITE_LAB_FLOOR);
+
+        ////////////////////Innards Duct/Node/Gate\\\\\\\\\\\\\\\\\\\\
+        // Innards Duct: literally intestines -- a ring of 8 Dense Muscle around an empty center,
+        // crafts 8 at once. Cheap connective-tissue infrastructure, not a biological "implant."
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_DUCT, 8)
+                .pattern("MMM")
+                .pattern("M M")
+                .pattern("MMM")
+                .define('M', ModItems.DENSE_MUSCLE)
+                .unlockedBy("has_dense_muscle", has(ModItems.DENSE_MUSCLE))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("innards_duct_crafting_table"));
+
+        // Matches Dense Muscle's own Metastasizer price exactly -- the duct is just shaped muscle.
+        RecipeBuilders.duplicate(recipeOutput, "innards_duct_metastasizing", ModBlocks.INNARDS_DUCT.get(),
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
+
+        // Innards Node: Redstone (routing/signal) above a Beaker (the body it routes through),
+        // an Inert Tumor at the base (the raw biological seed it's grown from).
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_NODE)
+                .pattern(" R ")
+                .pattern(" B ")
+                .pattern(" T ")
+                .define('R', Tags.Items.DUSTS_REDSTONE)
+                .define('B', ModBlocks.BEAKER_ITEM)
+                .define('T', ModBlocks.INERT_TUMOR)
+                .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("innards_node_crafting_table"));
+
+        // Innards Gate Controller: Redstone Repeater (the logic/priority core) flanked by Nerve
+        // Clusters (signal-routing tissue), Inert Tumor at the bottom center (biological seed).
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_GATE_CONTROLLER)
+                .pattern("NRN")
+                .pattern("   ")
+                .pattern(" T ")
+                .define('N', ModItems.NERVE_CLUSTER)
+                .define('R', Items.REPEATER)
+                .define('T', ModBlocks.INERT_TUMOR)
+                .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("innards_gate_controller_crafting_table"));
+
+        // Innards Gate Buffer: Beaker (holding capacity) above a Chest (storage), above an Inert
+        // Tumor (biological seed).
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_GATE_BUFFER)
+                .pattern(" B ")
+                .pattern(" C ")
+                .pattern(" T ")
+                .define('B', ModBlocks.BEAKER_ITEM)
+                .define('C', Items.CHEST)
+                .define('T', ModBlocks.INERT_TUMOR)
+                .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("innards_gate_buffer_crafting_table"));
+
+        // Innards Gate Port: Hopper (the I/O interface) above an Inert Tumor (biological seed).
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_GATE_PORT)
+                .pattern(" H ")
+                .pattern("   ")
+                .pattern(" T ")
+                .define('H', Items.HOPPER)
+                .define('T', ModBlocks.INERT_TUMOR)
+                .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("innards_gate_port_crafting_table"));
+
         RecipeBuilders.buildEarlyImplant(recipeOutput, "render_kiln_implant_alt",
                 List.of(
                         Ingredient.of(Items.FURNACE),
@@ -938,6 +1046,18 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     private static Item woodItem(String species, String suffix) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(species + "_" + suffix));
+    }
+
+    private static void buildLabFloorRecipe(RecipeOutput recipeOutput, String name, ItemLike structuralBlock, ItemLike result) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, result)
+                .pattern("DND")
+                .pattern("NSN")
+                .pattern("DND")
+                .define('D', ModItems.DENSE_MUSCLE.get())
+                .define('N', ModItems.NERVE_CLUSTER.get())
+                .define('S', structuralBlock)
+                .unlockedBy("has_nerve_cluster", has(ModItems.NERVE_CLUSTER))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation(name + "_crafting_table"));
     }
 
     ////////////////////Other Crafting Methods\\\\\\\\\\\\\\\\\\\\

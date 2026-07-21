@@ -32,6 +32,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         String skinTankEnd = "block/skin_tank_end";
 
+        ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
+        simpleBlockWithItem(ModBlocks.STONE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/stone_lab_floor")));
+        simpleBlockWithItem(ModBlocks.COBBLESTONE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/cobblestone_lab_floor")));
+        simpleBlockWithItem(ModBlocks.DEEPSLATE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/deepslate_lab_floor")));
+        simpleBlockWithItem(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/cobbled_deepslate_lab_floor")));
+        simpleBlockWithItem(ModBlocks.DIORITE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/diorite_lab_floor")));
+        simpleBlockWithItem(ModBlocks.ANDESITE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/andesite_lab_floor")));
+        simpleBlockWithItem(ModBlocks.GRANITE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/granite_lab_floor")));
+
         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
         blockWithItem(ModBlocks.INERT_TUMOR);
         blockWithItem(ModBlocks.MARRED_TUMOR);

@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.block;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -123,6 +124,22 @@ public class ModBlocks {
                     .strength(0.5f)
                     .sound(SoundType.HONEY_BLOCK)
                     .noOcclusion()));
+
+    ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
+    public static final DeferredBlock<Block> STONE_LAB_FLOOR = registerBlock("stone_lab_floor",
+            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)));
+    public static final DeferredBlock<Block> COBBLESTONE_LAB_FLOOR = registerBlock("cobblestone_lab_floor",
+            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COBBLESTONE)));
+    public static final DeferredBlock<Block> DEEPSLATE_LAB_FLOOR = registerBlock("deepslate_lab_floor",
+            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)));
+    public static final DeferredBlock<Block> COBBLED_DEEPSLATE_LAB_FLOOR = registerBlock("cobbled_deepslate_lab_floor",
+            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COBBLED_DEEPSLATE)));
+    public static final DeferredBlock<Block> DIORITE_LAB_FLOOR = registerBlock("diorite_lab_floor",
+            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DIORITE)));
+    public static final DeferredBlock<Block> ANDESITE_LAB_FLOOR = registerBlock("andesite_lab_floor",
+            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.ANDESITE)));
+    public static final DeferredBlock<Block> GRANITE_LAB_FLOOR = registerBlock("granite_lab_floor",
+            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GRANITE)));
 
     public static final DeferredBlock<Block> BEAKER = BLOCKS.register("beaker",
             () -> new BeakerBlock(BlockBehaviour.Properties.of()));

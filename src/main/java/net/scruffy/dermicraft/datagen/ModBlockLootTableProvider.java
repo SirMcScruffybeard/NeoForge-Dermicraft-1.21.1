@@ -40,6 +40,16 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.INNARDS_GATE_BUFFER.get());
         dropSelf(ModBlocks.INNARDS_GATE_PORT.get());
 
+        // Lab Floor blocks always drop themselves -- they're structural infrastructure, same
+        // treatment as ducts/nodes/gates, not a "destroyed on break" machine.
+        dropSelf(ModBlocks.STONE_LAB_FLOOR.get());
+        dropSelf(ModBlocks.COBBLESTONE_LAB_FLOOR.get());
+        dropSelf(ModBlocks.DEEPSLATE_LAB_FLOOR.get());
+        dropSelf(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.get());
+        dropSelf(ModBlocks.DIORITE_LAB_FLOOR.get());
+        dropSelf(ModBlocks.ANDESITE_LAB_FLOOR.get());
+        dropSelf(ModBlocks.GRANITE_LAB_FLOOR.get());
+
     }
 
     protected LootTable.Builder createMultipleOreDrops(Block pBlock, Item item, float minDrops, float maxDrops) {

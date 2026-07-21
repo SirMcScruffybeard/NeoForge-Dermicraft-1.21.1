@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 2000,
+  "ingredient": {
+    "item": "minecraft:diorite"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:diorite_lab_floor"
+  },
+  "ticks": 200
+}

@@ -36,6 +36,11 @@ public class EarlyImplantCategory implements IRecipeCategory<RecipeHolder<EarlyI
     private static final int GRID_X = 0, GRID_Y_ROW1 = 0, GRID_Y_ROW2 = 20;
     private static final int SUTURE_X = 90, SUTURE_Y = 21;
     private static final int TANK_X = 119, TANK_Y = 0;
+    // The tank_and_slot.png backdrop has a paired item-slot baked into its bottom, matching how
+    // MasticatorScreen places its fuel/reagent container-item slots 1px right, 49px down from
+    // the tank's top-left -- shown here as a static Syringe icon (fluid is administered via
+    // Syringe, not stored in a real container item like the fuel/reagent tanks' buckets).
+    private static final int SYRINGE_X = TANK_X + 1, SYRINGE_Y = TANK_Y + 49;
     private static final int ARROW_X = 148, ARROW_Y = 27;
     private static final int RESULT_X = 176, RESULT_Y = 23;
     private static final int WIDTH = RESULT_X + JeiTextures.ITEM_SLOT_SIZE;
@@ -122,6 +127,9 @@ public class EarlyImplantCategory implements IRecipeCategory<RecipeHolder<EarlyI
         builder.addSlot(RecipeIngredientRole.INPUT, TANK_X + 1, TANK_Y + 1)
                 .setFluidRenderer(fluidAmount, false, 16, 40)
                 .addIngredient(NeoForgeTypes.FLUID_STACK, new FluidStack(fluid.getFluid(), fluidAmount));
+
+        builder.addSlot(RecipeIngredientRole.RENDER_ONLY, SYRINGE_X, SYRINGE_Y)
+                .addItemStack(new ItemStack(ModItems.SYRINGE.get()));
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, RESULT_X + 1, RESULT_Y + 1)
                 .addItemStack(recipe.getResultItem(null));

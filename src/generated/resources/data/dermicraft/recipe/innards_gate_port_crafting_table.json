@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": {
+      "item": "minecraft:hopper"
+    },
+    "T": {
+      "item": "dermicraft:inert_tumor"
+    }
+  },
+  "pattern": [
+    " H ",
+    "   ",
+    " T "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:innards_gate_port"
+  }
+}

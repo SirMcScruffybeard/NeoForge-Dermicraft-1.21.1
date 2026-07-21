@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "dermicraft:beaker"
+    },
+    "C": {
+      "item": "minecraft:chest"
+    },
+    "T": {
+      "item": "dermicraft:inert_tumor"
+    }
+  },
+  "pattern": [
+    " B ",
+    " C ",
+    " T "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:innards_gate_buffer"
+  }
+}
