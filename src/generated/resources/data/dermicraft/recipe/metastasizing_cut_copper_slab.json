@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_cuprous_blend",
+  "fluid_amount": 4500,
+  "pattern": {
+    "item": "minecraft:cut_copper_slab"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:cut_copper_slab"
+  },
+  "ticks": 900
+}

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_stone_blend",
+  "fluid_amount": 100,
+  "pattern": {
+    "item": "minecraft:gray_dye"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:gray_dye"
+  },
+  "ticks": 50
+}

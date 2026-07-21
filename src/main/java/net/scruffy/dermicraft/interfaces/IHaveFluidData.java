@@ -12,6 +12,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 
 public interface IHaveFluidData {
 
@@ -217,6 +218,42 @@ public interface IHaveFluidData {
 
         private DataComponentType<FluidData> getDataType() {
             return ModDataComponentTypes.FLUID_DATA.get();
+        }
+    }
+
+    /**
+     * Same partial-fill behavior as {@link FlexibleFluidDataFluidHandler}, but refuses any fluid
+     * the given {@link HazardProfile} doesn't tolerate -- matches Drinker's "won't even attempt it"
+     * rule for hazardous fluids beyond a container's tier. Bladder-family equipment uses this.
+     *
+     * <p>An optional extra filter narrows acceptance further (e.g. Fuel Bladder's biofuel-only
+     * restriction) -- defaults to accepting anything the hazard profile already allows.
+     */
+    class HazardGatedFluidDataFluidHandler extends FlexibleFluidDataFluidHandler {
+
+        private final HazardProfile profile;
+        private final java.util.function.Predicate<FluidStack> extraFilter;
+
+        public HazardGatedFluidDataFluidHandler(ItemStack stack, int capacity, HazardProfile profile) {
+            this(stack, capacity, profile, fluidStack -> true);
+        }
+
+        public HazardGatedFluidDataFluidHandler(ItemStack stack, int capacity, HazardProfile profile,
+                                                  java.util.function.Predicate<FluidStack> extraFilter) {
+            super(stack, capacity);
+            this.profile = profile;
+            this.extraFilter = extraFilter;
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return profile.accepts(stack) && extraFilter.test(stack) && super.isFluidValid(tank, stack);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            if (!profile.accepts(resource) || !extraFilter.test(resource)) return 0;
+            return super.fill(resource, action);
         }
     }
 }

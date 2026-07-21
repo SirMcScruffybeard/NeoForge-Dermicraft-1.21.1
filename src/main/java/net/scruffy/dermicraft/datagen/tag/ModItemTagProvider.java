@@ -65,6 +65,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.BIOFUELS)
                 .add(ModFluids.CRUDE_SLURRY_BUCKET.get())
+                .add(ModFluids.CONCENTRATED_SLURRY_BUCKET.get())
 
         ;
 
@@ -98,11 +99,12 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(Items.GLASS)
         ;
 
+        // Brick, Bricks, and Flower Pot deliberately excluded -- unlike the rest of this tag (flat
+        // 1000 mB regardless of item), they get individually-priced Masticator recipes mirroring
+        // their own Metastasizer duplication costs (see ModRecipeProvider), so they can't also sit
+        // in this flat-rate tag without a duplicate/ambiguous-recipe conflict.
         tag(ModTags.Items.CLAY_BLEND_RECYCLING)
                 .add(Items.CLAY_BALL)
-                .add(Items.BRICK)
-                .add(Items.BRICKS)
-                .add(Items.FLOWER_POT)
                 .add(Items.TERRACOTTA)
                 .add(Items.WHITE_TERRACOTTA)
                 .add(Items.ORANGE_TERRACOTTA)

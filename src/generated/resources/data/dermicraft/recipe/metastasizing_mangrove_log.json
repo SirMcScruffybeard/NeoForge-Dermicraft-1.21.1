@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:mangrove_log"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:mangrove_log"
+  },
+  "ticks": 200
+}

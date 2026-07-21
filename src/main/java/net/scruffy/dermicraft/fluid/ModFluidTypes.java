@@ -92,7 +92,23 @@ public class ModFluidTypes {
                             .viscosity(4000)
                             .density(3000)
                             .temperature(285)
-                            .motionScale(0.08)
+                            .motionScale(0.0100)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(true)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> CONCENTRATED_SLURRY_FLUID_TYPE = registerFluidType("concentrated_slurry_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF3D8A47,
+                    setColorVector(215, 235, 210),
+                    FluidType.Properties.create()
+                            .viscosity(4300)
+                            .density(3200)
+                            .temperature(288)
+                            .motionScale(0.0090)
                             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
@@ -241,6 +257,23 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
+
+    //////////////////////////////Pulp Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FluidType> PULP_BLEND_FLUID_TYPE = registerFluidType("pulp_blend_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFC29D62,
+                    setColorVector(194, 157, 98),
+                    FluidType.Properties.create()
+                            .viscosity(3000)
+                            .density(1400)
+                            .temperature(290)
+                            .motionScale(0.008)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
 
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     private static Vector3f setColorVector(float r, float g, float b) {

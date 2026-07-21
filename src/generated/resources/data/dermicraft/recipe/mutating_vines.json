@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_crude_slurry",
+  "fluid_amount": 400,
+  "ingredient": {
+    "item": "minecraft:string"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:vine"
+  },
+  "ticks": 120
+}

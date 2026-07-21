@@ -50,6 +50,18 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("metastasizer_be", () -> BlockEntityType.Builder.of(
                     MetastasizerBlockEntity::new, ModBlocks.METASTASIZER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<MutatorBlockEntity>> MUTATOR_BE =
+            BLOCK_ENTITIES.register("mutator_be", () -> BlockEntityType.Builder.of(
+                    MutatorBlockEntity::new, ModBlocks.MUTATOR.get()).build(null));
+
+    public static final Supplier<BlockEntityType<RenderFurnaceBlockEntity>> RENDER_FURNACE_BE =
+            BLOCK_ENTITIES.register("render_furnace_be", () -> BlockEntityType.Builder.of(
+                    RenderFurnaceBlockEntity::new, ModBlocks.RENDER_FURNACE.get()).build(null));
+
+    public static final Supplier<BlockEntityType<GraftingTableBlockEntity>> GRAFTING_TABLE_BE =
+            BLOCK_ENTITIES.register("grafting_table_be", () -> BlockEntityType.Builder.of(
+                    GraftingTableBlockEntity::new, ModBlocks.GRAFTING_TABLE.get()).build(null));
+
     public static final Supplier<BlockEntityType<CrawBlockEntity>> CRAW_BE =
             BLOCK_ENTITIES.register("craw_be", () -> BlockEntityType.Builder.of(
                     CrawBlockEntity::new, ModBlocks.CRAW.get()).build(null));

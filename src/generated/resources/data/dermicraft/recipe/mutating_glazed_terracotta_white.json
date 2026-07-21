@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_clay_blend",
+  "fluid_amount": 500,
+  "ingredient": {
+    "item": "minecraft:white_terracotta"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:white_glazed_terracotta"
+  },
+  "ticks": 300
+}

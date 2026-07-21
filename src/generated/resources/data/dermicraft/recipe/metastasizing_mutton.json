@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 169,
+  "pattern": {
+    "item": "minecraft:mutton"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:mutton"
+  },
+  "ticks": 78
+}

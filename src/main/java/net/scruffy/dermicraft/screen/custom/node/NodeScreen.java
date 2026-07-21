@@ -34,74 +34,77 @@ import java.util.Map;
  */
 public class NodeScreen extends AbstractModScreen<NodeMenu> {
 
-    private static final String PARTS_DIR = "textures/gui/screen_parts/";
+    private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
+    private static final String TANKS_DIR = "textures/gui/tanks/";
+    private static final String SLOTS_DIR = "textures/gui/slots/";
+    private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "screen_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
     private static final int BACKGROUND_TEXTURE_SIZE = 256;
 
     private static final ResourceLocation TANK_AND_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "tank_and_slot.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, TANKS_DIR + "tank_and_slot.png");
     private static final int TANK_AND_SLOT_WIDTH = 18;
     private static final int TANK_AND_SLOT_HEIGHT = 66;
 
     private static final ResourceLocation ITEM_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "item_slot.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
     private static final int ITEM_SLOT_SIZE = 18;
 
     private static final ResourceLocation NORTH_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "north_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "north_button.png");
     private static final ResourceLocation NORTH_BUTTON_PRESSED_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "north_button_pressed.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "north_button_pressed.png");
     private static final ResourceLocation SOUTH_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "south_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "south_button.png");
     private static final ResourceLocation SOUTH_BUTTON_PRESSED_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "south_button_pressed.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "south_button_pressed.png");
     private static final ResourceLocation EAST_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "east_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "east_button.png");
     private static final ResourceLocation EAST_BUTTON_PRESSED_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "east_button_pressed.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "east_button_pressed.png");
     private static final ResourceLocation WEST_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "west_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "west_button.png");
     private static final ResourceLocation WEST_BUTTON_PRESSED_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "west_button_pressed.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "west_button_pressed.png");
     private static final ResourceLocation UP_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "up_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "up_button.png");
     private static final ResourceLocation UP_BUTTON_PRESSED_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "up_button_pressed.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "up_button_pressed.png");
     private static final ResourceLocation DOWN_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "down_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "down_button.png");
     private static final ResourceLocation DOWN_BUTTON_PRESSED_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "down_button_pressed.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "down_button_pressed.png");
     private static final ResourceLocation NULL_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "null_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "null_button.png");
     private static final int DIRECTION_BUTTON_SIZE = 18;
 
     // Shared mode-toggle icons. Input/Output reflects whichever direction is currently selected;
     // Round-Robin/Spread always reflects the Node's global distribution mode.
     private static final ResourceLocation INPUT_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "input_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "input_button.png");
     private static final ResourceLocation OUTPUT_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "output_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
     private static final ResourceLocation NO_USE_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "no_use_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final ResourceLocation ROUND_ROBIN_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "round_robin_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "round_robin_button.png");
     private static final ResourceLocation SPREAD_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "spread_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "spread_button.png");
 
     // Per-leg item/fluid toggles, acting on the currently selected leg (same interaction model as
     // the shared In/Out button). ON uses the dedicated icon; OFF now has its own dedicated icon per
     // type too (originally reused the shared "no use" icon, but that made it unclear which toggle
     // was off -- both off states looked identical).
     private static final ResourceLocation ITEM_TOGGLE_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "item_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "item_button.png");
     private static final ResourceLocation ITEM_TOGGLE_OFF_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "item_off_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "item_off_button.png");
     private static final ResourceLocation FLUID_TOGGLE_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "fluid_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "fluid_button.png");
     private static final ResourceLocation FLUID_TOGGLE_OFF_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "fluid__off_button.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "fluid__off_button.png");
 
     // tank_and_slot origin (tank gauge on top; the GUI fluid-handler slot sits at its base).
     // Right edge aligned with the player inventory's right edge (rightmost slot at x=152,
@@ -243,6 +246,7 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
 
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
+        renderPlayerInventoryBackdrop(guiGraphics, x, y);
 
         guiGraphics.blit(ITEM_SLOT_TEXTURE, x + BUFFER_SLOT_X, y + BUFFER_SLOT_Y, 0, 0,
                 ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);

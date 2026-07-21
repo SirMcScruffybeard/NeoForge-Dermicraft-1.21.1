@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 1250,
+  "pattern": {
+    "item": "minecraft:cherry_fence"
+  },
+  "result": {
+    "count": 3,
+    "id": "minecraft:cherry_fence"
+  },
+  "ticks": 250
+}

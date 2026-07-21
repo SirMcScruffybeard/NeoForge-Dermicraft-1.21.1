@@ -17,6 +17,12 @@
   "item.dermicraft.bladder": "Bladder",
   "item.dermicraft.bladder.filled": "Bladder of %s",
 
+  "item.dermicraft.fuel_bladder": "Fuel Bladder",
+  "item.dermicraft.fuel_bladder.filled": "Fuel Bladder of %s",
+
+  "item.dermicraft.feeder_bladder": "Feeder Bladder",
+  "item.dermicraft.feeder_bladder.filled": "Feeder Bladder of %s",
+
   "item.dermicraft.eye": "Eye",
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",
@@ -31,6 +37,7 @@
   "item.dermicraft.c_stuff_bucket": "C-Stuff Bucket",
 
   "item.dermicraft.crude_slurry_bucket": "Crude Slurry Bucket",
+  "item.dermicraft.concentrated_slurry_bucket": "Concentrated Slurry Bucket",
 
   "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
 
@@ -42,6 +49,8 @@
   "item.dermicraft.cuprous_blend_bucket": "Cuprous Blend Bucket",
   "item.dermicraft.aurous_blend_bucket": "Aurous Blend Bucket",
 
+  "item.dermicraft.pulp_blend_bucket": "Pulp Blend Bucket",
+
   "fluid_type.dermicraft.calcium_blend_fluid": "Calcium Blend",
   "fluid_type.dermicraft.carbon_blend_fluid": "Carbon Blend",
   "fluid_type.dermicraft.protein_blend_fluid": "Protein Blend",
@@ -49,6 +58,7 @@
   "fluid_type.dermicraft.c_stuff_fluid": "C-Stuff",
 
   "fluid_type.dermicraft.crude_slurry_fluid": "Crude Slurry",
+  "fluid_type.dermicraft.concentrated_slurry_fluid": "Concentrated Slurry",
 
   "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
 
@@ -59,6 +69,8 @@
   "fluid_type.dermicraft.ferrous_blend_fluid": "Ferrous Blend",
   "fluid_type.dermicraft.cuprous_blend_fluid": "Cuprous Blend",
   "fluid_type.dermicraft.aurous_blend_fluid": "Aurous Blend",
+
+  "fluid_type.dermicraft.pulp_blend_fluid": "Pulp Blend",
 
   "block.dermicraft.inert_tumor": "Inert Tumor",
   "block.dermicraft.marred_tumor": "Marred Tumor",
@@ -87,6 +99,15 @@
 
   "block.dermicraft.metastasizer": "Metastasizer",
   "blockEntity.dermicraft.metastasizer_be": "Metastasizer",
+
+  "block.dermicraft.mutator": "Mutator",
+  "blockEntity.dermicraft.mutator_be": "Mutator",
+
+  "block.dermicraft.render_furnace": "Render Furnace",
+  "blockEntity.dermicraft.render_furnace_be": "Render Furnace",
+
+  "block.dermicraft.grafting_table": "Grafting Table",
+  "blockEntity.dermicraft.grafting_table_be": "Grafting Table",
 
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
@@ -123,6 +144,21 @@
   "tooltip.dermicraft.idep.face.metastasizer_output": "Reagent tank (+ Output slot, pull-only)",
   "tooltip.dermicraft.idep.face.metastasizer_pattern": "Reagent tank (+ Pattern slot)",
 
+  "tooltip.dermicraft.idep.face.mutator_fuel": "Fuel tank (+ fuel bucket slot)",
+  "tooltip.dermicraft.idep.face.mutator_output": "Reagent tank (+ Output slot, pull-only)",
+  "tooltip.dermicraft.idep.face.mutator_input": "Reagent tank (+ Input slot)",
+
+  "tooltip.dermicraft.idep.face.render_furnace_fuel": "Fuel tank (+ fuel bucket slot)",
+  "tooltip.dermicraft.idep.face.render_furnace_output": "Output slot (pull-only)",
+  "tooltip.dermicraft.idep.face.render_furnace_input": "Input slot",
+
+  "tooltip.dermicraft.idep.face.grafting_table_fuel": "Fuel tank (+ fuel bucket slot)",
+  "tooltip.dermicraft.idep.face.grafting_table_output": "Output slot (pull-only)",
+  "tooltip.dermicraft.idep.face.grafting_table_grid": "3x3 crafting grid",
+
+  "tooltip.dermicraft.mutator.mode_mutate": "Mode: Mutate (item + reagent -> new item)",
+  "tooltip.dermicraft.mutator.mode_fill": "Mode: Fill (fluid -> container)",
+
   "tooltip.dermicraft.idep.face.effluentcer_fuel": "Fuel tank",
   "tooltip.dermicraft.idep.face.effluentcer_result": "Result tank",
   "tooltip.dermicraft.idep.face.effluentcer_input_a": "Input A tank",
@@ -152,5 +188,27 @@
   "tooltip.dermicraft.liquid.amount": "%s mB",
 
   "gui.dermicraft.mr_farmer.range": "Range: %1$sx%1$s",
-  "tooltip.dermicraft.hold_shift_for_amount": "Hold Shift for fluid amount"
+  "tooltip.dermicraft.hold_shift_for_amount": "Hold Shift for fluid amount",
+
+  "tooltip.dermicraft.gauge.fuel": "Fuel",
+  "tooltip.dermicraft.gauge.reagent": "Reagent",
+  "tooltip.dermicraft.gauge.result": "Result",
+  "tooltip.dermicraft.gauge.input_a": "Input A",
+  "tooltip.dermicraft.gauge.input_b": "Input B",
+
+  "tooltip.dermicraft.slot.fuel_container": "Fuel Container",
+  "tooltip.dermicraft.slot.reagent_container": "Reagent Container",
+  "tooltip.dermicraft.slot.result_container": "Result Container",
+  "tooltip.dermicraft.slot.input_a_container": "Input A Container",
+  "tooltip.dermicraft.slot.input_b_container": "Input B Container",
+  "tooltip.dermicraft.slot.ingredient": "Ingredient",
+  "tooltip.dermicraft.slot.pattern": "Pattern",
+  "tooltip.dermicraft.slot.result": "Result",
+
+  "jei.dermicraft.category.dipping": "Dipping",
+  "jei.dermicraft.category.dipping.description": "Right-click a fluid-filled tank",
+  "jei.dermicraft.category.puddle_crafting": "Puddle Crafting",
+  "jei.dermicraft.category.puddle_crafting.description": "Drop items into this fluid in the world",
+  "jei.dermicraft.category.early_implant": "Early Implant",
+  "jei.dermicraft.category.early_implant.description": "Feed into a Stitched Tumor with a Suture Kit"
 }

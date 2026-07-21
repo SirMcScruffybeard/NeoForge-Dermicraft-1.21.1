@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 125,
+  "pattern": {
+    "item": "minecraft:spruce_slab"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:spruce_slab"
+  },
+  "ticks": 25
+}

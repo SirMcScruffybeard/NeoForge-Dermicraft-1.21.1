@@ -1,0 +1,37 @@
+{
+  "type": "dermicraft:early_implant",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "dermicraft:source_primitive_catalyst"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:chest"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:nerve_cluster"
+    },
+    {
+      "item": "dermicraft:nerve_cluster"
+    },
+    {
+      "item": "dermicraft:nerve_cluster"
+    },
+    {
+      "item": "dermicraft:nerve_cluster"
+    },
+    {
+      "item": "dermicraft:eye"
+    }
+  ],
+  "resultFluid": "dermicraft:mutator",
+  "suture_tool": {
+    "item": "dermicraft:suture_kit"
+  }
+}

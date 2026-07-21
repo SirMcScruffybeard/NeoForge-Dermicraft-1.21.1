@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_cuprous_blend",
+  "fluid_amount": 2000,
+  "pattern": {
+    "item": "minecraft:copper_door"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:copper_door"
+  },
+  "ticks": 400
+}

@@ -1,6 +1,3 @@
 {
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "dermicraft:block/calcium_glass"
-  }
+  "parent": "dermicraft:block/calcium_glass"
 }

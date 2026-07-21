@@ -378,34 +378,18 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
                 }
             }
 
+            // Fuel/reagent tank slots hold exactly one container at a time, unconditionally -- not
+            // just once already occupied. The old condition (`hasEmptyFluidHandlerInSlot`, which
+            // inspects the slot's CURRENT contents) never fires on a slot that starts empty, so a
+            // whole stack of empty containers could be inserted in one shot; the auto-fill transfer
+            // then only ever fills and returns a single container, silently collapsing the rest of
+            // the stack. Capping unconditionally means vanilla's own insertItem correctly accepts
+            // just 1 and returns the remainder, so the custom insertItem override below is no longer
+            // needed.
             @Override
             public int getSlotLimit(int slot) {
-                if (slot == PATTERN_SLOT) return 1;
-                return ModFluidUtil.hasEmptyFluidHandlerInSlot(this, slot) ? 1 : super.getSlotLimit(slot);
-            }
-
-            @Override
-            @NotNull
-            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                if (ModFluidUtil.hasFluidHandlerInSlot(this, slot)) {
-                    if (!getStackInSlot(slot).isEmpty()) {
-                        return stack;
-                    }
-                    if (stack.getCount() > 1) {
-                        if (simulate) {
-                            ItemStack remainder = stack.copy();
-                            remainder.shrink(1);
-                            return remainder;
-                        } else {
-                            ItemStack singleInsert = stack.copyWithCount(1);
-                            super.insertItem(slot, singleInsert, false);
-                            ItemStack remainder = stack.copy();
-                            remainder.shrink(1);
-                            return remainder;
-                        }
-                    }
-                }
-                return super.insertItem(slot, stack, simulate);
+                if (slot == PATTERN_SLOT || slot == FUEL_TANK.SLOT || slot == REAGENT_TANK.SLOT) return 1;
+                return super.getSlotLimit(slot);
             }
         };
     }

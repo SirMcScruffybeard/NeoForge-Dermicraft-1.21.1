@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_aurous_blend",
+  "fluid_amount": 660,
+  "ingredient": {
+    "item": "minecraft:melon_slice"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:glistering_melon_slice"
+  },
+  "ticks": 120
+}

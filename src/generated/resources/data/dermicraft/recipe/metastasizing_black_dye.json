@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_carbon_blend",
+  "fluid_amount": 100,
+  "pattern": {
+    "item": "minecraft:black_dye"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:black_dye"
+  },
+  "ticks": 50
+}

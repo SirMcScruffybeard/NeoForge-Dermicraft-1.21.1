@@ -8,6 +8,6 @@
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_calcium_blend",
-  "result_fluid_amount": 330,
+  "result_fluid_amount": 334,
   "ticks": 1200
 }

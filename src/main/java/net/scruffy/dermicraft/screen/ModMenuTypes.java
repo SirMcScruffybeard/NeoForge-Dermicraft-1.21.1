@@ -15,7 +15,10 @@ import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerMenu;
 import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerMenu;
+import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableMenu;
+import net.scruffy.dermicraft.screen.custom.mutator.MutatorMenu;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
+import net.scruffy.dermicraft.screen.custom.render_furnace.RenderFurnaceMenu;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 
 public class ModMenuTypes {
@@ -45,6 +48,15 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<MrFarmerMenu>> MR_FARMER_MENU =
             registerMenuType("mr_farmer_menu", MrFarmerMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<MutatorMenu>> MUTATOR_MENU =
+            registerMenuType("mutator_menu", MutatorMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<RenderFurnaceMenu>> RENDER_FURNACE_MENU =
+            registerMenuType("render_furnace_menu", RenderFurnaceMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<GraftingTableMenu>> GRAFTING_TABLE_MENU =
+            registerMenuType("grafting_table_menu", GraftingTableMenu::new);
 
 
 

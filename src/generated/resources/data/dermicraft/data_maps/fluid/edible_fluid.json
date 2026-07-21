@@ -1,0 +1,19 @@
+{
+  "values": {
+    "dermicraft:source_crude_slurry": {
+      "hunger": 3,
+      "mb_per_drink": 250,
+      "saturation": 0.1
+    },
+    "dermicraft:source_f_stuff": {
+      "hunger": 4,
+      "mb_per_drink": 250,
+      "saturation": 0.5
+    },
+    "dermicraft:source_protein_blend": {
+      "hunger": 5,
+      "mb_per_drink": 250,
+      "saturation": 0.3
+    }
+  }
+}

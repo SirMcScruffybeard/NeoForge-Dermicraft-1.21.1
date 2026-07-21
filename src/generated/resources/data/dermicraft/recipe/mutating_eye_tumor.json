@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 1000,
+  "ingredient": {
+    "item": "dermicraft:eye"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:eye_tumor"
+  },
+  "ticks": 200
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "dermicraft:bladder"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:suture_kit"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:feeder_bladder"
+  }
+}

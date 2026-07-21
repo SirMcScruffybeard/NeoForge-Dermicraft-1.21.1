@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 2000,
+  "pattern": {
+    "item": "minecraft:chest"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:chest"
+  },
+  "ticks": 400
+}

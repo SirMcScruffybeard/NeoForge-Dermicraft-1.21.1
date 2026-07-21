@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_silica_blend",
+  "fluid_amount": 500,
+  "pattern": {
+    "item": "minecraft:light_blue_stained_glass_pane"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:light_blue_stained_glass_pane"
+  },
+  "ticks": 120
+}

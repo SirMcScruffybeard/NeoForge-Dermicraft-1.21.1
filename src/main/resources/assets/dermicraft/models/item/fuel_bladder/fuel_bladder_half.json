@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/bladder/fluid_bladder_half",
+    "layer1": "dermicraft:item/bladder/fuel_bladder_adapter"
+  }
+}

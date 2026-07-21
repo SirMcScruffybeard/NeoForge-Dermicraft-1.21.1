@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 125,
+  "pattern": {
+    "item": "minecraft:jungle_slab"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:jungle_slab"
+  },
+  "ticks": 25
+}

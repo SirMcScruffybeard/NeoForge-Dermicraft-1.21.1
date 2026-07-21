@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_crude_slurry",
+  "fluid_amount": 520,
+  "pattern": {
+    "item": "minecraft:bread"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:bread"
+  },
+  "ticks": 104
+}

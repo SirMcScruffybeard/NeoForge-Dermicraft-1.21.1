@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_carbon_blend",
+  "fluid_amount": 112,
+  "pattern": {
+    "item": "minecraft:coal"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:coal"
+  },
+  "ticks": 50
+}

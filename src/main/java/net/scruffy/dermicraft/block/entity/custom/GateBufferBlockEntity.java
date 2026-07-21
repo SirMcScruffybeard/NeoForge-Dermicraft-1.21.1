@@ -37,6 +37,30 @@ public class GateBufferBlockEntity extends MachineBaseBlockEntity {
     @Nullable
     private Channel.Kind assignedKind = null;
 
+    // Transient, per-tick structure claim -- NOT persisted, deliberately: bonding itself is fully
+    // recomputed every poll (see GateControllerBlockEntity), so ownership has to be too, rather than
+    // becoming its own separate stale state. Guards against two independently-built Gate structures
+    // (e.g. one per machine in a stack) bleeding into each other if their Buffers/Ports happen to
+    // touch: whichever Controller's poll reaches this Buffer FIRST in a given world tick claims it
+    // for that tick; any other Controller's discoverStructure() this same tick must treat it as
+    // already taken and exclude it from its own structure.
+    private long claimedAtGameTime = Long.MIN_VALUE;
+    @Nullable
+    private BlockPos claimedByController = null;
+
+    /** Attempts to claim this Buffer into {@code controllerPos}'s structure for the current game
+     * tick. Returns true if the caller now owns it this tick (either freshly claimed, or already
+     * owned by this same Controller this tick); false if a DIFFERENT Controller already claimed it
+     * this tick. The claim naturally resets every tick (compares {@code gameTime}, nothing to clear). */
+    public boolean tryClaimStructure(BlockPos controllerPos, long gameTime) {
+        if (claimedAtGameTime != gameTime) {
+            claimedAtGameTime = gameTime;
+            claimedByController = controllerPos;
+            return true;
+        }
+        return controllerPos.equals(claimedByController);
+    }
+
     private final ItemStackHandler ITEM = new ItemStackHandler(1) {
         @Override
         public int getSlotLimit(int slot) {

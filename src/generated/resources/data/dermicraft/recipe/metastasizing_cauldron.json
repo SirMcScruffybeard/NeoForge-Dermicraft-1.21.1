@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid_amount": 7000,
+  "pattern": {
+    "item": "minecraft:cauldron"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:cauldron"
+  },
+  "ticks": 1400
+}

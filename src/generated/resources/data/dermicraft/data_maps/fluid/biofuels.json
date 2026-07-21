@@ -1,5 +1,11 @@
 {
   "values": {
+    "dermicraft:source_concentrated_slurry": {
+      "heal": 0.125,
+      "speed": 0.125,
+      "tier": 1,
+      "use_rate": 0.9
+    },
     "dermicraft:source_crude_slurry": {
       "heal": 0.1,
       "speed": 0.1,

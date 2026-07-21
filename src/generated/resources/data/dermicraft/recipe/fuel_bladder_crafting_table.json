@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "dermicraft:bladder"
+    },
+    {
+      "tag": "c:ingots/copper"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:fuel_bladder"
+  }
+}

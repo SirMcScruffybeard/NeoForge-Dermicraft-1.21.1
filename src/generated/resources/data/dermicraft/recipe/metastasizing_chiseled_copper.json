@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_cuprous_blend",
+  "fluid_amount": 18000,
+  "pattern": {
+    "item": "minecraft:chiseled_copper"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:chiseled_copper"
+  },
+  "ticks": 3600
+}

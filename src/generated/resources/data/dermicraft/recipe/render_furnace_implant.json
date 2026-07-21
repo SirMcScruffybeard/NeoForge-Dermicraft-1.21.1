@@ -1,0 +1,16 @@
+{
+  "type": "dermicraft:early_implant",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "dermicraft:source_primitive_catalyst"
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:furnace"
+    }
+  ],
+  "resultFluid": "dermicraft:render_furnace",
+  "suture_tool": {
+    "item": "dermicraft:suture_kit"
+  }
+}

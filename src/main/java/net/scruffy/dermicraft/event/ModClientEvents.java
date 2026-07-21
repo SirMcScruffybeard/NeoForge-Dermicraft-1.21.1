@@ -29,6 +29,8 @@ public class ModClientEvents {
         registerFluidTint(event, ModItems.GLASS_FLASK.get());
         registerFluidTint(event, ModBlocks.BEAKER_ITEM.get());
         registerFluidTint(event, ModItems.BLADDER.get());
+        registerFluidTint(event, ModItems.FUEL_BLADDER.get());
+        registerFluidTint(event, ModItems.FEEDER_BLADDER.get());
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
         registerBucketTint(event, ModFluids.CALCIUM_BLEND_BUCKET.get(), ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE);
@@ -36,6 +38,7 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.PROTEIN_BLEND_BUCKET.get(), ModFluidTypes.PROTEIN_BLEND_FLUID_TYPE);
 
         registerBucketTint(event, ModFluids.CRUDE_SLURRY_BUCKET.get(), ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.CONCENTRATED_SLURRY_BUCKET.get(), ModFluidTypes.CONCENTRATED_SLURRY_FLUID_TYPE);
 
         registerBucketTint(event, ModFluids.PRIMITIVE_CATALYST_BUCKET.get(), ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE);
 
@@ -46,6 +49,8 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.FERROUS_BLEND_BUCKET.get(), ModFluidTypes.FERROUS_BLEND_FLUID_TYPE);
         registerBucketTint(event, ModFluids.CUPROUS_BLEND_BUCKET.get(), ModFluidTypes.CUPROUS_BLEND_FLUID_TYPE);
         registerBucketTint(event, ModFluids.AUROUS_BLEND_BUCKET.get(), ModFluidTypes.AUROUS_BLEND_FLUID_TYPE);
+
+        registerBucketTint(event, ModFluids.PULP_BLEND_BUCKET.get(), ModFluidTypes.PULP_BLEND_FLUID_TYPE);
 
         registerBucketTint(event, ModFluids.F_STUFF_BUCKET.get(), ModFluidTypes.F_STUFF_FLUID_TYPE);
         registerBucketTint(event, ModFluids.C_STUFF_BUCKET.get(), ModFluidTypes.C_STUFF_FLUID_TYPE);

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 375,
+  "pattern": {
+    "item": "minecraft:cherry_stairs"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:cherry_stairs"
+  },
+  "ticks": 75
+}

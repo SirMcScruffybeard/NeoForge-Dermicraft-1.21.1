@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:stripped_acacia_log"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:stripped_acacia_log"
+  },
+  "ticks": 200
+}

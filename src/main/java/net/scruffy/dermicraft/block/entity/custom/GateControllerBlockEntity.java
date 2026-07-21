@@ -15,6 +15,7 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.scruffy.dermicraft.block.custom.gate.GateBufferBlock;
+import net.scruffy.dermicraft.block.custom.gate.GateControllerBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IGateBlock;
@@ -226,14 +227,34 @@ public class GateControllerBlockEntity extends MachineBaseBlockEntity {
         }
     }
 
-    /** BFS out from the Controller over adjacent Gate blocks (Buffers/Ports/further Controllers are
-     * all valid links), collecting the bonded Buffer and Port positions, and separately locating the
-     * one target {@link IHasChannels} machine adjacent to the Controller itself. */
+    /**
+     * BFS out from the Controller over adjacent Gate blocks, collecting the bonded Buffer and Port
+     * positions, and separately locating the one target {@link IHasChannels} machine adjacent to the
+     * Controller itself.
+     *
+     * <p>Three guards against a second, independently-built Gate structure bleeding into this one
+     * (e.g. one Controller per machine in a stack, whose Buffers/Ports happen to end up touching):
+     * <ul>
+     *   <li>Another {@link GateControllerBlock} is a hard boundary -- the walk stops there instead of
+     *       passing through and starting to claim that Controller's own dedicated Buffers.
+     *   <li>A Port is a TERMINAL, not a link -- collected as bonded, but the walk never continues
+     *       through it. This closes the "shared Port bridging two structures' Buffers" theft vector,
+     *       and costs nothing: a Port's capability is a stateless direct-neighbour scan that never
+     *       depended on bonding, bondedPorts is diagnostic-only, and a Port not directly touching a
+     *       Buffer is inert regardless. Consequence: structure skeletons must chain through Buffers
+     *       (and the Controller); Ports hang off the sides, which is their intended role anyway.
+     *   <li>Every Buffer must be claimed via {@link GateBufferBlockEntity#tryClaimStructure} before
+     *       being absorbed -- whichever Controller reaches a given Buffer FIRST in a given world tick
+     *       wins it for that tick, so even direct Buffer-to-Buffer contact between two structures
+     *       can't produce double ownership.
+     * </ul>
+     */
     private void discoverStructure(Level level) {
         bondedBuffers.clear();
         bondedPorts.clear();
         targetMachinePos = null;
 
+        long gameTime = level.getGameTime();
         Set<BlockPos> visited = new HashSet<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
         visited.add(worldPosition);
@@ -254,17 +275,28 @@ public class GateControllerBlockEntity extends MachineBaseBlockEntity {
                     targetMachinePos = neighbor;
                 }
 
-                if (state.getBlock() instanceof IGateBlock) {
-                    visited.add(neighbor);
-                    queue.add(neighbor);
-                    if (state.getBlock() instanceof GateBufferBlock) {
-                        bondedBuffers.add(neighbor);
-                    } else if (!neighbor.equals(worldPosition)) {
-                        // A Gate block that isn't a Buffer and isn't us: a Port (or another Controller,
-                        // which just extends the chain and is otherwise ignored here).
-                        bondedPorts.add(neighbor);
-                    }
+                if (!(state.getBlock() instanceof IGateBlock)) continue;
+
+                if (state.getBlock() instanceof GateControllerBlock) {
+                    visited.add(neighbor); // boundary -- mark seen, don't walk through it
+                    continue;
                 }
+
+                if (state.getBlock() instanceof GateBufferBlock) {
+                    visited.add(neighbor);
+                    if (!(level.getBlockEntity(neighbor) instanceof GateBufferBlockEntity buffer)
+                            || !buffer.tryClaimStructure(worldPosition, gameTime)) {
+                        continue; // claimed by another Controller this tick -- dead end
+                    }
+                    queue.add(neighbor);
+                    bondedBuffers.add(neighbor);
+                    continue;
+                }
+
+                // A Port (or any future stateless Gate block type): bonded, but a TERMINAL -- the
+                // walk does not continue through it (see the javadoc's structure-bleed guards).
+                visited.add(neighbor);
+                bondedPorts.add(neighbor);
             }
         }
     }

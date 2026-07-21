@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 250,
+  "pattern": {
+    "item": "minecraft:cobweb"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:cobweb"
+  },
+  "ticks": 50
+}

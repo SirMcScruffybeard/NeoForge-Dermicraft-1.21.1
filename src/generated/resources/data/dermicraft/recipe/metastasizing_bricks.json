@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_clay_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:bricks"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:bricks"
+  },
+  "ticks": 200
+}

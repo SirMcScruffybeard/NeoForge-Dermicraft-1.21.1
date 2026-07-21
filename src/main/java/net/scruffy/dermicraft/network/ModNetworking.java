@@ -5,6 +5,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -37,6 +38,14 @@ public class ModNetworking {
                     if (be instanceof NodeBlockEntity node) {
                         if (payload.fluid()) node.toggleFluids(payload.direction());
                         else node.toggleItems(payload.direction());
+                    }
+                }));
+
+        registrar.playToServer(MutatorModeClickPayload.TYPE, MutatorModeClickPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    BlockEntity be = context.player().level().getBlockEntity(payload.pos());
+                    if (be instanceof MutatorBlockEntity mutator) {
+                        mutator.toggleMode();
                     }
                 }));
     }

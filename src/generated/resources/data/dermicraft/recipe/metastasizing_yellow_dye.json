@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_crude_slurry",
+  "fluid_amount": 100,
+  "pattern": {
+    "item": "minecraft:yellow_dye"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:yellow_dye"
+  },
+  "ticks": 50
+}

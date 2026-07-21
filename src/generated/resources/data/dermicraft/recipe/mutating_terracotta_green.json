@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_clay_blend",
+  "fluid_amount": 1000,
+  "ingredient": {
+    "item": "minecraft:green_dye"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:green_terracotta"
+  },
+  "ticks": 200
+}

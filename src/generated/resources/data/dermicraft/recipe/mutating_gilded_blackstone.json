@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_aurous_blend",
+  "fluid_amount": 550,
+  "ingredient": {
+    "item": "minecraft:blackstone"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:gilded_blackstone"
+  },
+  "ticks": 200
+}

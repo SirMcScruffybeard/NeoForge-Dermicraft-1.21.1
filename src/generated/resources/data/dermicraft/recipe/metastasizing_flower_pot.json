@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_clay_blend",
+  "fluid_amount": 750,
+  "pattern": {
+    "item": "minecraft:flower_pot"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:flower_pot"
+  },
+  "ticks": 120
+}

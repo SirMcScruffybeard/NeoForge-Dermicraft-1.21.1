@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_calcium_blend",
-  "fluid_amount": 330,
+  "fluid_amount": 334,
   "pattern": {
     "item": "minecraft:bone_meal"
   },

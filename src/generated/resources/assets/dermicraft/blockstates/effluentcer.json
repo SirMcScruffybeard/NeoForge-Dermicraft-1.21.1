@@ -1,18 +1,48 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=east,state=idle": {
       "model": "dermicraft:block/effluentcer",
       "y": 90
     },
-    "facing=north": {
+    "facing=east,state=recovering": {
+      "model": "dermicraft:block/effluentcer_error",
+      "y": 90
+    },
+    "facing=east,state=running": {
+      "model": "dermicraft:block/effluentcer_on",
+      "y": 90
+    },
+    "facing=north,state=idle": {
       "model": "dermicraft:block/effluentcer"
     },
-    "facing=south": {
+    "facing=north,state=recovering": {
+      "model": "dermicraft:block/effluentcer_error"
+    },
+    "facing=north,state=running": {
+      "model": "dermicraft:block/effluentcer_on"
+    },
+    "facing=south,state=idle": {
       "model": "dermicraft:block/effluentcer",
       "y": 180
     },
-    "facing=west": {
+    "facing=south,state=recovering": {
+      "model": "dermicraft:block/effluentcer_error",
+      "y": 180
+    },
+    "facing=south,state=running": {
+      "model": "dermicraft:block/effluentcer_on",
+      "y": 180
+    },
+    "facing=west,state=idle": {
       "model": "dermicraft:block/effluentcer",
+      "y": 270
+    },
+    "facing=west,state=recovering": {
+      "model": "dermicraft:block/effluentcer_error",
+      "y": 270
+    },
+    "facing=west,state=running": {
+      "model": "dermicraft:block/effluentcer_on",
       "y": 270
     }
   }

@@ -20,6 +20,7 @@ import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
+import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 
 import java.util.ArrayList;
@@ -99,6 +100,22 @@ public class RecipeBuilders {
     // Duplication: the pattern block is also the (non-consumed) result -- one copy per craft.
     public static void duplicate(RecipeOutput output, String name, ItemLike block, Fluid fluid, int fluidAmount, int ticks) {
         buildMetastasizing(output, name, Ingredient.of(block), fluid, fluidAmount, new ItemStack(block), ticks);
+    }
+
+
+    ////////////////////Mutating\\\\\\\\\\\\\\\\\\\\
+    public static void buildMutating(RecipeOutput output, String name, Ingredient ingredient, Fluid fluid,
+                                     int fluidAmount, ItemStack result, int ticks) {
+        ResourceLocation id = getResourceLocation(name);
+        MutatingRecipe recipe = new MutatingRecipe(ingredient, fluid, fluidAmount, result, ticks);
+        output.accept(id, recipe, null);
+    }
+
+    // Simple single-item-in, single-item-out transform (the common case) -- the input item IS
+    // consumed, unlike the Metastasizer's non-consumed pattern.
+    public static void mutate(RecipeOutput output, String name, ItemLike ingredient, Fluid fluid, int fluidAmount,
+                              ItemLike result, int ticks) {
+        buildMutating(output, name, Ingredient.of(ingredient), fluid, fluidAmount, new ItemStack(result), ticks);
     }
 
 

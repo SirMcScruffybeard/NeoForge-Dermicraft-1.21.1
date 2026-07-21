@@ -31,6 +31,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
 
         tag(ModTags.Fluids.BIOFUELS)
                 .add(ModFluids.SOURCE_CRUDE_SLURRY.get())
+                .add(ModFluids.SOURCE_CONCENTRATED_SLURRY.get())
         ;
 
         // --- Hazard kinds ---
@@ -69,6 +70,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_PROTEIN_BLEND.get())
 
                 .add(ModFluids.SOURCE_CRUDE_SLURRY.get())
+                .add(ModFluids.SOURCE_CONCENTRATED_SLURRY.get())
 
                 .add(ModFluids.SOURCE_STONE_BLEND.get())
                 .add(ModFluids.SOURCE_SILICA_BLEND.get())
@@ -77,6 +79,8 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_FERROUS_BLEND.get())
                 .add(ModFluids.SOURCE_CUPROUS_BLEND.get())
                 .add(ModFluids.SOURCE_AUROUS_BLEND.get())
+
+                .add(ModFluids.SOURCE_PULP_BLEND.get())
         ;
 
         tag(ModTags.Fluids.THIN)

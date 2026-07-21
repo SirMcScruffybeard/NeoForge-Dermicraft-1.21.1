@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 520,
+  "pattern": {
+    "item": "minecraft:cooked_rabbit"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:cooked_rabbit"
+  },
+  "ticks": 240
+}

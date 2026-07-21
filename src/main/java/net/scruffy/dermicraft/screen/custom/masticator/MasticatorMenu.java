@@ -23,7 +23,7 @@ public class MasticatorMenu extends AbstractModMenu {
     }
 
     public MasticatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.MASTICATOR_MENU.get(), containerId, 3);
+        super(ModMenuTypes.MASTICATOR_MENU.get(), containerId, 4);
         checkContainerSize(inv, 2);
         this.BE = ((MasticatorBlockEntity) blockEntity);
         this.level = inv.player.level();
@@ -33,8 +33,9 @@ public class MasticatorMenu extends AbstractModMenu {
         addPlayerHotbar(inv);
 
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60));
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getIngredientTank().SLOT, 51, 60));
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 110, 60));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getIngredientTank().SLOT, 67, 60));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 123, 60));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MasticatorBlockEntity.INGREDIENT_ITEM_SLOT, 38, 35));
 
 
     }

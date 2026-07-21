@@ -29,6 +29,9 @@ import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronSc
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerScreen;
+import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableScreen;
+import net.scruffy.dermicraft.screen.custom.mutator.MutatorScreen;
+import net.scruffy.dermicraft.screen.custom.render_furnace.RenderFurnaceScreen;
 import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerScreen;
 import net.scruffy.dermicraft.screen.custom.node.NodeScreen;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankScreen;
@@ -55,6 +58,7 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_PROTEIN_BLEND.get(), ModFluids.FLOWING_PROTEIN_BLEND.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.FLOWING_CRUDE_SLURRY.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), ModFluids.FLOWING_CONCENTRATED_SLURRY.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.FLOWING_PRIMITIVE_CATALYST.get());
 
@@ -68,6 +72,8 @@ public class DermicraftClient {
 
             renderTranslucentFluid(ModFluids.SOURCE_F_STUFF.get(), ModFluids.FLOWING_F_STUFF.get());
             renderTranslucentFluid(ModFluids.SOURCE_C_STUFF.get(), ModFluids.FLOWING_C_STUFF.get());
+
+            renderTranslucentFluid(ModFluids.SOURCE_PULP_BLEND.get(), ModFluids.FLOWING_PULP_BLEND.get());
         });
     }
 
@@ -78,6 +84,7 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.PROTEIN_BLEND_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CONCENTRATED_SLURRY_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE.get());
 
@@ -91,6 +98,8 @@ public class DermicraftClient {
 
         registerFluidType(event, ModFluidTypes.F_STUFF_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.C_STUFF_FLUID_TYPE.get());
+
+        registerFluidType(event, ModFluidTypes.PULP_BLEND_FLUID_TYPE.get());
 
     }
 
@@ -111,6 +120,9 @@ public class DermicraftClient {
         event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
         event.register(ModMenuTypes.INNARDS_NODE_MENU.get(), NodeScreen::new);
         event.register(ModMenuTypes.MR_FARMER_MENU.get(), MrFarmerScreen::new);
+        event.register(ModMenuTypes.MUTATOR_MENU.get(), MutatorScreen::new);
+        event.register(ModMenuTypes.RENDER_FURNACE_MENU.get(), RenderFurnaceScreen::new);
+        event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

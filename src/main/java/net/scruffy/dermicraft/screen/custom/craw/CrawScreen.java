@@ -11,18 +11,20 @@ import net.scruffy.dermicraft.screen.AbstractModScreen;
 
 public class CrawScreen extends AbstractModScreen<CrawMenu> {
 
-    private static final String PARTS_DIR = "textures/gui/screen_parts/";
+    private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
+    private static final String SLOTS_DIR = "textures/gui/slots/";
+    private static final String ARROWS_DIR = "textures/gui/arrows/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "screen_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
     private static final int BACKGROUND_TEXTURE_SIZE = 256;
 
     private static final ResourceLocation ITEM_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "item_slot.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
     private static final int ITEM_SLOT_SIZE = 18;
 
     private static final ResourceLocation ARROW_BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "arrow_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_background.png");
     private static final int ARROW_WIDTH = 17;
     private static final int ARROW_HEIGHT = 10;
 
@@ -59,6 +61,7 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
 
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
+        renderPlayerInventoryBackdrop(guiGraphics, x, y);
 
         renderItemSlot(guiGraphics, x + INPUT_SLOT_X - 1, y + INPUT_SLOT_Y - 1);
         renderItemSlot(guiGraphics, x + STORAGE_SLOT_X - 1, y + STORAGE_SLOT_Y - 1);

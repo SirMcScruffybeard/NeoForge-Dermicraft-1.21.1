@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 250,
+  "pattern": {
+    "item": "minecraft:jungle_planks"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:jungle_planks"
+  },
+  "ticks": 50
+}

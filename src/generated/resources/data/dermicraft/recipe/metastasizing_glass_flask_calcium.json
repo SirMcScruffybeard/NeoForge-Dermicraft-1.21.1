@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_calcium_blend",
+  "fluid_amount": 250,
+  "pattern": {
+    "item": "dermicraft:glass_flask"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:glass_flask"
+  },
+  "ticks": 50
+}

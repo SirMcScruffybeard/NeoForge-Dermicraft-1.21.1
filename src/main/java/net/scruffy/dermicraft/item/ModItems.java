@@ -23,7 +23,9 @@ public class ModItems {
     public static final DeferredItem<Item> SYRINGE = ITEMS.register("syringe", SyringeItem::new);
     public static final DeferredItem<Item> GLASS_FLASK = ITEMS.register("glass_flask", GlassFlaskItem::new);
     public static final DeferredItem<Item> IDEP = ITEMS.register("idep", IdepItem::new);
-    public static final DeferredItem<Item> BLADDER = ITEMS.register("bladder", BladderItem::new);
+    public static final DeferredItem<Item> BLADDER = ITEMS.register("bladder", () -> new BladderItem(false));
+    public static final DeferredItem<Item> FUEL_BLADDER = ITEMS.register("fuel_bladder", () -> new BladderItem(false));
+    public static final DeferredItem<Item> FEEDER_BLADDER = ITEMS.register("feeder_bladder", () -> new BladderItem(true));
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",

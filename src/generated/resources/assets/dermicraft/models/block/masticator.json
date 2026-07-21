@@ -3,8 +3,8 @@
   "textures": {
     "down": "dermicraft:block/skin_tank_end",
     "east": "dermicraft:block/skin_tank_end",
-    "north": "dermicraft:block/masticator_front",
-    "particle": "dermicraft:block/masticator_front",
+    "north": "dermicraft:block/masticator_face",
+    "particle": "dermicraft:block/masticator_face",
     "south": "dermicraft:block/skin_tank_end",
     "up": "dermicraft:block/skin_tank_end",
     "west": "dermicraft:block/skin_tank_end"

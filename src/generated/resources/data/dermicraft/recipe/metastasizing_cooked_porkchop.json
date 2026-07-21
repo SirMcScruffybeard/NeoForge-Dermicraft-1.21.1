@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 936,
+  "pattern": {
+    "item": "minecraft:cooked_porkchop"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:cooked_porkchop"
+  },
+  "ticks": 432
+}

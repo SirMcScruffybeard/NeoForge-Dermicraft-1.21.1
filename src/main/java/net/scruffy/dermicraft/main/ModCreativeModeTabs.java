@@ -46,6 +46,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.SKIN_TANK);
                         output.accept(ModBlocks.EFFLUENTCER);
                         output.accept(ModBlocks.METASTASIZER);
+                        output.accept(ModBlocks.MUTATOR);
+                        output.accept(ModBlocks.RENDER_FURNACE);
+                        output.accept(ModBlocks.GRAFTING_TABLE);
                         output.accept(ModBlocks.CRAW);
                         output.accept(ModBlocks.MR_FARMER);
 
@@ -74,6 +77,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.FORCEPS);
                         output.accept(ModItems.IDEP);
                         output.accept(ModItems.BLADDER);
+                        output.accept(ModItems.FUEL_BLADDER);
+                        output.accept(ModItems.FEEDER_BLADDER);
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);
@@ -96,6 +101,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.C_STUFF_BUCKET);
 
                         output.accept(ModFluids.CRUDE_SLURRY_BUCKET);
+                        output.accept(ModFluids.CONCENTRATED_SLURRY_BUCKET);
 
                         output.accept(ModFluids.PRIMITIVE_CATALYST_BUCKET);
 
@@ -106,6 +112,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.FERROUS_BLEND_BUCKET);
                         output.accept(ModFluids.CUPROUS_BLEND_BUCKET);
                         output.accept(ModFluids.AUROUS_BLEND_BUCKET);
+
+                        output.accept(ModFluids.PULP_BLEND_BUCKET);
 
 
                     }).build());
@@ -137,12 +145,15 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_C_STUFF.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CONCENTRATED_SLURRY.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SILICA_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CLAY_BLEND.get()));
+
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PULP_BLEND.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_FERROUS_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CUPROUS_BLEND.get()));

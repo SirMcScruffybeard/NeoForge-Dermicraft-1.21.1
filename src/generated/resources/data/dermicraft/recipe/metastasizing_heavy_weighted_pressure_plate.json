@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid_amount": 2000,
+  "pattern": {
+    "item": "minecraft:heavy_weighted_pressure_plate"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:heavy_weighted_pressure_plate"
+  },
+  "ticks": 1200
+}

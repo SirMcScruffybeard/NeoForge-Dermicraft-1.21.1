@@ -21,7 +21,13 @@ public class FuelTank extends ModFluidTank {
 
     public int getUseRate() {
         if (!isValidBiofuel()) return 0;
-        return Math.round(ModFluidUtil.getUseRate(this.getFluid()));
+        return Math.round(getRawUseRate());
+    }
+
+    /** Unrounded use-rate, for callers that scale it (e.g. by CRAFT_TICKS) before rounding once. */
+    public float getRawUseRate() {
+        if (!isValidBiofuel()) return 0;
+        return ModFluidUtil.getUseRate(this.getFluid());
     }
 
     public float getFuelSpeedModifier() {

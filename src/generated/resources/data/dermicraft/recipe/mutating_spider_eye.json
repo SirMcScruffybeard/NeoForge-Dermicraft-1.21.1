@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_primitive_catalyst",
+  "fluid_amount": 100,
+  "ingredient": {
+    "item": "dermicraft:eye"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:spider_eye"
+  },
+  "ticks": 50
+}

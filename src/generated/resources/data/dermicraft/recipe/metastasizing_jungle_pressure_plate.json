@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 500,
+  "pattern": {
+    "item": "minecraft:jungle_pressure_plate"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:jungle_pressure_plate"
+  },
+  "ticks": 100
+}

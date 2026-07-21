@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 250,
+  "pattern": {
+    "item": "minecraft:mangrove_planks"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:mangrove_planks"
+  },
+  "ticks": 50
+}

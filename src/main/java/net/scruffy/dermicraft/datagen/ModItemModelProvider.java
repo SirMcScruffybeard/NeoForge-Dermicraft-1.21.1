@@ -43,6 +43,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         chunkyBucketItem(ModFluids.PROTEIN_BLEND_BUCKET.get());
 
         chunkyBucketItem(ModFluids.CRUDE_SLURRY_BUCKET.get());
+        chunkyBucketItem(ModFluids.CONCENTRATED_SLURRY_BUCKET.get());
 
         thinBucketItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
 
@@ -53,6 +54,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         chunkyBucketItem(ModFluids.FERROUS_BLEND_BUCKET.get());
         chunkyBucketItem(ModFluids.CUPROUS_BLEND_BUCKET.get());
         chunkyBucketItem(ModFluids.AUROUS_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.PULP_BLEND_BUCKET.get());
 
         thinBucketItem(ModFluids.F_STUFF_BUCKET.get());
         thinBucketItem(ModFluids.C_STUFF_BUCKET.get());

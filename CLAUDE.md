@@ -35,6 +35,22 @@ Bucket items do **not** get a dedicated texture per fluid. `ModItemModelProvider
 
 `Dermicraft.java` (common) vs `DermicraftClient.java` (`@Mod(..., dist = Dist.CLIENT)`) — keep client-only concerns (block entity renderers, screens, render layers, item color/property handlers) out of the common class.
 
+**Checklist for adding a new fluid** (grep every `SOURCE_<EXISTING_FLUID>` reference across `src/main/java` to catch project-specific extras like `GlassFlaskItem`'s per-fluid dispatch — this list covers the general/infrastructure touchpoints only, not one-off mechanics tied to a specific existing fluid):
+- `ModFluidTypes.java` — register the `FluidType` (tint color, fog color vector, viscosity/density/temperature/motionScale).
+- `ModFluids.java` — source `FlowingFluid`, flowing `FlowingFluid`, `LiquidBlock`, bucket item (`getBucket` helper), `BaseFlowingFluid.Properties`.
+- `ModItemModelProvider.java` — `chunkyBucketItem(...)` or `thinBucketItem(...)` for the bucket.
+- `ModClientEvents.java` — `registerBucketTint(...)` so the bucket's fill layer actually gets tinted.
+- **`DermicraftClient.java` — easy to forget, breaks the bucket/block's rendering silently (shows as missing/broken model) if skipped:**
+  - `renderTranslucentFluid(...)` in `onClientSetup`.
+  - `registerFluidType(...)` in `onClientExtensions`.
+- `ModFluidTagProvider.java` — `THICK` or `THIN` tag (drives Beaker/Glass Flask/Syringe fill-level rendering automatically, no per-item code needed), plus any hazard tags (`EXTREME_HEAT`, etc.) and family tags (e.g. `BIOFUELS`) that apply.
+- `ModItemTagProvider.java` — the **item-side** mirror of any fluid-side family tag added above (e.g. `BIOFUELS` exists on both the fluid tag and an item tag over the bucket — easy to add one and miss the other).
+- `ModDataMapProvider.java` — `BIOFUELS` data map entry if it's a fuel (speed/use-rate/heal/tier), `EDIBLE_FLUID` if it's meant to be drinkable.
+- A recipe (Masticator/Effluencing/etc., via `RecipeBuilders`) so the fluid is actually reachable in survival — see [[feedback_survival_reachability_check]].
+- `en_us.json` — `item.dermicraft.<bucket_id>` and `fluid_type.dermicraft.<fluid_type_id>` lang keys.
+- `ModCreativeModeTabs.java` — the bucket (`output.accept(ModFluids.<X>_BUCKET)`), and a filled Beaker stack (`buildBeakerContents`) if other fluids in its family get one. **Separate from registration** — easy to assume the tab picks new items up automatically; it doesn't.
+- Run `./gradlew runData` afterward and check the diff under `src/generated/resources`.
+
 ### Machines: block + block entity + menu/screen
 
 Each machine (Drooling Cauldron, Masticator, Skin Tank) follows a 4-part pattern:

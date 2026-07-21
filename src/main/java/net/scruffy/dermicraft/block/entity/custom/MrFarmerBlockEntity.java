@@ -22,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -58,17 +59,27 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
     private static final int HORIZONTAL_Y_TOLERANCE = 2; // forward: ±this many Y around the machine's own plane
 
     private static final int MAX_MOISTURE = 7; // FarmBlock.MOISTURE range is 0-7; 7 = fully hydrated
-    // Extra random-ticks applied per immature crop per wave visit, per unit of fuel heal rate
-    // (getHeal() is ~1.0 for Crude Slurry). Tuning knob for how strongly heal accelerates growth.
-    private static final int GROWTH_ATTEMPTS_PER_HEAL = 2;
+    // Average extra random-ticks per crop/stem per wave visit, per unit of fuel heal rate. Kept
+    // fractional (not a flat int) so early fuel (Crude Slurry, heal ~1.0) averages under 1 extra tick
+    // per visit -- a guaranteed 2 was way too strong for tier-1 fuel (crops grew as fast as they could
+    // be harvested). Better fuel (higher heal) still scales the boost up from here.
+    private static final float GROWTH_ATTEMPTS_PER_HEAL = 0.3f;
+    // Extra time a crop stays visibly ripe before the wave harvests it, so maturity is noticeable
+    // rather than instant-harvested the moment it ticks over. This is the BASE value at fuel speed
+    // 1.0 (Crude Slurry); currentMatureGraceTicks() scales it down for faster fuel -- better fuel
+    // both speeds up the wave AND shortens how long ripe crops sit waiting to be picked.
+    private static final int MATURE_GRACE_TICKS_BASE = 40; // ~2 extra seconds at speed 1.0
     private static final int LIGHT_LEVEL = 15;  // invisible Light block brightness placed over the field
     // Block light is LIGHT_LEVEL at the source and drops 1/block; crops need >=9 to grow, so one light
     // covers every crop within this many blocks. Used to place a minimal covering set, not one-per-cell.
     private static final int LIGHT_REACH = LIGHT_LEVEL - 9; // = 6
 
-    // --- Wave sweep pacing ---
-    private static final int WAVE_STEP_TICKS = 6;      // delay between rows/rings ("noticeable, not a bottleneck")
-    private static final int WAVE_COOLDOWN_TICKS = 40; // pause between full sweeps
+    // --- Wave sweep pacing --- (shared by the real farming wave AND the free preview sweep)
+    // WAVE_STEP_TICKS_BASE is the delay between rows/rings at fuel speed 1.0 (Crude Slurry);
+    // currentWaveStepTicks() scales it down for faster fuel so the wave visibly speeds up.
+    private static final int WAVE_STEP_TICKS_BASE = 40; // 2s at speed 1.0
+    private static final int WAVE_COOLDOWN_TICKS = 40;  // pause between full sweeps (not fuel-speed-scaled)
+    private static final float MIN_SPEED_FOR_PACING = 0.1f; // floor so a near-zero speed can't divide-by-near-zero
 
     // --- Range preview (particle visualization, triggered on GUI close) ---
     private static final int PREVIEW_DURATION_TICKS = 600; // ~30s the preview stays active after closing the GUI
@@ -93,6 +104,11 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
     private List<List<BlockPos>> farmWaveSteps = null;
     private int farmWaveCursor = 0;
     private int farmWaveTimer = 0;
+
+    // Tracks when each cell was first seen mature, so harvest waits MATURE_GRACE_TICKS after ripening
+    // rather than harvesting the instant a crop ticks over. Transient (not persisted) -- a reload just
+    // means an already-ripe crop may be harvested a little early rather than waiting out the remainder.
+    private final Map<BlockPos, Long> matureSinceTick = new HashMap<>();
 
     // Invisible Light blocks this machine has placed over its field. Persisted so they can always be
     // cleaned up (on unfuel, field change, or removal) even across a reload.
@@ -134,6 +150,21 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
         if (state.getValue(MrFarmerBlock.ACTIVE) != active) {
             level.setBlock(worldPosition, state.setValue(MrFarmerBlock.ACTIVE, active), Block.UPDATE_CLIENTS);
         }
+    }
+
+    /** Fuel speed ratio, floored so pacing math never divides by (near) zero. */
+    private float pacingSpeed() {
+        return Math.max(MIN_SPEED_FOR_PACING, FUEL_TANK.getSpeed());
+    }
+
+    /** Delay between wave steps -- BASE at fuel speed 1.0, faster with better fuel. */
+    private int currentWaveStepTicks() {
+        return Math.max(1, Math.round(WAVE_STEP_TICKS_BASE / pacingSpeed()));
+    }
+
+    /** How long a ripe crop sits before harvest -- BASE at fuel speed 1.0, shorter with better fuel. */
+    private int currentMatureGraceTicks() {
+        return Math.max(1, Math.round(MATURE_GRACE_TICKS_BASE / pacingSpeed()));
     }
 
     // ---- Tick -------------------------------------------------------------------------------
@@ -196,7 +227,7 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
             farmWaveSteps = null;
             farmWaveTimer = WAVE_COOLDOWN_TICKS;
         } else {
-            farmWaveTimer = WAVE_STEP_TICKS;
+            farmWaveTimer = currentWaveStepTicks();
         }
         setChanged();
     }
@@ -212,12 +243,21 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
 
             BlockState state = level.getBlockState(cropPos);
             if (isMatureCrop(state)) {
-                harvestAndReplant(serverLevel, cropPos, state);
+                if (readyToHarvest(serverLevel, cropPos)) {
+                    harvestAndReplant(serverLevel, cropPos, state);
+                } // else: still within its post-ripening grace period, leave it visibly ripe a bit longer
             } else if (state.isAir()) {
+                matureSinceTick.remove(cropPos);
                 replantRandom(serverLevel, cropPos); // fill genuinely-empty tilled ground
             } else {
-                accelerateGrowth(serverLevel, cropPos, state); // immature crop -> fuel-heal-boosted growth
+                matureSinceTick.remove(cropPos);
+                accelerateGrowth(serverLevel, cropPos, state); // immature crop/stem -> fuel-heal-boosted growth
             }
+
+            // Pumpkin/melon stems place their fruit on an adjacent tile, not their own farmland cell --
+            // scan the cell itself plus its 4 cardinal neighbors so fruit next to (not just above) a
+            // worked cell still gets collected, even if that neighbor tile isn't itself farmland.
+            harvestFruitNear(serverLevel, cropPos);
         }
         // Push any seeds now over the cap toward the buffer (in case the buffer freed up since last pass).
         drainAllExcessSeeds(level);
@@ -226,12 +266,24 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
 
     // ---- Harvest + replant ------------------------------------------------------------------
 
+    /** True once a mature cell has sat ripe for at least currentMatureGraceTicks(); starts the clock on first sight. */
+    private boolean readyToHarvest(ServerLevel level, BlockPos cropPos) {
+        long now = level.getGameTime();
+        Long since = matureSinceTick.get(cropPos);
+        if (since == null) {
+            matureSinceTick.put(cropPos.immutable(), now);
+            return false;
+        }
+        return now - since >= currentMatureGraceTicks();
+    }
+
     /**
      * Harvests a mature crop and immediately replants the SAME crop from the seed reserve (falling back
      * to a random reserved seed, else leaving the cell empty). Seeds go to the reserve, products to the
      * buffer -- so no persistent crop-per-cell tracking is needed, the crop is known right here.
      */
     private void harvestAndReplant(ServerLevel level, BlockPos cropPos, BlockState state) {
+        matureSinceTick.remove(cropPos);
         Block cropBlock = state.getBlock();
         Item seedItem = getSeedItem(level, state);
 
@@ -254,7 +306,9 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
     }
 
     // Mature-crop test: covers vanilla wheat/carrot/potato/beetroot and modded crops that extend
-    // CropBlock. TODO: broaden to non-CropBlock crops (nether wart, modded stems, etc.) if needed.
+    // CropBlock. Pumpkin/melon stems are NOT CropBlock and are handled separately -- a mature stem
+    // isn't "harvested," it stays and keeps producing fruit on adjacent tiles (see harvestFruitNear).
+    // TODO: broaden to other non-CropBlock crops (nether wart, modded stems, etc.) if needed.
     private boolean isMatureCrop(BlockState state) {
         return state.getBlock() instanceof CropBlock crop && crop.isMaxAge(state);
     }
@@ -262,17 +316,64 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
     // ---- Growth acceleration (fuel heal rate) -----------------------------------------------
 
     /**
-     * Boosts an immature crop by applying extra vanilla random-ticks, count scaled by the fuel's heal
-     * rate. Random-ticking respects light/moisture/fertility -- all of which the machine already maxes
-     * -- so it reads as faster natural growth rather than a forced age jump. No-op on non-crops / at max age.
+     * Boosts an immature crop OR pumpkin/melon stem by applying extra vanilla random-ticks, count
+     * scaled by the fuel's heal rate. Random-ticking respects light/moisture/fertility -- all of which
+     * the machine already maxes -- so it reads as faster natural growth rather than a forced age jump.
+     *
+     * <p>A mature CropBlock has nothing left to do (harvest replaces it), so ticking stops there. A
+     * mature StemBlock is different: its randomTick at max age is what rolls the chance to spawn fruit
+     * on an adjacent tile, so ticking deliberately CONTINUES past maturity for stems -- that's how this
+     * boosts fruit growth, not just the stem reaching maturity.
      */
-    private void accelerateGrowth(ServerLevel level, BlockPos cropPos, BlockState state) {
-        if (!(state.getBlock() instanceof CropBlock)) return;
-        int attempts = Math.round(FUEL_TANK.getHeal() * GROWTH_ATTEMPTS_PER_HEAL);
+    private void accelerateGrowth(ServerLevel level, BlockPos pos, BlockState state) {
+        if (!isGrowable(state)) return;
+        // Fractional average -> whole attempts plus a probabilistic extra one for the remainder, so a
+        // rate like 0.3 means "usually 0, sometimes 1" rather than always rounding down to 0.
+        float expected = FUEL_TANK.getHeal() * GROWTH_ATTEMPTS_PER_HEAL;
+        int attempts = (int) expected;
+        if (level.getRandom().nextFloat() < expected - attempts) attempts++;
+
         for (int i = 0; i < attempts; i++) {
-            BlockState current = level.getBlockState(cropPos);
-            if (!(current.getBlock() instanceof CropBlock crop) || crop.isMaxAge(current)) break;
-            current.randomTick(level, cropPos, level.getRandom());
+            BlockState current = level.getBlockState(pos);
+            if (current.getBlock() instanceof CropBlock crop) {
+                if (crop.isMaxAge(current)) break; // nothing more a maxed crop can do
+            } else if (!(current.getBlock() instanceof StemBlock)) {
+                break; // no longer a growable block at all (e.g. harvested/removed mid-loop)
+            }
+            current.randomTick(level, pos, level.getRandom());
+        }
+    }
+
+    private boolean isGrowable(BlockState state) {
+        return state.getBlock() instanceof CropBlock || state.getBlock() instanceof StemBlock;
+    }
+
+    // ---- Pumpkin/melon fruit (grows beside the stem, not on its own farmland cell) -----------
+
+    /**
+     * Checks the cell itself and its 4 cardinal neighbors for a mature pumpkin/melon fruit block and
+     * harvests any found. Fruit doesn't require the tile it lands on to be farmland, so this widens the
+     * scan beyond the tracked farmland cell -- otherwise fruit growing just outside the tilled footprint
+     * would never get collected. Fruit is broken and its drops go straight to the buffer: no seed
+     * banking (fruit blocks don't drop seeds) and no replant (the stem itself is perennial and keeps
+     * producing more fruit on its own).
+     */
+    private void harvestFruitNear(ServerLevel level, BlockPos cellPos) {
+        harvestFruitAt(level, cellPos);
+        harvestFruitAt(level, cellPos.north());
+        harvestFruitAt(level, cellPos.south());
+        harvestFruitAt(level, cellPos.east());
+        harvestFruitAt(level, cellPos.west());
+    }
+
+    private void harvestFruitAt(ServerLevel level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!state.is(Blocks.PUMPKIN) && !state.is(Blocks.MELON)) return;
+
+        List<ItemStack> drops = Block.getDrops(state, level, pos, null);
+        level.destroyBlock(pos, false); // false = we route the drops ourselves
+        for (ItemStack drop : drops) {
+            overflowToBufferOrDrop(level, pos, drop);
         }
     }
 
@@ -502,7 +603,7 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
             previewWaveSteps = null;
             previewWaveTimer = WAVE_COOLDOWN_TICKS; // brief pause, then loop again
         } else {
-            previewWaveTimer = WAVE_STEP_TICKS;
+            previewWaveTimer = currentWaveStepTicks(); // mirrors the real wave's fuel-speed pacing
         }
     }
 
@@ -728,6 +829,9 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
                     ItemStack stack = getStackInSlot(FUEL_TANK.SLOT);
                     if (stack.isEmpty()) return;
 
+                    // Defensive fallback only -- getSlotLimit now caps this slot to 1 unconditionally,
+                    // so count > 1 shouldn't be reachable via normal insertion. Kept in case something
+                    // ever forces a multi-count stack into the slot directly (NBT load, a command, etc.).
                     if (ModFluidUtil.hasEmptyFluidHandlerInSlot(this, FUEL_TANK.SLOT) && stack.getCount() > 1) {
                         ItemStack extra = stack.copy();
                         extra.shrink(1);
@@ -743,34 +847,17 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
                 }
             }
 
+            // FUEL_TANK.SLOT holds exactly one container at a time, unconditionally -- not just once
+            // already occupied. The old condition (`hasEmptyFluidHandlerInSlot`, which inspects the
+            // slot's CURRENT contents) never fires on a slot that starts empty, so a whole stack of
+            // empty containers could be inserted in one shot; the auto-fill transfer then only ever
+            // fills and returns a single container, with the rest previously getting dropped on the
+            // ground by the defensive fallback above rather than being properly rejected at insert
+            // time. Capping unconditionally means vanilla's own insertItem correctly accepts just 1
+            // and returns the remainder, so the custom insertItem override below is no longer needed.
             @Override
             public int getSlotLimit(int slot) {
-                return slot == FUEL_TANK.SLOT && ModFluidUtil.hasEmptyFluidHandlerInSlot(this, slot)
-                        ? 1 : super.getSlotLimit(slot);
-            }
-
-            @Override
-            @NotNull
-            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                if (slot == FUEL_TANK.SLOT && ModFluidUtil.hasFluidHandlerInSlot(this, slot)) {
-                    if (!getStackInSlot(slot).isEmpty()) {
-                        return stack;
-                    }
-                    if (stack.getCount() > 1) {
-                        if (simulate) {
-                            ItemStack remainder = stack.copy();
-                            remainder.shrink(1);
-                            return remainder;
-                        } else {
-                            ItemStack singleInsert = stack.copyWithCount(1);
-                            super.insertItem(slot, singleInsert, false);
-                            ItemStack remainder = stack.copy();
-                            remainder.shrink(1);
-                            return remainder;
-                        }
-                    }
-                }
-                return super.insertItem(slot, stack, simulate);
+                return slot == FUEL_TANK.SLOT ? 1 : super.getSlotLimit(slot);
             }
         };
     }

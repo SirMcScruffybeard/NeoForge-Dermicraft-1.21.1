@@ -6,9 +6,9 @@ Running log of decided design choices for the Innards Duct pipe system and the r
 
 ## Overview
 
-**Status:** Core shape, capacity rules, and jam-clearing interaction confirmed. No implementation yet.
+**Status:** Both block types (Innards Duct and Node) are implemented and feature-complete for Tier 1 — core shape, capacity rules, routing, and jam-clearing interaction are all built, not just designed. Like the rest of the mod, what's left is thorough playtesting rather than remaining design/implementation work.
 
-**What it is:** A lightweight automation transport system that moves **either items or fluids, never both at once on the same segment** — the mod's answer to hoppers/pipes for longer-distance or branching transport. Two block types: the **Innards Duct** (a dumb, single-purpose conduit segment) and the **Node** (the only place routing decisions happen). Deliberately kept cheap: no simulated travel of items/fluids through the pipe, no per-tick graph walks, no round-robin fairness logic baked into every segment.
+**What it is:** A lightweight automation transport system moving items and/or fluids — the mod's answer to hoppers/pipes for longer-distance or branching transport. A single leg can carry both simultaneously via independent Item/Fluid toggles (see Node → Routing config, below); this superseded an earlier "one type per segment" restriction. Two block types: the **Innards Duct** (a dumb, single-purpose conduit segment) and the **Node** (the only place routing decisions happen). Deliberately kept cheap: no simulated travel of items/fluids through the pipe, no per-tick graph walks, no round-robin fairness logic baked into every segment.
 
 **A Node is mandatory for any flow (confirmed) — no auto-detection anywhere.** A duct run has no way to infer which end is source and which is sink on its own; direction is only ever set explicitly, via a Node's In/Out button (see Node section, below). Practical consequence: a duct run with **no Node anywhere on it is inert by construction** — not a special case to detect or reject, just the natural default state of an unrouted run. This also means the Innards Duct itself needs zero decision-making logic of any kind, not just "no branching logic" — every transfer it ever carries was already fully decided by a Node.
 

@@ -69,6 +69,15 @@ public class ModBlocks {
     public static final DeferredBlock<Block> METASTASIZER = registerBlock("metastasizer",
             () -> new MetastasizerBlock(BlockBehaviour.Properties.of()));
 
+    public static final DeferredBlock<Block> MUTATOR = registerBlock("mutator",
+            () -> new MutatorBlock(BlockBehaviour.Properties.of()));
+
+    public static final DeferredBlock<Block> RENDER_FURNACE = registerBlock("render_furnace",
+            () -> new RenderFurnaceBlock(BlockBehaviour.Properties.of()));
+
+    public static final DeferredBlock<Block> GRAFTING_TABLE = registerBlock("grafting_table",
+            () -> new GraftingTableBlock(BlockBehaviour.Properties.of()));
+
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
             () -> new CrawBlock(BlockBehaviour.Properties.of()));
 

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_crude_slurry",
+  "fluid_amount": 10,
+  "ingredient": {
+    "item": "minecraft:cobblestone_wall"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:mossy_cobblestone_wall"
+  },
+  "ticks": 120
+}

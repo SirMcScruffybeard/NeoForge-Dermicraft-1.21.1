@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_clay_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:terracotta"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:terracotta"
+  },
+  "ticks": 200
+}

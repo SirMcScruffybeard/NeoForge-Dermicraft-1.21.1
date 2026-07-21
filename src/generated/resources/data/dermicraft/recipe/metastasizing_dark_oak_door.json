@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 500,
+  "pattern": {
+    "item": "minecraft:dark_oak_door"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:dark_oak_door"
+  },
+  "ticks": 100
+}

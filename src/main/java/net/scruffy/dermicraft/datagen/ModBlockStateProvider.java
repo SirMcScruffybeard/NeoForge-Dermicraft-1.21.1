@@ -9,7 +9,14 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
+import net.scruffy.dermicraft.block.custom.EffluentcerVisualState;
+import net.scruffy.dermicraft.block.custom.MasticatorBlock;
+import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
 import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
+import net.scruffy.dermicraft.block.custom.MutatorBlock;
+import net.scruffy.dermicraft.block.custom.MutatorVisualState;
+import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -37,27 +44,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
 
 
-        horizontalBlock(ModBlocks.MASTICATOR.get(), models().cube(
-                ModBlocks.MASTICATOR.getId().getPath(),
-                modLoc(skinTankEnd),
-                modLoc(skinTankEnd),
-                modLoc("block/masticator_front"),
-                modLoc(skinTankEnd),
-                modLoc(skinTankEnd),
-                modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/masticator_front")));
+        masticatorBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),
                 modLoc("block/" + ModBlocks.MASTICATOR.getId().getPath()));
 
-        horizontalBlock(ModBlocks.EFFLUENTCER.get(), models().cube(
-                ModBlocks.EFFLUENTCER.getId().getPath(),
-                modLoc(skinTankEnd),
-                modLoc(skinTankEnd),
-                modLoc("block/effluentcer_side"),
-                modLoc("block/effluentcer_side"),
-                modLoc("block/effluentcer_side"),
-                modLoc("block/effluentcer_side"))
-                .texture("particle", modLoc("block/effluentcer_side")));
+        effluentcerBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
                 modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
 
@@ -72,6 +63,22 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .texture("particle", modLoc("block/metastasizer_front")));
         itemModels().withExistingParent(ModBlocks.METASTASIZER.getId().getPath(),
                 modLoc("block/" + ModBlocks.METASTASIZER.getId().getPath()));
+
+        mutatorBlockState(skinTankEnd);
+        itemModels().withExistingParent(ModBlocks.MUTATOR.getId().getPath(),
+                modLoc("block/" + ModBlocks.MUTATOR.getId().getPath()));
+
+        renderFurnaceBlockState(skinTankEnd);
+        itemModels().withExistingParent(ModBlocks.RENDER_FURNACE.getId().getPath(),
+                modLoc("block/" + ModBlocks.RENDER_FURNACE.getId().getPath()));
+
+        // No FACING, no ACTIVE state -- only a top texture exists for this one so far, sides/bottom
+        // reuse skin_tank_end like every other machine's placeholder faces.
+        simpleBlockWithItem(ModBlocks.GRAFTING_TABLE.get(), models().cubeBottomTop(
+                ModBlocks.GRAFTING_TABLE.getId().getPath(),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd),
+                modLoc("block/grafting_table_top")));
 
         simpleBlockWithItem(ModBlocks.CRAW.get(), models().cubeBottomTop(
                 ModBlocks.CRAW.getId().getPath(),
@@ -125,6 +132,138 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(off).rotationX(rotX).rotationY(rotY).addModel();
         builder.partialState().with(MrFarmerBlock.FACING, facing).with(MrFarmerBlock.ACTIVE, true)
                 .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
+    }
+
+    // 4 horizontal facings x 3 MutatorVisualState values -- only the front (north-authored) face
+    // texture differs between the three models; skin_tank_end covers every other face in all three.
+    // Y-rotation per facing matches the standard horizontal-facing convention (same values horizontalBlock
+    // itself would generate): North=identity, East=90, South=180, West=270.
+    private void mutatorBlockState(String skinTankEnd) {
+        ModelFile idle = models().cube(ModBlocks.MUTATOR.getId().getPath(),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/mutator_face"));
+        ModelFile running = models().cube("mutator_on",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/mutator_face_on"));
+        ModelFile recovering = models().cube("mutator_error",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator_face_error"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/mutator_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.MUTATOR.get());
+        putMutatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMutatorVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMutatorVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMutatorVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
+    private void putMutatorVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MutatorBlock.STATE, MutatorVisualState.IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MutatorBlock.STATE, MutatorVisualState.RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MutatorBlock.STATE, MutatorVisualState.RECOVERING)
+                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+    // Same shape as mutatorBlockState, but only 2 models (no HP mechanic here -- see MachineTier.NO_HEALTH
+    // -- so no "recovering" state) using a plain BooleanProperty ACTIVE, same idiom as Mr. Farmer's.
+    private void renderFurnaceBlockState(String skinTankEnd) {
+        ModelFile off = models().cube(ModBlocks.RENDER_FURNACE.getId().getPath(),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/render_furnace_face"));
+        ModelFile on = models().cube("render_furnace_on",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/render_furnace_face_on"));
+
+        var builder = getVariantBuilder(ModBlocks.RENDER_FURNACE.get());
+        putRenderFurnaceVariant(builder, off, on, Direction.NORTH, 0);
+        putRenderFurnaceVariant(builder, off, on, Direction.EAST, 90);
+        putRenderFurnaceVariant(builder, off, on, Direction.SOUTH, 180);
+        putRenderFurnaceVariant(builder, off, on, Direction.WEST, 270);
+    }
+
+    private void putRenderFurnaceVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+                                         ModelFile off, ModelFile on, Direction facing, int rotY) {
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.ACTIVE, false)
+                .modelForState().modelFile(off).rotationY(rotY).addModel();
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.ACTIVE, true)
+                .modelForState().modelFile(on).rotationY(rotY).addModel();
+    }
+
+    // Mirrors mutatorBlockState -- 4 horizontal facings x 3 MasticatorVisualState values, only the
+    // front (north-authored) face texture differs between the three models; skin_tank_end covers
+    // every other face in all three. masticator_face_on is a 2-frame animated texture (see its
+    // .png.mcmeta) so the RUNNING model visibly pulses while the machine is actively crafting.
+    private void masticatorBlockState(String skinTankEnd) {
+        ModelFile idle = models().cube(ModBlocks.MASTICATOR.getId().getPath(),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/masticator_face"));
+        ModelFile running = models().cube("masticator_on",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/masticator_face_on"));
+        ModelFile recovering = models().cube("masticator_error",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator_face_error"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/masticator_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.MASTICATOR.get());
+        putMasticatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
+    private void putMasticatorVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MasticatorBlock.STATE, MasticatorVisualState.IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MasticatorBlock.STATE, MasticatorVisualState.RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MasticatorBlock.STATE, MasticatorVisualState.RECOVERING)
+                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+    // Mirrors masticatorBlockState/mutatorBlockState -- 4 horizontal facings x 3
+    // EffluentcerVisualState values, only the front (north-authored) face texture differs between
+    // the three models; effluentcer_side covers the other 3 horizontal faces and skinTankEnd covers
+    // top/bottom in all three.
+    private void effluentcerBlockState(String skinTankEnd) {
+        ModelFile idle = models().cube(ModBlocks.EFFLUENTCER.getId().getPath(),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer_face"),
+                        modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"))
+                .texture("particle", modLoc("block/effluentcer_face"));
+        ModelFile running = models().cube("effluentcer_on",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer_face_on"),
+                        modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"))
+                .texture("particle", modLoc("block/effluentcer_face_on"));
+        ModelFile recovering = models().cube("effluentcer_error",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer_face_error"),
+                        modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"))
+                .texture("particle", modLoc("block/effluentcer_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.EFFLUENTCER.get());
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
+    private void putEffluentcerVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RECOVERING)
+                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {

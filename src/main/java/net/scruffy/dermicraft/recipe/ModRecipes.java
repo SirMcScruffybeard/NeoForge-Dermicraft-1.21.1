@@ -13,6 +13,7 @@ import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
+import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
 import net.scruffy.dermicraft.recipe.puddle_crafting.PuddleCraftingRecipe;
 
 public class ModRecipes {
@@ -59,6 +60,16 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "metastasizing";
+                }
+            });
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MutatingRecipe>> MUTATING_SERIALIZER =
+            SERIALIZERS.register("mutating", MutatingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<MutatingRecipe>> MUTATING_TYPE =
+            TYPES.register("mutating", () -> new RecipeType<MutatingRecipe>() {
+                @Override
+                public String toString() {
+                    return "mutating";
                 }
             });
 

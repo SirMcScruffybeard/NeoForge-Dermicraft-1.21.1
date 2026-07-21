@@ -13,16 +13,17 @@ import org.jetbrains.annotations.NotNull;
 
 public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
 
-    private static final String PARTS_DIR = "textures/gui/screen_parts/";
+    private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
+    private static final String TANKS_DIR = "textures/gui/tanks/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "screen_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
     private static final int BACKGROUND_TEXTURE_SIZE = 256;
 
     // Reuses the bottom 18x18 "slot" portion of the shared tank_and_slot asset as a generic slot
     // backdrop (no dedicated single-slot texture exists yet).
     private static final ResourceLocation TANK_AND_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "tank_and_slot.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, TANKS_DIR + "tank_and_slot.png");
     private static final int TANK_AND_SLOT_WIDTH = 18;
     private static final int TANK_AND_SLOT_HEIGHT = 66;
     private static final int SLOT_CROP_SIZE = 18;
@@ -30,7 +31,7 @@ public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
 
     // Long horizontal fuel gauge that fills left-to-right, sitting to the right of the fuel slot.
     private static final ResourceLocation LONG_TANK_GAUGE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "long_tank_gauge.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, TANKS_DIR + "long_tank_gauge.png");
     private static final int GAUGE_FRAME_WIDTH = 66;
     private static final int GAUGE_FRAME_HEIGHT = 18;
     private static final int GAUGE_INTERIOR_INSET = 1;  // 1px frame border around the fluid window
@@ -42,8 +43,8 @@ public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
     private static final int FUEL_SLOT_X = 7;
     private static final int FUEL_SLOT_Y = 44;
 
-    // Gauge frame position is independent of the slot (they were fine-tuned separately).
-    private static final int GAUGE_FRAME_X = 25;
+    // Gauge sits just right of the fuel slot backdrop (ends at x=25) with a 5px gap.
+    private static final int GAUGE_FRAME_X = 30;
     private static final int GAUGE_FRAME_Y = 44;
     private static final int GAUGE_INTERIOR_X = GAUGE_FRAME_X + GAUGE_INTERIOR_INSET;
     private static final int GAUGE_INTERIOR_Y = GAUGE_FRAME_Y + GAUGE_INTERIOR_INSET;
@@ -52,9 +53,14 @@ public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
     private static final int BUFFER_ROW_X = 7;
     private static final int BUFFER_ROW_Y = 64;
 
-    private static final int RANGE_TEXT_X = 104;
-    private static final int RANGE_TEXT_Y = 20;
-    private static final int RANGE_TEXT_COLOR = 0x404040;
+    // Top-left anchor of the range grid (grid_square tiled n x n, grows down-right with fuel-tier range).
+    private static final int RANGE_GRID_X = 105;
+    private static final int RANGE_GRID_Y = 15;
+
+    // "Range: NxN" text readout, left edge aligned with the fuel gauge's left edge (GAUGE_FRAME_X).
+    private static final int RANGE_TEXT_X = GAUGE_FRAME_X;
+    private static final int RANGE_TEXT_Y = 18;
+    private static final int RANGE_TEXT_COLOR = 0x007F0E; // matches the GUI's green accent
 
     private FluidTankRenderer fuelRenderer;
 
@@ -90,6 +96,7 @@ public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
 
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
+        renderPlayerInventoryBackdrop(guiGraphics, x, y);
 
         renderSlotBackdrop(guiGraphics, x + FUEL_SLOT_X, y + FUEL_SLOT_Y);
         for (int i = 0; i < BUFFER_SLOT_COUNT; i++) {
@@ -103,6 +110,8 @@ public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         guiGraphics.blit(LONG_TANK_GAUGE_TEXTURE, x + GAUGE_FRAME_X, y + GAUGE_FRAME_Y, 0, 0,
                 GAUGE_FRAME_WIDTH, GAUGE_FRAME_HEIGHT, GAUGE_FRAME_WIDTH, GAUGE_FRAME_HEIGHT);
+
+        renderRangeGrid(guiGraphics, x + RANGE_GRID_X, y + RANGE_GRID_Y, menu.getRange());
     }
 
     private void renderSlotBackdrop(GuiGraphics guiGraphics, int x, int y) {

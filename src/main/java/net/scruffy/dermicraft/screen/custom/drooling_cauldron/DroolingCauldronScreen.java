@@ -12,25 +12,28 @@ import net.scruffy.dermicraft.screen.AbstractModScreen;
 
 public class DroolingCauldronScreen extends AbstractModScreen<DroolingCauldronMenu> {
 
-    private static final String PARTS_DIR = "textures/gui/screen_parts/";
+    private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
+    private static final String TANKS_DIR = "textures/gui/tanks/";
+    private static final String SLOTS_DIR = "textures/gui/slots/";
+    private static final String ARROWS_DIR = "textures/gui/arrows/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "screen_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
     private static final int BACKGROUND_TEXTURE_SIZE = 256;
 
     private static final ResourceLocation TALL_TANK_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "tall_tank_guage.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, TANKS_DIR + "tall_tank_guage.png");
     private static final int TALL_TANK_WIDTH = 18;
     private static final int TALL_TANK_HEIGHT = 66;
 
     private static final ResourceLocation ITEM_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "item_slot.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
     private static final int ITEM_SLOT_SIZE = 18;
 
     private static final ResourceLocation ARROW_BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "arrow_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_background.png");
     private static final ResourceLocation ARROW_FULL_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "arrow_fulll.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_fulll.png");
     private static final int ARROW_WIDTH = 17;
     private static final int ARROW_HEIGHT = 10;
 
@@ -63,6 +66,7 @@ public class DroolingCauldronScreen extends AbstractModScreen<DroolingCauldronMe
 
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
+        renderPlayerInventoryBackdrop(guiGraphics, x, y);
 
         guiGraphics.blit(TALL_TANK_TEXTURE, x + 79, y + 7, 0, 0, TALL_TANK_WIDTH, TALL_TANK_HEIGHT,
                 TALL_TANK_WIDTH, TALL_TANK_HEIGHT);

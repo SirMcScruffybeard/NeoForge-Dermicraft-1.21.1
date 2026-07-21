@@ -16,7 +16,7 @@ All three suits occupy the full four vanilla armor slots as a single locked-in u
 
 **Fork point:** The Assault/Recon split happens at the player's first upgrade choice (light vs. heavy), not at initial construction. From that point forward, each suit is easier to discuss independently.
 
-**Construction:** The base Exo-skeleton is OT-born, following the OT's established role as the standard construction path for Gadget-tier equipment.
+**Construction:** The base Exo-skeleton is OT-born, following the OT's established role as the standard construction path for Gadget-tier equipment. **No longer OT-exclusive** — the Dock (a Gear Station) can now also build the Tier 0 suit itself, using "build" rather than "craft" deliberately (living power armor, not a mechanical assembly) — see `dermicraft-gear-stations-notes.md` → Dock, Duty 7. The OT retains the same capability; nothing was removed from it.
 
 ---
 

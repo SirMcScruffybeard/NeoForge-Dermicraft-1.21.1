@@ -19,14 +19,16 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.MasticatorBlock;
+import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
@@ -49,12 +51,17 @@ import java.util.Optional;
 public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<MasticatingRecipe>
         implements MenuProvider, IHaveInventory, IHasChannels {
 
+    // The solid recipe ingredient (food item) lives in its own slot -- INGREDIENT_TANK.SLOT is
+    // purely a fluid-container passthrough for filling/draining the Water tank (bucket in, bucket
+    // out), same as FUEL_TANK.SLOT/RESULT_TANK.SLOT.
+    public static final int INGREDIENT_ITEM_SLOT = 3;
+
     private final VulnerableTank INGREDIENT_TANK = createIngredientTank();
     private final VulnerableTank RESULT_TANK = createResultTank();
 
     private boolean isTransferringFluids = false;
 
-    private final ItemStackHandler INVENTORY = createItemHandler(3);
+    private final ItemStackHandler INVENTORY = createItemHandler(4);
 
     private int resultAmount = 0;
 
@@ -67,6 +74,67 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     @Override
     protected RecipeType<MasticatingRecipe> getRecipeType() {
         return ModRecipes.MASTICATING_TYPE.get();
+    }
+
+    // ---- Visual state (face texture) --------------------------------------------------------
+    // tickHealing runs every cycle regardless of crafting state, so it doubles as the visual-state
+    // refresh point. Recovering (health < maxHealth) takes priority over Running -- a damaged
+    // machine signals distress even mid-cycle. Mirrors MutatorBlockEntity's identical mechanism.
+    //
+    // Debounced: a new state must be observed for VISUAL_STATE_STABLE_CYCLES consecutive cycles
+    // (2 cycles = ~1s at CRAFT_TICKS=10) before the texture commits. Borderline conditions can
+    // otherwise strobe -- e.g. a hopper feeding the ingredient slot every 8 ticks against the
+    // 10-tick cycle flaps RUNNING/IDLE -- and every commit is a setBlock (client update + chunk
+    // re-render), so flapping is also wasted churn. Matching the current state resets any pending
+    // change, so a one-cycle blip never flashes the face. Transient, deliberately not saved to NBT.
+    private static final int VISUAL_STATE_STABLE_CYCLES = 2;
+
+    @Nullable
+    private MasticatorVisualState pendingVisualState = null;
+    private int pendingVisualCycles = 0;
+
+    @Override
+    protected boolean tickHealing(boolean fueled) {
+        boolean healed = super.tickHealing(fueled);
+        updateVisualState();
+        return healed;
+    }
+
+    private void updateVisualState() {
+        if (level == null) return;
+
+        MasticatorVisualState computed = computeVisualState();
+        BlockState state = getBlockState();
+
+        if (state.getValue(MasticatorBlock.STATE) == computed) {
+            pendingVisualState = null;
+            pendingVisualCycles = 0;
+            return;
+        }
+
+        if (pendingVisualState != computed) {
+            pendingVisualState = computed;
+            pendingVisualCycles = 1;
+            return;
+        }
+
+        if (++pendingVisualCycles >= VISUAL_STATE_STABLE_CYCLES) {
+            level.setBlock(worldPosition, state.setValue(MasticatorBlock.STATE, computed), Block.UPDATE_CLIENTS);
+            pendingVisualState = null;
+            pendingVisualCycles = 0;
+        }
+    }
+
+    private MasticatorVisualState computeVisualState() {
+        if (maxHealth > 0 && health < maxHealth) return MasticatorVisualState.RECOVERING;
+        // hasCraftingInputs()/hasCraftingOutputRoom() are vacuously true while idle (resultAmount
+        // defaults to 0, so hasEnoughFluid(0)/hasRoom(0) are trivially satisfied) -- isRecipeValid
+        // is the real "is there actually something to craft" signal, matching the base tick()'s
+        // own crafting gate.
+        if (!isStarved() && isRecipeValid(activeRecipe) && hasCraftingInputs() && hasCraftingOutputRoom()) {
+            return MasticatorVisualState.RUNNING;
+        }
+        return MasticatorVisualState.IDLE;
     }
 
     /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler} literally. */
@@ -100,13 +168,10 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     /**
      * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}. The three
      * tanks, direction-unlocked from what {@code getTank(Direction)} currently hard-binds to
-     * UP/sides/DOWN, plus the solid-ingredient item slot ({@code INGREDIENT_TANK.SLOT}) -- that
-     * slot is a real recipe input (see {@code onCraftComplete}/{@code OneFluidOneItemRecipeInput}),
-     * not just a bucket passthrough, so it needs its own item channel independent of the ingredient
-     * fluid tank. Fluid containers are filtered out of that channel (see
-     * {@link #getIngredientItemChannelHandler}) so a Gate can't use it to sneak fluid in sideways --
-     * bucket-emptying stays exclusive to the ingredient fluid channel / manual interaction, exactly
-     * matching how the slot already behaves for direct player/hopper access today.
+     * UP/sides/DOWN, plus the solid-ingredient item slot ({@code INGREDIENT_ITEM_SLOT}) -- that
+     * slot is the real recipe input (see {@code onCraftComplete}/{@code OneFluidOneItemRecipeInput}),
+     * independent of the ingredient fluid tank and its own bucket-passthrough slot
+     * ({@code INGREDIENT_TANK.SLOT}), so it gets its own item channel.
      *
      * <p>Each channel is omitted if its native face(s) -- the same faces {@code getTank}/
      * {@code getItemHandler} already bind it to -- already has a direct connection (see
@@ -136,15 +201,9 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         return channels;
     }
 
-    /**
-     * The solid-ingredient slot, restricted to non-fluid-container items -- a fluid container
-     * dropped in here would otherwise silently drain into INGREDIENT_TANK via the slot's existing
-     * bi-directional bucket handling (see {@code createItemHandler}), letting a Gate bypass the
-     * dedicated ingredient_fluid channel. Rejecting anything that exposes a FluidHandler.ITEM
-     * capability closes that off while leaving every other item free to pass through normally.
-     */
+    /** The solid-ingredient slot, exposed standalone for the Gate's ingredient_item channel. */
     private IItemHandler getIngredientItemChannelHandler() {
-        int slot = INGREDIENT_TANK.SLOT;
+        int slot = INGREDIENT_ITEM_SLOT;
         return new IItemHandlerModifiable() {
             @Override
             public void setStackInSlot(int i, ItemStack stack) {
@@ -165,7 +224,6 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
             @NotNull
             @Override
             public ItemStack insertItem(int i, ItemStack stack, boolean simulate) {
-                if (stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null) return stack;
                 return INVENTORY.insertItem(slot, stack, simulate);
             }
 
@@ -182,8 +240,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
 
             @Override
             public boolean isItemValid(int i, ItemStack stack) {
-                return stack.getCapability(Capabilities.FluidHandler.ITEM, null) == null
-                        && INVENTORY.isItemValid(slot, stack);
+                return INVENTORY.isItemValid(slot, stack);
             }
         };
     }
@@ -202,10 +259,14 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     public IItemHandler getItemHandler(@Nullable Direction direction) {
         if (direction == null) return INVENTORY;
 
+        // Sides expose the real recipe ingredient slot (INGREDIENT_ITEM_SLOT) to automation, not
+        // INGREDIENT_TANK's bucket-passthrough slot -- that one stays GUI/player-only, since
+        // automation should fill INGREDIENT_TANK via the fluid capability (getTank) directly
+        // rather than shuttling buckets through an item slot.
         int targetSlot = switch (direction) {
             case UP -> FUEL_TANK.SLOT;
             case DOWN -> RESULT_TANK.SLOT;
-            default -> INGREDIENT_TANK.SLOT;
+            default -> INGREDIENT_ITEM_SLOT;
         };
         return new IItemHandlerModifiable() {
             @Override
@@ -254,11 +315,11 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     }
 
     public ItemStack insertItemStack(ItemStack stack) {
-        return insertItemStack(INVENTORY, INGREDIENT_TANK.SLOT, stack);
+        return insertItemStack(INVENTORY, INGREDIENT_ITEM_SLOT, stack);
     }
 
     public ItemStack extractIngredients() {
-        return extractItemStack(INVENTORY, INGREDIENT_TANK.SLOT);
+        return extractItemStack(INVENTORY, INGREDIENT_ITEM_SLOT);
     }
 
     @Override
@@ -280,9 +341,16 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
 
     @Override
     protected void onCraftComplete() {
+        // Captured before draining: useFluid() fires INGREDIENT_TANK.onContentsChanged()
+        // synchronously, which re-resolves the recipe against the now-drained fluid and can
+        // null out activeRecipe before this method reaches it (mirrors the same hazard documented
+        // in MetastasizerBlockEntity#onCraftComplete).
+        int itemAmount = activeRecipe.value().itemAmount();
+        FluidStack result = craftResult(resultAmount);
+
         INGREDIENT_TANK.useFluid(resultAmount);
-        RESULT_TANK.fill(craftResult(resultAmount), IFluidHandler.FluidAction.EXECUTE);
-        INVENTORY.extractItem(INGREDIENT_TANK.SLOT, 1, false);
+        RESULT_TANK.fill(result, IFluidHandler.FluidAction.EXECUTE);
+        INVENTORY.extractItem(INGREDIENT_ITEM_SLOT, itemAmount, false);
     }
 
     private boolean hasIngredients() {
@@ -295,14 +363,14 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     }
 
     private boolean isIngredientSlotEmpty() {
-        return INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT).isEmpty();
+        return INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT).isEmpty();
     }
 
     private Optional<RecipeHolder<MasticatingRecipe>> getRecipeOptional() {
         if (level == null) return Optional.empty();
 
         RecipeManager recipeManager = level.getRecipeManager();
-        ItemStack stack = INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT);
+        ItemStack stack = INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT);
         FluidStack fluid = INGREDIENT_TANK.getFluid();
 
         return recipeManager.getRecipeFor(ModRecipes.MASTICATING_TYPE.get(),
@@ -319,7 +387,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     }
 
     private void setResultAmount() {
-        resultAmount = activeRecipe.value().getCraftingAmount(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
+        resultAmount = activeRecipe.value().getCraftingAmount(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
     private void resetResultAmount() {
@@ -342,7 +410,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     }
 
     private void setMaxProgress() {
-        maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_TANK.SLOT));
+        maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
     @Override
@@ -359,7 +427,15 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
+        if (tag.contains("inventory")) {
+            // ItemStackHandler#deserializeNBT resizes itself to the saved "Size" -- worlds saved
+            // before INGREDIENT_ITEM_SLOT existed have Size=3, which would shrink INVENTORY back
+            // down and crash the menu (slot 3 out of range). Bump the saved size forward first;
+            // the new slot has no old data to load, so it comes back empty either way.
+            CompoundTag inventoryTag = tag.getCompound("inventory");
+            if (inventoryTag.getInt("Size") < 4) inventoryTag.putInt("Size", 4);
+            INVENTORY.deserializeNBT(registries, inventoryTag);
+        }
         if (tag.contains("craft")) INGREDIENT_TANK.readFromNBT(registries, tag.getCompound("craft"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
         resultAmount = tag.getInt("resultFluid");
@@ -389,8 +465,8 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide()) {
 
-                    if(slot == INGREDIENT_TANK.SLOT) {
-                        ItemStack stack = getStackInSlot(INGREDIENT_TANK.SLOT);
+                    if(slot == INGREDIENT_ITEM_SLOT) {
+                        ItemStack stack = getStackInSlot(INGREDIENT_ITEM_SLOT);
                         Item currentItem = stack.getItem();
 
                         if (stack.isEmpty()) {
@@ -453,6 +529,9 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
                     ItemStack stack = getStackInSlot(slot);
                     if (stack.isEmpty()) return;
 
+                    // Defensive fallback only -- getSlotLimit now caps these slots to 1 unconditionally,
+                    // so count > 1 shouldn't be reachable via normal insertion. Kept in case something
+                    // ever forces a multi-count stack into the slot directly (NBT load, a command, etc.).
                     if (ModFluidUtil.hasEmptyFluidHandlerInSlot(this, slot) && stack.getCount() > 1) {
                         ItemStack extra = getStackInSlot(slot).copy();
                         extra.shrink(1);
@@ -468,33 +547,17 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
                 }
             }
 
+            // Fuel/ingredient/result tank slots hold exactly one container at a time, unconditionally
+            // -- not just once already occupied. The old condition (`hasEmptyFluidHandlerInSlot`,
+            // which inspects the slot's CURRENT contents) never fires on a slot that starts empty, so
+            // a whole stack of empty containers could be inserted in one shot; the auto-fill transfer
+            // then only ever fills and returns a single container, silently collapsing the rest of the
+            // stack. Capping unconditionally means vanilla's own insertItem correctly accepts just 1
+            // and returns the remainder, so the custom insertItem override below is no longer needed.
             @Override
             public int getSlotLimit(int slot) {
-                return ModFluidUtil.hasEmptyFluidHandlerInSlot(this, slot) ? 1 : super.getSlotLimit(slot);
-            }
-
-            @Override
-            @NotNull
-            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                if (ModFluidUtil.hasFluidHandlerInSlot(this, slot)) {
-                    if (!getStackInSlot(slot).isEmpty()) {
-                        return stack;
-                    }
-                    if (stack.getCount() > 1) {
-                        if (simulate) {
-                            ItemStack remainder = stack.copy();
-                            remainder.shrink(1);
-                            return remainder;
-                        } else {
-                            ItemStack singleInsert = stack.copyWithCount(1);
-                            super.insertItem(slot, singleInsert, false);
-                            ItemStack remainder = stack.copy();
-                            remainder.shrink(1);
-                            return remainder;
-                        }
-                    }
-                }
-                return super.insertItem(slot, stack, simulate);
+                if (slot == FUEL_TANK.SLOT || slot == INGREDIENT_TANK.SLOT || slot == RESULT_TANK.SLOT) return 1;
+                return super.getSlotLimit(slot);
             }
         };
     }

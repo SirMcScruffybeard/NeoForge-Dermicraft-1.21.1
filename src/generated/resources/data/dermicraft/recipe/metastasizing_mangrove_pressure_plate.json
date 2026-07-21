@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 500,
+  "pattern": {
+    "item": "minecraft:mangrove_pressure_plate"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:mangrove_pressure_plate"
+  },
+  "ticks": 100
+}

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
@@ -14,32 +15,45 @@ import org.jetbrains.annotations.NotNull;
 
 public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
 
-    private static final String PARTS_DIR = "textures/gui/screen_parts/";
+    private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
+    private static final String TANKS_DIR = "textures/gui/tanks/";
+    private static final String SLOTS_DIR = "textures/gui/slots/";
+    private static final String ARROWS_DIR = "textures/gui/arrows/";
+    private static final String HEALTH_DIR = "textures/gui/health/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "screen_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
     private static final int BACKGROUND_TEXTURE_SIZE = 256;
 
     private static final ResourceLocation TANK_AND_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "tank_and_slot.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, TANKS_DIR + "tank_and_slot.png");
     private static final int TANK_AND_SLOT_WIDTH = 18;
     private static final int TANK_AND_SLOT_HEIGHT = 66;
 
     private static final ResourceLocation ARROW_BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "arrow_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_background.png");
     private static final ResourceLocation ARROW_FULL_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "arrow_fulll.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_fulll.png");
     private static final int ARROW_WIDTH = 17;
     private static final int ARROW_HEIGHT = 10;
 
+    // Solid-ingredient slot backdrop between the HP bar and the reagent gauge -- backs
+    // MasticatorBlockEntity.INGREDIENT_ITEM_SLOT (added at MasticatorMenu (38,35), 1px inset from
+    // this (37,34) backdrop, matching the rest of this screen's slot-backdrop convention).
+    // Vertically centered on the arrow (arrow spans y+38 to y+47, center 43; an 18-tall slot at
+    // y+34 centers at 43 too).
+    private static final ResourceLocation ITEM_SLOT_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
+    private static final int ITEM_SLOT_SIZE = 18;
+
     private static final ResourceLocation HP_BACKGROUND_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "hp_background.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, HEALTH_DIR + "hp_background.png");
     private static final ResourceLocation HP_GREEN_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "hp_green.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, HEALTH_DIR + "hp_green.png");
     private static final ResourceLocation HP_YELLOW_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "hp_yellow.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, HEALTH_DIR + "hp_yellow.png");
     private static final ResourceLocation HP_RED_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, PARTS_DIR + "hp_red.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, HEALTH_DIR + "hp_red.png");
     private static final int HP_BAR_WIDTH = 18;
     private static final int HP_BAR_HEIGHT = 66;
     private static final int HP_BAR_INTERIOR_HEIGHT = 64; // opaque interior height used for the fill crop
@@ -71,13 +85,32 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         int y = (height - imageHeight) / 2;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), 151, 12, fuelRenderer);
+                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), 151, 12, fuelRenderer,
+                Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getIngredientTank().SLOT), 51, 12, ingredientRenderer);
+                menu.BE.getFluid(menu.BE.getIngredientTank().SLOT), 67, 12, ingredientRenderer,
+                Component.translatable("tooltip.dermicraft.gauge.reagent"));
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getResultTank().SLOT), 110, 12, resultRenderer);
+                menu.BE.getFluid(menu.BE.getResultTank().SLOT), 123, 12, resultRenderer,
+                Component.translatable("tooltip.dermicraft.gauge.result"));
+
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 151, 60,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.fuel_container"));
+
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 67, 60,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getIngredientTank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.reagent_container"));
+
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 123, 60,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getResultTank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.result_container"));
+
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 38, 35,
+                menu.BE.getItemHandler(null).getStackInSlot(MasticatorBlockEntity.INGREDIENT_ITEM_SLOT),
+                Component.translatable("tooltip.dermicraft.slot.ingredient"));
 
         if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
             int maxHealth = menu.getMaxHealth();
@@ -97,17 +130,24 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
 
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
+        renderPlayerInventoryBackdrop(guiGraphics, x, y);
 
         renderTankAndSlot(guiGraphics, x + 150, y + 11);
-        renderTankAndSlot(guiGraphics, x + 50, y + 11);
-        renderTankAndSlot(guiGraphics, x + 109, y + 11);
+        renderTankAndSlot(guiGraphics, x + 66, y + 11);
+        renderTankAndSlot(guiGraphics, x + 122, y + 11);
+        renderItemSlot(guiGraphics, x + 37, y + 34);
 
         renderProgressArrow(guiGraphics, x, y);
         renderHealthBar(guiGraphics, x, y);
 
         fuelRenderer.render(guiGraphics, x + 151, y + 12, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
-        ingredientRenderer.render(guiGraphics, x + 51, y + 12, menu.BE.getFluid(menu.BE.getIngredientTank().SLOT));
-        resultRenderer.render(guiGraphics, x + 110, y + 12, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
+        ingredientRenderer.render(guiGraphics, x + 67, y + 12, menu.BE.getFluid(menu.BE.getIngredientTank().SLOT));
+        resultRenderer.render(guiGraphics, x + 123, y + 12, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
+    }
+
+    private void renderItemSlot(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(ITEM_SLOT_TEXTURE, x, y, 0, 0, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE,
+                ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {
@@ -118,7 +158,7 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
         // Textures carry a 1px transparent margin around a 15x8 opaque arrow, so the draw
         // origin is offset by 1px to keep the arrow aligned with its old (111,39) position.
-        int arrowX = x + 80;
+        int arrowX = x + 95;
         int arrowY = y + 38;
 
         guiGraphics.blit(ARROW_BACKGROUND_TEXTURE, arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT,

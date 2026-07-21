@@ -166,7 +166,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     }
 
     protected void setUseRate() {
-        fuelUseRate = Math.max(FUEL_USE_DEFAULT, FUEL_TANK.getUseRate()) * CRAFT_TICKS;
+        fuelUseRate = Math.max(FUEL_USE_DEFAULT, Math.round(FUEL_TANK.getRawUseRate() * CRAFT_TICKS));
     }
 
     protected void useFuel() {

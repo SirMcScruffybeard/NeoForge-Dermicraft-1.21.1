@@ -16,7 +16,7 @@ Each slurry has three tracked properties:
 
 - **Raw / data-map value** — what's literally written in `biofuels.json` (and what you'd type when registering a new slurry). Crude Slurry's raw entry is `speed: 0.1`, `heal: 0.1`.
 - **Effective / gameplay value** — what actually determines in-machine behavior. `FuelTank.java` divides the raw speed and heal values by `BASE_SPEED_MODIFIER` (`0.1f`) before using them anywhere (`getSpeed()`, `getHeal()`). So **effective = raw ÷ 0.1 = raw × 10**. Crude's raw `0.1` becomes an effective **`1.0`** — this is the number that actually matches "1 progress per cycle" in the health/fuel system (see `dermicraft-machine-notes.md`).
-- **Use rate does not get this treatment** — `FuelTank.getUseRate()` uses the raw value directly, no division. So for use rate, raw and effective are the same number (Crude: `1.0` either way).
+- **Use rate does not get this treatment** — `FuelTank.getRawUseRate()` uses the raw value directly, no division. So for use rate, raw and effective are the same number (Crude: `1.0` either way). It's scaled by `CRAFT_TICKS` (and rounded once, at that point) in `AbstractFueledMachineBlockEntity.setUseRate()`, not in `FuelTank` itself.
 
 **Crude Slurry's baseline — both layers:**
 
@@ -65,6 +65,18 @@ The "Main Line" is the primary slurry progression, in order:
 
 **Progression rule:** Moving down the line, speed increases and use rate decreases at each step. This is **not a trade-off** — each slurry does more work per cycle *while consuming less* per cycle than the one before it. Strictly more efficient at each step, not a "faster but burns more" relationship. Heal rate climbs with speed on the same curve.
 
+**FluidType motion scale curve (confirmed, fixes a bug in Crude's original value).** Crude Slurry's motion scale was originally set to `0.08` as a deliberate "wrongness" trick copying Primitive Catalyst's inverted-motion-scale idea — this was a mistake, not the intent, and has been corrected to `0.0100` (the physically normal value for its viscosity). The corrected design for the whole Main Line: **early slurries behave like a normal thick fluid** (motion scale tracks viscosity the expected way, same relationship vanilla water→lava uses), and **later slurries get progressively more uncanny** — motion scale breaks from the expected downward trend and climbs instead, echoing the mod's general "more refined/potent = more unnatural" pattern. Superior ends up moving almost like water despite being nearly as viscous as lava.
+
+| Slurry | Viscosity | Motion Scale | Character |
+|---|---|---|---|
+| Crude | 4000 | **0.0100** | normal (fixed from the mistaken `0.08`) |
+| Concentrated | 4300 | 0.0090 | normal, still tracks viscosity down |
+| Refined | 4600 | 0.0080 | last normal one |
+| Enriched | 5000 | 0.0160 | breaks the trend — jumps up, first wrongness |
+| Superior | 5500 | 0.0450 | most uncanny — barely resists movement despite near-lava thickness |
+
+Viscosity/density/temperature for Refined/Enriched/Superior are target numbers for when those fluids get built, not locked — only Crude (implemented, fixed) and Concentrated (see its own entry below) have confirmed values so far.
+
 **Progression shape:** Speed follows an **accelerating curve** — each step adds more than the last. Use rate mirrors this as drops that also widen each step (-0.10, -0.15, -0.20, -0.25 — use rate has only one layer, see above). Superior is intentionally a dramatic leap above the Crude→Enriched steady climb — it sits in its own category rather than just being the next rung. All values are provisional and easy to adjust without breaking the underlying pattern.
 
 **Reference table — Effective (gameplay) values.** Use this table for all design/balance reasoning:
@@ -110,6 +122,8 @@ Step deltas (effective speed/heal): +0.25, +0.50, +0.75, +1.00.
 
 **Why these are the baseline:** First slurry in the Main Line — every later slurry's properties are derived relative to these numbers (using the effective values).
 
+**FluidType (confirmed, implemented):** tint `0xFF4FA757` (medium green — "dark green, plant life" flavor). `viscosity(4000)`, `density(3000)`, `temperature(285)`, `motionScale(0.0100)` — the motion scale value was fixed from an earlier mistaken `0.08` (see Main Line — overview, above, for the corrected family-wide curve). `canHydrate(true)`.
+
 **Secondary uses (confirmed, growing list):**
 - Base fluid for Primitive Catalyst (see `dermicraft-catalyst-notes.md`).
 - Flask of Crude Slurry — converts dirt to grass/mycelium, plants random crops on farmland (see `dermicraft-flask-notes.md`).
@@ -126,18 +140,25 @@ Step deltas (effective speed/heal): +0.25, +0.50, +0.75, +1.00.
 
 ## Concentrated Slurry
 
-**Status:** Position and values decided (provisional).
+**Status:** Fully implemented — recipe, biofuel properties, and FluidType all live in code.
 
-**What it is:** TBD.
+**What it is:** A direct refinement of Crude Slurry — Crude with a minor catalytic addition of Primitive Catalyst (10:1 ratio, a small dose rather than an equal-parts co-ingredient), reinforcing Primitive Catalyst's identity as a general-purpose processing agent reused across families.
+
+**Recipe (Effluentcer, implemented):** 50 mB Crude Slurry + 5 mB Primitive Catalyst → 50 mB Concentrated Slurry, fixed 50 ticks. Small batch, short cycle by design — see the "steady trickle, not surges" constraint in [[project_concentrated_slurry_recipe]] (Claude Code memory).
 
 **Properties:**
 - Speed modifier: effective `1.25` (raw `0.125`)
 - Use rate modifier: `0.90`
 - Heal modifier: effective `1.25` (raw `0.125`)
+- Tier: `1` (Stage 1 fuel, same as Crude)
 
 **Progression note:** First step up from Crude. Speed increase of +0.25 (effective); use rate drop of -0.10. The smallest step on the accelerating curve — intentionally modest, keeping early progression steady rather than dramatic.
 
-**Open questions:** Recipe/ingredients — a direct refinement of Crude, or a separate process?
+**FluidType (confirmed, implemented):** tint `0xFF3D8A47` — a darker, more saturated version of Crude's green (`0xFF4FA757`) rather than a hue shift toward Primitive Catalyst's brown, since "concentrated" should read as more of the same thing, not a different thing. `viscosity(4300)`, `density(3200)`, `temperature(288)`, `motionScale(0.0090)` — the second point on the Main Line's normal→uncanny motion-scale curve (see Main Line — overview, above). `canHydrate(true)`, matches Crude's identity since it's mostly Crude by volume.
+
+**Tags:** `THICK` (Beaker/Glass Flask/Syringe fill-level rendering) and `BIOFUELS` — same tag set as Crude.
+
+**Open questions:** None remaining for Concentrated itself.
 
 ---
 

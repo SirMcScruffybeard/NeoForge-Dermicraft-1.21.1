@@ -19,7 +19,7 @@ Running log of decided design choices for the Crafting fluid family and the reas
 **Masticator constraints relevant to this whole family:**
 - Tier 1 Masticator's **output buffer is 5000 mB (5 buckets)**.
 - **Confirmed behavior:** if a recipe's output would exceed the remaining room in that buffer, the Masticator simply **will not process the recipe at all** — same "won't even attempt it" pattern as Drinker refusing to draw a hazardous fluid, rather than processing and failing/wasting input afterward.
-- Masticator currently processes **one item at a time** — no multi-item batching yet (see ToDo list below).
+- **Fixed 2026-07-18:** Masticator now consumes a recipe's declared `itemAmount` on craft completion instead of a hardcoded `1` — the recipe schema always had the field, but `onCraftComplete()` ignored it. Unblocks any multi-item-input recipe (e.g. 3 Bone Meal → 990 mB Calcium Blend). Metastasizer needed no equivalent fix — its output count already comes straight from the recipe's result `ItemStack`.
 - **Flagged for revisit:** the original six Crafting-fluid yields (Carbon/Calcium/Protein/Metal Blends) may get reworked once the new Sediment Blend yields are set, to keep the whole family internally consistent rather than treating each batch of decisions in isolation.
 
 ---
@@ -41,6 +41,8 @@ Running log of decided design choices for the Crafting fluid family and the reas
 
 **Open questions — resolved:** Water input for loose Coal and loose Charcoal is **110 mB each** (not a flat 1 bucket) — Coal converts 110 mB Water into 112 mB Carbon Blend (a small net gain), Charcoal converts 110 mB Water into 110 mB Carbon Blend (flat 1:1).
 
+**Metastasizer reverse route — built 2026-07-19.** All three items now duplicate from Carbon Blend, each mirroring its own forward recipe's output amount 1:1 (same convention as the Metal Blends' Ingot/Nugget reverse recipes): Coal Block (1000 mB), Coal (112 mB), Charcoal (110 mB). Previously the one Sediment/Metal-adjacent family with no reverse route at all.
+
 **Secondary use — Torch Dip (implementation in progress):** Holding a Stick and right-clicking any fluid-handler block currently holding Carbon Blend converts Sticks into Torches on the spot, bypassing the crafting table. Uses a custom recipe type. Full mechanic detail — cost, batching, partial-fill behavior, overflow handling — in the Dip Crafting section of the Working Conventions in `dermicraft-project-primer.md`.
 
 ---
@@ -55,13 +57,13 @@ Running log of decided design choices for the Crafting fluid family and the reas
 
 **Item inputs & yield:**
 - **Bone** + 1 bucket Water → **1000 mB** Calcium Blend
-- **Bone Meal** → **330 mB** each
+- **Bone Meal** → **334 mB** each (revised 2026-07-19, previously 330 mB — see below)
 
-**Recipe logic:** Bone Meal is bone ground into 3 pieces (vanilla ratio: 1 Bone → 3 Bone Meal), so 330 mB per Bone Meal is the per-item value implied by splitting Bone's 1000 mB three ways while still landing on a clean round number (3 × 330 = 990 mB — ten short of a full Bone's 1000, matching the same "loose sub-unit lands just under its parent unit's total" convention used for Carbon Blend's loose Charcoal, rather than the uglier 333.33 a literal mathematical split would give).
+**Recipe logic (revised 2026-07-19):** Bone Meal now yields 334 mB Water in, 334 mB Calcium Blend out — flat 1:1, not the "sub-unit lands just under its parent unit's total" pattern used elsewhere (Charcoal, Nugget). The original 330 mB output (3 × 330 = 990 mB, ten short of a full Bone's 1000) matched that convention deliberately; the 334 mB revision breaks it as a direct call, not an oversight — flagging in case this drifts back out of sync with the rest of the family's "just under" values later.
 
-Because the Masticator currently only accepts one item per cycle, a player can't batch 3 Bone Meal into a single 990 mB run yet — they'd either run the Bone Meal recipe three separate times, or use a single Bone Meal as a deliberate top-off option when they're short by less than a full Bone's worth and don't want to go acquire/craft another whole Bone just for the last bit.
+Because the Masticator currently only accepts one item per cycle, a player can't batch 3 Bone Meal into a single run yet — they'd either run the Bone Meal recipe three separate times, or use a single Bone Meal as a deliberate top-off option when they're short of a full Bone's worth and don't want to go acquire/craft another whole Bone just for the last bit.
 
-**Open questions — resolved:** Water input for Bone Meal is **334 mB**, producing 330 mB Calcium Blend.
+**Open questions — resolved:** Water input for Bone Meal is **334 mB**, producing 334 mB Calcium Blend (flat 1:1, both sides revised together 2026-07-19). The reverse Metastasizer duplication recipe (`bone_meal_metastasizing`) was updated to match, keeping the mirrored-pricing convention intact.
 
 **Open questions — still open:** Whether the single-Bone-Meal "top-off" recipe should be kept around even after multi-item batching is added (it has genuine value as a fine-tuning tool, not just a placeholder).
 
@@ -135,6 +137,7 @@ Four tiers per metal are designed — **Ore, Ingot, Raw, Nugget** — but only *
 | Ingot | Iron Ingot | 1000 mB | Implemented |
 | Raw | Raw Iron | 2000 mB | Implemented |
 | Nugget | Iron Nugget | 110 mB | Implemented |
+| Heavy Weighted Pressure Plate | 2 Iron Ingots (built 2026-07-19) | 2000 mB, 60s | Implemented, both directions |
 
 ### Ferrous Blend — alternate route (Blood Nugget)
 
@@ -159,6 +162,21 @@ Four tiers per metal are designed — **Ore, Ingot, Raw, Nugget** — but only *
 | Raw | Raw Copper | 2000 mB | Implemented |
 | Nugget | — | no vanilla Copper Nugget exists in 1.21.1 | N/A |
 
+**Copper building block family — built 2026-07-19, unaffected (fresh) state only.** Deliberately scoped down from the full vanilla item set: oxidation (Exposed/Weathered/Oxidized) is a passive weathering effect, not a recipe, so a Metastasizer route only ever duplicates a state the player already has a real sample of — it can't skip the wait — but the 4-state × waxed/unwaxed multiplier (up to 8 variants per block type) was cut for scope, fresh copper only. Copper Bulb also excluded — its real recipe (3 Ingot + Blaze Rod + Redstone) doesn't fit the Masticator's one-item-one-fluid shape. Priced by real vanilla crafting ratio relative to Copper Block (9 Ingots = 9000 mB, the anchor) — Cut Copper is a flat 1:1 conversion (no material lost cutting a block into panels, unlike Log → Planks), not a fractional discount:
+
+| Item | Vanilla ratio | Cuprous Blend cost | Craft time |
+|---|---|---|---|
+| Copper Block | anchor (9 Ingots) | 9000 mB | 90s |
+| Cut Copper | 4 Block → 4 Cut Copper (1:1) | 9000 mB | 90s |
+| Cut Copper Stairs | 6 Cut Copper → 4 Stairs | 13500 mB | 135s |
+| Cut Copper Slab | 3 Cut Copper → 6 Slabs | 4500 mB | 45s |
+| Chiseled Copper | 2 Cut Copper → 1 Chiseled | 18000 mB | 180s |
+| Copper Grate | 4 Ingot → 4 Grate (1:1) | 1000 mB | 10s |
+| Copper Door | 6 Ingot → 3 Doors | 2000 mB | 20s |
+| Copper Trapdoor | 4 Ingot → 2 Trapdoors | 2000 mB | 20s |
+
+Craft time uses the Sediment Blend's 5 mB/tick rate (matching the existing Cauldron precedent), not the Metal Blend family's own slower Ingot rate (60s/1000 mB) — this is the "bulk/compound item" half of the Metal Blend family's now-formalized two-tier craft-time convention (see Metal Blends open questions, resolved), not an inconsistency.
+
 ### Aurous Blend (Gold)
 
 | Tier | Item | Yield | Status |
@@ -167,9 +185,16 @@ Four tiers per metal are designed — **Ore, Ingot, Raw, Nugget** — but only *
 | Ingot | Gold Ingot | 1000 mB | Implemented |
 | Raw | Raw Gold | 2000 mB | Implemented |
 | Nugget | Gold Nugget | 110 mB | Implemented |
+| Light Weighted Pressure Plate | 2 Gold Ingots (built 2026-07-19) | 2000 mB, 60s | Implemented, both directions |
+
+**Weighted Pressure Plates, both metals — built 2026-07-19.** Real vanilla recipe cost (2 Ingots each), so 2000 mB — same yield as Raw, and deliberately kept at Raw's own 60s craft time rather than doubling Ingot's: this family's precedent (Raw already yields 2x Ingot's mB at the same 60s) is "one item processed per cycle costs the same time regardless of its ingot-equivalent value," not a strict mB/tick ratio. Both directions built (Masticator forward + Metastasizer reverse), same as Ingot/Nugget.
 
 **Open questions (Metal Blends) — resolved:**
 - Water/Primitive Catalyst input amounts for all implemented tiers, confirmed from the actual recipe files: Ingot uses 1000 mB Water → 1000 mB output (1:1) for all three metals. Nugget uses 110 mB Water → 110 mB output (1:1) for Iron/Gold. Raw uses 250 mB Primitive Catalyst → 2000 mB output (an 8:1 multiplier) for all three metals.
+- **Craft-time rate — resolved as a deliberate two-tier convention, not an inconsistency.** The Metal Blend family runs two different mB/tick rates on purpose, split by what kind of item is being processed, not by accident:
+  - **Single-unit conversions** (Ingot, Nugget, Raw, Weighted Plate) use the family's own **slow rate, ~60s/1000 mB** — thematically, milling one Ingot-sized item is careful, precision work.
+  - **Bulk/compound items** (Cauldron, the Copper building block family) use the **fast Sediment Blend rate, ~10s/1000 mB** — grinding down a large block that's already-aggregated material (9 Ingots' worth, in Copper Block's case) is comparatively quick bulk processing, not a repeat of the same precision work nine times over.
+  - This was originally an accidental split (Cauldron and the Copper family both landed on the fast rate for playability, without being reconciled against Ingot's established rate) — formalized as the standing rule 2026-07-19 rather than migrating everything to one rate, since that would mean either making Cauldron/Copper agonizingly slow (7–18 minutes) or making Ingot/Nugget/Raw much faster than their already-tuned values. **Going forward: a new single-item Metal Blend recipe uses the slow rate; a new multi-Ingot compound item uses the fast rate.**
 
 **Open questions (Metal Blends) — still open:**
 - Is Cuprous Ore meant to be a deliberate progression gate (unreachable until an evolved Masticator exists), or should the value/approach be revisited so Tier 1 can use it at all? Still unresolved, and now also depends on the Ore tier actually being built first.
@@ -229,8 +254,9 @@ Silica Blend sits as the hub of this relationship — it cross-feeds with *both*
 
 **Recycling — crafted/fired derivatives feed back into their source fluid:**
 - **Glass + Water → Silica Blend** (Glass is sand's fired form, same logic as the Clay-family recycling below).
-- **Clay-family crafted items → Clay Blend:** Clay Ball, Brick / Brick Block, Terracotta (all 16 dyed colors collapse into one roster entry), Glazed Terracotta (same — one entry covering all colors), Flower Pot. **Mud Bricks excluded** — made from Mud (already blacklisted) + Wheat, a separate material lineage despite the visual similarity.
+- **Clay-family crafted items → Clay Blend:** Clay Ball, Terracotta (all 16 dyed colors collapse into one roster entry), Glazed Terracotta (same — one entry covering all colors). **Mud Bricks excluded** — made from Mud (already blacklisted) + Wheat, a separate material lineage despite the visual similarity.
 - **Recycling yield — resolved:** Same as raw, not lossy. `silica_blend_recycling_masticating.json` and `clay_blend_recycling_masticating.json` both use 1000 mB Water → **1000 mB** output — identical to the base raw-material recipe, no penalty for the material having already been fired/crafted once.
+- **Brick, Bricks, and Flower Pot pulled out of the flat-rate recycling tag 2026-07-19** and given individually-tiered recipes instead, mirrored in both directions (Masticator forward and Metastasizer reverse use the same amount, same convention as the Metal Blends' Ingot/Nugget): **Brick 250 mB (light tier), Bricks 1000 mB (solid tier), Flower Pot 750 mB (aggregate tier)**. Unlike Clay Ball/Terracotta (flat 1000 mB either direction, no relation between forward and reverse cost), these three now follow the mirrored-pricing model instead — a deliberate per-family choice, not a universal rule change for the rest of the Clay recycling tag.
 
 **Hazard / environmental properties — pools act as traps, achieved via FluidType tuning rather than custom mechanics:**
 - **Stone Blend** — heavy/sinking trap (wet-concrete analog). High density + high viscosity as primary levers.
@@ -246,11 +272,62 @@ Silica Blend sits as the hub of this relationship — it cross-feeds with *both*
 
 ---
 
+## Pulp Blend — the wood/tree family, split by living vs. dead
+
+**Status:** Fluid identity, base recipe, and Metastasizer roster ratios all decided. Recipes not yet built in code.
+
+**What it is:** The wood/tree family's Crafting fluid, covering dead/harvested plant matter — logs and everything crafted from them. Deliberately **not** the fluid used for anything living (saplings, leaves) — that stays on **Crude Slurry** instead (see below), splitting the family the same way Stone/Silica/Clay split the sediment family, but by living-vs-dead rather than by material identity.
+
+**Base fluid:** Water, same as the original three Crafting Blends and the Sediment Blends.
+
+**Masticator recipe:** Log (any species) + 1000 mB Water → 1000 mB Pulp Blend. Matches the Sediment Blends' flat 1:1 convention exactly.
+
+**Critical design constraint — one universal fluid, not split by wood species.** This isn't just a naming convenience: Pulp Blend carries no species identity of its own, so pulp made from an abundant species (e.g. Birch) can be spent against a rare species' pattern (e.g. Jungle) on the Metastasizer to duplicate the rare one. Species identity lives entirely in the pattern item. Splitting Pulp Blend per wood type would break this — vanilla's wood types don't carry the kind of identity split Sand/Stone/Clay had (real-world material differences); they're palette variants of the same underlying "wood" concept, so folding them into one fluid follows the same precedent Stone Blend already set for its own variant-folding.
+
+**Real player value:** not "infinite free wood" — a pattern item is still required, so the player must have harvested at least one sample of a species already. The actual payoff is no longer needing to re-travel to a specific biome for a wood species once a single piece of it has been obtained; whatever wood is locally abundant can fund the pulp needed to duplicate whatever species a build actually calls for.
+
+**Metastasizer roster — ratios derived directly from vanilla crafting ratios, not a tier system.** Log's Masticator conversion (1000 mB = 1 bucket) is the anchor; every other item's cost is that item's real vanilla-recipe ratio relative to Planks (250 mB, a quarter of Log's bucket — matching both the real 1-log-to-4-planks ratio and the existing Glass Flask/Beaker quarter-cost precedent). Craft times extrapolated from the existing Metastasizer tiers' rough ~5 mB/tick ratio, since this family doesn't use the tier system.
+
+| Item | Vanilla ratio (relative to Planks) | Pulp Blend cost | Craft time |
+|---|---|---|---|
+| Log | anchor (1 bucket) | 1000 mB | 200 ticks |
+| Planks | anchor (¼ Log) | 250 mB | 50 ticks |
+| Slab | 3 Planks → 6 Slabs (½ Plank) | 125 mB | 25 ticks |
+| Stick | 2 Planks → 4 Sticks (½ Plank) | 125 mB | 25 ticks |
+| Stairs | 6 Planks → 4 Stairs (1.5 Planks) | 375 mB | 75 ticks |
+| Door | 6 Planks → 3 Doors (2 Planks) | 500 mB | 100 ticks |
+| Trapdoor | 6 Planks → 2 Trapdoors (3 Planks) | 750 mB | 150 ticks |
+| Fence Gate | 4 Sticks + 2 Planks → 1 Gate | 1000 mB | 200 ticks |
+| Fence | 4 Planks + 2 Sticks → **3** Fence | 1250 mB → 3 Fence | 250 ticks |
+| Pressure Plate | 2 Planks → 1 Plate (built 2026-07-19) | 500 mB | 100 ticks |
+| Button | 1 Plank → 1 Button (built 2026-07-19) | 250 mB | 50 ticks |
+
+**Fence's 3-per-craft output was flagged as possibly blocked, then confirmed not to be.** Vanilla's Fence recipe yields 3 per craft off a cost (1250 mB) that doesn't divide evenly per single fence (416.67 mB) — initially assumed blocked by the same one-item-per-cycle limitation affecting Calcium Blend's Bone Meal recipe. Checking the actual code showed that limitation only applies to the **Masticator's item-input side** (now fixed, see ToDo list). The **Metastasizer's output side** already supported arbitrary result counts via the recipe's `ItemStack` (whatever count is baked into `result` is exactly what gets inserted) — no engine change was needed. Fence is built exactly as designed: pattern + 1250 mB Pulp Blend → 3 Fence.
+
+**Stale — all 8 overworld species are now covered.** This previously flagged dark variants etc. as not yet built; verified 2026-07-19 that `woodSpecies` in `ModRecipeProvider.java` (oak, spruce, birch, jungle, acacia, dark_oak, mangrove, cherry) already drives Log/Wood/Stripped Log/Stripped Wood/Planks/Slab/Stairs/Door/Trapdoor/Fence Gate/Fence uniformly for every species, on both the Masticator (tag-based, species-agnostic) and Metastasizer (per-species duplication) sides. Only Nether stems/hyphae and Bamboo remain genuinely deferred (see roster note above).
+
+---
+
+## Crude Slurry's expanded role — living plant material
+
+**Status:** Both recipes decided. **Metastasizer half built 2026-07-19** (all 8 overworld species — oak, spruce, birch, jungle, acacia, dark oak, mangrove, cherry — via the shared `woodSpecies` loop in `ModRecipeProvider.java`). Mutator half (Sapling + Crude Slurry → Leaves) still not built.
+
+**What it is:** Rather than inventing a second new fluid for the living half of the wood/tree family, Crude Slurry's existing identity ("forces accelerated biological growth" — see `dermicraft-slurry-notes.md`) is reused, since it already fits the living side better than anything new would.
+
+- **Mutator:** Sapling + Crude Slurry → **Leaves** (not Log — a sapling forced to grow produces living green growth, not dead heartwood; Log stays reachable only by harvesting or by Pulp Blend duplication, never synthesized from nothing). **Not yet built.**
+- **Metastasizer:** Leaves (pattern, any species) + **100 mB Crude Slurry → Leaves**, 50 ticks. Deliberately priced below the Metastasizer's existing lowest bracket (250 mB) — Leaves are purely decorative and more trivially renewable in vanilla than anything else duplicated so far (no digging required, just natural decay off any tree). Establishes a general working convention: **purely decorative items should undercut the nearest cost tier, not just match it**, rather than defaulting to an existing bracket out of consistency for its own sake. **Built.**
+
+**Open — not yet decided:** Whether Saplings and/or Seeds get their own duplication or synthesis recipe. Mixed precedent across other mods, low power impact either way (wood is a building material — large amounts don't grant a major in-mod advantage), and cross-modpack balance is explicitly the pack builder's problem, not this mod's. No pressure to resolve this before building the rest of the family.
+
+**Stage placement:** Both Pulp Blend and Crude Slurry's expanded role are Stage 1 — all-overworld materials (logs, water), no lava, same Stage-1 fit as the Sediment Blends precedent this design followed.
+
+---
+
 ## Mod-wide ToDo list (carried forward from this doc)
 
 - **Build the Metal Blends' Ore tier** (Ferrous/Cuprous/Aurous) — designed, no recipe files exist yet. Revisit the Ore yield formula first since it was defined against the old 750 mB Raw baseline, not the confirmed 2000 mB.
-- **Metastasizer machine — built.** Sediment Blend duplication (all 17 roster items), the Metal Blends' reverse Ingot/Nugget route, MRE/Meat Flavored Meat duplication, and Protein Blend → Inert Tumor/Dense Muscle/Nerve Cluster/Eye duplication are all live. The Blood Nugget → Ferrous Blend chain is the one thing on this list still not implemented (needs the Blood Nugget item + its own Metastasizer recipe) — no longer blocked on the machine itself, just on that specific recipe/item.
-- **Masticator:** add support for processing multiples of one item per cycle (would unlock clean batch recipes like 3 Bone Meal → 990 mB Calcium Blend in one cycle, instead of three separate single-item runs).
+- **Metastasizer machine — built.** Sediment Blend duplication (all 17 roster items), the Metal Blends' reverse Ingot/Nugget route, the Carbon Blend reverse route (Coal/Charcoal/Coal Block, added 2026-07-19), Leaves duplication (all 8 species, added 2026-07-19), the Cauldron/Ferrous Blend route (added 2026-07-19), Brick/Bricks/Flower Pot individually-tiered mirror recipes (added 2026-07-19), MRE/Meat Flavored Meat duplication, and Protein Blend → Inert Tumor/Dense Muscle/Nerve Cluster/Eye duplication are all live. The Blood Nugget → Ferrous Blend chain is the one thing on this list still not implemented (needs the Blood Nugget item + its own Metastasizer recipe) — no longer blocked on the machine itself, just on that specific recipe/item.
+- ~~**Masticator:** add support for processing multiples of one item per cycle~~ — **done 2026-07-18.** `onCraftComplete()` now consumes `itemAmount` from the recipe instead of a hardcoded `1`. Clean batch recipes like 3 Bone Meal → 990 mB Calcium Blend are now buildable in a single cycle.
 - Resolve Cuprous Ore vs. Tier 1 Masticator's 5000 mB output buffer, once the Ore tier is actually built (see Metal Blends open questions above).
 - Decide whether to add a custom Copper Nugget item.
 - **Rework existing Crafting-fluid yields (Carbon/Calcium/Protein/Metal Blends) once Sediment Blend yields are set**, to keep the whole family internally consistent. (Sediment Blend yields are now set — see above — so this rework is unblocked.)
@@ -263,6 +340,8 @@ Silica Blend sits as the hub of this relationship — it cross-feeds with *both*
 - Decide Wither Essence's exact source item(s) and yield. Liquid Nether Star (reserved name for the eventual Wither-boss-tier counterpart) remains fully undefined.
 - **Write up Calcium Glass** — a real recipe exists (`calcium_glass_puddle.json`) with no design documentation anywhere.
 - **Write up MRE, Meat Flavored Meat, and the Metastasizer's tumor/part duplication recipes** — all implemented in code (see `dermicraft-machine-notes.md` Metastasizer entry) but not yet given a proper design writeup here (ingredient logic, why Protein Blend/F-Stuff, etc.).
+- ~~Build the Metastasizer's plain-glass duplication family~~ — **done 2026-07-16.** Glass Block, Beaker (Silica + Calcium routes), Glass Flask (Silica + Calcium routes), Glass Pane, and Calcium Glass duplication are all now live in `ModRecipeProvider.java`, closing the gap discovered while building the Mutator's dyed-glass recipes (the table in `dermicraft-machine-notes.md` → Metastasizer entry had been wrongly marked "Confirmed" without ever actually being datagenned). This also unblocks the OT-native recipes that need a Beaker/Glass Flask sourced without hand-crafting.
+- ~~Build the Mutator's Colored/Glazed Terracotta recipes~~ — **done 2026-07-16.** Resolved the dye-keyed collision by changing Glazed's ingredient from the dye to the Colored Terracotta item itself (see `dermicraft-machine-notes.md` → Mutator entry, ceramics family note) rather than splitting across machines like the glass family.
 
 ---
 
@@ -280,7 +359,7 @@ Silica Blend sits as the hub of this relationship — it cross-feeds with *both*
 
 **Hazard classification:** `Hazardous → Biohazard`. Second confirmed fluid to use the Biohazard tag (after All Metal — see Stage 4 section below), reinforcing it as a real ongoing category. Fits Dragon's Milk's identity as harvested biological material from a living creature better than a generic Radiation tag would. Still requires a **Tier 2 Drinker** to harvest (Tier 1 Drinker refuses any `Hazardous`-tagged fluid outright, regardless of which child tag).
 
-**Confirmed use:** One of three fluid inputs in the **Living Catalyst** recipe, alongside Molten Quartz and Molten Blaze Essence — see `dermicraft-catalyst-notes.md`. Dragon's Milk's power level fits naturally as a Stage 2/3-boundary ingredient, matching Living Catalyst's own placement.
+**Confirmed use:** One of three fluid inputs in the **Living Catalyst** recipe, alongside Molten Quartz and Blaze Essence — see `dermicraft-catalyst-notes.md`. Dragon's Milk's power level fits naturally as a Stage 2/3-boundary ingredient, matching Living Catalyst's own placement.
 
 **Open questions:** Exact per-tick drain rate — deferred to Code. Whether Tier 2 Drinker changes anything besides hazard access.
 
@@ -350,7 +429,9 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Item inputs & yield:** Not yet decided.
 
-**Open questions:** What distinguishes Molten Amethyst from Molten Quartz beyond source material. Exact item inputs and yields.
+**First confirmed use (new):** **Glass + Molten Amethyst → Tinted Glass**, via a Tier 2 **Mutator** (see `dermicraft-machine-notes.md` → Mutator, Stage 2 cluster) — a reagent-mapping of vanilla's 4-shards-+-glass recipe. This is Molten Amethyst's first consumer and the start of a real identity distinct from Molten Quartz: **light manipulation** (tinted glass blocks light).
+
+**Open questions:** What distinguishes Molten Amethyst from Molten Quartz beyond source material — partially answered by the Tinted Glass use above (light manipulation), but not yet fully resolved. Exact item inputs and yields.
 
 ### Molten Diamond
 
@@ -452,9 +533,9 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Hazard tags (confirmed):** `hazard/metaphysical_severe` + `hazard/extreme_heat` (the latter inherited from the family-wide Lava-base rule above). Metaphysical Severe fits thematically — its signature effects (hallucination-made-real, or a telegraphed instant dimensional round-trip — see `dermicraft-hazard-effects-notes.md`) mirror Enderman/End teleportation almost exactly. Second confirmed use of the Metaphysical tag family (after Molten Soul Silica's Metaphysical Mild), and the first confirmed use of the Severe half — another dual-hazard-axis fluid, same shape as Molten Soul Silica.
 
-**Recipe use:** Deliberately left open — no confirmed consumer yet, same status as Ghast Essence.
+**Recipe use — first confirmed consumer (new):** **Blaze Powder + Ender Essence → 2 Eyes of Ender**, via the Mutator (see `dermicraft-machine-notes.md` → Mutator) — a reagent-mapping of vanilla's Eye recipe (the pearl becomes its fluid form, the blaze component stays physical), at double vanilla's per-powder yield (machine-efficiency payoff). Thematically exact: the fluid whose hazard is justified by Enderman-teleport imagery now makes the teleport-tracking item. **Gating resolved by the Metaphysical Mind Rule** (see `dermicraft-hazard-effects-notes.md` → Metaphysical vs. machines): Metaphysical hazard only affects things with minds, and the Mutator is a dumb (Brain-free) machine — so only Ender Essence's Extreme Heat tag gates, requiring a **Tier 2 Mutator**. The recipe lands at **Stage 2**. Ghast Essence remains the one with no consumer.
 
-**Open questions:** Exact item inputs and yield. What Tier/machine capability is required to handle Metaphysical Severe (no confirmed handling solution yet — same open status as Severe Radiation). What consumes Ender Essence. Exact color value.
+**Open questions:** Exact item inputs and yield. Exact color value. (The old "what machine capability handles Metaphysical Severe" question is resolved for *dumb machines* by the Mind Rule — smart structures' protection mechanic remains open, tracked in `dermicraft-hazard-effects-notes.md`.)
 
 ### Molten Soul Silica
 
@@ -472,7 +553,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Hazard tag — Metaphysical Mild (confirmed, new, distinct from the gameplay-effect hook above).** Molten Soul Silica carries **Metaphysical Mild** (`hazard/metaphysical_mild`) — the first confirmed use of the Metaphysical hazard tag, which had otherwise been added speculatively with no assigned content. Also carries **Extreme Heat** per the family-wide Lava-base rule above, so Molten Soul Silica is hazardous on two independent axes at once — a real test case for the set-based `HazardProfile` model (see `dermicraft-project-primer.md` → Hazard tag hierarchy implementation note) rather than a single-tag fluid.
 
-**Open questions:** Exact item inputs and yields. Whether the Silica Blend conversion hook gets built. Whether the gameplay-effect carryover hook gets built. What Tier/machine capability is required to handle Metaphysical Mild (no confirmed handling solution yet, same open status as Severe Radiation).
+**Open questions:** Exact item inputs and yields. Whether the Silica Blend conversion hook gets built. Whether the gameplay-effect carryover hook gets built. (The old "what handles Metaphysical Mild" question is resolved for dumb machines by the **Mind Rule** — Metaphysical only affects things with minds, so Brain-free machines process it freely and only the Extreme Heat tag gates; see `dermicraft-hazard-effects-notes.md` → Metaphysical vs. machines. Smart-structure protection remains open there.)
 
 ### Molten Prismarine (reserved)
 

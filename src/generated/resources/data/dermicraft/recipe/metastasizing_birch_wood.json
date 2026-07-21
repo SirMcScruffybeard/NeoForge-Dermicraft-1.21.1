@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:birch_wood"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:birch_wood"
+  },
+  "ticks": 200
+}

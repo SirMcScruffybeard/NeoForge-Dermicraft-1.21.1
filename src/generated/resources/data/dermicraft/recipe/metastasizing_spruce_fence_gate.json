@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_pulp_blend",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:spruce_fence_gate"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:spruce_fence_gate"
+  },
+  "ticks": 200
+}

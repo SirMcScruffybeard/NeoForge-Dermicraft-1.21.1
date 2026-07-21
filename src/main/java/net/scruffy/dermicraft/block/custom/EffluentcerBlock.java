@@ -3,8 +3,11 @@ package net.scruffy.dermicraft.block.custom;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -33,6 +37,8 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
 
     public static final MapCodec<EffluentcerBlock> CODEC = simpleCodec(EffluentcerBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    // Drives which face texture renders (idle / running / recovering-HP "error"); see EffluentcerVisualState.
+    public static final EnumProperty<EffluentcerVisualState> STATE = EnumProperty.create("state", EffluentcerVisualState.class);
 
     private final MachineTier tier;
 
@@ -48,6 +54,7 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
                 .ignitedByLava()
         );
         this.tier = tier;
+        this.registerDefaultState(this.stateDefinition.any().setValue(STATE, EffluentcerVisualState.IDLE));
     }
 
     @Override
@@ -79,7 +86,7 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, STATE);
     }
 
     @Override
@@ -99,22 +106,36 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
         }
     }
 
+    // A plain empty-hand click (or any click that doesn't hit a fluid handler) always falls through
+    // to useWithoutItem (the GUI). Mirrors MutatorBlock/MasticatorBlock's interaction shape.
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+
+        if (!(level.getBlockEntity(pos) instanceof EffluentcerBlockEntity effluentcer)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
 
         Direction face = hitResult.getDirection();
 
-        if (!level.isClientSide) {
-            if (level.getBlockEntity(pos) instanceof EffluentcerBlockEntity effluentcer) {
-
-                if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, face)) {
-                    effluentcer.setChanged();
-                    effluentcer.updateBlock();
-                    return ItemInteractionResult.SUCCESS;
-                }
-            }
+        if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, face)) {
+            effluentcer.setChanged();
+            effluentcer.updateBlock();
+            return ItemInteractionResult.SUCCESS;
         }
-        return ItemInteractionResult.SUCCESS;
+
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    // Opens the GUI directly on any click useItemOn didn't claim -- no Outerface required. The
+    // block still carries the HAS_SCREEN tag, so the Outerface continues to work too.
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof MenuProvider menuProvider
+                && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(menuProvider, buf -> buf.writeBlockPos(pos));
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override

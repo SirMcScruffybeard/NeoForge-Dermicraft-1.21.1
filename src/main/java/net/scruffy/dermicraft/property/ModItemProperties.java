@@ -4,6 +4,7 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -82,12 +83,21 @@ public class ModItemProperties {
                     return data.isEmpty() ? 0 : 1;
                 });
 
-        // Bladder: simple empty/filled swap -- no thin/thick/lava variants, just the two textures.
-        ItemProperties.register(ModItems.BLADDER.get(),
+        // Bladder family: empty / half (500-1499 mB) / full (1500+ mB) -- three fill-level textures,
+        // same thresholds shared by Bladder, Fuel Bladder, and Feeder Bladder.
+        registerBladderFillProperty(ModItems.BLADDER.get());
+        registerBladderFillProperty(ModItems.FUEL_BLADDER.get());
+        registerBladderFillProperty(ModItems.FEEDER_BLADDER.get());
+    }
+
+    private static void registerBladderFillProperty(Item item) {
+        ItemProperties.register(item,
                 getResourceLocation("full"),
                 (stack, level, entity, seed) -> {
                     FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
-                    return data.isFluidEmpty() ? 0 : 1;
+                    if (data.isFluidEmpty() || data.getFluidAmount() < 500) return 0;
+                    if (data.getFluidAmount() < 1500) return 1;
+                    return 2;
                 });
     }
 

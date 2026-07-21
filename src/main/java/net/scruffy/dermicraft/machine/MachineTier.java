@@ -22,6 +22,11 @@ public record MachineTier(int tankCapacity, int maxHealth, float speedMultiplier
     /** The baseline every current progenitor machine uses. Matches the old hard-coded values. */
     public static final MachineTier BASIC = new MachineTier(FluidType.BUCKET_VOLUME * 5, 200, 1.0f, 1.0f);
 
+    /** No HP mechanic at all -- the machine simply doesn't process without fuel, rather than limping
+     * along at reduced speed while taking damage. Used by the minor convenience machines (Render
+     * Furnace, Grafting Table) that deliberately skip the health system entirely. */
+    public static final MachineTier NO_HEALTH = new MachineTier(FluidType.BUCKET_VOLUME * 5, 0, 1.0f, 1.0f);
+
     // To add a stat-only upgrade tier later, declare it here and hand it to a new block, e.g.:
     // public static final MachineTier ADVANCED = new MachineTier(FluidType.BUCKET_VOLUME * 10, 400, 1.5f, 1.5f);
 }

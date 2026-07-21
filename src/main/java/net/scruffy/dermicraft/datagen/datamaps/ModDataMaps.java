@@ -9,6 +9,7 @@ import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.BiofuelProperties;
+import net.scruffy.dermicraft.property.EdibleFluidProperties;
 
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
 public class ModDataMaps {
@@ -20,11 +21,20 @@ public class ModDataMaps {
                     )
                     .build();
 
+    public static final DataMapType<Fluid, EdibleFluidProperties> EDIBLE_FLUID =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "edible_fluid"),
+                            Registries.FLUID,
+                            EdibleFluidProperties.CODEC
+                    )
+                    .build();
+
 
 
 
     @SubscribeEvent
     public static void register(RegisterDataMapTypesEvent event) {
         event.register(BIOFUELS);
+        event.register(EDIBLE_FLUID);
     }
 }
