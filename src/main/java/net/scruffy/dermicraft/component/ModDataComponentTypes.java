@@ -24,6 +24,11 @@ public class ModDataComponentTypes {
                     .persistent(HeldItemData.CODEC)
                     .networkSynchronized(HeldItemData.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SippingModeData>> SIPPING_MODE_DATA =
+            register("sipping_mode_data", builder -> builder
+                    .persistent(SippingModeData.CODEC)
+                    .networkSynchronized(SippingModeData.STREAM_CODEC));
+
 
 
 

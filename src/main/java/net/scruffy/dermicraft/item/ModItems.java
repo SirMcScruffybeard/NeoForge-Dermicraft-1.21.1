@@ -6,6 +6,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.item.custom.*;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
+import net.scruffy.dermicraft.item.custom.test.TestRigItem;
 import net.scruffy.dermicraft.property.ModFoodProperties;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -26,6 +27,9 @@ public class ModItems {
     public static final DeferredItem<Item> BLADDER = ITEMS.register("bladder", () -> new BladderItem(false));
     public static final DeferredItem<Item> FUEL_BLADDER = ITEMS.register("fuel_bladder", () -> new BladderItem(false));
     public static final DeferredItem<Item> FEEDER_BLADDER = ITEMS.register("feeder_bladder", () -> new BladderItem(true));
+
+    // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
+    public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().stacksTo(1)));
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
@@ -48,4 +52,6 @@ public class ModItems {
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
 
+    // TEMP -- GeckoLib pipeline validation only, remove once TestRigItem is confirmed rendering/animating.
+    public static final DeferredItem<Item> TEST_RIG = ITEMS.register("test_rig", () -> new TestRigItem(new Item.Properties()));
 }

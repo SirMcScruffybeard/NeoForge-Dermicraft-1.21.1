@@ -102,6 +102,26 @@ public class DermicraftClient {
 
         registerFluidType(event, ModFluidTypes.PULP_BLEND_FLUID_TYPE.get());
 
+        // TEMP -- GeckoLib pipeline validation only, remove alongside TestRigItem once confirmed.
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private final net.scruffy.dermicraft.item.custom.test.TestRigItemRenderer renderer =
+                    new net.scruffy.dermicraft.item.custom.test.TestRigItemRenderer();
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return renderer;
+            }
+        }, net.scruffy.dermicraft.item.ModItems.TEST_RIG.get());
+
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private final net.scruffy.dermicraft.item.custom.SippingItemRenderer renderer =
+                    new net.scruffy.dermicraft.item.custom.SippingItemRenderer();
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return renderer;
+            }
+        }, net.scruffy.dermicraft.item.ModItems.SIPPING.get());
     }
 
     @SubscribeEvent

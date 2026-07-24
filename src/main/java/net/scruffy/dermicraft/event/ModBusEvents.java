@@ -36,6 +36,9 @@ import net.scruffy.dermicraft.item.custom.BeakerItem;
 import net.scruffy.dermicraft.item.custom.BladderItem;
 import net.scruffy.dermicraft.item.custom.GlassFlaskItem;
 import net.scruffy.dermicraft.item.custom.IdepItem;
+import net.scruffy.dermicraft.item.custom.SippingItem;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.component.SippingModeData;
 import net.scruffy.dermicraft.main.Dermicraft;
 import org.jetbrains.annotations.Nullable;
 
@@ -126,6 +129,16 @@ public class ModBusEvents {
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
                 stack, BladderItem.CAPACITY, HazardProfile.TIER_1, fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.FUEL_BLADDER.get());
+
+        // S.I.P.P.I.N.G.: Storage mode is a flexible hazard-gated buffer (same shape as Bladder);
+        // Disposal mode bypasses the buffer entirely and voids anything the hazard profile accepts.
+        // Which handler is returned depends on the stack's current mode, read fresh each lookup.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> {
+            SippingModeData mode = stack.getOrDefault(ModDataComponentTypes.SIPPING_MODE_DATA.get(), SippingModeData.DEFAULT);
+            return mode.disposalMode()
+                    ? new SippingItem.DisposalFluidHandler(stack, HazardProfile.TIER_1)
+                    : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, HazardProfile.TIER_1);
+        }, ModItems.SIPPING.get());
     }
 
     /** All Gate Buffers directly touching {@code portPos}, in {@link Direction#values()} order. */

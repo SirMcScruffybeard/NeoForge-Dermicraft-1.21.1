@@ -1,0 +1,119 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    64,
+    64
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        45,
+        45,
+        45
+      ],
+      "translation": [
+        0,
+        3.5,
+        -0.75
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        45,
+        45,
+        45
+      ],
+      "translation": [
+        0,
+        3.5,
+        -0.75
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        45,
+        45,
+        45
+      ],
+      "translation": [
+        0,
+        3.5,
+        -3.25
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        45,
+        45,
+        45
+      ],
+      "translation": [
+        2,
+        3.5,
+        -3.75
+      ],
+      "scale": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    "ground": {
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "gui": {
+      "rotation": [
+        54.04,
+        -11.57,
+        15.53
+      ],
+      "translation": [
+        0.25,
+        -1.5,
+        0
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        -90,
+        0,
+        0
+      ],
+      "translation": [
+        0,
+        0,
+        2.5
+      ]
+    },
+    "on_shelf": {
+      "rotation": [
+        45,
+        0,
+        0
+      ]
+    }
+  },
+  "textures": {
+    "particle": "dermicraft:item/sipping_base"
+  }
+}

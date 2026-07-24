@@ -8,6 +8,9 @@
   "item.dermicraft.suture_kit": "Suture Kit",
   "item.dermicraft.forceps": "Forceps",
   "item.dermicraft.idep": "I.D.E.P.",
+  "item.dermicraft.sipping": "S.I.P.P.I.N.G.",
+  "tooltip.dermicraft.sipping.disposal_warning": "Contents will be voided -- right-click again to confirm",
+  "tooltip.dermicraft.sipping.voided": "Contents voided",
   "item.dermicraft.syringe": "Syringe",
   "item.dermicraft.syringe.filled": "Syringe of %s",
 
