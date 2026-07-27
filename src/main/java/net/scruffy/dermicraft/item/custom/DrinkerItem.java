@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -86,6 +87,17 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
     /** Effectively "until released" -- the same trick bows and shields use for a held pose. */
     private static final int HELD_INDEFINITELY = 72000;
+
+    /**
+     * Ticks of dead air after a siphon completes, so a still-held trigger doesn't immediately do
+     * something else.
+     *
+     * <p>Vanilla re-fires use the instant {@code isUsingItem()} goes false while the button is
+     * down. Completing a siphon removes the source block, so that re-fire finds no target and falls
+     * straight through to the mode cycle -- the player finishes a ten-second draw and their mode
+     * silently changes. This swallows the re-fire.
+     */
+    private static final int POST_SIPHON_LOCKOUT_TICKS = 20;
 
     /** Minimum ticks after arming before a confirm counts -- blocks accidental double-clicks. */
     private static final long MIN_CONFIRM_DELAY_TICKS = 20;
@@ -355,9 +367,31 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
         if (target.isTank()) {
             // A tank is divisible, unlike a source block, so it transfers continuously and banks as
             // it goes -- no ghost buffer, and nothing to lose by looking away part-way through.
-            return drainTank(stack, player, target.tank()) ? Draw.TANK : Draw.NOTHING;
+            if (!drainTank(stack, player, target.tank())) return Draw.NOTHING;
+
+            if (level instanceof ServerLevel serverLevel) {
+                DrinkerParticles.dripFromMouth(serverLevel, player, tankContents(target.tank()));
+            }
+            return Draw.TANK;
         }
-        return accumulateSource(level, player, stack, target) ? Draw.SOURCE : Draw.NOTHING;
+
+        if (!accumulateSource(level, player, stack, target)) return Draw.NOTHING;
+
+        if (level instanceof ServerLevel serverLevel) {
+            DrinkerParticles.streamFromSource(serverLevel, player,
+                    Vec3.atCenterOf(target.pos()),
+                    new FluidStack(target.blockState().getFluidState().getType(), CAPACITY));
+        }
+        return Draw.SOURCE;
+    }
+
+    /** First non-empty tank on the face -- matches how DrinkerTargetScanner picks what to report. */
+    private static FluidStack tankContents(IFluidHandler tank) {
+        for (int i = 0; i < tank.getTanks(); i++) {
+            FluidStack inTank = tank.getFluidInTank(i);
+            if (!inTank.isEmpty()) return inTank;
+        }
+        return FluidStack.EMPTY;
     }
 
     /** Continuous partial transfer out of a machine/tank face. */
@@ -428,6 +462,12 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
         stack.remove(ModDataComponentTypes.DRINKER_SIPHON_PROGRESS.get());
         player.stopUsingItem();
+
+        // Uses vanilla's item cooldown rather than a bespoke timer: it gates useItem (so the
+        // held-trigger re-fire can't reach the mode cycle) while onItemUseFirst, which runs before
+        // the cooldown check, still lets an adjacent tank be drained. It also renders the usual
+        // sweep on the hotbar icon, which reads as the rig recovering from swallowing a whole block.
+        player.getCooldowns().addCooldown(this, POST_SIPHON_LOCKOUT_TICKS);
     }
 
     /** Bleeds off unbanked progress. See the class javadoc on why this is gradual. */

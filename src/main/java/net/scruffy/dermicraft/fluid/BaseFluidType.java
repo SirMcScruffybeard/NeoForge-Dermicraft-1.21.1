@@ -36,6 +36,16 @@ public class BaseFluidType extends FluidType {
         this.fogColor = fogColor;
     }
 
+    /**
+     * The fluid's tint, readable on BOTH sides. The identical value is exposed through
+     * {@link #getClientFluidTypeExtensions()}, but only to client code -- so anything that needs a
+     * fluid's colour on the server (particles spawned for every nearby player to see, for one)
+     * has no way to reach it without this.
+     */
+    public int getTintColor() {
+        return tintColor;
+    }
+
     public IClientFluidTypeExtensions getClientFluidTypeExtensions() {
         return new IClientFluidTypeExtensions() {
             @Override
