@@ -147,6 +147,16 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         };
     }
 
+    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally. */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return switch (face) {
+            case UP -> Component.translatable("tooltip.dermicraft.tank.fuel");
+            case DOWN -> Component.translatable("tooltip.dermicraft.tank.result");
+            default -> Component.translatable("tooltip.dermicraft.tank.ingredient");
+        };
+    }
+
     public IFluidHandler getTank(@Nullable Direction direction) {
         if (direction == null) return INGREDIENT_TANK;
 

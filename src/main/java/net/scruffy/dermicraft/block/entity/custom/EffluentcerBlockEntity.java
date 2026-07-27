@@ -134,6 +134,19 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         return EffluentcerVisualState.IDLE;
     }
 
+    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally. */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        if (face == Direction.UP) return Component.translatable("tooltip.dermicraft.tank.fuel");
+        if (face == Direction.DOWN) return Component.translatable("tooltip.dermicraft.tank.result");
+
+        Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
+        if (face == facing || face == facing.getOpposite()) {
+            return Component.translatable("tooltip.dermicraft.tank.input_a");
+        }
+        return Component.translatable("tooltip.dermicraft.tank.input_b");
+    }
+
     public IFluidHandler getTank(@Nullable Direction direction) {
         if (direction == null) return INPUT_A_TANK;
 

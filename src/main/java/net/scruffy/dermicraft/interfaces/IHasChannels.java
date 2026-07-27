@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -62,4 +63,24 @@ public interface IHasChannels {
      * most likely to be pointing the I.D.E.P. at), so it can't be derived from the filtered list.
      */
     Component describeFace(Direction face);
+
+    /**
+     * Fluid-only counterpart to {@link #describeFace} -- names just the TANK a given face reaches,
+     * with no item-slot half, for tools that only care about fluid (the D.R.I.N.K.E.R., which has
+     * no concept of item slots at all).
+     *
+     * <p><b>Mirrors {@code getTank(Direction)} literally, NOT {@link #describeFace}.</b> Those two
+     * genuinely disagree on several machines: Render Furnace and Grafting Table hand out the fuel
+     * tank on <i>every</i> face while describeFace names their item slots, and Render Kiln's DOWN
+     * face describes an item output slot but routes fluid to the input tank. Deriving this from
+     * describeFace would therefore name the wrong tank -- always mirror the fluid routing.
+     *
+     * <p>Defaults to {@code null}, meaning "no fluid reachable on this face" -- correct as-is for
+     * implementors with no fluid handling at all (e.g. Craw). Any machine that DOES route fluid
+     * must override this, or fluid tools will fall back to naming no tank.
+     */
+    @Nullable
+    default Component describeFluidFace(Direction face) {
+        return null;
+    }
 }

@@ -74,6 +74,13 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         else return FluidStack.EMPTY;
     }
 
+    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally. */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return Component.translatable(face == Direction.UP
+                ? "tooltip.dermicraft.tank.fuel" : "tooltip.dermicraft.tank.reagent");
+    }
+
     public IFluidHandler getTank(@Nullable Direction direction) {
         if (direction == Direction.UP) return FUEL_TANK;
         return REAGENT_TANK;

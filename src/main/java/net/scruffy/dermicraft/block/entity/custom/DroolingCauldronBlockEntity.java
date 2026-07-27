@@ -79,6 +79,13 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
         return Component.translatable("tooltip.dermicraft.idep.face.drooling_cauldron_ingredient");
     }
 
+    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally (one tank,
+     * every face); describeFace names the ingredient item slot alongside it. */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return Component.translatable("tooltip.dermicraft.tank.result");
+    }
+
     public IFluidHandler getTank(@Nullable Direction face) {
         return TANK;
     }

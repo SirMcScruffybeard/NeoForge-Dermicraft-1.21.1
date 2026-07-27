@@ -129,6 +129,14 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
         else return FluidStack.EMPTY;
     }
 
+    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally. Note DOWN
+     * routes fluid to the INPUT tank even though describeFace calls that face an item output slot. */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return Component.translatable(face == Direction.UP
+                ? "tooltip.dermicraft.tank.fuel" : "tooltip.dermicraft.tank.input");
+    }
+
     public IFluidHandler getTank(@Nullable Direction direction) {
         if (direction == Direction.UP) return FUEL_TANK;
         return INPUT_TANK;

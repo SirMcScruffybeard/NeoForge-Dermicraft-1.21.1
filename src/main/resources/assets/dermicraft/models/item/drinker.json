@@ -1,0 +1,109 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "texture_size": [
+    32,
+    32
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "translation": [
+        0,
+        -1.5,
+        -5.5
+      ]
+    },
+    "thirdperson_lefthand": {
+      "translation": [
+        0,
+        -1.5,
+        -5.5
+      ]
+    },
+    "firstperson_righthand": {
+      "rotation": [
+        0,
+        -7.5,
+        0
+      ],
+      "translation": [
+        4,
+        -3.5,
+        -13.5
+      ],
+      "scale": [
+        1.65,
+        1.65,
+        1.65
+      ]
+    },
+    "firstperson_lefthand": {
+      "rotation": [
+        0,
+        -7.5,
+        0
+      ],
+      "translation": [
+        4,
+        -3.5,
+        -13.5
+      ],
+      "scale": [
+        1.65,
+        1.65,
+        1.65
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        -2.25,
+        0
+      ]
+    },
+    "gui": {
+      "rotation": [
+        90,
+        45,
+        -90
+      ],
+      "translation": [
+        -4,
+        -1.75,
+        -80
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        91.13999999999987,
+        -45.9699999999998,
+        94.90999999999985
+      ],
+      "translation": [
+        4,
+        -2.5,
+        1
+      ],
+      "scale": [
+        1.25,
+        1.25,
+        1.25
+      ]
+    },
+    "on_shelf": {
+      "rotation": [
+        90,
+        48.75,
+        -90
+      ],
+      "translation": [
+        -2.75,
+        0,
+        -3.25
+      ]
+    }
+  },
+  "textures": {
+    "particle": "dermicraft:item/drinker/drinker"
+  }
+}

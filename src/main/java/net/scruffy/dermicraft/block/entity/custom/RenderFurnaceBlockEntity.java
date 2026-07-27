@@ -74,6 +74,13 @@ public class RenderFurnaceBlockEntity extends AbstractFueledMachineBlockEntity<S
     }
 
     // Only one tank exists here (no reagent tank), so it's returned regardless of face.
+    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally, which hands
+     * out the fuel tank on EVERY face here (unlike describeFace, which names the item slots). */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return Component.translatable("tooltip.dermicraft.tank.fuel");
+    }
+
     public IFluidHandler getTank(@Nullable Direction direction) {
         return FUEL_TANK;
     }

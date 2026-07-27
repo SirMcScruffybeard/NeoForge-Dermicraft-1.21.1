@@ -31,6 +31,9 @@ public class ModItems {
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
     public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().stacksTo(1)));
 
+    // Placeholder -- see DrinkerItem's class javadoc.
+    public static final DeferredItem<Item> DRINKER = ITEMS.register("drinker", () -> new DrinkerItem(new Item.Properties().stacksTo(1)));
+
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
             () -> new PartItem(new Item.Properties().food(ModFoodProperties.EYE)));

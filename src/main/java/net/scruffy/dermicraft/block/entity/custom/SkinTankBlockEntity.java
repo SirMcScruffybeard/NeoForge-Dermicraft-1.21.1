@@ -52,6 +52,13 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuP
         return TANK.getFluid();
     }
 
+    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally (one tank,
+     * every face); describeFace names the fill/drain bucket slots alongside it. */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return Component.translatable("tooltip.dermicraft.tank.storage");
+    }
+
     public IFluidHandler getTank(@Nullable Direction face) {
         return TANK;
     }

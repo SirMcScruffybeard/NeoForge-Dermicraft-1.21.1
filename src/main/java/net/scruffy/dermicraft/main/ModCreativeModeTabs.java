@@ -87,6 +87,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.FORCEPS);
                         output.accept(ModItems.IDEP);
                         output.accept(ModItems.SIPPING);
+                        output.accept(ModItems.DRINKER);
                         output.accept(ModItems.BLADDER);
                         output.accept(ModItems.FUEL_BLADDER);
                         output.accept(ModItems.FEEDER_BLADDER);
