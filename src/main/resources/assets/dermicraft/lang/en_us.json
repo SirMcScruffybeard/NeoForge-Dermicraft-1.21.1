@@ -28,6 +28,8 @@
   "tooltip.dermicraft.drinker.fluid_mismatch": "Cannot mix -- buffer holds %s",
   "tooltip.dermicraft.drinker.amount": "%s/%s mB",
   "tooltip.dermicraft.drinker.mode": "Mode: %s",
+  "tooltip.dermicraft.drinker.tooltip_empty": "Buffer: empty",
+  "tooltip.dermicraft.drinker.tooltip_holding": "Buffer: %s (%s/%s mB)",
   "tooltip.dermicraft.drinker.mode.storage": "Storage",
   "tooltip.dermicraft.drinker.mode.transfer": "Transfer",
   "tooltip.dermicraft.drinker.mode.disposal": "Disposal",

@@ -156,9 +156,18 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
         return stack;
     }
 
+    /**
+     * Routed through {@link IHaveFluidData#writeFluidDataSplitting} rather than a raw
+     * {@code stack.set}: a held stack of several empty Flasks shares one component, so a direct
+     * write would fill every Flask in the stack at once.
+     *
+     * <p>Splits rather than refusing, because the only caller fills the Flask as the PRICE of an
+     * effect the player has already received (air, underwater). A refused write would grant that
+     * effect for free -- a stack of empty Flasks becoming unlimited breathing.
+     */
     private void setFlaskIfSurvival(Player player, ItemStack stack, FluidData data) {
         if (!player.isCreative()) {
-            stack.set(getDataType(), data);
+            IHaveFluidData.writeFluidDataSplitting(stack, data, player);
         }
     }
 

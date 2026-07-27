@@ -2,16 +2,12 @@ package net.scruffy.dermicraft.item.custom;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.event.DrinkerTargetScanner;
 import net.scruffy.dermicraft.main.Dermicraft;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
@@ -42,18 +38,26 @@ public class DrinkerScreenGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
     @Override
     public void render(PoseStack poseStack, DrinkerItem animatable, BakedGeoModel bakedModel, RenderType renderType,
                         MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        if (!DrinkerTargetScanner.hasValidTarget() || !isHeldStack()) return;
+        if (!DrinkerTargetScanner.hasValidTarget() || !isHeldInHand()) return;
         super.render(poseStack, animatable, bakedModel, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
     }
 
-    /** Reference-equality against the player's hands -- the held stack is the same object the
-     * renderer was handed, the same check {@code SippingItem.inventoryTick} already relies on. */
-    private boolean isHeldStack() {
-        if (!(getRenderer() instanceof GeoItemRenderer<?> itemRenderer)) return false;
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player == null) return false;
-
-        ItemStack rendered = itemRenderer.getCurrentItemStack();
-        return player.getMainHandItem() == rendered || player.getOffhandItem() == rendered;
+    /**
+     * Distinguishes a held DRINKER from one drawn in an inventory slot by RENDER PERSPECTIVE, not by
+     * comparing stack references against the player's hands.
+     *
+     * <p>Reference equality looks right but flickers: {@code ItemInHandRenderer} only re-points its
+     * cached hand stack at the live one when the two still {@code match()} by components, and the
+     * siphon-progress component changes every tick. The renderer therefore hands this layer a stale
+     * stack object for most frames, the comparison fails, and the screen blinks in time with the
+     * component updates. Perspective is unaffected by any of that.
+     */
+    private boolean isHeldInHand() {
+        if (!(getRenderer() instanceof DrinkerItemRenderer renderer)) return false;
+        return switch (renderer.currentPerspective()) {
+            case FIRST_PERSON_RIGHT_HAND, FIRST_PERSON_LEFT_HAND,
+                 THIRD_PERSON_RIGHT_HAND, THIRD_PERSON_LEFT_HAND -> true;
+            default -> false;
+        };
     }
 }

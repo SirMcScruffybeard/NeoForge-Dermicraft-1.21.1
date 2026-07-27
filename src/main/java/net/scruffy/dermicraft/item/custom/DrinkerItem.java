@@ -13,6 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
@@ -476,20 +477,52 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         return buffer == null ? FluidStack.EMPTY : buffer.getFluidInTank(0);
     }
 
-    /** Pushes into inventory fluid containers, topping up ones already holding the same fluid
-     * before starting a fresh one. @return total accepted. */
+    /**
+     * Pushes into inventory fluid containers, topping up ones already holding the same fluid before
+     * starting a fresh one.
+     *
+     * <p>Stacked containers are split rather than skipped. A fluid data component belongs to the
+     * whole stack, so filling a stack of five empty Flasks in place would fill all five from one
+     * container's worth -- see {@link IHaveFluidData#isSingleContainer}. Splitting one off keeps
+     * stacked containers usable without that duplication.
+     *
+     * <p>Only one item is ever taken from a given stack per call, so a simulation reports the room
+     * of a single container rather than the whole stack. That understates capacity, which is the
+     * safe direction: Transfer falls back to the buffer for whatever the inventory couldn't take.
+     *
+     * @return total accepted.
+     */
     private static int fillContainers(ItemStack self, Player player, FluidStack fluid, IFluidHandler.FluidAction action) {
         int remaining = fluid.getAmount();
 
         for (ItemStack candidate : orderedContainers(self, player, fluid)) {
             if (remaining <= 0) break;
-
-            IFluidHandlerItem handler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
-            if (handler == null) continue;
+            if (candidate.isEmpty()) continue;
 
             FluidStack offer = fluid.copy();
             offer.setAmount(remaining);
-            remaining -= handler.fill(offer, action);
+
+            if (candidate.getCount() == 1) {
+                IFluidHandlerItem handler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
+                if (handler == null) continue;
+                remaining -= handler.fill(offer, action);
+                continue;
+            }
+
+            ItemStack single = candidate.copyWithCount(1);
+            IFluidHandlerItem handler = single.getCapability(Capabilities.FluidHandler.ITEM, null);
+            if (handler == null) continue;
+
+            int accepted = handler.fill(offer, action);
+            if (accepted <= 0) continue;
+            remaining -= accepted;
+
+            if (action.execute()) {
+                candidate.shrink(1);
+                // getContainer() is the filled single -- the handler wrote into the copy, not the
+                // stack it came from, which is the entire point of splitting.
+                IHaveFluidData.giveOrDrop(player, handler.getContainer());
+            }
         }
         return fluid.getAmount() - remaining;
     }
@@ -530,6 +563,28 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
 
         sameFluid.addAll(others);
         return sameFluid;
+    }
+
+    ////////////////////Tooltip\\\\\\\\\\\\\\\\\\\\
+
+    /**
+     * The model's gauge is only three coarse steps and the mode lights are colour-coded, so neither
+     * answers "exactly how much of what am I holding?". This does -- which also makes the buffer
+     * observable while testing transfers.
+     */
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        tooltip.add(Component.translatable("tooltip.dermicraft.drinker.mode",
+                        Component.translatable(modeKey(modeData(stack).mode())))
+                .withStyle(ChatFormatting.GRAY));
+
+        FluidStack held = bufferContents(stack);
+        tooltip.add(held.isEmpty()
+                ? Component.translatable("tooltip.dermicraft.drinker.tooltip_empty").withStyle(ChatFormatting.DARK_GRAY)
+                : Component.translatable("tooltip.dermicraft.drinker.tooltip_holding",
+                                Component.translatable(held.getFluid().getFluidType().getDescriptionId()),
+                                held.getAmount(), CAPACITY)
+                        .withStyle(ChatFormatting.GRAY));
     }
 
     ////////////////////Helpers\\\\\\\\\\\\\\\\\\\\

@@ -3,6 +3,8 @@ package net.scruffy.dermicraft.interfaces;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,6 +43,69 @@ public interface IHaveFluidData {
 
     default void emptyFluidData(ItemStack stack) {
         stack.set(getDataType(), FluidData.EMPTY);
+    }
+
+    /**
+     * A data component belongs to the WHOLE {@link ItemStack}, so writing fluid into a stack of
+     * more than one container writes it into every one of them -- a single source block's worth
+     * turning into five filled Flasks. Every fill path must therefore refuse stacked containers.
+     *
+     * <p>Callers that want stacked containers to work anyway are responsible for splitting a single
+     * item off first and finding it a home; see {@code DrinkerItem#fillContainers} for the item-side
+     * pattern, or {@code EffluentcerBlockEntity#transferToHandlerWithEject} for the machine-side one.
+     *
+     * <p>Deliberately guards only the FILL direction. Refusing to <em>remove</em> fluid from a stack
+     * would be worse than allowing it: filled containers with identical components do stack, and a
+     * refused removal after the player has already had the effect (drinking, say) turns a
+     * fluid-destruction bug into an unlimited-use one. Removal has to split, not refuse.
+     */
+    static boolean isSingleContainer(ItemStack stack) {
+        return stack.getCount() <= 1;
+    }
+
+    /**
+     * Guarded stand-in for a raw {@code stack.set(FLUID_DATA, ...)}, for code that writes the
+     * component directly instead of going through a handler.
+     *
+     * @return whether the write happened; false means the stack was stacked and was left untouched.
+     */
+    static boolean writeFluidData(ItemStack stack, FluidData data) {
+        if (!isSingleContainer(stack)) return false;
+        stack.set(ModDataComponentTypes.FLUID_DATA.get(), data);
+        return true;
+    }
+
+    /**
+     * Like {@link #writeFluidData}, but never simply fails: a stacked container has one item split
+     * off, written to, and handed back to the player, leaving the rest of the stack untouched.
+     *
+     * <p>Use this wherever the fill is the <em>consequence</em> of something that already happened
+     * -- the player has had the effect and the container filling is the price. Refusing the write
+     * there would hand out the effect for free, which is a worse bug than the duplication the guard
+     * exists to stop (a stack of empty Flasks would grant unlimited underwater breathing).
+     */
+    static void writeFluidDataSplitting(ItemStack stack, FluidData data, Player player) {
+        if (writeFluidData(stack, data)) return;
+
+        ItemStack single = stack.copyWithCount(1);
+        single.set(ModDataComponentTypes.FLUID_DATA.get(), data);
+        stack.shrink(1);
+        giveOrDrop(player, single);
+    }
+
+    /**
+     * Hands a container back to the player, dropping it at their feet if there's no room.
+     *
+     * <p>Deliberately not {@code player.drop(stack, false)}: that overload's boolean is
+     * {@code includeThrowerName}, not {@code dropAround}, so it lands in the forward-throw branch
+     * and hurls the item away exactly like a Q-toss. The three-argument overload takes a real
+     * {@code dropAround} flag but only <em>constructs</em> the entity -- {@code addFreshEntity} lives
+     * in {@code CommonHooks.onPlayerTossEvent}, which only the two-argument form routes through, so
+     * calling it directly would make the item silently vanish.
+     */
+    static void giveOrDrop(Player player, ItemStack stack) {
+        if (stack.isEmpty() || player.getInventory().add(stack)) return;
+        Containers.dropItemStack(player.level(), player.getX(), player.getY(), player.getZ(), stack);
     }
 
     default boolean isServerSide(Level level) {
@@ -93,6 +158,8 @@ public interface IHaveFluidData {
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
+            // See IHaveFluidData#isSingleContainer -- filling a stack would fill every item in it.
+            if (!isSingleContainer(container)) return 0;
             if (!getFluidInTank(0).isEmpty() || resource.isEmpty() || resource.getAmount() < getTankCapacity(0)) {
                 return 0;
             }
@@ -169,6 +236,8 @@ public interface IHaveFluidData {
 
         @Override
         public int fill(FluidStack resource, FluidAction action) {
+            // See IHaveFluidData#isSingleContainer -- filling a stack would fill every item in it.
+            if (!isSingleContainer(container)) return 0;
             if (resource.isEmpty()) return 0;
 
             FluidStack contained = getFluidInTank(0);

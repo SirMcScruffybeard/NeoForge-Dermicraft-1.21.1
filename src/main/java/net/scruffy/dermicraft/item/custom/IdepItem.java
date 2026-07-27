@@ -65,8 +65,11 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
     public static final int ITEM_CAPACITY = GateBufferBlockEntity.ITEM_CAPACITY;
     public static final int FLUID_CAPACITY = GateBufferBlockEntity.FLUID_CAPACITY;
 
+    /** Stack size 1: this carries per-item contents (a held item stack and fluid), and a data
+     * component belongs to the whole ItemStack -- so a stacked I.D.E.P. would share one payload
+     * across every copy. Structurally prevents that rather than relying on fill-side guards. */
     public IdepItem() {
-        super(new Item.Properties());
+        super(new Item.Properties().stacksTo(1));
     }
 
     @Override
@@ -276,10 +279,10 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
         HeldItemData data = stack.getOrDefault(ModDataComponentTypes.HELD_ITEM_DATA.get(), HeldItemData.EMPTY);
         if (data.isEmpty()) return;
 
-        ItemStack toGive = data.itemStack().copy();
-        if (!player.getInventory().add(toGive)) {
-            player.drop(toGive, false);
-        }
+        // Lands at the player's feet rather than being flung forward -- player.drop(stack, boolean)
+        // takes includeThrowerName, not dropAround, so it hits the Q-toss branch. See
+        // IHaveFluidData#giveOrDrop for why the three-arg overload isn't the fix either.
+        IHaveFluidData.giveOrDrop(player, data.itemStack().copy());
         stack.set(ModDataComponentTypes.HELD_ITEM_DATA.get(), HeldItemData.EMPTY);
     }
 
