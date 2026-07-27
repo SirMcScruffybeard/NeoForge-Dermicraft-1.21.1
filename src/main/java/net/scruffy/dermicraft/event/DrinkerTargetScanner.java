@@ -6,7 +6,10 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.FluidState;
@@ -24,6 +27,7 @@ import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Client-side "what am I aiming at" scan for the D.R.I.N.K.E.R. -- drives both the model's
@@ -44,8 +48,6 @@ public class DrinkerTargetScanner {
 
     /** Ticks between re-scans -- the "slight delay on the render tick" the design notes call for. */
     private static final int SCAN_INTERVAL_TICKS = 3;
-    /** Matches the reach used by Outerface's own look-at check in ModItemProperties. */
-    private static final double SCAN_RANGE = 5.0D;
 
     /** DRINKER's Tier 1 tolerance -- rejects any hazard tag at all. */
     private static final HazardProfile PROFILE = HazardProfile.TIER_1;
@@ -87,9 +89,10 @@ public class DrinkerTargetScanner {
     }
 
     private static void scan(LocalPlayer player, Level level, ItemStack drinker) {
-        // hitFluids=true so raw world fluid source blocks register as targets rather than being
-        // passed straight through.
-        HitResult hit = player.pick(SCAN_RANGE, 0.0F, true);
+        // Deliberately the EXACT raycast DrinkerItem uses to pick its target, not a lookalike:
+        // this shares the player's real block-interaction range and SOURCE_ONLY fluid clipping, so
+        // the readout can never promise something the siphon then refuses to reach or act on.
+        HitResult hit = Item.getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         if (hit.getType() != HitResult.Type.BLOCK) {
             clear();
             return;
@@ -103,7 +106,7 @@ public class DrinkerTargetScanner {
         // fluidstate check -- a machine is the more specific interpretation of the same position.
         IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face);
         if (handler != null) {
-            reportHandler(player, level, pos, face, handler);
+            reportHandler(player, level, pos, face, handler, drinker);
             return;
         }
 
@@ -111,16 +114,7 @@ public class DrinkerTargetScanner {
         if (!fluidState.isEmpty() && fluidState.isSource()) {
             // A source block is exactly one bucket's worth, matching DRINKER's atomic pickup rule.
             FluidStack source = new FluidStack(fluidState.getType(), SOURCE_BLOCK_AMOUNT);
-
-            // Atomic pickup needs room for the WHOLE block, so a partly-filled buffer refuses a
-            // siphon outright. Say so -- otherwise holding the trigger just does nothing.
-            if (PROFILE.accepts(source) && !hasRoomForSource(drinker, source)) {
-                show(player, false, Component.translatable("tooltip.dermicraft.drinker.no_room")
-                        .withStyle(ChatFormatting.RED));
-                return;
-            }
-
-            reportFluid(player, source, null);
+            reportFluid(player, drinker, source, null, null, true);
             return;
         }
 
@@ -130,15 +124,18 @@ public class DrinkerTargetScanner {
     /** Machine/tank face: name the fluid that would actually be pulled, plus which TANK that face
      * reaches. Uses {@link IHasChannels#describeFluidFace}, not {@code describeFace} -- DRINKER has
      * no concept of item slots, and the two genuinely name different things on several machines. */
-    private static void reportHandler(LocalPlayer player, Level level, BlockPos pos, Direction face, IFluidHandler handler) {
+    private static void reportHandler(LocalPlayer player, Level level, BlockPos pos, Direction face,
+                                      IFluidHandler handler, ItemStack drinker) {
         BlockEntity be = level.getBlockEntity(pos);
         Component faceLabel = be instanceof IHasChannels hasChannels ? hasChannels.describeFluidFace(face) : null;
 
         FluidStack contained = FluidStack.EMPTY;
+        int capacity = 0;
         for (int tank = 0; tank < handler.getTanks(); tank++) {
             FluidStack inTank = handler.getFluidInTank(tank);
             if (!inTank.isEmpty()) {
                 contained = inTank;
+                capacity = handler.getTankCapacity(tank);
                 break;
             }
         }
@@ -152,15 +149,27 @@ public class DrinkerTargetScanner {
             return;
         }
 
-        reportFluid(player, contained, faceLabel);
+        // Level readout is tank-only: a world source block is always exactly one bucket, so
+        // printing its amount would be noise.
+        Component amount = Component.translatable("tooltip.dermicraft.drinker.amount",
+                contained.getAmount(), capacity);
+        reportFluid(player, drinker, contained, faceLabel, amount, false);
     }
 
-    /** Shared valid/hazard-blocked formatting for both world sources and machine tanks. */
-    private static void reportFluid(LocalPlayer player, FluidStack fluid, Component faceLabel) {
-        Component fluidName = Component.translatable(fluid.getFluid().getFluidType().getDescriptionId());
-        Component subject = faceLabel != null
-                ? Component.empty().append(faceLabel).append(" -- ").append(fluidName)
-                : fluidName;
+    /**
+     * Shared readout for both target kinds. Rejection reasons are checked in order of how
+     * fundamental they are -- hazard, then fluid mismatch, then capacity -- so the player always
+     * gets the most explanatory message rather than whichever check happened to run first.
+     *
+     * @param atomic true for a world source block, which needs room for a WHOLE bucket's worth;
+     *               false for a tank, which transfers partially and only needs room for something.
+     */
+    private static void reportFluid(LocalPlayer player, ItemStack drinker, FluidStack fluid,
+                                    @Nullable Component faceLabel, @Nullable Component amount, boolean atomic) {
+        MutableComponent subject = Component.empty();
+        if (faceLabel != null) subject.append(faceLabel).append(" -- ");
+        subject.append(Component.translatable(fluid.getFluid().getFluidType().getDescriptionId()));
+        if (amount != null) subject.append(" (").append(amount).append(")");
 
         if (!PROFILE.accepts(fluid)) {
             show(player, false, Component.translatable("tooltip.dermicraft.drinker.blocked", subject)
@@ -168,13 +177,37 @@ public class DrinkerTargetScanner {
             return;
         }
 
+        // Checked before capacity: a buffer holding a different fluid also reports zero room, and
+        // "buffer full" would be a misleading reason when the real problem is it won't mix.
+        FluidStack held = bufferContents(drinker);
+        if (!held.isEmpty() && !FluidStack.isSameFluidSameComponents(held, fluid)) {
+            Component heldName = Component.translatable(held.getFluid().getFluidType().getDescriptionId());
+            show(player, false, Component.translatable("tooltip.dermicraft.drinker.fluid_mismatch", heldName)
+                    .withStyle(ChatFormatting.RED));
+            return;
+        }
+
+        // Mirrors the siphon's own room checks in DrinkerItem (accumulateSource / drainTank).
+        int room = bufferRoomFor(drinker, fluid);
+        if (atomic ? room < SOURCE_BLOCK_AMOUNT : room <= 0) {
+            show(player, false, Component.translatable(atomic
+                            ? "tooltip.dermicraft.drinker.no_room"
+                            : "tooltip.dermicraft.drinker.buffer_full")
+                    .withStyle(ChatFormatting.RED));
+            return;
+        }
+
         show(player, true, Component.translatable("tooltip.dermicraft.drinker.target", subject));
     }
 
-    /** Mirrors the siphon's own all-or-nothing room check in {@code DrinkerItem.tryAccumulate}. */
-    private static boolean hasRoomForSource(ItemStack drinker, FluidStack source) {
+    private static FluidStack bufferContents(ItemStack drinker) {
         IFluidHandlerItem buffer = drinker.getCapability(Capabilities.FluidHandler.ITEM, null);
-        return buffer != null && buffer.fill(source, IFluidHandler.FluidAction.SIMULATE) >= SOURCE_BLOCK_AMOUNT;
+        return buffer == null ? FluidStack.EMPTY : buffer.getFluidInTank(0);
+    }
+
+    private static int bufferRoomFor(ItemStack drinker, FluidStack fluid) {
+        IFluidHandlerItem buffer = drinker.getCapability(Capabilities.FluidHandler.ITEM, null);
+        return buffer == null ? 0 : buffer.fill(fluid, IFluidHandler.FluidAction.SIMULATE);
     }
 
     private static void show(LocalPlayer player, boolean valid, Component message) {

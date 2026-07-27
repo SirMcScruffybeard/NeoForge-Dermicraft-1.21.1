@@ -3,7 +3,9 @@ package net.scruffy.dermicraft.item.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,6 +26,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -105,9 +108,33 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         return slotChanged || oldStack.getItem() != newStack.getItem();
     }
 
+    /**
+     * Claims a right-click on a machine/tank face before the block can open its GUI -- the same
+     * intercept {@code IdepItem} uses. Returning anything but PASS short-circuits
+     * {@code ServerPlayerGameMode#useItemOn} before {@code blockstate.useItemOn}, so the machine
+     * screen never opens; PASS leaves ordinary right-click behaviour completely untouched.
+     *
+     * <p>Re-raycasts rather than trusting {@code context.getClickedPos()}: the context's hit result
+     * is fluid-blind, so a water source standing in front of a machine would be missed and the
+     * click would open the machine instead of siphoning the water the player was aiming at.
+     */
+    @Override
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        Player player = context.getPlayer();
+        if (player == null) return InteractionResult.PASS;
+        if (findSiphonTarget(context.getLevel(), player) == null) return InteractionResult.PASS;
+
+        player.startUsingItem(context.getHand());
+        // CONSUME rather than SUCCESS: SUCCESS swings the arm, which fights the deliberately
+        // motionless hold (see DrinkerClientExtensions).
+        return InteractionResult.CONSUME;
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        // Reached only when no block claimed the click -- aiming at a bare fluid source (vanilla's
+        // crosshair ray ignores fluids, so that reads as a miss) or at nothing at all.
         // Start the sustained-use state immediately on click -- all siphon logic keys off this,
         // never off an animation finishing, so the deliberately-long activate clip can't gate it.
         player.startUsingItem(hand);
@@ -115,6 +142,38 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
     }
 
     ////////////////////Siphon\\\\\\\\\\\\\\\\\\\\
+
+    /** What the player is aimed at, if it's something DRINKER can pull from. */
+    private record Target(BlockPos pos, BlockState blockState, @Nullable IFluidHandler tank) {
+        boolean isTank() {
+            return tank != null;
+        }
+    }
+
+    /**
+     * One raycast serving both target kinds. SOURCE_ONLY clips fluid sources AND normal blocks, so
+     * whichever is physically nearer wins -- that's what makes water in front of a machine siphon
+     * instead of opening the machine.
+     */
+    @Nullable
+    private Target findSiphonTarget(Level level, Player player) {
+        BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+        if (hit.getType() != HitResult.Type.BLOCK) return null;
+
+        BlockPos pos = hit.getBlockPos();
+        BlockState blockState = level.getBlockState(pos);
+
+        // A face-routed tank takes priority over the raw fluidstate at the same position, matching
+        // DrinkerTargetScanner so the readout and the action can never disagree.
+        IFluidHandler tank = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, hit.getDirection());
+        if (tank != null) return new Target(pos, blockState, tank);
+
+        FluidState fluidState = blockState.getFluidState();
+        if (fluidState.isEmpty() || !fluidState.isSource()) return null;
+        if (!(blockState.getBlock() instanceof BucketPickup)) return null;
+
+        return new Target(pos, blockState, null);
+    }
 
     /**
      * All siphon state lives here rather than being split across {@code onUseTick}/{@code
@@ -127,33 +186,66 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         if (level.isClientSide || !(entity instanceof Player player)) return;
 
         boolean holdingTrigger = player.isUsingItem() && player.getUseItem() == stack;
-        // Note the short-circuit: tryAccumulate only runs while the trigger is held, and reports
-        // whether it actually fed the ghost buffer this tick (false when off target or no room).
-        boolean accumulated = holdingTrigger && tryAccumulate(level, player, stack);
-        if (!accumulated) drainGhost(stack);
+        Draw draw = holdingTrigger ? siphonTick(level, player, stack) : Draw.NOTHING;
 
+        // Centralised so no code path can forget it: unbanked progress decays on every tick that
+        // didn't specifically feed it -- including while draining a tank, which abandons whatever
+        // source block was part-way done.
+        if (draw != Draw.SOURCE) drainGhost(stack);
+
+        boolean drawing = draw != Draw.NOTHING;
         // Gated on actually drawing fluid, not merely holding the trigger -- the bladder shouldn't
         // inflate while aimed at nothing. Tradeoff: sweeping off target mid-siphon does bounce the
         // model between activate/deactivate; the controller's transition blending softens it.
-        if (stack.getOrDefault(ModDataComponentTypes.DRINKER_SIPHONING.get(), false) != accumulated) {
-            stack.set(ModDataComponentTypes.DRINKER_SIPHONING.get(), accumulated);
+        if (stack.getOrDefault(ModDataComponentTypes.DRINKER_SIPHONING.get(), false) != drawing) {
+            stack.set(ModDataComponentTypes.DRINKER_SIPHONING.get(), drawing);
         }
     }
 
+    /** What, if anything, moved fluid this tick. SOURCE is distinguished because it's the only
+     * path that feeds the ghost buffer rather than banking directly. */
+    private enum Draw {NOTHING, SOURCE, TANK}
+
+    private Draw siphonTick(Level level, Player player, ItemStack stack) {
+        Target target = findSiphonTarget(level, player);
+        if (target == null) return Draw.NOTHING;
+
+        if (target.isTank()) {
+            // A tank is divisible, unlike a source block, so it transfers continuously and banks as
+            // it goes -- no ghost buffer, and nothing to lose by looking away part-way through.
+            return drainTank(stack, target.tank()) ? Draw.TANK : Draw.NOTHING;
+        }
+        return accumulateSource(level, player, stack, target) ? Draw.SOURCE : Draw.NOTHING;
+    }
+
+    /** Continuous partial transfer out of a machine/tank face. */
+    private boolean drainTank(ItemStack stack, IFluidHandler tank) {
+        IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (buffer == null) return false;
+
+        FluidStack available = tank.drain(SIPHON_RATE, IFluidHandler.FluidAction.SIMULATE);
+        if (available.isEmpty()) return false;
+
+        // Hazard gating and capacity both ride on the buffer's own handler, same as the source path.
+        int accepted = buffer.fill(available, IFluidHandler.FluidAction.SIMULATE);
+        if (accepted <= 0) return false;
+
+        // Drain by stack, not by amount: on a multi-tank handler drain(int) could pull a different
+        // fluid than the one that was just approved.
+        FluidStack request = available.copy();
+        request.setAmount(accepted);
+        FluidStack drained = tank.drain(request, IFluidHandler.FluidAction.EXECUTE);
+        if (drained.isEmpty()) return false;
+
+        buffer.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        return true;
+    }
+
     /** @return whether the ghost buffer actually advanced this tick. */
-    private boolean tryAccumulate(Level level, Player player, ItemStack stack) {
-        // SOURCE_ONLY rather than the crosshair's usual fluid-blind raycast -- same approach
-        // BucketItem takes, since fluids aren't normal interaction targets.
-        BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-        if (hit.getType() != HitResult.Type.BLOCK) return false;
-
-        BlockPos pos = hit.getBlockPos();
-        BlockState blockState = level.getBlockState(pos);
-        FluidState fluidState = blockState.getFluidState();
-        if (fluidState.isEmpty() || !fluidState.isSource()) return false;
-        if (!(blockState.getBlock() instanceof BucketPickup)) return false;
-
-        FluidStack source = new FluidStack(fluidState.getType(), CAPACITY);
+    private boolean accumulateSource(Level level, Player player, ItemStack stack, Target target) {
+        BlockPos pos = target.pos();
+        BlockState blockState = target.blockState();
+        FluidStack source = new FluidStack(blockState.getFluidState().getType(), CAPACITY);
 
         // Room for a WHOLE source block or nothing -- a partial fill would strand fluid that can
         // never be picked up. Hazard gating rides along for free here: the registered handler is
@@ -174,7 +266,7 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         int progress = Math.min(CAPACITY, ghost.getAmount() + SIPHON_RATE);
         if (progress < CAPACITY) {
             stack.set(ModDataComponentTypes.DRINKER_SIPHON_PROGRESS.get(),
-                    FluidData.createData(new FluidStack(fluidState.getType(), progress)));
+                    FluidData.createData(new FluidStack(source.getFluid(), progress)));
             return true;
         }
 
