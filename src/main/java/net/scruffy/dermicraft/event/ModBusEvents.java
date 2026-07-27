@@ -35,6 +35,7 @@ import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BeakerItem;
 import net.scruffy.dermicraft.item.custom.BladderItem;
 import net.scruffy.dermicraft.item.custom.GlassFlaskItem;
+import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.item.custom.IdepItem;
 import net.scruffy.dermicraft.item.custom.SippingItem;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
@@ -129,6 +130,13 @@ public class ModBusEvents {
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
                 stack, BladderItem.CAPACITY, HazardProfile.TIER_1, fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.FUEL_BLADDER.get());
+
+        // D.R.I.N.K.E.R.: one source block's worth, hazard-gated. The gate does double duty -- the
+        // siphon checks "can this buffer take a full 1000mB?" against this handler, so a fluid the
+        // profile refuses simply never accumulates, no separate hazard check needed in the item.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) ->
+                        new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, DrinkerItem.CAPACITY, HazardProfile.TIER_1),
+                ModItems.DRINKER.get());
 
         // S.I.P.P.I.N.G.: Storage mode is a flexible hazard-gated buffer (same shape as Bladder);
         // Disposal mode bypasses the buffer entirely and voids anything the hazard profile accepts.

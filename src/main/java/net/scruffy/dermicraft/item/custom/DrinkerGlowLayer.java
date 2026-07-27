@@ -12,8 +12,9 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
  * {@link SippingGlowLayer} -- points directly at whichever full lit variant matches the current
  * mode rather than the default "<texture>_glowmask" convention.
  *
- * <p>TEMP: reads {@link DrinkerItem#DEMO_MODE} for now, purely to validate the three lit textures
- * in-game. Needs to switch to real per-stack mode state once DRINKER's actual mode logic is built.
+ * <p>Pinned to Storage until mode state exists -- the siphon currently always banks into the
+ * buffer, which is exactly Storage behaviour, so this shows the truth rather than a placeholder.
+ * The Transfer/Disposal textures are already authored and wired, waiting on the mode logic.
  */
 public class DrinkerGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
 
@@ -30,11 +31,6 @@ public class DrinkerGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
 
     @Override
     protected RenderType getRenderType(DrinkerItem animatable, MultiBufferSource bufferSource) {
-        ResourceLocation lit = switch (DrinkerItem.DEMO_MODE) {
-            case 1 -> TRANSFER_LIT;
-            case 2 -> DISPOSAL_LIT;
-            default -> STORAGE_LIT;
-        };
-        return RenderType.entityTranslucentEmissive(lit);
+        return RenderType.entityTranslucentEmissive(STORAGE_LIT);
     }
 }

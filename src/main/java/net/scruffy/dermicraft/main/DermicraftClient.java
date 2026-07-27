@@ -123,15 +123,10 @@ public class DermicraftClient {
             }
         }, net.scruffy.dermicraft.item.ModItems.SIPPING.get());
 
-        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
-            private final net.scruffy.dermicraft.item.custom.DrinkerItemRenderer renderer =
-                    new net.scruffy.dermicraft.item.custom.DrinkerItemRenderer();
-
-            @Override
-            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                return renderer;
-            }
-        }, net.scruffy.dermicraft.item.ModItems.DRINKER.get());
+        // Not an inline anonymous class like the others -- DRINKER also overrides the hand
+        // transform to stay still while siphoning. See DrinkerClientExtensions.
+        event.registerItem(new net.scruffy.dermicraft.item.custom.DrinkerClientExtensions(),
+                net.scruffy.dermicraft.item.ModItems.DRINKER.get());
     }
 
     @SubscribeEvent

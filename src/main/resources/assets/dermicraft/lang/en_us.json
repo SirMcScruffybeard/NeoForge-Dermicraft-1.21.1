@@ -23,6 +23,7 @@
   "tooltip.dermicraft.drinker.blocked": "%s -- hazard incompatible",
   "tooltip.dermicraft.drinker.empty": "Target: empty",
   "tooltip.dermicraft.drinker.empty_named": "%s -- empty",
+  "tooltip.dermicraft.drinker.no_room": "Buffer too full to take a whole source block",
   "tooltip.dermicraft.sipping.disposal_warning": "Contents will be voided -- right-click again to confirm",
   "tooltip.dermicraft.sipping.voided": "Contents voided",
   "item.dermicraft.syringe": "Syringe",

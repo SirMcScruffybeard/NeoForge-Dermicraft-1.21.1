@@ -19,6 +19,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.item.ModItems;
@@ -48,6 +49,8 @@ public class DrinkerTargetScanner {
 
     /** DRINKER's Tier 1 tolerance -- rejects any hazard tag at all. */
     private static final HazardProfile PROFILE = HazardProfile.TIER_1;
+    /** One fluid source block, the indivisible unit DRINKER picks up. */
+    private static final int SOURCE_BLOCK_AMOUNT = 1000;
 
     private static int tickCounter = 0;
     private static boolean validTarget = false;
@@ -64,7 +67,8 @@ public class DrinkerTargetScanner {
         LocalPlayer player = mc.player;
         Level level = mc.level;
 
-        if (player == null || level == null || !isHoldingDrinker(player)) {
+        ItemStack drinker = heldDrinker(player);
+        if (player == null || level == null || drinker.isEmpty()) {
             validTarget = false;
             return;
         }
@@ -72,15 +76,17 @@ public class DrinkerTargetScanner {
         if (++tickCounter < SCAN_INTERVAL_TICKS) return;
         tickCounter = 0;
 
-        scan(player, level);
+        scan(player, level, drinker);
     }
 
-    private static boolean isHoldingDrinker(LocalPlayer player) {
-        return player.getMainHandItem().is(ModItems.DRINKER.get())
-                || player.getOffhandItem().is(ModItems.DRINKER.get());
+    private static ItemStack heldDrinker(LocalPlayer player) {
+        if (player == null) return ItemStack.EMPTY;
+        if (player.getMainHandItem().is(ModItems.DRINKER.get())) return player.getMainHandItem();
+        if (player.getOffhandItem().is(ModItems.DRINKER.get())) return player.getOffhandItem();
+        return ItemStack.EMPTY;
     }
 
-    private static void scan(LocalPlayer player, Level level) {
+    private static void scan(LocalPlayer player, Level level, ItemStack drinker) {
         // hitFluids=true so raw world fluid source blocks register as targets rather than being
         // passed straight through.
         HitResult hit = player.pick(SCAN_RANGE, 0.0F, true);
@@ -104,7 +110,17 @@ public class DrinkerTargetScanner {
         FluidState fluidState = level.getFluidState(pos);
         if (!fluidState.isEmpty() && fluidState.isSource()) {
             // A source block is exactly one bucket's worth, matching DRINKER's atomic pickup rule.
-            reportFluid(player, new FluidStack(fluidState.getType(), 1000), null);
+            FluidStack source = new FluidStack(fluidState.getType(), SOURCE_BLOCK_AMOUNT);
+
+            // Atomic pickup needs room for the WHOLE block, so a partly-filled buffer refuses a
+            // siphon outright. Say so -- otherwise holding the trigger just does nothing.
+            if (PROFILE.accepts(source) && !hasRoomForSource(drinker, source)) {
+                show(player, false, Component.translatable("tooltip.dermicraft.drinker.no_room")
+                        .withStyle(ChatFormatting.RED));
+                return;
+            }
+
+            reportFluid(player, source, null);
             return;
         }
 
@@ -153,6 +169,12 @@ public class DrinkerTargetScanner {
         }
 
         show(player, true, Component.translatable("tooltip.dermicraft.drinker.target", subject));
+    }
+
+    /** Mirrors the siphon's own all-or-nothing room check in {@code DrinkerItem.tryAccumulate}. */
+    private static boolean hasRoomForSource(ItemStack drinker, FluidStack source) {
+        IFluidHandlerItem buffer = drinker.getCapability(Capabilities.FluidHandler.ITEM, null);
+        return buffer != null && buffer.fill(source, IFluidHandler.FluidAction.SIMULATE) >= SOURCE_BLOCK_AMOUNT;
     }
 
     private static void show(LocalPlayer player, boolean valid, Component message) {

@@ -5,20 +5,22 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.main.Dermicraft;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 /**
- * Fill-amount gauge: 3 discrete steps (below-half, half, full), emissive green. Empty renders
- * nothing at all -- same skip-when-off approach as {@link DrinkerScreenGlowLayer}, not the
- * always-show-something approach {@link DrinkerGlowLayer} uses for the mode lights, since here
- * "empty" means the base texture's unlit gauge art shows through rather than a 4th texture.
- *
- * <p>TEMP: reads {@link DrinkerItem#DEMO_GAUGE_STEP} for now, purely to validate the three gauge
- * textures in-game. Needs to switch to real buffer-amount state once DRINKER's actual fluid
- * buffer is built.
+ * Fill-amount gauge: 3 discrete steps (below-half, half, full), emissive green, read off the real
+ * fluid buffer. Empty renders nothing at all -- same skip-when-off approach as
+ * {@link DrinkerScreenGlowLayer}, not the always-show-something approach {@link DrinkerGlowLayer}
+ * uses for the mode lights, since here "empty" means the base texture's unlit gauge art shows
+ * through rather than a 4th texture.
  */
 public class DrinkerGaugeGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
 
@@ -35,18 +37,28 @@ public class DrinkerGaugeGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
 
     @Override
     protected RenderType getRenderType(DrinkerItem animatable, MultiBufferSource bufferSource) {
-        ResourceLocation gauge = switch (DrinkerItem.DEMO_GAUGE_STEP) {
-            case 2 -> GAUGE_2;
-            case 3 -> GAUGE_3;
-            default -> GAUGE_1;
-        };
+        int amount = bufferedAmount();
+        ResourceLocation gauge = amount >= DrinkerItem.CAPACITY ? GAUGE_3
+                : amount >= DrinkerItem.CAPACITY / 2 ? GAUGE_2
+                : GAUGE_1;
         return RenderType.entityTranslucentEmissive(gauge);
     }
 
     @Override
     public void render(PoseStack poseStack, DrinkerItem animatable, BakedGeoModel bakedModel, RenderType renderType,
                         MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        if (DrinkerItem.DEMO_GAUGE_STEP <= 0) return;
+        if (bufferedAmount() <= 0) return;
         super.render(poseStack, animatable, bakedModel, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+    }
+
+    /** Reads the rendered stack's own buffer, so each DRINKER shows its own level rather than a
+     * shared global -- unlike the target-scan screen, which is inherently about the holder's aim. */
+    private int bufferedAmount() {
+        if (!(getRenderer() instanceof GeoItemRenderer<?> itemRenderer)) return 0;
+        ItemStack stack = itemRenderer.getCurrentItemStack();
+        if (stack == null || stack.isEmpty()) return 0;
+
+        FluidStack fluid = stack.getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidStack();
+        return fluid.getAmount();
     }
 }
