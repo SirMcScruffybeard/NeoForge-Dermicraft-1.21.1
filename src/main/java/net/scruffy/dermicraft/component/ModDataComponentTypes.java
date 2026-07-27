@@ -41,6 +41,11 @@ public class ModDataComponentTypes {
                     .persistent(com.mojang.serialization.Codec.BOOL)
                     .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<DrinkerModeData>> DRINKER_MODE_DATA =
+            register("drinker_mode_data", builder -> builder
+                    .persistent(DrinkerModeData.CODEC)
+                    .networkSynchronized(DrinkerModeData.STREAM_CODEC));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<SippingModeData>> SIPPING_MODE_DATA =
             register("sipping_mode_data", builder -> builder
                     .persistent(SippingModeData.CODEC)

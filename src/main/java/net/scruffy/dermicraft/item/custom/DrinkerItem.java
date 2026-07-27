@@ -1,17 +1,20 @@
 package net.scruffy.dermicraft.item.custom;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
@@ -23,8 +26,10 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -36,18 +41,26 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * D.R.I.N.K.E.R. -- held fluid vacuum. Hold right-click aimed at a fluid source block to siphon it.
+ * D.R.I.N.K.E.R. -- held fluid vacuum. Hold right-click aimed at a fluid source block or a
+ * machine/tank face to siphon it.
  *
- * <p><b>Atomic pickup:</b> a source block is indivisible (same reason a bucket is all-or-nothing),
- * so holding fills a "ghost buffer" ({@link ModDataComponentTypes#DRINKER_SIPHON_PROGRESS}) toward
- * a full {@link #CAPACITY}, and only on reaching it is the block actually removed and the fluid
- * banked. Coming off target -- by aiming away or letting go -- drains the ghost buffer back down
- * gradually rather than instantly, so a momentary flick of the crosshair costs a little time
- * instead of all progress. Nothing is ever half-banked.
+ * <p><b>Atomic pickup:</b> a world source block is indivisible (same reason a bucket is
+ * all-or-nothing), so holding fills a "ghost buffer"
+ * ({@link ModDataComponentTypes#DRINKER_SIPHON_PROGRESS}) toward a full {@link #CAPACITY}, and only
+ * on reaching it is the block removed and the fluid banked. Coming off target -- by aiming away or
+ * letting go -- drains the ghost buffer back down gradually, so a momentary flick of the crosshair
+ * costs a little time instead of all progress. A machine tank is divisible, so it skips the ghost
+ * buffer entirely and transfers continuously.
  *
- * <p>Modes (Storage/Transfer/Disposal), machine/tank draining, and the gadget HP mechanic are not
- * built yet -- this is the core siphon only. The buffer currently behaves as Storage mode does.
+ * <p><b>Modes govern newly acquired fluid only, never what is already banked.</b> That separation
+ * is the whole point: the cycle passes through Storage between Transfer and Disposal, and if a mode
+ * acted on existing contents the moment it was entered, merely stepping past one on the way to
+ * another would silently dump or destroy fluid the player never meant to touch. Acting on the
+ * current buffer is always a separate, explicit gesture.
  */
 public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
 
@@ -63,6 +76,21 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
 
     /** Effectively "until released" -- the same trick bows and shields use for a held pose. */
     private static final int HELD_INDEFINITELY = 72000;
+
+    /** Minimum ticks after arming before a confirm counts -- blocks accidental double-clicks. */
+    private static final long MIN_CONFIRM_DELAY_TICKS = 20;
+    /** Total ticks the Disposal confirm window stays open. */
+    private static final long ARM_WINDOW_TICKS = 60;
+
+    /**
+     * Tier 1: tolerates no hazard at all.
+     *
+     * <p>Checked explicitly rather than leaning on the buffer's own gated handler. That shortcut
+     * worked while every route ended in the buffer, but Disposal voids fluid without touching it
+     * and Transfer can push into arbitrary third-party containers whose gating is not ours -- so
+     * hazard tolerance has to be a property of the DRINKER itself, applied before any routing.
+     */
+    private static final HazardProfile PROFILE = HazardProfile.TIER_1;
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -82,8 +110,8 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
      * all ({@code ItemInHandRenderer#renderArmWithItem}) -- the two-handed crossbow pose is
      * selected by {@code stack.is(Items.CROSSBOW)} identity checks instead. A modded item
      * returning CROSSBOW therefore matches no case, never gets {@code applyItemArmTransform}, and
-     * renders at the untransformed origin (floating above the camera). If a custom pose is ever
-     * wanted, the supported route is NeoForge's {@code IClientItemExtensions#applyForgeHandTransform}.
+     * renders at the untransformed origin (floating above the camera). The residual downward drift
+     * while using is cancelled in {@link DrinkerClientExtensions}.
      */
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
@@ -108,6 +136,8 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         return slotChanged || oldStack.getItem() != newStack.getItem();
     }
 
+    ////////////////////Gestures\\\\\\\\\\\\\\\\\\\\
+
     /**
      * Claims a right-click on a machine/tank face before the block can open its GUI -- the same
      * intercept {@code IdepItem} uses. Returning anything but PASS short-circuits
@@ -130,15 +160,104 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         return InteractionResult.CONSUME;
     }
 
+    /**
+     * Reached only when nothing claimed the click as a block interaction -- aiming at a bare fluid
+     * source (vanilla's crosshair ray ignores fluids, so that reads as a miss), or at nothing
+     * useful at all.
+     *
+     * <p>Crouch state only matters when there is nothing to siphon: a valid target always wins, so
+     * the player can never lose a siphon by happening to be sneaking.
+     */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        // Reached only when no block claimed the click -- aiming at a bare fluid source (vanilla's
-        // crosshair ray ignores fluids, so that reads as a miss) or at nothing at all.
-        // Start the sustained-use state immediately on click -- all siphon logic keys off this,
-        // never off an animation finishing, so the deliberately-long activate clip can't gate it.
-        player.startUsingItem(hand);
-        return InteractionResultHolder.consume(stack);
+
+        if (findSiphonTarget(level, player) != null) {
+            // Start the sustained-use state immediately on click -- all siphon logic keys off this,
+            // never off an animation finishing, so the long activate clip can't gate it.
+            player.startUsingItem(hand);
+            return InteractionResultHolder.consume(stack);
+        }
+
+        if (!level.isClientSide) {
+            if (player.isCrouching()) {
+                processBuffer(level, player, stack);
+            } else {
+                cycleMode(player, stack);
+            }
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+    }
+
+    private void cycleMode(Player player, ItemStack stack) {
+        DrinkerModeData next = modeData(stack).next();
+        stack.set(ModDataComponentTypes.DRINKER_MODE_DATA.get(), next);
+        player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.mode",
+                Component.translatable(modeKey(next.mode()))), true);
+    }
+
+    /** Acts on fluid already banked -- the only thing that ever does. */
+    private void processBuffer(Level level, Player player, ItemStack stack) {
+        DrinkerModeData data = modeData(stack);
+        switch (data.mode()) {
+            case STORAGE -> player.displayClientMessage(
+                    Component.translatable("tooltip.dermicraft.drinker.storage_inert"), true);
+            case TRANSFER -> transferOut(player, stack);
+            case DISPOSAL -> voidBuffer(level, player, stack, data);
+        }
+    }
+
+    private void transferOut(Player player, ItemStack stack) {
+        FluidStack held = bufferContents(stack);
+        if (held.isEmpty()) {
+            player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.nothing_held"), true);
+            return;
+        }
+
+        int moved = fillContainers(stack, player, held, IFluidHandler.FluidAction.EXECUTE);
+        if (moved <= 0) {
+            player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.no_container")
+                    .withStyle(ChatFormatting.RED), true);
+            return;
+        }
+
+        drainBuffer(stack, moved);
+        player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.transferred", moved), true);
+    }
+
+    /**
+     * Disposal's destructive action, behind the same arm/confirm shape S.I.P.P.I.N.G. uses.
+     *
+     * <p>Note the confirm guards the ACT of voiding, not the mode switch -- unlike SIPPING, where
+     * entering Disposal is itself what destroys. Here modes never touch banked fluid, so switching
+     * into Disposal is harmless and needs no confirmation; only this does.
+     */
+    private void voidBuffer(Level level, Player player, ItemStack stack, DrinkerModeData data) {
+        FluidStack held = bufferContents(stack);
+        if (held.isEmpty()) {
+            player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.nothing_held"), true);
+            return;
+        }
+
+        long now = level.getGameTime();
+        if (data.armed()) {
+            long elapsed = now - data.armedAtGameTime();
+            // Inside the dead zone: swallowed silently, arm state untouched. A second click that
+            // fast is far more likely to be a slip than a decision.
+            if (elapsed < MIN_CONFIRM_DELAY_TICKS) return;
+
+            if (elapsed <= ARM_WINDOW_TICKS) {
+                stack.remove(getDataType());
+                stack.set(ModDataComponentTypes.DRINKER_MODE_DATA.get(), data.disarmed());
+                player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.voided")
+                        .withStyle(ChatFormatting.RED), true);
+                return;
+            }
+        }
+
+        stack.set(ModDataComponentTypes.DRINKER_MODE_DATA.get(), data.armedAt(now));
+        player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.void_warning")
+                .withStyle(ChatFormatting.RED), true);
     }
 
     ////////////////////Siphon\\\\\\\\\\\\\\\\\\\\
@@ -185,6 +304,8 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (level.isClientSide || !(entity instanceof Player player)) return;
 
+        expireArm(stack, level, player);
+
         boolean holdingTrigger = player.isUsingItem() && player.getUseItem() == stack;
         Draw draw = holdingTrigger ? siphonTick(level, player, stack) : Draw.NOTHING;
 
@@ -202,6 +323,17 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         }
     }
 
+    /** A pending void confirm never outlives its window, nor the player's grip on the item. */
+    private void expireArm(ItemStack stack, Level level, Player player) {
+        DrinkerModeData data = modeData(stack);
+        if (!data.armed()) return;
+
+        boolean stillHeld = player.getMainHandItem() == stack || player.getOffhandItem() == stack;
+        if (!stillHeld || level.getGameTime() - data.armedAtGameTime() > ARM_WINDOW_TICKS) {
+            stack.set(ModDataComponentTypes.DRINKER_MODE_DATA.get(), data.disarmed());
+        }
+    }
+
     /** What, if anything, moved fluid this tick. SOURCE is distinguished because it's the only
      * path that feeds the ghost buffer rather than banking directly. */
     private enum Draw {NOTHING, SOURCE, TANK}
@@ -213,21 +345,17 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         if (target.isTank()) {
             // A tank is divisible, unlike a source block, so it transfers continuously and banks as
             // it goes -- no ghost buffer, and nothing to lose by looking away part-way through.
-            return drainTank(stack, target.tank()) ? Draw.TANK : Draw.NOTHING;
+            return drainTank(stack, player, target.tank()) ? Draw.TANK : Draw.NOTHING;
         }
         return accumulateSource(level, player, stack, target) ? Draw.SOURCE : Draw.NOTHING;
     }
 
     /** Continuous partial transfer out of a machine/tank face. */
-    private boolean drainTank(ItemStack stack, IFluidHandler tank) {
-        IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        if (buffer == null) return false;
-
+    private boolean drainTank(ItemStack stack, Player player, IFluidHandler tank) {
         FluidStack available = tank.drain(SIPHON_RATE, IFluidHandler.FluidAction.SIMULATE);
-        if (available.isEmpty()) return false;
+        if (available.isEmpty() || !PROFILE.accepts(available)) return false;
 
-        // Hazard gating and capacity both ride on the buffer's own handler, same as the source path.
-        int accepted = buffer.fill(available, IFluidHandler.FluidAction.SIMULATE);
+        int accepted = route(stack, player, available, IFluidHandler.FluidAction.SIMULATE);
         if (accepted <= 0) return false;
 
         // Drain by stack, not by amount: on a multi-tank handler drain(int) could pull a different
@@ -237,21 +365,19 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
         FluidStack drained = tank.drain(request, IFluidHandler.FluidAction.EXECUTE);
         if (drained.isEmpty()) return false;
 
-        buffer.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        route(stack, player, drained, IFluidHandler.FluidAction.EXECUTE);
         return true;
     }
 
     /** @return whether the ghost buffer actually advanced this tick. */
     private boolean accumulateSource(Level level, Player player, ItemStack stack, Target target) {
-        BlockPos pos = target.pos();
         BlockState blockState = target.blockState();
         FluidStack source = new FluidStack(blockState.getFluidState().getType(), CAPACITY);
+        if (!PROFILE.accepts(source)) return false;
 
-        // Room for a WHOLE source block or nothing -- a partial fill would strand fluid that can
-        // never be picked up. Hazard gating rides along for free here: the registered handler is
-        // hazard-gated, so it refuses an intolerable fluid outright.
-        IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        if (buffer == null || buffer.fill(source, IFluidHandler.FluidAction.SIMULATE) < CAPACITY) return false;
+        // Somewhere for a WHOLE source block or nothing -- a partial route would strand fluid that
+        // can never be picked up again.
+        if (route(stack, player, source, IFluidHandler.FluidAction.SIMULATE) < CAPACITY) return false;
 
         FluidStack ghost = stack.getOrDefault(ModDataComponentTypes.DRINKER_SIPHON_PROGRESS.get(), FluidData.EMPTY)
                 .getFluidStack();
@@ -270,29 +396,26 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
             return true;
         }
 
-        completeSiphon(level, player, stack, pos, blockState, source, buffer);
+        completeSiphon(level, player, stack, target, source);
         return true;
     }
 
     /**
-     * Ghost buffer is full: take the block and bank the fluid.
+     * Ghost buffer is full: take the block and route the fluid.
      *
      * <p>Goes through {@link BucketPickup} rather than just clearing the block, so waterlogged
      * blocks give up their water and survive instead of being destroyed. The returned bucket is
      * discarded -- it's only used as vanilla's confirmation that the pickup succeeded.
      */
-    private void completeSiphon(Level level, Player player, ItemStack stack, BlockPos pos,
-                                BlockState blockState, FluidStack source, IFluidHandlerItem buffer) {
-        BucketPickup pickup = (BucketPickup) blockState.getBlock();
-        ItemStack picked = pickup.pickupBlock(player, level, pos, blockState);
+    private void completeSiphon(Level level, Player player, ItemStack stack, Target target, FluidStack source) {
+        BucketPickup pickup = (BucketPickup) target.blockState().getBlock();
+        ItemStack picked = pickup.pickupBlock(player, level, target.pos(), target.blockState());
         if (picked.isEmpty()) return;
 
-        buffer.fill(source, IFluidHandler.FluidAction.EXECUTE);
-        pickup.getPickupSound(blockState).ifPresent(sound ->
+        route(stack, player, source, IFluidHandler.FluidAction.EXECUTE);
+        pickup.getPickupSound(target.blockState()).ifPresent(sound ->
                 level.playSound(null, player.blockPosition(), sound, SoundSource.PLAYERS, 1.0F, 1.0F));
 
-        // Component writes come after every capability call -- re-fetching a handler across a
-        // stack.set() has silently returned a stale one before (see IdepItem.jamClearGeneric).
         stack.remove(ModDataComponentTypes.DRINKER_SIPHON_PROGRESS.get());
         player.stopUsingItem();
     }
@@ -310,6 +433,117 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
             stack.set(ModDataComponentTypes.DRINKER_SIPHON_PROGRESS.get(),
                     FluidData.createData(new FluidStack(ghost.getFluid(), remaining)));
         }
+    }
+
+    ////////////////////Routing newly acquired fluid\\\\\\\\\\\\\\\\\\\\
+
+    /**
+     * Sends freshly siphoned fluid wherever the current mode says it goes, and reports how much
+     * that destination would take. Only ever handles fluid arriving <em>now</em> -- never what is
+     * already banked, which is what keeps stepping through a mode from disturbing stored contents.
+     */
+    public static int route(ItemStack stack, Player player, FluidStack fluid, IFluidHandler.FluidAction action) {
+        return switch (modeData(stack).mode()) {
+            // A void is bottomless, so it always accepts everything; the hazard check upstream is
+            // what stops this becoming a way to destroy fluids DRINKER shouldn't touch.
+            case DISPOSAL -> fluid.getAmount();
+            case STORAGE -> fillBuffer(stack, fluid, action);
+            case TRANSFER -> {
+                int intoContainers = fillContainers(stack, player, fluid, action);
+                if (intoContainers >= fluid.getAmount()) yield intoContainers;
+
+                // Buffer is the overflow, not the destination -- it catches what the inventory
+                // couldn't take so a siphon isn't blocked just because no container fits.
+                FluidStack leftover = fluid.copy();
+                leftover.setAmount(fluid.getAmount() - intoContainers);
+                yield intoContainers + fillBuffer(stack, leftover, action);
+            }
+        };
+    }
+
+    private static int fillBuffer(ItemStack stack, FluidStack fluid, IFluidHandler.FluidAction action) {
+        IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        return buffer == null ? 0 : buffer.fill(fluid, action);
+    }
+
+    private static void drainBuffer(ItemStack stack, int amount) {
+        IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (buffer != null) buffer.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+    }
+
+    public static FluidStack bufferContents(ItemStack stack) {
+        IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        return buffer == null ? FluidStack.EMPTY : buffer.getFluidInTank(0);
+    }
+
+    /** Pushes into inventory fluid containers, topping up ones already holding the same fluid
+     * before starting a fresh one. @return total accepted. */
+    private static int fillContainers(ItemStack self, Player player, FluidStack fluid, IFluidHandler.FluidAction action) {
+        int remaining = fluid.getAmount();
+
+        for (ItemStack candidate : orderedContainers(self, player, fluid)) {
+            if (remaining <= 0) break;
+
+            IFluidHandlerItem handler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
+            if (handler == null) continue;
+
+            FluidStack offer = fluid.copy();
+            offer.setAmount(remaining);
+            remaining -= handler.fill(offer, action);
+        }
+        return fluid.getAmount() - remaining;
+    }
+
+    /**
+     * Search order: containers already holding this fluid first, then everything else, each group
+     * ordered offhand, hotbar, main inventory.
+     *
+     * <p>Built as a single pre-sorted list rather than two passes on purpose -- two passes over the
+     * same candidates would double-count under SIMULATE, since simulating doesn't consume the room
+     * it reports.
+     */
+    private static List<ItemStack> orderedContainers(ItemStack self, Player player, FluidStack fluid) {
+        List<ItemStack> sameFluid = new ArrayList<>();
+        List<ItemStack> others = new ArrayList<>();
+
+        Inventory inventory = player.getInventory();
+        List<ItemStack> scanOrder = new ArrayList<>();
+        scanOrder.add(player.getOffhandItem());
+        for (int slot = 0; slot < Inventory.getSelectionSize(); slot++) scanOrder.add(inventory.getItem(slot));
+        for (int slot = Inventory.getSelectionSize(); slot < inventory.items.size(); slot++) {
+            scanOrder.add(inventory.getItem(slot));
+        }
+
+        for (ItemStack candidate : scanOrder) {
+            if (candidate == self || candidate.isEmpty()) continue;
+
+            IFluidHandlerItem handler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
+            if (handler == null) continue;
+
+            FluidStack contained = handler.getFluidInTank(0);
+            if (!contained.isEmpty() && FluidStack.isSameFluidSameComponents(contained, fluid)) {
+                sameFluid.add(candidate);
+            } else {
+                others.add(candidate);
+            }
+        }
+
+        sameFluid.addAll(others);
+        return sameFluid;
+    }
+
+    ////////////////////Helpers\\\\\\\\\\\\\\\\\\\\
+
+    public static DrinkerModeData modeData(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponentTypes.DRINKER_MODE_DATA.get(), DrinkerModeData.DEFAULT);
+    }
+
+    private static String modeKey(DrinkerModeData.Mode mode) {
+        return switch (mode) {
+            case DISPOSAL -> "tooltip.dermicraft.drinker.mode.disposal";
+            case STORAGE -> "tooltip.dermicraft.drinker.mode.storage";
+            case TRANSFER -> "tooltip.dermicraft.drinker.mode.transfer";
+        };
     }
 
     ////////////////////Animation\\\\\\\\\\\\\\\\\\\\

@@ -26,6 +26,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import org.jetbrains.annotations.Nullable;
 
@@ -177,37 +178,28 @@ public class DrinkerTargetScanner {
             return;
         }
 
-        // Checked before capacity: a buffer holding a different fluid also reports zero room, and
-        // "buffer full" would be a misleading reason when the real problem is it won't mix.
-        FluidStack held = bufferContents(drinker);
-        if (!held.isEmpty() && !FluidStack.isSameFluidSameComponents(held, fluid)) {
-            Component heldName = Component.translatable(held.getFluid().getFluidType().getDescriptionId());
-            show(player, false, Component.translatable("tooltip.dermicraft.drinker.fluid_mismatch", heldName)
-                    .withStyle(ChatFormatting.RED));
-            return;
-        }
-
-        // Mirrors the siphon's own room checks in DrinkerItem (accumulateSource / drainTank).
-        int room = bufferRoomFor(drinker, fluid);
+        // The accept/reject decision comes from the item's OWN routing simulation, not a local
+        // re-implementation -- destination depends on mode (Disposal is bottomless, Transfer can
+        // reach inventory containers), and a second copy of those rules would inevitably drift.
+        int room = DrinkerItem.route(drinker, player, fluid, IFluidHandler.FluidAction.SIMULATE);
         if (atomic ? room < SOURCE_BLOCK_AMOUNT : room <= 0) {
-            show(player, false, Component.translatable(atomic
+            // Message is a best-effort explanation of a decision already made above. A buffer
+            // holding a different fluid also reports zero room, so name that specifically rather
+            // than claiming "full", which would be actively misleading.
+            FluidStack held = DrinkerItem.bufferContents(drinker);
+            boolean mismatch = !held.isEmpty() && !FluidStack.isSameFluidSameComponents(held, fluid);
+
+            Component reason = mismatch
+                    ? Component.translatable("tooltip.dermicraft.drinker.fluid_mismatch",
+                            Component.translatable(held.getFluid().getFluidType().getDescriptionId()))
+                    : Component.translatable(atomic
                             ? "tooltip.dermicraft.drinker.no_room"
-                            : "tooltip.dermicraft.drinker.buffer_full")
-                    .withStyle(ChatFormatting.RED));
+                            : "tooltip.dermicraft.drinker.buffer_full");
+            show(player, false, reason.copy().withStyle(ChatFormatting.RED));
             return;
         }
 
         show(player, true, Component.translatable("tooltip.dermicraft.drinker.target", subject));
-    }
-
-    private static FluidStack bufferContents(ItemStack drinker) {
-        IFluidHandlerItem buffer = drinker.getCapability(Capabilities.FluidHandler.ITEM, null);
-        return buffer == null ? FluidStack.EMPTY : buffer.getFluidInTank(0);
-    }
-
-    private static int bufferRoomFor(ItemStack drinker, FluidStack fluid) {
-        IFluidHandlerItem buffer = drinker.getCapability(Capabilities.FluidHandler.ITEM, null);
-        return buffer == null ? 0 : buffer.fill(fluid, IFluidHandler.FluidAction.SIMULATE);
     }
 
     private static void show(LocalPlayer player, boolean valid, Component message) {

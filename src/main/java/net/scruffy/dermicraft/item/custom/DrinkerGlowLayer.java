@@ -3,7 +3,10 @@ package net.scruffy.dermicraft.item.custom;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.main.Dermicraft;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
@@ -12,9 +15,8 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
  * {@link SippingGlowLayer} -- points directly at whichever full lit variant matches the current
  * mode rather than the default "<texture>_glowmask" convention.
  *
- * <p>Pinned to Storage until mode state exists -- the siphon currently always banks into the
- * buffer, which is exactly Storage behaviour, so this shows the truth rather than a placeholder.
- * The Transfer/Disposal textures are already authored and wired, waiting on the mode logic.
+ * <p>Reads each rendered stack's own mode, so a DRINKER in the inventory shows its real setting
+ * rather than mirroring whatever the held one is doing.
  */
 public class DrinkerGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
 
@@ -31,6 +33,18 @@ public class DrinkerGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
 
     @Override
     protected RenderType getRenderType(DrinkerItem animatable, MultiBufferSource bufferSource) {
-        return RenderType.entityTranslucentEmissive(STORAGE_LIT);
+        ResourceLocation lit = switch (currentMode()) {
+            case DISPOSAL -> DISPOSAL_LIT;
+            case TRANSFER -> TRANSFER_LIT;
+            case STORAGE -> STORAGE_LIT;
+        };
+        return RenderType.entityTranslucentEmissive(lit);
+    }
+
+    private DrinkerModeData.Mode currentMode() {
+        if (!(getRenderer() instanceof GeoItemRenderer<?> itemRenderer)) return DrinkerModeData.Mode.STORAGE;
+        ItemStack stack = itemRenderer.getCurrentItemStack();
+        if (stack == null || stack.isEmpty()) return DrinkerModeData.Mode.STORAGE;
+        return DrinkerItem.modeData(stack).mode();
     }
 }
