@@ -291,6 +291,77 @@ public interface IHaveFluidData {
     }
 
     /**
+     * Bottomless sink: accepts anything its {@link HazardProfile} tolerates and destroys it on the
+     * spot. Backs the Disposal mode that gadgets share (S.I.P.P.I.N.G., and any later one that
+     * sits in a machine's fill slot to be drained into).
+     *
+     * <p>The odd one out among these handlers: it never touches {@link FluidData} at all, so it has
+     * no stored contents, always reports empty, and refuses every drain. That also means it needs
+     * no stacked-container guard -- see {@link #isSingleContainer} -- because voiding creates
+     * nothing to duplicate.
+     *
+     * <p>The hazard profile is the whole gate. Without it a Disposal gadget would be a universal
+     * fluid destructor, ignoring the tier ladder that decides what a gadget is allowed to handle at
+     * all -- so a tier that can't safely CARRY a fluid must not be able to destroy it either.
+     *
+     * <p>Not used by D.R.I.N.K.E.R., deliberately: it doesn't sit in slots to receive fluid, it
+     * reaches out and pulls, so its Disposal is a routing decision made while siphoning rather than
+     * an exposed capability. Its registered capability stays the real buffer in every mode, so other
+     * tools can still see what it's carrying.
+     */
+    class DisposalFluidHandler implements IFluidHandlerItem {
+
+        private final ItemStack container;
+        private final HazardProfile profile;
+
+        public DisposalFluidHandler(ItemStack stack, HazardProfile profile) {
+            this.container = stack;
+            this.profile = profile;
+        }
+
+        @Override
+        public ItemStack getContainer() {
+            return container;
+        }
+
+        @Override
+        public int getTanks() {
+            return 1;
+        }
+
+        @Override
+        public FluidStack getFluidInTank(int tank) {
+            return FluidStack.EMPTY;
+        }
+
+        @Override
+        public int getTankCapacity(int tank) {
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return profile.accepts(stack);
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            if (resource.isEmpty() || !profile.accepts(resource)) return 0;
+            return resource.getAmount();
+        }
+
+        @Override
+        public FluidStack drain(FluidStack resource, FluidAction action) {
+            return FluidStack.EMPTY;
+        }
+
+        @Override
+        public FluidStack drain(int maxDrain, FluidAction action) {
+            return FluidStack.EMPTY;
+        }
+    }
+
+    /**
      * Same partial-fill behavior as {@link FlexibleFluidDataFluidHandler}, but refuses any fluid
      * the given {@link HazardProfile} doesn't tolerate -- matches Drinker's "won't even attempt it"
      * rule for hazardous fluids beyond a container's tier. Bladder-family equipment uses this.

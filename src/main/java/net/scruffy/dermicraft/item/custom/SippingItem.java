@@ -6,14 +6,17 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.component.SippingModeData;
-import net.scruffy.dermicraft.hazard.HazardProfile;
+import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
@@ -34,9 +37,14 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * {@link SippingGlowLayer}) was validated separately against demo state; this class now drives
  * those from real per-stack state instead.
  */
-public class SippingItem extends Item implements GeoItem, IHaveFluidData {
+public class SippingItem extends Item implements GeoItem, IHaveFluidData, IGadget {
 
     public static final int CAPACITY = 1000;
+
+    /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
+     * {@code Item.Properties#durability}, which is the single source of truth for max HP. */
+    public static final int MAX_HP = 10;
+
     /** Minimum ticks after arming before a confirm click counts (blocks accidental double-clicks). */
     private static final long MIN_CONFIRM_DELAY_TICKS = 20;
     /** Total ticks the arm window stays open before auto-cancelling. */
@@ -61,8 +69,15 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData {
             return state.setAndContinue(RawAnimation.begin().thenLoop(clip));
         }));
 
-        // Tier 1 doesn't visually reflect buffer fill level -- may become a higher-tier feature
-        // (manual seek of this clip by buffer mB). Registered but never triggered for now.
+        // DELIBERATELY DORMANT -- registered but nothing ever triggers it, so the accordion body
+        // never moves. Not dead code left by accident: the "fill" clip is authored and the
+        // controller is wired so a future tier can switch it on, but Tier 1 was decided not to show
+        // buffer level on the model at all (the tooltip reports contents instead).
+        //
+        // Reviving it means driving the clip by buffer mB, which needs the controller SEEKED to a
+        // position rather than played -- overriding the protected AnimationController#adjustTick.
+        // That was never verified against this GeckoLib version and is why it was shelved; treat it
+        // as unproven, not as a small change.
         controllers.add(new AnimationController<>(this, "Fill", 0, state -> PlayState.STOP)
                 .triggerableAnim("fill", RawAnimation.begin().thenPlay("fill")));
     }
@@ -119,63 +134,21 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData {
         }
     }
 
+    /**
+     * A small, wet thing bursting: slime spatter and a short, high squeal. Same cry as
+     * D.R.I.N.K.E.R.'s, pitched well up, so they read as the same creature at very different sizes
+     * -- the family resemblance is intentional, the scale difference is the point.
+     */
+    @Override
+    public void onGadgetDeath(ServerLevel level, ItemEntity entity, ItemStack stack) {
+        IGadget.deathFlourish(level, entity, ParticleTypes.ITEM_SLIME, 18, 0.14,
+                SoundEvents.GHAST_HURT, 0.7F, 1.7F);
+        IGadget.deathFlourish(level, entity, ParticleTypes.SMOKE, 6, 0.12,
+                SoundEvents.SLIME_SQUISH, 0.8F, 1.4F);
+    }
+
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return this.cache;
-    }
-
-    /**
-     * Disposal mode's fluid handler -- bypasses the buffer entirely, consuming anything the
-     * hazard profile tolerates the instant it's offered. Never holds or reports contents.
-     */
-    public static final class DisposalFluidHandler implements IFluidHandlerItem {
-        private final ItemStack container;
-        private final HazardProfile profile;
-
-        public DisposalFluidHandler(ItemStack stack, HazardProfile profile) {
-            this.container = stack;
-            this.profile = profile;
-        }
-
-        @Override
-        public ItemStack getContainer() {
-            return container;
-        }
-
-        @Override
-        public int getTanks() {
-            return 1;
-        }
-
-        @Override
-        public FluidStack getFluidInTank(int tank) {
-            return FluidStack.EMPTY;
-        }
-
-        @Override
-        public int getTankCapacity(int tank) {
-            return Integer.MAX_VALUE;
-        }
-
-        @Override
-        public boolean isFluidValid(int tank, FluidStack stack) {
-            return profile.accepts(stack);
-        }
-
-        @Override
-        public int fill(FluidStack resource, FluidAction action) {
-            if (resource.isEmpty() || !profile.accepts(resource)) return 0;
-            return resource.getAmount();
-        }
-
-        @Override
-        public FluidStack drain(FluidStack resource, FluidAction action) {
-            return FluidStack.EMPTY;
-        }
-
-        @Override
-        public FluidStack drain(int maxDrain, FluidAction action) {
-            return FluidStack.EMPTY;
-        }
     }
 }

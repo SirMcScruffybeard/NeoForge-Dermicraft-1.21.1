@@ -144,7 +144,7 @@ public class ModBusEvents {
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> {
             SippingModeData mode = stack.getOrDefault(ModDataComponentTypes.SIPPING_MODE_DATA.get(), SippingModeData.DEFAULT);
             return mode.disposalMode()
-                    ? new SippingItem.DisposalFluidHandler(stack, HazardProfile.TIER_1)
+                    ? new IHaveFluidData.DisposalFluidHandler(stack, HazardProfile.TIER_1)
                     : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, HazardProfile.TIER_1);
         }, ModItems.SIPPING.get());
     }

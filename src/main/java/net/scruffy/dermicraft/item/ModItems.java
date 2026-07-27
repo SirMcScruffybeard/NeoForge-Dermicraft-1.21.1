@@ -6,7 +6,6 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.item.custom.*;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
-import net.scruffy.dermicraft.item.custom.test.TestRigItem;
 import net.scruffy.dermicraft.property.ModFoodProperties;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -29,10 +28,10 @@ public class ModItems {
     public static final DeferredItem<Item> FEEDER_BLADDER = ITEMS.register("feeder_bladder", () -> new BladderItem(true));
 
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
-    public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().durability(SippingItem.MAX_HP)));
 
-    // Placeholder -- see DrinkerItem's class javadoc.
-    public static final DeferredItem<Item> DRINKER = ITEMS.register("drinker", () -> new DrinkerItem(new Item.Properties().stacksTo(1)));
+    // Durability is gadget HP, not wear -- see IGadget.
+    public static final DeferredItem<Item> DRINKER = ITEMS.register("drinker", () -> new DrinkerItem(new Item.Properties().durability(DrinkerItem.MAX_HP)));
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
@@ -55,6 +54,4 @@ public class ModItems {
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
 
-    // TEMP -- GeckoLib pipeline validation only, remove once TestRigItem is confirmed rendering/animating.
-    public static final DeferredItem<Item> TEST_RIG = ITEMS.register("test_rig", () -> new TestRigItem(new Item.Properties()));
 }

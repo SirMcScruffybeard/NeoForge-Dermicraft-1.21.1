@@ -2,12 +2,16 @@ package net.scruffy.dermicraft.item.custom;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +35,7 @@ import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.hazard.HazardProfile;
+import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -63,10 +68,14 @@ import java.util.List;
  * another would silently dump or destroy fluid the player never meant to touch. Acting on the
  * current buffer is always a separate, explicit gesture.
  */
-public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
+public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadget {
 
     /** One fluid source block's worth -- the buffer holds exactly one atomic pickup. */
     public static final int CAPACITY = 1000;
+
+    /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
+     * {@code Item.Properties#durability}, which is the single source of truth for max HP. */
+    public static final int MAX_HP = 10;
 
     /** mB added to the ghost buffer per tick while locked on. 200 ticks (10s) for a full block. */
     private static final int SIPHON_RATE = 5;
@@ -563,6 +572,21 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData {
 
         sameFluid.addAll(others);
         return sameFluid;
+    }
+
+    ////////////////////Gadget health\\\\\\\\\\\\\\\\\\\\
+
+    /**
+     * A big, bulky rig dying: heavy smoke and a deep bellow. Deliberately the low end of the family
+     * -- S.I.P.P.I.N.G. dies with the same cry pitched up, so the two read as the same kind of
+     * creature at different sizes.
+     */
+    @Override
+    public void onGadgetDeath(ServerLevel level, ItemEntity entity, ItemStack stack) {
+        IGadget.deathFlourish(level, entity, ParticleTypes.LARGE_SMOKE, 24, 0.18,
+                SoundEvents.GHAST_HURT, 0.9F, 0.55F);
+        IGadget.deathFlourish(level, entity, ParticleTypes.SMOKE, 12, 0.25,
+                SoundEvents.GENERIC_EXTINGUISH_FIRE, 0.5F, 0.7F);
     }
 
     ////////////////////Tooltip\\\\\\\\\\\\\\\\\\\\
