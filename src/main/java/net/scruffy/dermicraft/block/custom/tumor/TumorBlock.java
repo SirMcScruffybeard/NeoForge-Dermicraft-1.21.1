@@ -1,10 +1,10 @@
 package net.scruffy.dermicraft.block.custom.tumor;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -13,18 +13,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.scruffy.dermicraft.interfaces.IHarvestableBlock;
 import net.scruffy.dermicraft.util.ModItemUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public abstract class TumorBlock extends Block implements IHarvestableBlock {
+public class TumorBlock extends Block implements IHarvestableBlock {
 
     public TumorBlock(Properties properties) {
-        super(properties
-                .noLootTable());
-    }
-
-    protected Item getHarvestItem() {
-        return null;
+        super(properties);
     }
 
     @Override
@@ -46,12 +40,11 @@ public abstract class TumorBlock extends Block implements IHarvestableBlock {
 
     @Override
     public List<ItemStack> harvest(Level level, Player player, ItemStack stack, BlockPos pos) {
-        List<ItemStack> drops = new ArrayList<>();
+        if (level.isClientSide || !(level instanceof ServerLevel serverLevel)) return List.of();
 
-        if (!level.isClientSide) {
-            drops.add(getSingleTypeHarvest(level, getHarvestItem()));
-            ModItemUtil.giveItems(player, drops);
-        }
+        BlockState state = level.getBlockState(pos);
+        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos), player, stack);
+        ModItemUtil.giveItems(player, drops);
         return drops;
     }
 }

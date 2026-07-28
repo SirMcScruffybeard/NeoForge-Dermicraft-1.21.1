@@ -31,15 +31,26 @@ public class ModBlocks {
     }
 
     ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
-    public static final DeferredBlock<Block> INERT_TUMOR = registerBlock("inert_tumor", InertTumorBlock::new);
+    // Eye/Muscle/Nerve/Inert Tumor share one TumorBlock class -- the only difference between them
+    // is which loot table their registry name resolves to (see ModBlockLootTableProvider).
+    public static final DeferredBlock<Block> INERT_TUMOR = registerBlock("inert_tumor", () -> new TumorBlock(tumorProperties()));
     public static final DeferredBlock<Block> MARRED_TUMOR = registerBlock("marred_tumor",
             () -> new MarredTumorBlock(BlockBehaviour.Properties.of()));
     public static final DeferredBlock<Block> STITCHED_TUMOR = registerBlock("stitched_tumor",
             () -> new StitchedTumorBlock(BlockBehaviour.Properties.of()));
 
-    public static final DeferredBlock<Block> EYE_TUMOR = registerBlock("eye_tumor", EyeTumorBlock::new);
-    public static final DeferredBlock<Block> MUSCLE_TUMOR = registerBlock("muscle_tumor", MuscleTumorBlock::new);
-    public static final DeferredBlock<Block> NERVE_TUMOR = registerBlock("nerve_tumor", NerveTumorBlock::new);
+    public static final DeferredBlock<Block> EYE_TUMOR = registerBlock("eye_tumor", () -> new TumorBlock(tumorProperties()));
+    public static final DeferredBlock<Block> MUSCLE_TUMOR = registerBlock("muscle_tumor", () -> new TumorBlock(tumorProperties()));
+    public static final DeferredBlock<Block> NERVE_TUMOR = registerBlock("nerve_tumor", () -> new TumorBlock(tumorProperties()));
+
+    private static BlockBehaviour.Properties tumorProperties() {
+        return BlockBehaviour.Properties.of()
+                .strength(.05f)
+                .explosionResistance(15f)
+                .sound(SoundType.SLIME_BLOCK)
+                .friction(0.6f)
+                .ignitedByLava();
+    }
 
     public static final DeferredBlock<Block> CALCIUM_GLASS = registerBlock("calcium_glass",
             () -> new ModGlassBlock(BlockBehaviour.Properties.of()

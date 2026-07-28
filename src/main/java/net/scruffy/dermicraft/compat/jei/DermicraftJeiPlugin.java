@@ -8,6 +8,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.scruffy.dermicraft.block.ModBlocks;
@@ -15,6 +16,7 @@ import net.scruffy.dermicraft.compat.jei.category.DippingCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCauldronCategory;
 import net.scruffy.dermicraft.compat.jei.category.EarlyImplantCategory;
 import net.scruffy.dermicraft.compat.jei.category.EffluencingCategory;
+import net.scruffy.dermicraft.compat.jei.category.HarvestingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MasticatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MetastasizingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MutatingCategory;
@@ -53,7 +55,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 new DippingCategory(gui),
                 new PuddleCraftingCategory(gui),
                 new EarlyImplantCategory(gui),
-                new RenderingCategory(gui)
+                new RenderingCategory(gui),
+                new HarvestingCategory(gui)
         );
     }
 
@@ -77,6 +80,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 recipeManager.getAllRecipesFor(ModRecipes.EARLY_IMPLANT_TYPE.get()));
         registration.addRecipes(DermicraftRecipeTypes.RENDERING,
                 recipeManager.getAllRecipesFor(ModRecipes.RENDERING_TYPE.get()));
+        registration.addRecipes(DermicraftRecipeTypes.HARVESTING, buildHarvestDisplays());
     }
 
     @Override
@@ -88,6 +92,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MUTATOR.get()), DermicraftRecipeTypes.MUTATING);
         registration.addRecipeCatalyst(new ItemStack(ModItems.SUTURE_KIT.get()), DermicraftRecipeTypes.EARLY_IMPLANT);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.RENDER_KILN.get()), DermicraftRecipeTypes.RENDERING);
+        registration.addRecipeCatalyst(new ItemStack(ModItems.SCALPEL.get()), DermicraftRecipeTypes.HARVESTING);
     }
 
     // Drooling Cauldron recipes are always nutrition-scaled (IVagueRecipe) -- expand each
@@ -125,6 +130,27 @@ public class DermicraftJeiPlugin implements IModPlugin {
                         recipe.getResultFluidStack(amount), ticks));
             }
         }
+        return displays;
+    }
+
+    // Tumor harvesting is now loot-table driven (see ModBlockLootTableProvider), but loot tables
+    // live in the server's reloadable registries and aren't synced to the client the way
+    // RecipeManager recipes are -- unlike buildDroolingDisplays/buildMasticatingDisplays above,
+    // there's no client-visible source to read this from. This list is hand-authored to mirror
+    // the loot table pools; keep it in sync if those pools change.
+    private static List<HarvestDisplay> buildHarvestDisplays() {
+        List<HarvestDisplay> displays = new ArrayList<>();
+        displays.add(new HarvestDisplay(new ItemStack(ModBlocks.EYE_TUMOR.get()),
+                List.of(new ItemStack(ModItems.EYE.get()), new ItemStack(Items.ROTTEN_FLESH))));
+        displays.add(new HarvestDisplay(new ItemStack(ModBlocks.MUSCLE_TUMOR.get()),
+                List.of(new ItemStack(ModItems.DENSE_MUSCLE.get()), new ItemStack(Items.ROTTEN_FLESH))));
+        displays.add(new HarvestDisplay(new ItemStack(ModBlocks.NERVE_TUMOR.get()),
+                List.of(new ItemStack(ModItems.NERVE_CLUSTER.get()), new ItemStack(Items.ROTTEN_FLESH))));
+        displays.add(new HarvestDisplay(new ItemStack(ModBlocks.INERT_TUMOR.get()),
+                List.of(new ItemStack(ModItems.DENSE_MUSCLE.get()),
+                        new ItemStack(ModItems.NERVE_CLUSTER.get()),
+                        new ItemStack(ModItems.EYE.get()),
+                        new ItemStack(Items.ROTTEN_FLESH))));
         return displays;
     }
 }

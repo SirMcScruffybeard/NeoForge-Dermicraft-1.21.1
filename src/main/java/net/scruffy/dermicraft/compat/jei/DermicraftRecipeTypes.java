@@ -39,6 +39,8 @@ public final class DermicraftRecipeTypes {
             RecipeType.create(Dermicraft.MOD_ID, "early_implant", uncheckedCast(RecipeHolder.class));
     public static final RecipeType<RecipeHolder<RenderingRecipe>> RENDERING =
             RecipeType.create(Dermicraft.MOD_ID, "rendering", uncheckedCast(RecipeHolder.class));
+    public static final RecipeType<HarvestDisplay> HARVESTING =
+            RecipeType.create(Dermicraft.MOD_ID, "harvesting", HarvestDisplay.class);
 
     @SuppressWarnings("unchecked")
     private static <T> Class<T> uncheckedCast(Class<?> clazz) {

@@ -4,9 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -39,18 +37,6 @@ public interface IHarvestableBlock {
         return stack.is(ModTags.Items.EXTRACTION_TOOLS);
     }
 
-
-
-    default ItemStack getSingleTypeHarvest(Level level, Item item) {
-        RandomSource random = level.getRandom();
-        int count = getDropCount(random, 2, 5);
-
-        if (level.random.nextFloat() < 0.20f) {
-            count++;
-        }
-        return new ItemStack(item, count);
-    }
-
     default void playHarvestSound(Level level, BlockPos pos, SoundEvent sound, float volume, float pitch) {
         level.playSound(null, pos, sound, SoundSource.BLOCKS, volume, pitch);
     }
@@ -61,10 +47,6 @@ public interface IHarvestableBlock {
 
     default void displayDefaultHarvestParticles(Level level, BlockPos pos, BlockState oldState) {
         level.levelEvent(2001, pos, Block.getId(oldState));
-    }
-
-    default int getDropCount(RandomSource random, int origin, int bound) {
-        return random.nextInt(origin, bound);
     }
 
     default void changeToMarredTumor(Level level, BlockPos pos, BlockState oldState) {

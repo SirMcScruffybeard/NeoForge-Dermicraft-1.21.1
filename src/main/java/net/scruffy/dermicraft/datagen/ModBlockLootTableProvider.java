@@ -6,15 +6,18 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.item.ModItems;
 
 import java.util.Set;
 
@@ -50,6 +53,31 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
         dropSelf(ModBlocks.ANDESITE_LAB_FLOOR.get());
         dropSelf(ModBlocks.GRANITE_LAB_FLOOR.get());
 
+        // Tier 1 tumor harvest tables -- 2-4 rolls per harvest, each roll landing on the tumor's
+        // real part(s) most of the time (5:1 weight) or Rotten Flesh otherwise (~1 in 6 rolls).
+        // Inert splits its 3 possible parts evenly (weight 5 each) against the same ~1-in-6 flesh
+        // odds (weight 3 against 15). See TumorBlock.harvest(), which now just pulls this table.
+        tumorHarvestTable(ModBlocks.EYE_TUMOR.get(), ModItems.EYE.get());
+        tumorHarvestTable(ModBlocks.MUSCLE_TUMOR.get(), ModItems.DENSE_MUSCLE.get());
+        tumorHarvestTable(ModBlocks.NERVE_TUMOR.get(), ModItems.NERVE_CLUSTER.get());
+
+        add(ModBlocks.INERT_TUMOR.get(), LootTable.lootTable().withPool(
+                LootPool.lootPool()
+                        .setRolls(UniformGenerator.between(2, 5))
+                        .add(LootItem.lootTableItem(ModItems.DENSE_MUSCLE.get()).setWeight(5))
+                        .add(LootItem.lootTableItem(ModItems.NERVE_CLUSTER.get()).setWeight(5))
+                        .add(LootItem.lootTableItem(ModItems.EYE.get()).setWeight(5))
+                        .add(LootItem.lootTableItem(Items.ROTTEN_FLESH).setWeight(3))
+        ));
+    }
+
+    private void tumorHarvestTable(Block block, Item realPart) {
+        add(block, LootTable.lootTable().withPool(
+                LootPool.lootPool()
+                        .setRolls(UniformGenerator.between(2, 5))
+                        .add(LootItem.lootTableItem(realPart).setWeight(5))
+                        .add(LootItem.lootTableItem(Items.ROTTEN_FLESH).setWeight(1))
+        ));
     }
 
     protected LootTable.Builder createMultipleOreDrops(Block pBlock, Item item, float minDrops, float maxDrops) {
