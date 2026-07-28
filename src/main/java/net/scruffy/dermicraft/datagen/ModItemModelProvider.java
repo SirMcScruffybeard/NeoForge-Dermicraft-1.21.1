@@ -58,6 +58,14 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         thinBucketItem(ModFluids.F_STUFF_BUCKET.get());
         thinBucketItem(ModFluids.C_STUFF_BUCKET.get());
+
+        chunkyBucketItem(ModFluids.MOLTEN_REDSTONE_BUCKET.get());
+        chunkyBucketItem(ModFluids.MOLTEN_QUARTZ_BUCKET.get());
+        chunkyBucketItem(ModFluids.MOLTEN_GLOWSTONE_BUCKET.get());
+        chunkyBucketItem(ModFluids.MOLTEN_AMETHYST_BUCKET.get());
+        chunkyBucketItem(ModFluids.MOLTEN_DIAMOND_BUCKET.get());
+        chunkyBucketItem(ModFluids.MOLTEN_OBSIDIAN_BUCKET.get());
+        chunkyBucketItem(ModFluids.MOLTEN_LAPIS_BUCKET.get());
     }
 
     // Chunky fluids (blends/slurries) use the chunky fill overlay; layer1 gets tinted at runtime per-fluid.

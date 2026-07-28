@@ -379,7 +379,11 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Redstone
 
-**Status:** Values decided — design note only, not yet implemented. (Renamed from "Liquid Redstone" to match the family's naming scheme — mechanic and values unchanged.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival (matches the family-wide reachability gap, see `dermicraft-machine-notes.md`). (Renamed from "Liquid Redstone" to match the family's naming scheme — mechanic and item-yield values unchanged.)
+
+**FluidType (confirmed, implemented):** tint `0xFFB22222` (firebrick red — glowing-red-lava read). `viscosity(5200)`, `density(3200)` — near Lava's own weight/thickness, since Lava is the literal base fluid. `temperature(1450)` — deliberately *hotter* than plain Lava (~1300); reasoning: redstone is already "vibrating with potential energy," and heat exposure doesn't dissipate through it the way it would through an inert material, it compounds instead. `motionScale(0.035)` — the "energetic" tell: despite being as thick/heavy as Lava, it responds to movement far more than something this viscous should, echoing Primitive Catalyst's own inverted-motion-scale trick but with an in-fluid justification (redstone = literal energy conduction) instead of "wrongness for its own sake." `lightLevel(8)` — emissive, deliberately pitched between a Redstone Torch's light level (7) and lit Redstone Ore's (9) rather than matching either exactly. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only, per the family-wide Lava-base rule. Mild Radiation was considered and deliberately rejected — the "energetic" identity is already fully expressed through the FluidType properties above (motion scale, temperature), and stacking a Radiation tag on top would encode the same idea twice. Radiation is reserved for materials that read as unstable/decaying (e.g. Living Glowstone), which a controllable engineering signal like redstone doesn't fit without a distinct justification.
 
 **What it is:** A fluid form of redstone. The mod's first confirmed Stage 2 Crafting Blend and the origin of the lava-based Stage 2 rule above. Supports a Redstone Torch Dip mechanic (see Dip Crafting in `dermicraft-project-primer.md` Working Conventions).
 
@@ -397,7 +401,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Quartz
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield not yet decided. (Renamed from "Liquid Quartz.")
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (Renamed from "Liquid Quartz.")
 
 **What it is:** Nether Quartz in fluid form. Confirmed use as one of Living Catalyst's three fluid inputs (see `dermicraft-catalyst-notes.md`), where it represents time/duration in that recipe's logic.
 
@@ -405,37 +409,51 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Item inputs & yield:** Not yet decided — presumably Nether Quartz (block/ore) + loose Quartz, following the same block-vs-loose-item split as the rest of the family.
 
+**FluidType (confirmed, implemented):** tint `0xFFE3D6B5` — Nether Quartz's real pale cream, warmed slightly by the Lava base rather than pulled toward Redstone's red or the eventual Amethyst purple, keeping the three visually distinct. `viscosity(5000)`, `density(3200)` — thick like the rest of the family, marginally smoother than Molten Redstone's 5200, reading more like liquid crystal than churning energy. `temperature(1300)` — plain Lava baseline, no inversion trick. `motionScale(0.007)` — matches the physically expected value for its viscosity (same water→lava relationship), deliberately normal rather than uncanny: quartz's "time/duration" identity reads as steady and measured, the opposite of Redstone's energetic wrongness. No light emission — quartz doesn't glow. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only, per the family-wide Lava-base rule. Nothing about a "time" identity suggested an additional hazard.
+
 **Open questions:** Exact item inputs and yields.
 
 ### Molten Glowstone
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
 
-**What it is:** Glowstone in fluid form — the plain, non-living Stage 2 precursor to **Living Glowstone** (Stage 3). Molten Glowstone + Living Catalyst → Living Glowstone via the Gestator (see `dermicraft-catalyst-notes.md` and `dermicraft-machine-notes.md`). Not itself living or emissive — those properties belong to the Stage 3 activated version.
+**What it is:** Glowstone in fluid form — the plain, non-living Stage 2 precursor to **Living Glowstone** (Stage 3). Molten Glowstone + Living Catalyst → Living Glowstone via the Gestator (see `dermicraft-catalyst-notes.md` and `dermicraft-machine-notes.md`). Not living or self-replicating — those properties are Living Glowstone's alone. **Revised: it is emissive**, just dimmer than the Living form (see FluidType below) — "not itself... emissive" from the original draft was walked back once the fluid actually got built.
 
 **Base fluid:** Lava.
 
 **Item inputs & yield:** Presumably Glowstone (block) + loose Glowstone Dust, following the family's usual block-vs-loose split. Not yet decided.
 
-**Open questions:** Exact item inputs and yields. FluidType values (should read as a "duller," non-emissive counterpart to Living Glowstone).
+**FluidType (confirmed, implemented):** tint `0xFFC9A857` — a duller, more muted gold than vanilla Glowstone Dust's bright yellow, reinforcing that this is the "before" state relative to Living Glowstone's eventual activated look. `viscosity(5000)`, `density(3200)`, `temperature(1300)`, `motionScale(0.007)` — family baseline across the board, no tricks; the negative-density/self-replication/uncanny-motion tricks are reserved for the Living Stage 3 version, not earned yet here. `lightLevel(10)` — meaningfully bright, but held back from vanilla Glowstone's full `15` so Living Glowstone still has visible room to feel like the fully-activated upgrade. `canHydrate(false)`.
+
+**Hazard tag (confirmed):** `hazard/radiation_mild`, in addition to the family-wide `hazard/extreme_heat`. Carried down from Living Glowstone's own Mild Radiation classification — the precursor is already radioactive before the Living Catalyst step "activates" it, not a property that switches on only at Stage 3.
+
+**Open questions:** Exact item inputs and yields.
 
 ### Molten Amethyst
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield and distinct identity not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
 
-**What it is:** Amethyst in fluid form — resolves the earlier "Amethyst flagged as a Tier 2 concept" open question from the Sediment Blend section above. Sits adjacent to Molten Quartz (both clear/crystalline Nether-and-cave minerals); acknowledged as a near-reskin for now, with the plan to give it its own identity later (visual, hazard, or use-case differentiation — not yet decided which).
+**What it is:** Amethyst in fluid form — resolves the earlier "Amethyst flagged as a Tier 2 concept" open question from the Sediment Blend section above. Sits adjacent to Molten Quartz (both clear/crystalline Nether-and-cave minerals), but now has two independent points of distinction (see FluidType and Tinted Glass, below) rather than reading as a straight reskin.
 
 **Base fluid:** Lava.
 
 **Item inputs & yield:** Not yet decided.
 
-**First confirmed use (new):** **Glass + Molten Amethyst → Tinted Glass**, via a Tier 2 **Mutator** (see `dermicraft-machine-notes.md` → Mutator, Stage 2 cluster) — a reagent-mapping of vanilla's 4-shards-+-glass recipe. This is Molten Amethyst's first consumer and the start of a real identity distinct from Molten Quartz: **light manipulation** (tinted glass blocks light).
+**FluidType (confirmed, implemented):** tint `0xFF8A5AA8` — amethyst purple, clearly distinct from Quartz's pale cream. `viscosity(5000)`, `density(3200)`, `temperature(1300)` — family baseline, matches Quartz. `motionScale(0.004)` — **lower** than what its viscosity would predict (~0.007), the physical-identity axis that separates it from Quartz: real-world amethyst's etymology is literally "not intoxicated," a calming/sobering stone, so it resists movement *more* than something this thick already should — the mirror opposite of Molten Redstone's "moves more than it should." No light emission. `canHydrate(false)`.
 
-**Open questions:** What distinguishes Molten Amethyst from Molten Quartz beyond source material — partially answered by the Tinted Glass use above (light manipulation), but not yet fully resolved. Exact item inputs and yields.
+**First confirmed use (new):** **Glass + Molten Amethyst → Tinted Glass**, via a Tier 2 **Mutator** (see `dermicraft-machine-notes.md` → Mutator, Stage 2 cluster) — a reagent-mapping of vanilla's 4-shards-+-glass recipe. This is Molten Amethyst's first consumer and a second, independent point of distinction from Molten Quartz: **light manipulation** (tinted glass blocks light), alongside the "calming" physical identity above.
+
+**Ambient chime (confirmed, implemented — `MoltenAmethystChimeEvent`):** A third, independent point of distinction. Reuses vanilla's own Amethyst Cluster chime (`SoundEvents.AMETHYST_BLOCK_CHIME`) — plays periodically (every 5 seconds, 35% chance per check, server-side) when a player is near any of: a placed world fluid block, a tank block entity holding it (Skin/Chitin Tank, machine input/result tanks — checked via `IFluidHandler` capability, not just placed fluid), or a carried container (bucket, or Beaker/Glass Flask/Syringe via the `FluidData` component) — all within a 5-block radius for the world/tank checks. Reinforces the "calming" identity audibly, not just through the dampened motion scale.
+
+**Hazard tag:** `hazard/extreme_heat` only, per the family-wide Lava-base rule.
+
+**Open questions:** Exact item inputs and yields.
 
 ### Molten Diamond
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
 
 **What it is:** Diamond in fluid form.
 
@@ -443,29 +461,41 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Item inputs & yield:** Not yet decided.
 
+**FluidType (confirmed, implemented):** tint `0xFF6FCFC4` — diamond's pale cyan-white, clearly distinct from the rest of the family. `viscosity(6200)` — thicker than plain Lava (~6000), the thickest fluid in the mod so far. `density(3800)` — heaviest in the family (baseline elsewhere is 3200). `temperature(1300)` — plain baseline, deliberately no inversion trick; Diamond's identity is physical density/hardness, not heat, keeping it from repeating Molten Redstone's "hotter than Lava" move. `motionScale(0.005)` — low, barely responsive to movement, reinforcing "resists everything, including you." Normal physics taken to an extreme, not an inversion trick like Redstone/Amethyst. No light emission. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only.
+
 **Open questions:** Exact item inputs and yields. Any secondary use beyond a recipe ingredient.
 
 ### Molten Obsidian
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
 
-**What it is:** Obsidian in fluid form — a deliberate thematic inversion, since Obsidian is real-world *cooled* lava. Re-melting it back into a fluid is "already-forged, forged again," distinct from every other Molten fluid, which is liquefying a raw material for the first time. Worth calling out visually/flavor-wise whenever this gets built.
+**What it is:** Obsidian in fluid form — a deliberate thematic inversion, since Obsidian is real-world *cooled* lava. Re-melting it back into a fluid is "already-forged, forged again," distinct from every other Molten fluid, which is liquefying a raw material for the first time.
 
 **Base fluid:** Lava.
 
 **Item inputs & yield:** Not yet decided.
 
+**FluidType (confirmed, implemented):** tint `0xFF3D1A2C` — a dark plum-black, pulled much closer to real Obsidian block's own near-black purple than the original lighter draft. `viscosity(6000)`, `density(3000)`, `temperature(1300)`, `motionScale(0.007)` — **exactly Lava's own reference values, no divergence at all.** Deliberate: every other Molten fluid distinguishes itself *from* Lava somehow (Redstone hotter, Diamond thicker, Amethyst calmer); Molten Obsidian's identity is that there's no trick, because re-melting cooled Lava back down honestly is just Lava again. No light emission. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only.
+
 **Open questions:** Exact item inputs and yields. Any use beyond a recipe ingredient.
 
 ### Molten Lapis
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
 
 **What it is:** Lapis Lazuli in fluid form.
 
 **Base fluid:** Lava.
 
 **Item inputs & yield:** Not yet decided.
+
+**FluidType (confirmed, implemented):** tint `0xFF1B3F8B` — deep lapis blue, clearly distinct from the rest of the family. `viscosity(5000)`, `density(3200)` — family baseline. `temperature(900)` — noticeably **cooler** than Lava's ~1300 baseline, the fluid's distinguishing axis: leans on Lapis's real identity as the enchanting-table material, reading as carrying arcane/mystical energy rather than raw heat. First Molten fluid to run colder than baseline (Redstone went the opposite direction, hotter). `motionScale(0.007)` — normal for its viscosity, no second trick stacked on top. No light emission. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only — still inherited from the family-wide Lava-base rule regardless of the lower temperature value.
 
 **Open questions:** Exact item inputs and yields.
 

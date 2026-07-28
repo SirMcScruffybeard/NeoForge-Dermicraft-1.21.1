@@ -37,9 +37,17 @@ public class ModFluidTagProvider extends FluidTagsProvider {
         // --- Hazard kinds ---
         tag(ModTags.Fluids.EXTREME_HEAT)
                 .addTag(FluidTags.LAVA)
+                .add(ModFluids.SOURCE_MOLTEN_REDSTONE.get())
+                .add(ModFluids.SOURCE_MOLTEN_QUARTZ.get())
+                .add(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get())
+                .add(ModFluids.SOURCE_MOLTEN_AMETHYST.get())
+                .add(ModFluids.SOURCE_MOLTEN_DIAMOND.get())
+                .add(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get())
+                .add(ModFluids.SOURCE_MOLTEN_LAPIS.get())
         ;
 
         tag(ModTags.Fluids.RADIATION_MILD)
+                .add(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get())
         ;
 
         tag(ModTags.Fluids.RADIATION_SEVERE)
@@ -81,6 +89,14 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_AUROUS_BLEND.get())
 
                 .add(ModFluids.SOURCE_PULP_BLEND.get())
+
+                .add(ModFluids.SOURCE_MOLTEN_REDSTONE.get())
+                .add(ModFluids.SOURCE_MOLTEN_QUARTZ.get())
+                .add(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get())
+                .add(ModFluids.SOURCE_MOLTEN_AMETHYST.get())
+                .add(ModFluids.SOURCE_MOLTEN_DIAMOND.get())
+                .add(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get())
+                .add(ModFluids.SOURCE_MOLTEN_LAPIS.get())
         ;
 
         tag(ModTags.Fluids.THIN)

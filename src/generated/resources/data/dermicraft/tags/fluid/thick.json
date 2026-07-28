@@ -11,6 +11,13 @@
     "dermicraft:source_ferrous_blend",
     "dermicraft:source_cuprous_blend",
     "dermicraft:source_aurous_blend",
-    "dermicraft:source_pulp_blend"
+    "dermicraft:source_pulp_blend",
+    "dermicraft:source_molten_redstone",
+    "dermicraft:source_molten_quartz",
+    "dermicraft:source_molten_glowstone",
+    "dermicraft:source_molten_amethyst",
+    "dermicraft:source_molten_diamond",
+    "dermicraft:source_molten_obsidian",
+    "dermicraft:source_molten_lapis"
   ]
 }

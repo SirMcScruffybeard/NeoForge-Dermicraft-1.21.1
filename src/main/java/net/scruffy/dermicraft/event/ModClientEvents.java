@@ -54,6 +54,14 @@ public class ModClientEvents {
 
         registerBucketTint(event, ModFluids.F_STUFF_BUCKET.get(), ModFluidTypes.F_STUFF_FLUID_TYPE);
         registerBucketTint(event, ModFluids.C_STUFF_BUCKET.get(), ModFluidTypes.C_STUFF_FLUID_TYPE);
+
+        registerBucketTint(event, ModFluids.MOLTEN_REDSTONE_BUCKET.get(), ModFluidTypes.MOLTEN_REDSTONE_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.MOLTEN_QUARTZ_BUCKET.get(), ModFluidTypes.MOLTEN_QUARTZ_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.MOLTEN_GLOWSTONE_BUCKET.get(), ModFluidTypes.MOLTEN_GLOWSTONE_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.MOLTEN_AMETHYST_BUCKET.get(), ModFluidTypes.MOLTEN_AMETHYST_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.MOLTEN_DIAMOND_BUCKET.get(), ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.MOLTEN_OBSIDIAN_BUCKET.get(), ModFluidTypes.MOLTEN_OBSIDIAN_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.MOLTEN_LAPIS_BUCKET.get(), ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE);
     }
 
     //////////////HelperMethods\\\\\\\\\\\\\\

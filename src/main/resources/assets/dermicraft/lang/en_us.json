@@ -84,6 +84,14 @@
 
   "item.dermicraft.pulp_blend_bucket": "Pulp Blend Bucket",
 
+  "item.dermicraft.molten_redstone_bucket": "Molten Redstone Bucket",
+  "item.dermicraft.molten_quartz_bucket": "Molten Quartz Bucket",
+  "item.dermicraft.molten_glowstone_bucket": "Molten Glowstone Bucket",
+  "item.dermicraft.molten_amethyst_bucket": "Molten Amethyst Bucket",
+  "item.dermicraft.molten_diamond_bucket": "Molten Diamond Bucket",
+  "item.dermicraft.molten_obsidian_bucket": "Molten Obsidian Bucket",
+  "item.dermicraft.molten_lapis_bucket": "Molten Lapis Bucket",
+
   "fluid_type.dermicraft.calcium_blend_fluid": "Calcium Blend",
   "fluid_type.dermicraft.carbon_blend_fluid": "Carbon Blend",
   "fluid_type.dermicraft.protein_blend_fluid": "Protein Blend",
@@ -104,6 +112,14 @@
   "fluid_type.dermicraft.aurous_blend_fluid": "Aurous Blend",
 
   "fluid_type.dermicraft.pulp_blend_fluid": "Pulp Blend",
+
+  "fluid_type.dermicraft.molten_redstone_fluid": "Molten Redstone",
+  "fluid_type.dermicraft.molten_quartz_fluid": "Molten Quartz",
+  "fluid_type.dermicraft.molten_glowstone_fluid": "Molten Glowstone",
+  "fluid_type.dermicraft.molten_amethyst_fluid": "Molten Amethyst",
+  "fluid_type.dermicraft.molten_diamond_fluid": "Molten Diamond",
+  "fluid_type.dermicraft.molten_obsidian_fluid": "Molten Obsidian",
+  "fluid_type.dermicraft.molten_lapis_fluid": "Molten Lapis",
 
   "block.dermicraft.inert_tumor": "Inert Tumor",
   "block.dermicraft.marred_tumor": "Marred Tumor",

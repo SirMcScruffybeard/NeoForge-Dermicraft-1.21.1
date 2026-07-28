@@ -300,6 +300,134 @@ public class ModFluids {
             .block(ModFluids.PULP_BLEND_BLOCK)
             .bucket(ModFluids.PULP_BLEND_BUCKET);
 
+    //////////////////////////////Molten Redstone\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_REDSTONE = FLUIDS.register("source_molten_redstone",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_REDSTONE_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_REDSTONE = FLUIDS.register("flowing_molten_redstone",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_REDSTONE_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_REDSTONE_BLOCK = ModBlocks.BLOCKS.register("molten_redstone_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_REDSTONE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .lightLevel(state -> 8).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_REDSTONE_BUCKET = getBucket("molten_redstone_bucket", ModFluids.SOURCE_MOLTEN_REDSTONE);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_REDSTONE_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_REDSTONE_FLUID_TYPE, SOURCE_MOLTEN_REDSTONE, FLOWING_MOLTEN_REDSTONE)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_REDSTONE_BLOCK)
+            .bucket(ModFluids.MOLTEN_REDSTONE_BUCKET);
+
+    //////////////////////////////Molten Quartz\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_QUARTZ = FLUIDS.register("source_molten_quartz",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_QUARTZ_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_QUARTZ = FLUIDS.register("flowing_molten_quartz",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_QUARTZ_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_QUARTZ_BLOCK = ModBlocks.BLOCKS.register("molten_quartz_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_QUARTZ.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_QUARTZ_BUCKET = getBucket("molten_quartz_bucket", ModFluids.SOURCE_MOLTEN_QUARTZ);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_QUARTZ_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_QUARTZ_FLUID_TYPE, SOURCE_MOLTEN_QUARTZ, FLOWING_MOLTEN_QUARTZ)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_QUARTZ_BLOCK)
+            .bucket(ModFluids.MOLTEN_QUARTZ_BUCKET);
+
+    //////////////////////////////Molten Glowstone\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_GLOWSTONE = FLUIDS.register("source_molten_glowstone",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_GLOWSTONE_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_GLOWSTONE = FLUIDS.register("flowing_molten_glowstone",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_GLOWSTONE_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_GLOWSTONE_BLOCK = ModBlocks.BLOCKS.register("molten_glowstone_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .lightLevel(state -> 10).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_GLOWSTONE_BUCKET = getBucket("molten_glowstone_bucket", ModFluids.SOURCE_MOLTEN_GLOWSTONE);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_GLOWSTONE_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_GLOWSTONE_FLUID_TYPE, SOURCE_MOLTEN_GLOWSTONE, FLOWING_MOLTEN_GLOWSTONE)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_GLOWSTONE_BLOCK)
+            .bucket(ModFluids.MOLTEN_GLOWSTONE_BUCKET);
+
+    //////////////////////////////Molten Amethyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_AMETHYST = FLUIDS.register("source_molten_amethyst",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_AMETHYST_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_AMETHYST = FLUIDS.register("flowing_molten_amethyst",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_AMETHYST_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_AMETHYST_BLOCK = ModBlocks.BLOCKS.register("molten_amethyst_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_AMETHYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_AMETHYST_BUCKET = getBucket("molten_amethyst_bucket", ModFluids.SOURCE_MOLTEN_AMETHYST);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_AMETHYST_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_AMETHYST_FLUID_TYPE, SOURCE_MOLTEN_AMETHYST, FLOWING_MOLTEN_AMETHYST)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_AMETHYST_BLOCK)
+            .bucket(ModFluids.MOLTEN_AMETHYST_BUCKET);
+
+    //////////////////////////////Molten Diamond\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_DIAMOND = FLUIDS.register("source_molten_diamond",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_DIAMOND_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_DIAMOND = FLUIDS.register("flowing_molten_diamond",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_DIAMOND_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_DIAMOND_BLOCK = ModBlocks.BLOCKS.register("molten_diamond_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_DIAMOND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_DIAMOND_BUCKET = getBucket("molten_diamond_bucket", ModFluids.SOURCE_MOLTEN_DIAMOND);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_DIAMOND_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE, SOURCE_MOLTEN_DIAMOND, FLOWING_MOLTEN_DIAMOND)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_DIAMOND_BLOCK)
+            .bucket(ModFluids.MOLTEN_DIAMOND_BUCKET);
+
+    //////////////////////////////Molten Obsidian\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_OBSIDIAN = FLUIDS.register("source_molten_obsidian",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_OBSIDIAN_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_OBSIDIAN = FLUIDS.register("flowing_molten_obsidian",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_OBSIDIAN_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_OBSIDIAN_BLOCK = ModBlocks.BLOCKS.register("molten_obsidian_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_OBSIDIAN_BUCKET = getBucket("molten_obsidian_bucket", ModFluids.SOURCE_MOLTEN_OBSIDIAN);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_OBSIDIAN_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_OBSIDIAN_FLUID_TYPE, SOURCE_MOLTEN_OBSIDIAN, FLOWING_MOLTEN_OBSIDIAN)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_OBSIDIAN_BLOCK)
+            .bucket(ModFluids.MOLTEN_OBSIDIAN_BUCKET);
+
+    //////////////////////////////Molten Lapis\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_LAPIS = FLUIDS.register("source_molten_lapis",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_LAPIS_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_LAPIS = FLUIDS.register("flowing_molten_lapis",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_LAPIS_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_LAPIS_BLOCK = ModBlocks.BLOCKS.register("molten_lapis_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_LAPIS.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_LAPIS_BUCKET = getBucket("molten_lapis_bucket", ModFluids.SOURCE_MOLTEN_LAPIS);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_LAPIS_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE, SOURCE_MOLTEN_LAPIS, FLOWING_MOLTEN_LAPIS)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_LAPIS_BLOCK)
+            .bucket(ModFluids.MOLTEN_LAPIS_BUCKET);
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static void register(IEventBus eventBus) {
         FLUIDS.register(eventBus);

@@ -36,7 +36,7 @@ Bucket items do **not** get a dedicated texture per fluid. `ModItemModelProvider
 `Dermicraft.java` (common) vs `DermicraftClient.java` (`@Mod(..., dist = Dist.CLIENT)`) — keep client-only concerns (block entity renderers, screens, render layers, item color/property handlers) out of the common class.
 
 **Checklist for adding a new fluid** (grep every `SOURCE_<EXISTING_FLUID>` reference across `src/main/java` to catch project-specific extras like `GlassFlaskItem`'s per-fluid dispatch — this list covers the general/infrastructure touchpoints only, not one-off mechanics tied to a specific existing fluid):
-- `ModFluidTypes.java` — register the `FluidType` (tint color, fog color vector, viscosity/density/temperature/motionScale).
+- `ModFluidTypes.java` — register the `FluidType` (tint color, fog color vector, viscosity/density/temperature/motionScale). If the fluid is emissive, `FluidType.Properties.lightLevel(int)` only affects fluid-holding **items** (e.g. the Beaker reads it via `getFluidType().getLightLevel(fluid)`) — it does **not** light up the block placed in the world. For that, also set `.lightLevel(state -> N)` on the `LiquidBlock`'s own `BlockBehaviour.Properties` in `ModFluids.java`. Both are needed for a fluid to glow everywhere.
 - `ModFluids.java` — source `FlowingFluid`, flowing `FlowingFluid`, `LiquidBlock`, bucket item (`getBucket` helper), `BaseFlowingFluid.Properties`.
 - `ModItemModelProvider.java` — `chunkyBucketItem(...)` or `thinBucketItem(...)` for the bucket.
 - `ModClientEvents.java` — `registerBucketTint(...)` so the bucket's fill layer actually gets tinted.

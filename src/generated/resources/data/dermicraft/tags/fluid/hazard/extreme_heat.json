@@ -1,5 +1,12 @@
 {
   "values": [
-    "#minecraft:lava"
+    "#minecraft:lava",
+    "dermicraft:source_molten_redstone",
+    "dermicraft:source_molten_quartz",
+    "dermicraft:source_molten_glowstone",
+    "dermicraft:source_molten_amethyst",
+    "dermicraft:source_molten_diamond",
+    "dermicraft:source_molten_obsidian",
+    "dermicraft:source_molten_lapis"
   ]
 }

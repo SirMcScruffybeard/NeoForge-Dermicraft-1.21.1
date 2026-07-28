@@ -75,6 +75,14 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_C_STUFF.get(), ModFluids.FLOWING_C_STUFF.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_PULP_BLEND.get(), ModFluids.FLOWING_PULP_BLEND.get());
+
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_REDSTONE.get(), ModFluids.FLOWING_MOLTEN_REDSTONE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_QUARTZ.get(), ModFluids.FLOWING_MOLTEN_QUARTZ.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), ModFluids.FLOWING_MOLTEN_GLOWSTONE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_AMETHYST.get(), ModFluids.FLOWING_MOLTEN_AMETHYST.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_DIAMOND.get(), ModFluids.FLOWING_MOLTEN_DIAMOND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get(), ModFluids.FLOWING_MOLTEN_OBSIDIAN.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_LAPIS.get(), ModFluids.FLOWING_MOLTEN_LAPIS.get());
         });
     }
 
@@ -101,6 +109,14 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.C_STUFF_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.PULP_BLEND_FLUID_TYPE.get());
+
+        registerFluidType(event, ModFluidTypes.MOLTEN_REDSTONE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_QUARTZ_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_GLOWSTONE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_AMETHYST_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_OBSIDIAN_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE.get());
 
         event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
             private final net.scruffy.dermicraft.item.custom.SippingItemRenderer renderer =
