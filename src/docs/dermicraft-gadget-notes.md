@@ -75,11 +75,27 @@ Each gadget's official name follows an acronym + suffix pattern (`[ACRONYM].Gadg
 
 ### Eater
 
-**Status:** Concept stage — core mechanics defined, upgrade system not yet designed.
+**Status:** Concept stage — base-tier mechanic and model plan locked; not yet built in code, model not yet started.
 
 **What it is:** The item-side counterpart to Drinker (which vacuums fluid) — Eater vacuums loose dropped items, and at higher tiers, blocks and ore. Confirmed as an acronym, expansion not yet decided (deliberately left untyped for now).
 
 **Base tier:** Vacuums loose dropped items on the ground.
+
+**Base-tier mechanic (confirmed, mirrors Drinker's shape):**
+- **Activation:** hold right-click (same held-trigger identity as Drinker), not passive-while-held.
+- **Pickup shape:** flat 4-block radius around the player, not a directional cone — the cone shape from the doc's original AoE description is reserved for the later block/ore tiers, since dropped items aren't directional the way ore veins are.
+- **Modes:** all three of Drinker's — Storage, Transfer, Disposal — full family parity.
+- **Internal buffer:** 4-slot `ItemStackHandler`, not a single slot. Reasoning: a fluid buffer is "one fluid, variable quantity" so Drinker's single tank works, but a dropped-item pile is usually mixed (e.g. a skeleton's bones/arrows/string/gunpowder) — a single slot would jam on the first item type touched and ignore the rest of the same pile. 4 slots handles a realistic mixed pile without becoming a real storage system.
+- **HP:** 10, matching Drinker — no stated reason yet for Eater to be tougher or more fragile.
+
+**Model plan (GeckoLib, not yet built):**
+- **Mouth:** larger than Drinker's (about body-size minus the bladder), since Eater's whole identity is intake rather than Drinker's smaller drinking mouth. May have "shields" that move outward similarly to Drinker's bladder motion.
+- **Bone complexity:** undecided until modeling starts in Blockbench — no other moving parts confirmed yet.
+- **Held pose:** copies Drinker's approach directly (`UseAnim.NONE` + motionless hold, per the reasoning in `DrinkerItem`'s class javadoc about `CROSSBOW` not rendering correctly in first person).
+- **Mode lights:** same Drinker-style mode-light glow layer, no separate fill-gauge (unlike Drinker's fluid-level gauge — a 4-slot item buffer doesn't have an analogous "how full" continuous readout the same way).
+- **Held-stack display (new mechanic, not present on Drinker):** all 4 internal slots get their own **locator bone** on the model, each rendering the actual live `ItemStack` render (same renderer used for item entities/item frames) via a custom `GeoRenderLayer` — NOT a baked texture/icon. Each locator doubles as a "screen": a small bezel/frame (real modeled geometry, ordinary texture/UV, sized whatever reads well at the gadget's scale) surrounds the floating item render, with an emissive on/off state (lit when the slot is occupied, dark when empty) — same two-state emissive-material mechanism as Drinker's mode lights, not a per-pixel icon render. No stack-count text overlay planned (that would need a separate nameplate-style text-render addition, not scoped here).
+
+**Open questions:** Exact upgrade system/currency (likely the shared Gadget customization system used elsewhere). Cone dimensions at the later block/ore tiers (unaffected by the base-tier radius decision above). Bone count/rig complexity for the model, TBD once Blockbench work starts. Bezel size and item-render scale for the 4 display sockets, TBD once the model exists. Whether Transfer/Disposal need any Eater-specific wrinkle beyond mirroring Drinker's implementation 1:1.
 
 **Mid tier — loose block vacuuming:** Can suck up "loose" blocks (dirt, sand, gravel) directly. This tier's primary upgrade axis is **speed** — how quickly a block is sucked up. Cone-size upgrades for this tier are their own separate, later addition (see below).
 

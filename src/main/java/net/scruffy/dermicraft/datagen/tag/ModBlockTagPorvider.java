@@ -42,6 +42,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.INNARDS_GATE_BUFFER.get())
                 .add(ModBlocks.INNARDS_GATE_PORT.get())
                 .add(ModBlocks.MR_FARMER.get())
+                .add(ModBlocks.MR_SHEPARD.get())
                 .add(ModBlocks.STONE_LAB_FLOOR.get())
                 .add(ModBlocks.COBBLESTONE_LAB_FLOOR.get())
                 .add(ModBlocks.DEEPSLATE_LAB_FLOOR.get())
@@ -70,6 +71,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.RENDER_KILN.get())
                 .add(ModBlocks.CRAW.get())
                 .add(ModBlocks.MR_FARMER.get())
+                .add(ModBlocks.MR_SHEPARD.get())
         ;
 
         tag(ModTags.Blocks.INJECTABLE)

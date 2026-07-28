@@ -852,7 +852,8 @@ Four related ideas from early planning, sharing a personified-name pattern (Mr. 
 - **Fuel-driven range (replaces fuel-optional/HP pattern):** unfueled, range is just the single block the machine is placed on/above. Range is keyed directly off a new `BiofuelProperties.tier` field (added as the last property in the record, alongside `speed`/`useRate`/`heal`; Crude Slurry is tier 1) rather than derived from the `getSpeed()` ratio — tier is a discrete, explicit value so fuels don't need near-identical speed values to land in the same bucket. Each tier adds one ring: tier 1 = 3x3, tier 2 = 5x5, tier 3 = 7x7, tier 4 = 9x9. Capped at 9x9 — a 5th (or higher) tier fuel is expected to exist but doesn't grant more range once capped. `ModFluidUtil.getTier()` / `FuelTank.getFuelTier()` expose the value.
 - **Output handling:** internal buffer, player-accessible, drained by automation (e.g. Node/duct). If the buffer is full, items drop on the ground instead.
 - **Stage/tier timing:** confirmed to release together as a set. **Open question:** which tier/stage.
-- **Hazard interaction:** the machines won't consume or produce hazardous materials themselves, but nearby hazardous fluids may disrupt their operation. **Status: undecided, may be dropped entirely** — no hazard-tag/tolerance work exists for this family, and it's possible this mechanic gets cut rather than designed further. Left open intentionally.
+- **Hazard interaction (resolved): the farming family never handles hazardous materials, full stop.** They consume ordinary biofuel slurry and produce crops/livestock/wood drops — nothing on either side of the machine is hazardous. The old "nearby hazardous fluids may disrupt their operation" idea is **dropped**, not deferred. This is a defining property of the family rather than an omission, and it has a direct architectural consequence: see the tier note below.
+- **No machine-tier ladder, because of the above.** What a `MachineTier` ladder buys elsewhere in the mod is largely *hazard tolerance* — climbing tiers to safely handle worse fluids. A family that by definition only ever touches non-hazardous materials has no such ladder to climb, and **fuel grade is already its progression axis** (driving range, population cap, growth, pacing and cost). Adding tiers on top would be a second, redundant progression track. **Revisit condition:** if the farming machines ever gain hazardous-material handling, tiered variants become worth reconsidering — but there are no plans for that.
 
 ### Mr. Farmer
 
@@ -893,14 +894,98 @@ Four related ideas from early planning, sharing a personified-name pattern (Mr. 
 
 ### Mr. Shepard
 
-**What it is:** Working name for a machine to automate animal farming — the livestock counterpart to Mr. Farmer's crop automation.
+**What it is:** The livestock counterpart to Mr. Farmer's crop automation — a self-running animal farm that maintains a breeding herd and harvests the surplus for meat/leather/wool.
 
-**Mechanics (starting point):**
-- **Scope:** collects dropped items on the ground in range, shears sheep, and encourages breeding/growth. Wave behavior (ring-by-ring, closest to farthest) likely carries over from Mr. Farmer.
-- **Culling:** player-configured population cap. Uses the same accessible-buffer UI Mr. Farmer and this family already have (player can hand-remove collected items), extended with cap config.
-- **Species tracking:** UI has a one-species/many-species toggle rather than per-species switches — too many herdable mobs to give each its own control. Exact behavior of "many species" mode (shared cap vs. per-species cap once toggled on) not yet worked out.
+**Visual design (confirmed):** personified like Mr. Farmer, keeping the family's shared visual language — a body-horror head themed around livestock rather than a distinct form.
 
-**Open questions:** Visual design — personified like Mr. Farmer, or different? Exact cull logic (which animal gets culled when over cap — oldest, random, etc.)? In "many species" mode, is the population cap shared across all species in range or tracked per species? Does feeding factor in (does it need to supply food items to encourage breeding, or does breeding happen automatically once population is under cap)?
+**Scope:** collects dropped items in range, shears sheep, feeds animals to breed them, accelerates babies to maturity, and culls surplus adults into the output buffer.
+
+#### Fuel stats — what each one drives
+
+Mirrors Mr. Farmer's "fuel quality drives everything" model; all four `BiofuelProperties` stats have a job, none is dead weight.
+
+| Stat | Job on Mr. Shepard |
+|---|---|
+| `tier` | Working range (3×3 → 9×9, family-shared formula, capped) |
+| `useRate` | Fuel drain per work cycle |
+| `speed` | Work-cycle pacing (`WAVE_STEP_TICKS_BASE / speed`) |
+| `heal` | **Max population cap** *and* **baby growth acceleration** |
+
+**Growth acceleration — babies only, not parent cooldown (decided).** There are two separate delays between "I have two adults" and "I have another adult": how long a **baby takes to mature**, and how long an **adult waits before it can breed again**. `heal` shortens **only the first**. Accelerating both was judged overpowered — it would compress the entire production pipeline at once — and baby maturation is the longer of the two timers, so it's the one that actually gates throughput. The parent cooldown stays at vanilla rates and acts as a natural brake on how fast a herd can turn over regardless of fuel grade. Mirrors Mr. Farmer's use of `heal` (extra random-ticks toward maturity) rather than inventing a second mechanism.
+
+**Why `heal` for the cap (decided):** `speed` and `useRate` are both already spoken for, so using either would double-dip one stat — and `useRate` would additionally be inverted (lower = better), semantically odd, and has poor resolution at current values (Crude 1.0 vs Concentrated 0.90 both round to 1). `heal` was the only free stat. Letting it drive *both* cap and growth is deliberate and coherent — one semantic ("how much life the slurry pushes into things") with two expressions — and each use gets its own tuning constant, so only the *shape* of the curve across fuel grades is shared, not the magnitudes. This also keeps `heal → growth acceleration` consistent with Mr. Farmer, where it already means exactly that.
+
+#### Population cap — the production model
+
+**The cap is the breeding stock, not the total population.** This distinction is load-bearing: any model where the cap counts *total* population goes static by construction — you breed up to the cap, headroom hits zero, breeding stops, nothing is ever surplus, and the machine never produces meat. Babies counting toward the cap is what kills production.
+
+- **Cap = adults maintained.** The player's chosen number is how many adults Shepard keeps.
+- **Breed** while `adults + babies < cap + BABY_HEADROOM`, rate-limited to **one pair per work cycle**.
+- **Grow** — babies mature naturally, accelerated by the fuel's `heal`.
+- **Cull** adults while `adults > cap`, **one per work cycle**, oldest first.
+- Steady state at cap 8 / headroom 4: 8 breeders, ≤12 total, continuous throughput as matured surplus is culled and the freed headroom lets breeding resume. **Production is the overflow** — the breed→cull cycle *is* the product, not a bug to be suppressed.
+
+**`BABY_HEADROOM` is a flat internal constant (decided).** Fixed at 4 regardless of cap, rather than scaling with it — one number is easier to reason about, and scaling was judged unnecessary for now. Deliberately **not** player-facing: a second on-screen stepper would be a knob most players never touch. It may still be *documented* to the player in the in-game guide later, since knowing the total ceiling (cap + 4) helps with pen sizing even if it isn't adjustable. Open to revisiting if large herds feel like they trickle.
+
+**Rate balance is the real constraint (learned the hard way).** An early implementation set *every* eligible adult in love each cycle (8 cows → 4 babies per ~2s cycle) while culling only one per cycle — a 4:1 imbalance that made the cap unenforceable and the population run away. The fix is pairing + one-pair-per-cycle rate limiting, **not** forbidding breeding at cap (which was an over-correction that removed the machine's whole purpose).
+
+**Max cap is fuel-driven, player selects up to it:**
+- `maxCap = clamp(round(BASE_CAP × heal), 2, 32)`. Crude Slurry (`heal` 1.0) → 8; Concentrated (`heal` 1.25) → 10.
+- **Minimum 2**, deliberately — always leaves the player a breeding pair as seed stock to scale back up from. At cap 2 the pair holds steady and doesn't reproduce, which is correct: it's preservation, not production.
+- **Hard ceiling 32**, mirroring the range formula's own "capped at 9×9 even though tier-5 fuel will exist" safety rail. Without it a future high-`heal` slurry silently allows enormous per-species herds.
+- **Downgrade is destructive (decided):** if a fuel change lowers the max below the player's selection, the selection is clamped down to the new max and does *not* restore when better fuel returns.
+- **Empty tank is the exception (decided):** an empty tank *retains* the last fuel's cap data rather than reading `heal` as 0.0 (which `FuelTank` returns when empty, and which would wipe the player's setting on every refuel cycle). The value only changes when a *different* fuel is loaded. Since `FuelTank` rejects a non-matching biofuel while non-empty, a fuel change can only ever happen from empty — so the recompute trigger is exactly "empty tank receives a fluid different from the remembered one." Requires the last-known value be NBT-persisted. Shepard still does not *operate* unfueled; this preserves configuration and the GUI readout only.
+
+#### Species handling
+
+**Per-species, always (design change).** The cap applies independently to each species in range — cap 8 means up to 8 cows *and* up to 8 sheep. **The one-species/many-species toggle from the original concept is dropped**: once caps are per-species by default, the toggle has no clear job left.
+
+**Cull targeting:** when multiple species are over cap, cull from whichever has the **largest population**; within that species, take the **oldest** (culls worn-out breeders and keeps freshly matured stock). **Adults only** — vanilla babies drop nothing, so culling them is pure waste.
+
+**Shear before cull (confirmed):** a sheep must never be culled with its wool still on. The tick order already shears before culling in the same cycle, but the cull path also explicitly shears a woolly target before killing it, so the guarantee doesn't rest on incidental ordering.
+
+**Mooshrooms are deliberately untouched.** They're shearable, but shearing one *permanently converts it into a regular cow* — a destructive transformation, not a harvest. `MushroomCow` isn't a `Sheep` subclass so the shear pass skips it by default; any future mooshroom handling should be opt-in.
+
+#### Breeding specifics
+
+- Food is **consumed** from dedicated food slots — breeding is a real supply chain, not automatic (decided).
+- Animals are **paired** (each baby costs two fed parents); if the second parent can't be fed, the first parent's food is refunded rather than wasted on a half-pair.
+- Eligibility uses vanilla's own breeding gate (`!isBaby() && getAge() == 0 && canFallInLove()`), which respects post-breeding cooldown.
+
+#### Gate compatibility (built, family-wide)
+
+**Both Mr. Shepard and Mr. Farmer now implement `IHasChannels`**, so the Innards Gate can service them — previously the whole farming family was unreachable by the Gate while eleven other machines were not. Implementing the interface is the entire integration; the Gate Controller and I.D.E.P. resolve against it generically.
+
+- **Shepard's channels, in Gate priority order** (list order *is* the priority, convention is starvation-risk-first): `fuel` (IN) → `feed` (IN) → `output` (OUT). Fuel first because the machine stops dead without it; feed next because breeding stalls without it; the output buffer last because it only backs up.
+- **Farmer's channels:** `fuel` (IN) → `harvest` (OUT).
+- **All channels are exposed on all six faces**, since both machines register their capabilities face-agnostically. `describeFace` is correspondingly face-independent, and `describeFluidFace` always names the fuel tank (mirroring `getTank`, which ignores the face).
+- **The fuel *container* slot is never a channel** on either machine — it stays player-only, matching what the automation item handler already enforces. Automated fueling goes through the fluid channel.
+- **Farmer's hidden seed reserve is deliberately not a channel** — it's internal replant stock rather than storage, and surplus above its per-crop cap already spills into the buffer where automation can reach it.
+- Shared helper `util/SlotRangeItemHandler` gives each channel a permission-locked view of its own slot range (feed is insert-only, buffers are extract-only). Generalises the single-slot anonymous handler Masticator uses, since the farming machines need multi-slot rows.
+
+#### Divergences from Mr. Farmer
+
+- **No positional wave.** Farmer sweeps ring-by-ring / row-by-row because crops are fixed to cells; animals move freely, so wave *ordering* is meaningless. Shepard scans a live AABB each work cycle instead. The original "wave behavior likely carries over" note is superseded.
+
+**Range preview — static footprint guide (confirmed).** Shepard still gets a GUI-close particle preview, but **not** Farmer's swept version — with no wave to communicate, the sweep would be showing an ordering that doesn't exist. Instead the preview's job is narrower and more practical: **show the player where to build the pen.** It marks the **perimeter of the N×N footprint** all at once rather than filling it — at 9×9 that's 32 edge cells instead of 81, which reads as a wall line rather than particle soup, and a wall line is exactly the thing the player is about to build. Same trigger and lifetime conventions as Farmer's (fires on GUI close, ~30s, fades out, costs no fuel, shows whatever the current fuel tier resolves to). Farmer's preview machinery lives in `MrFarmerBlockEntity` and wants extracting to a shared home so both machines draw from one implementation.
+
+#### GUI
+
+Follows Mr. Farmer's layout conventions. Top-left band carries a "Range: N×N" readout with the shared `renderRangeGrid()` tile grid, and below it a "Cap: N" readout flanked by **+/- stepper buttons** (18×18, using the shared `gui/buttons/` art). The steppers are **momentary, not toggles** — clicking shows the `_pressed` texture for a few ticks as click feedback, then reverts.
+
+**Steppers: click for precision, hold to accelerate (decided).** A single click steps by exactly 1, so the player can always land on an exact number. Holding the button down pauses for **~2 seconds** and then starts running the value rapidly, so covering 2→32 doesn't cost 30 individual clicks. The delay before acceleration is what preserves precision — a short hold still reads as one deliberate click rather than accidentally racing past the target. Standard key-repeat behaviour, applied to both steppers.
+
+**The cap readout must update live (confirmed).** The value has to change on screen the moment a stepper is clicked, not on the next GUI open. Cause of the current lag: `changePopulationCap()` calls `setChanged()` only, which marks the block entity dirty for *saving* but never pushes a packet, so the client's copy keeps the stale number until it re-syncs. Fix is to also call `updateBlock()`, matching how every other machine in the mod syncs BE state to nearby clients (the value is already carried in `saveAdditional`/`getUpdateTag`, so nothing else needs adding). Fuel slot + horizontal fuel gauge sit on one row, with a 4-slot food row right-aligned to the 9-slot output buffer below it.
+
+**Implementation status:** Block, block entity, menu, screen, registrations, implant recipe (Carved Pumpkin + Shears + flesh), models/textures, lang and tags are all built and load cleanly. Working today: item pickup, sheep shearing, food-consuming paired breeding, per-species culling, `tier`→range, `speed`→pacing, `useRate`→cost, and the +/- cap steppers. **Not yet built:** `heal`→max cap, `heal`→growth acceleration, the breeding-stock/`BABY_HEADROOM` production model (current code still has the over-corrective "no breeding at cap" rule), adults-only culling, the explicit shear-before-cull guard, remembered-fuel-on-empty, live cap-readout syncing, hold-to-accelerate steppers, and the static footprint range preview.
+
+#### Deferred to later passes
+
+- **`TieredMachine`/`MachineTier` migration: not doing it (decided).** Fuel grade is already the family's progression axis, and — the load-bearing reason — the farming machines never handle hazardous materials, so there's no hazard-tolerance ladder for tiers to gate. Full reasoning and the revisit condition live in Shared mechanics above. Both farming machines keep hard-coding `BASIC`.
+- **Hazardous-fluid disruption: dropped, not deferred.** See Shared mechanics — the family is defined as non-hazardous on both the input and output side.
+- **No-kill mode: not doing it.** Herd size is considered sufficient control — a player who doesn't want animals harvested sets the cap where they want the herd to sit. Revisit only if it's requested enough to justify the extra UI.
+- **Hazardous-fluid disruption: not doing it.** The family-wide idea inherited from the original notes stays unimplemented; Shared mechanics already flags it as possibly getting cut outright.
+- **More design work is expected** on Shepard after the culling/raising rework is built and playtested — the current decisions cover the production model, not necessarily the whole machine.
 
 ### Mr. Logger
 

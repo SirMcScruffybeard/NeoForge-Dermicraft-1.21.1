@@ -81,7 +81,21 @@ public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
         int y = (height - imageHeight) / 2;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFuelTank().getFluid(), GAUGE_INTERIOR_X, GAUGE_INTERIOR_Y, fuelRenderer);
+                menu.BE.getFuelTank().getFluid(), GAUGE_INTERIOR_X, GAUGE_INTERIOR_Y, fuelRenderer,
+                Component.translatable("tooltip.dermicraft.gauge.fuel"));
+
+        // Slot role labels, matching Mr. Shepard. Only shown while a slot is empty; once it holds an
+        // item vanilla's own item tooltip covers it.
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_SLOT_X + 1, FUEL_SLOT_Y + 1,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.fuel_container"));
+
+        for (int i = 0; i < BUFFER_SLOT_COUNT; i++) {
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    BUFFER_ROW_X + 1 + i * 18, BUFFER_ROW_Y + 1,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT + 1 + i),
+                    Component.translatable("tooltip.dermicraft.slot.output_buffer"));
+        }
 
         guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.mr_farmer.range", menu.getRange()),
                 RANGE_TEXT_X, RANGE_TEXT_Y, RANGE_TEXT_COLOR, false);

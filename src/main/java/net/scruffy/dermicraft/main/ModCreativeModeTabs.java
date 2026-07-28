@@ -52,6 +52,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.RENDER_KILN);
                         output.accept(ModBlocks.CRAW);
                         output.accept(ModBlocks.MR_FARMER);
+                        output.accept(ModBlocks.MR_SHEPARD);
 
                         ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_DUCT);

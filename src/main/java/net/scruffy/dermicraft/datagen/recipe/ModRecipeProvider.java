@@ -904,6 +904,18 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_FARMER.asItem());
 
+        ////////////////////Mr. Shepard\\\\\\\\\\\\\\\\\\\\
+        // Shears as the structural/defining item (matches the shearing duty), same 5-item implant shape.
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "mr_shepard_implant",
+                List.of(
+                        Ingredient.of(Items.CARVED_PUMPKIN),
+                        Ingredient.of(Items.SHEARS),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.MR_SHEPARD.asItem());
+
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
         // Crafting-table roster: structural block in the center, Nerve Cluster on the four edge-middles
         // (plumbing), Dense Muscle on the four corners (connective casing). Structural block is the

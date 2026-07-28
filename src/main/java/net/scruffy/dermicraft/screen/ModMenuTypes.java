@@ -50,6 +50,9 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<MrFarmerMenu>> MR_FARMER_MENU =
             registerMenuType("mr_farmer_menu", MrFarmerMenu::new);
 
+    public static final DeferredHolder<MenuType<?>, MenuType<net.scruffy.dermicraft.screen.custom.mr_shepard.MrShepardMenu>> MR_SHEPARD_MENU =
+            registerMenuType("mr_shepard_menu", net.scruffy.dermicraft.screen.custom.mr_shepard.MrShepardMenu::new);
+
     public static final DeferredHolder<MenuType<?>, MenuType<MutatorMenu>> MUTATOR_MENU =
             registerMenuType("mutator_menu", MutatorMenu::new);
 

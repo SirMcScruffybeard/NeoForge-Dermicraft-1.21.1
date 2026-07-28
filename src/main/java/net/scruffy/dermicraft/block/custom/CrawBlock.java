@@ -65,8 +65,9 @@ public class CrawBlock extends ModBaseEntityBlock {
 
         if (!level.isClientSide) {
             if (level.getBlockEntity(pos) instanceof CrawBlockEntity craw) {
-                // Regular click deposits one item; crouch deposits the whole held stack.
-                ItemStack leftover = craw.deposit(stack, player.isShiftKeyDown());
+                // Deposits the whole held stack -- see CrawBlockEntity.deposit for why this isn't
+                // crouch-gated (vanilla skips useItemOn entirely when crouching with a held item).
+                ItemStack leftover = craw.deposit(stack);
                 player.setItemInHand(hand, leftover);
             }
         }

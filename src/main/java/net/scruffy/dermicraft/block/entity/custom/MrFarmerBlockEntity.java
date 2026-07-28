@@ -26,13 +26,17 @@ import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.interfaces.Channel;
+import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.util.SlotRangeItemHandler;
 import net.scruffy.dermicraft.machine.MachineTier;
 import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerMenu;
 import net.scruffy.dermicraft.tank.FuelTank;
@@ -48,7 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory {
+public class MrFarmerBlockEntity extends MachineBaseBlockEntity
+        implements MenuProvider, IHaveInventory, IHasChannels {
 
     // Shared per-tier ring formula (see Shared mechanics in dermicraft-machine-notes.md):
     // unfueled = 1 block, fuel tier 1..4 = 3x3..9x9, capped at tier 4.
@@ -88,6 +93,10 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
 
     private final FuelTank FUEL_TANK = createFuelTank();
     private final ItemStackHandler INVENTORY = createItemHandler(10); // slot 0 = fuel container, 1-9 = output buffer
+
+    // Drain-only view of buffer slots 1-9 for the Gate's harvest channel (see getChannels). The
+    // fuel container slot is excluded, staying player-only just as the automation handler enforces.
+    private final IItemHandler BUFFER_CHANNEL = new SlotRangeItemHandler(INVENTORY, 1, 9, false, true);
 
     private boolean isTransferringFluids = false;
 
@@ -764,6 +773,39 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
     };
 
 
+    // ---- Gate integration (IHasChannels) --------------------------------------------------------
+
+    /** See {@link IHasChannels#describeFace} -- every face routes identically on this machine. */
+    @Override
+    public Component describeFace(Direction face) {
+        return Component.translatable("tooltip.dermicraft.idep.face.mr_farmer");
+    }
+
+    /** See {@link IHasChannels#describeFluidFace} -- getTank ignores the face; it's always the fuel tank. */
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return Component.translatable("tooltip.dermicraft.tank.fuel");
+    }
+
+    /**
+     * Self-described channels for the Gate. Both are exposed on all six faces, since both
+     * capabilities are registered face-agnostically. Order is the Gate's priority order, so fuel
+     * (machine stops dead without it) comes before the harvest buffer (which only backs up). The
+     * hidden seed reserve is deliberately NOT a channel -- it's internal replant stock, not storage,
+     * and surplus above its cap already flows into the buffer where automation can reach it.
+     */
+    @Override
+    public List<Channel> getChannels() {
+        List<Channel> channels = new ArrayList<>();
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.values())) {
+            channels.add(new Channel.FluidChannel("fuel", Component.literal("Fuel"), Channel.IO.IN, FUEL_TANK));
+        }
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.values())) {
+            channels.add(new Channel.ItemChannel("harvest", Component.literal("Harvest"), Channel.IO.OUT, BUFFER_CHANNEL));
+        }
+        return channels;
+    }
+
     @Override
     public void drops() {
         super.drops(INVENTORY);
@@ -858,6 +900,18 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity implements MenuP
             @Override
             public int getSlotLimit(int slot) {
                 return slot == FUEL_TANK.SLOT ? 1 : super.getSlotLimit(slot);
+            }
+
+            // The fuel slot only takes fluid containers. Without this, quickMoveStack walks the
+            // machine's slots in registration order -- fuel first -- so shift-clicking seeds or
+            // produce from the player's inventory would drop one item into the fuel slot before the
+            // rest reached the buffer. Slot.mayPlace() routes through here, covering shift-click too.
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                if (slot == FUEL_TANK.SLOT) {
+                    return stack.getCapability(Capabilities.FluidHandler.ITEM) != null;
+                }
+                return super.isItemValid(slot, stack);
             }
         };
     }

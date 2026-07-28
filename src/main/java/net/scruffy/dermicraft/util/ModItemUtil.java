@@ -17,6 +17,7 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.duct.AbstractInnardsDuctBlock;
 import net.scruffy.dermicraft.block.custom.duct.AbstractNodeBlock;
 import net.scruffy.dermicraft.block.custom.duct.DuctRunResolver;
+import net.scruffy.dermicraft.block.custom.gate.GatePortBlock;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.item.ModItems;
@@ -95,6 +96,21 @@ public class ModItemUtil {
     // Mirrors ModFluidUtil.pushFluidToBelowNeighbour/pushFluidToNeighbour exactly -- same Node
     // bypass guard, same machine-direct duct-drain path (bounded to the 3x3 footprint below).
     public static void pushItemToBelowNeighbour(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot) {
+        pushItemToNeighbour(level, worldPosition, inventory, slot, Direction.DOWN);
+    }
+
+    /**
+     * Restricted variant of {@link #pushItemToBelowNeighbour} for bulk storage: only auto-ejects
+     * into an Innards Duct or a Gate Port, never into arbitrary containers.
+     *
+     * <p>Storage differs from a machine here. A machine's result slot should hand off to whatever
+     * is below it, but a storage block that drains into any container underneath stops being
+     * storage -- a Craw couldn't sit on a chest without emptying itself. Limiting the target to
+     * deliberate transport blocks keeps auto-output opt-in: you get it by plumbing for it.
+     */
+    public static void pushItemToBelowTransport(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot) {
+        Block below = level.getBlockState(worldPosition.below()).getBlock();
+        if (!(below instanceof AbstractInnardsDuctBlock) && !(below instanceof GatePortBlock)) return;
         pushItemToNeighbour(level, worldPosition, inventory, slot, Direction.DOWN);
     }
 

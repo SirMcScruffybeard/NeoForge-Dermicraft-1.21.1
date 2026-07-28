@@ -1,0 +1,50 @@
+{
+  "variants": {
+    "facing=down,lit=false": {
+      "model": "dermicraft:block/mr_shepard",
+      "x": 90
+    },
+    "facing=down,lit=true": {
+      "model": "dermicraft:block/mr_shepard_on",
+      "x": 90
+    },
+    "facing=east,lit=false": {
+      "model": "dermicraft:block/mr_shepard",
+      "y": 90
+    },
+    "facing=east,lit=true": {
+      "model": "dermicraft:block/mr_shepard_on",
+      "y": 90
+    },
+    "facing=north,lit=false": {
+      "model": "dermicraft:block/mr_shepard"
+    },
+    "facing=north,lit=true": {
+      "model": "dermicraft:block/mr_shepard_on"
+    },
+    "facing=south,lit=false": {
+      "model": "dermicraft:block/mr_shepard",
+      "y": 180
+    },
+    "facing=south,lit=true": {
+      "model": "dermicraft:block/mr_shepard_on",
+      "y": 180
+    },
+    "facing=up,lit=false": {
+      "model": "dermicraft:block/mr_shepard",
+      "x": 270
+    },
+    "facing=up,lit=true": {
+      "model": "dermicraft:block/mr_shepard_on",
+      "x": 270
+    },
+    "facing=west,lit=false": {
+      "model": "dermicraft:block/mr_shepard",
+      "y": 270
+    },
+    "facing=west,lit=true": {
+      "model": "dermicraft:block/mr_shepard_on",
+      "y": 270
+    }
+  }
+}

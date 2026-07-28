@@ -22,6 +22,8 @@ import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
+import net.scruffy.dermicraft.util.ModItemUtil;
+import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,6 +36,8 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
 
     public static final int STORAGE_SLOT = 0;
     public static final int INPUT_SLOT = 0; // index within the separate INPUT handler
+
+    private static final int PUSH_INTERVAL_SECONDS = 5;
 
     // Single locked storage slot. Locks to whichever item is first inserted and
     // unlocks once it empties -- the item-side twin of SkinTank's fluid-type lock.
@@ -88,6 +92,11 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     public void tick(Level level) {
         if (!level.isClientSide) {
             transferInputToStorage();
+            // Throttled to match the machines' own output-drain cadence -- storage has no crafting
+            // cycle to piggyback on, and pushing every tick is needless churn for a passive block.
+            if (ModMath.Time.hasSecondsPassed(level, PUSH_INTERVAL_SECONDS)) {
+                ModItemUtil.pushItemToBelowTransport(level, worldPosition, INVENTORY, STORAGE_SLOT);
+            }
         }
     }
 
@@ -145,14 +154,20 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     }
 
     /**
-     * Deposit from a held stack. Regular use inserts one item; crouch use inserts the
-     * whole held stack (as much as fits). Shrinks and returns the held stack.
+     * Deposit the whole held stack (as much as fits). Shrinks and returns the held stack.
+     *
+     * <p>Deliberately not crouch-gated: vanilla's {@code ServerPlayerGameMode.useItemOn} skips
+     * {@code Block.useItemOn} entirely when the player is crouching with an item in hand, so a
+     * crouch-to-insert-a-stack variant is unreachable from the block side. The Craw is bulk storage
+     * (single item type, 640 capacity) rather than a precision inserter, so always taking the full
+     * stack is the better default -- a player wanting to deposit less splits the stack first.
+     * Withdrawal is unaffected and still uses crouch, since an empty hand does reach the block.
      */
-    public ItemStack deposit(ItemStack held, boolean wholeStack) {
+    public ItemStack deposit(ItemStack held) {
         if (held.isEmpty()) {
             return held;
         }
-        int amount = wholeStack ? held.getCount() : 1;
+        int amount = held.getCount();
         ItemStack toInsert = held.copyWithCount(amount);
         ItemStack remainder = INVENTORY.insertItem(STORAGE_SLOT, toInsert, false);
         int inserted = amount - remainder.getCount();

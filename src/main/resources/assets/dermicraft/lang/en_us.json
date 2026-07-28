@@ -151,6 +151,9 @@
   "block.dermicraft.mr_farmer": "Mr. Farmer",
   "blockEntity.dermicraft.mr_farmer_be": "Mr. Farmer",
 
+  "block.dermicraft.mr_shepard": "Mr. Shepard",
+  "blockEntity.dermicraft.mr_shepard_be": "Mr. Shepard",
+
   "block.dermicraft.innards_duct": "Innards Duct",
   "block.dermicraft.innards_duct_arm": "Innards Duct Arm",
   "block.dermicraft.innards_duct_end": "Innards Duct End",
@@ -218,6 +221,9 @@
 
   "tooltip.dermicraft.idep.face.craw_storage": "Bulk storage",
 
+  "tooltip.dermicraft.idep.face.mr_farmer": "Fuel tank (+ harvest buffer)",
+  "tooltip.dermicraft.idep.face.mr_shepard": "Fuel tank (+ feed slots and output buffer)",
+
   "block.dermicraft.beaker": "Beaker",
   "item.dermicraft.beaker.filled": "Beaker of %s",
 
@@ -236,6 +242,8 @@
   "tooltip.dermicraft.liquid.amount": "%s mB",
 
   "gui.dermicraft.mr_farmer.range": "Range: %1$sx%1$s",
+  "gui.dermicraft.mr_shepard.range": "Range: %1$sx%1$s",
+  "gui.dermicraft.mr_shepard.cap": "Cap: %s",
   "tooltip.dermicraft.hold_shift_for_amount": "Hold Shift for fluid amount",
 
   "tooltip.dermicraft.gauge.fuel": "Fuel",
@@ -251,6 +259,8 @@
   "tooltip.dermicraft.slot.input_container": "Input Container",
   "tooltip.dermicraft.slot.input_a_container": "Input A Container",
   "tooltip.dermicraft.slot.input_b_container": "Input B Container",
+  "tooltip.dermicraft.slot.animal_feed": "Animal Feed",
+  "tooltip.dermicraft.slot.output_buffer": "Output Buffer",
   "tooltip.dermicraft.slot.ingredient": "Ingredient",
   "tooltip.dermicraft.slot.pattern": "Pattern",
   "tooltip.dermicraft.slot.result": "Result",

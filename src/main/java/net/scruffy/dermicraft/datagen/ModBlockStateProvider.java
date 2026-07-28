@@ -14,6 +14,7 @@ import net.scruffy.dermicraft.block.custom.EffluentcerVisualState;
 import net.scruffy.dermicraft.block.custom.MasticatorBlock;
 import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
 import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
+import net.scruffy.dermicraft.block.custom.MrShepardBlock;
 import net.scruffy.dermicraft.block.custom.MutatorBlock;
 import net.scruffy.dermicraft.block.custom.MutatorVisualState;
 import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
@@ -113,6 +114,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
                 .texture("layer0", modLoc("item/mr_farmer_icon"));
 
+        mrShepardBlockState();
+        itemModels().withExistingParent(ModBlocks.MR_SHEPARD.getId().getPath(),
+                modLoc("block/" + ModBlocks.MR_SHEPARD.getId().getPath()));
+
         ////////////////////Innards Gate\\\\\\\\\\\\\\\\\\\\
         simpleBlockWithItem(ModBlocks.INNARDS_GATE_CONTROLLER.get(), models().cubeAll("innards_gate_controller",
                 modLoc("block/innards_gate/innards_gate_controller")));
@@ -146,6 +151,28 @@ public class ModBlockStateProvider extends BlockStateProvider {
         builder.partialState().with(MrFarmerBlock.FACING, facing).with(MrFarmerBlock.ACTIVE, false)
                 .modelForState().modelFile(off).rotationX(rotX).rotationY(rotY).addModel();
         builder.partialState().with(MrFarmerBlock.FACING, facing).with(MrFarmerBlock.ACTIVE, true)
+                .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
+    }
+
+    // Mirrors mrFarmerBlockState() exactly -- same 6-way facing convention, same on/off swap.
+    private void mrShepardBlockState() {
+        ModelFile off = models().getExistingFile(ModBlocks.MR_SHEPARD.getId());
+        ModelFile on = models().getExistingFile(modLoc("block/mr_shepard_on"));
+        var builder = getVariantBuilder(ModBlocks.MR_SHEPARD.get());
+
+        putShepardVariant(builder, off, on, Direction.UP, 270, 0);
+        putShepardVariant(builder, off, on, Direction.DOWN, 90, 0);
+        putShepardVariant(builder, off, on, Direction.NORTH, 0, 0);
+        putShepardVariant(builder, off, on, Direction.SOUTH, 0, 180);
+        putShepardVariant(builder, off, on, Direction.EAST, 0, 90);
+        putShepardVariant(builder, off, on, Direction.WEST, 0, 270);
+    }
+
+    private void putShepardVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+                                   ModelFile off, ModelFile on, Direction facing, int rotX, int rotY) {
+        builder.partialState().with(MrShepardBlock.FACING, facing).with(MrShepardBlock.ACTIVE, false)
+                .modelForState().modelFile(off).rotationX(rotX).rotationY(rotY).addModel();
+        builder.partialState().with(MrShepardBlock.FACING, facing).with(MrShepardBlock.ACTIVE, true)
                 .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
     }
 
