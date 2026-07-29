@@ -390,6 +390,120 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
+    public static final Supplier<FluidType> MOLTEN_RAW_NETHERITE_SCRAP_FLUID_TYPE = registerFluidType("molten_raw_netherite_scrap_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF3B2E28,
+                    setColorVector(59, 46, 40),
+                    FluidType.Properties.create()
+                            .viscosity(5000)
+                            .density(3200)
+                            .temperature(500)
+                            .motionScale(0.007)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> MOLTEN_NETHERITE_FLUID_TYPE = registerFluidType("molten_netherite_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF5A4A32,
+                    setColorVector(90, 74, 50),
+                    FluidType.Properties.create()
+                            .viscosity(6500)
+                            .density(4000)
+                            .temperature(600)
+                            .motionScale(0.003)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> BLAZE_ESSENCE_FLUID_TYPE = registerFluidType("blaze_essence_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFFFB13D,
+                    setColorVector(255, 177, 61),
+                    FluidType.Properties.create()
+                            .viscosity(5000)
+                            .density(-1400)
+                            .temperature(1600)
+                            .motionScale(0.007)
+                            .lightLevel(9)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> GHAST_ESSENCE_FLUID_TYPE = registerFluidType("ghast_essence_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFEDEDE3,
+                    setColorVector(237, 237, 227),
+                    FluidType.Properties.create()
+                            .viscosity(4500)
+                            .density(-800)
+                            .temperature(900)
+                            .motionScale(0.004)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> WITHER_ESSENCE_FLUID_TYPE = registerFluidType("wither_essence_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF262A22,
+                    setColorVector(38, 42, 34),
+                    FluidType.Properties.create()
+                            .viscosity(5500)
+                            .density(3400)
+                            .temperature(400)
+                            .motionScale(0.003)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> ENDER_ESSENCE_FLUID_TYPE = registerFluidType("ender_essence_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF14A88C,
+                    setColorVector(20, 168, 140),
+                    FluidType.Properties.create()
+                            .viscosity(2000)
+                            .density(3900)
+                            .temperature(200)
+                            .motionScale(0.001)
+                            .lightLevel(4)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> MOLTEN_SOUL_SILICA_FLUID_TYPE = registerFluidType("molten_soul_silica_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF3A2E3A,
+                    setColorVector(58, 46, 58),
+                    FluidType.Properties.create()
+                            .viscosity(5800)
+                            .density(-1000)
+                            .temperature(700)
+                            .motionScale(0.002)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     private static Vector3f setColorVector(float r, float g, float b) {
         return new Vector3f(r/255f, g/255f, b/255f);

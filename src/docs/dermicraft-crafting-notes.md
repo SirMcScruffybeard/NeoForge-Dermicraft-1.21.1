@@ -501,13 +501,21 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Raw Netherite Scrap → Molten Netherite → Living Netherite
 
-**Status:** Chain confirmed, supersedes the earlier direct "Netherite Scrap + Living Gold" draft. Exact yields not yet decided.
+**Status:** Chain confirmed, supersedes the earlier direct "Netherite Scrap + Living Gold" draft. Molten Raw Netherite Scrap and Molten Netherite are both registered and implemented (bucket, block, FluidType, tags, creative tab); Living Netherite is still design-only, deliberately excluded from this registration pass (no Living fluids yet). Exact yields not yet decided.
 
 **What it is:** A three-stage chain giving Netherite a full Molten/Living pipeline, deliberately deeper than the single-step Molten fluids above — fitting Netherite's status as the rarest material in the chain.
 
 **Stage 2 — Molten Raw Netherite Scrap:** Netherite Scrap + Lava, via the Masticator. Base fluid: Lava.
 
+**FluidType (confirmed, implemented):** tint `0xFF3B2E28` — dark ancient-debris brown-black. `viscosity(5000)`, `density(3200)` — plain family baseline; this is the *unrefined* stage, so its own distinct "hardness" identity is deliberately deferred to the Molten Netherite stage rather than front-loaded here (mirrors how Raw vs. Ingot tiers work for the Metal Blends). `temperature(500)` — the coolest fluid in the family so far, well below even Molten Lapis's 900: reflects real vanilla Netherite's signature trait of being immune to fire and lava, so it barely registers the heat it was ostensibly forged in — a different flavor of "runs cool" than Lapis's mysticism (physical stubbornness, not magic). `motionScale(0.007)` — normal, no second trick. No light emission. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only, still inherited from the family-wide rule regardless of the low temperature.
+
 **Stage 2 — Molten Netherite:** Molten Raw Netherite Scrap + **Gold Blend** (Aurous Blend — see Metal Blends above), via the Masticator. Reuses an existing Stage 1 fluid as an ingredient, consistent with the mod's "every ingredient has more than one use" convention.
+
+**FluidType (confirmed, implemented):** tint `0xFF5A4A32` — warm dark bronze-gray, the raw Scrap's dark brown-black warmed and refined by the Gold Blend addition. `viscosity(6500)` and `density(4000)` — **exceed Molten Diamond's 6200/3800**, making this the new thickest/heaviest fluid in the mod; deliberate, since Diamond's own doc entry was phrased "thickest fluid in the mod *so far*" specifically to leave room for this, mirroring vanilla's own Netherite > Diamond hierarchy. `temperature(600)` — still very cool (real Netherite stays fire-immune regardless of refinement), nudged up slightly from the raw Scrap's 500 since Gold Blend is a normal, heat-conductive metal diluting the effect a little. `motionScale(0.003)` — even more inert than Diamond's 0.005, the "resists everything" trait taken further. No light emission. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only — no Mild Radiation yet. Unlike Molten Glowstone (where radioactivity is inherent to the raw material itself), Living Gold's Mild Radiation comes from the Living Metal mechanic, not from gold or netherite being inherently radioactive — that tag only applies once this becomes Living Netherite.
 
 **Stage 3 — Living Netherite:** Molten Netherite + **Living Catalyst** → Living Netherite, via the **Gestator** (same pattern as Living Glowstone above). Requires an evolved Gestator/machine capable of handling Mild Radiation input, consistent with the rest of the Living Metal family. `Hazardous → Radiation → Mild`, inherited the same way Living Gold's classification worked in the earlier draft.
 
@@ -515,7 +523,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Blaze Essence
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield not yet decided. (No "Molten" prefix — see naming split above.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (No "Molten" prefix — see naming split above.)
 
 **What it is:** Blaze Rod/Powder processed with Lava — a creature-drop "Essence," not a literal melt. Confirmed use as one of Living Catalyst's three fluid inputs (see `dermicraft-catalyst-notes.md`).
 
@@ -523,23 +531,35 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Item inputs & yield:** Presumably Blaze Rod and/or Blaze Powder. Not yet decided.
 
+**Texture — uses the thin fluid texture**, not the family's usual chunky Blend look — a Blaze isn't a liquefied mineral the way the rest of the Molten family is, so it reads more like Primitive Catalyst/F-Stuff/C-Stuff than like Molten Redstone.
+
+**FluidType (confirmed, implemented):** tint `0xFFFFB13D` — vivid golden-orange, Blaze Powder's own color, distinct from Molten Redstone's firebrick red. `viscosity(5000)` — family baseline; thickness isn't this fluid's identity. `density(-1400)` — **negative**, flows upward. The mod's first fluid to actually implement this property in code (Living Glowstone's own doc entry calls it out as the intended "first," but that fluid isn't built yet — design intent doesn't bind implementation order). Reflects a Blaze's flight/floating nature directly rather than just being unusually light. `temperature(1600)` — the hottest fluid in the mod so far, even above Molten Redstone's 1450: Redstone runs hot because it converts energy into heat rather than dissipating it, Blaze Essence runs hot because it's rendered from a literal fire elemental — same "hotter than Lava" outcome, different justification. `motionScale(0.007)` — normal, no third trick stacked on top of density and temperature. `lightLevel(9)` — brighter than Redstone's 8, flame reads as glowing. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only, per the family-wide rule.
+
 **Open questions:** Exact item inputs and yields.
 
 ### Ghast Essence
 
-**Status:** Confirmed as a Stage 2 fluid; item input/yield and use case not yet decided. (No "Molten" prefix — see naming split above.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (No "Molten" prefix — see naming split above.)
 
-**What it is:** Ghast Tear processed with Lava — a creature-drop "Essence," matching Blaze Essence's naming and role.
+**What it is:** Ghast Tear processed with Lava — a creature-drop "Essence," matching Blaze Essence's naming and role, but deliberately opposite in character: a Ghast isn't a fire elemental, it's a sorrowful, passively-drifting creature (the crying sound is iconic), so its fluid identity leans "sad/cold drift" rather than Blaze's "energetic fire."
 
 **Base fluid:** Lava.
 
 **Item inputs & yield:** Presumably Ghast Tear. Not yet decided.
 
+**Texture — uses the thin fluid texture**, same call as Blaze Essence.
+
+**FluidType (confirmed, implemented):** tint `0xFFEDEDE3` — Ghast Tear's own pale ivory-white, clearly distinct from Blaze's vivid orange. `viscosity(4500)` — a touch thinner than family baseline, tear-like rather than a rod-forged essence. `density(-800)` — negative, flows upward like Blaze Essence, but a smaller magnitude than Blaze's `-1400`: a slow, passive drift rather than active flight. `temperature(900)` — cooler than baseline, matching the "tears" identity rather than Blaze's literal fire. `motionScale(0.004)` — sluggish, drifting, doesn't respond much to disturbance (same number as Molten Amethyst's calming trick, but justified differently: passive drift vs. deliberate sobering). No light emission, unlike Blaze's glow. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only.
+
 **Open questions:** Exact item inputs and yields. What it's actually used for — no confirmed recipe consumes it yet.
 
 ### Wither Essence
 
-**Status:** Source confirmed; item input/yield and use case not yet decided. (No "Molten" prefix — see naming split above.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (No "Molten" prefix — see naming split above.)
 
 **What it is:** Sourced from **Wither Skeletons** (not the Wither boss itself) — deliberately pitched at Nether-fortress difficulty, not boss-fight difficulty. A separate, later, harder-tier fluid (tentatively **Liquid Nether Star**) is reserved as the actual Wither-boss-tier counterpart, keeping the two power levels distinct rather than collapsing them into one fluid.
 
@@ -547,11 +567,17 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Item inputs & yield:** Presumably Wither Skeleton Skull and/or Bone/Coal drops. Not yet decided.
 
-**Open questions:** Exact item input(s) and yields. What it's used for. Liquid Nether Star remains fully undefined beyond being reserved as a name/concept.
+**Texture — uses the thin fluid texture**, matching the rest of the Essence sub-family (Blaze, Ghast).
+
+**FluidType (confirmed, implemented):** tint `0xFF262A22` — near-black with a sickly dark-green undertone, matching the Wither status effect's own icon color. `viscosity(5500)` — thicker than baseline, a heavy, dreadful presence. `density(3400)` — **positive**, breaking from Blaze/Ghast's negative density: Wither Skeletons don't fly, so this fluid stays grounded rather than drifting/floating. `temperature(400)` — the coldest fluid in the mod so far, even below Molten Netherite's coolest stage (Molten Raw Netherite Scrap's 500), a deathly chill. `motionScale(0.003)` — very low, oppressive and draining, echoing how the real Wither status effect weakens the player. No light emission — the opposite of Blaze's life-associated glow. `canHydrate(false)`.
+
+**Hazard tag:** `hazard/extreme_heat` only. Wither's real decay/curse identity was checked against Radiation and Biohazard's existing framing and didn't cleanly map to either, so no second tag was forced — left open rather than assigned speculatively.
+
+**Open questions:** Exact item input(s) and yields. What it's used for. Liquid Nether Star remains fully undefined beyond being reserved as a name/concept. Whether a second hazard tag ever fits.
 
 ### Ender Essence
 
-**Status:** Source, naming, placement, and hazard classification confirmed; item input/yield and use case not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet for the fluid itself, though a downstream Eyes of Ender recipe consuming it already exists (see below). Item input/yield not yet decided.
 
 **What it is:** Ender Pearl processed with Lava — a creature-drop "Essence" (see naming split above), sourced from Endermen. **Placement note:** Endermen spawn in both the Nether and the Overworld, so despite Ender Pearl's End association, gathering it doesn't actually require Stage 3/End access — this is why Ender Essence sits here in Stage 2, earlier than the rest of the mod's End-tier content (deferred elsewhere — see the Sediment Blend blacklist's "End rocks deferred to a later Stage" note), on the strength of *when the player can acquire the material* rather than its thematic dimension.
 
@@ -559,17 +585,19 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Item inputs & yield:** Presumably Ender Pearl. Not yet decided.
 
-**Color:** Intended to read as a liquefied Ender Pearl — leaning on the pearl's own color rather than a generic Lava-derived tint. Exact value not yet decided.
+**Texture — uses the thin fluid texture**, matching the low viscosity below and the rest of the Essence sub-family.
+
+**FluidType (confirmed, implemented) — deliberately alien via physical contradiction, not just extreme values:** tint `0xFF14A88C` — a deep, saturated teal-green matching Ender Pearl's own color directly (leaned on the pearl's actual color per explicit request, not a generic Lava-derived or End-void tint), clearly distinct from Molten Diamond's paler icy cyan (`0xFF6FCFC4`). `viscosity(2000)` — surprisingly *thin* for a Lava-based fluid, well below the family's usual ~5000, contradicting the "molten = thick" rule every other Molten/Essence fluid follows. `density(3900)` — very heavy (just under Molten Netherite's 4000, deliberately not exceeding it — that superlative was earned by vanilla's own Netherite > Diamond hierarchy, Ender doesn't need to unseat it to feel alien). The first contradiction: something this heavy shouldn't flow this easily. `temperature(200)` — the coldest fluid in the mod by a wide margin (Wither Essence was 400), void-cold despite being Lava-forged. `motionScale(0.001)` — barely responds to movement at all, a second contradiction stacked on the first: low viscosity should mean *more* responsiveness, not less — reads as space itself being broken near it. `lightLevel(4)` — a faint, eerie glow (Enderman eyes), nowhere near Blaze Essence's warm brightness. `canHydrate(false)`.
 
 **Hazard tags (confirmed):** `hazard/metaphysical_severe` + `hazard/extreme_heat` (the latter inherited from the family-wide Lava-base rule above). Metaphysical Severe fits thematically — its signature effects (hallucination-made-real, or a telegraphed instant dimensional round-trip — see `dermicraft-hazard-effects-notes.md`) mirror Enderman/End teleportation almost exactly. Second confirmed use of the Metaphysical tag family (after Molten Soul Silica's Metaphysical Mild), and the first confirmed use of the Severe half — another dual-hazard-axis fluid, same shape as Molten Soul Silica.
 
 **Recipe use — first confirmed consumer (new):** **Blaze Powder + Ender Essence → 2 Eyes of Ender**, via the Mutator (see `dermicraft-machine-notes.md` → Mutator) — a reagent-mapping of vanilla's Eye recipe (the pearl becomes its fluid form, the blaze component stays physical), at double vanilla's per-powder yield (machine-efficiency payoff). Thematically exact: the fluid whose hazard is justified by Enderman-teleport imagery now makes the teleport-tracking item. **Gating resolved by the Metaphysical Mind Rule** (see `dermicraft-hazard-effects-notes.md` → Metaphysical vs. machines): Metaphysical hazard only affects things with minds, and the Mutator is a dumb (Brain-free) machine — so only Ender Essence's Extreme Heat tag gates, requiring a **Tier 2 Mutator**. The recipe lands at **Stage 2**. Ghast Essence remains the one with no consumer.
 
-**Open questions:** Exact item inputs and yield. Exact color value. (The old "what machine capability handles Metaphysical Severe" question is resolved for *dumb machines* by the Mind Rule — smart structures' protection mechanic remains open, tracked in `dermicraft-hazard-effects-notes.md`.)
+**Open questions:** Exact item inputs and yield. (The old "what machine capability handles Metaphysical Severe" question is resolved for *dumb machines* by the Mind Rule — smart structures' protection mechanic remains open, tracked in `dermicraft-hazard-effects-notes.md`.)
 
 ### Molten Soul Silica
 
-**Status:** Confirmed as a Stage 2 fluid, standalone (not part of the Sediment Blend cross-feed web); item input/yield not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. Standalone (not part of the Sediment Blend cross-feed web); item input/yield not yet decided.
 
 **What it is:** Soul Sand in fluid form — the Stage 2/lava-based parallel to Stage 1's Silica Blend (Sand + Water), giving the Nether's sand variant its own liquid identity. Deliberately **does not** cross-feed with Stone/Silica/Clay Blend — Soul Sand is treated as a different nature of material despite vanilla's shared sand tag, not a fourth member of that web.
 
@@ -580,6 +608,8 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 **Possible future hook — Silica Blend conversion:** A possible (not committed) future recipe converting Silica Blend directly into Molten Soul Silica, Create-mod-style, has been floated — no mechanic or machine decided yet.
 
 **Possible future hook — gameplay-effect carryover:** Soul Sand's real block effects (mob-spawn suppression, entity slow) could carry over as a pooled-fluid property, echoing how Stone/Clay/Silica Blend each model a real trapping hazard. Not committed. (Separate from the hazard-*tag* below — this is about mimicking the block's actual gameplay behavior, not the `hazard/*` tag system.)
+
+**FluidType (confirmed, implemented) — cites two real vanilla Soul Sand mechanics directly rather than a metaphor:** tint `0xFF3A2E3A` — Soul Sand's own dark muddy purple-brown, leaning "soul"/haunted rather than a plain mineral tone. `viscosity(5800)` — thick, near Lava's own weight, citing Soul Sand's real slowing effect on anything walking across it. `density(-1000)` — negative, flows upward, directly citing Soul Sand's real vanilla bubble-column mechanic (pushes entities/items up, the opposite of Magma Block's downward pull) — a more literal justification than Blaze/Ghast Essence's "flight" reasoning. `temperature(700)` — cooler than baseline, a haunting chill despite being Lava-forged, leaning into the "soul" identity. `motionScale(0.002)` — very low, reinforcing the same slowing effect as the high viscosity rather than working against it. No light emission — stays dark/ominous. Uses the chunky fluid texture, mineral-parallel to Stage 1's Silica Blend. `canHydrate(false)`.
 
 **Hazard tag — Metaphysical Mild (confirmed, new, distinct from the gameplay-effect hook above).** Molten Soul Silica carries **Metaphysical Mild** (`hazard/metaphysical_mild`) — the first confirmed use of the Metaphysical hazard tag, which had otherwise been added speculatively with no assigned content. Also carries **Extreme Heat** per the family-wide Lava-base rule above, so Molten Soul Silica is hazardous on two independent axes at once — a real test case for the set-based `HazardProfile` model (see `dermicraft-project-primer.md` → Hazard tag hierarchy implementation note) rather than a single-tag fluid.
 

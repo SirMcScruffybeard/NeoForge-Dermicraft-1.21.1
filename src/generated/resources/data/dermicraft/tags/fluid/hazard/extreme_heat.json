@@ -7,6 +7,13 @@
     "dermicraft:source_molten_amethyst",
     "dermicraft:source_molten_diamond",
     "dermicraft:source_molten_obsidian",
-    "dermicraft:source_molten_lapis"
+    "dermicraft:source_molten_lapis",
+    "dermicraft:source_molten_raw_netherite_scrap",
+    "dermicraft:source_molten_netherite",
+    "dermicraft:source_blaze_essence",
+    "dermicraft:source_ghast_essence",
+    "dermicraft:source_wither_essence",
+    "dermicraft:source_ender_essence",
+    "dermicraft:source_molten_soul_silica"
   ]
 }

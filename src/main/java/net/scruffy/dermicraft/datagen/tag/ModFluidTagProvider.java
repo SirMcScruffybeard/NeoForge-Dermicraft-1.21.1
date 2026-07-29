@@ -44,6 +44,13 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_MOLTEN_DIAMOND.get())
                 .add(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get())
                 .add(ModFluids.SOURCE_MOLTEN_LAPIS.get())
+                .add(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get())
+                .add(ModFluids.SOURCE_MOLTEN_NETHERITE.get())
+                .add(ModFluids.SOURCE_BLAZE_ESSENCE.get())
+                .add(ModFluids.SOURCE_GHAST_ESSENCE.get())
+                .add(ModFluids.SOURCE_WITHER_ESSENCE.get())
+                .add(ModFluids.SOURCE_ENDER_ESSENCE.get())
+                .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
         ;
 
         tag(ModTags.Fluids.RADIATION_MILD)
@@ -57,9 +64,11 @@ public class ModFluidTagProvider extends FluidTagsProvider {
         ;
 
         tag(ModTags.Fluids.METAPHYSICAL_MILD)
+                .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
         ;
 
         tag(ModTags.Fluids.METAPHYSICAL_SEVERE)
+                .add(ModFluids.SOURCE_ENDER_ESSENCE.get())
         ;
 
         // Union of every hazard kind above.
@@ -97,6 +106,9 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_MOLTEN_DIAMOND.get())
                 .add(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get())
                 .add(ModFluids.SOURCE_MOLTEN_LAPIS.get())
+                .add(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get())
+                .add(ModFluids.SOURCE_MOLTEN_NETHERITE.get())
+                .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
         ;
 
         tag(ModTags.Fluids.THIN)

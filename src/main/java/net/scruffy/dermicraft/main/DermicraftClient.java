@@ -83,6 +83,13 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_DIAMOND.get(), ModFluids.FLOWING_MOLTEN_DIAMOND.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get(), ModFluids.FLOWING_MOLTEN_OBSIDIAN.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_LAPIS.get(), ModFluids.FLOWING_MOLTEN_LAPIS.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), ModFluids.FLOWING_MOLTEN_RAW_NETHERITE_SCRAP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_NETHERITE.get(), ModFluids.FLOWING_MOLTEN_NETHERITE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_BLAZE_ESSENCE.get(), ModFluids.FLOWING_BLAZE_ESSENCE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_GHAST_ESSENCE.get(), ModFluids.FLOWING_GHAST_ESSENCE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_WITHER_ESSENCE.get(), ModFluids.FLOWING_WITHER_ESSENCE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_ENDER_ESSENCE.get(), ModFluids.FLOWING_ENDER_ESSENCE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), ModFluids.FLOWING_MOLTEN_SOUL_SILICA.get());
         });
     }
 
@@ -117,6 +124,13 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_OBSIDIAN_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_RAW_NETHERITE_SCRAP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_NETHERITE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.BLAZE_ESSENCE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.GHAST_ESSENCE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.WITHER_ESSENCE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.ENDER_ESSENCE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_SOUL_SILICA_FLUID_TYPE.get());
 
         event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
             private final net.scruffy.dermicraft.item.custom.SippingItemRenderer renderer =
