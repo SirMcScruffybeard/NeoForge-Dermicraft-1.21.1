@@ -615,6 +615,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_muscle_tumor", ModItems.DENSE_MUSCLE.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, ModBlocks.MUSCLE_TUMOR.asItem(), solidTicks);
 
+        // Stitched Tumor - Mutator route: Marred Tumor + Protein Blend, priced at String's own
+        // Metastasizer cost (100 mB, see metastasizing_string above) since it's the "stitching it back
+        // together" step -- same fleshy-fix-up cost as a single strand of thread.
+        RecipeBuilders.mutate(recipeOutput, "mutating_stitched_tumor", ModBlocks.MARRED_TUMOR.get(),
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 100, ModBlocks.STITCHED_TUMOR.asItem(), lightTicks);
+
         // Flesh Lab Floor - Mutator route: structural block + 2000 mB Protein Blend -> the matching
         // Lab Floor variant. Same structural-block-defines-the-variant pattern as the crafting-table
         // recipes, priced at 2x the tumors' flat 1000 mB since it's producing infrastructure, not a print.
@@ -694,6 +700,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_terracotta", Items.TERRACOTTA, ModFluids.SOURCE_CLAY_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobweb", Items.COBWEB, ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_leather", Items.LEATHER, ModFluids.SOURCE_PROTEIN_BLEND.get(), 900, solidTicks);
+
+        // Wool and String - both animal-product duplication, Protein Blend. Revised down from the
+        // initial Leather-tier/Nugget-tier pricing (900/110) to 400/100 -- still solid/light tier
+        // timing, just cheaper mB, since both read as too pricey relative to how trivial they are to
+        // farm in vanilla.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_wool", Items.WHITE_WOOL, ModFluids.SOURCE_PROTEIN_BLEND.get(), 400, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_string", Items.STRING, ModFluids.SOURCE_PROTEIN_BLEND.get(), 100, lightTicks);
 
         // Dyed glass family - Metastasizer half. Duplication is keyed by the pattern item itself (the
         // specific-colored block/pane), so there's no {ingredient, fluid} collision the way the
