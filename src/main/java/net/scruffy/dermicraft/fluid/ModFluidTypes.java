@@ -472,8 +472,8 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> ENDER_ESSENCE_FLUID_TYPE = registerFluidType("ender_essence_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF14A88C,
-                    setColorVector(20, 168, 140),
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF0F7A63,
+                    setColorVector(15, 122, 99),
                     FluidType.Properties.create()
                             .viscosity(2000)
                             .density(3900)
