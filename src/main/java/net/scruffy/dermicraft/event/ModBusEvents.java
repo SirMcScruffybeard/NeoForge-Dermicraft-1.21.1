@@ -153,6 +153,13 @@ public class ModBusEvents {
                     ? new IHaveFluidData.DisposalFluidHandler(stack, HazardProfile.TIER_1)
                     : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, HazardProfile.TIER_1);
         }, ModItems.SIPPING.get());
+
+        // E.A.T.E.R.: 4-slot bulk item buffer, no filter -- base tier accepts anything it vacuums.
+        event.registerItem(Capabilities.ItemHandler.ITEM,
+                (stack, context) -> new net.scruffy.dermicraft.interfaces.IHaveItemData.BulkItemHandler(
+                        stack, net.scruffy.dermicraft.item.custom.EaterItem.SLOT_COUNT,
+                        net.scruffy.dermicraft.item.custom.EaterItem.SLOT_CAPACITY),
+                ModItems.EATER.get());
     }
 
     /** All Gate Buffers directly touching {@code portPos}, in {@link Direction#values()} order. */

@@ -10,6 +10,24 @@ Each gadget's official name follows an acronym + suffix pattern (`[ACRONYM].Gadg
 
 **Simplified discussion names:** Because the acronym names are tedious to type repeatedly, simplified shorthand names will be used in conversation going forward. The acronym names above remain the canonical/real names for documentation purposes — this doc tracks entries under the real names regardless of what shorthand gets used in a given session. Confirmed so far: D.R.I.N.K.E.Rig = "Drinker," S.I.P.P.I.N.Gadget = "Sipper." Eater, Lobber, and Grapple (G.R.A.P.P.L.E) are also confirmed acronyms (full expansions still pending); Chainsword, Drill Hammer, and Capture Net Gun are discussion shorthand only, not yet confirmed as acronyms.
 
+## Shared infrastructure
+
+### Bulk item storage (`IHaveItemData` / `BulkItemData` / `BulkSlot`)
+
+**Status:** Built 2026-07-29. Groundwork only — not yet wired to any gadget (Eater's item doesn't exist yet).
+
+**What it is:** The item-side twin of `IHaveFluidData`, for gadgets that carry a multi-slot bulk item buffer inside their own held `ItemStack`. Built while planning Eater's internal item buffer, once it became clear Eater and the not-yet-built **Portable Mass Storage** gadget (see `portable-mass-storage-gadget-notes.md`) would both need this and should share one implementation rather than diverge.
+
+**Why not vanilla's `DataComponents.CONTAINER`:** vanilla's container component (used by Bundles/Shulker Box items) validates every stack through the standard `ItemStack` codec, which caps count at 99 and crashes with `IllegalStateException` on save above that. Portable Mass Storage's per-slot stack multiplier (2–5× a normal stack, scaling with upgrades) can exceed 99, so vanilla's component can't back it — same problem Craw (`CrawBlockEntity`) already hit and fixed for block-entity storage.
+
+**The fix, applied to a held item instead of a block entity:** `BulkSlot` keeps an item's identity as a count-1 template (component data and all) plus the real count tracked separately as a plain int, exactly like Craw's pattern. `BulkItemData` is a fixed-size (resizable via `withSize`, for tier upgrades) list of `BulkSlot`s, registered as the `BULK_ITEM_DATA` data component. `IHaveItemData.BulkItemHandler` wraps that into a normal `IItemHandlerModifiable`, parameterized by slot count, per-slot capacity, and an optional filter predicate.
+
+**Decision — single shared backing for both consumers, not two:** Eater's slots (small, fixed at 4, never expected to exceed a normal stack) could have used plain vanilla container storage instead. Went with the bulk-capable store for both anyway: it costs Eater nothing at small numbers, future-proofs it if a later tier ever scales capacity past 99 (avoiding a breaking migration), and keeps one handler implementation to trust rather than two parallel ones drifting apart — consistent with the mod's existing preference for shared bases across tiers/families.
+
+**Not yet decided by this groundwork:** how a "disposal slot" (Portable Mass Storage's void-on-insert feature) is expressed — no dedicated Disposal handler class was built here, since items have no mod-wide hazard-profile concept to gate against the way fluids do; left to whichever gadget needs it (a filter that always rejects, paired with the gadget discarding on insert, or something else) rather than baked into the shared interface.
+
+**Open questions:** Whether Portable Mass Storage's filter-per-slot and disposal-slot features end up needing anything beyond what `BulkItemHandler`'s constructor already exposes (capacity, filter). Whether Eater's eventual registration wants a plain `BulkItemHandler` or needs its own thin subclass for any Eater-specific insert behavior (e.g. interaction with its Storage/Transfer/Disposal modes).
+
 ## Known gadgets
 
 ### D.R.I.N.K.E.Rig ("Drinker")
@@ -83,7 +101,7 @@ Each gadget's official name follows an acronym + suffix pattern (`[ACRONYM].Gadg
 
 **Base-tier mechanic (confirmed, mirrors Drinker's shape):**
 - **Activation:** hold right-click (same held-trigger identity as Drinker), not passive-while-held.
-- **Pickup shape:** flat 4-block radius around the player, not a directional cone — the cone shape from the doc's original AoE description is reserved for the later block/ore tiers, since dropped items aren't directional the way ore veins are.
+- **Pickup shape:** 4-block range, narrowed to a forward cone (60° half-angle from the player's look vector, so 120° total) rather than a full 360° sphere. Originally built as a flat radius on the reasoning that dropped items aren't directional the way ore veins are (see the later block/ore tiers' own cone below), but in-game testing showed the full sphere felt untargeted — it picked up items well outside where the player was actually aiming. Distinct from the block/ore tiers' cone, which also widens/grows with distance; this one doesn't.
 - **Modes:** all three of Drinker's — Storage, Transfer, Disposal — full family parity.
 - **Internal buffer:** 4-slot `ItemStackHandler`, not a single slot. Reasoning: a fluid buffer is "one fluid, variable quantity" so Drinker's single tank works, but a dropped-item pile is usually mixed (e.g. a skeleton's bones/arrows/string/gunpowder) — a single slot would jam on the first item type touched and ignore the rest of the same pile. 4 slots handles a realistic mixed pile without becoming a real storage system.
 - **HP:** 10, matching Drinker — no stated reason yet for Eater to be tougher or more fragile.

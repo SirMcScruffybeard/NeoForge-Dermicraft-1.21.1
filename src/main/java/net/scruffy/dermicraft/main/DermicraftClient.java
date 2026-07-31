@@ -146,6 +146,10 @@ public class DermicraftClient {
         // transform to stay still while siphoning. See DrinkerClientExtensions.
         event.registerItem(new net.scruffy.dermicraft.item.custom.DrinkerClientExtensions(),
                 net.scruffy.dermicraft.item.ModItems.DRINKER.get());
+
+        // Same steady-hand shape as DRINKER -- see EaterClientExtensions.
+        event.registerItem(new net.scruffy.dermicraft.item.custom.EaterClientExtensions(),
+                net.scruffy.dermicraft.item.ModItems.EATER.get());
     }
 
     @SubscribeEvent

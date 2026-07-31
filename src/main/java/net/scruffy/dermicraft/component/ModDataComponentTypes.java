@@ -51,6 +51,28 @@ public class ModDataComponentTypes {
                     .persistent(SippingModeData.CODEC)
                     .networkSynchronized(SippingModeData.STREAM_CODEC));
 
+    /** Backing store for {@code IHaveItemData}'s bulk item handlers -- see {@link BulkItemData}
+     * for why this exists instead of vanilla's {@code DataComponents.CONTAINER}. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulkItemData>> BULK_ITEM_DATA =
+            register("bulk_item_data", builder -> builder
+                    .persistent(BulkItemData.CODEC)
+                    .networkSynchronized(BulkItemData.STREAM_CODEC));
+
+    /** Eater's mode state -- same shape as D.R.I.N.K.E.R.'s, registered separately so a mode set on
+     * one item is never confused with the other's. Reuses {@link DrinkerModeData}'s codecs rather
+     * than a duplicate record; the Storage/Transfer/Disposal cycle-step shape is identical. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<DrinkerModeData>> EATER_MODE_DATA =
+            register("eater_mode_data", builder -> builder
+                    .persistent(DrinkerModeData.CODEC)
+                    .networkSynchronized(DrinkerModeData.STREAM_CODEC));
+
+    /** Whether Eater is currently held-down/vacuuming -- same role as {@link #DRINKER_SIPHONING},
+     * derived server-side each tick and synced for the client's animation controller. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> EATER_VACUUMING =
+            register("eater_vacuuming", builder -> builder
+                    .persistent(com.mojang.serialization.Codec.BOOL)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
+
 
 
 

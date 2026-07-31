@@ -33,6 +33,9 @@ public class ModItems {
     // Durability is gadget HP, not wear -- see IGadget.
     public static final DeferredItem<Item> DRINKER = ITEMS.register("drinker", () -> new DrinkerItem(new Item.Properties().durability(DrinkerItem.MAX_HP)));
 
+    // Durability is gadget HP, not wear -- see IGadget. Base tier only, see EaterItem's class javadoc.
+    public static final DeferredItem<Item> EATER = ITEMS.register("eater", () -> new EaterItem(new Item.Properties().durability(EaterItem.MAX_HP)));
+
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
             () -> new PartItem(new Item.Properties().food(ModFoodProperties.EYE)));
