@@ -106,8 +106,11 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
         }
     }
 
-    // A plain empty-hand click (or any click that doesn't hit a fluid handler) always falls through
-    // to useWithoutItem (the GUI). Mirrors MutatorBlock/MasticatorBlock's interaction shape.
+    // Only a plain empty-hand click falls through to useWithoutItem (the GUI). Vanilla opens the
+    // GUI on ANY PASS_TO_DEFAULT_BLOCK_INTERACTION result regardless of held item (it doesn't check
+    // for an empty hand), so holding a non-fluid item must still return SUCCESS here -- otherwise a
+    // failed fluid interaction (e.g. holding cobblestone, or a bucket with nothing to transfer)
+    // would fall through and pop the GUI open. Mirrors MasticatorBlock's interaction shape.
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
@@ -116,15 +119,18 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
+        if (stack.isEmpty()) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
         Direction face = hitResult.getDirection();
 
         if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, face)) {
             effluentcer.setChanged();
             effluentcer.updateBlock();
-            return ItemInteractionResult.SUCCESS;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return ItemInteractionResult.SUCCESS;
     }
 
     // Opens the GUI directly on any click useItemOn didn't claim -- no Outerface required. The

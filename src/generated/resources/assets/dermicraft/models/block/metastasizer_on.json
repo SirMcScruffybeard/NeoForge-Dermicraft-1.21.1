@@ -3,8 +3,8 @@
   "textures": {
     "down": "dermicraft:block/skin_tank_end",
     "east": "dermicraft:block/metastasizer/metastasizer_side",
-    "north": "dermicraft:block/metastasizer/metastasizer_face",
-    "particle": "dermicraft:block/metastasizer/metastasizer_face",
+    "north": "dermicraft:block/metastasizer/metastasizer_face_on",
+    "particle": "dermicraft:block/metastasizer/metastasizer_face_on",
     "south": "dermicraft:block/metastasizer/metastasizer_side",
     "up": "dermicraft:block/skin_tank_end",
     "west": "dermicraft:block/metastasizer/metastasizer_side"

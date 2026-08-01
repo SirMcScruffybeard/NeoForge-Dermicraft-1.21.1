@@ -13,6 +13,8 @@ import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
 import net.scruffy.dermicraft.block.custom.EffluentcerVisualState;
 import net.scruffy.dermicraft.block.custom.MasticatorBlock;
 import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
+import net.scruffy.dermicraft.block.custom.MetastasizerBlock;
+import net.scruffy.dermicraft.block.custom.MetastasizerVisualState;
 import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
 import net.scruffy.dermicraft.block.custom.MrShepardBlock;
 import net.scruffy.dermicraft.block.custom.MutatorBlock;
@@ -64,15 +66,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
                 modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
 
-        horizontalBlock(ModBlocks.METASTASIZER.get(), models().cube(
-                ModBlocks.METASTASIZER.getId().getPath(),
-                modLoc(skinTankEnd),
-                modLoc(skinTankEnd),
-                modLoc("block/metastasizer_front"),
-                modLoc("block/metastasizer_side"),
-                modLoc("block/metastasizer_side"),
-                modLoc("block/metastasizer_side"))
-                .texture("particle", modLoc("block/metastasizer_front")));
+        metastasizerBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.METASTASIZER.getId().getPath(),
                 modLoc("block/" + ModBlocks.METASTASIZER.getId().getPath()));
 
@@ -182,17 +176,17 @@ public class ModBlockStateProvider extends BlockStateProvider {
     // itself would generate): North=identity, East=90, South=180, West=270.
     private void mutatorBlockState(String skinTankEnd) {
         ModelFile idle = models().cube(ModBlocks.MUTATOR.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator/mutator_face"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/mutator_face"));
+                .texture("particle", modLoc("block/mutator/mutator_face"));
         ModelFile running = models().cube("mutator_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator/mutator_face_on"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/mutator_face_on"));
+                .texture("particle", modLoc("block/mutator/mutator_face_on"));
         ModelFile recovering = models().cube("mutator_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator_face_error"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator/mutator_face_error"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/mutator_face_error"));
+                .texture("particle", modLoc("block/mutator/mutator_face_error"));
 
         var builder = getVariantBuilder(ModBlocks.MUTATOR.get());
         putMutatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
@@ -215,13 +209,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
     // -- so no "recovering" state) using a plain BooleanProperty ACTIVE, same idiom as Mr. Farmer's.
     private void renderFurnaceBlockState(String skinTankEnd) {
         ModelFile off = models().cube(ModBlocks.RENDER_FURNACE.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_furnace_face"));
+                .texture("particle", modLoc("block/render_furnace/render_furnace_face"));
         ModelFile on = models().cube("render_furnace_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face_on"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_furnace_face_on"));
+                .texture("particle", modLoc("block/render_furnace/render_furnace_face_on"));
 
         var builder = getVariantBuilder(ModBlocks.RENDER_FURNACE.get());
         putRenderFurnaceVariant(builder, off, on, Direction.NORTH, 0);
@@ -243,17 +237,17 @@ public class ModBlockStateProvider extends BlockStateProvider {
     // every other face in all three.
     private void renderKilnBlockState(String skinTankEnd) {
         ModelFile idle = models().cube(ModBlocks.RENDER_KILN.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln/render_kiln_face"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_kiln_face"));
+                .texture("particle", modLoc("block/render_kiln/render_kiln_face"));
         ModelFile running = models().cube("render_kiln_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln/render_kiln_face_on"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_kiln_face_on"));
+                .texture("particle", modLoc("block/render_kiln/render_kiln_face_on"));
         ModelFile recovering = models().cube("render_kiln_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln_face_error"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln/render_kiln_face_error"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_kiln_face_error"));
+                .texture("particle", modLoc("block/render_kiln/render_kiln_face_error"));
 
         var builder = getVariantBuilder(ModBlocks.RENDER_KILN.get());
         putRenderKilnVariant(builder, idle, running, recovering, Direction.NORTH, 0);
@@ -278,17 +272,17 @@ public class ModBlockStateProvider extends BlockStateProvider {
     // .png.mcmeta) so the RUNNING model visibly pulses while the machine is actively crafting.
     private void masticatorBlockState(String skinTankEnd) {
         ModelFile idle = models().cube(ModBlocks.MASTICATOR.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator_face"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator/masticator_face"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/masticator_face"));
+                .texture("particle", modLoc("block/masticator/masticator_face"));
         ModelFile running = models().cube("masticator_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator_face_on"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator/masticator_face_on"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/masticator_face_on"));
+                .texture("particle", modLoc("block/masticator/masticator_face_on"));
         ModelFile recovering = models().cube("masticator_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator_face_error"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator/masticator_face_error"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/masticator_face_error"));
+                .texture("particle", modLoc("block/masticator/masticator_face_error"));
 
         var builder = getVariantBuilder(ModBlocks.MASTICATOR.get());
         putMasticatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
@@ -313,17 +307,17 @@ public class ModBlockStateProvider extends BlockStateProvider {
     // top/bottom in all three.
     private void effluentcerBlockState(String skinTankEnd) {
         ModelFile idle = models().cube(ModBlocks.EFFLUENTCER.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer_face"),
-                        modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"))
-                .texture("particle", modLoc("block/effluentcer_face"));
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer/effluentcer_face"),
+                        modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"))
+                .texture("particle", modLoc("block/effluentcer/effluentcer_face"));
         ModelFile running = models().cube("effluentcer_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer_face_on"),
-                        modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"))
-                .texture("particle", modLoc("block/effluentcer_face_on"));
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer/effluentcer_face_on"),
+                        modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"))
+                .texture("particle", modLoc("block/effluentcer/effluentcer_face_on"));
         ModelFile recovering = models().cube("effluentcer_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer_face_error"),
-                        modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"), modLoc("block/effluentcer_side"))
-                .texture("particle", modLoc("block/effluentcer_face_error"));
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer/effluentcer_face_error"),
+                        modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"))
+                .texture("particle", modLoc("block/effluentcer/effluentcer_face_error"));
 
         var builder = getVariantBuilder(ModBlocks.EFFLUENTCER.get());
         putEffluentcerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
@@ -339,6 +333,41 @@ public class ModBlockStateProvider extends BlockStateProvider {
         builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RECOVERING)
+                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+    // Mirrors effluentcerBlockState/masticatorBlockState -- 4 horizontal facings x 3
+    // MetastasizerVisualState values, only the front (north-authored) face texture differs between
+    // the three models; metastasizer_side covers the other 3 horizontal faces and skinTankEnd
+    // covers top/bottom in all three.
+    private void metastasizerBlockState(String skinTankEnd) {
+        ModelFile idle = models().cube(ModBlocks.METASTASIZER.getId().getPath(),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/metastasizer/metastasizer_face"),
+                        modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"))
+                .texture("particle", modLoc("block/metastasizer/metastasizer_face"));
+        ModelFile running = models().cube("metastasizer_on",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/metastasizer/metastasizer_face_on"),
+                        modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"))
+                .texture("particle", modLoc("block/metastasizer/metastasizer_face_on"));
+        ModelFile recovering = models().cube("metastasizer_error",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/metastasizer/metastasizer_face_error"),
+                        modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"))
+                .texture("particle", modLoc("block/metastasizer/metastasizer_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.METASTASIZER.get());
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
+    private void putMetastasizerVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.RECOVERING)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 

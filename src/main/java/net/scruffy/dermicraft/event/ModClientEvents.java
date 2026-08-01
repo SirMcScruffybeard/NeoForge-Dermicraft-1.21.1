@@ -59,9 +59,7 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.MOLTEN_QUARTZ_BUCKET.get(), ModFluidTypes.MOLTEN_QUARTZ_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_GLOWSTONE_BUCKET.get(), ModFluidTypes.MOLTEN_GLOWSTONE_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_AMETHYST_BUCKET.get(), ModFluidTypes.MOLTEN_AMETHYST_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.MOLTEN_DIAMOND_BUCKET.get(), ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.MOLTEN_OBSIDIAN_BUCKET.get(), ModFluidTypes.MOLTEN_OBSIDIAN_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.MOLTEN_LAPIS_BUCKET.get(), ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.MOLTEN_DIAMOND_BUCKET.get(), ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE);        registerBucketTint(event, ModFluids.MOLTEN_LAPIS_BUCKET.get(), ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_RAW_NETHERITE_SCRAP_BUCKET.get(), ModFluidTypes.MOLTEN_RAW_NETHERITE_SCRAP_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_NETHERITE_BUCKET.get(), ModFluidTypes.MOLTEN_NETHERITE_FLUID_TYPE);
         registerBucketTint(event, ModFluids.BLAZE_ESSENCE_BUCKET.get(), ModFluidTypes.BLAZE_ESSENCE_FLUID_TYPE);

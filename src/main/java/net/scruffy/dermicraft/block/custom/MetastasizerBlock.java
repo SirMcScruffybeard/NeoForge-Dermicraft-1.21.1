@@ -3,8 +3,11 @@ package net.scruffy.dermicraft.block.custom;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -34,6 +38,8 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
 
     public static final MapCodec<MetastasizerBlock> CODEC = simpleCodec(MetastasizerBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    // Drives which face texture renders (idle / running / recovering-HP "error"); see MetastasizerVisualState.
+    public static final EnumProperty<MetastasizerVisualState> STATE = EnumProperty.create("state", MetastasizerVisualState.class);
 
     private final MachineTier tier;
 
@@ -49,6 +55,7 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
                 .ignitedByLava()
         );
         this.tier = tier;
+        this.registerDefaultState(this.stateDefinition.any().setValue(STATE, MetastasizerVisualState.IDLE));
     }
 
     @Override
@@ -80,7 +87,7 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, STATE);
     }
 
     @Override
@@ -102,6 +109,13 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
 
     // Right-click routing mirrors the automation face pattern: top = fuel tank, sides = both
     // the reagent tank (bucket) and the pattern item, bottom = result slot (extract only).
+    //
+    // Empty-hand clicks fall through to useWithoutItem (the GUI) only when there's nothing to
+    // extract at that face. A held item always resolves to SUCCESS here and never falls through --
+    // vanilla opens the GUI on ANY PASS_TO_DEFAULT_BLOCK_INTERACTION result regardless of held item
+    // (it doesn't check for an empty hand), so e.g. holding cobblestone at the fuel face (no fluid
+    // handler, no pattern slot there) would otherwise fall through and pop the GUI open. Mirrors
+    // MasticatorBlock/EffluentcerBlock's interaction shape.
     @NotNull
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
@@ -113,10 +127,19 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
 
         Direction face = hitResult.getDirection();
 
-        if (face == Direction.DOWN) {
-            if (player.getItemInHand(hand).isEmpty()) {
-                player.setItemInHand(hand, be.extractResult());
-                return ItemInteractionResult.SUCCESS;
+        if (stack.isEmpty()) {
+            if (face == Direction.DOWN) {
+                ItemStack extracted = be.extractResult();
+                if (!extracted.isEmpty()) {
+                    player.setItemInHand(hand, extracted);
+                    return ItemInteractionResult.SUCCESS;
+                }
+            } else if (face != Direction.UP) {
+                ItemStack extracted = be.extractPattern();
+                if (!extracted.isEmpty()) {
+                    player.setItemInHand(hand, extracted);
+                    return ItemInteractionResult.SUCCESS;
+                }
             }
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
@@ -127,17 +150,23 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
             return ItemInteractionResult.SUCCESS;
         }
 
-        if (face != Direction.UP) {
-            if (player.getItemInHand(hand).isEmpty()) {
-                player.setItemInHand(hand, be.extractPattern());
-                return ItemInteractionResult.SUCCESS;
-            } else if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
-                player.setItemInHand(hand, be.insertPattern(stack));
-                return ItemInteractionResult.SUCCESS;
-            }
+        if (face != Direction.UP && face != Direction.DOWN
+                && stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
+            player.setItemInHand(hand, be.insertPattern(stack));
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return ItemInteractionResult.SUCCESS;
+    }
+
+    // Opens the GUI directly on any click useItemOn didn't claim -- no Outerface required. The
+    // block still carries the HAS_SCREEN tag, so the Outerface continues to work too.
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof MenuProvider menuProvider
+                && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(menuProvider, buf -> buf.writeBlockPos(pos));
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Nullable

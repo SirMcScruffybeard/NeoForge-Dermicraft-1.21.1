@@ -237,7 +237,7 @@ All 17 roster items across the three families have a Metastasizer recipe.
 - **Ores** — protects the Ferrous/Cuprous/Aurous Blend Ore-tier economy (which specifically rewards Silk Touch effort); letting Stone Blend duplicate ore blocks would trivialize that system.
 - **Dirt, Mud** — not rock-identity (Dirt is already Flask of Crude Slurry's territory), and already trivially renewable.
 - **All Obsidian forms** — Stage 2/lava-gated, would bypass the Stage wall.
-- **Nether rocks** (Netherrack, Basalt, Blackstone, etc.) — deferred to a later Stage.
+- **Nether rocks** (Netherrack, Basalt, Blackstone, etc.) — deferred to a later Stage. **Netherrack's deferral is now resolved**, not just deferred forever: it gets a real production route via **Protein Blend + Stone Blend → Netherrack on the Tier 2 Render Kiln** (see `dermicraft-machine-notes.md` → Render Kiln), gated by the machine tier itself since two-fluid recipes only exist there — not by hazardous ingredients (neither fluid is hazardous). Basalt/Blackstone remain undecided.
 - **End rocks** (End Stone, Purpur, etc.) — deferred to a later Stage; first mention anywhere of a possible Stage beyond Stage 2 tied specifically to the End, not otherwise defined yet.
 
 **Amethyst — flagged as a Tier 2 concept, not Tier 1.** Too rare/precious for unlimited Tier 1 duplication, same reasoning as the Ore blacklist. Silica Blend involvement floated as a possible future ingredient angle; mechanic undecided.
@@ -333,7 +333,8 @@ Silica Blend sits as the hub of this relationship — it cross-feeds with *both*
 - **Rework existing Crafting-fluid yields (Carbon/Calcium/Protein/Metal Blends) once Sediment Blend yields are set**, to keep the whole family internally consistent. (Sediment Blend yields are now set — see above — so this rework is unblocked.)
 - Decide Blood Nugget yield and the resulting Ferrous Blend yield (target: "low but fair") — unblocked now that the Metastasizer exists, just not yet decided.
 - Decide exact FluidType values (density, viscosity, motion scale, temperature) for Stone/Silica/Clay Blend hazard properties.
-- Decide exact item inputs, yields, and FluidType values for the expanded Molten family: Molten Quartz, Molten Glowstone, Molten Amethyst, Molten Diamond, Molten Obsidian, Molten Lapis, Molten Raw Netherite Scrap/Molten Netherite, Blaze Essence, Ghast Essence, Wither Essence, Molten Soul Silica. (Living Glowstone's creation recipe is now resolved — Molten Glowstone + Living Catalyst via the Gestator — see `dermicraft-catalyst-notes.md`.)
+- Decide exact item inputs and yields for the expanded Molten family (FluidType values are now confirmed for all of them): Molten Redstone, Molten Quartz, Molten Glowstone, Molten Amethyst, Molten Diamond, Molten Lapis, Molten Raw Netherite Scrap/Molten Netherite, Blaze Essence, Ghast Essence, Wither Essence, Ender Essence, Molten Soul Silica. (Living Glowstone's creation recipe is now resolved — Molten Glowstone + Living Catalyst via the Gestator — see `dermicraft-catalyst-notes.md`.) Molten Obsidian is no longer part of this list — cut in favor of the Tier 2 Render Kiln (see `dermicraft-machine-notes.md`).
+- **Implement the Tier 2 Render Kiln** (see `dermicraft-machine-notes.md` → Render Kiln): new two-fluid-in/item-out recipe type, block/BE/menu/screen, and the confirmed roster (Water+Lava→Obsidian, Water+Molten Redstone→Redstone Block, Water+Molten Netherite→Netherite Ingot, Protein Blend+Stone Blend→Netherrack). Remove Molten Obsidian's code registration to match its removal from the design roster.
 - Decide any uses for Molten Redstone beyond the Redstone Torch Dip.
 - Molten Prismarine remains unnamed-in-mechanic on purpose — find a use case before designing it.
 - Decide whether the Silica Blend → Molten Soul Silica conversion hook and the Soul Sand hazard-carryover hook (see Molten Soul Silica entry) get built.
@@ -467,21 +468,11 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Open questions:** Exact item inputs and yields. Any secondary use beyond a recipe ingredient.
 
-### Molten Obsidian
+### Molten Obsidian — CUT (superseded by the Tier 2 Render Kiln)
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
+**Status:** Removed from the roster. Was registered and implemented (bucket, block, FluidType, tags, creative tab) with no divergence from Lava's own reference values — deliberately the one Molten fluid with no distinguishing trick, which made it the weakest roster member mechanically. Replaced by a real two-fluid recipe: **Water + Lava → Obsidian**, on the new **Tier 2 Render Kiln** (see `dermicraft-machine-notes.md` → Render Kiln). More thematically accurate (this is literally how obsidian forms) and gives Stage 2 a new machine tier instead of a passive fluid bucket. All code registration (fluid/block/bucket/tags/model/client rendering/creative tab) needs removing to match.
 
-**What it is:** Obsidian in fluid form — a deliberate thematic inversion, since Obsidian is real-world *cooled* lava. Re-melting it back into a fluid is "already-forged, forged again," distinct from every other Molten fluid, which is liquefying a raw material for the first time.
-
-**Base fluid:** Lava.
-
-**Item inputs & yield:** Not yet decided.
-
-**FluidType (confirmed, implemented):** tint `0xFF3D1A2C` — a dark plum-black, pulled much closer to real Obsidian block's own near-black purple than the original lighter draft. `viscosity(6000)`, `density(3000)`, `temperature(1300)`, `motionScale(0.007)` — **exactly Lava's own reference values, no divergence at all.** Deliberate: every other Molten fluid distinguishes itself *from* Lava somehow (Redstone hotter, Diamond thicker, Amethyst calmer); Molten Obsidian's identity is that there's no trick, because re-melting cooled Lava back down honestly is just Lava again. No light emission. `canHydrate(false)`.
-
-**Hazard tag:** `hazard/extreme_heat` only.
-
-**Open questions:** Exact item inputs and yields. Any use beyond a recipe ingredient.
+**Rejected during the same discussion:** encoding vanilla's real Cobblestone-vs-Obsidian directional distinction (still water+lava source = Obsidian, still lava+flowing water = Cobblestone) — a two-fluid recipe has no way to key off flow direction, and the mod already has an easy Cobblestone source (Stone Blend duplication), so nothing is lost by not chasing this.
 
 ### Molten Lapis
 

@@ -2,11 +2,11 @@
   "parent": "minecraft:block/cube",
   "textures": {
     "down": "dermicraft:block/skin_tank_end",
-    "east": "dermicraft:block/effluentcer_side",
-    "north": "dermicraft:block/effluentcer_face_on",
-    "particle": "dermicraft:block/effluentcer_face_on",
-    "south": "dermicraft:block/effluentcer_side",
+    "east": "dermicraft:block/effluentcer/effluentcer_side",
+    "north": "dermicraft:block/effluentcer/effluentcer_face_on",
+    "particle": "dermicraft:block/effluentcer/effluentcer_face_on",
+    "south": "dermicraft:block/effluentcer/effluentcer_side",
     "up": "dermicraft:block/skin_tank_end",
-    "west": "dermicraft:block/effluentcer_side"
+    "west": "dermicraft:block/effluentcer/effluentcer_side"
   }
 }

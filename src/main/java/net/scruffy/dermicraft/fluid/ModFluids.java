@@ -392,24 +392,6 @@ public class ModFluids {
             .block(ModFluids.MOLTEN_DIAMOND_BLOCK)
             .bucket(ModFluids.MOLTEN_DIAMOND_BUCKET);
 
-    //////////////////////////////Molten Obsidian\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_OBSIDIAN = FLUIDS.register("source_molten_obsidian",
-            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_OBSIDIAN_PROPERTIES));
-
-    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_OBSIDIAN = FLUIDS.register("flowing_molten_obsidian",
-            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_OBSIDIAN_PROPERTIES));
-
-    public static final DeferredBlock<LiquidBlock> MOLTEN_OBSIDIAN_BLOCK = ModBlocks.BLOCKS.register("molten_obsidian_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_OBSIDIAN.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
-
-    public static final DeferredItem<Item> MOLTEN_OBSIDIAN_BUCKET = getBucket("molten_obsidian_bucket", ModFluids.SOURCE_MOLTEN_OBSIDIAN);
-
-    public static final BaseFlowingFluid.Properties MOLTEN_OBSIDIAN_PROPERTIES = new BaseFlowingFluid.Properties(
-            ModFluidTypes.MOLTEN_OBSIDIAN_FLUID_TYPE, SOURCE_MOLTEN_OBSIDIAN, FLOWING_MOLTEN_OBSIDIAN)
-            .slopeFindDistance(2).levelDecreasePerBlock(1)
-            .block(ModFluids.MOLTEN_OBSIDIAN_BLOCK)
-            .bucket(ModFluids.MOLTEN_OBSIDIAN_BUCKET);
-
     //////////////////////////////Molten Lapis\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_MOLTEN_LAPIS = FLUIDS.register("source_molten_lapis",
             () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_LAPIS_PROPERTIES));

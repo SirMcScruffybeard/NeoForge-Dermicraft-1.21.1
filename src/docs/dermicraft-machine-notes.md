@@ -839,6 +839,33 @@ So once a player has a Mutator they'd realistically never hand-craft these again
 **Open questions:**
 - Whether Crude Slurry ever gets a Kiln recipe if a genuine solid form is defined for it later — currently a deliberate gap, not a locked exclusion.
 
+### Tier 2 Render Kiln (design only, not yet built)
+
+**Status:** Design session confirmed the concept and an initial recipe roster; not yet implemented. Grew directly out of a fluid-roster change — see below.
+
+**What it is:** The Tier 2 evolution of the Render Kiln — **two fluids in, one item out**, no item/pattern input at all. A natural evolution step for the family: the Tier 1 Kiln is fluid-only → item, this is simply the two-input version of the same shape, the same way the Effluentcer's own tier line goes 2-input → 3-input (Living Catalyst) → 4-input (All Metal). Any two-fluid recipe belongs here by definition — the machine's whole identity *is* the two-fluid input, so there's no separate "should this be Tier 2" gating question the way there sometimes is elsewhere; if a recipe needs two fluids, it's Tier 2 Kiln, full stop.
+
+**Origin — replaces Molten Obsidian.** This design session started as a proposal to cut Molten Obsidian entirely: its documented identity was deliberately "no divergence from Lava at all" (see `dermicraft-crafting-notes.md`), which made it the one member of the Molten family with no real mechanical trick — a passive fluid rather than something that does anything. Real obsidian formation in Minecraft (and reality) is water meeting lava, so a genuine two-fluid Kiln recipe using that exact pairing is a strict upgrade over a static fluid bucket: it's more thematically accurate, and it gives Stage 2 a new machine tier instead of just another roster entry. Confirmed: Molten Obsidian is cut (fluid + all registration removed from code and docs).
+
+**Cobblestone/Stone differentiation — explicitly rejected.** Real vanilla obsidian formation is directional (still water + lava source = Obsidian; still lava + flowing water = Cobblestone), but a two-fluid recipe has no way to encode that distinction — there's no "flow direction" input to key off of. Confirmed: the Kiln only ever produces Obsidian from Water + Lava, no Cobblestone variant. Not a gap — the mod already has an easy, established Cobblestone source (Stone Blend duplication), so nothing is lost.
+
+**Recipe roster (confirmed, not yet implemented):**
+
+| Fluid A | Fluid B | Result | Reasoning |
+|---|---|---|---|
+| Water | Lava | Obsidian | Direct citation of real obsidian formation; replaces Molten Obsidian. |
+| Water | Molten Redstone | Redstone Block | Real metallurgical quenching (rapid water-cooling) applied to the family; a tidier bulk-output route than the existing Torch Dip. |
+| Water | Molten Netherite | Netherite Ingot | Same quenching logic; gives Molten Netherite a second use beyond the Living Netherite chain. |
+| Protein Blend | Stone Blend | Netherrack | Meat + rock, no fire — reads as organic corruption fused into stone rather than a cooking metaphor, fitting the Nether's alien/diseased-landscape feel. Confirmed to require the Tier 2 Kiln specifically (not gateable any other way, since it's a two-fluid recipe by definition) — this is what finally pays off the long-standing "Netherrack deferred to a later Stage" note on the Sediment Blend blacklist (see `dermicraft-crafting-notes.md` → Sediment Blends), rather than leaving it open indefinitely. |
+
+**Considered and rejected:**
+- **Water + Molten Quartz → Glass** — redundant, the mod already has good established Glass routes (vanilla smelting, Beaker/Flask recipes).
+
+**On hold, not committed:**
+- **Blaze Essence + Ghast Essence → Fire Charge** — opposite-natured Essences (fire vs. sorrow) combining into vanilla's own fire-charge item. Held pending further research into the concept before locking it in.
+
+**Open questions:** Full technical implementation (new two-fluid-in/item-out recipe type — likely a fluid-only variant paired with `TwoFluidRecipeInput`'s existing zero-item-check fix, see [[feedback_item_less_recipe_input_isempty]]; block/BE/menu/screen; mB and tick values for each recipe; datagen). Whether more recipes get added to the roster before or after implementation.
+
 ---
 
 ## Farming automation concepts (early planning)
@@ -966,6 +993,10 @@ Mirrors Mr. Farmer's "fuel quality drives everything" model; all four `BiofuelPr
 #### Divergences from Mr. Farmer
 
 - **No positional wave.** Farmer sweeps ring-by-ring / row-by-row because crops are fixed to cells; animals move freely, so wave *ordering* is meaningless. Shepard scans a live AABB each work cycle instead. The original "wave behavior likely carries over" note is superseded.
+- **The field includes the machine's own row (confirmed).** Farmer's N×N field starts **1 block ahead**; Shepard's starts at **depth 0**, making it (range+1) deep × range wide. Reason: a Shepard is set *into* the pen's fence/wall line, so it sits flush with the boundary — and unlike crops, dropped items and animals move. Items landing directly beside the machine sit in the machine's own plane, and with a Farmer-style 1-block-ahead field they would be permanently uncollectable. The range preview outlines the same extended footprint (skipping the machine's own cell), so the guide shows the wall running *through* the machine rather than in front of it.
+- **Vertical tolerance is ±4 blocks** (`VERTICAL_REACH`), against Farmer's ±2 — animals jump and fall, crops don't.
+- **Fence-height collision box (Shepard only, confirmed).** `getCollisionShape` is raised to 24px (1.5 blocks), matching a **vanilla fence** rather than the model's own ~22px hat. Reason: a Shepard is set *into* the pen's fence line, so a plain full-cube block leaves a 1-block-tall gap in an otherwise 1.5-tall wall — an escape hatch animals can jump. Blocks can still be placed on top: placement only tests the target position for replaceability and entities, never a neighbour's collision shape (identical to placing a block atop a fence). **Only collision is raised, not `getShape`** — the selection outline stays a normal cube so it doesn't fight with whatever block sits above. Horizontal extent stays 0–16 even though the model overhangs sideways, so entities never collide with apparently-empty space in the neighbouring column. The block above visually clips the hat; accepted, pending a new model. **Not applied to Mr. Farmer** — nothing needs containing there.
+- **Known defect, vertical facing only (deferred):** for up/down mounts Shepard still centres its box `half + 1` along the facing axis and then extends ±4, which **bleeds back past the machine's own plane** (a DOWN-facing Shepard at range 3 covers 3 blocks *above* itself; the preview for an UP-facing one floats in the air). Farmer instead resolves a single working plane strictly on the facing side. Left alone pending possible new models for both machines; candidate fixes are clamping the box to the facing side, mirroring Farmer's single-plane resolution, or restricting Shepard to horizontal facing entirely.
 
 **Range preview — static footprint guide (confirmed).** Shepard still gets a GUI-close particle preview, but **not** Farmer's swept version — with no wave to communicate, the sweep would be showing an ordering that doesn't exist. Instead the preview's job is narrower and more practical: **show the player where to build the pen.** It marks the **perimeter of the N×N footprint** all at once rather than filling it — at 9×9 that's 32 edge cells instead of 81, which reads as a wall line rather than particle soup, and a wall line is exactly the thing the player is about to build. Same trigger and lifetime conventions as Farmer's (fires on GUI close, ~30s, fades out, costs no fuel, shows whatever the current fuel tier resolves to). Farmer's preview machinery lives in `MrFarmerBlockEntity` and wants extracting to a shared home so both machines draw from one implementation.
 
@@ -977,7 +1008,12 @@ Follows Mr. Farmer's layout conventions. Top-left band carries a "Range: N×N" r
 
 **The cap readout must update live (confirmed).** The value has to change on screen the moment a stepper is clicked, not on the next GUI open. Cause of the current lag: `changePopulationCap()` calls `setChanged()` only, which marks the block entity dirty for *saving* but never pushes a packet, so the client's copy keeps the stale number until it re-syncs. Fix is to also call `updateBlock()`, matching how every other machine in the mod syncs BE state to nearby clients (the value is already carried in `saveAdditional`/`getUpdateTag`, so nothing else needs adding). Fuel slot + horizontal fuel gauge sit on one row, with a 4-slot food row right-aligned to the 9-slot output buffer below it.
 
-**Implementation status:** Block, block entity, menu, screen, registrations, implant recipe (Carved Pumpkin + Shears + flesh), models/textures, lang and tags are all built and load cleanly. Working today: item pickup, sheep shearing, food-consuming paired breeding, per-species culling, `tier`→range, `speed`→pacing, `useRate`→cost, and the +/- cap steppers. **Not yet built:** `heal`→max cap, `heal`→growth acceleration, the breeding-stock/`BABY_HEADROOM` production model (current code still has the over-corrective "no breeding at cap" rule), adults-only culling, the explicit shear-before-cull guard, remembered-fuel-on-empty, live cap-readout syncing, hold-to-accelerate steppers, and the static footprint range preview.
+**Implementation status: feature-complete against every decision above, and tested in-game.** Block, block entity, menu, screen, registrations, implant recipe (Carved Pumpkin + Shears + flesh), models/textures, lang and tags all built. Working and verified: item pickup (with the player-owned-drop guard), sheep shearing, the breeding-stock/`BABY_HEADROOM` production model, adults-only culling with the shear-before-cull guard, all four fuel stats (`tier`→range, `speed`→pacing, `useRate`→cost, `heal`→cap + baby growth), remembered-fuel-on-empty, live cap-readout syncing, click-for-precision/hold-to-accelerate steppers, the static footprint range preview, slot tooltips, the fence-height collision box, and Gate compatibility via `IHasChannels`.
+
+**Outstanding on Shepard:**
+- The **vertical-facing collision-volume defect** (see Divergences above) — deferred pending new models.
+- **New models** for Shepard (and Farmer) are planned; the hat currently clips whatever block sits above, which is part of the motivation.
+- Tuning anchors that have not been playtested at scale: `GROWTH_SECONDS_PER_HEAL` (1.0), `BABY_HEADROOM` (4), `BASE_POPULATION_CAP` (8). Note that **only tier-1 biofuels exist today** (Crude and Concentrated Slurry), so the fuel-driven range and cap ladders cannot be exercised past their first rung until higher-grade slurries get `BIOFUELS` data-map entries — the same untestable-at-scale gap Mr. Farmer's range has.
 
 #### Deferred to later passes
 

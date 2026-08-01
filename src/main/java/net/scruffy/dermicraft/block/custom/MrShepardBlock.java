@@ -23,7 +23,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -40,9 +43,27 @@ public class MrShepardBlock extends ModBaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ACTIVE = BlockStateProperties.LIT;
 
+    // Collision extends a full 24px up -- deliberately matching a vanilla fence rather than the
+    // model's own ~22px hat. A Shepard is set INTO the pen's fence line, so a plain full-cube block
+    // would be a 1-block-tall gap in an otherwise 1.5-tall wall: an escape hatch animals could jump.
+    // Blocks can still be placed on top; placement only checks the target position for replaceability
+    // and entities, never a neighbour's collision shape (same as placing a block atop a fence).
+    // The block above will visually clip the hat -- accepted, pending a new model.
+    private static final VoxelShape COLLISION_SHAPE = Block.box(0, 0, 0, 16, 24, 16);
+
     public MrShepardBlock(Properties properties) {
         super(properties.noLootTable());
         this.registerDefaultState(this.stateDefinition.any().setValue(ACTIVE, false));
+    }
+
+    /**
+     * Only the COLLISION shape is raised, not {@link #getShape} -- the selection outline stays a
+     * normal cube so the outline doesn't overlap and fight with whatever block sits above.
+     */
+    @NotNull
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return COLLISION_SHAPE;
     }
 
     @Override

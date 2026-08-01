@@ -256,15 +256,31 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         return any;
     }
 
-    /** N x N footprint projected in front of the machine's facing (or under/over it for vertical mounts). */
+    /**
+     * The working volume. Horizontal mounts cover the machine's OWN row through {@code range} blocks
+     * ahead; vertical mounts still use the older offset-centre box pending their rework.
+     */
     private AABB workArea() {
         int range = getRange();
         int half = (range - 1) / 2;
         Direction facing = getFacing();
-        BlockPos center = worldPosition.relative(facing, half + 1);
-        return new AABB(
-                center.getX() - half, center.getY() - VERTICAL_REACH, center.getZ() - half,
-                center.getX() + half + 1, center.getY() + VERTICAL_REACH + 1, center.getZ() + half + 1);
+
+        if (facing.getAxis().isVertical()) {
+            // Unchanged pending the vertical-facing rework -- this box bleeds past the machine's own
+            // plane (see the divergence note in dermicraft-machine-notes.md).
+            BlockPos center = worldPosition.relative(facing, half + 1);
+            return new AABB(
+                    center.getX() - half, center.getY() - VERTICAL_REACH, center.getZ() - half,
+                    center.getX() + half + 1, center.getY() + VERTICAL_REACH + 1, center.getZ() + half + 1);
+        }
+
+        // Depth starts at 0 -- the machine's own row -- not 1 block ahead like Mr. Farmer's. A Shepard
+        // set into a fence or wall line is flush with the pen, so items dropped directly beside it sit
+        // in the machine's own plane; starting a block ahead would leave them permanently uncollected.
+        Direction side = facing.getClockWise();
+        AABB box = new AABB(worldPosition.relative(side, -half))
+                .minmax(new AABB(worldPosition.relative(facing, range).relative(side, half)));
+        return box.inflate(0, VERTICAL_REACH, 0);
     }
 
     // ---- Item pickup ----------------------------------------------------------------------------
@@ -272,6 +288,16 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     private boolean collectItems(ServerLevel level, AABB area) {
         boolean any = false;
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, area, ItemEntity::isAlive)) {
+            // Never take a player's own belongings. ItemEntity#getOwner() (TraceableEntity) returns
+            // whoever threw the stack, and Player#drop sets it -- for both deliberate throws and death
+            // drops -- so this is what actually stops Shepard hoovering up your inventory when you die
+            // inside the pen. Machine output and mob loot both have a null thrower and pass through.
+            if (itemEntity.getOwner() instanceof Player) continue;
+
+            // Also honour the vanilla pickup grace period. On its own this is weak protection (only
+            // ~10 ticks, well under one work cycle), but it costs nothing and covers other sources.
+            if (itemEntity.hasPickUpDelay()) continue;
+
             ItemStack stack = itemEntity.getItem();
             ItemStack leftover = insertIntoBuffer(stack.copy());
             int taken = stack.getCount() - leftover.getCount();
@@ -441,21 +467,38 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         return Math.round((float) PREVIEW_PARTICLES_PER_CELL * previewTicksRemaining / PREVIEW_FADE_TICKS);
     }
 
-    /** The edge cells of the N x N working footprint (same placement rule as {@link #workArea()}). */
+    /** The edge cells of the working footprint -- mirrors {@link #workArea()}'s placement exactly. */
     private List<BlockPos> footprintPerimeter() {
         int range = getRange();
         int half = (range - 1) / 2;
-        BlockPos center = worldPosition.relative(getFacing(), half + 1);
-
+        Direction facing = getFacing();
         List<BlockPos> cells = new ArrayList<>();
-        if (range <= 1) { // unfueled -- the machine only reaches its own spot
-            cells.add(center);
+
+        if (facing.getAxis().isVertical()) {
+            BlockPos center = worldPosition.relative(facing, half + 1);
+            if (range <= 1) { // unfueled -- the machine only reaches its own spot
+                cells.add(center);
+                return cells;
+            }
+            for (int dx = -half; dx <= half; dx++) {
+                for (int dz = -half; dz <= half; dz++) {
+                    if (Math.max(Math.abs(dx), Math.abs(dz)) != half) continue; // interior, skip
+                    cells.add(center.offset(dx, 0, dz));
+                }
+            }
             return cells;
         }
-        for (int dx = -half; dx <= half; dx++) {
-            for (int dz = -half; dz <= half; dz++) {
-                if (Math.max(Math.abs(dx), Math.abs(dz)) != half) continue; // interior cell, skip
-                cells.add(center.offset(dx, 0, dz));
+
+        // Horizontal: outline the (range+1) deep x range wide field, starting at the machine's own row
+        // so the guide shows the pen wall running through the machine rather than in front of it.
+        Direction side = facing.getClockWise();
+        for (int depth = 0; depth <= range; depth++) {
+            for (int lateral = -half; lateral <= half; lateral++) {
+                boolean edge = depth == 0 || depth == range || lateral == -half || lateral == half;
+                if (!edge) continue;
+                BlockPos cell = worldPosition.relative(facing, depth).relative(side, lateral);
+                if (cell.equals(worldPosition)) continue; // no particles inside the machine itself
+                cells.add(cell);
             }
         }
         return cells;
