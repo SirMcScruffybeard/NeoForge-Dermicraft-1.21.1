@@ -51,6 +51,7 @@
   "tooltip.dermicraft.drinker.voided": "Contents voided",
   "tooltip.dermicraft.sipping.disposal_warning": "Contents will be voided -- right-click again to confirm",
   "tooltip.dermicraft.sipping.voided": "Contents voided",
+  "tooltip.dermicraft.sipping.transferred": "Transferred %s mB",
   "item.dermicraft.syringe": "Syringe",
   "item.dermicraft.syringe.filled": "Syringe of %s",
 
@@ -99,7 +100,6 @@
   "item.dermicraft.molten_glowstone_bucket": "Molten Glowstone Bucket",
   "item.dermicraft.molten_amethyst_bucket": "Molten Amethyst Bucket",
   "item.dermicraft.molten_diamond_bucket": "Molten Diamond Bucket",
-  "item.dermicraft.molten_obsidian_bucket": "Molten Obsidian Bucket",
   "item.dermicraft.molten_lapis_bucket": "Molten Lapis Bucket",
   "item.dermicraft.molten_raw_netherite_scrap_bucket": "Molten Raw Netherite Scrap Bucket",
   "item.dermicraft.molten_netherite_bucket": "Molten Netherite Bucket",
@@ -135,7 +135,6 @@
   "fluid_type.dermicraft.molten_glowstone_fluid": "Molten Glowstone",
   "fluid_type.dermicraft.molten_amethyst_fluid": "Molten Amethyst",
   "fluid_type.dermicraft.molten_diamond_fluid": "Molten Diamond",
-  "fluid_type.dermicraft.molten_obsidian_fluid": "Molten Obsidian",
   "fluid_type.dermicraft.molten_lapis_fluid": "Molten Lapis",
   "fluid_type.dermicraft.molten_raw_netherite_scrap_fluid": "Molten Raw Netherite Scrap",
   "fluid_type.dermicraft.molten_netherite_fluid": "Molten Netherite",

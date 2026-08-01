@@ -13,7 +13,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.component.SippingModeData;
 import net.scruffy.dermicraft.interfaces.IGadget;
@@ -87,6 +90,11 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData, IGadge
         ItemStack stack = player.getItemInHand(hand);
         if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
 
+        InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (tryHandTransfer(player, hand, otherHand)) {
+            return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), false);
+        }
+
         SippingModeData mode = stack.getOrDefault(ModDataComponentTypes.SIPPING_MODE_DATA.get(), SippingModeData.DEFAULT);
         long now = level.getGameTime();
 
@@ -116,6 +124,41 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData, IGadge
             stack.set(ModDataComponentTypes.SIPPING_MODE_DATA.get(), new SippingModeData(targetDisposal, false, 0L));
         }
         return InteractionResultHolder.sidedSuccess(stack, false);
+    }
+
+    /**
+     * Bucket-on-cauldron style quick transfer: right-clicking Sipping while the other hand holds
+     * any fluid-handler item moves fluid directly between the two, no machine slot needed. Tries
+     * draining Sipping's own buffer into the other item first, then the reverse -- whichever
+     * direction actually has something to move wins, so Disposal mode (an always-empty source)
+     * naturally falls through to accepting fluid from the other item.
+     *
+     * <p>Handlers aren't guaranteed to mutate the stack we handed them in place -- vanilla's bucket
+     * wrapper represents a fill/drain as swapping to a whole different {@code Item} (empty bucket
+     * &lt;-&gt; water bucket) and only reflects that on its own {@code getContainer()}, not on the
+     * original stack. Our own component-based items already are their own container, so writing
+     * both containers back into the player's hands afterward is a no-op for them and the fix for
+     * everything else.
+     */
+    private boolean tryHandTransfer(Player player, InteractionHand hand, InteractionHand otherHand) {
+        ItemStack stack = player.getItemInHand(hand);
+        ItemStack otherStack = player.getItemInHand(otherHand);
+        if (otherStack.isEmpty()) return false;
+
+        IFluidHandlerItem sippingHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        IFluidHandlerItem otherHandler = otherStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (sippingHandler == null || otherHandler == null) return false;
+
+        FluidStack moved = FluidUtil.tryFluidTransfer(otherHandler, sippingHandler, Integer.MAX_VALUE, true);
+        if (moved.isEmpty()) {
+            moved = FluidUtil.tryFluidTransfer(sippingHandler, otherHandler, Integer.MAX_VALUE, true);
+        }
+        if (moved.isEmpty()) return false;
+
+        player.setItemInHand(hand, sippingHandler.getContainer());
+        player.setItemInHand(otherHand, otherHandler.getContainer());
+        player.displayClientMessage(Component.translatable("tooltip.dermicraft.sipping.transferred", moved.getAmount()), true);
+        return true;
     }
 
     @Override
