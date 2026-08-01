@@ -14,7 +14,7 @@ Each gadget's official name follows an acronym + suffix pattern (`[ACRONYM].Gadg
 
 ### Bulk item storage (`IHaveItemData` / `BulkItemData` / `BulkSlot`)
 
-**Status:** Built 2026-07-29. Groundwork only — not yet wired to any gadget (Eater's item doesn't exist yet).
+**Status:** Built 2026-07-29, wired to Eater's base tier as of 2026-07-31 (see Eater's entry below) and confirmed working in-game. Portable Mass Storage, the other planned consumer, hasn't started yet.
 
 **What it is:** The item-side twin of `IHaveFluidData`, for gadgets that carry a multi-slot bulk item buffer inside their own held `ItemStack`. Built while planning Eater's internal item buffer, once it became clear Eater and the not-yet-built **Portable Mass Storage** gadget (see `portable-mass-storage-gadget-notes.md`) would both need this and should share one implementation rather than diverge.
 
@@ -93,27 +93,27 @@ Each gadget's official name follows an acronym + suffix pattern (`[ACRONYM].Gadg
 
 ### Eater
 
-**Status:** Concept stage — base-tier mechanic and model plan locked; not yet built in code, model not yet started.
+**Status:** Base tier BUILT and working end-to-end (2026-07-31) — item logic, buffer, modes, GeckoLib rig, and animation all in place and tested in-game. One known cosmetic issue left unresolved (see below); everything else confirmed working.
 
 **What it is:** The item-side counterpart to Drinker (which vacuums fluid) — Eater vacuums loose dropped items, and at higher tiers, blocks and ore. Confirmed as an acronym, expansion not yet decided (deliberately left untyped for now).
 
 **Base tier:** Vacuums loose dropped items on the ground.
 
-**Base-tier mechanic (confirmed, mirrors Drinker's shape):**
-- **Activation:** hold right-click (same held-trigger identity as Drinker), not passive-while-held.
-- **Pickup shape:** 4-block range, narrowed to a forward cone (60° half-angle from the player's look vector, so 120° total) rather than a full 360° sphere. Originally built as a flat radius on the reasoning that dropped items aren't directional the way ore veins are (see the later block/ore tiers' own cone below), but in-game testing showed the full sphere felt untargeted — it picked up items well outside where the player was actually aiming. Distinct from the block/ore tiers' cone, which also widens/grows with distance; this one doesn't.
-- **Modes:** all three of Drinker's — Storage, Transfer, Disposal — full family parity.
-- **Internal buffer:** 4-slot `ItemStackHandler`, not a single slot. Reasoning: a fluid buffer is "one fluid, variable quantity" so Drinker's single tank works, but a dropped-item pile is usually mixed (e.g. a skeleton's bones/arrows/string/gunpowder) — a single slot would jam on the first item type touched and ignore the rest of the same pile. 4 slots handles a realistic mixed pile without becoming a real storage system.
-- **HP:** 10, matching Drinker — no stated reason yet for Eater to be tougher or more fragile.
+**Base-tier mechanic (built):**
+- **Activation:** hold right-click, same held-trigger identity as Drinker. A real target always wins over crouch/stand gesture handling; crouching with nothing to vacuum acts on the buffer per mode (Transfer pushes it to the player, Disposal voids it behind an arm/confirm dance identical to Drinker's, Storage just reports itself inert), standing with nothing to vacuum cycles mode.
+- **Targeting (revised from the original design):** 4-block range, narrowed to a 60°-half-angle forward cone (120° total) off the player's look vector — not a flat 360° sphere as first planned; in-game testing showed the sphere felt untargeted. A separate close-range "capture bubble" (1.5 blocks) bypasses the cone check entirely once an item is already this close, so an item mid-pull can't "escape" the cone as it nears the player and drops below eye level — without this, a pulled item would stall at the player's feet requiring the player to look back down at it.
+- **Pull-then-consume, not instant vacuum:** items outside a 0.75-block "consume distance" ease toward the player (40% of remaining distance per tick, easing out rather than constant speed) instead of vanishing the instant they're detected — a deliberate cosmetic tail. Both the pull target and the consume-distance check are anchored to the same point (roughly chest height, not the feet) after an early bug where the two disagreed and items stalled forever just outside the threshold.
+- **20-tick windup:** holding the trigger starts the mouth-bloom animation immediately, but actual pulling/consuming is gated behind `player.getTicksUsingItem() >= 20` so the covers have time to visibly open before anything moves. Vacuum candidates still get their vanilla pickup-delay refreshed for the whole windup (not just once pulling starts), otherwise vanilla's own walk-over-item pickup wins the race and grabs items before Eater ever touches them.
+- **Modes:** all three of Drinker's — Storage, Transfer, Disposal — full family parity, including Disposal's arm/confirm safeguard.
+- **Internal buffer:** 4-slot bulk item handler (see Shared infrastructure above), each slot a normal stack cap. Reasoning: a fluid buffer is "one fluid, variable quantity" so Drinker's single tank works, but a dropped-item pile is usually mixed (e.g. a skeleton's bones/arrows/string/gunpowder) — a single slot would jam on the first item type touched and ignore the rest of the same pile.
+- **HP:** 10, matching Drinker.
 
-**Model plan (GeckoLib, not yet built):**
-- **Mouth:** larger than Drinker's (about body-size minus the bladder), since Eater's whole identity is intake rather than Drinker's smaller drinking mouth. May have "shields" that move outward similarly to Drinker's bladder motion.
-- **Bone complexity:** undecided until modeling starts in Blockbench — no other moving parts confirmed yet.
-- **Held pose:** copies Drinker's approach directly (`UseAnim.NONE` + motionless hold, per the reasoning in `DrinkerItem`'s class javadoc about `CROSSBOW` not rendering correctly in first person).
-- **Mode lights:** same Drinker-style mode-light glow layer, no separate fill-gauge (unlike Drinker's fluid-level gauge — a 4-slot item buffer doesn't have an analogous "how full" continuous readout the same way).
-- **Held-stack display (new mechanic, not present on Drinker):** all 4 internal slots get their own **locator bone** on the model, each rendering the actual live `ItemStack` render (same renderer used for item entities/item frames) via a custom `GeoRenderLayer` — NOT a baked texture/icon. Each locator doubles as a "screen": a small bezel/frame (real modeled geometry, ordinary texture/UV, sized whatever reads well at the gadget's scale) surrounds the floating item render, with an emissive on/off state (lit when the slot is occupied, dark when empty) — same two-state emissive-material mechanism as Drinker's mode lights, not a per-pixel icon render. No stack-count text overlay planned (that would need a separate nameplate-style text-render addition, not scoped here).
+**Model & rig (built):** GeckoLib model with a wide intake maw, four corner cover plates that iris open on activate (not the originally-imagined straight-line open), three gill-like partial ribs that flutter at idle and pulse in sync while active, and a top-mounted 2×2 grid of "screen" bones (one per buffer slot) that slide flush and show a live floating `ItemStack` render (via a custom `GeoRenderLayer`, not a baked icon) when their slot is occupied, staying dark/recessed when empty. Mode lights mirror Drinker's mutually-exclusive lit-texture swap.
+- **Animation controllers:** one `Body` controller drives idle ↔ activate→active_hold (a single authored direction, relying on `transitionLength` blending for the return rather than a mirrored deactivate clip) plus the rib/mouth flutter; one controller per screen bone drives its own slide, gated on that slot's occupancy.
+- **Fixed bug:** the four screen controllers' idle fallback originally reused the `idle` animation, which also contains the mouth-cover flutter keyframes — since GeckoLib doesn't blend bone writes across separate controllers, every empty screen's controller was silently re-applying `idle`'s mouth pose after `Body`'s own pass each frame, permanently masking the activate animation. Fixed by giving the screen controllers a genuinely empty `none` fallback clip instead.
+- **Known cosmetic issue, not pursued further:** the `active_hold` loop visibly flickers at the exact moment an item lands in the buffer. Investigated and ruled out the obvious cause (GeckoLib's `AnimationController` compares `RawAnimation` by content equality, not reference, per its own source/javadoc, so rebuilding an equivalent `RawAnimation` each tick — which both Eater's and Drinker's controllers already do — isn't it). No confirmed root cause without live debugging tools; decided not worth fighting the engine over for a cosmetic-only, already-rare flicker.
 
-**Open questions:** Exact upgrade system/currency (likely the shared Gadget customization system used elsewhere). Cone dimensions at the later block/ore tiers (unaffected by the base-tier radius decision above). Bone count/rig complexity for the model, TBD once Blockbench work starts. Bezel size and item-render scale for the 4 display sockets, TBD once the model exists. Whether Transfer/Disposal need any Eater-specific wrinkle beyond mirroring Drinker's implementation 1:1.
+**Open questions:** Exact upgrade system/currency (likely the shared Gadget customization system used elsewhere). Cone dimensions at the later block/ore tiers (unaffected by the base-tier targeting above). Root cause of the `active_hold` flicker, if it ever becomes worth revisiting. Recipes/crafting chain — not yet touched.
 
 **Mid tier — loose block vacuuming:** Can suck up "loose" blocks (dirt, sand, gravel) directly. This tier's primary upgrade axis is **speed** — how quickly a block is sucked up. Cone-size upgrades for this tier are their own separate, later addition (see below).
 
