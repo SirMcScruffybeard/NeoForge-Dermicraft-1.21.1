@@ -141,7 +141,7 @@ Four tiers per metal are designed — **Ore, Ingot, Raw, Nugget** — but only *
 
 ### Ferrous Blend — alternate route (Blood Nugget)
 
-**Status:** Mechanic and chain designed; **not yet implemented** — no Metastasizer machine exists in code at all yet (see `dermicraft-machine-notes.md`), so neither step of this chain can currently run. Exact yields also not yet set.
+**Status:** Implemented. `metastasizing_blood_nugget` (Metastasizer) and `ferrous_blend_masticating_blood_nugget` (Masticator) are both live in code.
 
 **What it is:** A second, distinct route into Ferrous Blend, separate from the Ore/Ingot/Raw/Nugget tiers above. Grounded in a simple, factually real claim: Protein Blend (made from raw/meat-tagged items) carries a meaningful blood component, and blood's oxygen-carrying function depends specifically on iron (hemoglobin) — a real, if trace-level, chemical connection.
 
@@ -151,7 +151,7 @@ Four tiers per metal are designed — **Ore, Ingot, Raw, Nugget** — but only *
 
 **Balance intent — "low but fair":** Because the underlying real-world iron content in blood is trace, not substantial, this route is deliberately intended as a **slow trickle**, not a replacement for the Ore/Ingot/Raw/Nugget effort-gated system. Protein Blend's cheapest source (Rotten Flesh, free mob drops) means the real limiter has to be yield, not availability — same "infinite is fine, just shouldn't be easy" philosophy applied to the Sediment Blends below. Final Ferrous Blend yield from this route should land **well under** a standard Iron Nugget's own 110 mB value, to keep it reading as trace extraction rather than a real iron source.
 
-**Open questions:** Exact Blood Nugget yield from the Metastasizer step. Exact Ferrous Blend yield from Blood Nugget + Primitive Catalyst.
+**Confirmed yields:** Metastasizer: 250 mB Protein Blend + Iron Nugget pattern → 1 Blood Nugget, 10s. Masticator: 1 Blood Nugget + 25 mB Primitive Catalyst → 25 mB Ferrous Blend, 60s -- well under the plain Iron Nugget's 110 mB, per the "trace extraction" target above. One Ingot-equivalent (1000 mB) via this route costs 40 Blood Nuggets = 10,000 mB Protein Blend + 1000 mB Primitive Catalyst.
 
 ### Cuprous Blend (Copper)
 
@@ -326,12 +326,11 @@ Silica Blend sits as the hub of this relationship — it cross-feeds with *both*
 ## Mod-wide ToDo list (carried forward from this doc)
 
 - **Build the Metal Blends' Ore tier** (Ferrous/Cuprous/Aurous) — designed, no recipe files exist yet. Revisit the Ore yield formula first since it was defined against the old 750 mB Raw baseline, not the confirmed 2000 mB.
-- **Metastasizer machine — built.** Sediment Blend duplication (all 17 roster items), the Metal Blends' reverse Ingot/Nugget route, the Carbon Blend reverse route (Coal/Charcoal/Coal Block, added 2026-07-19), Leaves duplication (all 8 species, added 2026-07-19), the Cauldron/Ferrous Blend route (added 2026-07-19), Brick/Bricks/Flower Pot individually-tiered mirror recipes (added 2026-07-19), MRE/Meat Flavored Meat duplication, and Protein Blend → Inert Tumor/Dense Muscle/Nerve Cluster/Eye duplication are all live. The Blood Nugget → Ferrous Blend chain is the one thing on this list still not implemented (needs the Blood Nugget item + its own Metastasizer recipe) — no longer blocked on the machine itself, just on that specific recipe/item.
+- **Metastasizer machine — built.** Sediment Blend duplication (all 17 roster items), the Metal Blends' reverse Ingot/Nugget route, the Carbon Blend reverse route (Coal/Charcoal/Coal Block, added 2026-07-19), Leaves duplication (all 8 species, added 2026-07-19), the Cauldron/Ferrous Blend route (added 2026-07-19), Brick/Bricks/Flower Pot individually-tiered mirror recipes (added 2026-07-19), MRE/Meat Flavored Meat duplication, Protein Blend → Inert Tumor/Dense Muscle/Nerve Cluster/Eye duplication, and the Blood Nugget → Ferrous Blend chain (Blood Nugget item + both recipes) are all live.
 - ~~**Masticator:** add support for processing multiples of one item per cycle~~ — **done 2026-07-18.** `onCraftComplete()` now consumes `itemAmount` from the recipe instead of a hardcoded `1`. Clean batch recipes like 3 Bone Meal → 990 mB Calcium Blend are now buildable in a single cycle.
 - Resolve Cuprous Ore vs. Tier 1 Masticator's 5000 mB output buffer, once the Ore tier is actually built (see Metal Blends open questions above).
 - Decide whether to add a custom Copper Nugget item.
 - **Rework existing Crafting-fluid yields (Carbon/Calcium/Protein/Metal Blends) once Sediment Blend yields are set**, to keep the whole family internally consistent. (Sediment Blend yields are now set — see above — so this rework is unblocked.)
-- Decide Blood Nugget yield and the resulting Ferrous Blend yield (target: "low but fair") — unblocked now that the Metastasizer exists, just not yet decided.
 - Decide exact FluidType values (density, viscosity, motion scale, temperature) for Stone/Silica/Clay Blend hazard properties.
 - Decide exact item inputs and yields for the expanded Molten family (FluidType values are now confirmed for all of them): Molten Redstone, Molten Quartz, Molten Glowstone, Molten Amethyst, Molten Diamond, Molten Lapis, Molten Raw Netherite Scrap/Molten Netherite, Blaze Essence, Ghast Essence, Wither Essence, Ender Essence, Molten Soul Silica. (Living Glowstone's creation recipe is now resolved — Molten Glowstone + Living Catalyst via the Gestator — see `dermicraft-catalyst-notes.md`.) Molten Obsidian is no longer part of this list — cut in favor of the Tier 2 Render Kiln (see `dermicraft-machine-notes.md`).
 - **Implement the Tier 2 Render Kiln** (see `dermicraft-machine-notes.md` → Render Kiln): new two-fluid-in/item-out recipe type, block/BE/menu/screen, and the confirmed roster (Water+Lava→Obsidian, Water+Molten Redstone→Redstone Block, Water+Molten Netherite→Netherite Ingot, Protein Blend+Stone Blend→Netherrack). Remove Molten Obsidian's code registration to match its removal from the design roster.

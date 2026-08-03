@@ -104,6 +104,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.EYE);
                         output.accept(ModItems.NERVE_CLUSTER);
                         output.accept(ModItems.DENSE_MUSCLE);
+                        output.accept(ModItems.BLOOD_NUGGET);
 
                         ////////////////////Food\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.MRE);

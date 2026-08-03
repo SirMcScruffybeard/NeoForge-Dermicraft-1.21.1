@@ -397,6 +397,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
 
+        // Blood Nugget -- second half of the Protein Blend alternate route (see the Metastasizer's
+        // metastasizing_blood_nugget). 25 mB/nugget -- well under a plain Iron Nugget's own 110 mB,
+        // per the design notes' explicit "should read as trace extraction, not a real iron source"
+        // target. Reaching one Ingot-equivalent (1000 mB) costs 40 Blood Nuggets = 10,000 mB Protein
+        // Blend + 1000 mB Primitive Catalyst -- a genuine slow trickle, not a mining replacement.
+        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_blood_nugget",
+                Ingredient.of(ModItems.BLOOD_NUGGET.get()), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, -1, ModMath.Time.getSecondsToTicks(60));
+
         // Heavy Weighted Pressure Plate -- 2 Iron Ingots' worth (real vanilla recipe cost), so 2000 mB.
         // Craft time stays at Ingot's own 60s rather than doubling -- same precedent as Raw (also
         // 2000 mB, also 60s): one item processed per cycle, regardless of its ingot-equivalent value.
@@ -455,6 +464,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Ingot/Nugget fluid amounts above 1:1. No Cuprous Nugget, same reason as the Masticator side.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_BLEND.get(), 110, lightTicks);
+
+        // Blood Nugget -- alternate trace-iron route from Protein Blend. Iron Nugget is a
+        // non-consumed pattern (same as every other Metastasizer recipe here); Protein Blend is the
+        // real cost. Deliberately weaker than the direct Ferrous Blend family above: this is a
+        // renewable fallback for players without iron access yet, not a replacement for mining.
+        RecipeBuilders.buildMetastasizing(recipeOutput, "metastasizing_blood_nugget",
+                Ingredient.of(Items.IRON_NUGGET), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250,
+                new ItemStack(ModItems.BLOOD_NUGGET.get()), solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_heavy_weighted_pressure_plate", Items.HEAVY_WEIGHTED_PRESSURE_PLATE,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
 

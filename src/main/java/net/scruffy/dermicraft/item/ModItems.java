@@ -61,6 +61,12 @@ public class ModItems {
     public static DeferredItem<Item> DENSE_MUSCLE = ITEMS.register("dense_muscle",
             () -> new PartItem(new Item.Properties().food(ModFoodProperties.DENSE_MUSCLE)));
 
+    // Blood Nugget: trace-iron intermediate for the Protein Blend -> Ferrous Blend alternate route
+    // (Metastasizer: Iron Nugget pattern + Protein Blend -> Blood Nugget; Masticator: Blood Nugget +
+    // Primitive Catalyst -> Ferrous Blend). Plain crafting item, not food.
+    public static final DeferredItem<Item> BLOOD_NUGGET = ITEMS.register("blood_nugget",
+            () -> new Item(new Item.Properties()));
+
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> MRE = ITEMS.register("mre",
             () -> new Item(new Item.Properties().food(ModFoodProperties.MRE)));

@@ -243,7 +243,10 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
         long elapsed = now - mode.since();
 
         SunderModeData next = switch (mode.stateEnum()) {
-            case IDLE -> holdingTrigger ? SunderModeData.of(SunderModeData.State.ARM_DELAY, now) : null;
+            // "Requires fuel to start" (design notes) gates only the INITIAL trigger -- once armed,
+            // sustaining an already-started rev doesn't re-check the tank here (dig-in's own fuel
+            // drain, not built yet, is what would ever empty it mid-sequence anyway).
+            case IDLE -> holdingTrigger && hasFuel(stack) ? SunderModeData.of(SunderModeData.State.ARM_DELAY, now) : null;
             case ARM_DELAY -> !holdingTrigger
                     ? SunderModeData.of(SunderModeData.State.IDLE, now) // released before the swap -- nothing to wind down
                     : elapsed >= ARM_DELAY_TICKS ? SunderModeData.of(SunderModeData.State.ACTIVE, now) : null;
@@ -255,6 +258,12 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
         };
 
         if (next != null) stack.set(ModDataComponentTypes.SUNDER_MODE_DATA.get(), next);
+    }
+
+    /** Non-empty, not any specific amount -- dig-in's exact fuel-cost-per-pulse is still an open
+     * number (see the design notes), so there's nothing yet to require more than "some." */
+    private boolean hasFuel(ItemStack stack) {
+        return !stack.getOrDefault(getDataType(), FluidData.EMPTY).isFluidEmpty();
     }
 
     ////////////////////Chain\\\\\\\\\\\\\\\\\\\\

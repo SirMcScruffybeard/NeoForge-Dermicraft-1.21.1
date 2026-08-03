@@ -29,7 +29,7 @@ A handheld gadget for mass item storage that never needs to be placed down to us
 
 ## Upgrade mechanic
 
-Suit-style point-spend — draws from the **same upgrade point pool as suit add-ons** (not a separate currency). Uniform 1-point cost per rank across all categories, matching the suits' own point-menu convention (13 categories, all 1 point/rank, magnitude-per-rank tuned individually rather than cross-balanced).
+Suit-style point-spend — reuses the suit add-on point-menu **mechanic**, but MAWS has its **own separate point pool**, not a shared currency with the suit (a broader pattern now settled: every complex gadget and the suit each get their own independent pool; only the point-spend mechanic itself is shared across them). Uniform 1-point cost per rank across all categories, matching the suits' own point-menu convention (13 categories, all 1 point/rank, magnitude-per-rank tuned individually rather than cross-balanced).
 
 ### Point-spend menu (all 1 point per rank)
 
