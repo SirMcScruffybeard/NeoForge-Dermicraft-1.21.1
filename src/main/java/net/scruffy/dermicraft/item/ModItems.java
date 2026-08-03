@@ -27,8 +27,10 @@ public class ModItems {
     public static final DeferredItem<Item> FUEL_BLADDER = ITEMS.register("fuel_bladder", () -> new BladderItem(false));
     public static final DeferredItem<Item> FEEDER_BLADDER = ITEMS.register("feeder_bladder", () -> new BladderItem(true));
 
-    // No mechanic yet -- see ScrenchItem's class javadoc.
-    public static final DeferredItem<Item> SCRENCH = ITEMS.register("scrench", () -> new ScrenchItem(new Item.Properties()));
+    // Generous durability, deliberately -- see ScrenchItem's class javadoc. 1 point of wear per
+    // completed chain swap only (see ScrenchMenu#applyCompletedSwapCosts), so this is a long-tail
+    // flavor mechanic, not a real balancing lever.
+    public static final DeferredItem<Item> SCRENCH = ITEMS.register("scrench", () -> new ScrenchItem(new Item.Properties().durability(250)));
 
     // Placeholder durability -- see SunderChainItem's class javadoc.
     public static final DeferredItem<Item> IRON_SUNDER_CHAIN = ITEMS.register("iron_sunder_chain",

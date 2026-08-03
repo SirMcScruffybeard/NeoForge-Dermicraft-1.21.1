@@ -271,6 +271,14 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
+        // Reverse ordering of BladderItem's own refuel-shortcut check -- see that method's javadoc.
+        if (player.getItemInHand(otherHand).getItem() instanceof BladderItem) {
+            if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
+            if (BladderItem.tryFillSunder(player, otherHand, hand)) {
+                return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), false);
+            }
+        }
+
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }

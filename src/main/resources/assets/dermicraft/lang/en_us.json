@@ -55,6 +55,7 @@
   "tooltip.dermicraft.sipping.disposal_warning": "Contents will be voided -- right-click again to confirm",
   "tooltip.dermicraft.sipping.voided": "Contents voided",
   "tooltip.dermicraft.sipping.transferred": "Transferred %s mB",
+  "tooltip.dermicraft.bladder.refueled": "Refueled %s mB",
   "item.dermicraft.syringe": "Syringe",
   "item.dermicraft.syringe.filled": "Syringe of %s",
 
@@ -280,6 +281,7 @@
   "death.attack.spicy_regret": "%1$s succumbed to spicy regret",
 
   "effect.dermicraft.bleed": "Bleed",
+  "effect.dermicraft.scrench_off_balance": "Off-Balance",
   "death.attack.bleed": "%1$s bled out",
 
 

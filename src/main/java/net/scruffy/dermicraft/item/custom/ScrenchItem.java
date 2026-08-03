@@ -11,8 +11,9 @@ import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 
 /**
  * Field tool for swapping Sunder's chain (and eventually Drill Hammer's head) without a Workbench
- * trip -- named after the real chainsaw tool's common nickname. Durability-wear-on-use isn't wired
- * up yet (see ScrenchMenu's TODO), only the trigger and the GUI itself.
+ * trip -- named after the real chainsaw tool's common nickname. Wears 1 point of durability per
+ * completed chain swap (see {@code ScrenchMenu#applyCompletedSwapCosts}) -- a refuel-only session
+ * costs nothing.
  *
  * <p>Cross-hand pairing check mirrors {@code SippingItem.tryHandTransfer}'s shape -- whichever hand
  * isn't holding the Scrench gets checked for Sunder. Covers "Scrench main hand, Sunder off hand"

@@ -26,4 +26,7 @@ public class ModEffects {
 
     public static final Holder<MobEffect> BLEED = MOB_EFFECTS.register("bleed",
             Bleed::new);
+
+    public static final Holder<MobEffect> SCRENCH_OFF_BALANCE = MOB_EFFECTS.register("scrench_off_balance",
+            ScrenchOffBalanceEffect::new);
 }
