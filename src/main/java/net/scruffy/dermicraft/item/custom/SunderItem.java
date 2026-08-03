@@ -145,8 +145,11 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
     private static final long RELEASE_DELAY_TICKS = 10;
     /** How long the transition-blend wind-down takes -- matches rev_up_down's own 0.25s (5-tick)
      * length, and is also the controller's transitionLength below, so the chain bone swap back to
-     * idle lines up with roughly when the blend finishes. */
-    private static final long UNREV_TICKS = 5;
+     * idle lines up with roughly when the blend finishes. Package-visible (not private) because
+     * {@code SunderGlowLayer} also needs rev_up_down's length -- to know when ACTIVE has moved past
+     * the one-shot clip and settled into the "running" hold loop, rather than duplicating this
+     * number in a second file where the two copies could drift apart. */
+    static final long UNREV_TICKS = 5;
 
     /** Effectively "until released" -- same trick DRINKER/EATER's held pose uses. */
     private static final int HELD_INDEFINITELY = 72000;
