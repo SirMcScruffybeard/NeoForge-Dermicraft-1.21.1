@@ -11,6 +11,9 @@
   "item.dermicraft.sipping": "S.I.P.P.I.N.G.",
   "item.dermicraft.drinker": "D.R.I.N.K.E.R.",
   "item.dermicraft.eater": "E.A.T.E.R.",
+  "item.dermicraft.sunder": "Sunder",
+  "item.dermicraft.scrench": "Scrench",
+  "item.dermicraft.iron_sunder_chain": "Iron Sunder Chain",
   "tooltip.dermicraft.eater.mode": "Mode: %s",
   "tooltip.dermicraft.eater.mode.storage": "Storage",
   "tooltip.dermicraft.eater.mode.transfer": "Transfer",
@@ -293,6 +296,8 @@
   "tooltip.dermicraft.gauge.input": "Input",
 
   "tooltip.dermicraft.slot.fuel_container": "Fuel Container",
+  "tooltip.dermicraft.slot.chain": "Chain",
+  "screen.dermicraft.scrench": "Sunder Maintenance",
   "tooltip.dermicraft.slot.reagent_container": "Reagent Container",
   "tooltip.dermicraft.slot.result_container": "Result Container",
   "tooltip.dermicraft.slot.input_container": "Input Container",

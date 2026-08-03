@@ -87,12 +87,15 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SUTURE_KIT);
                         output.accept(ModItems.FORCEPS);
                         output.accept(ModItems.IDEP);
+                        output.accept(ModItems.SCRENCH);
                         output.accept(ModItems.SIPPING);
                         output.accept(ModItems.DRINKER);
                         output.accept(ModItems.EATER);
                         output.accept(ModItems.BLADDER);
                         output.accept(ModItems.FUEL_BLADDER);
                         output.accept(ModItems.FEEDER_BLADDER);
+                        output.accept(ModItems.SUNDER);
+                        output.accept(ModItems.IRON_SUNDER_CHAIN);
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);

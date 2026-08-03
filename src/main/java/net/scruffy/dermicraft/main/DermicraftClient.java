@@ -146,6 +146,17 @@ public class DermicraftClient {
         // Same steady-hand shape as DRINKER -- see EaterClientExtensions.
         event.registerItem(new net.scruffy.dermicraft.item.custom.EaterClientExtensions(),
                 net.scruffy.dermicraft.item.ModItems.EATER.get());
+
+        // Placeholder renderer wiring -- see SunderItem's class javadoc. In-game only for model preview.
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private final net.scruffy.dermicraft.item.custom.SunderItemRenderer renderer =
+                    new net.scruffy.dermicraft.item.custom.SunderItemRenderer();
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return renderer;
+            }
+        }, net.scruffy.dermicraft.item.ModItems.SUNDER.get());
     }
 
     @SubscribeEvent
@@ -170,6 +181,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.RENDER_FURNACE_MENU.get(), RenderFurnaceScreen::new);
         event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);
         event.register(ModMenuTypes.RENDER_KILN_MENU.get(), RenderKilnScreen::new);
+        event.register(ModMenuTypes.SCRENCH_MENU.get(), net.scruffy.dermicraft.screen.custom.scrench.ScrenchScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

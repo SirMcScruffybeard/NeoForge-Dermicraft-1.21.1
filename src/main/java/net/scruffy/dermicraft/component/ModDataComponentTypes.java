@@ -73,6 +73,33 @@ public class ModDataComponentTypes {
                     .persistent(com.mojang.serialization.Codec.BOOL)
                     .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
 
+    /** Sunder's basic rev/dig-in state machine -- see {@link SunderModeData}. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SunderModeData>> SUNDER_MODE_DATA =
+            register("sunder_mode_data", builder -> builder
+                    .persistent(SunderModeData.CODEC)
+                    .networkSynchronized(SunderModeData.STREAM_CODEC));
+
+    /** The chain currently mounted on Sunder, held as a real (nested) {@link ItemStack} --
+     * reuses {@link HeldItemData}'s shape/codecs (same role as I.D.E.P.'s use of it) rather than a
+     * dedicated record, registered separately from {@link #HELD_ITEM_DATA} so a chain is never
+     * confused with I.D.E.P.'s held item (same "shared shape, separate registration per consumer"
+     * pattern as EATER_MODE_DATA reusing DrinkerModeData's codecs).
+     *
+     * <p>Storing the mounted chain as a real ItemStack (vanilla damage value and all) rather than a
+     * bespoke int stat is deliberate: nothing about vanilla's break-on-zero-durability behavior
+     * fires just because a nested ItemStack's damage value happens to reach its max -- that only
+     * happens through code paths that actively call {@code hurtAndBreak} on a stack sitting in a
+     * real slot. A chain stored here is inert data Sunder's own code fully controls, so "reaches 0
+     * without destroying Sunder" falls out for free rather than needing a separate int-based stat
+     * converted to/from vanilla durability at the Scrench GUI boundary (see the Chain durability
+     * design notes in {@code dermicraft-gadget-notes.md} -- this refines, rather than contradicts,
+     * that "dual representation" language: it's the same ItemStack representation throughout,
+     * relocated between a real inventory slot and this nested data value, not two different ones). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<HeldItemData>> SUNDER_MOUNTED_CHAIN =
+            register("sunder_mounted_chain", builder -> builder
+                    .persistent(HeldItemData.CODEC)
+                    .networkSynchronized(HeldItemData.STREAM_CODEC));
+
 
 
 

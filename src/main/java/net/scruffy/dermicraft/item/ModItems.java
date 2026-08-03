@@ -27,6 +27,13 @@ public class ModItems {
     public static final DeferredItem<Item> FUEL_BLADDER = ITEMS.register("fuel_bladder", () -> new BladderItem(false));
     public static final DeferredItem<Item> FEEDER_BLADDER = ITEMS.register("feeder_bladder", () -> new BladderItem(true));
 
+    // No mechanic yet -- see ScrenchItem's class javadoc.
+    public static final DeferredItem<Item> SCRENCH = ITEMS.register("scrench", () -> new ScrenchItem(new Item.Properties()));
+
+    // Placeholder durability -- see SunderChainItem's class javadoc.
+    public static final DeferredItem<Item> IRON_SUNDER_CHAIN = ITEMS.register("iron_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(250)));
+
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
     public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().durability(SippingItem.MAX_HP)));
 
@@ -35,6 +42,14 @@ public class ModItems {
 
     // Durability is gadget HP, not wear -- see IGadget. Base tier only, see EaterItem's class javadoc.
     public static final DeferredItem<Item> EATER = ITEMS.register("eater", () -> new EaterItem(new Item.Properties().durability(EaterItem.MAX_HP)));
+
+    ////////////////////Weapons\\\\\\\\\\\\\\\\\\\\
+    // Placeholder -- no rev/dig-in mechanic yet, see SunderItem's class javadoc. In-game only for model preview.
+    // No .attributes() here on purpose -- Sunder's combat stats vary with the mounted chain, so they
+    // come from its getDefaultAttributeModifiers(ItemStack) override instead. Setting them here would
+    // shadow that override entirely (see the method's javadoc).
+    public static final DeferredItem<Item> SUNDER = ITEMS.register("sunder",
+            () -> new SunderItem(new Item.Properties().stacksTo(1)));
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",

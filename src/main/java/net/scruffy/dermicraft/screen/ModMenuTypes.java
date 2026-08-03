@@ -20,6 +20,7 @@ import net.scruffy.dermicraft.screen.custom.mutator.MutatorMenu;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
 import net.scruffy.dermicraft.screen.custom.render_furnace.RenderFurnaceMenu;
 import net.scruffy.dermicraft.screen.custom.render_kiln.RenderKilnMenu;
+import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 
 public class ModMenuTypes {
@@ -64,6 +65,10 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<RenderKilnMenu>> RENDER_KILN_MENU =
             registerMenuType("render_kiln_menu", RenderKilnMenu::new);
+
+    // First item-triggered menu in the mod, no block entity -- see ScrenchMenu's class javadoc.
+    public static final DeferredHolder<MenuType<?>, MenuType<ScrenchMenu>> SCRENCH_MENU =
+            registerMenuType("scrench_menu", ScrenchMenu::new);
 
 
 

@@ -1,0 +1,11 @@
+{
+  "values": {
+    "dermicraft:iron_sunder_chain": {
+      "bleed_chance": 0.5,
+      "damage_multiplier": 1.0,
+      "decap_chance": 0.2,
+      "durability": 250,
+      "tint": "#D8D8D8"
+    }
+  }
+}
