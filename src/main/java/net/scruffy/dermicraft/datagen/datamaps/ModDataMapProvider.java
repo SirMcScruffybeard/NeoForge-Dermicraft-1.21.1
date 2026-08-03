@@ -5,6 +5,8 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.scruffy.dermicraft.fluid.ModFluids;
@@ -75,6 +77,22 @@ public class ModDataMapProvider extends DataMapProvider {
 
                 ;
 
+        // Scoped to mobs with a real vanilla head/skull item already -- see the design notes.
+        // Player excluded deliberately: a real player head needs profile NBT, not just an Item
+        // reference, so it doesn't fit this data map's shape -- a separate mechanism if ever wanted.
+        // Ender Dragon included despite being a one-time boss, not regular combat fodder -- it's
+        // re-fightable, other mods already use Dragon Head for farming setups, and there may be a
+        // future use for it here too.
+        this.builder(ModDataMaps.DECAPITATION_HEADS)
+                .add(getResourceLocation(EntityType.SKELETON), Items.SKELETON_SKULL, false)
+                .add(getResourceLocation(EntityType.WITHER_SKELETON), Items.WITHER_SKELETON_SKULL, false)
+                .add(getResourceLocation(EntityType.ZOMBIE), Items.ZOMBIE_HEAD, false)
+                .add(getResourceLocation(EntityType.CREEPER), Items.CREEPER_HEAD, false)
+                .add(getResourceLocation(EntityType.PIGLIN), Items.PIGLIN_HEAD, false)
+                .add(getResourceLocation(EntityType.ENDER_DRAGON), Items.DRAGON_HEAD, false)
+
+                ;
+
     }
 
     private static ResourceLocation getResourceLocation(Supplier<FlowingFluid> fluid) {
@@ -83,5 +101,9 @@ public class ModDataMapProvider extends DataMapProvider {
 
     private static ResourceLocation getResourceLocation(net.neoforged.neoforge.registries.DeferredItem<net.minecraft.world.item.Item> item) {
         return BuiltInRegistries.ITEM.getKey(item.get());
+    }
+
+    private static ResourceLocation getResourceLocation(EntityType<?> entityType) {
+        return BuiltInRegistries.ENTITY_TYPE.getKey(entityType);
     }
 }

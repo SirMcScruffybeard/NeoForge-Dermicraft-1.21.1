@@ -9,6 +9,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -19,6 +20,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.effect.ModEffects;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.HeldItemData;
@@ -156,9 +159,34 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
+    /** Placeholder duration -- not tuned, see the design notes' open questions. */
+    private static final int BLEED_DURATION_TICKS = 100;
+
     public SunderItem(Properties properties) {
         super(properties);
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
+    }
+
+    ////////////////////Combat\\\\\\\\\\\\\\\\\\\\
+
+    /**
+     * Standard-hit Bleed roll -- decapitation is handled separately (see {@code SunderEvents}),
+     * since it only matters on the killing blow, not every hit. A missing/broken chain rolls a flat
+     * 0% here for free: {@link #chainProperties} returns {@code null} in that case, and
+     * {@code chain == null} short-circuits before any roll happens.
+     *
+     * <p>Dig-in's own Bleed (a guarantee, not a chance) isn't handled here at all -- dig-in doesn't
+     * exist yet, see the design notes.
+     */
+    @Override
+    public boolean hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        ChainProperties chain = chainProperties(stack);
+        if (chain != null && !target.getType().is(ModTags.EntityTypes.NOT_BLEEDABLE)
+                && attacker.getRandom().nextFloat() < chain.bleedChance()) {
+            target.addEffect(new MobEffectInstance(ModEffects.BLEED, BLEED_DURATION_TICKS));
+        }
+
+        return super.hurtEnemy(stack, target, attacker);
     }
 
     ////////////////////Held pose\\\\\\\\\\\\\\\\\\\\

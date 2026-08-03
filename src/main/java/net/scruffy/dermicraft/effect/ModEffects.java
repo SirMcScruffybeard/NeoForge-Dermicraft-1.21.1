@@ -23,4 +23,7 @@ public class ModEffects {
 
     public static final Holder<MobEffect> SPICY_REGRET = MOB_EFFECTS.register("spicy_regret",
             SpicyRegretEffect::new);
+
+    public static final Holder<MobEffect> BLEED = MOB_EFFECTS.register("bleed",
+            Bleed::new);
 }

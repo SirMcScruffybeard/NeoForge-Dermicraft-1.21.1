@@ -1,10 +1,12 @@
 package net.scruffy.dermicraft.datagen.tag;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
@@ -56,6 +58,17 @@ public class ModTags {
 
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
+        }
+    }
+
+    public static class EntityTypes {
+        // Denylist, not an allowlist -- most living things bleed, so exceptions are named
+        // explicitly rather than requiring every bleedable mob to be tagged in. A new mob added to
+        // the game (or another mod) is bleedable by default without needing to be added here.
+        public static final TagKey<EntityType<?>> NOT_BLEEDABLE = createTag("not_bleedable");
+
+        private static TagKey<EntityType<?>> createTag(String name) {
+            return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }
     }
 

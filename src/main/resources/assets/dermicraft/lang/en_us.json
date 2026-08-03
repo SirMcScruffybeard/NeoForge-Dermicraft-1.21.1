@@ -278,6 +278,9 @@
   "effect.dermicraft.spicy_regret": "Spicy Regret",
   "death.attack.spicy_regret": "%1$s succumbed to spicy regret",
 
+  "effect.dermicraft.bleed": "Bleed",
+  "death.attack.bleed": "%1$s bled out",
+
 
 
   "tooltip.dermicraft.liquid.amount.with.capacity": "%s / %s mB",

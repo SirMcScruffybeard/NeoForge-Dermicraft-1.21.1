@@ -1,7 +1,9 @@
 package net.scruffy.dermicraft.datagen.datamaps;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -40,11 +42,25 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** Which mobs can be mechanically decapitated -- scoped for now to mobs that already have a
+     * real vanilla head/skull item (Skeleton, Wither Skeleton, Zombie, Creeper, Piglin), per the
+     * design decision not to author brand-new head items for every mob type yet. Bare Item value
+     * (no wrapper record) since "does this mob have a head to drop" is the whole question -- no
+     * per-mob nuance needed beyond which item that head is. */
+    public static final DataMapType<EntityType<?>, Item> DECAPITATION_HEADS =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "decapitation_heads"),
+                            Registries.ENTITY_TYPE,
+                            BuiltInRegistries.ITEM.byNameCodec()
+                    )
+                    .build();
+
 
     @SubscribeEvent
     public static void register(RegisterDataMapTypesEvent event) {
         event.register(BIOFUELS);
         event.register(EDIBLE_FLUID);
         event.register(SUNDER_CHAIN_PROPERTIES);
+        event.register(DECAPITATION_HEADS);
     }
 }

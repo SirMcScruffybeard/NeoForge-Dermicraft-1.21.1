@@ -15,6 +15,8 @@ public class ModDamageTypes {
 
     public static final ResourceKey<DamageType> SPICY_REGRET = registerDamage("spicy_regret");
 
+    public static final ResourceKey<DamageType> BLEED = registerDamage("bleed");
+
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
     public static ResourceKey<DamageType> registerDamage(String name) {

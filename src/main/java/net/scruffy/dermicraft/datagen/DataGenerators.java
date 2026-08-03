@@ -13,6 +13,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMapProvider;
 import net.scruffy.dermicraft.datagen.recipe.ModRecipeProvider;
 import net.scruffy.dermicraft.datagen.tag.ModBlockTagPorvider;
+import net.scruffy.dermicraft.datagen.tag.ModEntityTypeTagProvider;
 import net.scruffy.dermicraft.datagen.tag.ModFluidTagProvider;
 import net.scruffy.dermicraft.datagen.tag.ModItemTagProvider;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -38,6 +39,7 @@ public class DataGenerators {
         generator.addProvider(event.includeServer(), blockTagsProvider);
         generator.addProvider(event.includeServer(), new ModItemTagProvider(packOutput, lookupProvider, blockTagsProvider.contentsGetter(),existingFileHelper));
         generator.addProvider(event.includeServer(), new ModFluidTagProvider(packOutput, lookupProvider, existingFileHelper));
+        generator.addProvider(event.includeServer(), new ModEntityTypeTagProvider(packOutput, lookupProvider, existingFileHelper));
 
         generator.addProvider(event.includeClient(), new ModItemModelProvider(packOutput, existingFileHelper));
 
