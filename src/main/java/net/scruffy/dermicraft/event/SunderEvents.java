@@ -1,14 +1,19 @@
 package net.scruffy.dermicraft.event;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.component.SunderModeData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
@@ -41,6 +46,11 @@ public class SunderEvents {
      * matters on the killing blow, not every hit. A missing/broken chain rolls a flat 0% for free
      * ({@link SunderItem#chainProperties} returns {@code null} in that case). Scoped to mobs with a
      * real vanilla head item already -- see {@link ModDataMaps#DECAPITATION_HEADS}.
+     *
+     * <p>Guaranteed, not rolled, if the weapon's mode is still SAWING at the moment this fires --
+     * safe to check directly rather than needing a separate signal, since {@code inventoryTick}'s
+     * own SAWING-exit only runs on a later tick, not synchronously inside the {@code target.hurt()}
+     * call that triggers this event, so the stack still reads SAWING for a genuine dig-in kill.
      */
     @SubscribeEvent
     public static void onLivingDrops(LivingDropsEvent event) {
@@ -51,11 +61,39 @@ public class SunderEvents {
         if (chain == null) return;
 
         LivingEntity target = event.getEntity();
-        if (target.getRandom().nextFloat() >= chain.decapChance()) return;
+        SunderModeData mode = weapon.getOrDefault(ModDataComponentTypes.SUNDER_MODE_DATA.get(), SunderModeData.DEFAULT);
+        boolean guaranteed = mode.stateEnum() == SunderModeData.State.SAWING;
+        if (!guaranteed && target.getRandom().nextFloat() >= chain.decapChance()) return;
 
         Item head = BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(target.getType()).getData(ModDataMaps.DECAPITATION_HEADS);
         if (head == null) return;
 
         event.getDrops().add(new ItemEntity(target.level(), target.getX(), target.getY(), target.getZ(), new ItemStack(head)));
+    }
+
+    /**
+     * SAWING's interruption trigger -- knockback dealt TO THE PLAYER, not knockback dealt to the
+     * target and not damage taken (a hit that doesn't impart knockback shouldn't cancel it). Checks
+     * both hands since the player could be holding Sunder in either.
+     */
+    @SubscribeEvent
+    public static void onPlayerKnockedBack(LivingKnockBackEvent event) {
+        if (!(event.getEntity() instanceof Player player) || player.level().isClientSide) return;
+        ServerLevel level = (ServerLevel) player.level();
+
+        for (InteractionHand hand : InteractionHand.values()) {
+            ItemStack stack = player.getItemInHand(hand);
+            if (!(stack.getItem() instanceof SunderItem sunder)) continue;
+
+            SunderModeData mode = stack.getOrDefault(ModDataComponentTypes.SUNDER_MODE_DATA.get(), SunderModeData.DEFAULT);
+            if (mode.stateEnum() != SunderModeData.State.SAWING) continue;
+
+            Entity resolved = mode.target().map(level::getEntity).orElse(null);
+            LivingEntity target = resolved instanceof LivingEntity living && living.isAlive() ? living : null;
+
+            long now = level.getGameTime();
+            boolean holdingTrigger = player.isUsingItem() && player.getUseItem() == stack;
+            sunder.endSawing(stack, level, player, target, now - mode.since(), holdingTrigger, now);
+        }
     }
 }

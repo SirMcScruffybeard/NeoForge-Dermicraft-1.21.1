@@ -51,7 +51,7 @@ public class SunderItemModel extends GeoModel<SunderItem> {
         }
 
         boolean showRunning = switch (mode.stateEnum()) {
-            case ACTIVE, RELEASE_DELAY, UNREVVING -> true;
+            case ACTIVE, SAWING, RELEASE_DELAY, UNREVVING -> true;
             case IDLE, ARM_DELAY -> false;
         };
 

@@ -102,7 +102,7 @@
 				}
 			}
 		},
-		"dig": {
+		"saw": {
 			"animation_length": 0.25,
 			"bones": {
 				"blade": {
@@ -146,6 +146,28 @@
 							"easing": "easeInBounce",
 							"easingArgs": [1]
 						}
+					}
+				}
+			}
+		},
+		"swing_rest": {
+			"loop": true,
+			"animation_length": 0.05,
+			"bones": {
+				"main": {
+					"rotation": {
+						"vector": [0, 0, 0]
+					}
+				}
+			}
+		},
+		"attack": {
+			"loop": true,
+			"bones": {
+				"main": {
+					"rotation": {
+						"vector": [72.7046, 4.6864, -14.6882],
+						"easing": "easeInCirc"
 					}
 				}
 			}

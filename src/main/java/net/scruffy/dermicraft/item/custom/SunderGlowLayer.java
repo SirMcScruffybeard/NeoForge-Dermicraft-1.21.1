@@ -94,7 +94,8 @@ public class SunderGlowLayer extends AutoGlowingGeoLayer<SunderItem> {
             // HOLD specifically, not the mechanical rev-up, so elapsed time spent still playing
             // rev_up_down (its first SunderItem.UNREV_TICKS) doesn't count toward the fade at all.
             case ACTIVE -> Mth.clamp((elapsed - SunderItem.UNREV_TICKS) / FADE_TICKS, 0.0F, 1.0F);
-            case RELEASE_DELAY -> 1.0F;
+            // SAWING is always at full heat -- mid-cutting is definitively hot, no ramp needed.
+            case SAWING, RELEASE_DELAY -> 1.0F;
             case UNREVVING -> Mth.clamp(1.0F - elapsed / FADE_TICKS, 0.0F, 1.0F);
             case IDLE, ARM_DELAY -> 0.0F;
         };
