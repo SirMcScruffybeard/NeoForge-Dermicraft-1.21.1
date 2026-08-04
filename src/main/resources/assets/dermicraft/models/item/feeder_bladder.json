@@ -2,7 +2,8 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "dermicraft:item/bladder/fluid_bladder_empty",
-    "layer1": "dermicraft:item/bladder/feeder_bladder_adapter"
+    "layer1": "dermicraft:item/bladder/fluid_bladder_empty_skin",
+    "layer2": "dermicraft:item/bladder/feeder_bladder_adapter"
   },
   "overrides": [
     {"predicate": {"dermicraft:full": 1.0}, "model": "dermicraft:item/feeder_bladder/feeder_bladder_half"},

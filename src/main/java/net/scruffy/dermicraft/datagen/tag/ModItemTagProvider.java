@@ -55,6 +55,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.MEAT_FOOD)
                 .addTag(ModTags.Items.ANIMAL_MEATS)
                 .addTag(Tags.Items.FOODS_COOKED_MEAT)
+                .add(ModItems.MEAT_FLAVORED_MEAT.get())
         ;
 
         tag(ModTags.Items.PART_ITEMS)
