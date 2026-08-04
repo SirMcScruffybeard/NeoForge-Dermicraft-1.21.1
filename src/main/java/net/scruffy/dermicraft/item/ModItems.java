@@ -32,9 +32,16 @@ public class ModItems {
     // flavor mechanic, not a real balancing lever.
     public static final DeferredItem<Item> SCRENCH = ITEMS.register("scrench", () -> new ScrenchItem(new Item.Properties().durability(250)));
 
-    // Placeholder durability -- see SunderChainItem's class javadoc.
+    // Placeholder durability (per material, matching each one's own ChainProperties durability
+    // value -- see ModDataMapProvider) -- see SunderChainItem's class javadoc.
     public static final DeferredItem<Item> IRON_SUNDER_CHAIN = ITEMS.register("iron_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(250)));
+    public static final DeferredItem<Item> COPPER_SUNDER_CHAIN = ITEMS.register("copper_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(150)));
+    public static final DeferredItem<Item> GOLD_SUNDER_CHAIN = ITEMS.register("gold_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(100)));
+    public static final DeferredItem<Item> DIAMOND_SUNDER_CHAIN = ITEMS.register("diamond_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(400)));
 
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
     public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().durability(SippingItem.MAX_HP)));

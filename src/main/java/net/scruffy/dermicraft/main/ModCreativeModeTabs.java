@@ -96,6 +96,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.FEEDER_BLADDER);
                         output.accept(ModItems.SUNDER);
                         output.accept(ModItems.IRON_SUNDER_CHAIN);
+                        output.accept(ModItems.COPPER_SUNDER_CHAIN);
+                        output.accept(ModItems.GOLD_SUNDER_CHAIN);
+                        output.accept(ModItems.DIAMOND_SUNDER_CHAIN);
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);

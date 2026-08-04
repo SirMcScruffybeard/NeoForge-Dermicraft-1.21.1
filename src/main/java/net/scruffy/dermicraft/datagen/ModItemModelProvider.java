@@ -37,6 +37,13 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.MRE.get());
         basicItem(ModItems.MEAT_FLAVORED_MEAT.get());
 
+        // Non-standard texture folder (item/sunder_chains/, not item/) -- basicItem()'s default
+        // texture-path-matches-item-id assumption doesn't reach it, hence the explicit path.
+        sunderChainItem(ModItems.IRON_SUNDER_CHAIN.get(), "item/sunder_chains/iron_sunder_chain");
+        sunderChainItem(ModItems.COPPER_SUNDER_CHAIN.get(), "item/sunder_chains/copper_sunder_chain");
+        sunderChainItem(ModItems.GOLD_SUNDER_CHAIN.get(), "item/sunder_chains/gold_sunder_chain");
+        sunderChainItem(ModItems.DIAMOND_SUNDER_CHAIN.get(), "item/sunder_chains/diamond_sunder_chain");
+
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
         chunkyBucketItem(ModFluids.CALCIUM_BLEND_BUCKET.get());
@@ -84,6 +91,15 @@ public class ModItemModelProvider extends ItemModelProvider {
     // Thin fluids (catalysts, F/C-Stuff) use the thin, water-like fill overlay.
     private ItemModelBuilder thinBucketItem(Item item) {
         return bucketItem(item, "item/bucket/bucket_fluid_thin");
+    }
+
+    // Standalone chain spares -- real hand-painted per-material textures (not a runtime tint like
+    // Sunder's own mounted-chain bones), living under item/sunder_chains/ rather than item/ directly.
+    private void sunderChainItem(Item item, String texturePath) {
+        ResourceLocation id = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item));
+        getBuilder(id.toString())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(id.getNamespace(), texturePath));
     }
 
     // layer0 is the untinted vanilla bucket body; layer1 is the fill overlay, tinted per-fluid via item color handlers.

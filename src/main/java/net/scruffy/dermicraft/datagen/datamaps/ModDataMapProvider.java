@@ -70,10 +70,33 @@ public class ModDataMapProvider extends DataMapProvider {
         // - no status effect: signature traits are reserved for special-case materials.
         //
         // Numbers are first-pass and untuned -- see the design notes' open questions.
+        // Copper/Gold/Diamond (2026-08-03, first pass, untuned) -- all defined relative to Iron's
+        // baseline above, tint reused directly from each material's own equivalent fluid (Cuprous/
+        // Aurous/Molten Diamond Blend, see ModFluidTypes) per the same "no independent base tint"
+        // rule Iron's own comment explains.
+        // - Copper: a below-Iron budget option -- lower damage and durability (softer metal than
+        //   iron), but a slight Bleed edge (thin, easily-sharpened, wears fast) rather than being
+        //   strictly worse across every stat.
+        // - Gold: a side-grade, not a strict upgrade -- low durability (matches vanilla gold tools'
+        //   own fragility), and a higher decapitation chance to compensate (soft metal takes a razor
+        //   edge easily). Signature trait (2026-08-03): a 20% per-drop "weak Fortune/Looting" bonus
+        //   on kill -- see ChainProperties' own javadoc and SunderEvents#onLivingDrops. No MobEffect
+        //   status effect (that slot stays reserved) -- this material's signature trait lives in the
+        //   dedicated loot_bonus_chance field instead, since bonus loot isn't a status effect.
+        // - Diamond: a clear step up on all four base stats over Iron, per the design discussion.
         this.builder(ModDataMaps.SUNDER_CHAIN_PROPERTIES)
                 .add(getResourceLocation(ModItems.IRON_SUNDER_CHAIN),
-                        new ChainProperties(1.0f, 0.50f, 0.20f, 250,
+                        new ChainProperties(1.0f, 0.50f, 0.20f, 0.0f, 250,
                                 TextColor.fromRgb(0xD8D8D8), Optional.empty()), false)
+                .add(getResourceLocation(ModItems.COPPER_SUNDER_CHAIN),
+                        new ChainProperties(0.85f, 0.60f, 0.15f, 0.0f, 150,
+                                TextColor.fromRgb(0xB87333), Optional.empty()), false)
+                .add(getResourceLocation(ModItems.GOLD_SUNDER_CHAIN),
+                        new ChainProperties(0.90f, 0.45f, 0.30f, 0.20f, 100,
+                                TextColor.fromRgb(0xD4AF37), Optional.empty()), false)
+                .add(getResourceLocation(ModItems.DIAMOND_SUNDER_CHAIN),
+                        new ChainProperties(1.25f, 0.65f, 0.30f, 0.0f, 400,
+                                TextColor.fromRgb(0x6FCFC4), Optional.empty()), false)
 
                 ;
 

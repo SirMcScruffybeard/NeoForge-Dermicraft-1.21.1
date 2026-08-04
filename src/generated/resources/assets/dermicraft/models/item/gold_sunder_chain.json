@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/sunder_chains/gold_sunder_chain"
+  }
+}

@@ -21,6 +21,8 @@ import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.ChainProperties;
 
+import java.util.List;
+
 /**
  * Hard-resets Sunder's rev state on toss -- without this, a dropped Sunder freezes wherever its
  * state machine happened to be (e.g. mid-revved) forever, since {@code inventoryTick} only runs
@@ -69,6 +71,32 @@ public class SunderEvents {
         if (head == null) return;
 
         event.getDrops().add(new ItemEntity(target.level(), target.getX(), target.getY(), target.getZ(), new ItemStack(head)));
+    }
+
+    /**
+     * Gold's signature trait -- a "weak Fortune/Looting" bonus, see {@link ChainProperties}' own
+     * javadoc for why this isn't trying to reuse vanilla's real enchantment mechanic. Separate
+     * {@code @SubscribeEvent} method, not folded into {@link #onLivingDrops} above -- rolls against
+     * a snapshot of the drops list (via {@code List.copyOf}) rather than the live one, since adding
+     * to a collection while iterating it throws {@code ConcurrentModificationException}; this also
+     * means it naturally sees decapitation's own head drop too if that handler ran first (both are
+     * registered on the same event, order not guaranteed either way, but harmless regardless of
+     * which fires first).
+     */
+    @SubscribeEvent
+    public static void onLivingDropsLootBonus(LivingDropsEvent event) {
+        ItemStack weapon = event.getSource().getWeaponItem();
+        if (weapon == null || !(weapon.getItem() instanceof SunderItem)) return;
+
+        ChainProperties chain = SunderItem.chainProperties(weapon);
+        if (chain == null || chain.lootBonusChance() <= 0.0f) return;
+
+        LivingEntity target = event.getEntity();
+        for (ItemEntity drop : List.copyOf(event.getDrops())) {
+            if (target.getRandom().nextFloat() < chain.lootBonusChance()) {
+                event.getDrops().add(new ItemEntity(target.level(), target.getX(), target.getY(), target.getZ(), drop.getItem().copy()));
+            }
+        }
     }
 
     /**

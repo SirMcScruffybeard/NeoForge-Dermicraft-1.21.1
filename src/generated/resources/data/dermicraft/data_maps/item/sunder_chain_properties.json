@@ -1,5 +1,27 @@
 {
   "values": {
+    "dermicraft:copper_sunder_chain": {
+      "bleed_chance": 0.6,
+      "damage_multiplier": 0.85,
+      "decap_chance": 0.15,
+      "durability": 150,
+      "tint": "#B87333"
+    },
+    "dermicraft:diamond_sunder_chain": {
+      "bleed_chance": 0.65,
+      "damage_multiplier": 1.25,
+      "decap_chance": 0.3,
+      "durability": 400,
+      "tint": "#6FCFC4"
+    },
+    "dermicraft:gold_sunder_chain": {
+      "bleed_chance": 0.45,
+      "damage_multiplier": 0.9,
+      "decap_chance": 0.3,
+      "durability": 100,
+      "loot_bonus_chance": 0.2,
+      "tint": "#D4AF37"
+    },
     "dermicraft:iron_sunder_chain": {
       "bleed_chance": 0.5,
       "damage_multiplier": 1.0,

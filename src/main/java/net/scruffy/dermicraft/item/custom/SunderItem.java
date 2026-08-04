@@ -1,5 +1,6 @@
 package net.scruffy.dermicraft.item.custom;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -548,26 +549,61 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
 
     ////////////////////Tooltip\\\\\\\\\\\\\\\\\\\\
 
-    /** Same shape as BladderItem's identical override -- shift-to-reveal exact amount. */
+    /** Fuel and chain durability always show (no shift-gate) -- both are "can I keep using this
+     * right now" reads, not incidental detail. Fuel mirrors FluidTankRenderer#getTooltip's own
+     * shape (name line + gray amount/capacity line); chain durability replaces the old
+     * testability-only raw-literal line now that this is real tooltip copy.
+     *
+     * <p>Everything else -- calculated damage and the chain's Bleed/decapitation/bonus-loot chances
+     * -- is shift-gated, same as {@link SunderChainItem}'s own stat tooltip, and reused from live
+     * state every call: since {@link #chainProperties} reads the current mounted chain fresh each
+     * time, this naturally reflects whatever chain is mounted right now with no extra wiring needed
+     * for it to "update" after a Scrench swap -- there's no cached/stale copy anywhere to invalidate.
+     * Damage is shown as the actual computed number (base + chain's shift combined), not a repeat of
+     * the chain's own raw percent, which is what {@code SunderChainItem} already shows -- this is
+     * meant to answer "what does Sunder hit for right now," not restate the chain's own stat line.
+     *
+     * <p>Note this doesn't suppress vanilla's own automatic Attack Damage/Attack Speed tooltip lines
+     * from {@link #getDefaultAttributeModifiers} -- those still always show regardless of shift,
+     * same as any other weapon; the computed Damage line here is a convenience restatement, not a
+     * replacement for them. */
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<Component> tooltip, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltip, tooltipFlag);
 
         FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
         if (!data.isFluidEmpty()) {
-            if (Screen.hasShiftDown()) {
-                tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount", data.getFluidAmount()));
-            } else {
-                tooltip.add(Component.translatable("tooltip.dermicraft.hold_shift_for_amount"));
-            }
+            tooltip.add(data.getFluidComponent());
+            tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity",
+                    data.getFluidAmount(), FUEL_CAPACITY).withStyle(ChatFormatting.GRAY));
         }
 
-        // Testability only, not final tooltip copy -- lets chain mount/clear be verified in-game
-        // before the Scrench GUI (the real player-facing path) exists.
-        ItemStack chain = mountedChain(stack).itemStack();
-        tooltip.add(Component.literal(chain.isEmpty()
-                ? "Chain: none"
-                : "Chain: " + chain.getHoverName().getString() + " (" + (chain.getMaxDamage() - chain.getDamageValue()) + "/" + chain.getMaxDamage() + ")"));
+        ItemStack chainStack = mountedChain(stack).itemStack();
+        if (chainStack.isEmpty()) {
+            tooltip.add(Component.translatable("tooltip.dermicraft.sunder.chain_none").withStyle(ChatFormatting.GRAY));
+        } else {
+            tooltip.add(Component.translatable("tooltip.dermicraft.sunder.chain_durability", chainStack.getHoverName(),
+                    chainStack.getMaxDamage() - chainStack.getDamageValue(), chainStack.getMaxDamage()).withStyle(ChatFormatting.GRAY));
+        }
+
+        if (!Screen.hasShiftDown()) {
+            tooltip.add(Component.translatable("tooltip.dermicraft.hold_shift_for_stats"));
+            return;
+        }
+
+        ChainProperties chain = chainProperties(stack);
+        float damageShift = chain == null ? NO_CHAIN_DAMAGE_PENALTY : chain.damageMultiplier() - 1.0F;
+        float effectiveDamage = BASE_ATTACK_DAMAGE * (1.0F + damageShift);
+        tooltip.add(Component.translatable("tooltip.dermicraft.sunder.damage", String.format("%.2f", effectiveDamage))
+                .withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.bleed_chance",
+                Math.round((chain == null ? 0.0F : chain.bleedChance()) * 100)).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.decap_chance",
+                Math.round((chain == null ? 0.0F : chain.decapChance()) * 100)).withStyle(ChatFormatting.GRAY));
+        if (chain != null && chain.lootBonusChance() > 0.0F) {
+            tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.loot_bonus",
+                    Math.round(chain.lootBonusChance() * 100)).withStyle(ChatFormatting.GRAY));
+        }
     }
 
     ////////////////////Animation\\\\\\\\\\\\\\\\\\\\
