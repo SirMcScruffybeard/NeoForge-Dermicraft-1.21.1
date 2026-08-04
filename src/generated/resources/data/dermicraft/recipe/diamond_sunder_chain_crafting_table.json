@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": {
+      "tag": "c:gems/diamond"
+    },
+    "N": {
+      "tag": "c:nuggets/iron"
+    }
+  },
+  "pattern": [
+    "NIN",
+    "I I",
+    "NIN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:diamond_sunder_chain"
+  }
+}

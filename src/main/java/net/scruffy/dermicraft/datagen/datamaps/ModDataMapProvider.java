@@ -97,6 +97,18 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModItems.DIAMOND_SUNDER_CHAIN),
                         new ChainProperties(1.25f, 0.65f, 0.30f, 0.0f, 400,
                                 TextColor.fromRgb(0x6FCFC4), Optional.empty()), false)
+                // Bone (2026-08-03) -- the renewable budget option (mob drops, no mining required),
+                // distinct from Copper's own budget niche rather than a duplicate of it: lowest
+                // damage and durability in the roster (brittle), but the highest Bleed chance of any
+                // material (jagged shards, not a clean edge) -- pushes the same "fragile but bleeds
+                // well" idea further than Copper does rather than sitting redundantly next to it.
+                // Lowest decap chance too (jagged bone doesn't take a clean edge for decapitation the
+                // way a honed blade does). No independent tint source (no equivalent fluid -- Bone
+                // never gets a Mutator recipe of its own, see the recipe provider) -- a standalone
+                // bone-ivory pick instead.
+                .add(getResourceLocation(ModItems.BONE_SUNDER_CHAIN),
+                        new ChainProperties(0.75f, 0.75f, 0.10f, 0.0f, 75,
+                                TextColor.fromRgb(0xE3DAC9), Optional.empty()), false)
 
                 ;
 

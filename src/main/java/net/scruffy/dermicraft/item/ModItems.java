@@ -42,6 +42,8 @@ public class ModItems {
             () -> new SunderChainItem(new Item.Properties().durability(100)));
     public static final DeferredItem<Item> DIAMOND_SUNDER_CHAIN = ITEMS.register("diamond_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(400)));
+    public static final DeferredItem<Item> BONE_SUNDER_CHAIN = ITEMS.register("bone_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(75)));
 
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
     public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().durability(SippingItem.MAX_HP)));

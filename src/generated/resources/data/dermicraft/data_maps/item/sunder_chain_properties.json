@@ -1,5 +1,12 @@
 {
   "values": {
+    "dermicraft:bone_sunder_chain": {
+      "bleed_chance": 0.75,
+      "damage_multiplier": 0.75,
+      "decap_chance": 0.1,
+      "durability": 75,
+      "tint": "#E3DAC9"
+    },
     "dermicraft:copper_sunder_chain": {
       "bleed_chance": 0.6,
       "damage_multiplier": 0.85,

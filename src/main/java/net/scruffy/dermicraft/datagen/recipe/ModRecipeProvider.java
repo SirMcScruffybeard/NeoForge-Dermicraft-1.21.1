@@ -116,6 +116,47 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("idep_crafting_table"));
 
 
+        ////////////////////Sunder Chains\\\\\\\\\\\\\\\\\\\\
+        // Shared pattern across every material -- an ingot (or ingot-equivalent -- Diamond has no
+        // ingot tier) at N/S/E/W, an Iron Nugget at each corner regardless of material (the nugget
+        // is the chain's universal hardware, only the "blade" material itself changes).
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.IRON_SUNDER_CHAIN)
+                .pattern("NIN").pattern("I I").pattern("NIN")
+                .define('I', Tags.Items.INGOTS_IRON)
+                .define('N', Tags.Items.NUGGETS_IRON)
+                .unlockedBy("has_iron_ingot", has(Tags.Items.INGOTS_IRON))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("iron_sunder_chain_crafting_table"));
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.COPPER_SUNDER_CHAIN)
+                .pattern("NIN").pattern("I I").pattern("NIN")
+                .define('I', Tags.Items.INGOTS_COPPER)
+                .define('N', Tags.Items.NUGGETS_IRON)
+                .unlockedBy("has_copper_ingot", has(Tags.Items.INGOTS_COPPER))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("copper_sunder_chain_crafting_table"));
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.GOLD_SUNDER_CHAIN)
+                .pattern("NIN").pattern("I I").pattern("NIN")
+                .define('I', Tags.Items.INGOTS_GOLD)
+                .define('N', Tags.Items.NUGGETS_IRON)
+                .unlockedBy("has_gold_ingot", has(Tags.Items.INGOTS_GOLD))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("gold_sunder_chain_crafting_table"));
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.DIAMOND_SUNDER_CHAIN)
+                .pattern("NIN").pattern("I I").pattern("NIN")
+                .define('I', Tags.Items.GEMS_DIAMOND)
+                .define('N', Tags.Items.NUGGETS_IRON)
+                .unlockedBy("has_diamond", has(Tags.Items.GEMS_DIAMOND))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("diamond_sunder_chain_crafting_table"));
+
+        // Bone - the renewable budget option (mob drops, no mining), same shared pattern.
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.BONE_SUNDER_CHAIN)
+                .pattern("NIN").pattern("I I").pattern("NIN")
+                .define('I', Tags.Items.BONES)
+                .define('N', Tags.Items.NUGGETS_IRON)
+                .unlockedBy("has_bone", has(Tags.Items.BONES))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("bone_sunder_chain_crafting_table"));
+
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.OUTERFACE)
                 .pattern("III")
                 .pattern("IEI")
@@ -705,6 +746,24 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 660, Items.GLISTERING_MELON_SLICE, aggregateTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gilded_blackstone", Items.BLACKSTONE,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 550, Items.GILDED_BLACKSTONE, solidTicks);
+
+        // Sunder Chains (Mutator) - a re-materialing chain, not four independent recipes: Bone
+        // (crafting-table only, no Mutator recipe of its own -- it's the entry point) mutates into
+        // Iron via Ferrous Blend, and Iron in turn mutates into Copper/Gold/Diamond via each target
+        // material's own equivalent fluid. No independent per-material cost derivation needed for
+        // the upgrades -- Bone/Iron's own crafting cost is the shared base every step builds on.
+        RecipeBuilders.mutate(recipeOutput, "mutating_iron_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModItems.IRON_SUNDER_CHAIN.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_copper_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 3000, ModItems.COPPER_SUNDER_CHAIN.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_gold_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 3000, ModItems.GOLD_SUNDER_CHAIN.get(), solidTicks);
+        // Diamond's fluid (Molten Diamond) has no production recipe of its own yet (see the crafting
+        // notes) -- built anyway, matching the rest of the Molten family's current state (registered,
+        // no recipe yet) rather than introducing a one-off special case; unreachable in survival
+        // until Molten Diamond gets a real recipe.
+        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
 
         // Spider Eye - species rewrite via Primitive Catalyst (identity-change, not material-addition
         // -- see the reagent doctrine in the machine notes), the roster's first de-escalating recipe.

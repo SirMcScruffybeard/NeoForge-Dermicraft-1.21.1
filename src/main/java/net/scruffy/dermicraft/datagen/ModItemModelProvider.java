@@ -43,6 +43,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         sunderChainItem(ModItems.COPPER_SUNDER_CHAIN.get(), "item/sunder_chains/copper_sunder_chain");
         sunderChainItem(ModItems.GOLD_SUNDER_CHAIN.get(), "item/sunder_chains/gold_sunder_chain");
         sunderChainItem(ModItems.DIAMOND_SUNDER_CHAIN.get(), "item/sunder_chains/diamond_sunder_chain");
+        sunderChainItem(ModItems.BONE_SUNDER_CHAIN.get(), "item/sunder_chains/bone_sunder_chain");
 
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
