@@ -2,11 +2,13 @@ package net.scruffy.dermicraft.item.custom;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -15,6 +17,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.food.FoodData;
@@ -23,9 +26,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -53,6 +59,13 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -203,6 +216,16 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
      * dependent -- creative's ~5 blocks read as "grabbing mobs from way too far away"). */
     private static final double SAW_TARGET_RANGE = 2.0;
 
+    ////////////////////Tree Felling\\\\\\\\\\\\\\\\\\\\ (placeholders, tune during testing)
+
+    /** Health cost per detected log -- total tree health is this times the flood-fill's log count.
+     * Pulses deal the same {@link #SAW_PULSE_DAMAGE} combat uses, no separate tree damage stat. */
+    private static final int TREE_LOG_HEALTH_COST = 15;
+    /** Safety cap on the flood-fill's scanned-block count -- a performance/technical guard against a
+     * touching-canopy chain reaction across a whole forest, not a gameplay number. Whatever's found
+     * by the time this is hit is treated as "the whole tree." */
+    private static final int TREE_SCAN_CAP = 64;
+
     public SunderItem(Properties properties) {
         super(properties);
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
@@ -295,10 +318,17 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
         long now = level.getGameTime();
         long elapsed = now - mode.since();
 
-        // SAWING has its own tick logic (pulses, position lock, resource draw) instead of a single
-        // state-transition expression -- handled separately rather than folded into the switch below.
+        // SAWING has its own tick logic (pulses, resource draw, and either position lock or a
+        // flood-filled log set depending on target type) instead of a single state-transition
+        // expression -- handled separately rather than folded into the switch below. Dispatches on
+        // which of target/treeOrigin is present -- see SunderModeData's own javadoc for why both
+        // share the same SAWING ordinal instead of a separate state each.
         if (mode.stateEnum() == SunderModeData.State.SAWING) {
-            tickSawing(stack, (ServerLevel) level, player, mode, now, elapsed, holdingTrigger);
+            if (mode.target().isPresent()) {
+                tickSawing(stack, (ServerLevel) level, player, mode, now, elapsed, holdingTrigger);
+            } else {
+                tickFelling(stack, (ServerLevel) level, player, mode, now, elapsed, holdingTrigger);
+            }
             return;
         }
 
@@ -321,16 +351,32 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
             case ACTIVE -> {
                 if (!holdingTrigger) yield SunderModeData.of(SunderModeData.State.RELEASE_DELAY, now);
 
-                LivingEntity autoTarget = findSawTarget((ServerLevel) level, player);
-                if (autoTarget == null) yield null;
-
                 // "attack" fires once here, on the mechanical attack actually starting -- not per
-                // pulse (see tickSawing, which only fires "saw"). Blends "main" straight into the
-                // held struck pose via the controller's transitionLength (see registerControllers for
-                // why this is a coded blend rather than an authored swing-in clip); "saw"'s per-pulse
-                // chain wobble is what carries the repeated-hit feel for the rest of the lock-on.
-                triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) level), "Swing", "attack");
-                yield SunderModeData.sawing(autoTarget.getUUID(), now);
+                // pulse (see tickSawing/tickFelling, which only fire "saw"). Blends "main" straight
+                // into the held struck pose via the controller's transitionLength (see
+                // registerControllers for why this is a coded blend rather than an authored swing-in
+                // clip); "saw"'s per-pulse chain wobble is what carries the repeated-hit feel for the
+                // rest of the lock-on, mob or tree alike.
+                LivingEntity autoTarget = findSawTarget((ServerLevel) level, player);
+                if (autoTarget != null) {
+                    triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) level), "Swing", "attack");
+                    yield SunderModeData.sawing(autoTarget.getUUID(), now);
+                }
+
+                // No mob in reach -- try a log next, same reach, same trigger shape. Mobs are
+                // checked first so a mob standing in front of a tree still wins the auto-target.
+                // Requires an actual chain to even start -- unlike a mob (a broken/missing chain
+                // still swings as "a much weaker plain sword," per the design notes), there's no
+                // bare-bar equivalent for cutting wood, so no chain means no felling at all.
+                if (chainProperties(stack) != null) {
+                    BlockPos fellTarget = findFellTarget((ServerLevel) level, player);
+                    if (fellTarget != null) {
+                        triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) level), "Swing", "attack");
+                        yield SunderModeData.felling(fellTarget, now);
+                    }
+                }
+
+                yield null;
             }
             // Re-holding during the wind-down is ignored for this basic pass -- always let it finish.
             case RELEASE_DELAY -> elapsed >= RELEASE_DELAY_TICKS
@@ -418,6 +464,151 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
         if (mode.target().isEmpty()) return null;
         Entity resolved = level.getEntity(mode.target().get());
         return resolved instanceof LivingEntity living && living.isAlive() ? living : null;
+    }
+
+    ////////////////////Tree Felling\\\\\\\\\\\\\\\\\\\\
+
+    /** Block-raycast counterpart to {@link #findSawTarget} -- same {@link #SAW_TARGET_RANGE}, same
+     * "log" identity check ({@code BlockTags.LOGS}, matching the flood-fill's own filter) as what
+     * would actually get felled. Checked second in the ACTIVE case, after mobs, so a mob standing in
+     * front of a tree doesn't get shadowed by the trunk behind it. */
+    @Nullable
+    private BlockPos findFellTarget(ServerLevel level, Player player) {
+        Vec3 eyePos = player.getEyePosition();
+        Vec3 lookVec = player.getLookAngle();
+        Vec3 endPos = eyePos.add(lookVec.scale(SAW_TARGET_RANGE));
+
+        BlockHitResult hit = level.clip(new ClipContext(eyePos, endPos,
+                ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+        if (hit.getType() != HitResult.Type.BLOCK) return null;
+
+        return level.getBlockState(hit.getBlockPos()).is(BlockTags.LOGS) ? hit.getBlockPos() : null;
+    }
+
+    /**
+     * Standard tree-capitator-style contiguous log detection from the hit log -- logs only, leaves
+     * untouched. Widened past the vanilla-mod-convention 6-face adjacency to 26-neighbor (diagonal-
+     * inclusive), plus a single-air-gap hop (one block past an immediate air neighbor, same
+     * direction) specifically to catch detached/diagonal branches that don't directly touch the main
+     * trunk. Capped at {@link #TREE_SCAN_CAP} scanned logs -- a performance guard against a touching-
+     * canopy chain reaction across a whole forest, not a gameplay number; whatever's found by the cap
+     * is treated as "the whole tree."
+     *
+     * <p>Returned sorted top-down (highest Y first) -- this is what lets {@link #endFelling} take
+     * "the top N logs" for a partial harvest without needing any separate ordering data stored
+     * anywhere. Recomputed fresh every call rather than cached anywhere (see SunderModeData's own
+     * javadoc for why) -- bounded by the scan cap, so this is cheap enough to re-run every tick.
+     */
+    private List<BlockPos> floodFillLogs(ServerLevel level, BlockPos origin) {
+        if (!level.getBlockState(origin).is(BlockTags.LOGS)) return List.of();
+
+        Set<BlockPos> visited = new HashSet<>();
+        List<BlockPos> found = new ArrayList<>();
+        Deque<BlockPos> queue = new ArrayDeque<>();
+        visited.add(origin);
+        queue.add(origin);
+
+        while (!queue.isEmpty() && found.size() < TREE_SCAN_CAP) {
+            BlockPos current = queue.poll();
+            found.add(current);
+
+            for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dz = -1; dz <= 1; dz++) {
+                        if (dx == 0 && dy == 0 && dz == 0) continue;
+                        if (visited.size() >= TREE_SCAN_CAP) continue;
+
+                        BlockPos neighbor = current.offset(dx, dy, dz);
+                        if (visited.contains(neighbor)) continue;
+
+                        if (level.getBlockState(neighbor).is(BlockTags.LOGS)) {
+                            visited.add(neighbor);
+                            queue.add(neighbor);
+                        } else if (level.getBlockState(neighbor).isAir()) {
+                            BlockPos gapHop = neighbor.offset(dx, dy, dz);
+                            if (!visited.contains(gapHop) && level.getBlockState(gapHop).is(BlockTags.LOGS)) {
+                                visited.add(gapHop);
+                                queue.add(gapHop);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        found.sort(Comparator.<BlockPos>comparingInt(BlockPos::getY).reversed());
+        return found;
+    }
+
+    /** Pulses needed to fully cut through one log -- derived from {@link #TREE_LOG_HEALTH_COST}
+     * against the shared {@link #SAW_PULSE_DAMAGE} rather than a second independent number, so the
+     * two stay in sync automatically if either is retuned. */
+    private static final int TREE_PULSES_PER_LOG = Math.round(TREE_LOG_HEALTH_COST / SAW_PULSE_DAMAGE);
+
+    /**
+     * Tree-felling's counterpart to {@code tickSawing} -- same pulse cadence, resource draw, and
+     * chain wear (no separate tree-specific numbers there), just no position lock (a tree doesn't
+     * move). No mob time cap either -- trees have none, the fuel/hunger budget is the only limiter
+     * (see the design notes).
+     *
+     * <p>Logs are consumed as cutting happens, not all at once at the end -- every {@link
+     * #TREE_PULSES_PER_LOG}th pulse finishes cutting through the current top-most remaining log
+     * (see {@code floodFillLogs}' top-down sort), which breaks immediately and drops at the player's
+     * feet right then, same tree-feller-mod feedback loop rather than a silent damage counter with
+     * nothing to show for it until the very end. This also means there's no separate "partial
+     * harvest on interruption" case to handle -- whatever's already been cut is already in the
+     * player's hands the moment SAWING stops for any reason (release, knockback, resources
+     * exhausted, or the origin log itself gone -- {@code floodFillLogs} returning empty covers that
+     * last one for free); nothing further needs doing on exit beyond the normal state transition.
+     *
+     * <p>Requires a mounted chain to even be reachable -- see the ACTIVE case's own gate -- but also
+     * re-checked every tick here, not just at acquisition: if the chain breaks mid-cut (wear, same
+     * as combat), cutting stops there rather than continuing on a bare bar that can't actually cut
+     * wood.
+     */
+    private void tickFelling(ItemStack stack, ServerLevel level, Player player, SunderModeData mode,
+                              long now, long elapsed, boolean holdingTrigger) {
+        BlockPos origin = mode.treeOrigin().orElse(null);
+        boolean hasChain = chainProperties(stack) != null;
+        List<BlockPos> logs = (hasChain && origin != null) ? floodFillLogs(level, origin) : List.of();
+
+        if (!holdingTrigger || logs.isEmpty()) {
+            exitFellingState(stack, level, player, holdingTrigger, now);
+            return;
+        }
+
+        if (elapsed % SAW_PULSE_COOLDOWN_TICKS != 0) return;
+
+        if (!payForPulse(stack, player)) {
+            exitFellingState(stack, level, player, holdingTrigger, now);
+            return;
+        }
+
+        wearChain(stack);
+        triggerAnim(player, GeoItem.getOrAssignId(stack, level), "Body", "saw");
+
+        long pulsesLanded = elapsed / SAW_PULSE_COOLDOWN_TICKS + 1;
+        if (pulsesLanded % TREE_PULSES_PER_LOG != 0) return; // still cutting through the current log
+
+        BlockPos cutPos = logs.get(0);
+        ItemStack drop = new ItemStack(level.getBlockState(cutPos).getBlock());
+        level.destroyBlock(cutPos, false, player);
+        level.addFreshEntity(new ItemEntity(level, player.getX(), player.getY(), player.getZ(), drop));
+        // If that was the last log, next tick's flood-fill from the (now-gone) origin comes back
+        // empty and the early-return above ends SAWING cleanly -- no separate "tree complete" branch
+        // needed.
+    }
+
+    /** Shared tail for every felling exit -- same "hand the Swing controller back to rest, then fall
+     * back to ACTIVE/RELEASE_DELAY" shape {@code endSawing} uses, just without a Bleed-guarantee roll
+     * (nothing to bleed on a tree) and without needing a partial-harvest payout (see {@code
+     * tickFelling}'s own javadoc for why -- logs are already handed out as they're cut, not batched
+     * for the end). Public, not private, since {@code SunderEvents}' knockback handler calls this
+     * directly too. */
+    public void exitFellingState(ItemStack stack, ServerLevel level, Player player, boolean holdingTrigger, long now) {
+        triggerAnim(player, GeoItem.getOrAssignId(stack, level), "Swing", "swing_rest");
+        SunderModeData.State nextState = holdingTrigger ? SunderModeData.State.ACTIVE : SunderModeData.State.RELEASE_DELAY;
+        stack.set(ModDataComponentTypes.SUNDER_MODE_DATA.get(), SunderModeData.of(nextState, now));
     }
 
     /** Eased like Eater's item-pull, not a rigid teleport -- closes {@link #SAW_LOCK_PULL_STRENGTH}

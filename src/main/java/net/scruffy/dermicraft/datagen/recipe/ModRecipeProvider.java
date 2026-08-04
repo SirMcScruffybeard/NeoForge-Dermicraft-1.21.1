@@ -71,6 +71,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_iron_nugget", has(Tags.Items.NUGGETS_IRON))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("syringe_crafting_table"));
 
+        // Scrench -- 5 nuggets wrapping from left-center, around the top, to right-center; 2 ingots
+        // (center, bottom-center) forming the tool's own body/handle.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SCRENCH)
+                .pattern("NNN")
+                .pattern("NIN")
+                .pattern(" I ")
+                .define('I', Tags.Items.INGOTS_IRON)
+                .define('N', Tags.Items.NUGGETS_IRON)
+                .unlockedBy("has_iron_nugget", has(Tags.Items.NUGGETS_IRON))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("scrench_crafting_table"));
+
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.GLASS_FLASK, 4)
                 .pattern(" G ")
                 .pattern(" G ")

@@ -102,7 +102,8 @@ public class SunderEvents {
     /**
      * SAWING's interruption trigger -- knockback dealt TO THE PLAYER, not knockback dealt to the
      * target and not damage taken (a hit that doesn't impart knockback shouldn't cancel it). Checks
-     * both hands since the player could be holding Sunder in either.
+     * both hands since the player could be holding Sunder in either. Branches on which of {@code
+     * target}/{@code treeOrigin} is present -- see {@code SunderModeData}'s own javadoc.
      */
     @SubscribeEvent
     public static void onPlayerKnockedBack(LivingKnockBackEvent event) {
@@ -116,12 +117,20 @@ public class SunderEvents {
             SunderModeData mode = stack.getOrDefault(ModDataComponentTypes.SUNDER_MODE_DATA.get(), SunderModeData.DEFAULT);
             if (mode.stateEnum() != SunderModeData.State.SAWING) continue;
 
-            Entity resolved = mode.target().map(level::getEntity).orElse(null);
-            LivingEntity target = resolved instanceof LivingEntity living && living.isAlive() ? living : null;
-
             long now = level.getGameTime();
+            long elapsed = now - mode.since();
             boolean holdingTrigger = player.isUsingItem() && player.getUseItem() == stack;
-            sunder.endSawing(stack, level, player, target, now - mode.since(), holdingTrigger, now);
+
+            if (mode.target().isPresent()) {
+                Entity resolved = mode.target().map(level::getEntity).orElse(null);
+                LivingEntity target = resolved instanceof LivingEntity living && living.isAlive() ? living : null;
+                sunder.endSawing(stack, level, player, target, elapsed, holdingTrigger, now);
+            } else {
+                // No partial-harvest payout needed here (unlike mob SAWING's Bleed-guarantee check)
+                // -- tree felling hands out logs as they're cut, not batched for the end, so whatever
+                // was already cut is already in the player's hands. Just the shared exit tail.
+                sunder.exitFellingState(stack, level, player, holdingTrigger, now);
+            }
         }
     }
 }
