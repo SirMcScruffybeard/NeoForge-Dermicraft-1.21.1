@@ -1,0 +1,33 @@
+{
+  "type": "dermicraft:gadget_fabricating",
+  "fluids": [
+    {
+      "amount": 250,
+      "id": "dermicraft:source_primitive_catalyst"
+    },
+    {
+      "amount": 250,
+      "id": "dermicraft:source_protein_blend"
+    }
+  ],
+  "items": [
+    {
+      "count": 1,
+      "id": "dermicraft:chassis"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:proto_brain"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:bladder"
+    }
+  ],
+  "required_tier": 1,
+  "result": {
+    "count": 1,
+    "id": "dermicraft:sipping"
+  },
+  "ticks": 600
+}

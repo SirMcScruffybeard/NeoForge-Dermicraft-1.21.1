@@ -8,6 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -17,7 +18,9 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
+import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
+import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
@@ -60,6 +63,17 @@ public class RecipeBuilders {
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 result);
+    }
+
+    ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
+    public static void buildEarlyIncubating(RecipeOutput output, String name, Block requiredBlock,
+                                            Item ingredient, int ingredientCount, Fluid fluid, int fluidAmount,
+                                            Item result, int resultCount) {
+        ResourceLocation id = getResourceLocation(name);
+        EarlyIncubatingRecipe recipe = new EarlyIncubatingRecipe(requiredBlock,
+                new ItemStack(ingredient, ingredientCount), new FluidStack(fluid, fluidAmount),
+                new ItemStack(result, resultCount));
+        output.accept(id, recipe, null);
     }
 
     ////////////////////Masticating\\\\\\\\\\\\\\\\\\\\
@@ -133,6 +147,23 @@ public class RecipeBuilders {
     public static void render(RecipeOutput output, String name, Fluid fluid, int fluidAmount,
                               ItemLike result, int ticks) {
         buildRendering(output, name, fluid, fluidAmount, new ItemStack(result), ticks);
+    }
+
+
+    ////////////////////Gadget Fabricating\\\\\\\\\\\\\\\\\\\\
+    // Workbench: an arbitrary set of items (exact item+count) and fluids (exact fluid+amount)
+    // combine into a fixed gadget/gadget-adjacent item -- reflects gadgets' higher build
+    // complexity vs. the single-fluid "printing" recipes elsewhere (Rendering/Metastasizing).
+    public static void buildGadgetFabricating(RecipeOutput output, String name, List<ItemStack> items,
+                                              List<FluidStack> fluids, ItemStack result, int ticks, int requiredTier) {
+        ResourceLocation id = getResourceLocation(name);
+        GadgetFabricatingRecipe recipe = new GadgetFabricatingRecipe(items, fluids, result, ticks, requiredTier);
+        output.accept(id, recipe, null);
+    }
+
+    public static void fabricateGadget(RecipeOutput output, String name, List<ItemStack> items,
+                                       List<FluidStack> fluids, ItemLike result, int ticks, int requiredTier) {
+        buildGadgetFabricating(output, name, items, fluids, new ItemStack(result), ticks, requiredTier);
     }
 
 

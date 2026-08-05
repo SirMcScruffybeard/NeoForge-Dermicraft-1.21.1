@@ -109,6 +109,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.NERVE_CLUSTER);
                         output.accept(ModItems.DENSE_MUSCLE);
                         output.accept(ModItems.BLOOD_NUGGET);
+                        output.accept(ModItems.PROTO_BRAIN);
+                        output.accept(ModItems.CHASSIS);
+                        output.accept(ModItems.ADDON_FRAME);
 
                         ////////////////////Food\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.MRE);
@@ -126,6 +129,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.CONCENTRATED_SLURRY_BUCKET);
 
                         output.accept(ModFluids.PRIMITIVE_CATALYST_BUCKET);
+                        output.accept(ModFluids.REINFORCING_CATALYST_BUCKET);
+                        output.accept(ModFluids.SYNAPSE_CATALYST_BUCKET);
 
                         output.accept(ModFluids.STONE_BLEND_BUCKET);
                         output.accept(ModFluids.SILICA_BLEND_BUCKET);
@@ -165,6 +170,7 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
+        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_SYNAPSE_CATALYST.get()));
     }
 
     private static void buildBeakerContents(CreativeModeTab.Output output) {
@@ -183,6 +189,8 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CONCENTRATED_SLURRY.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_REINFORCING_CATALYST.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SYNAPSE_CATALYST.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SILICA_BLEND.get()));

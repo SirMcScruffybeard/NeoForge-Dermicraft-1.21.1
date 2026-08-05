@@ -1,0 +1,41 @@
+{
+  "type": "dermicraft:gadget_fabricating",
+  "fluids": [
+    {
+      "amount": 500,
+      "id": "dermicraft:source_primitive_catalyst"
+    },
+    {
+      "amount": 500,
+      "id": "dermicraft:source_protein_blend"
+    },
+    {
+      "amount": 500,
+      "id": "dermicraft:source_silica_blend"
+    }
+  ],
+  "items": [
+    {
+      "count": 2,
+      "id": "dermicraft:chassis"
+    },
+    {
+      "count": 4,
+      "id": "dermicraft:craw"
+    },
+    {
+      "count": 1,
+      "id": "minecraft:hopper"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:proto_brain"
+    }
+  ],
+  "required_tier": 1,
+  "result": {
+    "count": 1,
+    "id": "dermicraft:eater"
+  },
+  "ticks": 1800
+}

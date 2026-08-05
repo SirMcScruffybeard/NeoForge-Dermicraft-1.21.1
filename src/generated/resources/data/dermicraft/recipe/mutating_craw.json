@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_protein_blend",
+  "fluid_amount": 2500,
+  "ingredient": {
+    "item": "minecraft:chest"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:craw"
+  },
+  "ticks": 200
+}

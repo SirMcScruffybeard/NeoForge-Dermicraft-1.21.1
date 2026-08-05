@@ -83,6 +83,39 @@ public class ModFluidTypes {
                             .canHydrate(false)
                             .canConvertToSource(false)));
 
+    // Reinforcing Catalyst - C-Stuff + Primitive Catalyst (minor addition), Chassis's reagent
+    public static final Supplier<FluidType> REINFORCING_CATALYST_FLUID_TYPE = registerFluidType("reinforcing_catalyst_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF806E76,
+                    setColorVector(128, 110, 118),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1500)
+                            .temperature(305)
+                            .motionScale(0.025)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)));
+
+    // Synapse Catalyst - Cuprous Blend + Primitive Catalyst, the "smart component" reagent
+    // (Proto Brain's Craw injection, Brain Block's Mutator step, Add-on Frame's Mutator recipe)
+    public static final Supplier<FluidType> SYNAPSE_CATALYST_FLUID_TYPE = registerFluidType("synapse_catalyst_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFAA6E37,
+                    setColorVector(170, 110, 55),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1500)
+                            .temperature(305)
+                            .motionScale(0.025)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)));
+
 
     //////////////////////////////Slurries\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FluidType> CRUDE_SLURRY_FLUID_TYPE = registerFluidType("crude_slurry_fluid",

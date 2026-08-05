@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_synapse_catalyst",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:chassis"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:add_on_frame"
+  },
+  "ticks": 200
+}

@@ -10,7 +10,9 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
+import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
+import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
@@ -41,6 +43,16 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "early_implant";
+                }
+            });
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<EarlyIncubatingRecipe>> EARLY_INCUBATING_SERIALIZER =
+            SERIALIZERS.register("early_incubating", EarlyIncubatingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<EarlyIncubatingRecipe>> EARLY_INCUBATING_TYPE =
+            TYPES.register("early_incubating", () -> new RecipeType<EarlyIncubatingRecipe>() {
+                @Override
+                public String toString() {
+                    return "early_incubating";
                 }
             });
 
@@ -115,6 +127,17 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "rendering";
+                }
+            });
+
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<GadgetFabricatingRecipe>> GADGET_FABRICATING_SERIALIZER =
+            SERIALIZERS.register("gadget_fabricating", GadgetFabricatingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<GadgetFabricatingRecipe>> GADGET_FABRICATING_TYPE =
+            TYPES.register("gadget_fabricating", () -> new RecipeType<GadgetFabricatingRecipe>() {
+                @Override
+                public String toString() {
+                    return "gadget_fabricating";
                 }
             });
 

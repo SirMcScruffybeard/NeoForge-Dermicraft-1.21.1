@@ -15,6 +15,7 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 import net.scruffy.dermicraft.block.ModBlocks;
@@ -235,6 +236,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.CRAW.asItem());
 
+        ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
+        // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse
+        // Catalyst injection (100 mB is the syringe's fixed physical volume, not a cost lever).
+        // Craw is never consumed -- see EarlyIncubatingRecipe/CrawBlockEntity.
+        RecipeBuilders.buildEarlyIncubating(recipeOutput, "proto_brain_incubating", ModBlocks.CRAW.get(),
+                ModItems.NERVE_CLUSTER.get(), 10, ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 100,
+                ModItems.PROTO_BRAIN.get(), 1);
+
         // Pricier than the other implants (8 items) to reflect its powerful duplication ability;
         // the Eye fits the "3D printer" framing as the scanner that reads the pattern.
         RecipeBuilders.buildEarlyImplant(recipeOutput, "metastasizer_implant",
@@ -274,6 +283,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildEffluencing(recipeOutput, "concentrated_slurry_effluencing",
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 50, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 5,
                 ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), 50, 50);
+
+        // Reinforcing Catalyst: same fixed 50-tick, 10:1-minor-addition shape as Concentrated
+        // Slurry, same exact numbers -- Chassis's reagent (see dermicraft's gadget-chassis notes).
+        RecipeBuilders.buildEffluencing(recipeOutput, "reinforcing_catalyst_effluencing",
+                ModFluids.SOURCE_C_STUFF.get(), 50, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 5,
+                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 50, 50);
+
+        // Synapse Catalyst: even-parts mix mirroring Primitive Catalyst's own fixed 45-second
+        // recipe shape (not a minor addition like Reinforcing Catalyst above) -- the mod's
+        // general "smart component" reagent (Proto Brain, Brain Block, the Add-on Frame).
+        RecipeBuilders.buildEffluencing(recipeOutput, "synapse_catalyst_effluencing",
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
+                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER);
 
@@ -647,6 +669,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_feeder_bladder", ModItems.BLADDER.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.FEEDER_BLADDER.get(), solidTicks);
 
+        // Chassis: Iron Bars (mechanical scaffold) + Calcium-Blend-derived Reinforcing Catalyst
+        // (skeletal reagent) -- shared structural item across Gadgets and the Add-on Frame below.
+        RecipeBuilders.mutate(recipeOutput, "chassis_mutating", Items.IRON_BARS,
+                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 1000, ModItems.CHASSIS.get(), solidTicks);
+
+        // Add-on Frame: 1 Chassis + 3000 mB Synapse Catalyst -- priced above a naive
+        // cheap-since-repeatable instinct, since a Frame is permanent swappable infrastructure
+        // (dock any equipment-origin item, get that capability) rather than a one-time build.
+        RecipeBuilders.mutate(recipeOutput, "addon_frame_mutating", ModItems.CHASSIS.get(),
+                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.ADDON_FRAME.get(), solidTicks);
+
         // Glassmaking family (Silica Blend) - Mutator half: Dye + Silica Blend -> Stained Glass BLOCK
         // only (see the collision note above for why the pane isn't here). Priced at parity with the
         // plain Glass Block's own (undocumented-in-code, but design-confirmed) 1000 mB Silica Blend
@@ -707,6 +740,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.ANDESITE_LAB_FLOOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_granite_lab_floor", Items.GRANITE,
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.GRANITE_LAB_FLOOR.asItem(), solidTicks);
+
+        // Craw - Mutator alternate route, parallel to craw_implant (not a replacement; the implant's
+        // Chest + 2 Dense Muscle + 2 Nerve Cluster + Primitive Catalyst combine stays). Chest is
+        // simple enough (single structural item, no second reagent needed) to be one of the few
+        // FL-native machines that also fits the Mutator's single-reagent identity -- most of the six
+        // don't (see "Explicit non-fits" in dermicraft-machine-notes.md). Priced above the Lab
+        // Floors' flat 2000 mB since the Craw is a functional machine, not a floor tile.
+        RecipeBuilders.mutate(recipeOutput, "mutating_craw", Items.CHEST,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.CRAW.asItem(), solidTicks);
+
+        // Skin Tank - same reasoning and price as the Craw's Mutator route above: simple enough
+        // (one structural item, Beaker, no second reagent needed) to fit the Mutator, parallel to
+        // (not replacing) skin_tank_implant.
+        RecipeBuilders.mutate(recipeOutput, "mutating_skin_tank", ModBlocks.BEAKER_ITEM.get(),
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.SKIN_TANK.asItem(), solidTicks);
 
         // Overgrowth family (Crude Slurry as the life/growth agent) - Mossy Cobblestone set. 10 mB
         // flat across the whole family (block/stairs/wall/slab alike) -- other mods gate this behind
@@ -1111,6 +1159,76 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.render(recipeOutput, "render_kiln_meat_flavored_meat", ModFluids.SOURCE_PROTEIN_BLEND.get(), 900, ModItems.MEAT_FLAVORED_MEAT.get(), 160);
         RecipeBuilders.render(recipeOutput, "render_kiln_mre", ModFluids.SOURCE_F_STUFF.get(), 900, ModItems.MRE.get(), 160);
         // Deliberately excluded: Crude Slurry (no solid form defined anywhere in the design notes).
+
+        ////////////////////Gadget Fabricating\\\\\\\\\\\\\\\\\\\\
+        // Both Tier 1 Workbench -- every current gadget is Tier 1. No Suture Kit on either: these
+        // are machine-fabricated, not hand-stitched. Protein Blend on both represents the organic
+        // tissue binding around the Chassis frame (same fluid family Bladder's own Fuel/Feeder
+        // mutations draw from); Primitive Catalyst is the standard final-assembly trigger fluid.
+        RecipeBuilders.fabricateGadget(recipeOutput, "sipping_fabricating",
+                List.of(
+                        new ItemStack(ModItems.CHASSIS.get()),
+                        new ItemStack(ModItems.PROTO_BRAIN.get()),
+                        new ItemStack(ModItems.BLADDER.get())),
+                List.of(
+                        new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 250)),
+                ModItems.SIPPING.get(), ModMath.Time.getSecondsToTicks(30), 1);
+
+        // Silica Blend (250 mB, a quarter of the Glass Block's own 1000 mB Mutator cost) is the
+        // screen glass for the target-scan display -- Eye justifies the eye_mount/screen lore.
+        RecipeBuilders.fabricateGadget(recipeOutput, "drinker_fabricating",
+                List.of(
+                        new ItemStack(ModItems.CHASSIS.get(), 2),
+                        new ItemStack(ModItems.PROTO_BRAIN.get()),
+                        new ItemStack(ModItems.EYE.get()),
+                        new ItemStack(ModItems.BLADDER.get())),
+                List.of(
+                        new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_SILICA_BLEND.get(), 250)),
+                ModItems.DRINKER.get(), ModMath.Time.getSecondsToTicks(60), 1);
+
+        // Eater: same 2-Chassis Primitive Catalyst/Protein Blend rate as Drinker (both scale with
+        // Chassis count, not overall item complexity). No Eye/Bladder -- Eater's buffer is
+        // item-based, not fluid-based, so neither applies. Craw x4 supplies the item-handling guts
+        // (Eater's whole identity), Hopper is the intake justification (no invented lore needed --
+        // a Hopper's vanilla function already is "sucks items in"), Silica Blend covers the 4
+        // screen bones but isn't a literal 4x of Drinker's single gauge -- Eater's screens are
+        // small item-icon windows, not a full target-scan display assembly.
+        RecipeBuilders.fabricateGadget(recipeOutput, "eater_fabricating",
+                List.of(
+                        new ItemStack(ModItems.CHASSIS.get(), 2),
+                        new ItemStack(ModBlocks.CRAW.asItem(), 4),
+                        new ItemStack(Items.HOPPER),
+                        new ItemStack(ModItems.PROTO_BRAIN.get())),
+                List.of(
+                        new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_SILICA_BLEND.get(), 500)),
+                ModItems.EATER.get(), ModMath.Time.getSecondsToTicks(90), 1);
+
+        // Sunder: no Proto Brain, deliberately -- unlike Sipping/Drinker/Eater, Sunder isn't a smart
+        // device. The auto-swing/auto-targeting logic exists to work around vanilla blocking the
+        // attack key while revved (see SunderItem's own class javadoc), not because the weapon
+        // itself is making decisions -- the player is still the one aiming it. Fuel Bladder, not the
+        // plain Bladder every other gadget uses -- Sunder's own tank is explicitly a fuel tank, not a
+        // general buffer. Protein Blend held at the same 500 mB as everything else -- "there isn't
+        // much meat to it" compared to a full sensor/buffer gadget. Ferrous Blend bumped hard to
+        // 2500 mB (by far the largest single fluid line in the roster) and no separate Iron Ingots --
+        // this is what actually builds the bar/housing/guards, no raw-ingot component needed on top
+        // of it. Comes out chainless, same as every other path that produces a Sunder -- mounted
+        // afterward via Scrench, not baked into the recipe (the generic result type can't carry
+        // nested chain data anyway).
+        RecipeBuilders.fabricateGadget(recipeOutput, "sunder_fabricating",
+                List.of(
+                        new ItemStack(ModItems.CHASSIS.get(), 2),
+                        new ItemStack(ModItems.FUEL_BLADDER.get())),
+                List.of(
+                        new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 2500)),
+                ModItems.SUNDER.get(), ModMath.Time.getSecondsToTicks(90), 1);
     }
 
     ////////////////////Vanilla item lookup helpers (for the dye-keyed loops above)\\\\\\\\\\\\\\\\\\\\

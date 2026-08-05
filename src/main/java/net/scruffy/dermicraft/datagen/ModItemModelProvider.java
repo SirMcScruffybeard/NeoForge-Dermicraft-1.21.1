@@ -34,6 +34,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.NERVE_CLUSTER.get());
         basicItem(ModItems.DENSE_MUSCLE.get());
         basicItem(ModItems.BLOOD_NUGGET.get());
+        basicItem(ModItems.PROTO_BRAIN.get());
+        basicItem(ModItems.CHASSIS.get());
+        basicItem(ModItems.ADDON_FRAME.get());
         basicItem(ModItems.MRE.get());
         basicItem(ModItems.MEAT_FLAVORED_MEAT.get());
 
@@ -55,6 +58,8 @@ public class ModItemModelProvider extends ItemModelProvider {
         chunkyBucketItem(ModFluids.CONCENTRATED_SLURRY_BUCKET.get());
 
         thinBucketItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
+        thinBucketItem(ModFluids.REINFORCING_CATALYST_BUCKET.get());
+        thinBucketItem(ModFluids.SYNAPSE_CATALYST_BUCKET.get());
 
         chunkyBucketItem(ModFluids.STONE_BLEND_BUCKET.get());
         chunkyBucketItem(ModFluids.SILICA_BLEND_BUCKET.get());

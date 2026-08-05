@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_reinforcing_catalyst",
+  "fluid_amount": 1000,
+  "ingredient": {
+    "item": "minecraft:iron_bars"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:chassis"
+  },
+  "ticks": 200
+}

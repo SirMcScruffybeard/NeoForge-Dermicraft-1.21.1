@@ -14,8 +14,13 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
+import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.interfaces.IInject;
+import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
+import net.scruffy.dermicraft.util.ToolUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,6 +70,14 @@ public class CrawBlock extends ModBaseEntityBlock {
 
         if (!level.isClientSide) {
             if (level.getBlockEntity(pos) instanceof CrawBlockEntity craw) {
+                // Injection tools are checked first -- an Early Incubating recipe (see
+                // EarlyIncubatingRecipe) triggers on a matching fluid injection rather than
+                // being deposited into storage like every other held item.
+                if (ToolUtil.isInjectionTool(stack)) {
+                    inject(level, player, stack, craw);
+                    return ItemInteractionResult.SUCCESS;
+                }
+
                 // Deposits the whole held stack -- see CrawBlockEntity.deposit for why this isn't
                 // crouch-gated (vanilla skips useItemOn entirely when crouching with a held item).
                 ItemStack leftover = craw.deposit(stack);
@@ -72,6 +85,28 @@ public class CrawBlock extends ModBaseEntityBlock {
             }
         }
         return ItemInteractionResult.SUCCESS;
+    }
+
+    /**
+     * Mirrors {@code StitchedTumorBlock.inject} -- any {@link IInject} tool (e.g. a loaded
+     * Syringe) can trigger a matching cached recipe. Unlike the Tumor version, Craw is never
+     * consumed or transformed; see {@link CrawBlockEntity#completeIncubation}.
+     */
+    private void inject(Level level, Player player, ItemStack stack, CrawBlockEntity craw) {
+        if (stack.getItem() instanceof IInject syringe) {
+            FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);
+            if (data.isFluidEmpty()) {
+                return;
+            }
+
+            FluidStack fluidStack = data.getFluidStack();
+            EarlyIncubatingRecipe recipe = craw.getCachedRecipe();
+
+            if (recipe != null && recipe.testFluid(fluidStack)) {
+                syringe.emptyDataFluidIfSurvival(stack, player);
+                craw.completeIncubation(recipe);
+            }
+        }
     }
 
     @Override

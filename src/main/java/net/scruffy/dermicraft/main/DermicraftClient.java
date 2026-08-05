@@ -62,6 +62,8 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), ModFluids.FLOWING_CONCENTRATED_SLURRY.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.FLOWING_PRIMITIVE_CATALYST.get());
+            renderTranslucentFluid(ModFluids.SOURCE_REINFORCING_CATALYST.get(), ModFluids.FLOWING_REINFORCING_CATALYST.get());
+            renderTranslucentFluid(ModFluids.SOURCE_SYNAPSE_CATALYST.get(), ModFluids.FLOWING_SYNAPSE_CATALYST.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_STONE_BLEND.get(), ModFluids.FLOWING_STONE_BLEND.get());
             renderTranslucentFluid(ModFluids.SOURCE_SILICA_BLEND.get(), ModFluids.FLOWING_SILICA_BLEND.get());
@@ -101,6 +103,8 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.CONCENTRATED_SLURRY_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.REINFORCING_CATALYST_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.SYNAPSE_CATALYST_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.STONE_BLEND_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.SILICA_BLEND_FLUID_TYPE.get());

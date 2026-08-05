@@ -5,12 +5,16 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -21,6 +25,9 @@ import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
+import net.scruffy.dermicraft.recipe.ModRecipes;
+import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
+import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipeInput;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import net.scruffy.dermicraft.util.ModMath;
@@ -38,6 +45,14 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     public static final int INPUT_SLOT = 0; // index within the separate INPUT handler
 
     private static final int PUSH_INTERVAL_SECONDS = 5;
+    private static final String INCUBATING_RECIPE_KEY = "incubating_recipe_id";
+
+    // Early Incubating recipe cache -- re-evaluated whenever the storage slot's contents
+    // change (see INVENTORY.onContentsChanged below), same lazy-id/resolve-on-load pattern
+    // as EarlySurgeryTumorBlockEntity, adapted for Craw's single bulk stack instead of a
+    // multi-slot Tumor inventory.
+    private @Nullable RecipeHolder<EarlyIncubatingRecipe> cachedRecipeHolder = null;
+    private @Nullable ResourceLocation lazyRecipeId = null;
 
     // Single locked storage slot. Locks to whichever item is first inserted and
     // unlocks once it empties -- the item-side twin of SkinTank's fluid-type lock.
@@ -65,6 +80,7 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
             if (level != null && !level.isClientSide) {
                 setChanged();
                 updateBlock();
+                updateRecipeCache();
             }
         }
     };
@@ -153,6 +169,47 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         return getStoredStack().getCount();
     }
 
+    public @Nullable EarlyIncubatingRecipe getCachedRecipe() {
+        return this.cachedRecipeHolder != null ? this.cachedRecipeHolder.value() : null;
+    }
+
+    public void updateRecipeCache() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        EarlyIncubatingRecipeInput input = new EarlyIncubatingRecipeInput(getBlockState().getBlock(), getStoredStack());
+        this.cachedRecipeHolder = this.level.getRecipeManager()
+                .getRecipeFor(ModRecipes.EARLY_INCUBATING_TYPE.get(), input, this.level).orElse(null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void resolveLazyRecipeHolder() {
+        if (this.level == null || this.level.isClientSide || this.lazyRecipeId == null) {
+            return;
+        }
+        this.level.getRecipeManager().byKey(this.lazyRecipeId).ifPresent(holder -> {
+            if (holder.value() instanceof EarlyIncubatingRecipe) {
+                this.cachedRecipeHolder = (RecipeHolder<EarlyIncubatingRecipe>) holder;
+            }
+        });
+        this.lazyRecipeId = null;
+    }
+
+    /**
+     * Debits the recipe's exact required item count from storage and drops the result next
+     * to the Craw -- the block itself is never consumed and stays loaded for the next
+     * injection (see [[project_proto_brain_synapse_catalyst_chain]] design notes). Works
+     * identically whether {@code result} is a plain item or a block's {@code BlockItem}.
+     */
+    public void completeIncubation(EarlyIncubatingRecipe recipe) {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        INVENTORY.extractItem(STORAGE_SLOT, recipe.ingredient().getCount(), false);
+        Containers.dropItemStack(this.level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), recipe.result().copy());
+        this.level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+    }
+
     /**
      * Deposit the whole held stack (as much as fits). Shrinks and returns the held stack.
      *
@@ -229,6 +286,9 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
             tag.put("craw_storage", storageTag);
         }
         tag.put("craw_input_inv", INPUT.serializeNBT(registries));
+        if (this.cachedRecipeHolder != null) {
+            tag.putString(INCUBATING_RECIPE_KEY, this.cachedRecipeHolder.id().toString());
+        }
         super.saveAdditional(tag, registries);
     }
 
@@ -245,5 +305,23 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         }
         INVENTORY.setStackInSlot(STORAGE_SLOT, stored);
         INPUT.deserializeNBT(registries, tag.getCompound("craw_input_inv"));
+        if (tag.contains(INCUBATING_RECIPE_KEY, CompoundTag.TAG_STRING)) {
+            this.lazyRecipeId = ResourceLocation.parse(tag.getString(INCUBATING_RECIPE_KEY));
+        }
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        // Re-bind the cached recipe instance once fully bound to the world, or derive it fresh
+        // if none was persisted (e.g. a freshly-placed Craw with items inserted before this
+        // logic existed).
+        if (this.level != null && !this.level.isClientSide) {
+            if (this.lazyRecipeId != null) {
+                resolveLazyRecipeHolder();
+            } else {
+                updateRecipeCache();
+            }
+        }
     }
 }

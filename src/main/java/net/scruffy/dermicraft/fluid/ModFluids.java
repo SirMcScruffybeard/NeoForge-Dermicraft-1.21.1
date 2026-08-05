@@ -99,6 +99,42 @@ public class ModFluids {
             .block(ModFluids.PRIMITIVE_CATALYST_BLOCK)
             .bucket(ModFluids.PRIMITIVE_CATALYST_BUCKET);
 
+    //////////////////////////////Reinforcing Catalyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_REINFORCING_CATALYST = FLUIDS.register("source_reinforcing_catalyst",
+            () -> new BaseFlowingFluid.Source(ModFluids.REINFORCING_CATALYST_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_REINFORCING_CATALYST = FLUIDS.register("flowing_reinforcing_catalyst",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.REINFORCING_CATALYST_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> REINFORCING_CATALYST_BLOCK = ModBlocks.BLOCKS.register("reinforcing_catalyst_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_REINFORCING_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> REINFORCING_CATALYST_BUCKET = getBucket("reinforcing_catalyst_bucket", ModFluids.SOURCE_REINFORCING_CATALYST);
+
+    public static final BaseFlowingFluid.Properties REINFORCING_CATALYST_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.REINFORCING_CATALYST_FLUID_TYPE, SOURCE_REINFORCING_CATALYST, FLOWING_REINFORCING_CATALYST)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.REINFORCING_CATALYST_BLOCK)
+            .bucket(ModFluids.REINFORCING_CATALYST_BUCKET);
+
+    //////////////////////////////Synapse Catalyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_SYNAPSE_CATALYST = FLUIDS.register("source_synapse_catalyst",
+            () -> new BaseFlowingFluid.Source(ModFluids.SYNAPSE_CATALYST_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_SYNAPSE_CATALYST = FLUIDS.register("flowing_synapse_catalyst",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.SYNAPSE_CATALYST_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> SYNAPSE_CATALYST_BLOCK = ModBlocks.BLOCKS.register("synapse_catalyst_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_SYNAPSE_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> SYNAPSE_CATALYST_BUCKET = getBucket("synapse_catalyst_bucket", ModFluids.SOURCE_SYNAPSE_CATALYST);
+
+    public static final BaseFlowingFluid.Properties SYNAPSE_CATALYST_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.SYNAPSE_CATALYST_FLUID_TYPE, SOURCE_SYNAPSE_CATALYST, FLOWING_SYNAPSE_CATALYST)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.SYNAPSE_CATALYST_BLOCK)
+            .bucket(ModFluids.SYNAPSE_CATALYST_BUCKET);
+
     //////////////////////////////Crude Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_CRUDE_SLURRY = FLUIDS.register("source_crude_slurry",
             () -> new BaseFlowingFluid.Source(ModFluids.CRUDE_SLURRY_PROPERTIES));

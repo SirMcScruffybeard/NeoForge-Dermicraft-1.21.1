@@ -78,6 +78,23 @@ public class ModItems {
     public static final DeferredItem<Item> BLOOD_NUGGET = ITEMS.register("blood_nugget",
             () -> new Item(new Item.Properties()));
 
+    // Proto Brain: immature Brain-derived tissue, grown from Nerve Cluster via Craw injection.
+    // Shared crafting ingredient across Gadgets and (eventually) Brain Block -- plain crafting
+    // item, not food, matching Blood Nugget's precedent as a synthesized (not harvested) part.
+    public static final DeferredItem<Item> PROTO_BRAIN = ITEMS.register("proto_brain",
+            () -> new Item(new Item.Properties()));
+
+    // Chassis: shared structural item across Gadgets (quantity scales per-gadget by size,
+    // judgment call) and the universal Add-on Frame below. Plain crafting item.
+    public static final DeferredItem<Item> CHASSIS = ITEMS.register("chassis",
+            () -> new Item(new Item.Properties()));
+
+    // Add-on Frame: single universal item that lets any equipment-origin item dock into a suit
+    // add-on slot (see dermicraft-suit-notes.md) -- deliberately priced above Chassis itself,
+    // since it's permanent swappable infrastructure, not a one-time consumable.
+    public static final DeferredItem<Item> ADDON_FRAME = ITEMS.register("add_on_frame",
+            () -> new Item(new Item.Properties()));
+
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> MRE = ITEMS.register("mre",
             () -> new Item(new Item.Properties().food(ModFoodProperties.MRE)));

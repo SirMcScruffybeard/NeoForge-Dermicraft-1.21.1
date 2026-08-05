@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_c_stuff",
+  "fluid_a_amount": 50,
+  "fluid_b": "dermicraft:source_primitive_catalyst",
+  "fluid_b_amount": 5,
+  "result_fluid": "dermicraft:source_reinforcing_catalyst",
+  "result_fluid_amount": 50,
+  "ticks": 50
+}

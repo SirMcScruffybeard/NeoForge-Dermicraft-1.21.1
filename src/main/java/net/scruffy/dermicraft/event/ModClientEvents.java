@@ -41,6 +41,8 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.CONCENTRATED_SLURRY_BUCKET.get(), ModFluidTypes.CONCENTRATED_SLURRY_FLUID_TYPE);
 
         registerBucketTint(event, ModFluids.PRIMITIVE_CATALYST_BUCKET.get(), ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.REINFORCING_CATALYST_BUCKET.get(), ModFluidTypes.REINFORCING_CATALYST_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.SYNAPSE_CATALYST_BUCKET.get(), ModFluidTypes.SYNAPSE_CATALYST_FLUID_TYPE);
 
         registerBucketTint(event, ModFluids.STONE_BLEND_BUCKET.get(), ModFluidTypes.STONE_BLEND_FLUID_TYPE);
         registerBucketTint(event, ModFluids.SILICA_BLEND_BUCKET.get(), ModFluidTypes.SILICA_BLEND_FLUID_TYPE);

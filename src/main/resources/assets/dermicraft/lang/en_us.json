@@ -79,6 +79,9 @@
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",
   "item.dermicraft.blood_nugget": "Blood Nugget",
+  "item.dermicraft.proto_brain": "Proto Brain",
+  "item.dermicraft.chassis": "Chassis",
+  "item.dermicraft.add_on_frame": "Add-on Frame",
   "item.dermicraft.mre": "MRE",
   "item.dermicraft.meat_flavored_meat": "Meat Flavored Meat",
 
@@ -93,6 +96,8 @@
   "item.dermicraft.concentrated_slurry_bucket": "Concentrated Slurry Bucket",
 
   "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
+  "item.dermicraft.reinforcing_catalyst_bucket": "Reinforcing Catalyst Bucket",
+  "item.dermicraft.synapse_catalyst_bucket": "Synapse Catalyst Bucket",
 
   "item.dermicraft.stone_blend_bucket": "Stone Blend Bucket",
   "item.dermicraft.silica_blend_bucket": "Silica Blend Bucket",
@@ -128,6 +133,8 @@
   "fluid_type.dermicraft.concentrated_slurry_fluid": "Concentrated Slurry",
 
   "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
+  "fluid_type.dermicraft.reinforcing_catalyst_fluid": "Reinforcing Catalyst",
+  "fluid_type.dermicraft.synapse_catalyst_fluid": "Synapse Catalyst",
 
   "fluid_type.dermicraft.stone_blend_fluid": "Stone Blend",
   "fluid_type.dermicraft.silica_blend_fluid": "Silica Blend",

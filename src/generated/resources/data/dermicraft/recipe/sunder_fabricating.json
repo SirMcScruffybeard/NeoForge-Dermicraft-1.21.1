@@ -1,0 +1,33 @@
+{
+  "type": "dermicraft:gadget_fabricating",
+  "fluids": [
+    {
+      "amount": 500,
+      "id": "dermicraft:source_primitive_catalyst"
+    },
+    {
+      "amount": 500,
+      "id": "dermicraft:source_protein_blend"
+    },
+    {
+      "amount": 2500,
+      "id": "dermicraft:source_ferrous_blend"
+    }
+  ],
+  "items": [
+    {
+      "count": 2,
+      "id": "dermicraft:chassis"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:fuel_bladder"
+    }
+  ],
+  "required_tier": 1,
+  "result": {
+    "count": 1,
+    "id": "dermicraft:sunder"
+  },
+  "ticks": 1800
+}
