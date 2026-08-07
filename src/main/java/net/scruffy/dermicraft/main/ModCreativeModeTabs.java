@@ -84,8 +84,11 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.SCALPEL);
+                        output.accept(ModItems.PRIMITIVE_SCALPEL);
                         output.accept(ModItems.SUTURE_KIT);
+                        output.accept(ModItems.PRIMITIVE_SUTURE_KIT);
                         output.accept(ModItems.FORCEPS);
+                        output.accept(ModItems.PRIMITIVE_FORCEPS);
                         output.accept(ModItems.IDEP);
                         output.accept(ModItems.SCRENCH);
                         output.accept(ModItems.SIPPING);
@@ -110,6 +113,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.DENSE_MUSCLE);
                         output.accept(ModItems.BLOOD_NUGGET);
                         output.accept(ModItems.PROTO_BRAIN);
+                        output.accept(ModBlocks.BRAIN);
                         output.accept(ModItems.CHASSIS);
                         output.accept(ModItems.ADDON_FRAME);
 
@@ -162,6 +166,7 @@ public class ModCreativeModeTabs {
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
     private static void buildSyringeContents(CreativeModeTab.Output output) {
         output.accept(ModItems.SYRINGE.get());
+        output.accept(ModItems.PRIMITIVE_SYRINGE.get());
 
         //output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
         output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));

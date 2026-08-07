@@ -23,6 +23,6 @@
   ],
   "resultFluid": "dermicraft:mr_farmer",
   "suture_tool": {
-    "item": "dermicraft:suture_kit"
+    "tag": "dermicraft:suture_tools"
   }
 }

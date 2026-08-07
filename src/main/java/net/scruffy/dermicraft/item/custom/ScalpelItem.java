@@ -17,13 +17,19 @@ import org.jetbrains.annotations.NotNull;
 
 public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
 
-    private static final int DEFAULT_DURABILITY = 100;
-    private static final float USE_DAMAGE_MODIFIER = .1f;
+    public static final int IRON_DURABILITY = 10;
+    public static final int PRIMITIVE_DURABILITY = 5;
+    private static final int USE_WEAR = 1;
 
-
-    public ScalpelItem() {
+    /**
+     * @param durability Shared by both the iron Scalpel and the Primitive (Flint + Stick) alternate
+     *                    -- same behavior, just a different durability stat. Mirrors the
+     *                    BladderItem/MachineTier convention of parameterizing one class instead of
+     *                    subclassing for stat-only variants.
+     */
+    public ScalpelItem(int durability) {
         super(new Item.Properties()
-                .durability(DEFAULT_DURABILITY)
+                .durability(durability)
         );
     }
 
@@ -58,7 +64,7 @@ public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
 
             applyBloodLet(player);
 
-            damageTool(stack, player, getTotalWear(USE_DAMAGE_MODIFIER));
+            damageTool(stack, player, USE_WEAR);
         }
 
         return stack;
@@ -70,7 +76,7 @@ public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
         Player player = context.getPlayer();
 
         if (isHarvestable(context.getLevel(), context.getClickedPos())) {
-            damageTool(player, context.getItemInHand(), getTotalWear(USE_DAMAGE_MODIFIER), context.getHand());
+            damageTool(player, context.getItemInHand(), USE_WEAR, context.getHand());
             return InteractionResult.SUCCESS;
         }
 

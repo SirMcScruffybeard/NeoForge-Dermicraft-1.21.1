@@ -46,6 +46,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_iron_ingot", has(Tags.Items.INGOTS_IRON))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("forceps_crafting_table"));
 
+        // Primitive Forceps - no-iron alternate. Bone pincers meeting at a Stick handle, mirroring
+        // the iron version's silhouette but compressed like the Primitive Scalpel.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.PRIMITIVE_FORCEPS.get())
+                .pattern("B B")
+                .pattern(" S ")
+                .define('B', Items.BONE)
+                .define('S', Items.STICK)
+                .unlockedBy("has_bone", has(Items.BONE))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("primitive_forceps_crafting_table"));
+
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SCALPEL.get())
                 .pattern("  I")
                 .pattern(" I ")
@@ -54,6 +64,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_iron_nugget", has(Tags.Items.NUGGETS_IRON))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("scalpel_crafting_table"));
 
+        // Primitive Scalpel - no-iron alternate. Flint upper-left of the Stick, everything else empty.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.PRIMITIVE_SCALPEL.get())
+                .pattern("F ")
+                .pattern(" S")
+                .define('F', Items.FLINT)
+                .define('S', Items.STICK)
+                .unlockedBy("has_flint", has(Items.FLINT))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("primitive_scalpel_crafting_table"));
+
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SUTURE_KIT)
                 .pattern("SS ").pattern("SI ")
                 .pattern("ISI")
@@ -61,6 +80,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('I', Tags.Items.NUGGETS_IRON)
                 .unlockedBy("has_iron_nugget", has(Tags.Items.NUGGETS_IRON)).
                 save(recipeOutput, RecipeBuilders.getResourceLocation("suture_crafting_table"));
+
+        // Primitive Suture Kit - no-iron alternate. Exact same shape as the iron recipe, Bone Meal
+        // standing in for Iron Nugget in all 3 cells.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.PRIMITIVE_SUTURE_KIT.get())
+                .pattern("SS ").pattern("SB ")
+                .pattern("BSB")
+                .define('S', Tags.Items.STRINGS)
+                .define('B', Items.BONE_MEAL)
+                .unlockedBy("has_bone_meal", has(Items.BONE_MEAL))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("primitive_suture_kit_crafting_table"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SYRINGE)
                 .pattern("  N")
@@ -71,6 +100,18 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('I', Tags.Items.INGOTS_IRON)
                 .unlockedBy("has_iron_nugget", has(Tags.Items.NUGGETS_IRON))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("syringe_crafting_table"));
+
+        // Primitive Syringe - no-iron alternate. Same shape as the iron recipe; Bone Meal stands in
+        // for the small Nugget slot, whole Bone for the large Ingot slot, Glass unchanged.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.PRIMITIVE_SYRINGE.get())
+                .pattern("  N")
+                .pattern(" G ")
+                .pattern("I  ")
+                .define('N', Items.BONE_MEAL)
+                .define('G', Tags.Items.GLASS_BLOCKS_CHEAP)
+                .define('I', Items.BONE)
+                .unlockedBy("has_bone", has(Items.BONE))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("primitive_syringe_crafting_table"));
 
         // Scrench -- 5 nuggets wrapping from left-center, around the top, to right-center; 2 ingots
         // (center, bottom-center) forming the tool's own body/handle.
@@ -211,7 +252,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModBlocks.BEAKER_ITEM.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.SKIN_TANK.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "effluentcer_implant",
@@ -223,7 +264,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.EFFLUENTCER.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "craw_implant",
@@ -233,7 +274,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.CRAW.asItem());
 
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
@@ -256,7 +297,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.EYE.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.METASTASIZER.asItem());
 
         // F-Stuff/C-Stuff: 30-second (600-tick) craft time, dynamically scaled. `ticks` is
@@ -632,7 +673,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.EYE.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MUTATOR.asItem());
 
         // Render Furnace and Grafting Table - deliberately the cheapest implants in the mod: just the
@@ -640,12 +681,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // modified vanilla objects, so their "birth" doesn't need much biological investment).
         RecipeBuilders.buildEarlyImplant(recipeOutput, "render_furnace_implant",
                 List.of(Ingredient.of(Items.FURNACE)),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_FURNACE.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "grafting_table_implant",
                 List.of(Ingredient.of(Items.CRAFTING_TABLE)),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.GRAFTING_TABLE.asItem());
 
         // Mutator recipe roster - all values provisional (functional-not-final, see machine notes),
@@ -1036,7 +1077,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
         ////////////////////Mr. Farmer\\\\\\\\\\\\\\\\\\\\
@@ -1049,7 +1090,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_FARMER.asItem());
 
         ////////////////////Mr. Shepard\\\\\\\\\\\\\\\\\\\\
@@ -1061,7 +1102,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_SHEPARD.asItem());
 
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
@@ -1145,7 +1186,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModItems.SUTURE_KIT.get()), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
         RecipeBuilders.render(recipeOutput, "render_kiln_stone", ModFluids.SOURCE_STONE_BLEND.get(), 1000, Items.STONE, solidTicks);
@@ -1156,7 +1197,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.render(recipeOutput, "render_kiln_gold_ingot", ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, Items.GOLD_INGOT, solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_coal", ModFluids.SOURCE_CARBON_BLEND.get(), 112, Items.COAL, lightTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, Items.BONE_MEAL, lightTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_meat_flavored_meat", ModFluids.SOURCE_PROTEIN_BLEND.get(), 900, ModItems.MEAT_FLAVORED_MEAT.get(), 160);
+        // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Blend, solidTicks) --
+        // same amount/timing, no pattern item since the Render Kiln is fluid-only input.
+        RecipeBuilders.render(recipeOutput, "render_kiln_blood_nugget", ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, ModItems.BLOOD_NUGGET.get(), solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_mre", ModFluids.SOURCE_F_STUFF.get(), 900, ModItems.MRE.get(), 160);
         // Deliberately excluded: Crude Slurry (no solid form defined anywhere in the design notes).
 

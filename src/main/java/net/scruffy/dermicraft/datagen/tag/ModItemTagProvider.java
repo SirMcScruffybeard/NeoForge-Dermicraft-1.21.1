@@ -24,20 +24,24 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.COLLECTION_TOOLS)
                 .add(ModItems.FORCEPS.get())
+                .add(ModItems.PRIMITIVE_FORCEPS.get())
 
         ;
 
         tag(ModTags.Items.EXTRACTION_TOOLS)
                 .add(ModItems.SCALPEL.get())
+                .add(ModItems.PRIMITIVE_SCALPEL.get())
         ;
 
         tag(ModTags.Items.INJECTION_TOOLS)
                 .add(ModItems.SYRINGE.get())
+                .add(ModItems.PRIMITIVE_SYRINGE.get())
 
         ;
 
         tag(ModTags.Items.SUTURE_TOOLS)
-                .add(ModItems.SUTURE_KIT.get());
+                .add(ModItems.SUTURE_KIT.get())
+                .add(ModItems.PRIMITIVE_SUTURE_KIT.get());
 
 
         tag(ModTags.Items.ANIMAL_MEATS)

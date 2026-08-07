@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:bone_meal"
+    },
+    "S": {
+      "tag": "c:strings"
+    }
+  },
+  "pattern": [
+    "SS ",
+    "SB ",
+    "BSB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:primitive_suture_kit"
+  }
+}

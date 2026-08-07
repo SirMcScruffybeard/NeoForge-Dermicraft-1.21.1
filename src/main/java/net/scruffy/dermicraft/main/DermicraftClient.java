@@ -15,6 +15,7 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.fluids.FluidType;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
@@ -53,6 +54,10 @@ public class DermicraftClient {
     static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             ModItemProperties.addCustomItemProperties();
+
+            // Brain's model has transparent-cutout regions (see brain.json) -- cutout, not solid,
+            // so those pixels render as fully see-through rather than opaque black/magenta.
+            ItemBlockRenderTypes.setRenderLayer(ModBlocks.BRAIN.get(), RenderType.cutout());
 
             renderTranslucentFluid(ModFluids.SOURCE_CALCIUM_BLEND.get(), ModFluids.FLOWING_CALCIUM_BLEND.get());
             renderTranslucentFluid(ModFluids.SOURCE_CARBON_BLEND.get(), ModFluids.FLOWING_CARBON_BLEND.get());

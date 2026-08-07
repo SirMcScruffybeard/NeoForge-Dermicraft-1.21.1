@@ -163,11 +163,18 @@
 		},
 		"attack": {
 			"loop": true,
+			"animation_length": 0.2917,
 			"bones": {
 				"main": {
 					"rotation": {
 						"vector": [72.7046, 4.6864, -14.6882],
 						"easing": "easeInCirc"
+					},
+					"position": {
+						"vector": [0, -1, 3]
+					},
+					"scale": {
+						"vector": [1, 1.2, 1]
 					}
 				}
 			}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "dermicraft:item/syringe/syringe_lava",
+    "layer1": "dermicraft:item/syringe/primitive_syringe"
+  }
+}

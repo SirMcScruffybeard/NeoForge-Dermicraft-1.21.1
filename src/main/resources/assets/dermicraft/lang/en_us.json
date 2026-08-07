@@ -5,8 +5,11 @@
 
 
   "item.dermicraft.scalpel": "Scalpel",
+  "item.dermicraft.primitive_scalpel": "Primitive Scalpel",
   "item.dermicraft.suture_kit": "Suture Kit",
+  "item.dermicraft.primitive_suture_kit": "Primitive Suture Kit",
   "item.dermicraft.forceps": "Forceps",
+  "item.dermicraft.primitive_forceps": "Primitive Forceps",
   "item.dermicraft.idep": "I.D.E.P.",
   "item.dermicraft.sipping": "S.I.P.P.I.N.G.",
   "item.dermicraft.drinker": "D.R.I.N.K.E.R.",
@@ -62,6 +65,8 @@
   "tooltip.dermicraft.bladder.refueled": "Refueled %s mB",
   "item.dermicraft.syringe": "Syringe",
   "item.dermicraft.syringe.filled": "Syringe of %s",
+  "item.dermicraft.primitive_syringe": "Primitive Syringe",
+  "item.dermicraft.primitive_syringe.filled": "Primitive Syringe of %s",
 
   "item.dermicraft.glass_flask": "Glass Flask",
   "item.dermicraft.flask.filled": "Flask of %s",
@@ -80,6 +85,7 @@
   "item.dermicraft.dense_muscle": "Dense Muscle",
   "item.dermicraft.blood_nugget": "Blood Nugget",
   "item.dermicraft.proto_brain": "Proto Brain",
+  "block.dermicraft.brain": "Brain",
   "item.dermicraft.chassis": "Chassis",
   "item.dermicraft.add_on_frame": "Add-on Frame",
   "item.dermicraft.mre": "MRE",

@@ -25,8 +25,11 @@ public class ModItemModelProvider extends ItemModelProvider {
 
         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
         handheldItem(ModItems.SCALPEL.get());
+        handheldItem(ModItems.PRIMITIVE_SCALPEL.get());
         handheldItem(ModItems.SUTURE_KIT.get());
+        handheldItem(ModItems.PRIMITIVE_SUTURE_KIT.get());
         handheldItem(ModItems.FORCEPS.get());
+        handheldItem(ModItems.PRIMITIVE_FORCEPS.get());
 
 
         ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\

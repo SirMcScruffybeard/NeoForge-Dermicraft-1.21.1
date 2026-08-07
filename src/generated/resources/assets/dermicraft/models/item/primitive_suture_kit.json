@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "dermicraft:item/primitive_suture_kit"
+  }
+}

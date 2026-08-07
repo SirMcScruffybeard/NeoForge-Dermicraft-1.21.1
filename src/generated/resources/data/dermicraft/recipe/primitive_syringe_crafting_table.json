@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "G": {
+      "tag": "c:glass_blocks/cheap"
+    },
+    "I": {
+      "item": "minecraft:bone"
+    },
+    "N": {
+      "item": "minecraft:bone_meal"
+    }
+  },
+  "pattern": [
+    "  N",
+    " G ",
+    "I  "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:primitive_syringe"
+  }
+}

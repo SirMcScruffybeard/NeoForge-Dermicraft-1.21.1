@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "dermicraft:item/syringe/primitive_syringe"
+  },
+  "overrides": [
+    {"predicate": {"dermicraft:full": 1.0}, "model": "dermicraft:item/primitive_syringe/primitive_syringe_thin_fluid"},
+    {"predicate": {"dermicraft:full": 2.0}, "model": "dermicraft:item/primitive_syringe/primitive_syringe_thick_fluid"},
+    {"predicate": {"dermicraft:full": 3.0}, "model": "dermicraft:item/primitive_syringe/primitive_syringe_lava"}
+  ]
+}

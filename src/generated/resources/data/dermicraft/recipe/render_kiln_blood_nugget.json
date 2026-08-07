@@ -1,10 +1,10 @@
 {
   "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_protein_blend",
-  "fluid_amount": 900,
+  "fluid_amount": 250,
   "result": {
     "count": 1,
-    "id": "dermicraft:meat_flavored_meat"
+    "id": "dermicraft:blood_nugget"
   },
-  "ticks": 160
+  "ticks": 200
 }

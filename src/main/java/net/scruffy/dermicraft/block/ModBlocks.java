@@ -67,6 +67,15 @@ public class ModBlocks {
     public static final DeferredBlock<Block> DROOLING_CAULDRON = registerBlock("drooling_cauldron",
             () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()));
 
+    // Brain Block: Gear Stations' construction-defining "smart" ingredient (see
+    // dermicraft-gear-stations-notes.md -> Construction); also stands alone as a decoration
+    // block, same "every item needs more than one use" convention as Proto Brain's own item.
+    public static final DeferredBlock<Block> BRAIN = registerBlock("brain",
+            () -> new BrainBlock(BlockBehaviour.Properties.of()
+                    .strength(0.5f)
+                    .sound(SoundType.SLIME_BLOCK)
+                    .noOcclusion())); // cutout render layer -- don't hide neighbouring faces behind its transparent regions
+
     public static final DeferredBlock<Block> OUTERFACE = registerBlock("outerface", OuterfaceBlock::new);
 
     public static final DeferredBlock<Block> MASTICATOR = registerBlock("masticator",

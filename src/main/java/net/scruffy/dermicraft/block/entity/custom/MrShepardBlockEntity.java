@@ -60,6 +60,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     private static final int MAX_RANGE_TIER = 4; // shared tier->range formula, see Mr. Farmer
 
     private static final int VERTICAL_REACH = 4; // AABB extends this far above/below the machine's plane
+    private static final int PICKUP_MARGIN = 1;  // pickup-only overreach on each horizontal side
 
     private static final int WAVE_STEP_TICKS_BASE = 40; // 2s at fuel speed 1.0, same idiom as Mr. Farmer
     private static final float MIN_SPEED_FOR_PACING = 0.1f;
@@ -219,7 +220,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         // cullOverpopulation() also guards this explicitly, so the guarantee doesn't depend on order.
         AABB area = workArea();
         boolean didWork = false;
-        didWork |= collectItems(serverLevel, area);
+        didWork |= collectItems(serverLevel, pickupArea()); // wider than the rest -- see pickupArea()
         didWork |= shearSheep(serverLevel, area);
         didWork |= growBabies(serverLevel, area);
         didWork |= breedAnimals(serverLevel, area);
@@ -281,6 +282,18 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         AABB box = new AABB(worldPosition.relative(side, -half))
                 .minmax(new AABB(worldPosition.relative(facing, range).relative(side, half)));
         return box.inflate(0, VERTICAL_REACH, 0);
+    }
+
+    /**
+     * Item collection reaches one block further out than the working area on every horizontal side.
+     * Drops physically drift and settle, so an item produced well inside the range can come to rest
+     * against a fence post or pen wall just outside it -- and would then sit there permanently, since
+     * nothing ever moves it back in. The margin applies to <em>pickup only</em>: breeding, shearing,
+     * growth and culling all stay bounded by the real working area, so this widens what the machine
+     * cleans up without widening what it manages.
+     */
+    private AABB pickupArea() {
+        return workArea().inflate(PICKUP_MARGIN, 0, PICKUP_MARGIN);
     }
 
     // ---- Item pickup ----------------------------------------------------------------------------

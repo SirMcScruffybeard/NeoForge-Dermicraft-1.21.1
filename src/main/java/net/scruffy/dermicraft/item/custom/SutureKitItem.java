@@ -16,12 +16,18 @@ import net.scruffy.dermicraft.util.ModMath;
 
 public class SutureKitItem extends ToolItem implements ISuture {
 
-    private static final int DEFAULT_DURABILITY = 100;
-    private static final float USE_DAMAGE_MODIFIER = .1f;
+    public static final int IRON_DURABILITY = 10;
+    public static final int PRIMITIVE_DURABILITY = 5;
+    private static final int USE_WEAR = 1;
 
-    public SutureKitItem() {
+    /**
+     * @param durability Shared by both the iron Suture Kit and the Primitive (String + Bone Meal)
+     *                    alternate -- same behavior, just a different durability stat. Mirrors
+     *                    ScalpelItem/ForcepsItem's parameterized-class convention.
+     */
+    public SutureKitItem(int durability) {
         super(new Item.Properties()
-                .durability(DEFAULT_DURABILITY)
+                .durability(durability)
         );
     }
 
@@ -91,7 +97,7 @@ public class SutureKitItem extends ToolItem implements ISuture {
         ItemStack stack = player.getItemInHand(hand);
         //Try to consume string in player inventory. If not damage Suture Kit
         if (!consumeString(player)) {
-            stack.hurtAndBreak(getTotalWear(USE_DAMAGE_MODIFIER), player, LivingEntity.getSlotForHand(hand));
+            stack.hurtAndBreak(USE_WEAR, player, LivingEntity.getSlotForHand(hand));
         }
     }
 

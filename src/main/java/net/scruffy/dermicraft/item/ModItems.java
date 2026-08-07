@@ -17,10 +17,23 @@ public class ModItems {
 
 
     ////////////////////Basic Tools\\\\\\\\\\\\\\\\\\\\
-    public static final DeferredItem<Item> FORCEPS = ITEMS.register("forceps", ForcepsItem::new);
-    public static final DeferredItem<Item> SCALPEL = ITEMS.register("scalpel", ScalpelItem::new);
-    public static final DeferredItem<Item> SUTURE_KIT = ITEMS.register("suture_kit", SutureKitItem::new);
-    public static final DeferredItem<Item> SYRINGE = ITEMS.register("syringe", SyringeItem::new);
+    public static final DeferredItem<Item> FORCEPS = ITEMS.register("forceps", () -> new ForcepsItem());
+    public static final DeferredItem<Item> PRIMITIVE_FORCEPS = ITEMS.register("primitive_forceps",
+            () -> new ForcepsItem(ForcepsItem.PRIMITIVE_DURABILITY));
+    public static final DeferredItem<Item> SCALPEL = ITEMS.register("scalpel",
+            () -> new ScalpelItem(ScalpelItem.IRON_DURABILITY));
+    // Primitive tools: no-iron alternates for the surgical toolkit, so Machine bootstrapping
+    // (Masticator/Metastasizer implants) doesn't require mining. Same behavior as their iron
+    // counterparts, deliberately weaker stats.
+    public static final DeferredItem<Item> PRIMITIVE_SCALPEL = ITEMS.register("primitive_scalpel",
+            () -> new ScalpelItem(ScalpelItem.PRIMITIVE_DURABILITY));
+    public static final DeferredItem<Item> SUTURE_KIT = ITEMS.register("suture_kit",
+            () -> new SutureKitItem(SutureKitItem.IRON_DURABILITY));
+    public static final DeferredItem<Item> PRIMITIVE_SUTURE_KIT = ITEMS.register("primitive_suture_kit",
+            () -> new SutureKitItem(SutureKitItem.PRIMITIVE_DURABILITY));
+    public static final DeferredItem<Item> SYRINGE = ITEMS.register("syringe", () -> new SyringeItem());
+    public static final DeferredItem<Item> PRIMITIVE_SYRINGE = ITEMS.register("primitive_syringe",
+            () -> new SyringeItem(SyringeItem.PRIMITIVE_DURABILITY));
     public static final DeferredItem<Item> GLASS_FLASK = ITEMS.register("glass_flask", GlassFlaskItem::new);
     public static final DeferredItem<Item> IDEP = ITEMS.register("idep", IdepItem::new);
     public static final DeferredItem<Item> BLADDER = ITEMS.register("bladder", () -> new BladderItem(false));

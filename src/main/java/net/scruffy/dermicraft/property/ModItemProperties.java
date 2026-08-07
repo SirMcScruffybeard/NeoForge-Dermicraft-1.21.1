@@ -45,6 +45,17 @@ public class ModItemProperties {
                     return 0;
                 });
 
+        ItemProperties.register(ModItems.PRIMITIVE_SYRINGE.get(),
+                getResourceLocation("full"),
+                (stack, level, entity, seed) -> {
+                    FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
+                    if (data.getFluidType() == Fluids.LAVA.getFluidType()) return 3;
+                    if (data.getFluidStack().is(ModTags.Fluids.THIN)) return 1;
+                    if (data.getFluidStack().is(ModTags.Fluids.THICK)) return 2;
+                    if (!data.isFluidEmpty()) return 1;
+                    return 0;
+                });
+
         ItemProperties.register(ModItems.GLASS_FLASK.get(),
                 getResourceLocation("full"),
                 (stack, level, entity, seed) -> {
