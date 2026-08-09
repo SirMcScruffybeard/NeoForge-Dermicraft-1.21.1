@@ -66,21 +66,20 @@ Running log of decided design choices for **Gear Stations** — the set of three
 
 **Menu/GUI plan (2026-08-04, revised — nests inside the unified GUI, see Overview → Relationship to a full OT/FL, above):**
 
-- **Right-strip pages, three of them**, shown once Workbench is the selected entry on the unified GUI's left strip (a standalone Workbench just shows itself there, per the Overview's unified-GUI note):
-  1. **Storage** — Duty 1.
-  2. **Fabrication** — Duty 6.
-  3. **Swap** — Duties 4+5 (Frame load/unload, exchangeable parts).
-  - **Point-Spend (Duty 7) stays deferred, not designed in this pass** — each gadget's point-spend category tree (Sunder, Eater, Grapple, etc., see `dermicraft-gadget-notes.md`) is still independently evolving, so locking a UI shape now risks designing against lists that keep changing. It will eventually land as a 4th right-strip page here once those trees stabilize.
-- **Storage page:** see its own subsection below.
+- **Right-strip pages — Fabrication and Swap (revised 2026-08-04, Storage demoted from a page to a persistent strip — see below).**
+  1. **Fabrication** — Duty 6.
+  2. **Swap** — Duties 4+5 (Frame load/unload, exchangeable parts).
+  - **Point-Spend (Duty 7) stays deferred, not designed in this pass** — each gadget's point-spend category tree (Sunder, Eater, Grapple, etc., see `dermicraft-gadget-notes.md`) is still independently evolving, so locking a UI shape now risks designing against lists that keep changing. It will eventually land as a 3rd right-strip page here once those trees stabilize.
+- **Persistent Storage strip (2026-08-04, revised) — not a page at all anymore.** Storage (Duty 1) now lives as a **fixed strip at the bottom of the Workbench's screen, always visible regardless of which right-strip page (Fabrication/Swap/eventually Point-Spend) is active above it** — part of the screen's own frame, not something you navigate to. Lets the player drag a gadget straight out of storage into whatever the active page needs (e.g. Swap's top-left working-item slot) without switching pages first. See its own subsection below.
 - **Fabrication page:** see its own subsection below.
 
-### Storage page (2026-08-04, fully planned)
+### Storage strip (2026-08-04, revised — demoted from a full page to a persistent bottom strip)
 
-- **Fixed 9x3 (27-slot) visible window + scrollbar**, matching a vanilla chest/shulker box exactly — familiar sizing and interaction language, no bespoke widget. Since capacity starts at 9 and doubles per station tier (9→18→36→72), this window shows **Tier 1 and Tier 2 in full with zero scrolling** — the scrollbar only becomes relevant at Tier 3 (36 slots) and Tier 4 (72 slots), so the common early-game case looks and feels exactly like a plain chest.
+- **Shrunk to a single visible row (9x1) + scrollbar**, down from the original 9x3 window, since it now shares screen space with whatever page is active above it rather than owning the whole screen. Matches the starting Tier 1 capacity exactly — scrolling becomes relevant immediately past Tier 1 (18/36/72 slots), trading the old "Tiers 1–2 need no scrolling" property for a slimmer footprint that leaves the main content area (Fabrication's recipe grid, Swap's sub-panels) full room.
 - **Restricted slot filtering (`mayPlace`) — gadgets, add-on Frames, exchangeable parts, and `Damageable` items only.** Plain non-damageable junk (dirt, cobblestone, etc.) is rejected outright. Keeps this true to "internal gadget storage" plus Duty 3's repair scope, rather than doubling as a second Craw — consistent with the "scarce, valuable slots" philosophy already established for suit add-ons (see Workbench, Duty 1, above).
 - **Passive recharge (Duty 2) and repair (Duty 3) are two different mechanics, not one shared job type — corrected 2026-08-04.** The mod has no energy system; Duty 2 is purely refueling a gadget's own onboard fluid tank, and fluid transfer is instant everywhere else in this mod (e.g. `ScrenchMenu`'s fill-slot), so there's no duration/queue to it at all:
   - **Repair (Duty 3) stays the single active job, cycling through the grid one item at a time**, per its own duration-based math (`duration = points needed ÷ speed`) — a `Damageable` item's own vanilla durability bar shows its progress for free, no custom indicator needed.
-  - **Refuel (Duty 2) runs instantly and passively on every eligible stored gadget at once**, independent of the repair queue and independent of whether the Storage page is even open (a block-entity tick concern, same "works while nobody's looking" model as the Dock's own passive refuel). No progress indicator needed since there's no duration to show.
+  - **Refuel (Duty 2) runs instantly and passively on every eligible stored gadget at once**, independent of the repair queue and independent of whether the Workbench's screen is even open (a block-entity tick concern, same "works while nobody's looking" model as the Dock's own passive refuel — the Storage strip being demoted from a page to an always-visible frame element doesn't change this, it was never gated on screen visibility). No progress indicator needed since there's no duration to show.
   - **Fuel-type selection priority (confirmed):** if the gadget's tank already holds some fuel, top it off with **that same fluid type only**, pulled from the shared pool. If the tank is completely empty, fill it with **whichever fuel currently in the shared pool is graded best** (per the mod's existing Speed/Use-rate/Heal fuel-grade ranking). Either way, the shared pool is only ever debited for the exact amount that actually transfers into the gadget's tank.
 
 ### Fabrication page (2026-08-04, fully planned)

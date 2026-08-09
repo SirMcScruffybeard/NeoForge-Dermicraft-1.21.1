@@ -86,6 +86,8 @@
   "item.dermicraft.blood_nugget": "Blood Nugget",
   "item.dermicraft.proto_brain": "Proto Brain",
   "block.dermicraft.brain": "Brain",
+  "block.dermicraft.workbench": "Workbench",
+  "block.dermicraft.workbench_top": "Workbench Top",
   "item.dermicraft.chassis": "Chassis",
   "item.dermicraft.add_on_frame": "Add-on Frame",
   "item.dermicraft.mre": "MRE",
@@ -328,6 +330,9 @@
 
   "tooltip.dermicraft.slot.fuel_container": "Fuel Container",
   "tooltip.dermicraft.slot.chain": "Chain",
+  "tooltip.dermicraft.slot.workbench_work_item": "Gadget",
+  "screen.dermicraft.workbench.mod_tab": "Mod",
+  "screen.dermicraft.workbench.fabrication_tab": "Fab",
   "screen.dermicraft.scrench": "Sunder Maintenance",
   "tooltip.dermicraft.slot.reagent_container": "Reagent Container",
   "tooltip.dermicraft.slot.result_container": "Result Container",

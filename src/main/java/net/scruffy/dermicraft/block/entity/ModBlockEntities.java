@@ -90,4 +90,12 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("mr_shepard_be", () -> BlockEntityType.Builder.of(
                     net.scruffy.dermicraft.block.entity.custom.MrShepardBlockEntity::new, ModBlocks.MR_SHEPARD.get()).build(null));
 
+    public static final Supplier<BlockEntityType<WorkbenchBlockEntity>> WORKBENCH_BE =
+            BLOCK_ENTITIES.register("workbench_be", () -> BlockEntityType.Builder.of(
+                    WorkbenchBlockEntity::new, ModBlocks.WORKBENCH.get()).build(null));
+
+    public static final Supplier<BlockEntityType<WorkbenchTopBlockEntity>> WORKBENCH_TOP_BE =
+            BLOCK_ENTITIES.register("workbench_top_be", () -> BlockEntityType.Builder.of(
+                    WorkbenchTopBlockEntity::new, ModBlocks.WORKBENCH_TOP.get()).build(null));
+
 }

@@ -67,6 +67,23 @@ public class ModBlocks {
     public static final DeferredBlock<Block> DROOLING_CAULDRON = registerBlock("drooling_cauldron",
             () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()));
 
+    // Workbench bottom half -- keeps the registry id "workbench" (established before the top half
+    // existed) and hosts the real Storage/Mod/Fabrication GUI (see WorkbenchBlock's own javadoc).
+    // noOcclusion -- GeckoLib-rendered, doesn't fill the full cube, so a neighbor's face shouldn't
+    // get culled against it (same reasoning as Brain's own noOcclusion).
+    public static final DeferredBlock<Block> WORKBENCH = registerBlock("workbench",
+            () -> new WorkbenchBlock(BlockBehaviour.Properties.of()
+                    .strength(2.5f)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
+
+    // Workbench top half -- purely visual/animated this pass, see WorkbenchTopBlock's own javadoc.
+    public static final DeferredBlock<Block> WORKBENCH_TOP = registerBlock("workbench_top",
+            () -> new WorkbenchTopBlock(BlockBehaviour.Properties.of()
+                    .strength(2.5f)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()));
+
     // Brain Block: Gear Stations' construction-defining "smart" ingredient (see
     // dermicraft-gear-stations-notes.md -> Construction); also stands alone as a decoration
     // block, same "every item needs more than one use" convention as Proto Brain's own item.

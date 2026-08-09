@@ -166,6 +166,18 @@ public class DermicraftClient {
                 return renderer;
             }
         }, net.scruffy.dermicraft.item.ModItems.SUNDER.get());
+
+        // See WorkbenchBottomItemRenderer's own javadoc -- a plain BlockItem isn't a GeoItem, so
+        // GeckoLib's own automatic item-render hook never fires for it without this.
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private final net.scruffy.dermicraft.renderer.WorkbenchBottomItemRenderer renderer =
+                    new net.scruffy.dermicraft.renderer.WorkbenchBottomItemRenderer();
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return renderer;
+            }
+        }, net.scruffy.dermicraft.block.ModBlocks.WORKBENCH.asItem());
     }
 
     @SubscribeEvent
@@ -173,6 +185,10 @@ public class DermicraftClient {
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.WORKBENCH_TOP_BE.get(),
+                net.scruffy.dermicraft.renderer.WorkbenchTopBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.WORKBENCH_BE.get(),
+                net.scruffy.dermicraft.renderer.WorkbenchBottomBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
@@ -191,6 +207,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);
         event.register(ModMenuTypes.RENDER_KILN_MENU.get(), RenderKilnScreen::new);
         event.register(ModMenuTypes.SCRENCH_MENU.get(), net.scruffy.dermicraft.screen.custom.scrench.ScrenchScreen::new);
+        event.register(ModMenuTypes.WORKBENCH_MENU.get(), net.scruffy.dermicraft.screen.custom.workbench.WorkbenchScreen::new);
     }
 
     private static void renderTranslucentFluid(Fluid source, Fluid flow) {

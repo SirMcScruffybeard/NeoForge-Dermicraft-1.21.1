@@ -37,6 +37,18 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         simpleBlockWithItem(ModBlocks.BRAIN.get(), models().getExistingFile(modLoc("block/brain")));
 
+        // GeckoLib-rendered (RenderShape.ENTITYBLOCK_ANIMATED) -- no baked mesh of their own, the
+        // block entity's own GeoBlockRenderer draws everything every frame. "builtin/entity" is
+        // vanilla's own special marker model for exactly this (same one chests/banners/skulls use).
+        //
+        // Bottom has its own hand-authored model/block/workbench_bottom.json (parent builtin/entity,
+        // real display transforms tuned to the actual geometry, plus a particle texture) -- same
+        // getExistingFile pattern as BRAIN just above, not the generic vanilla-block-default
+        // transforms this used to build inline via the item-model transforms() builder.
+        simpleBlockWithItem(ModBlocks.WORKBENCH.get(), models().getExistingFile(modLoc("block/workbench_bottom")));
+        simpleBlockWithItem(ModBlocks.WORKBENCH_TOP.get(),
+                new ModelFile.UncheckedModelFile(ResourceLocation.withDefaultNamespace("builtin/entity")));
+
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
         simpleBlockWithItem(ModBlocks.STONE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/stone_lab_floor")));
         simpleBlockWithItem(ModBlocks.COBBLESTONE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/cobblestone_lab_floor")));
