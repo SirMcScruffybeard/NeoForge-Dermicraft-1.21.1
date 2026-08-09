@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -130,7 +131,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
             if (recipe != null && recipe.testFluid(fluidStack)) {
                 syringe.emptyDataFluidIfSurvival(stack, player);
 
-                this.evolveImplant(level, blockEntity.getBlockPos(), recipe);
+                this.evolveImplant(level, player, blockEntity.getBlockPos(), recipe);
             }
         }
     }
@@ -139,7 +140,7 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
      * Consumes the stored biological layers, wipes the inventory metadata, and births
      * the new processing machine block directly in place.
      */
-    private void evolveImplant(Level level, BlockPos pos, EarlyImplantRecipe recipe) {
+    private void evolveImplant(Level level, Player player, BlockPos pos, EarlyImplantRecipe recipe) {
         // Fetch the output item block associated with this recipe resultFluid
         ItemStack resultStack = recipe.getResultItem(level.registryAccess());
         Block finalMachineBlock = Block.byItem(resultStack.getItem());
@@ -148,7 +149,25 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
         level.playSound(null, pos, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
         level.playSound(null, pos, SoundEvents.SLIME_BLOCK_BREAK, SoundSource.BLOCKS, 1.2F, 0.5F);
 
+        // defaultBlockState() alone always comes out facing NORTH regardless of which way the
+        // player was actually standing during the injection -- orient it the same "face toward
+        // whoever placed it" way every FACING machine's own getStateForPlacement already does
+        // (MasticatorBlock, DroolingCauldronBlock, EffluentcerBlock, WorkbenchBlock, ...), rather
+        // than leaving every implant-born machine stuck facing a fixed direction.
+        BlockState resultState = finalMachineBlock.defaultBlockState();
+        if (resultState.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            resultState = resultState.setValue(BlockStateProperties.HORIZONTAL_FACING, player.getDirection().getOpposite());
+        }
+
         // Transform the block directly into the new machine (e.g., Drooling Cauldron)
-        level.setBlock(pos, finalMachineBlock.defaultBlockState(), 3);
+        level.setBlock(pos, resultState, 3);
+
+        // setBlock alone skips setPlacedBy -- fine for every ordinary single-block machine (none of
+        // them override it), but a two-block Gear Station like the Workbench relies on setPlacedBy
+        // to spawn its paired top half (see WorkbenchBlock#setPlacedBy). Calling it explicitly here,
+        // generically, covers that case (and any future two-block station following the same
+        // pairing convention) without special-casing the Workbench in this otherwise generic method.
+        BlockState placedState = level.getBlockState(pos);
+        placedState.getBlock().setPlacedBy(level, pos, placedState, player, ItemStack.EMPTY);
     }
 }

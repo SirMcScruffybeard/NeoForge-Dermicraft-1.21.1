@@ -13,6 +13,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.duct.InnardsDuctBlock;
+import net.scruffy.dermicraft.block.custom.floor.LabFloorBlock;
 import net.scruffy.dermicraft.block.custom.duct.NodeBlock;
 import net.scruffy.dermicraft.block.custom.gate.GateBufferBlock;
 import net.scruffy.dermicraft.block.custom.gate.GateControllerBlock;
@@ -172,20 +173,23 @@ public class ModBlocks {
                     .noOcclusion()));
 
     ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
+    // All seven current variants are the Tier 1 crafting-table bootstrap set (dermicraft-machine-
+    // notes.md -> Lab Floor -> Floor Tiers) -- safe fluids only, adjacent-only reach. Higher-tier
+    // (metal) variants are still design-only; when they land they just pass a higher tier int here.
     public static final DeferredBlock<Block> STONE_LAB_FLOOR = registerBlock("stone_lab_floor",
-            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)));
+            () -> new LabFloorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.STONE), 1));
     public static final DeferredBlock<Block> COBBLESTONE_LAB_FLOOR = registerBlock("cobblestone_lab_floor",
-            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COBBLESTONE)));
+            () -> new LabFloorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COBBLESTONE), 1));
     public static final DeferredBlock<Block> DEEPSLATE_LAB_FLOOR = registerBlock("deepslate_lab_floor",
-            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)));
+            () -> new LabFloorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE), 1));
     public static final DeferredBlock<Block> COBBLED_DEEPSLATE_LAB_FLOOR = registerBlock("cobbled_deepslate_lab_floor",
-            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.COBBLED_DEEPSLATE)));
+            () -> new LabFloorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COBBLED_DEEPSLATE), 1));
     public static final DeferredBlock<Block> DIORITE_LAB_FLOOR = registerBlock("diorite_lab_floor",
-            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.DIORITE)));
+            () -> new LabFloorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.DIORITE), 1));
     public static final DeferredBlock<Block> ANDESITE_LAB_FLOOR = registerBlock("andesite_lab_floor",
-            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.ANDESITE)));
+            () -> new LabFloorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.ANDESITE), 1));
     public static final DeferredBlock<Block> GRANITE_LAB_FLOOR = registerBlock("granite_lab_floor",
-            () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.GRANITE)));
+            () -> new LabFloorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.GRANITE), 1));
 
     public static final DeferredBlock<Block> BEAKER = BLOCKS.register("beaker",
             () -> new BeakerBlock(BlockBehaviour.Properties.of()));

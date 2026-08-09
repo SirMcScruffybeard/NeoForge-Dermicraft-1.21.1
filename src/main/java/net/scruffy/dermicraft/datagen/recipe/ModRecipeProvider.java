@@ -277,6 +277,24 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.CRAW.asItem());
 
+        ////////////////////Gear Stations\\\\\\\\\\\\\\\\\\\\
+        // Workbench: reworked 2026-08-09 -- reduced to a single, simple implant. WorkbenchBlock
+        // #setPlacedBy already spawns WORKBENCH_TOP for free (no second item/implant involved), so
+        // there's only ever one thing for the player to actually craft; the earlier version stacking
+        // both design-table halves' costs into one 15-ingredient implant was needlessly heavy and
+        // apparently confused JEI's display. Same shape as the Craw's own implant (its closest
+        // analog -- Chest is this recipe's defining item too).
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "workbench_implant",
+                List.of(
+                        Ingredient.of(Items.CHEST),
+                        Ingredient.of(ModBlocks.BRAIN.asItem()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.WORKBENCH.asItem());
+
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse
         // Catalyst injection (100 mB is the syringe's fixed physical volume, not a cost lever).
@@ -796,6 +814,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // (not replacing) skin_tank_implant.
         RecipeBuilders.mutate(recipeOutput, "mutating_skin_tank", ModBlocks.BEAKER_ITEM.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.SKIN_TANK.asItem(), solidTicks);
+
+        // Brain Block - FL Tier 1 build (see dermicraft-machine-notes.md, Core -- Tier 1 build).
+        // Same price/timing as the Craw/Skin Tank Mutator routes -- the Brain is the FL's control
+        // block, at least as significant as either.
+        RecipeBuilders.mutate(recipeOutput, "mutating_brain", ModItems.PROTO_BRAIN.get(),
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.BRAIN.asItem(), solidTicks);
 
         // Overgrowth family (Crude Slurry as the life/growth agent) - Mossy Cobblestone set. 10 mB
         // flat across the whole family (block/stairs/wall/slab alike) -- other mods gate this behind
