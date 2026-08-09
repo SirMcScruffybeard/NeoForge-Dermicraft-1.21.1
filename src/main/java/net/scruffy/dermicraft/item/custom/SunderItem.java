@@ -3,11 +3,13 @@ package net.scruffy.dermicraft.item.custom;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -45,6 +47,7 @@ import net.scruffy.dermicraft.component.HeldItemData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.component.SunderModeData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
@@ -85,12 +88,18 @@ import java.util.UUID;
  * bones back down, which reads the same as a reverse for a simple flex/extend clip like
  * {@code rev_up_down}.
  */
-public class SunderItem extends Item implements GeoItem, IHaveFluidData {
+public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget, net.scruffy.dermicraft.interfaces.IWorkbenchSwappable {
 
     /** Placeholder capacity -- fuel-drain-rate-per-pulse and every other fuel-economy number are
      * still open design questions (see the notes), so this is a round default to build against,
      * not a tuned value. Matches Drinker/Sipping's own 1000mB default for consistency. */
     public static final int FUEL_CAPACITY = 1000;
+
+    /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
+     * {@code Item.Properties#durability}, which is the single source of truth for max HP. Purely
+     * drop-damage-based, same as every other gadget -- entirely independent of chain durability
+     * (which wears from combat use, not impact) and untouched by combat itself. */
+    public static final int MAX_HP = 10;
 
     /** Base (pre-chain/tier/fuel/points) attack damage modifier -- 5.0, matching vanilla's own
      * Iron Sword exactly (3.0 base + Iron's 2.0 tier bonus, per {@code SwordItem.createAttributes}).
@@ -229,6 +238,16 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData {
     public SunderItem(Properties properties) {
         super(properties);
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
+    }
+
+    ////////////////////Gadget HP\\\\\\\\\\\\\\\\\\\\
+
+    @Override
+    public void onGadgetDeath(ServerLevel level, ItemEntity entity, ItemStack stack) {
+        IGadget.deathFlourish(level, entity, ParticleTypes.CRIT, 20, 0.2,
+                SoundEvents.GHAST_HURT, 0.8F, 0.6F);
+        IGadget.deathFlourish(level, entity, ParticleTypes.SMOKE, 14, 0.2,
+                SoundEvents.ANVIL_BREAK, 0.6F, 1.0F);
     }
 
     ////////////////////Combat\\\\\\\\\\\\\\\\\\\\

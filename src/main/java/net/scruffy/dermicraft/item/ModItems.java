@@ -68,12 +68,12 @@ public class ModItems {
     public static final DeferredItem<Item> EATER = ITEMS.register("eater", () -> new EaterItem(new Item.Properties().durability(EaterItem.MAX_HP)));
 
     ////////////////////Weapons\\\\\\\\\\\\\\\\\\\\
-    // Placeholder -- no rev/dig-in mechanic yet, see SunderItem's class javadoc. In-game only for model preview.
     // No .attributes() here on purpose -- Sunder's combat stats vary with the mounted chain, so they
     // come from its getDefaultAttributeModifiers(ItemStack) override instead. Setting them here would
-    // shadow that override entirely (see the method's javadoc).
+    // shadow that override entirely (see the method's javadoc). durability(MAX_HP) is unrelated to
+    // that concern (a different data component, DataComponents.MAX_DAMAGE) -- see IGadget.
     public static final DeferredItem<Item> SUNDER = ITEMS.register("sunder",
-            () -> new SunderItem(new Item.Properties().stacksTo(1)));
+            () -> new SunderItem(new Item.Properties().stacksTo(1).durability(SunderItem.MAX_HP)));
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
