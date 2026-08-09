@@ -3,8 +3,10 @@ package net.scruffy.dermicraft.block.custom.floor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 
 import java.util.ArrayDeque;
@@ -29,9 +31,9 @@ import java.util.Set;
  * this class's contract.
  *
  * <p><b>Not yet implemented from the design:</b> floor tier gating (reach-per-tier, weakest-link
- * fluid-hazard capability and throughput) and item-storage collection. Tier is intrinsic to the
- * floor block TYPE, so it can be resolved from the blockstates this walk already visits -- no
- * per-tile storage, and therefore still no block entity, when that lands.
+ * fluid-hazard capability and throughput). Tier is intrinsic to the floor block TYPE, so it can be
+ * resolved from the blockstates this walk already visits -- no per-tile storage, and therefore
+ * still no block entity, when that lands.
  */
 public final class FloorNetwork {
 
@@ -46,6 +48,13 @@ public final class FloorNetwork {
     }
 
     /**
+     * A position adjacent to the floor network, and the direction to access it from (i.e. the face
+     * touching the floor tile, from that neighbor's own perspective).
+     */
+    private record Neighbor(BlockPos pos, Direction accessDirection) {
+    }
+
+    /**
      * Every fluid handler reachable from {@code origin} across the Lab Floor network.
      *
      * <p>{@code origin} is the station's own position and is never itself collected -- a station
@@ -53,25 +62,52 @@ public final class FloorNetwork {
      * which callers should treat as arbitrary rather than a priority.
      */
     public static List<IFluidHandler> fluidHandlers(Level level, BlockPos origin) {
+        List<IFluidHandler> handlers = new ArrayList<>();
+        for (Neighbor neighbor : neighbors(level, origin)) {
+            FluidUtil.getFluidHandler(level, neighbor.pos(), neighbor.accessDirection()).ifPresent(handlers::add);
+        }
+        return handlers;
+    }
+
+    /**
+     * Every item handler reachable from {@code origin} across the Lab Floor network -- the item
+     * counterpart to {@link #fluidHandlers}, and Fabrication's intended item-ingredient source (see
+     * dermicraft-gear-stations-notes.md -> Fabrication page, "Item ingredients... connected to the
+     * Workbench's own Gear Station Floor network"), not the Storage strip.
+     */
+    public static List<IItemHandler> itemHandlers(Level level, BlockPos origin) {
+        List<IItemHandler> handlers = new ArrayList<>();
+        for (Neighbor neighbor : neighbors(level, origin)) {
+            IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, neighbor.pos(), neighbor.accessDirection());
+            if (handler != null) handlers.add(handler);
+        }
+        return handlers;
+    }
+
+    /**
+     * Every position touching the Lab Floor network reachable from {@code origin}, paired with the
+     * direction to access it from -- the walk and neighbor-enumeration shared by {@link #fluidHandlers}
+     * and {@link #itemHandlers} so both read the exact same network membership from a single pass.
+     */
+    private static List<Neighbor> neighbors(Level level, BlockPos origin) {
         Set<BlockPos> floorTiles = walkFloor(level, origin);
         if (floorTiles.isEmpty()) return List.of();
 
-        List<IFluidHandler> handlers = new ArrayList<>();
+        List<Neighbor> neighbors = new ArrayList<>();
         Set<BlockPos> seen = new HashSet<>();
 
         for (BlockPos tile : floorTiles) {
             for (Direction direction : Direction.values()) {
-                BlockPos neighbor = tile.relative(direction);
+                BlockPos neighborPos = tile.relative(direction);
                 // A floor tile is a connector, never a container; and the station asking is not part
                 // of its own pool.
-                if (floorTiles.contains(neighbor) || neighbor.equals(origin)) continue;
-                if (!seen.add(neighbor)) continue;
+                if (floorTiles.contains(neighborPos) || neighborPos.equals(origin)) continue;
+                if (!seen.add(neighborPos)) continue;
 
-                FluidUtil.getFluidHandler(level, neighbor, direction.getOpposite())
-                        .ifPresent(handlers::add);
+                neighbors.add(new Neighbor(neighborPos, direction.getOpposite()));
             }
         }
-        return handlers;
+        return neighbors;
     }
 
     /**

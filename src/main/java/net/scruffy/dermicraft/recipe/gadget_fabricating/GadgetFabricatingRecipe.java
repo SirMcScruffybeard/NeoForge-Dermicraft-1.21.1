@@ -11,6 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
@@ -19,6 +20,7 @@ import net.scruffy.dermicraft.recipe.ModRecipes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -99,6 +101,19 @@ public record GadgetFabricatingRecipe(List<ItemStack> items, List<FluidStack> fl
 
     public ItemStack getResult() {
         return result.copy();
+    }
+
+    /**
+     * Every registered GadgetFabricatingRecipe, sorted by recipe id so the Workbench's Fabrication
+     * grid (server and client) always lands on the same order without needing to transmit it --
+     * recipes are already synced to every client via vanilla's own recipe sync, so both sides
+     * resolve this identically as long as the sort is deterministic. See
+     * dermicraft-gear-stations-notes.md -> Fabrication page, "every known recipe always visible."
+     */
+    public static List<RecipeHolder<GadgetFabricatingRecipe>> allRecipes(Level level) {
+        return level.getRecipeManager().getAllRecipesFor(ModRecipes.GADGET_FABRICATING_TYPE.get()).stream()
+                .sorted(Comparator.comparing(holder -> holder.id().toString()))
+                .toList();
     }
 
     @Override @NotNull

@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -23,6 +25,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.WorkbenchBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -162,5 +165,19 @@ public class WorkbenchBlock extends ModBaseEntityBlock {
             workbench.toggleActive();
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    // Drives WorkbenchBlockEntity#tickFabrication and #tickPoolSync -- the only things that need a
+    // per-tick hook on this block (everything else is event-driven: right-click toggles, menu-open/
+    // close callbacks).
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
+        if (level.isClientSide()) return null;
+        return createTickerHelper(blockEntityType, ModBlockEntities.WORKBENCH_BE.get(),
+                (tickLevel, blockPos, blockState, be) -> {
+                    be.tickFabrication(tickLevel);
+                    be.tickPoolSync(tickLevel);
+                });
     }
 }

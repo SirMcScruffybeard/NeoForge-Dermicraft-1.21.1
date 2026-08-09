@@ -8,6 +8,7 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.screen.custom.workbench.WorkbenchClientPool;
 
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
 public class ModNetworking {
@@ -48,5 +49,13 @@ public class ModNetworking {
                         mutator.toggleMode();
                     }
                 }));
+
+        // Server -> client: see WorkbenchPoolSyncPayload's own javadoc. Only ever updates a static
+        // client-side cache (WorkbenchClientPool), never anything that touches world state, so this
+        // is safe to run directly rather than needing a distinction between logical sides here --
+        // the payload is only ever received on the client to begin with.
+        registrar.playToClient(WorkbenchPoolSyncPayload.TYPE, WorkbenchPoolSyncPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() ->
+                        WorkbenchClientPool.update(payload.pos(), payload.items(), payload.fluids())));
     }
 }

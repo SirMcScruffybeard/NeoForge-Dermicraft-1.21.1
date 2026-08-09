@@ -1,24 +1,146 @@
 package net.scruffy.dermicraft.block.custom.floor;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.util.ModFluidUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Fluid-side operations against a Gear Station's shared pool, on top of {@link FloorNetwork}'s raw
- * handler list. Keeps pool <i>policy</i> (which fuel to pick, how much to move) separate from pool
- * <i>membership</i> (what counts as connected).
- *
- * <p>Currently only the "Fill from pool" path is built -- see dermicraft-gear-stations-notes.md ->
- * Workbench -> Swap page. Fabrication's own item+fluid availability checks will layer on here.
+ * Item and fluid operations against a Gear Station's shared pool, on top of {@link FloorNetwork}'s
+ * raw handler lists. Keeps pool <i>policy</i> (which fuel to pick, how much to move, how a recipe's
+ * needs get checked/consumed) separate from pool <i>membership</i> (what counts as connected).
  */
 public final class GearStationPool {
 
     private GearStationPool() {
+    }
+
+    /**
+     * A read-only capture of every item and fluid currently in the pool, for repeated availability
+     * checks against a single consistent view -- e.g. rendering several ingredient-count lines for
+     * one selected recipe without re-walking the floor network once per line.
+     */
+    public record Snapshot(List<ItemStack> items, List<FluidStack> fluids) {
+
+        /** Total count of {@code required}'s item across every matching stack in the snapshot. */
+        public int itemCount(ItemStack required) {
+            int total = 0;
+            for (ItemStack candidate : items) {
+                if (ItemStack.isSameItemSameComponents(candidate, required)) total += candidate.getCount();
+            }
+            return total;
+        }
+
+        /** Total amount of {@code required}'s fluid across every matching tank in the snapshot. */
+        public int fluidAmount(FluidStack required) {
+            int total = 0;
+            for (FluidStack candidate : fluids) {
+                if (FluidStack.isSameFluidSameComponents(candidate, required)) total += candidate.getAmount();
+            }
+            return total;
+        }
+    }
+
+    /** Captures the pool's current contents once -- see {@link Snapshot}. Safe to call client-side
+     * for GUI display; it only reads capabilities, never mutates. */
+    public static Snapshot snapshot(Level level, BlockPos origin) {
+        return new Snapshot(flattenItems(FloorNetwork.itemHandlers(level, origin)),
+                flattenFluids(FloorNetwork.fluidHandlers(level, origin)));
+    }
+
+    /** Whether the pool currently holds enough of everything {@code recipe} needs -- read-only,
+     * same safety as {@link #snapshot}. */
+    public static boolean isAvailable(Level level, BlockPos origin, GadgetFabricatingRecipe recipe) {
+        Snapshot pool = snapshot(level, origin);
+        return recipe.testItems(pool.items()) && recipe.testFluids(pool.fluids());
+    }
+
+    /**
+     * Atomically consumes {@code recipe}'s item and fluid costs from the pool -- re-verifies
+     * availability against a fresh read immediately before draining anything, so a caller doesn't
+     * need to snapshot first itself. Returns {@code false} (consuming nothing) if the pool can no
+     * longer satisfy the recipe; server-only.
+     */
+    public static boolean consumeForRecipe(Level level, BlockPos origin, GadgetFabricatingRecipe recipe) {
+        List<IItemHandler> itemSources = FloorNetwork.itemHandlers(level, origin);
+        List<IFluidHandler> fluidSources = FloorNetwork.fluidHandlers(level, origin);
+
+        if (!recipe.testItems(flattenItems(itemSources)) || !recipe.testFluids(flattenFluids(fluidSources))) {
+            return false;
+        }
+
+        consumeItems(itemSources, recipe.items());
+        consumeFluids(fluidSources, recipe.fluids());
+        return true;
+    }
+
+    /**
+     * Drains exactly {@code required}'s count of matching items from {@code sources}, sequentially
+     * (fully draining one slot before moving to the next) -- same "walk order, not split evenly"
+     * policy {@link #fillFromPool} already uses. Assumes the caller already verified total
+     * availability (see {@link #consumeForRecipe}); this does not re-check or roll back.
+     */
+    private static void consumeItems(List<IItemHandler> sources, List<ItemStack> required) {
+        for (ItemStack requirement : required) {
+            int remaining = requirement.getCount();
+            for (IItemHandler source : sources) {
+                if (remaining <= 0) break;
+                for (int slot = 0; slot < source.getSlots() && remaining > 0; slot++) {
+                    ItemStack candidate = source.getStackInSlot(slot);
+                    if (candidate.isEmpty() || !ItemStack.isSameItemSameComponents(candidate, requirement)) continue;
+
+                    ItemStack extracted = source.extractItem(slot, remaining, false);
+                    remaining -= extracted.getCount();
+                }
+            }
+        }
+    }
+
+    /** Fluid counterpart to {@link #consumeItems}, same sequential drain policy. */
+    private static void consumeFluids(List<IFluidHandler> sources, List<FluidStack> required) {
+        for (FluidStack requirement : required) {
+            int remaining = requirement.getAmount();
+            for (IFluidHandler source : sources) {
+                if (remaining <= 0) break;
+                for (int tank = 0; tank < source.getTanks() && remaining > 0; tank++) {
+                    FluidStack candidate = source.getFluidInTank(tank);
+                    if (candidate.isEmpty() || !FluidStack.isSameFluidSameComponents(candidate, requirement)) continue;
+
+                    FluidStack request = new FluidStack(candidate.getFluid(), Math.min(remaining, candidate.getAmount()));
+                    FluidStack drained = source.drain(request, IFluidHandler.FluidAction.EXECUTE);
+                    remaining -= drained.getAmount();
+                }
+            }
+        }
+    }
+
+    private static List<ItemStack> flattenItems(List<IItemHandler> handlers) {
+        List<ItemStack> items = new ArrayList<>();
+        for (IItemHandler handler : handlers) {
+            for (int slot = 0; slot < handler.getSlots(); slot++) {
+                ItemStack stack = handler.getStackInSlot(slot);
+                if (!stack.isEmpty()) items.add(stack);
+            }
+        }
+        return items;
+    }
+
+    private static List<FluidStack> flattenFluids(List<IFluidHandler> handlers) {
+        List<FluidStack> fluids = new ArrayList<>();
+        for (IFluidHandler handler : handlers) {
+            for (int tank = 0; tank < handler.getTanks(); tank++) {
+                FluidStack stack = handler.getFluidInTank(tank);
+                if (!stack.isEmpty()) fluids.add(stack);
+            }
+        }
+        return fluids;
     }
 
     /**

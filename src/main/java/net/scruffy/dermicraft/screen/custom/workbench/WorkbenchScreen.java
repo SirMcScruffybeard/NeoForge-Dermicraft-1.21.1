@@ -1,25 +1,30 @@
 package net.scruffy.dermicraft.screen.custom.workbench;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.scruffy.dermicraft.item.ModItems;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
- * Workbench's Storage strip -- see dermicraft-gear-stations-notes.md -> Workbench -> Storage
- * strip. Only the strip is built this pass; the "main content" area above it (Fabrication/Swap
- * pages) is separate future work, so this screen is otherwise a blank shell for now.
+ * Workbench's screen -- see dermicraft-gear-stations-notes.md -> Workbench. Builds the Mod page
+ * (Sunder swap sub-panel), the Fabrication page (recipe grid + ingredient/craft detail panel), and
+ * the persistent Storage strip along the bottom shared by both. Point-Spend (the design's eventual
+ * 3rd right-strip page) remains deferred, not built here.
  */
 public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
@@ -27,6 +32,14 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     private static final String SLOTS_DIR = "textures/gui/slots/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
     private static final String BUTTONS_DIR = "textures/gui/buttons/";
+    private static final String ARROWS_DIR = "textures/gui/arrows/";
+
+    // Fabrication's job-progress indicator -- same asset/pattern EffluentcerScreen and others
+    // already use for a timed-crafting arrow.
+    private static final ResourceLocation ARROW_BACKGROUND_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_background.png");
+    private static final ResourceLocation ARROW_FULL_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_fulll.png");
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
@@ -50,17 +63,64 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     private static final int FABRICATION_TAB_TEXT_COLOR = MOD_TAB_TEXT_COLOR;
 
     private enum Page { MOD, FABRICATION }
-    private Page currentPage = Page.MOD;
 
-    // Fabrication display roster (2026-08-08, display only -- no recipes/availability/tier-lock
-    // yet, see Workbench -> Fabrication page design notes). Scrench isn't a gadget (no IGadget),
-    // but it's the tool every physical-part-swap gadget depends on, so it's included here too.
-    private static final List<Item> FABRICATION_ROSTER = List.of(
-            ModItems.SIPPING.get(), ModItems.DRINKER.get(), ModItems.EATER.get(),
-            ModItems.SUNDER.get(), ModItems.SCRENCH.get());
+    // Restored from the BE on open (see WorkbenchBlockEntity#isFabricationPageActive/
+    // #getSelectedFabricationRecipeId) rather than defaulted, so reopening THIS Workbench's screen
+    // returns to whichever page/recipe was last selected instead of always resetting -- per-block,
+    // persisted, and synced the same way scrollRow/open/active already are. Tab clicks and recipe
+    // selection below write back to the BE (via clickMenuButton, same trust boundary as every other
+    // button on this screen) in addition to updating these local fields for instant feedback.
+    private Page currentPage = menu.isFabricationPageActive() ? Page.FABRICATION : Page.MOD;
+
+    // Fabrication recipe grid (2026-08-09) -- every registered GadgetFabricatingRecipe, queried
+    // live off the client's own synced RecipeManager rather than a hardcoded roster. Scrench is no
+    // longer listed here: it was only ever a placeholder for this grid before Fabrication read real
+    // recipes, and Scrench has its own ordinary crafting-table recipe, not a GadgetFabricatingRecipe
+    // -- it was never governed by this page's tier/pool mechanics to begin with.
     private static final int FAB_ICON_X = 8;
     private static final int FAB_ICON_Y = 8;
     private static final int FAB_ICON_SPACING = 20;
+
+    // Detail panel (ingredient icons + Craft button/progress) for whichever recipe icon is
+    // currently selected -- see #renderFabricationDetail. Items and fluids sit in two side-by-side
+    // icon columns (tooltip-only, no inline text) rather than a stacked text list, so the panel
+    // stays compact regardless of how many ingredients a recipe has -- see #renderIngredientColumn/
+    // #renderFluidColumn for the wrapping rule.
+    private static final int FAB_DETAIL_X = FAB_ICON_X;
+    private static final int FAB_DETAIL_Y = FAB_ICON_Y + WorkbenchScreen.ITEM_SLOT_SIZE + 4;
+    private static final int FAB_COLUMN_GAP = 6;
+    private static final int FAB_COLUMN_WIDTH = 77;
+    private static final int FAB_ICONS_PER_ROW = FAB_COLUMN_WIDTH / WorkbenchScreen.ITEM_SLOT_SIZE;
+    private static final int FAB_ROW_HEIGHT = WorkbenchScreen.ITEM_SLOT_SIZE + 2;
+    private static final int FLUID_COLUMN_X = FAB_DETAIL_X + FAB_COLUMN_WIDTH + FAB_COLUMN_GAP;
+    // Sized for every currently-authored recipe's worst case (Drinker: 4 items, 3 fluids), which
+    // fits in a single icon row per column -- if a future recipe needs a 2nd row, its icons will
+    // overlap this action row rather than pushing it down, since the row is fixed rather than
+    // recipe-dependent (a moving Craft button/click target while browsing recipes would be worse).
+    private static final int FAB_ACTION_Y = FAB_DETAIL_Y + FAB_ROW_HEIGHT + 4;
+    private static final int FAB_ACTION_WIDTH = 18;
+    private static final int FAB_ACTION_HEIGHT = 18;
+    private static final int FAB_ARROW_WIDTH = 17;
+    private static final int FAB_ARROW_HEIGHT = 10;
+
+    private static final ResourceLocation CRAFT_BUTTON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "craft_button.png");
+    private static final ResourceLocation CRAFT_BUTTON_PRESSED_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "craft_button_pressed.png");
+    // Dims the button when the recipe isn't actually craftable yet -- no separate disabled art
+    // exists, so this multiplies the same texture's color instead (same trick fluid tinting
+    // already uses via RenderSystem.setShaderColor).
+    private static final float CRAFT_BUTTON_DISABLED_TINT = 0.5f;
+
+    // Translucent red overlay marking an ingredient slot short of what the recipe needs -- same
+    // at-a-glance role NO_USE_OVERLAY_TEXTURE plays on the recipe grid, just a plain tinted fill
+    // rather than a texture (no bespoke art exists for this panel yet).
+    private static final int SHORTFALL_OVERLAY_COLOR = 0x80FF0000;
+
+    // Opacity for an empty fluid slot's "ghost" preview -- see #renderFluidColumn.
+    private static final float GHOST_ALPHA = 0.35f;
+
+    private int selectedFabricationIndex = menu.getSelectedFabricationIndex();
 
     private static final ResourceLocation ITEM_SLOT_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
@@ -125,6 +185,7 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     private int dragGrabOffsetY = 0;
     private int lastDraggedRow = -1;
     private boolean fillButtonPressedFlash = false;
+    private boolean craftButtonPressedFlash = false;
 
     private FluidTankRenderer fuelRenderer;
 
@@ -164,6 +225,59 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
                     WorkbenchMenu.WORK_SLOT_X + 1, WorkbenchMenu.WORK_SLOT_Y + 1,
                     menu.getWorkItemStack(), Component.translatable("tooltip.dermicraft.slot.workbench_work_item"));
+        } else {
+            renderFabricationTooltips(guiGraphics, mouseX, mouseY, x, y);
+        }
+    }
+
+    /** Hover tooltips for the detail panel's ingredient icons -- exact "available/required" numbers
+     * live here rather than as inline text, see #renderFabricationDetail. Both item and fluid
+     * tooltips are hand-built rather than reusing vanilla's automatic item tooltip or
+     * FluidTankRenderer#getTooltip: these are decorative icons, not real Slots, so the former never
+     * fires on them, and the latter reads its fluid identity off the AVAILABLE amount, which breaks
+     * for an empty ingredient (see the fluid loop's own comment below). */
+    private void renderFabricationTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y) {
+        List<RecipeHolder<GadgetFabricatingRecipe>> recipes = fabricationRecipes();
+        if (selectedFabricationIndex < 0 || selectedFabricationIndex >= recipes.size()) return;
+
+        GadgetFabricatingRecipe recipe = recipes.get(selectedFabricationIndex).value();
+        GearStationPool.Snapshot pool = menu.getPoolSnapshot();
+
+        List<ItemStack> items = recipe.items();
+        for (int i = 0; i < items.size(); i++) {
+            int slotX = FAB_DETAIL_X + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
+            int slotY = FAB_DETAIL_Y + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+            if (!MouseUtil.isMouseOver(mouseX, mouseY, x + slotX, y + slotY, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE)) continue;
+
+            ItemStack requirement = items.get(i);
+            int available = pool.itemCount(requirement);
+            List<Component> tooltip = List.of(requirement.getHoverName(),
+                    Component.literal(available + "/" + requirement.getCount())
+                            .withStyle(available >= requirement.getCount() ? ChatFormatting.GREEN : ChatFormatting.RED));
+            guiGraphics.renderTooltip(font, tooltip, Optional.empty(), mouseX - x, mouseY - y);
+            return;
+        }
+
+        List<FluidStack> fluids = recipe.fluids();
+        for (int i = 0; i < fluids.size(); i++) {
+            int slotX = FLUID_COLUMN_X + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
+            int slotY = FAB_DETAIL_Y + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+            if (!MouseUtil.isMouseOver(mouseX, mouseY, x + slotX, y + slotY, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE)) continue;
+
+            FluidStack requirement = fluids.get(i);
+            int available = pool.fluidAmount(requirement);
+            // Built by hand rather than routed through FluidTankRenderer#getTooltip: that method
+            // reads fluidStack.getFluid(), which NeoForge's FluidStack silently rewrites to
+            // Fluids.EMPTY whenever amount <= 0 (isEmpty()'s definition) -- passing the AVAILABLE
+            // amount (0 when the pool has none) made an empty slot's tooltip say "Empty" instead of
+            // naming the fluid the recipe actually needs. Reading the name off requirement (whose
+            // amount is the recipe's cost, never 0) sidesteps that landmine entirely.
+            Component fluidName = requirement.getFluid().getFluidType().getDescription();
+            List<Component> tooltip = List.of(fluidName,
+                    Component.literal(available + "/" + requirement.getAmount() + " mB")
+                            .withStyle(available >= requirement.getAmount() ? ChatFormatting.GREEN : ChatFormatting.RED));
+            guiGraphics.renderTooltip(font, tooltip, Optional.empty(), mouseX - x, mouseY - y);
+            return;
         }
     }
 
@@ -210,7 +324,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
                         FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE);
             }
         } else {
+            guiGraphics.blit(ITEM_SLOT_TEXTURE, x + WorkbenchMenu.OUTPUT_SLOT_X, y + WorkbenchMenu.OUTPUT_SLOT_Y, 0, 0,
+                    ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
             renderFabricationGrid(guiGraphics, x, y);
+            renderFabricationDetail(guiGraphics, x, y);
         }
 
         int stripBgY = y + WorkbenchMenu.STRIP_Y + BACKGROUND_Y_OFFSET;
@@ -222,35 +339,184 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         renderScrollbar(guiGraphics, x + SCROLL_BAR_X, stripBgY);
     }
 
-    /** Display only, 2026-08-08 -- item_slot.png backdrop + icon per roster entry, no recipe
-     * lookup or tier check yet. See Workbench -> Fabrication page. */
+    /** Every registered GadgetFabricatingRecipe, read live off the client's own synced
+     * RecipeManager -- see GadgetFabricatingRecipe#allRecipes for why the sort order is safe to
+     * rely on for indexing without transmitting it separately. */
+    private List<RecipeHolder<GadgetFabricatingRecipe>> fabricationRecipes() {
+        return GadgetFabricatingRecipe.allRecipes(minecraft.level);
+    }
+
+    /** Icon grid, one per known recipe (2026-08-09, now backed by real recipes) -- every recipe is
+     * always shown (never hidden), greyed out with NO_USE_OVERLAY only when the Workbench's own
+     * station tier can't reach it yet, per the design's "no surprises, plan ahead" pattern. Ingredient
+     * shortfall is NOT what greys an icon here -- that's the detail panel's red/green counts, see
+     * #renderFabricationDetail. */
     private void renderFabricationGrid(GuiGraphics guiGraphics, int x, int y) {
-        for (int i = 0; i < FABRICATION_ROSTER.size(); i++) {
+        List<RecipeHolder<GadgetFabricatingRecipe>> recipes = fabricationRecipes();
+
+        for (int i = 0; i < recipes.size(); i++) {
+            GadgetFabricatingRecipe recipe = recipes.get(i).value();
             int slotX = x + FAB_ICON_X + i * FAB_ICON_SPACING;
             int slotY = y + FAB_ICON_Y;
+
             guiGraphics.blit(ITEM_SLOT_TEXTURE, slotX, slotY, 0, 0,
                     ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
-            guiGraphics.renderItem(new ItemStack(FABRICATION_ROSTER.get(i)), slotX + 1, slotY + 1);
+            guiGraphics.renderItem(recipe.getResult(), slotX + 1, slotY + 1);
 
-            // TODO: replace with real "no GadgetFabricatingRecipe available / below station tier"
-            // checks once Fabrication actually looks up recipes. Every roster item is unconditionally
-            // overlaid right now because none of them have a real recipe wired up yet -- none are
-            // actually craftable, so this is accurate, not a placeholder value.
-            //
-            // Same state dance GraftingTableScreen#renderGhostItem already uses for an overlay drawn
-            // after renderItem: depth test off so the item's leftover depth can't hide a later flat
-            // blit, blend explicitly enabled (with the standard alpha blend function) so the overlay's
-            // translucent pixels actually blend instead of writing fully opaque.
-            guiGraphics.flush();
-            RenderSystem.disableDepthTest();
-            RenderSystem.enableBlend();
-            RenderSystem.defaultBlendFunc();
-            guiGraphics.blit(NO_USE_OVERLAY_TEXTURE, slotX, slotY, 0, 0,
-                    ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
-            guiGraphics.flush();
-            RenderSystem.disableBlend();
-            RenderSystem.enableDepthTest();
+            if (!recipe.meetsTier(menu.getStationTier())) {
+                // Same overlay-after-renderItem state dance GraftingTableScreen#renderGhostItem uses:
+                // depth test off so the item's leftover depth can't hide this later flat blit, blend
+                // explicitly enabled so the overlay's translucent pixels actually blend.
+                guiGraphics.flush();
+                RenderSystem.disableDepthTest();
+                RenderSystem.enableBlend();
+                RenderSystem.defaultBlendFunc();
+                guiGraphics.blit(NO_USE_OVERLAY_TEXTURE, slotX, slotY, 0, 0,
+                        ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+                guiGraphics.flush();
+                RenderSystem.disableBlend();
+                RenderSystem.enableDepthTest();
+            }
         }
+    }
+
+    /**
+     * Ingredient icons (items left column, fluids right) + Craft button/progress for whichever
+     * recipe is currently selected. Icons only -- no inline text -- with a translucent red overlay
+     * on anything short of what's needed; exact numbers live in the hover tooltip (see
+     * #renderFabricationTooltips). The Craft button itself is a flat fill, no bespoke art exists
+     * for this panel yet.
+     */
+    private void renderFabricationDetail(GuiGraphics guiGraphics, int x, int y) {
+        List<RecipeHolder<GadgetFabricatingRecipe>> recipes = fabricationRecipes();
+        if (selectedFabricationIndex < 0 || selectedFabricationIndex >= recipes.size()) return;
+
+        GadgetFabricatingRecipe recipe = recipes.get(selectedFabricationIndex).value();
+        GearStationPool.Snapshot pool = menu.getPoolSnapshot();
+
+        renderIngredientColumn(guiGraphics, x + FAB_DETAIL_X, y + FAB_DETAIL_Y, recipe.items(), pool);
+        renderFluidColumn(guiGraphics, x + FLUID_COLUMN_X, y + FAB_DETAIL_Y, recipe.fluids(), pool);
+
+        int actionX = x + FAB_DETAIL_X;
+        int actionY = y + FAB_ACTION_Y;
+
+        boolean isActiveJob = menu.isFabricating(recipes.get(selectedFabricationIndex));
+        if (isActiveJob) {
+            guiGraphics.blit(ARROW_BACKGROUND_TEXTURE, actionX, actionY, 0, 0, FAB_ARROW_WIDTH, FAB_ARROW_HEIGHT,
+                    FAB_ARROW_WIDTH, FAB_ARROW_HEIGHT);
+            int progressWidth = menu.getScaledFabricationProgress(FAB_ARROW_WIDTH);
+            if (progressWidth > 0) {
+                guiGraphics.blit(ARROW_FULL_TEXTURE, actionX, actionY, 0, 0, progressWidth, FAB_ARROW_HEIGHT,
+                        FAB_ARROW_WIDTH, FAB_ARROW_HEIGHT);
+            }
+        } else {
+            boolean available = !menu.isFabricating()
+                    && recipe.meetsTier(menu.getStationTier())
+                    && recipe.testItems(pool.items()) && recipe.testFluids(pool.fluids());
+
+            ResourceLocation craftTexture = craftButtonPressedFlash ? CRAFT_BUTTON_PRESSED_TEXTURE : CRAFT_BUTTON_TEXTURE;
+            if (!available) {
+                RenderSystem.setShaderColor(CRAFT_BUTTON_DISABLED_TINT, CRAFT_BUTTON_DISABLED_TINT, CRAFT_BUTTON_DISABLED_TINT, 1.0F);
+            }
+            guiGraphics.blit(craftTexture, actionX, actionY, 0, 0, FAB_ACTION_WIDTH, FAB_ACTION_HEIGHT,
+                    FAB_ACTION_WIDTH, FAB_ACTION_HEIGHT);
+            if (!available) {
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            }
+        }
+    }
+
+    /** Item ingredients, flowing left-to-right within the column and wrapping to a new row past
+     * FAB_ICONS_PER_ROW -- see FAB_ACTION_Y's own note on why a 2nd row isn't currently reachable. */
+    private void renderIngredientColumn(GuiGraphics guiGraphics, int columnX, int columnY, List<ItemStack> required, GearStationPool.Snapshot pool) {
+        for (int i = 0; i < required.size(); i++) {
+            ItemStack requirement = required.get(i);
+            int slotX = columnX + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
+            int slotY = columnY + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+
+            guiGraphics.blit(ITEM_SLOT_TEXTURE, slotX, slotY, 0, 0, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+            guiGraphics.renderItem(requirement, slotX + 1, slotY + 1);
+
+            if (pool.itemCount(requirement) < requirement.getCount()) {
+                guiGraphics.fill(slotX + 1, slotY + 1, slotX + ITEM_SLOT_SIZE - 1, slotY + ITEM_SLOT_SIZE - 1, SHORTFALL_OVERLAY_COLOR);
+            }
+        }
+    }
+
+    /** Fluid counterpart to {@link #renderIngredientColumn} -- each slot's fill level is the
+     * available amount rendered against a tank whose capacity IS the required amount, so a full
+     * swatch means "enough," not an absolute reading. Reuses FluidTankRenderer, the same gauge
+     * machinery Sunder's fuel tank already uses on this screen's Mod page. */
+    private void renderFluidColumn(GuiGraphics guiGraphics, int columnX, int columnY, List<FluidStack> required, GearStationPool.Snapshot pool) {
+        for (int i = 0; i < required.size(); i++) {
+            FluidStack requirement = required.get(i);
+            int slotX = columnX + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
+            int slotY = columnY + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+
+            guiGraphics.blit(ITEM_SLOT_TEXTURE, slotX, slotY, 0, 0, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+
+            int available = pool.fluidAmount(requirement);
+            FluidTankRenderer swatch = fluidSwatchRenderer(requirement);
+
+            if (available <= 0) {
+                // Zero available draws nothing at all otherwise (drawFluid's scaledAmount stays 0)
+                // -- an empty slot would give no clue what fluid even belongs there. A dim, full-
+                // height "ghost" of the required fluid at reduced alpha reads as "not present" while
+                // still identifying it.
+                FluidStack ghost = new FluidStack(requirement.getFluid(), requirement.getAmount());
+                swatch.render(guiGraphics, slotX + 1, slotY + 1, ghost, GHOST_ALPHA);
+            } else {
+                // Capped to the requirement for display -- "over 100%" just reads as a full swatch,
+                // same as the fuel gauge elsewhere never overflows its own bar.
+                FluidStack display = new FluidStack(requirement.getFluid(), Math.min(available, requirement.getAmount()));
+                swatch.render(guiGraphics, slotX + 1, slotY + 1, display);
+            }
+
+            if (available < requirement.getAmount()) {
+                guiGraphics.fill(slotX + 1, slotY + 1, slotX + ITEM_SLOT_SIZE - 1, slotY + ITEM_SLOT_SIZE - 1, SHORTFALL_OVERLAY_COLOR);
+            }
+        }
+    }
+
+    /** A 16x16 gauge sized to one fluid requirement -- capacity is the REQUIRED amount (not some
+     * fixed tank size), which is what makes a full swatch mean "you have enough" rather than an
+     * arbitrary fraction. Built fresh per call since the capacity differs per ingredient. */
+    private static FluidTankRenderer fluidSwatchRenderer(FluidStack requirement) {
+        return new FluidTankRenderer(Math.max(1, requirement.getAmount()), true, 16, 16);
+    }
+
+    /** Icon-grid selection and the Craft button, both scoped to the Fabrication page. Returns
+     * whether the click was consumed. */
+    private boolean handleFabricationClick(int mouseX, int mouseY, int x, int y) {
+        List<RecipeHolder<GadgetFabricatingRecipe>> recipes = fabricationRecipes();
+
+        for (int i = 0; i < recipes.size(); i++) {
+            int slotX = x + FAB_ICON_X + i * FAB_ICON_SPACING;
+            int slotY = y + FAB_ICON_Y;
+            if (MouseUtil.isMouseOver(mouseX, mouseY, slotX, slotY, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE)) {
+                selectedFabricationIndex = i;
+                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.selectRecipeButtonId(i));
+                return true;
+            }
+        }
+
+        if (selectedFabricationIndex >= 0 && selectedFabricationIndex < recipes.size()
+                && !menu.isFabricating(recipes.get(selectedFabricationIndex))) {
+            int actionX = x + FAB_DETAIL_X;
+            int actionY = y + FAB_ACTION_Y;
+            if (MouseUtil.isMouseOver(mouseX, mouseY, actionX, actionY, FAB_ACTION_WIDTH, FAB_ACTION_HEIGHT)) {
+                // No client-side gate on the click itself -- startFabrication re-validates
+                // everything server-side and simply no-ops if it's not actually available, same
+                // trust boundary every other menu button in this class already follows.
+                minecraft.gameMode.handleInventoryButtonClick(menu.containerId,
+                        WorkbenchMenu.startFabricationButtonId(selectedFabricationIndex));
+                craftButtonPressedFlash = true;
+                craftPressTicks = FILL_PRESS_FLASH_TICKS;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** Draws text at a smaller size than the font's native scale -- same pose-stack approach as
@@ -337,6 +603,7 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
     private static final int FILL_PRESS_FLASH_TICKS = 4;
     private int fillPressTicks = 0;
+    private int craftPressTicks = 0;
 
     @Override
     protected void containerTick() {
@@ -344,6 +611,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         if (fillPressTicks > 0) {
             fillPressTicks--;
             if (fillPressTicks == 0) fillButtonPressedFlash = false;
+        }
+        if (craftPressTicks > 0) {
+            craftPressTicks--;
+            if (craftPressTicks == 0) craftButtonPressedFlash = false;
         }
     }
 
@@ -356,10 +627,12 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
         if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MOD_TAB_X, y + MOD_TAB_Y, TAB_WIDTH, TAB_HEIGHT)) {
             setPage(Page.MOD);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.BUTTON_SET_MOD_PAGE);
             return true;
         }
         if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + FABRICATION_TAB_X, y + FABRICATION_TAB_Y, TAB_WIDTH, TAB_HEIGHT)) {
             setPage(Page.FABRICATION);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.BUTTON_SET_FABRICATION_PAGE);
             return true;
         }
 
@@ -368,6 +641,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.BUTTON_FILL_FROM_POOL);
             fillButtonPressedFlash = true;
             fillPressTicks = FILL_PRESS_FLASH_TICKS;
+            return true;
+        }
+
+        if (currentPage == Page.FABRICATION && handleFabricationClick((int) mouseX, (int) mouseY, x, y)) {
             return true;
         }
 

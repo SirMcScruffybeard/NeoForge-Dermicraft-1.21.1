@@ -1216,7 +1216,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 List.of(
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250),
                         new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 250)),
-                ModItems.SIPPING.get(), ModMath.Time.getSecondsToTicks(30), 1);
+                ModItems.SIPPING.get(), ModMath.Time.getSecondsToTicks(15), 1);
 
         // Silica Blend (250 mB, a quarter of the Glass Block's own 1000 mB Mutator cost) is the
         // screen glass for the target-scan display -- Eye justifies the eye_mount/screen lore.
@@ -1230,7 +1230,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
                         new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
                         new FluidStack(ModFluids.SOURCE_SILICA_BLEND.get(), 250)),
-                ModItems.DRINKER.get(), ModMath.Time.getSecondsToTicks(60), 1);
+                ModItems.DRINKER.get(), ModMath.Time.getSecondsToTicks(30), 1);
 
         // Eater: same 2-Chassis Primitive Catalyst/Protein Blend rate as Drinker (both scale with
         // Chassis count, not overall item complexity). No Eye/Bladder -- Eater's buffer is
@@ -1249,7 +1249,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
                         new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
                         new FluidStack(ModFluids.SOURCE_SILICA_BLEND.get(), 500)),
-                ModItems.EATER.get(), ModMath.Time.getSecondsToTicks(90), 1);
+                ModItems.EATER.get(), ModMath.Time.getSecondsToTicks(30), 1);
 
         // Sunder: no Proto Brain, deliberately -- unlike Sipping/Drinker/Eater, Sunder isn't a smart
         // device. The auto-swing/auto-targeting logic exists to work around vanilla blocking the
@@ -1271,7 +1271,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
                         new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
                         new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 2500)),
-                ModItems.SUNDER.get(), ModMath.Time.getSecondsToTicks(90), 1);
+                ModItems.SUNDER.get(), ModMath.Time.getSecondsToTicks(30), 1);
     }
 
     ////////////////////Vanilla item lookup helpers (for the dye-keyed loops above)\\\\\\\\\\\\\\\\\\\\

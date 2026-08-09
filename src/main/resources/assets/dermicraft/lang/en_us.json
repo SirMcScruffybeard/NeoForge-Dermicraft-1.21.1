@@ -333,6 +333,7 @@
   "tooltip.dermicraft.slot.workbench_work_item": "Gadget",
   "screen.dermicraft.workbench.mod_tab": "Mod",
   "screen.dermicraft.workbench.fabrication_tab": "Fab",
+  "screen.dermicraft.workbench.craft": "Craft",
   "screen.dermicraft.scrench": "Sunder Maintenance",
   "tooltip.dermicraft.slot.reagent_container": "Reagent Container",
   "tooltip.dermicraft.slot.result_container": "Result Container",

@@ -75,25 +75,35 @@ public class FluidTankRenderer {
     }
 
     public void render(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack) {
+        render(guiGraphics, x, y, fluidStack, 1.0f);
+    }
+
+    /**
+     * Same as {@link #render}, with an alpha multiplier applied on top of the fluid's own tint --
+     * lets a caller show a dim "ghost" preview (e.g. a zero-amount required fluid, so an empty slot
+     * still identifies what belongs there instead of rendering nothing at all) without a second,
+     * duplicated draw path.
+     */
+    public void render(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack, float alphaMultiplier) {
         RenderSystem.enableBlend();
         guiGraphics.pose().pushPose();
         {
             guiGraphics.pose().translate(x, y, 0);
-            drawFluid(guiGraphics, width, height, fluidStack);
+            drawFluid(guiGraphics, width, height, fluidStack, alphaMultiplier);
         }
         guiGraphics.pose().popPose();
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.disableBlend();
     }
 
-    private void drawFluid(GuiGraphics guiGraphics, final int width, final int height, FluidStack fluidStack) {
+    private void drawFluid(GuiGraphics guiGraphics, final int width, final int height, FluidStack fluidStack, float alphaMultiplier) {
         Fluid fluid = fluidStack.getFluid();
         if (fluid.isSame(Fluids.EMPTY)) {
             return;
         }
 
         TextureAtlasSprite fluidStillSprite = getStillFluidSprite(fluidStack);
-        int fluidColor = getColorTint(fluidStack);
+        int fluidColor = applyAlpha(getColorTint(fluidStack), alphaMultiplier);
 
         long amount = fluidStack.getAmount();
         int fillAxis = orientation == Orientation.HORIZONTAL ? width : height;
@@ -111,6 +121,12 @@ public class FluidTankRenderer {
         } else {
             drawTiledSprite(guiGraphics, width, height, fluidColor, scaledAmount, fluidStillSprite);
         }
+    }
+
+    private static int applyAlpha(int color, float multiplier) {
+        int alpha = Math.round(((color >>> 24) & 0xFF) * multiplier);
+        alpha = Math.max(0, Math.min(255, alpha));
+        return (color & 0x00FFFFFF) | (alpha << 24);
     }
 
     private TextureAtlasSprite getStillFluidSprite(FluidStack fluidStack) {
