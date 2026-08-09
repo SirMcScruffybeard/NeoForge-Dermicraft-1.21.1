@@ -2,18 +2,25 @@ package net.scruffy.dermicraft.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.WorkbenchBlockEntity;
@@ -21,26 +28,68 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Workbench's bottom half -- hosts the real Storage/Mod/Fabrication GUI (see WorkbenchBlockEntity).
- * Paired with WorkbenchTopBlock, vanilla-door-style: placing the bottom auto-places the top directly
- * above (and refuses to place at all if there's no room for it, same as a door), and destroying
- * either half destroys both -- there's only ever one recoverable object, the bottom (today that
- * just means neither half drops anything on plain breaking, matching this mod's existing
- * "destroyed unless Forceps" convention; real Forceps recovery for Workbench isn't built yet and
- * should only ever target the bottom when it is). No true multiblock validation beyond this pass --
- * see dermicraft-gear-stations-notes.md -> Construction for the eventual full two-block structure.
+ * Workbench's bottom half -- hosts the real Storage/Mod/Fabrication GUI's MenuProvider (see
+ * WorkbenchBlockEntity), but right-clicking the bottom itself never opens it; that's only reachable
+ * through the top (see WorkbenchTopBlock#useWithoutItem). Right-clicking the bottom instead flips
+ * its independent active/power toggle. Paired with WorkbenchTopBlock, vanilla-door-style: placing
+ * the bottom auto-places the top directly above (and refuses to place at all if there's no room for
+ * it, same as a door), and destroying either half destroys both -- there's only ever one recoverable
+ * object, the bottom (today that just means neither half drops anything on plain breaking, matching
+ * this mod's existing "destroyed unless Forceps" convention; real Forceps recovery for Workbench
+ * isn't built yet and should only ever target the bottom when it is). No true multiblock validation
+ * beyond this pass -- see dermicraft-gear-stations-notes.md -> Construction for the eventual full
+ * two-block structure.
  */
 public class WorkbenchBlock extends ModBaseEntityBlock {
 
     public static final MapCodec<WorkbenchBlock> CODEC = simpleCodec(WorkbenchBlock::new);
 
+    // Real block light, not just the emissive render trick -- WorkbenchScreenGlowLayer handles the
+    // visual glow, this is what actually lights the room while the screen's on. Toggled alongside
+    // the BE's own "open" field by WorkbenchBlockEntity#setOpen (light emission has to live on the
+    // BlockState, the light engine can't read BE data).
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    private static final int LIT_LEVEL = 8;
+
+    // GeoBlockRenderer auto-detects this exact property (HorizontalDirectionalBlock.FACING, same
+    // DirectionProperty instance as BlockStateProperties.HORIZONTAL_FACING) and rotates the whole
+    // GeckoLib model around the block's center accordingly -- no renderer-side work needed, same
+    // idiom MasticatorBlock already uses for its own (non-GeckoLib) FACING.
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+
     public WorkbenchBlock(Properties properties) {
-        super(properties.noLootTable());
+        super(properties
+                .noLootTable()
+                .lightLevel(state -> state.getValue(LIT) ? LIT_LEVEL : 0)
+        );
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false).setValue(FACING, Direction.NORTH));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
+    }
+
+    @NotNull
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @NotNull
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return rotate(state, mirror.getRotation(state.getValue(FACING)));
+    }
+
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(LIT, FACING);
     }
 
     // GeckoLib-rendered (no baked mesh of its own) -- see WorkbenchTopBlock's identical override.
@@ -77,7 +126,9 @@ public class WorkbenchBlock extends ModBaseEntityBlock {
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         if (!level.isClientSide) {
-            level.setBlock(pos.above(), ModBlocks.WORKBENCH_TOP.get().defaultBlockState(), 3);
+            BlockState topState = ModBlocks.WORKBENCH_TOP.get().defaultBlockState()
+                    .setValue(WorkbenchTopBlock.FACING, state.getValue(FACING));
+            level.setBlock(pos.above(), topState, 3);
         }
     }
 
@@ -100,12 +151,15 @@ public class WorkbenchBlock extends ModBaseEntityBlock {
         }
     }
 
+    // Right-clicking the bottom never opens the GUI -- that's the top's job (see
+    // WorkbenchTopBlock#useWithoutItem). This just flips the independent active/power toggle; see
+    // WorkbenchBlockEntity#toggleActive for how that interacts with the GUI's own viewer-driven
+    // visual state.
     @NotNull
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof MenuProvider menuProvider
-                && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.openMenu(menuProvider, buf -> buf.writeBlockPos(pos));
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof WorkbenchBlockEntity workbench) {
+            workbench.toggleActive();
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }

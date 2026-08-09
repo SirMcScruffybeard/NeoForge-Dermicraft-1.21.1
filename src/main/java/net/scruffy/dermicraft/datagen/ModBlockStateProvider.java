@@ -2,7 +2,6 @@ package net.scruffy.dermicraft.datagen;
 
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
@@ -46,8 +45,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         // getExistingFile pattern as BRAIN just above, not the generic vanilla-block-default
         // transforms this used to build inline via the item-model transforms() builder.
         simpleBlockWithItem(ModBlocks.WORKBENCH.get(), models().getExistingFile(modLoc("block/workbench_bottom")));
-        simpleBlockWithItem(ModBlocks.WORKBENCH_TOP.get(),
-                new ModelFile.UncheckedModelFile(ResourceLocation.withDefaultNamespace("builtin/entity")));
+        // Top only needs a particle texture (its item is never actually handed to players, see
+        // ModCreativeModeTabs), but the raw vanilla "builtin/entity" model carries no textures block
+        // at all -- without its own hand-authored model/block/workbench_top.json, break particles
+        // have nothing to sample and just don't render.
+        simpleBlockWithItem(ModBlocks.WORKBENCH_TOP.get(), models().getExistingFile(modLoc("block/workbench_top")));
 
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
         simpleBlockWithItem(ModBlocks.STONE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/stone_lab_floor")));

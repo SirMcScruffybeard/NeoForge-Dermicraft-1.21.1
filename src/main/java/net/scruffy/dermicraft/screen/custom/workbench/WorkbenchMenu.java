@@ -102,11 +102,26 @@ public class WorkbenchMenu extends AbstractModMenu {
         });
         this.addSlot(new SunderChainSlot(be.WORK_ITEM, CHAIN_SLOT_X + 1, CHAIN_SLOT_Y + 1, () -> modPageActive));
         this.addSlot(new SunderFuelFillSlot(be.WORK_ITEM, fuelFillContainer, FUEL_FILL_SLOT_X + 1, FUEL_FILL_SLOT_Y + 1, () -> modPageActive));
+
+        // Server-only: drives the paired top half's open/closed animation (see
+        // WorkbenchBlockEntity#onMenuOpened). Menu constructors also run client-side to build the
+        // local screen's mirror, so this must not double-count there.
+        if (!level.isClientSide) {
+            be.onMenuOpened();
+        }
     }
 
     @Override
     public boolean stillValid(Player player) {
         return super.stillValid(level, player, ModBlocks.WORKBENCH, be);
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (!level.isClientSide) {
+            be.onMenuClosed();
+        }
     }
 
     @Override

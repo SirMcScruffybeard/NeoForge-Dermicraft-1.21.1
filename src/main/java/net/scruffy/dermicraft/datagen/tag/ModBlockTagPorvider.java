@@ -50,6 +50,9 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.DIORITE_LAB_FLOOR.get())
                 .add(ModBlocks.ANDESITE_LAB_FLOOR.get())
                 .add(ModBlocks.GRANITE_LAB_FLOOR.get())
+                // Bottom half only -- the top is a purely visual companion with no item of its own
+                // worth recovering; WorkbenchBlock's own onRemove already takes it with the bottom.
+                .add(ModBlocks.WORKBENCH.get())
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)

@@ -13,7 +13,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.WorkbenchBlock;
 import net.scruffy.dermicraft.interfaces.IGadget;
+import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.screen.custom.workbench.StorageStripSlot;
@@ -29,11 +31,11 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 /**
  * Workbench (see dermicraft-gear-stations-notes.md -> Workbench). This slice builds the Storage
  * strip (Duty 1, restricted to gadgets/Frames/exchangeable parts/Damageable items, scrollable one
- * row of 9 at a time), the Mod/Swap page, and the Fabrication display. GeckoLib rendering (this
- * half's own "active" idle loop) is display-only this pass, no activate/deactivate triggering with
- * the paired top half yet -- see WorkbenchTopBlockEntity's identical caveat.
+ * row of 9 at a time), the Mod/Swap page, and the Fabrication display. Implements
+ * IPreserveContentsOnPickup so Forceps recovery (COLLECTIBLE tag, bottom only) carries Storage/
+ * Work-item contents onto the recovered item instead of spilling them -- same as the Craw.
  */
-public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements MenuProvider, GeoBlockEntity {
+public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements MenuProvider, GeoBlockEntity, IPreserveContentsOnPickup {
 
     private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -100,6 +102,60 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         super(net.scruffy.dermicraft.block.entity.ModBlockEntities.WORKBENCH_BE.get(), pos, state);
     }
 
+    // "active" is the persistent, independently-toggled power state -- right-clicking the bottom
+    // (see WorkbenchBlock#useWithoutItem) flips it directly, with no GUI involved at all. "open" is
+    // the actual visual/animation-driving flag (synced/persisted below, same pathway as scrollRow):
+    // it's forced true for as long as the GUI (opened only via the top, see WorkbenchTopBlock) is
+    // being viewed -- regardless of what active is -- and snaps back to whatever active is the
+    // moment the last viewer closes it. Since active can only change via a bottom right-click, and
+    // the GUI captures input while open, active can never actually change mid-view -- so this
+    // reduces to "the models return to the state they were in when the GUI was opened."
+    private int openCount = 0;
+    private boolean active = false;
+    private boolean open = false;
+
+    public void toggleActive() {
+        active = !active;
+        if (openCount == 0) {
+            setOpen(active);
+        }
+    }
+
+    public void onMenuOpened() {
+        openCount++;
+        if (openCount == 1) {
+            setOpen(true);
+        }
+    }
+
+    public void onMenuClosed() {
+        openCount = Math.max(0, openCount - 1);
+        if (openCount == 0) {
+            setOpen(active);
+        }
+    }
+
+    // Client-side read by WorkbenchScreenGlowLayer to gate the screen-on glow overlay to exactly
+    // the activate/active window (not deactivate) -- see that class.
+    public boolean isOpen() {
+        return open;
+    }
+
+    private void setOpen(boolean open) {
+        this.open = open;
+        setChanged();
+        updateBlock();
+        if (level != null) {
+            BlockState state = getBlockState();
+            if (state.hasProperty(WorkbenchBlock.LIT) && state.getValue(WorkbenchBlock.LIT) != open) {
+                level.setBlock(worldPosition, state.setValue(WorkbenchBlock.LIT, open), 3);
+            }
+            if (level.getBlockEntity(worldPosition.above()) instanceof WorkbenchTopBlockEntity top) {
+                top.setOpen(open);
+            }
+        }
+    }
+
     public static boolean isStorageEligible(ItemStack stack) {
         if (stack.isEmpty()) return true;
         if (stack.getItem() instanceof IGadget) return true;
@@ -150,8 +206,9 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "screen", 0,
-                state -> state.setAndContinue(RawAnimation.begin().thenLoop("active"))));
+        controllers.add(new AnimationController<>(this, "screen", 0, state -> open
+                ? state.setAndContinue(RawAnimation.begin().thenPlay("activate").thenLoop("active"))
+                : state.setAndContinue(RawAnimation.begin().thenPlay("deactivate"))));
     }
 
     @Override
@@ -163,6 +220,12 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         // (see MrShepardBlockEntity's populationCap) -- skipping it here means the server value
         // changes but the client never finds out, so the thumb/visible slots never update.
         tag.putInt("scrollRow", scrollRow);
+        // Same rationale as scrollRow above -- keeps a late-joining client's "screen" bone in the
+        // right pose instead of always starting closed regardless of current viewer count.
+        tag.putBoolean("open", open);
+        // The actual power-toggle state -- needs its own persistence separate from "open" so a
+        // reload doesn't lose what the bottom's right-click was last set to.
+        tag.putBoolean("active", active);
         super.saveAdditional(tag, registries);
     }
 
@@ -179,5 +242,7 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         if (tag.contains("scrollRow")) {
             scrollRow = Math.max(0, Math.min(getMaxScrollRow(), tag.getInt("scrollRow")));
         }
+        open = tag.getBoolean("open");
+        active = tag.getBoolean("active");
     }
 }

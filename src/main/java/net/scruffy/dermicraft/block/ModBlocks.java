@@ -73,14 +73,20 @@ public class ModBlocks {
     // get culled against it (same reasoning as Brain's own noOcclusion).
     public static final DeferredBlock<Block> WORKBENCH = registerBlock("workbench",
             () -> new WorkbenchBlock(BlockBehaviour.Properties.of()
-                    .strength(2.5f)
+                    // Furnace-tier -- sturdier than a crafting table's default 2.5, since this
+                    // carries persistent Storage/Mod-page state a player shouldn't lose to an
+                    // accidental break.
+                    .strength(3.5f)
                     .sound(SoundType.WOOD)
                     .noOcclusion()));
 
     // Workbench top half -- purely visual/animated this pass, see WorkbenchTopBlock's own javadoc.
     public static final DeferredBlock<Block> WORKBENCH_TOP = registerBlock("workbench_top",
             () -> new WorkbenchTopBlock(BlockBehaviour.Properties.of()
-                    .strength(2.5f)
+                    // Furnace-tier -- sturdier than a crafting table's default 2.5, since this
+                    // carries persistent Storage/Mod-page state a player shouldn't lose to an
+                    // accidental break.
+                    .strength(3.5f)
                     .sound(SoundType.WOOD)
                     .noOcclusion()));
 

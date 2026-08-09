@@ -16,6 +16,10 @@
 					"pivot": [0, 0, 8]
 				},
 				{
+					"name": "item_display",
+					"pivot": [0, -1, 0]
+				},
+				{
 					"name": "frame",
 					"parent": "main",
 					"pivot": [0, 0, 8],

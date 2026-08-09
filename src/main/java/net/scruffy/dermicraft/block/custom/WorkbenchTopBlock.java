@@ -2,16 +2,24 @@ package net.scruffy.dermicraft.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.WorkbenchTopBlockEntity;
@@ -30,13 +38,43 @@ public class WorkbenchTopBlock extends ModBaseEntityBlock {
 
     public static final MapCodec<WorkbenchTopBlock> CODEC = simpleCodec(WorkbenchTopBlock::new);
 
+    // Same real-light treatment as WorkbenchBlock's own LIT -- see that field's javadoc. Toggled by
+    // WorkbenchTopBlockEntity#setOpen.
+    public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    private static final int LIT_LEVEL = 8;
+
+    // Set from WorkbenchBlock#setPlacedBy so the two halves always face the same way -- see that
+    // field's javadoc for why GeoBlockRenderer needs no extra code to honor it.
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+
     public WorkbenchTopBlock(Properties properties) {
-        super(properties.noLootTable());
+        super(properties
+                .noLootTable()
+                .lightLevel(state -> state.getValue(LIT) ? LIT_LEVEL : 0)
+        );
+        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false).setValue(FACING, Direction.NORTH));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(LIT, FACING);
+    }
+
+    @NotNull
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @NotNull
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return rotate(state, mirror.getRotation(state.getValue(FACING)));
     }
 
     // GeckoLib blocks have no baked mesh of their own -- ENTITYBLOCK_ANIMATED tells vanilla the

@@ -10,5 +10,7 @@ public class WorkbenchTopBlockEntityRenderer extends GeoBlockRenderer<WorkbenchT
     // functional interface event.registerBlockEntityRenderer expects.
     public WorkbenchTopBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         super(new WorkbenchTopGeoModel());
+        addRenderLayer(new WorkbenchLightsGlowLayer(this));
+        addRenderLayer(new WorkbenchItemDisplayLayer(this));
     }
 }

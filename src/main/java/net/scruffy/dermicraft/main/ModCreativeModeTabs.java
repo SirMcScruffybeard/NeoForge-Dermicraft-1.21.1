@@ -53,6 +53,10 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.CRAW);
                         output.accept(ModBlocks.MR_FARMER);
                         output.accept(ModBlocks.MR_SHEPARD);
+                        output.accept(ModBlocks.BRAIN);
+                        // WORKBENCH_TOP is deliberately not offered here -- it's not meant to be
+                        // placed by hand, WorkbenchBlock#setPlacedBy auto-places it above the bottom.
+                        output.accept(ModBlocks.WORKBENCH);
 
                         ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_DUCT);
@@ -113,10 +117,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.DENSE_MUSCLE);
                         output.accept(ModItems.BLOOD_NUGGET);
                         output.accept(ModItems.PROTO_BRAIN);
-                        output.accept(ModBlocks.BRAIN);
-                        // WORKBENCH_TOP is deliberately not offered here -- it's not meant to be
-                        // placed by hand, WorkbenchBlock#setPlacedBy auto-places it above the bottom.
-                        output.accept(ModBlocks.WORKBENCH);
                         output.accept(ModItems.CHASSIS);
                         output.accept(ModItems.ADDON_FRAME);
 

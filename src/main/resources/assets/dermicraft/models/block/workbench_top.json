@@ -1,0 +1,7 @@
+{
+  "credit": "Made with Blockbench",
+  "parent": "builtin/entity",
+  "textures": {
+    "particle": "dermicraft:block/workbench/workbench_top"
+  }
+}
