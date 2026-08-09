@@ -106,19 +106,78 @@ public final class GearStationPool {
     /** Fluid counterpart to {@link #consumeItems}, same sequential drain policy. */
     private static void consumeFluids(List<IFluidHandler> sources, List<FluidStack> required) {
         for (FluidStack requirement : required) {
-            int remaining = requirement.getAmount();
-            for (IFluidHandler source : sources) {
-                if (remaining <= 0) break;
-                for (int tank = 0; tank < source.getTanks() && remaining > 0; tank++) {
-                    FluidStack candidate = source.getFluidInTank(tank);
-                    if (candidate.isEmpty() || !FluidStack.isSameFluidSameComponents(candidate, requirement)) continue;
+            drainAmount(sources, requirement, requirement.getAmount());
+        }
+    }
 
-                    FluidStack request = new FluidStack(candidate.getFluid(), Math.min(remaining, candidate.getAmount()));
-                    FluidStack drained = source.drain(request, IFluidHandler.FluidAction.EXECUTE);
-                    remaining -= drained.getAmount();
+    /**
+     * Drains up to {@code amount} mB of {@code fluidType}'s exact fluid/components from
+     * {@code sources}, sequentially (fully draining one tank before moving to the next). Returns
+     * how much was actually drained -- may be less than {@code amount} if the sources ran dry
+     * mid-drain, so callers that need an atomic all-or-nothing debit must check availability
+     * themselves first (see {@link #consumeForRecipe}'s pre-check, or Workbench Duty 3's own
+     * pool-amount check via {@link #bestFuel}).
+     */
+    private static int drainAmount(List<IFluidHandler> sources, FluidStack fluidType, int amount) {
+        int remaining = amount;
+        for (IFluidHandler source : sources) {
+            if (remaining <= 0) break;
+            for (int tank = 0; tank < source.getTanks() && remaining > 0; tank++) {
+                FluidStack candidate = source.getFluidInTank(tank);
+                if (candidate.isEmpty() || !FluidStack.isSameFluidSameComponents(candidate, fluidType)) continue;
+
+                FluidStack request = new FluidStack(candidate.getFluid(), Math.min(remaining, candidate.getAmount()));
+                FluidStack drained = source.drain(request, IFluidHandler.FluidAction.EXECUTE);
+                remaining -= drained.getAmount();
+            }
+        }
+        return amount - remaining;
+    }
+
+    /**
+     * Drains up to {@code amount} mB of {@code fluidType} from the station's shared pool -- the
+     * general-purpose counterpart to {@link #consumeForRecipe} for callers that debit a computed
+     * cost each cycle (e.g. Workbench Duty 3 repair) rather than a fixed recipe cost. Not atomic
+     * against a shortfall on its own; pair with a {@link #bestFuel} amount check first.
+     */
+    public static int drainFuel(Level level, BlockPos origin, FluidStack fluidType, int amount) {
+        return drainAmount(FloorNetwork.fluidHandlers(level, origin), fluidType, amount);
+    }
+
+    /**
+     * Picks the best-graded biofuel currently in the pool (tier first, Speed tiebreak -- same
+     * ranking {@link #chooseFluid} uses when filling a tank) and reports how much of it the pool
+     * holds, packed into the returned stack's amount. Unlike {@link #chooseFluid} this has no
+     * target tank to check room against, for callers that just need a quality+quantity reading
+     * (e.g. Workbench Duty 3, which computes its own per-cycle repair/cost math from the modifiers
+     * rather than transferring fluid into a tank). Returns {@link FluidStack#EMPTY} if the pool
+     * holds no biofuel at all.
+     */
+    public static FluidStack bestFuel(Level level, BlockPos origin) {
+        List<IFluidHandler> sources = FloorNetwork.fluidHandlers(level, origin);
+
+        FluidStack best = FluidStack.EMPTY;
+        for (IFluidHandler source : sources) {
+            for (int tank = 0; tank < source.getTanks(); tank++) {
+                FluidStack candidate = source.getFluidInTank(tank);
+                if (candidate.isEmpty() || !ModFluidUtil.isBiofuel(candidate)) continue;
+                if (best.isEmpty() || isBetterGrade(candidate, best)) best = candidate;
+            }
+        }
+        if (best.isEmpty()) return FluidStack.EMPTY;
+
+        int total = 0;
+        for (IFluidHandler source : sources) {
+            for (int tank = 0; tank < source.getTanks(); tank++) {
+                FluidStack candidate = source.getFluidInTank(tank);
+                if (!candidate.isEmpty() && FluidStack.isSameFluidSameComponents(candidate, best)) {
+                    total += candidate.getAmount();
                 }
             }
         }
+        FluidStack result = best.copy();
+        result.setAmount(total);
+        return result;
     }
 
     private static List<ItemStack> flattenItems(List<IItemHandler> handlers) {

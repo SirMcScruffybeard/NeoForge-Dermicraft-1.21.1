@@ -117,6 +117,11 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     // rather than a texture (no bespoke art exists for this panel yet).
     private static final int SHORTFALL_OVERLAY_COLOR = 0x80FF0000;
 
+    // Translucent green overlay marking the recipe grid's currently-selected icon -- same plain-fill
+    // approach as SHORTFALL_OVERLAY_COLOR above, so the player can tell what they're building at a
+    // glance without having to track the detail panel separately.
+    private static final int SELECTED_OVERLAY_COLOR = 0x8000FF00;
+
     // Opacity for an empty fluid slot's "ghost" preview -- see #renderFluidColumn.
     private static final float GHOST_ALPHA = 0.35f;
 
@@ -362,6 +367,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             guiGraphics.blit(ITEM_SLOT_TEXTURE, slotX, slotY, 0, 0,
                     ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
             guiGraphics.renderItem(recipe.getResult(), slotX + 1, slotY + 1);
+
+            if (i == selectedFabricationIndex) {
+                guiGraphics.fill(slotX + 1, slotY + 1, slotX + ITEM_SLOT_SIZE - 1, slotY + ITEM_SLOT_SIZE - 1, SELECTED_OVERLAY_COLOR);
+            }
 
             if (!recipe.meetsTier(menu.getStationTier())) {
                 // Same overlay-after-renderItem state dance GraftingTableScreen#renderGhostItem uses:

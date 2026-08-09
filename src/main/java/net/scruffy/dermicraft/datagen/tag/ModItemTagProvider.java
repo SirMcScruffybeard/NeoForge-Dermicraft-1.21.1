@@ -74,6 +74,10 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         ;
 
+        tag(ModTags.Items.FUEL_CONSUMING_GADGETS)
+                .add(ModItems.SUNDER.get())
+        ;
+
         tag(ModTags.Items.STONE_BLEND_ROSTER)
                 .add(Items.STONE)
                 .add(Items.COBBLESTONE)

@@ -62,6 +62,15 @@ public class ModTags {
         public static final TagKey<Item> SILICA_BLEND_RECYCLING = createTag("silica_blend_recycling");
         public static final TagKey<Item> CLAY_BLEND_RECYCLING = createTag("clay_blend_recycling");
 
+        // Gadgets with a genuine onboard fuel tank (biofuel-only capability, same restriction Fuel
+        // Bladder uses) -- what Workbench Duty 2's passive auto-refill targets. Deliberately NOT
+        // every IGadget with a fluid capability: Drinker/Sipping's tanks hold arbitrary payload
+        // fluid (drink content, vacuumed liquid) rather than fuel, and would accept a passive
+        // biofuel top-off same as any other fluid, silently draining the shared pool dry for a tank
+        // that was never meant to burn fuel at all. See Sunder's own fluid-handler registration in
+        // ModBusEvents for the capability-side counterpart of this restriction.
+        public static final TagKey<Item> FUEL_CONSUMING_GADGETS = createTag("fuel_consuming_gadgets");
+
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

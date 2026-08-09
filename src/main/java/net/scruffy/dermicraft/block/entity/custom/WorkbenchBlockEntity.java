@@ -14,10 +14,14 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.WorkbenchBlock;
 import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
@@ -25,6 +29,8 @@ import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.screen.custom.workbench.StorageStripSlot;
 import net.scruffy.dermicraft.screen.custom.workbench.WorkbenchMenu;
+import net.scruffy.dermicraft.tank.FuelTank;
+import net.scruffy.dermicraft.util.ModFluidUtil;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
@@ -124,6 +130,106 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
     @Nullable
     private ResourceLocation activeFabricationRecipeId = null;
 
+    // Duty 3 (general-purpose durability repair) -- see dermicraft-gear-stations-notes.md ->
+    // Workbench, "General-purpose durability repair". Single active job, cycling through STORAGE
+    // one Damageable item at a time. repairSlot is -1 when nothing is being repaired. Deliberately
+    // separate from the Fabrication job's own progress/maxProgress (inherited from
+    // MachineBaseBlockEntity) so the two duties can run independently.
+    private static final int BASE_REPAIR_POINTS = 1; // durability points repaired/cycle at Heal modifier 1.0 (Crude Slurry)
+
+    private int repairSlot = -1;
+    private int repairProgress = 0;
+    private int repairMaxProgress = 0;
+
+    /**
+     * Advances Duty 3. Every {@link #CRAFT_TICKS}, picks the next damaged Damageable item in Storage
+     * if nothing is currently targeted, then spends one cycle's worth of shared-pool fuel to chip
+     * away at it -- repair magnitude scales with the loaded fuel's Heal modifier (same "BASE * heal"
+     * shape {@code AbstractFueledMachineBlockEntity#getHealAmount} uses for machine healing), cost
+     * scales with its Use-rate modifier (mod-wide cost convention, see
+     * {@code MrShepardBlockEntity#fuelPerStep}). {@link IGadget} items are included: they already
+     * reuse vanilla damage as their own HP stat and heal for free over time while carried (see
+     * {@link net.scruffy.dermicraft.event.GadgetEvents}) -- Duty 3 just trades that idle time for
+     * material, healing a stored gadget faster at the cost of fuel instead of waiting it out in a
+     * pocket. If Storage has nothing to repair, or the pool has no fuel (or not enough for this
+     * cycle's cost), nothing is drawn from the pool at all -- "no items being repaired" means zero
+     * fuel use, and a mid-repair shortfall halts with progress preserved, same Gear Station rule
+     * every fuel-driven process in this mod follows.
+     */
+    public void tickRepair(Level level) {
+        if (!ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) return;
+
+        if (repairSlot < 0 || !isRepairTarget(STORAGE.getStackInSlot(repairSlot))) {
+            if (!pickNextRepairTarget()) return;
+        }
+
+        FluidStack fuel = GearStationPool.bestFuel(level, worldPosition);
+        if (fuel.isEmpty()) return;
+
+        float heal = ModFluidUtil.getHeal(fuel) / FuelTank.BASE_SPEED_MODIFIER;
+        int points = Math.max(1, Math.round(BASE_REPAIR_POINTS * heal));
+        int cost = Math.max(1, Math.round(ModFluidUtil.getUseRate(fuel) * CRAFT_TICKS));
+        if (fuel.getAmount() < cost) return;
+
+        GearStationPool.drainFuel(level, worldPosition, fuel, cost);
+
+        ItemStack target = STORAGE.getStackInSlot(repairSlot);
+        repairProgress = Math.min(repairMaxProgress, repairProgress + points);
+        if (repairProgress >= repairMaxProgress) {
+            target.setDamageValue(Math.max(0, target.getDamageValue() - repairMaxProgress));
+            STORAGE.setStackInSlot(repairSlot, target);
+            repairSlot = -1;
+            repairProgress = 0;
+            repairMaxProgress = 0;
+        }
+        setChanged();
+        updateBlock();
+    }
+
+    private boolean pickNextRepairTarget() {
+        for (int slot = 0; slot < STORAGE.getSlots(); slot++) {
+            ItemStack candidate = STORAGE.getStackInSlot(slot);
+            if (isRepairTarget(candidate)) {
+                repairSlot = slot;
+                repairMaxProgress = candidate.getDamageValue();
+                repairProgress = 0;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isRepairTarget(ItemStack stack) {
+        return !stack.isEmpty() && stack.isDamageableItem() && stack.isDamaged();
+    }
+
+    /**
+     * Advances Duty 2 -- passively tops off every eligible stored gadget's own onboard fuel tank
+     * from the shared pool, every cycle, independent of Duty 3's repair queue above and of whether
+     * anyone has this Workbench's screen open (a block-entity tick concern, not a GUI one, same
+     * "works while nobody's looking" model the design calls for). Eligibility is
+     * {@link ModTags.Items#FUEL_CONSUMING_GADGETS}, deliberately not "anything in Storage exposing a
+     * fluid handler" -- Sipping/Drinker's tanks hold payload fluid (drink content, vacuumed liquid),
+     * not fuel, and would otherwise get silently topped off too, draining the shared pool for a tank
+     * that was never meant to burn fuel at all (see the tag's own javadoc for the full reasoning).
+     */
+    public void tickRecharge(Level level) {
+        if (!ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) return;
+
+        for (int slot = 0; slot < STORAGE.getSlots(); slot++) {
+            ItemStack stack = STORAGE.getStackInSlot(slot);
+            if (stack.isEmpty() || !stack.is(ModTags.Items.FUEL_CONSUMING_GADGETS)) continue;
+
+            IFluidHandlerItem tank = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+            if (tank == null) continue;
+
+            if (GearStationPool.fillFromPool(level, worldPosition, tank) <= 0) continue;
+            // The handler may hand back a different stack rather than mutating in place, same
+            // write-back rule WorkbenchMenu#fillWorkItemFromPool follows for the manual path.
+            STORAGE.setStackInSlot(slot, tank.getContainer());
+        }
+    }
+
     // GUI convenience state -- which right-strip page and which Fabrication recipe were last
     // selected, purely so reopening THIS Workbench's screen returns to where the player left off,
     // rather than always resetting to the Mod page with nothing selected. Persisted per-block (same
@@ -208,16 +314,28 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
 
     /**
      * Advances the active Fabrication job, if any -- called from {@link net.scruffy.dermicraft.block.custom.WorkbenchBlock}'s
-     * ticker. Progress is a flat tick count (unlike the fuel-driven machines, Fabrication has no
-     * speed modifier to apply -- the recipe's own {@code ticks} is the real duration), advanced in
-     * CRAFT_TICKS-sized steps so this syncs at the same cadence every other machine in this mod does
-     * rather than spamming a block-update packet every single tick.
+     * ticker. Draws shared-pool fuel each cycle the same way Duty 3's repair does, but with the
+     * *other* half of that split: crafting uses the **Speed** modifier for pacing (`progress +=
+     * round(CRAFT_TICKS * speed)`, same shape every fuel-driven Machine's own
+     * {@code AbstractFueledMachineBlockEntity#incrementProgress} uses) while Duty 3 uses Heal for its
+     * healing-shaped repair magnitude -- see dermicraft-gear-stations-notes.md -> Workbench, Duty 3,
+     * for the reasoning behind that split. Cost per cycle scales with Use-rate, the mod-wide cost
+     * convention. No fuel at all, or not enough for this cycle's cost, halts with progress preserved
+     * (Gear Station rule -- no unfueled reduced-speed fallback the way a "dumb" Machine gets).
      */
     public void tickFabrication(Level level) {
         if (!isFabricating() || !ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) return;
 
         if (isStillCrafting()) {
-            progress += CRAFT_TICKS;
+            FluidStack fuel = GearStationPool.bestFuel(level, worldPosition);
+            if (fuel.isEmpty()) return;
+
+            float speed = ModFluidUtil.getSpeed(fuel) / FuelTank.BASE_SPEED_MODIFIER;
+            int cost = Math.max(1, Math.round(ModFluidUtil.getUseRate(fuel) * CRAFT_TICKS));
+            if (fuel.getAmount() < cost) return;
+
+            GearStationPool.drainFuel(level, worldPosition, fuel, cost);
+            progress += Math.max(1, Math.round(CRAFT_TICKS * speed));
         } else {
             completeFabrication(level);
         }
@@ -413,6 +531,10 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         if (selectedFabricationRecipeId != null) {
             tag.putString("selectedFabricationRecipe", selectedFabricationRecipeId.toString());
         }
+        // Duty 3 repair job state -- see the fields' own javadoc.
+        tag.putInt("repairSlot", repairSlot);
+        tag.putInt("repairProgress", repairProgress);
+        tag.putInt("repairMaxProgress", repairMaxProgress);
         super.saveAdditional(tag, registries);
     }
 
@@ -441,5 +563,8 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         selectedFabricationRecipeId = tag.contains("selectedFabricationRecipe", CompoundTag.TAG_STRING)
                 ? ResourceLocation.parse(tag.getString("selectedFabricationRecipe"))
                 : null;
+        repairSlot = tag.contains("repairSlot") ? tag.getInt("repairSlot") : -1;
+        repairProgress = tag.getInt("repairProgress");
+        repairMaxProgress = tag.getInt("repairMaxProgress");
     }
 }

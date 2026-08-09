@@ -167,9 +167,9 @@ public class WorkbenchBlock extends ModBaseEntityBlock {
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
-    // Drives WorkbenchBlockEntity#tickFabrication and #tickPoolSync -- the only things that need a
-    // per-tick hook on this block (everything else is event-driven: right-click toggles, menu-open/
-    // close callbacks).
+    // Drives WorkbenchBlockEntity#tickFabrication, #tickRepair, #tickRecharge, and #tickPoolSync --
+    // the only things that need a per-tick hook on this block (everything else is event-driven:
+    // right-click toggles, menu-open/close callbacks).
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> blockEntityType) {
@@ -177,6 +177,8 @@ public class WorkbenchBlock extends ModBaseEntityBlock {
         return createTickerHelper(blockEntityType, ModBlockEntities.WORKBENCH_BE.get(),
                 (tickLevel, blockPos, blockState, be) -> {
                     be.tickFabrication(tickLevel);
+                    be.tickRepair(tickLevel);
+                    be.tickRecharge(tickLevel);
                     be.tickPoolSync(tickLevel);
                 });
     }
