@@ -7,8 +7,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
 import net.scruffy.dermicraft.block.entity.custom.WorkbenchBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
@@ -132,15 +135,33 @@ public class WorkbenchMenu extends AbstractModMenu {
         } else if (id == BUTTON_SCROLL_DOWN) {
             be.changeScrollRow(1);
         } else if (id == BUTTON_FILL_FROM_POOL) {
-            // TODO: no shared Gear Station fluid pool exists yet (Floor-network multiblock, not
-            // built). Wired up client-side (button renders, clicks send this id) so the Fabrication
-            // page's own future pool draws can follow the same pattern -- currently a no-op.
+            fillWorkItemFromPool();
         } else if (id >= BUTTON_SET_ROW_BASE) {
             be.setScrollRow(id - BUTTON_SET_ROW_BASE);
         } else {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Tops the Mod page's working item off from the station's shared Gear Station fluid pool -- the
+     * station-only counterpart to {@link SunderFuelFillSlot}'s carried-fuel path (see
+     * dermicraft-gear-stations-notes.md -> Swap page, "Fuel: both refuel paths, not one").
+     *
+     * <p>Not Sunder-specific by design: anything in the working-item slot exposing a fluid handler
+     * can be topped off, so a second fuel-carrying gadget needs no changes here.
+     */
+    private void fillWorkItemFromPool() {
+        ItemStack workStack = be.WORK_ITEM.getStackInSlot(0);
+        IFluidHandlerItem tank = workStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (tank == null) return;
+
+        if (GearStationPool.fillFromPool(level, be.getBlockPos(), tank) <= 0) return;
+
+        // The handler may hand back a different stack rather than mutating in place, so the
+        // container is written back explicitly rather than assumed updated.
+        be.WORK_ITEM.setStackInSlot(0, tank.getContainer());
     }
 
     public int getScrollRow() {

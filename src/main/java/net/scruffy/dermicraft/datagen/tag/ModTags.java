@@ -26,6 +26,12 @@ public class ModTags {
         public static final TagKey<Block> TUMORS = createTag("tumors");
         public static final TagKey<Block> DIPPING_TANKS = createTag("dipping_tanks");
 
+        // Every Lab Floor variant -- what FloorNetwork walks across to find a station's shared pool.
+        // A tag rather than a hardcoded block list so the walk needs no changes when a new floor
+        // variant is added, and so a future tier split can just become child tags of this one
+        // (tier lives on the block TYPE, which is why floors need no block entity at all).
+        public static final TagKey<Block> LAB_FLOOR = createTag("lab_floor");
+
 
         private static TagKey<Block> createTag(String name) {
             return BlockTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));

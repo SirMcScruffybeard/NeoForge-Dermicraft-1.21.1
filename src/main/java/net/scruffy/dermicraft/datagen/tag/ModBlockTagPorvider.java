@@ -55,6 +55,16 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.WORKBENCH.get())
         ;
 
+        tag(ModTags.Blocks.LAB_FLOOR)
+                .add(ModBlocks.STONE_LAB_FLOOR.get())
+                .add(ModBlocks.COBBLESTONE_LAB_FLOOR.get())
+                .add(ModBlocks.DEEPSLATE_LAB_FLOOR.get())
+                .add(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.get())
+                .add(ModBlocks.DIORITE_LAB_FLOOR.get())
+                .add(ModBlocks.ANDESITE_LAB_FLOOR.get())
+                .add(ModBlocks.GRANITE_LAB_FLOOR.get())
+        ;
+
         tag(ModTags.Blocks.EXTRACTABLE)
                 .add(ModBlocks.INERT_TUMOR.get())
                 .add(ModBlocks.EYE_TUMOR.get())

@@ -95,13 +95,13 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.PRIMITIVE_FORCEPS);
                         output.accept(ModItems.IDEP);
                         output.accept(ModItems.SCRENCH);
-                        output.accept(ModItems.SIPPING);
                         output.accept(ModItems.DRINKER);
                         output.accept(ModItems.EATER);
+                        output.accept(ModItems.SIPPING);
+                        output.accept(ModItems.SUNDER);
                         output.accept(ModItems.BLADDER);
                         output.accept(ModItems.FUEL_BLADDER);
                         output.accept(ModItems.FEEDER_BLADDER);
-                        output.accept(ModItems.SUNDER);
                         output.accept(ModItems.IRON_SUNDER_CHAIN);
                         output.accept(ModItems.COPPER_SUNDER_CHAIN);
                         output.accept(ModItems.GOLD_SUNDER_CHAIN);
