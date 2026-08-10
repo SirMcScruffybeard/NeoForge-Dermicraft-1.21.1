@@ -2,6 +2,7 @@ package net.scruffy.dermicraft.datagen.tag;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -63,6 +64,20 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.DIORITE_LAB_FLOOR.get())
                 .add(ModBlocks.ANDESITE_LAB_FLOOR.get())
                 .add(ModBlocks.GRANITE_LAB_FLOOR.get())
+        ;
+
+        tag(ModTags.Blocks.AGGREGATE)
+                .add(Blocks.DIRT)
+                .add(Blocks.COARSE_DIRT)
+                .add(Blocks.PODZOL)
+                .add(Blocks.MYCELIUM)
+                .add(Blocks.ROOTED_DIRT)
+                .add(Blocks.SAND)
+                .add(Blocks.RED_SAND)
+                .add(Blocks.GRAVEL)
+                .add(Blocks.CLAY)
+                .add(Blocks.SNOW)
+                .add(Blocks.SNOW_BLOCK)
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)

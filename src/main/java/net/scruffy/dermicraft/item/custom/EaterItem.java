@@ -1,11 +1,14 @@
 package net.scruffy.dermicraft.item.custom;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -17,11 +20,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import net.scruffy.dermicraft.component.BulkItemData;
 import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
@@ -30,6 +39,7 @@ import net.scruffy.dermicraft.interfaces.IHaveItemData;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -38,7 +48,10 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * E.A.T.E.R. -- held item vacuum, the item-side counterpart to D.R.I.N.K.E.R.'s fluid vacuum.
@@ -146,7 +159,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
-        if (hasVacuumTarget(level, player)) {
+        if (hasVacuumTarget(level, player, stack)) {
             player.startUsingItem(hand);
             return InteractionResultHolder.consume(stack);
         }
@@ -161,10 +174,16 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
 
-    /** Existence-only check, same scan as the real vacuum tick -- cheap enough to run on every
-     * right-click since it's just an AABB scan plus a dot-product filter, no routing/mutation. */
-    private boolean hasVacuumTarget(Level level, Player player) {
-        return !nearbyVacuumTargets(level, player).isEmpty();
+    /** Existence-only check, same scans the real per-tick loops use -- cheap enough to run on every
+     * right-click since it's just an AABB scan plus a dot-product filter (loose items) or a single
+     * raycast (an Aggregate target), no routing/mutation either way. Without the Aggregate half of
+     * this check, a click with nothing to vacuum but a valid Aggregate block in view fell through to
+     * the mode-cycle branch below instead of ever starting the held vacuum that would have let
+     * {@link #aggregateTick} run at all. */
+    private boolean hasVacuumTarget(Level level, Player player, ItemStack stack) {
+        if (!nearbyVacuumTargets(level, player).isEmpty()) return true;
+        if (!hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) return false;
+        return aggregateTarget(level, player, hasModule(stack, ModTags.Items.MODULE_FLUID_BYPASS)) != null;
     }
 
     /** Items within {@link #RADIUS} AND inside the forward cone -- the single filter both the
@@ -313,7 +332,14 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         if (holdingTrigger) protectVacuumCandidates(level, player);
 
         boolean pastWindup = holdingTrigger && player.getTicksUsingItem() >= VACUUM_WINDUP_TICKS;
-        if (pastWindup) vacuumTick(level, player, stack);
+        if (pastWindup) {
+            vacuumTick(level, player, stack);
+            aggregateTick(level, player, stack);
+        } else {
+            // Trigger released (or still mid-windup) -- don't leave a stale crack overlay/progress
+            // entry sitting on whatever block was last targeted.
+            clearAggregateProgress(player);
+        }
 
         // Drives the mouth-bloom animation off "trigger held", not "actually pulling something" --
         // it should be mid-open through the whole windup, not just once the windup ends.
@@ -423,6 +449,135 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
             remaining = handler.insertItem(slot, remaining, false);
         }
         return toStore.getCount() - remaining.getCount();
+    }
+
+    ////////////////////Aggregate mining (Aggregate Module)\\\\\\\\\\\\\\\\\\\\
+
+    /** Cadence for block mining specifically, distinct from the per-tick item-pull loop -- each
+     * "hit" lands once per this many ticks, not every tick. */
+    private static final int AGGREGATE_STEP_TICKS = 5;
+
+    /** Hits needed to break a target -- flat across every Aggregate block rather than scaled by
+     * real vanilla hardness, since the whole roster (dirt/sand/gravel/clay/snow) is already
+     * uniformly soft. At the current cadence this is ~1 second of continuous aim per block, first
+     * pass, untuned. */
+    private static final int AGGREGATE_HITS_TO_BREAK = 4;
+
+    /** Transient, server-only mining progress, keyed per player -- deliberately NOT gadget item
+     * data (unlike everything else this session): breaking progress is momentary interaction state,
+     * not something meaningful to persist/sync with the stack, the same reason vanilla's own block-
+     * breaking progress lives on {@code ServerPlayerGameMode} rather than on the tool. A stale entry
+     * left behind by a player who disconnects mid-swing is harmless (just a few bytes, overwritten
+     * or ignored on their next swing) -- not worth a logout-listener for a first pass. */
+    private static final Map<UUID, AggregateProgress> AGGREGATE_PROGRESS = new HashMap<>();
+
+    private record AggregateProgress(BlockPos pos, int hits) {}
+
+    /**
+     * Damages the block Eater is looking at, if -- and only if -- an Aggregate Module is installed
+     * (see {@link #hasModule}) and that block is tagged {@link ModTags.Blocks#AGGREGATE}, breaking
+     * (and vacuuming) it only once {@link #AGGREGATE_HITS_TO_BREAK} hits land on the SAME position
+     * consecutively -- aiming away and back, or switching targets entirely, restarts progress from
+     * zero, same as vanilla's own mining. {@link Level#destroyBlockProgress} drives the real crack
+     * overlay so this reads as actual mining, not a silent timer.
+     *
+     * <p>On break: routes the real vanilla drops (gravel's flint chance, clay's 4-ball yield, etc.
+     * -- reusing {@link Block#getDrops}, not a hardcoded "drops itself" assumption) through the
+     * exact same {@link #routeIncoming} every other vacuum target already goes through, so Storage/
+     * Transfer/Disposal modes apply identically. Whatever doesn't fit drops on the ground at the
+     * mined position, same as a buffer-full loose item is simply left uncollected rather than lost.
+     */
+    private void aggregateTick(Level level, Player player, ItemStack stack) {
+        if (!hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) return;
+        if (level.getGameTime() % AGGREGATE_STEP_TICKS != 0) return;
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        BlockHitResult hit = aggregateTarget(level, player, hasModule(stack, ModTags.Items.MODULE_FLUID_BYPASS));
+        if (hit == null) {
+            clearAggregateProgress(player);
+            return;
+        }
+
+        BlockPos pos = hit.getBlockPos();
+        AggregateProgress existing = AGGREGATE_PROGRESS.get(player.getUUID());
+        int hits = (existing != null && existing.pos().equals(pos)) ? existing.hits() + 1 : 1;
+
+        if (hits < AGGREGATE_HITS_TO_BREAK) {
+            AGGREGATE_PROGRESS.put(player.getUUID(), new AggregateProgress(pos, hits));
+            level.destroyBlockProgress(player.getId(), pos, Math.min(9, (hits * 10) / AGGREGATE_HITS_TO_BREAK));
+            return;
+        }
+
+        clearAggregateProgress(player);
+
+        BlockState state = level.getBlockState(pos);
+        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos), player, ItemStack.EMPTY);
+        // destroyBlock (not removeBlock) so this plays the same break particle burst + sound vanilla
+        // mining always does -- that event fires independently of the drop flag, which stays false
+        // since drops are already computed and routed through the buffer ourselves below.
+        level.destroyBlock(pos, false);
+
+        for (ItemStack drop : drops) {
+            int consumed = routeIncoming(stack, player, drop);
+            if (consumed >= drop.getCount()) continue;
+
+            ItemStack leftover = drop.copyWithCount(drop.getCount() - consumed);
+            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), leftover);
+        }
+    }
+
+    /** Clears this player's mining progress and the crack overlay it was driving -- called both on
+     * a completed break and whenever aiming stops landing on a valid target at all (see
+     * {@link #inventoryTick}). */
+    private static void clearAggregateProgress(Player player) {
+        AggregateProgress removed = AGGREGATE_PROGRESS.remove(player.getUUID());
+        if (removed != null) {
+            player.level().destroyBlockProgress(player.getId(), removed.pos(), -1);
+        }
+    }
+
+    /**
+     * The block Eater's crosshair is on, within {@link #RADIUS} -- a straightforward reach-style
+     * raycast, not the item vacuum's forward-cone-plus-AABB scan (blocks sit at fixed positions, so
+     * "what am I actually looking at" is the natural targeting model, same as vanilla's own
+     * block-breaking reach).
+     *
+     * <p>{@code fluidBypass} flips whether fluid blocks the ray: Eater deliberately treats fluid as
+     * an obstruction by DEFAULT (the opposite of vanilla's own block-interaction raycast, which
+     * always ignores fluid) -- see the Fluid Bypass Module's own design note ("Fluids block Eater's
+     * block-targeting raycast by default, deliberately, not a bug to fix"). With Bypass installed,
+     * the ray passes through fluid like vanilla's does, reaching a submerged Aggregate deposit; the
+     * flagship "Aggregate + Fluid Bypass" combo the Modules design describes.
+     *
+     * <p>Filters to {@link ModTags.Blocks#AGGREGATE} here (not left to each caller) so
+     * {@link #hasVacuumTarget} and {@link #aggregateTick} can never disagree about what counts as a
+     * real target -- the same "one filter, two callers" rule {@link #nearbyVacuumTargets} already
+     * follows for loose items.
+     */
+    @Nullable
+    private BlockHitResult aggregateTarget(Level level, Player player, boolean fluidBypass) {
+        Vec3 eyePos = player.getEyePosition();
+        Vec3 endPos = eyePos.add(player.getLookAngle().scale(RADIUS));
+
+        ClipContext.Fluid fluidMode = fluidBypass ? ClipContext.Fluid.NONE : ClipContext.Fluid.ANY;
+        BlockHitResult hit = level.clip(new ClipContext(eyePos, endPos,
+                ClipContext.Block.COLLIDER, fluidMode, player));
+        if (hit.getType() != HitResult.Type.BLOCK) return null;
+
+        return level.getBlockState(hit.getBlockPos()).is(ModTags.Blocks.AGGREGATE) ? hit : null;
+    }
+
+    /** Whether {@code eaterStack} currently has a Module tagged {@code moduleTag} installed in any
+     * of its 3 slots -- the generic capability-query dispatch the Modules direction note describes.
+     * Reads {@link ModDataComponentTypes#MODULE_DATA} directly rather than through the swap panel,
+     * which only exists while a menu actually has this stack's panel open. */
+    public static boolean hasModule(ItemStack eaterStack, TagKey<Item> moduleTag) {
+        BulkItemData data = eaterStack.getOrDefault(ModDataComponentTypes.MODULE_DATA.get(), BulkItemData.empty(MODULE_SLOT_COUNT));
+        for (int i = 0; i < MODULE_SLOT_COUNT; i++) {
+            ItemStack module = data.slot(i).asDisplayStack();
+            if (!module.isEmpty() && module.is(moduleTag)) return true;
+        }
+        return false;
     }
 
     ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\

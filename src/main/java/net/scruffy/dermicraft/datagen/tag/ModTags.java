@@ -32,6 +32,12 @@ public class ModTags {
         // (tier lives on the block TYPE, which is why floors need no block entity at all).
         public static final TagKey<Block> LAB_FLOOR = createTag("lab_floor");
 
+        // What the Aggregate Module lets Eater vacuum directly (see dermicraft-gadget-notes.md ->
+        // Eater's material categories) -- loose dirt/sand/gravel/clay/snow, not an exhaustive variant
+        // list. A tag rather than a hardcoded block check so the roster can grow (a future dirt/sand
+        // variant, e.g.) with a datapack addition, no code change.
+        public static final TagKey<Block> AGGREGATE = createTag("aggregate");
+
 
         private static TagKey<Block> createTag(String name) {
             return BlockTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
