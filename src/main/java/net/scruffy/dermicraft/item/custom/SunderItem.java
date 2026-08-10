@@ -13,7 +13,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.food.FoodData;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -37,6 +40,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
@@ -49,6 +53,7 @@ import net.scruffy.dermicraft.component.SunderModeData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
+import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import org.jetbrains.annotations.Nullable;
@@ -88,7 +93,7 @@ import java.util.UUID;
  * bones back down, which reads the same as a reverse for a simple flex/extend clip like
  * {@code rev_up_down}.
  */
-public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget, net.scruffy.dermicraft.interfaces.IWorkbenchSwappable {
+public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget, IWorkbenchSwappable {
 
     /** Placeholder capacity -- fuel-drain-rate-per-pulse and every other fuel-economy number are
      * still open design questions (see the notes), so this is a round default to build against,
@@ -755,6 +760,189 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
      * job (materialize a real ItemStack for the GUI, or just drop it entirely on break). */
     public static void clearMountedChain(ItemStack sunderStack) {
         sunderStack.set(ModDataComponentTypes.SUNDER_MOUNTED_CHAIN.get(), HeldItemData.EMPTY);
+    }
+
+    ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\
+
+    // Panel layout -- public so ScrenchScreen/WorkbenchScreen can draw matching backgrounds under
+    // exactly the slots SunderSwapPanel builds, same convention EaterItem's own public panel
+    // constants use.
+    public static final int CHAIN_SLOT_X = 45;
+    public static final int CHAIN_SLOT_Y = 35;
+    public static final int FUEL_SLOT_X = 113;
+    public static final int FUEL_SLOT_Y = 60;
+    public static final int FUEL_TANK_X = FUEL_SLOT_X;
+    public static final int FUEL_TANK_Y = FUEL_SLOT_Y - 48; // tank asset's own top, 48px above its bottom-anchored fill slot
+
+    @Override
+    public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
+        return new SunderSwapPanel(gadgetStackSupplier, fieldHosted);
+    }
+
+    /**
+     * Sunder's own chain-swap + fuel-fill panel, extracted 2026-08-09 out of what used to be
+     * {@code ScrenchMenu}'s own constructor/removed()/applyCompletedSwapCosts -- moved here so both
+     * the Scrench and the Workbench's Swap page share one implementation instead of each hosting a
+     * hand-written copy (the exact duplication the original {@code IWorkbenchSwappable} javadoc
+     * flagged as its own future extension point).
+     *
+     * <p>Rewritten (2026-08-10) into a pure live view, no materialize-on-open/write-back-on-close --
+     * both slots read/write {@link #mountedChain}/the fuel capability directly against whatever the
+     * supplier currently points at, the same technique the pre-existing Workbench-only
+     * {@code SunderChainSlot}/{@code SunderFuelFillSlot} already proved correct (and which the
+     * Workbench host needs regardless, since its working-item slot can be swapped out entirely while
+     * the menu stays open -- a captured single {@code ItemStack} reference would go stale there).
+     */
+    private static final class SunderSwapPanel implements SwapPanel {
+
+        /** 5 seconds, matching the mod's other short debuff-style durations -- see the Scrench
+         * design notes' open questions for why this exact magnitude is still a placeholder. */
+        private static final int SWAP_PENALTY_DURATION_TICKS = 100;
+
+        private static final SimpleContainer DUMMY = new SimpleContainer(0);
+
+        private final java.util.function.Supplier<ItemStack> gadgetStackSupplier;
+        private final boolean fieldHosted;
+
+        private SunderSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
+            this.gadgetStackSupplier = gadgetStackSupplier;
+            this.fieldHosted = fieldHosted;
+        }
+
+        @Override
+        public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
+            return List.of(
+                    new ChainSlot(panelX + CHAIN_SLOT_X + 1, panelY + CHAIN_SLOT_Y + 1, active),
+                    new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
+        }
+
+        /**
+         * Completed-swap detection: a mounted chain present at close = penalty, matching what was
+         * actually decided for the original copy-out/copy-back version -- no distinction for "the
+         * same chain the player never touched," since that version applied the cost whenever the
+         * chain slot was non-empty at close regardless of whether a swap actually happened. A live
+         * view makes this simpler to read, not different in behavior: just check what's mounted
+         * right now. Costs only apply when {@link #fieldHosted} -- the Workbench is the deliberately
+         * safer/costless station alternative.
+         */
+        @Override
+        public void onClosed(Player player) {
+            if (fieldHosted && hasMountedChain(gadgetStackSupplier.get())) {
+                applyCompletedSwapCosts(player);
+            }
+        }
+
+        /** Movement penalty (see {@link ModEffects#SCRENCH_OFF_BALANCE}) plus 1 point of Scrench
+         * durability wear -- checks both hands for the Scrench, since a completed swap could have
+         * come from either pairing direction. */
+        private void applyCompletedSwapCosts(Player player) {
+            player.addEffect(new MobEffectInstance(ModEffects.SCRENCH_OFF_BALANCE,
+                    SWAP_PENALTY_DURATION_TICKS, 0, false, false, false));
+
+            if (player.getMainHandItem().getItem() instanceof ScrenchItem) {
+                player.getMainHandItem().hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+            } else if (player.getOffhandItem().getItem() instanceof ScrenchItem) {
+                player.getOffhandItem().hurtAndBreak(1, player, EquipmentSlot.OFFHAND);
+            }
+        }
+
+        /** Live view straight into {@link #mountedChain}/{@link #setMountedChain}/
+         * {@link #clearMountedChain} on whatever the supplier currently points at -- same technique
+         * as the pre-existing {@code SunderChainSlot}, generalized to work for either host via the
+         * supplier instead of a captured work-item handler. */
+        private final class ChainSlot extends Slot {
+            private final java.util.function.BooleanSupplier active;
+
+            ChainSlot(int x, int y, java.util.function.BooleanSupplier active) {
+                super(DUMMY, 0, x, y);
+                this.active = active;
+            }
+
+            @Override
+            public boolean isActive() {
+                return active.getAsBoolean();
+            }
+
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof SunderChainItem;
+            }
+
+            @Override
+            public ItemStack getItem() {
+                return mountedChain(gadgetStackSupplier.get()).itemStack();
+            }
+
+            @Override
+            public void set(ItemStack stack) {
+                if (stack.isEmpty()) {
+                    clearMountedChain(gadgetStackSupplier.get());
+                } else {
+                    setMountedChain(gadgetStackSupplier.get(), stack);
+                }
+            }
+
+            @Override
+            public void setChanged() {
+                // No-op target container (DUMMY) -- the real mutation already happened directly on
+                // the live gadget stack via set()/remove() above.
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+
+            @Override
+            public boolean mayPickup(Player player) {
+                return hasMountedChain(gadgetStackSupplier.get());
+            }
+
+            @Override
+            public ItemStack remove(int amount) {
+                ItemStack chain = mountedChain(gadgetStackSupplier.get()).itemStack();
+                if (!chain.isEmpty()) clearMountedChain(gadgetStackSupplier.get());
+                return chain;
+            }
+        }
+
+        /**
+         * Drains a filled fluid container immediately into Sunder's own fuel tank on contact -- same
+         * "immediate, like everything else" rule as every other fluid transfer in the mod.
+         */
+        private final class FuelFillSlot extends Slot {
+            private final java.util.function.BooleanSupplier active;
+
+            FuelFillSlot(int x, int y, java.util.function.BooleanSupplier active) {
+                super(new SimpleContainer(1), 0, x, y);
+                this.active = active;
+            }
+
+            @Override
+            public boolean isActive() {
+                return active.getAsBoolean();
+            }
+
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ItemStack held = getItem();
+                if (held.isEmpty()) return;
+
+                ItemStack sunderStack = gadgetStackSupplier.get();
+                IFluidHandlerItem sunderTank = sunderStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+                IFluidHandlerItem containerHandler = held.getCapability(Capabilities.FluidHandler.ITEM, null);
+                if (sunderTank == null || containerHandler == null) return;
+
+                if (FluidUtil.tryFluidTransfer(sunderTank, containerHandler, Integer.MAX_VALUE, true).isEmpty()) return;
+                set(containerHandler.getContainer());
+            }
+        }
     }
 
     ////////////////////Tooltip\\\\\\\\\\\\\\\\\\\\

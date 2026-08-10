@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -19,10 +21,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveItemData;
+import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -43,7 +50,24 @@ import java.util.List;
  * its destination. That's the whole reason this item's tick loop is simpler than DRINKER's
  * despite sharing the same held-trigger identity and mode cycle.
  */
-public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData {
+public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, IWorkbenchSwappable {
+
+    /** Gadget Module loadout size -- see dermicraft-gadget-notes.md -> Gadget upgrade points ->
+     * Modules direction note's worked Eater example ("3 general-purpose slots, no type
+     * reservation"). Backed by {@link ModDataComponentTypes#MODULE_DATA}, independent of the item
+     * buffer above (same stack, two separate components). */
+    public static final int MODULE_SLOT_COUNT = 3;
+    /** Exactly one Module per slot -- these aren't stackable resources. */
+    public static final int MODULE_SLOT_CAPACITY = 1;
+
+    /** Brief "can't use Eater again yet" cooldown applied after a completed field (Scrench) Module
+     * swap -- Eater's own flavor of Scrench field cost, deliberately not Sunder's movement penalty
+     * (see the design discussion: a harvesting tool doesn't have the same "off-balance from
+     * wrenching on a weapon mid-combat" stakes a weapon does). Vanilla's own per-item cooldown
+     * system is a clean fit -- no custom effect class needed. Placeholder magnitude, same "short
+     * debuff-length" ballpark as Sunder's own SWAP_PENALTY_DURATION_TICKS.
+     */
+    private static final int SWAP_RECALIBRATION_COOLDOWN_TICKS = 40;
 
     /** Pickup range around the player, in blocks. Originally a flat 360-degree radius (see the
      * base-tier design notes in dermicraft-gadget-notes.md); narrowed to a forward cone (see
@@ -110,6 +134,17 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+
+        // Checks the other hand for a paired Scrench first, deferring to the Module-swap GUI if
+        // found -- same pattern as SunderItem's own matching check (see that class for why this has
+        // to happen before any of Eater's own click handling below, not after).
+        InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (player.getItemInHand(otherHand).getItem() instanceof ScrenchItem) {
+            if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+                ScrenchMenu.open(serverPlayer, hand);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        }
 
         if (hasVacuumTarget(level, player)) {
             player.startUsingItem(hand);
@@ -388,6 +423,149 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData {
             remaining = handler.insertItem(slot, remaining, false);
         }
         return toStore.getCount() - remaining.getCount();
+    }
+
+    ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\
+
+    // Panel layout -- public so ScrenchScreen/WorkbenchScreen can draw the matching backgrounds
+    // under exactly the slots EaterSwapPanel builds, without either screen needing to know Eater's
+    // internal panel shape beyond these coordinates.
+    public static final int MODULE_SLOT_X = 8;
+    public static final int MODULE_SLOT_Y = 27;
+    public static final int MODULE_SLOT_SPACING = 20;
+
+    // A horizontal row directly above the player's own inventory grid (which starts at y=83, see
+    // AbstractModScreen#PLAYER_INVENTORY_Y), not a vertical column -- a column of 4 starting at
+    // y=20 was bleeding into the inventory art by the last slot (20+3*20=80, right against 83).
+    // X is anchored so the row's LAST slot lines up with the inventory's own last (9th) column, and
+    // the pitch matches the inventory's own 18px column spacing -- reads as a continuation of the
+    // same grid rather than an unrelated strip. A dividing line renders just below this row and
+    // above the inventory (see ScrenchScreen/WorkbenchScreen) to keep the two visually separate
+    // despite sharing a column rhythm.
+    public static final int BUFFER_SLOT_Y = 60;
+    public static final int BUFFER_SLOT_SPACING = 18;
+    public static final int BUFFER_SLOT_X = 151 - (SLOT_COUNT - 1) * BUFFER_SLOT_SPACING;
+
+    @Override
+    public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
+        return new EaterSwapPanel(gadgetStackSupplier, fieldHosted);
+    }
+
+    /**
+     * Eater's Module + buffer panel. Unlike Sunder's copy-out/copy-back panel, this is a pure live
+     * view -- both the 3 Module slots and the item buffer slots read/write straight through to the
+     * Eater stack's own data components ({@link ModDataComponentTypes#MODULE_DATA}/
+     * {@link ModDataComponentTypes#BULK_ITEM_DATA} via {@link IHaveItemData.BulkItemHandler}), so
+     * there's nothing to materialize or write back on close -- no "what if the GUI closes weird"
+     * cases to design around at all, since nothing is ever out of sync with the real stack.
+     *
+     * <p>Re-resolves a fresh {@code BulkItemHandler} against {@code gadgetStackSupplier.get()} on
+     * every access (see {@link #liveHandler}) rather than binding to one captured stack -- required
+     * for the Workbench host, whose working-item slot can be swapped out entirely while the menu
+     * stays open (see {@link IWorkbenchSwappable#openSwapPanel}'s own javadoc for why).
+     *
+     * <p>{@code onClosed} only has one job: apply the recalibration cooldown, and only if a Module
+     * slot's contents actually changed THIS session (tracked via {@link #moduleSlotChanged}) and
+     * this session was field-hosted (the Workbench stays costless).
+     *
+     * <p>Layout coordinates below are first-pass placeholders -- exact positions get finalized once
+     * the actual screen art is built (see the Eater GUI design discussion); functionally correct
+     * either way since slot behavior doesn't depend on where they're drawn.
+     */
+    private final class EaterSwapPanel implements SwapPanel {
+
+        private final java.util.function.Supplier<ItemStack> gadgetStackSupplier;
+        private final boolean fieldHosted;
+        private final IItemHandlerModifiable moduleHandler;
+        private final IItemHandlerModifiable bufferHandler;
+        private boolean moduleSlotChanged = false;
+
+        private EaterSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
+            this.gadgetStackSupplier = gadgetStackSupplier;
+            this.fieldHosted = fieldHosted;
+            this.moduleHandler = liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
+                    ModDataComponentTypes.MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
+                    stack -> stack.is(ModTags.Items.MODULES)));
+            this.bufferHandler = liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(), SLOT_COUNT, SLOT_CAPACITY));
+        }
+
+        /** Wraps a handler factory so every {@code IItemHandlerModifiable} call re-resolves a fresh
+         * delegate first -- a plain captured {@code BulkItemHandler} binds to whatever stack was
+         * current when it was constructed, which goes stale the moment the Workbench's working-item
+         * slot contents change. */
+        private static IItemHandlerModifiable liveHandler(java.util.function.Supplier<IItemHandlerModifiable> factory) {
+            return new IItemHandlerModifiable() {
+                @Override
+                public int getSlots() { return factory.get().getSlots(); }
+
+                @NotNull
+                @Override
+                public ItemStack getStackInSlot(int slot) { return factory.get().getStackInSlot(slot); }
+
+                @Override
+                public void setStackInSlot(int slot, @NotNull ItemStack stack) { factory.get().setStackInSlot(slot, stack); }
+
+                @Override
+                public int getSlotLimit(int slot) { return factory.get().getSlotLimit(slot); }
+
+                @Override
+                public boolean isItemValid(int slot, @NotNull ItemStack stack) { return factory.get().isItemValid(slot, stack); }
+
+                @NotNull
+                @Override
+                public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                    return factory.get().insertItem(slot, stack, simulate);
+                }
+
+                @NotNull
+                @Override
+                public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                    return factory.get().extractItem(slot, amount, simulate);
+                }
+            };
+        }
+
+        @Override
+        public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
+            List<Slot> slots = new java.util.ArrayList<>();
+
+            for (int i = 0; i < MODULE_SLOT_COUNT; i++) {
+                int x = panelX + MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING;
+                int y = panelY + MODULE_SLOT_Y + 1;
+                slots.add(new SlotItemHandler(moduleHandler, i, x, y) {
+                    @Override
+                    public boolean isActive() {
+                        return active.getAsBoolean();
+                    }
+
+                    @Override
+                    public void setChanged() {
+                        super.setChanged();
+                        moduleSlotChanged = true;
+                    }
+                });
+            }
+
+            for (int i = 0; i < SLOT_COUNT; i++) {
+                int x = panelX + BUFFER_SLOT_X + 1 + i * BUFFER_SLOT_SPACING;
+                int y = panelY + BUFFER_SLOT_Y + 1;
+                slots.add(new SlotItemHandler(bufferHandler, i, x, y) {
+                    @Override
+                    public boolean isActive() {
+                        return active.getAsBoolean();
+                    }
+                });
+            }
+
+            return slots;
+        }
+
+        @Override
+        public void onClosed(Player player) {
+            if (fieldHosted && moduleSlotChanged) {
+                player.getCooldowns().addCooldown(EaterItem.this, SWAP_RECALIBRATION_COOLDOWN_TICKS);
+            }
+        }
     }
 
     ////////////////////Gadget health\\\\\\\\\\\\\\\\\\\\

@@ -295,6 +295,58 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.WORKBENCH.asItem());
 
+        ////////////////////Gadget Modules\\\\\\\\\\\\\\\\\\\\
+        // Aggregate Module: a Hopper (the actual intake mechanism -- same "a Hopper's real function
+        // already is 'sucks items in'" precedent Eater's own Fabrication recipe uses) topped with
+        // Gravel (material identity) on a Module Frame -- crafting-table, not implant/Mutator, per
+        // the Modules direction note. Not cheap despite only 1 Gravel: the Hopper (5 Iron Ingots + a
+        // Chest) and the Frame (Chassis + 3000 mB Synapse Catalyst) already carry real weight; Gravel
+        // is flavor here, not the cost driver.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.AGGREGATE_MODULE.get())
+                .pattern("G")
+                .pattern("H")
+                .pattern("F")
+                .define('G', Items.GRAVEL)
+                .define('H', Items.HOPPER)
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("aggregate_module_crafting_table"));
+
+        // Fluid Bypass Module: deliberately cheap relative to Aggregate/Heat Safety -- see the
+        // Modules direction discussion. Bypass doesn't unlock anything otherwise unreachable (every
+        // target it lets you reach through fluid is already obtainable by ordinary means), it's pure
+        // convenience, not a capability skip the way Heat Safety's hazard bypass is -- so it doesn't
+        // deserve capability-tier cost. Wool (soft, permeable material -- a filter/membrane) + Water
+        // Bucket for the water itself, not the bucket's iron -- vanilla's own crafting-remainder
+        // returns the bucket empty, same as Cake/Mushroom Stew, so this genuinely only spends the
+        // Wool and the Frame.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.FLUID_BYPASS_MODULE.get())
+                .pattern("W")
+                .pattern("B")
+                .pattern("F")
+                .define('W', ItemTags.WOOL)
+                .define('B', Items.WATER_BUCKET)
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("fluid_bypass_module_crafting_table"));
+
+        // Heat Safety Module: the priciest of the three, deliberately -- this is the one that
+        // actually skips a real progression gate (early hazard tolerance), not just convenience
+        // (Fluid Bypass) or a harvesting-category unlock (Aggregate). Magma Block (heat-resistant
+        // identity) over a Lava Bucket (the hazard itself, not the bucket's iron -- same "value the
+        // content, not the container" framing as Fluid Bypass's water) over the Module Frame, cased
+        // in 6 Iron Ingots as a protective housing around the heat core.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.HEAT_SAFETY_MODULE.get())
+                .pattern("IMI")
+                .pattern("ILI")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('M', Blocks.MAGMA_BLOCK)
+                .define('L', Items.LAVA_BUCKET)
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("heat_safety_module_crafting_table"));
+
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse
         // Catalyst injection (100 mB is the syringe's fixed physical volume, not a cost lever).

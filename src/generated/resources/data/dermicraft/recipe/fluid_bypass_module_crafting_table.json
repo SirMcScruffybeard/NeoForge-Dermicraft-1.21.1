@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:water_bucket"
+    },
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    }
+  },
+  "pattern": [
+    "W",
+    "B",
+    "F"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:fluid_bypass_module"
+  }
+}

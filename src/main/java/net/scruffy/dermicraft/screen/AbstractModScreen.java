@@ -44,6 +44,25 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
     private static final int ITEM_SLOT_BAR_X = 7;
     private static final int ITEM_SLOT_BAR_Y = 141;
 
+    // Shared plain item-slot background -- every screen that needs a bare 18x18 slot backdrop
+    // (Scrench's chain slot, Eater's buffer column, ...) reuses this one texture/constant instead of
+    // each screen declaring its own private copy.
+    protected static final ResourceLocation ITEM_SLOT_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/slots/item_slot.png");
+
+    // Module-slot background (see dermicraft-gadget-notes.md -> Gadget upgrade points -> Modules
+    // direction note) -- visually distinct (yellow) from a plain item slot so a Module slot reads as
+    // its own category at a glance, same role ITEM_SLOT_TEXTURE plays for ordinary item slots.
+    protected static final ResourceLocation MODULE_SLOT_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/slots/yellow_slot.png");
+
+    protected static final int SLOT_SIZE = 18;
+
+    // Subtle translucent divider -- separates a swap panel's own slot rows from the player's own
+    // inventory grid below it (e.g. Eater's buffer row) without needing a dedicated texture asset.
+    private static final int DIVIDER_COLOR = 0x80000000;
+    private static final int DIVIDER_HEIGHT = 1;
+
     public AbstractModScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
@@ -75,6 +94,28 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
         // Gets rid of title and inventory title
         this.inventoryLabelY = 10000;
         this.titleLabelY = 10000;
+    }
+
+    /**
+     * Draws {@code count} copies of an 18x18 slot background in a straight line -- a row
+     * ({@code spacingY = 0}) or a column ({@code spacingX = 0}) -- starting at
+     * {@code (x + startX, y + startY)}. Shared by any screen hosting an {@code IWorkbenchSwappable}
+     * panel (Scrench, Workbench's Swap page) so the same gadget panel's slot backgrounds don't need
+     * re-drawing per host; only the panel's own origin/texture choice varies.
+     */
+    protected void renderSlotBackgrounds(GuiGraphics guiGraphics, ResourceLocation texture,
+                                          int x, int y, int startX, int startY,
+                                          int count, int spacingX, int spacingY) {
+        for (int i = 0; i < count; i++) {
+            guiGraphics.blit(texture, x + startX + i * spacingX, y + startY + i * spacingY, 0, 0,
+                    SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        }
+    }
+
+    /** A thin horizontal rule at {@code (x + startX, y + startY)}, {@code width} wide -- see
+     * {@link #DIVIDER_COLOR}. */
+    protected void renderDivider(GuiGraphics guiGraphics, int x, int y, int startX, int startY, int width) {
+        guiGraphics.fill(x + startX, y + startY, x + startX + width, y + startY + DIVIDER_HEIGHT, DIVIDER_COLOR);
     }
 
     /************************************************************************************

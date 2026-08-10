@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:lava_bucket"
+    },
+    "M": {
+      "item": "minecraft:magma_block"
+    }
+  },
+  "pattern": [
+    "IMI",
+    "ILI",
+    "IFI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:heat_safety_module"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "G": {
+      "item": "minecraft:gravel"
+    },
+    "H": {
+      "item": "minecraft:hopper"
+    }
+  },
+  "pattern": [
+    "G",
+    "H",
+    "F"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:aggregate_module"
+  }
+}

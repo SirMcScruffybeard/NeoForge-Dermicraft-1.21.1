@@ -18,12 +18,14 @@ import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
 import net.scruffy.dermicraft.block.entity.custom.WorkbenchBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
 import java.util.List;
+import org.jetbrains.annotations.Nullable;
 
 public class WorkbenchMenu extends AbstractModMenu {
 
@@ -34,20 +36,21 @@ public class WorkbenchMenu extends AbstractModMenu {
     public static final int STRIP_Y = 177;
 
     // Mod page (Swap page -- "Mod" is just this tab's display label): working-item slot top-left,
-    // Sunder's chain slot + fuel fill slot beside it. Only Sunder's panel is concrete right now --
-    // see IWorkbenchSwappable's javadoc for how a second gadget's panel would extend this.
+    // whichever gadget's own IWorkbenchSwappable panel beside it (see #panel below) -- generalized
+    // 2026-08-10, was hardcoded to Sunder's chain+fuel slots specifically before.
     public static final int WORK_SLOT_X = 8;
     public static final int WORK_SLOT_Y = 8;
-    public static final int CHAIN_SLOT_X = 44;
-    public static final int CHAIN_SLOT_Y = 8;
-    // Combined gauge+fill-slot asset (tank_and_slot.png, 18x66) -- same asset/shape ScrenchScreen
-    // already uses for this exact pairing. The slot itself sits at the bottom 18px of that asset,
-    // not at its own top -- see WorkbenchScreen.
-    public static final int FUEL_TANK_X = 80;
-    public static final int FUEL_TANK_Y = 8;
+    // The panel's own origin -- (0, 0) so a gadget's panel renders at exactly the same relative
+    // position here as it does hosted by the Scrench (see ScrenchMenu), rather than each host
+    // maintaining its own separately-tuned coordinates for the same panel content.
+    public static final int PANEL_X = 0;
+    public static final int PANEL_Y = 0;
+
+    // Combined gauge+fill-slot asset (tank_and_slot.png, 18x66), Sunder-specific -- kept here since
+    // WorkbenchScreen needs it and this class is common-side/that's client-only. The slot itself
+    // sits at the bottom 18px of that asset, not at its own top -- see WorkbenchScreen.
     public static final int FUEL_TANK_HEIGHT = 66;
-    public static final int FUEL_FILL_SLOT_X = FUEL_TANK_X;
-    public static final int FUEL_FILL_SLOT_Y = FUEL_TANK_Y + FUEL_TANK_HEIGHT - 18;
+    public static final int FUEL_FILL_SLOT_Y = SunderItem.FUEL_TANK_Y + FUEL_TANK_HEIGHT - 18;
 
     // Fabrication page's output slot -- sits beside the progress arrow/Craft button with a 5px gap,
     // holds the finished gadget regardless of which recipe is currently selected in the browser.
@@ -62,8 +65,16 @@ public class WorkbenchMenu extends AbstractModMenu {
     // addPlayerHotbar run before the storage strip/Mod-page slots in the constructor below.
     private static final int VANILLA_SLOT_COUNT = 36;
     public static final int WORK_SLOT_INDEX = VANILLA_SLOT_COUNT + StorageStripSlot.COLUMNS;
-    public static final int CHAIN_SLOT_INDEX = WORK_SLOT_INDEX + 1;
-    public static final int FUEL_FILL_SLOT_INDEX = CHAIN_SLOT_INDEX + 1;
+    // The gadget panel's own slots (0-2 of them depending which gadget) start right after the work
+    // slot -- WorkbenchScreen locates its own tooltip targets (e.g. Sunder's chain slot) by asking
+    // this menu for the panel's slots directly (see #panelSlots) rather than a fixed index, since
+    // slot count now varies per gadget.
+    public static final int PANEL_SLOTS_START_INDEX = WORK_SLOT_INDEX + 1;
+    // Sunder's panel is always exactly [chain slot, fuel-fill slot] in that order (see
+    // SunderItem.SunderSwapPanel#slots) -- these stay valid convenience accessors for
+    // WorkbenchScreen's Sunder-specific tooltip lookups regardless of which host built the panel.
+    public static final int CHAIN_SLOT_INDEX = PANEL_SLOTS_START_INDEX;
+    public static final int FUEL_FILL_SLOT_INDEX = PANEL_SLOTS_START_INDEX + 1;
 
     // clickMenuButton ids, mirrors vanilla's loom/enchant-table button convention (already used
     // in this codebase by MrShepardMenu's population-cap buttons). Absolute row-set ids and the
@@ -97,12 +108,19 @@ public class WorkbenchMenu extends AbstractModMenu {
 
     public final WorkbenchBlockEntity be;
     private final Level level;
-    private final SimpleContainer fuelFillContainer = new SimpleContainer(1);
+
+    // The current working item's own IWorkbenchSwappable panel, if it has one -- built once at
+    // menu-open against whatever's in WORK_ITEM at that moment (see #panel's own field javadoc for
+    // the known limitation this carries: swapping to a DIFFERENT gadget type while this menu stays
+    // open doesn't rebuild the panel, same limitation the pre-existing Sunder-only implementation
+    // already had). Null if the work item is empty or not swappable.
+    @Nullable
+    private final IWorkbenchSwappable.SwapPanel panel;
 
     // Mirrors WorkbenchBlockEntity#isFabricationPageActive (initialized from it below) so slot
     // visibility is correct from the first frame, not just after the screen's own init() runs.
-    // Slot.x/y are final in this version, so hiding the Mod page's real slots (work/chain/fuel-fill)
-    // while Fabrication is showing goes through Slot#isActive() instead of repositioning them
+    // Slot.x/y are final in this version, so hiding the Mod page's real slots (work item + gadget
+    // panel) while Fabrication is showing goes through Slot#isActive() instead of repositioning them
     // off-screen; see WorkbenchScreen#setPage.
     private boolean modPageActive;
 
@@ -135,8 +153,14 @@ public class WorkbenchMenu extends AbstractModMenu {
                 return modPageActive;
             }
         });
-        this.addSlot(new SunderChainSlot(be.WORK_ITEM, CHAIN_SLOT_X + 1, CHAIN_SLOT_Y + 1, () -> modPageActive));
-        this.addSlot(new SunderFuelFillSlot(be.WORK_ITEM, fuelFillContainer, FUEL_FILL_SLOT_X + 1, FUEL_FILL_SLOT_Y + 1, () -> modPageActive));
+
+        ItemStack workStack = be.WORK_ITEM.getStackInSlot(0);
+        this.panel = workStack.getItem() instanceof IWorkbenchSwappable swappable
+                ? swappable.openSwapPanel(() -> be.WORK_ITEM.getStackInSlot(0), inventory.player, false)
+                : null;
+        if (panel != null) {
+            panel.slots(PANEL_X, PANEL_Y, () -> modPageActive).forEach(this::addSlot);
+        }
 
         this.addSlot(new SlotItemHandler(be.OUTPUT, 0, OUTPUT_SLOT_X + 1, OUTPUT_SLOT_Y + 1) {
             @Override
@@ -163,6 +187,7 @@ public class WorkbenchMenu extends AbstractModMenu {
         super.removed(player);
         if (!level.isClientSide) {
             be.onMenuClosed();
+            if (panel != null) panel.onClosed(player);
         }
     }
 
@@ -213,7 +238,7 @@ public class WorkbenchMenu extends AbstractModMenu {
 
     /**
      * Tops the Mod page's working item off from the station's shared Gear Station fluid pool -- the
-     * station-only counterpart to {@link SunderFuelFillSlot}'s carried-fuel path (see
+     * station-only counterpart to {@code SunderItem.SunderSwapPanel}'s carried-fuel fill slot (see
      * dermicraft-gear-stations-notes.md -> Swap page, "Fuel: both refuel paths, not one").
      *
      * <p>Not Sunder-specific by design: anything in the working-item slot exposing a fluid handler
@@ -297,6 +322,10 @@ public class WorkbenchMenu extends AbstractModMenu {
 
     public boolean isWorkItemSunder() {
         return getWorkItemStack().getItem() instanceof SunderItem;
+    }
+
+    public boolean isWorkItemEater() {
+        return getWorkItemStack().getItem() instanceof net.scruffy.dermicraft.item.custom.EaterItem;
     }
 
     /** Reads straight off the current work item's own stack -- fully known client-side via the

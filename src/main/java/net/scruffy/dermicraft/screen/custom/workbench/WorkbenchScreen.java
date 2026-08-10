@@ -11,6 +11,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
+import net.scruffy.dermicraft.item.custom.EaterItem;
+import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
@@ -147,7 +149,7 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     // "below" (FUEL_TANK_Y + FUEL_TANK_HEIGHT + a few px = ~80) collides with the player's own
     // inventory grid, which always starts at absolute y=83 (AbstractModScreen.PLAYER_INVENTORY_Y).
     // Whatever's in that inventory slot draws its icon on top afterward, hiding the button.
-    private static final int FILL_BUTTON_X = WorkbenchMenu.FUEL_TANK_X + TANK_AND_SLOT_WIDTH + 6;
+    private static final int FILL_BUTTON_X = SunderItem.FUEL_TANK_X + TANK_AND_SLOT_WIDTH + 6;
     private static final int FILL_BUTTON_Y = WorkbenchMenu.FUEL_FILL_SLOT_Y;
 
     private static final ResourceLocation STRIP_BACKGROUND_TEXTURE =
@@ -219,11 +221,11 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         if (currentPage == Page.MOD) {
             if (menu.isWorkItemSunder()) {
                 renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.getSunderFluid(),
-                        WorkbenchMenu.FUEL_TANK_X + 1, WorkbenchMenu.FUEL_TANK_Y + 1, fuelRenderer,
+                        SunderItem.FUEL_TANK_X + 1, SunderItem.FUEL_TANK_Y + 1, fuelRenderer,
                         Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
                 renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
-                        WorkbenchMenu.CHAIN_SLOT_X + 1, WorkbenchMenu.CHAIN_SLOT_Y + 1,
+                        SunderItem.CHAIN_SLOT_X + 1, SunderItem.CHAIN_SLOT_Y + 1,
                         menu.getSlot(WorkbenchMenu.CHAIN_SLOT_INDEX).getItem(), Component.translatable("tooltip.dermicraft.slot.chain"));
             }
 
@@ -312,21 +314,33 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             guiGraphics.blit(ITEM_SLOT_TEXTURE, x + WorkbenchMenu.WORK_SLOT_X, y + WorkbenchMenu.WORK_SLOT_Y, 0, 0,
                     ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
 
-            // Sunder's panel (chain slot + fuel gauge + fill button) only makes sense once a Sunder
-            // is actually sitting in the work slot -- an empty/non-Sunder work slot is the page's
-            // "home" state, per the Swap page design notes (occupancy of the working slot drives
-            // dispatch).
+            // A gadget's own panel (Sunder's chain+fuel, Eater's Modules+buffer) only makes sense
+            // once one is actually sitting in the work slot -- an empty/unswappable work slot is the
+            // page's "home" state, per the Swap page design notes (occupancy of the working slot
+            // drives dispatch). Sunder gets its Fill-from-pool button (fuel is a consumable resource,
+            // the button restocks it from the shared pool); Eater doesn't -- Modules aren't
+            // fluid-fillable and the buffer holds arbitrary harvested items, not fuel.
             if (menu.isWorkItemSunder()) {
-                guiGraphics.blit(ITEM_SLOT_TEXTURE, x + WorkbenchMenu.CHAIN_SLOT_X, y + WorkbenchMenu.CHAIN_SLOT_Y, 0, 0,
+                guiGraphics.blit(ITEM_SLOT_TEXTURE, x + SunderItem.CHAIN_SLOT_X, y + SunderItem.CHAIN_SLOT_Y, 0, 0,
                         ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
 
-                guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + WorkbenchMenu.FUEL_TANK_X, y + WorkbenchMenu.FUEL_TANK_Y, 0, 0,
+                guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + SunderItem.FUEL_TANK_X, y + SunderItem.FUEL_TANK_Y, 0, 0,
                         TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT, TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT);
-                fuelRenderer.render(guiGraphics, x + WorkbenchMenu.FUEL_TANK_X + 1, y + WorkbenchMenu.FUEL_TANK_Y + 1, menu.getSunderFluid());
+                fuelRenderer.render(guiGraphics, x + SunderItem.FUEL_TANK_X + 1, y + SunderItem.FUEL_TANK_Y + 1, menu.getSunderFluid());
 
                 ResourceLocation fillTexture = fillButtonPressedFlash ? FILL_BUTTON_PRESSED_TEXTURE : FILL_BUTTON_TEXTURE;
                 guiGraphics.blit(fillTexture, x + FILL_BUTTON_X, y + FILL_BUTTON_Y, 0, 0,
                         FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE);
+            } else if (menu.isWorkItemEater()) {
+                renderSlotBackgrounds(guiGraphics, MODULE_SLOT_TEXTURE, x, y,
+                        EaterItem.MODULE_SLOT_X, EaterItem.MODULE_SLOT_Y,
+                        EaterItem.MODULE_SLOT_COUNT, EaterItem.MODULE_SLOT_SPACING, 0);
+
+                renderSlotBackgrounds(guiGraphics, ITEM_SLOT_TEXTURE, x, y,
+                        EaterItem.BUFFER_SLOT_X, EaterItem.BUFFER_SLOT_Y,
+                        EaterItem.SLOT_COUNT, EaterItem.BUFFER_SLOT_SPACING, 0);
+
+                renderDivider(guiGraphics, x, y, 7, EaterItem.BUFFER_SLOT_Y + SLOT_SIZE + 2, 162);
             }
         } else {
             guiGraphics.blit(ITEM_SLOT_TEXTURE, x + WorkbenchMenu.OUTPUT_SLOT_X, y + WorkbenchMenu.OUTPUT_SLOT_Y, 0, 0,

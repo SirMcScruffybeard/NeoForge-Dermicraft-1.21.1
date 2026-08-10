@@ -58,6 +58,17 @@ public class ModDataComponentTypes {
                     .persistent(BulkItemData.CODEC)
                     .networkSynchronized(BulkItemData.STREAM_CODEC));
 
+    /** Eater's Gadget Module loadout -- see dermicraft-gadget-notes.md -> Gadget upgrade points ->
+     * Modules direction note. Reuses {@link BulkItemData}'s shape (a fixed-size list of item slots)
+     * rather than a dedicated record -- same "shared shape, separate registration per consumer"
+     * pattern as {@link #EATER_MODE_DATA} above -- registered separately from {@link #BULK_ITEM_DATA}
+     * so a gadget's Module loadout is never confused with its own item buffer (both live on the same
+     * Eater stack, as two independent components). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulkItemData>> MODULE_DATA =
+            register("module_data", builder -> builder
+                    .persistent(BulkItemData.CODEC)
+                    .networkSynchronized(BulkItemData.STREAM_CODEC));
+
     /** Eater's mode state -- same shape as D.R.I.N.K.E.R.'s, registered separately so a mode set on
      * one item is never confused with the other's. Reuses {@link DrinkerModeData}'s codecs rather
      * than a duplicate record; the Storage/Transfer/Disposal cycle-step shape is identical. */

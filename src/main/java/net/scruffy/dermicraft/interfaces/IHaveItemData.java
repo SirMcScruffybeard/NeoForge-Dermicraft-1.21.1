@@ -58,34 +58,41 @@ public interface IHaveItemData {
     class BulkItemHandler implements IItemHandlerModifiable {
 
         protected final ItemStack container;
+        protected final DataComponentType<BulkItemData> dataType;
         protected final int slots;
         protected final int slotCapacity;
         protected final Predicate<ItemStack> filter;
 
+        /** Defaults to {@link ModDataComponentTypes#BULK_ITEM_DATA} -- the original single-consumer
+         * shape, kept for existing callers (Eater's own item buffer). A second bulk-data store on
+         * the same stack (e.g. a Module loadout) must use the other constructor with its own
+         * distinct {@link DataComponentType}, or the two would silently overwrite each other. */
         public BulkItemHandler(ItemStack container, int slots, int slotCapacity) {
-            this(container, slots, slotCapacity, stack -> true);
+            this(container, ModDataComponentTypes.BULK_ITEM_DATA.get(), slots, slotCapacity, stack -> true);
         }
 
         public BulkItemHandler(ItemStack container, int slots, int slotCapacity, Predicate<ItemStack> filter) {
+            this(container, ModDataComponentTypes.BULK_ITEM_DATA.get(), slots, slotCapacity, filter);
+        }
+
+        public BulkItemHandler(ItemStack container, DataComponentType<BulkItemData> dataType,
+                                int slots, int slotCapacity, Predicate<ItemStack> filter) {
             this.container = container;
+            this.dataType = dataType;
             this.slots = slots;
             this.slotCapacity = slotCapacity;
             this.filter = filter;
         }
 
         private BulkItemData data() {
-            return container.getOrDefault(dataType(), BulkItemData.empty(slots)).withSize(slots);
+            return container.getOrDefault(dataType, BulkItemData.empty(slots)).withSize(slots);
         }
 
         private void writeData(BulkItemData data) {
             // See IHaveItemData#isSingleContainer -- writing into a stack of the gadget itself would
             // write the whole buffer into every copy in the stack.
             if (!isSingleContainer(container)) return;
-            container.set(dataType(), data);
-        }
-
-        private DataComponentType<BulkItemData> dataType() {
-            return ModDataComponentTypes.BULK_ITEM_DATA.get();
+            container.set(dataType, data);
         }
 
         @Override
