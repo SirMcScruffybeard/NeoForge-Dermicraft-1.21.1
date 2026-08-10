@@ -108,6 +108,11 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.DIAMOND_SUNDER_CHAIN);
                         output.accept(ModItems.BONE_SUNDER_CHAIN);
 
+                        ////////////////////Gadget Modules\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModItems.AGGREGATE_MODULE);
+                        output.accept(ModItems.FLUID_BYPASS_MODULE);
+                        output.accept(ModItems.HEAT_SAFETY_MODULE);
+
                         buildFlaskContents(output);
                         buildSyringeContents(output);
 
@@ -118,7 +123,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.BLOOD_NUGGET);
                         output.accept(ModItems.PROTO_BRAIN);
                         output.accept(ModItems.CHASSIS);
-                        output.accept(ModItems.ADDON_FRAME);
+                        output.accept(ModItems.MODULE_FRAME);
 
                         ////////////////////Food\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.MRE);

@@ -351,7 +351,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Synapse Catalyst: even-parts mix mirroring Primitive Catalyst's own fixed 45-second
         // recipe shape (not a minor addition like Reinforcing Catalyst above) -- the mod's
-        // general "smart component" reagent (Proto Brain, Brain Block, the Add-on Frame).
+        // general "smart component" reagent (Proto Brain, Brain Block, the Module Frame).
         RecipeBuilders.buildEffluencing(recipeOutput, "synapse_catalyst_effluencing",
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
@@ -729,15 +729,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.FEEDER_BLADDER.get(), solidTicks);
 
         // Chassis: Iron Bars (mechanical scaffold) + Calcium-Blend-derived Reinforcing Catalyst
-        // (skeletal reagent) -- shared structural item across Gadgets and the Add-on Frame below.
+        // (skeletal reagent) -- shared structural item across Gadgets and the Module Frame below.
         RecipeBuilders.mutate(recipeOutput, "chassis_mutating", Items.IRON_BARS,
                 ModFluids.SOURCE_REINFORCING_CATALYST.get(), 1000, ModItems.CHASSIS.get(), solidTicks);
 
-        // Add-on Frame: 1 Chassis + 3000 mB Synapse Catalyst -- priced above a naive
-        // cheap-since-repeatable instinct, since a Frame is permanent swappable infrastructure
-        // (dock any equipment-origin item, get that capability) rather than a one-time build.
-        RecipeBuilders.mutate(recipeOutput, "addon_frame_mutating", ModItems.CHASSIS.get(),
-                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.ADDON_FRAME.get(), solidTicks);
+        // Module Frame (renamed from "Add-on Frame" 2026-08-09): 1 Chassis + 3000 mB Synapse
+        // Catalyst -- priced above a naive cheap-since-repeatable instinct, since a Frame is
+        // permanent swappable infrastructure (dock any equipment-origin item, get that capability)
+        // rather than a one-time build.
+        RecipeBuilders.mutate(recipeOutput, "module_frame_mutating", ModItems.CHASSIS.get(),
+                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.MODULE_FRAME.get(), solidTicks);
 
         // Glassmaking family (Silica Blend) - Mutator half: Dye + Silica Blend -> Stained Glass BLOCK
         // only (see the collision note above for why the pane isn't here). Priced at parity with the

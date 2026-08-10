@@ -71,6 +71,27 @@ public class ModTags {
         // ModBusEvents for the capability-side counterpart of this restriction.
         public static final TagKey<Item> FUEL_CONSUMING_GADGETS = createTag("fuel_consuming_gadgets");
 
+        // Gadget Modules (see dermicraft-gadget-notes.md -> Gadget upgrade points -> Modules
+        // direction note). Deliberately tags, not a Java enum, so a third-party mod's item can join
+        // an existing category via a datapack tag add alone -- e.g. Eater should be able to pick up
+        // another mod's tagged item as a working module with zero code on either side.
+        public static final TagKey<Item> MODULES = createTag("modules");
+
+        // "Target" family (material/specialty modules -- what Eater's mouth is currently configured
+        // to do). Each kind gets its own specific tag; membership IS the whole behavior, no extra
+        // data map needed the way Safety Modules need one below.
+        public static final TagKey<Item> MODULE_AGGREGATE = createTag("module/aggregate");
+
+        // "Fluid" family -- mundane "can target through plain fluid at all," kept deliberately
+        // separate from hazard tolerance (see MODULE_SAFETY below) so kelp/fish-style combos (which
+        // live in ordinary water) stay cheap regardless of hazard progression.
+        public static final TagKey<Item> MODULE_FLUID_BYPASS = createTag("module/fluid_bypass");
+
+        // "Hazard" family -- generic membership only ("this is A Safety Module"); WHICH hazard(s) a
+        // specific one grants lives in ModDataMaps.SAFETY_MODULE_PROPERTIES instead of a per-hazard
+        // tag, so adding a new hazard kind later is a data map entry, not a new tag + new dispatch.
+        public static final TagKey<Item> MODULE_SAFETY = createTag("module/safety");
+
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

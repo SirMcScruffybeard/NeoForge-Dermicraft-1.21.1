@@ -32,6 +32,12 @@ public final class HazardProfile {
         return new HazardProfile(Set.of(hazards));
     }
 
+    /** Collection counterpart to {@link #of(TagKey[])} -- for callers building a profile from a
+     * data-driven list (e.g. a Safety Module's granted hazards) rather than a compile-time literal. */
+    public static HazardProfile of(java.util.Collection<TagKey<Fluid>> hazards) {
+        return new HazardProfile(new HashSet<>(hazards));
+    }
+
     /** Tolerates every known hazard — an unrestricted container that gates nothing. */
     public static final HazardProfile ALL = new HazardProfile(new HashSet<>(ModTags.Fluids.ALL_HAZARDS));
 

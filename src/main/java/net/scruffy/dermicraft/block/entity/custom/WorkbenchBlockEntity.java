@@ -450,7 +450,7 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         if (stack.isEmpty()) return true;
         if (stack.getItem() instanceof IGadget) return true;
         if (stack.isDamageableItem()) return true;
-        return stack.is(ModItems.CHASSIS.get()) || stack.is(ModItems.ADDON_FRAME.get());
+        return stack.is(ModItems.CHASSIS.get()) || stack.is(ModItems.MODULE_FRAME.get());
     }
 
     public int getMaxScrollRow() {

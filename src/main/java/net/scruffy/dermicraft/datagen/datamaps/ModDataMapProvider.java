@@ -9,12 +9,15 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.neoforged.neoforge.common.data.DataMapProvider;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
+import net.scruffy.dermicraft.property.SafetyModuleProperties;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -109,6 +112,14 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModItems.BONE_SUNDER_CHAIN),
                         new ChainProperties(0.75f, 0.75f, 0.10f, 0.0f, 75,
                                 TextColor.fromRgb(0xE3DAC9), Optional.empty()), false)
+
+                ;
+
+        // Heat Safety Module grants exactly EXTREME_HEAT (lava) -- the tag-vs-data split means
+        // adding a Radiation/Biohazard Safety Module later is just another entry here, no new tag.
+        this.builder(ModDataMaps.SAFETY_MODULE_PROPERTIES)
+                .add(getResourceLocation(ModItems.HEAT_SAFETY_MODULE),
+                        new SafetyModuleProperties(List.of(ModTags.Fluids.EXTREME_HEAT)), false)
 
                 ;
 

@@ -100,7 +100,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)));
 
     // Synapse Catalyst - Cuprous Blend + Primitive Catalyst, the "smart component" reagent
-    // (Proto Brain's Craw injection, Brain Block's Mutator step, Add-on Frame's Mutator recipe)
+    // (Proto Brain's Craw injection, Brain Block's Mutator step, Module Frame's Mutator recipe)
     public static final Supplier<FluidType> SYNAPSE_CATALYST_FLUID_TYPE = registerFluidType("synapse_catalyst_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFAA6E37,
                     setColorVector(170, 110, 55),

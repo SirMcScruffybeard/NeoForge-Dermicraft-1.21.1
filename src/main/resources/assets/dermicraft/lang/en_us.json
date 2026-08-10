@@ -89,7 +89,10 @@
   "block.dermicraft.workbench": "Workbench",
   "block.dermicraft.workbench_top": "Workbench Top",
   "item.dermicraft.chassis": "Chassis",
-  "item.dermicraft.add_on_frame": "Add-on Frame",
+  "item.dermicraft.module_frame": "Module Frame",
+  "item.dermicraft.aggregate_module": "Aggregate Module",
+  "item.dermicraft.fluid_bypass_module": "Fluid Bypass Module",
+  "item.dermicraft.heat_safety_module": "Heat Safety Module",
   "item.dermicraft.mre": "MRE",
   "item.dermicraft.meat_flavored_meat": "Meat Flavored Meat",
 

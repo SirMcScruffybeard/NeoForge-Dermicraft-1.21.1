@@ -14,6 +14,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
+import net.scruffy.dermicraft.property.SafetyModuleProperties;
 
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
 public class ModDataMaps {
@@ -42,6 +43,17 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** Which hazard(s) a Safety Module grants while equipped -- see {@link SafetyModuleProperties}.
+     * Kind (is this a Safety Module at all) lives on {@code ModTags.Items.MODULE_SAFETY}; this data
+     * map is specifically WHICH hazard(s) a given one grants. */
+    public static final DataMapType<Item, SafetyModuleProperties> SAFETY_MODULE_PROPERTIES =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "safety_module_properties"),
+                            Registries.ITEM,
+                            SafetyModuleProperties.CODEC
+                    )
+                    .build();
+
     /** Which mobs can be mechanically decapitated -- scoped for now to mobs that already have a
      * real vanilla head/skull item (Skeleton, Wither Skeleton, Zombie, Creeper, Piglin), per the
      * design decision not to author brand-new head items for every mob type yet. Bare Item value
@@ -61,6 +73,7 @@ public class ModDataMaps {
         event.register(BIOFUELS);
         event.register(EDIBLE_FLUID);
         event.register(SUNDER_CHAIN_PROPERTIES);
+        event.register(SAFETY_MODULE_PROPERTIES);
         event.register(DECAPITATION_HEADS);
     }
 }

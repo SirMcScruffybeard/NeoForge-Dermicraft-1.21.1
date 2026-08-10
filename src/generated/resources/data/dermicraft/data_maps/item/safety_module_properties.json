@@ -1,0 +1,9 @@
+{
+  "values": {
+    "dermicraft:heat_safety_module": {
+      "hazards": [
+        "#dermicraft:hazard/extreme_heat"
+      ]
+    }
+  }
+}

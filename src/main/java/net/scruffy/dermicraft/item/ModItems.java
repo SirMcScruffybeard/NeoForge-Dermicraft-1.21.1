@@ -98,14 +98,28 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
 
     // Chassis: shared structural item across Gadgets (quantity scales per-gadget by size,
-    // judgment call) and the universal Add-on Frame below. Plain crafting item.
+    // judgment call) and the universal Module Frame below. Plain crafting item.
     public static final DeferredItem<Item> CHASSIS = ITEMS.register("chassis",
             () -> new Item(new Item.Properties()));
 
-    // Add-on Frame: single universal item that lets any equipment-origin item dock into a suit
-    // add-on slot (see dermicraft-suit-notes.md) -- deliberately priced above Chassis itself,
-    // since it's permanent swappable infrastructure, not a one-time consumable.
-    public static final DeferredItem<Item> ADDON_FRAME = ITEMS.register("add_on_frame",
+    // Module Frame (renamed from "Add-on Frame" 2026-08-09): single universal item that lets any
+    // equipment-origin item dock into a suit module slot (see dermicraft-suit-notes.md) --
+    // deliberately priced above Chassis itself, since it's permanent swappable infrastructure, not
+    // a one-time consumable.
+    public static final DeferredItem<Item> MODULE_FRAME = ITEMS.register("module_frame",
+            () -> new Item(new Item.Properties()));
+
+    // Gadget Modules -- first slice (2026-08-09), see dermicraft-gadget-notes.md -> Gadget upgrade
+    // points -> Modules direction note's worked Eater example. Plain items for now: no durability/
+    // wear axis has been decided (loss is total -- destroyed means gone, not gradually worn), and
+    // no per-instance data yet (kind + hazard grant both come from tags/data maps, not the stack
+    // itself). Tag membership (see ModTags.Items) is what actually makes these behave as modules;
+    // Java identity here is just for recipes/creative-tab/model wiring.
+    public static final DeferredItem<Item> AGGREGATE_MODULE = ITEMS.register("aggregate_module",
+            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> FLUID_BYPASS_MODULE = ITEMS.register("fluid_bypass_module",
+            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> HEAT_SAFETY_MODULE = ITEMS.register("heat_safety_module",
             () -> new Item(new Item.Properties()));
 
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\
