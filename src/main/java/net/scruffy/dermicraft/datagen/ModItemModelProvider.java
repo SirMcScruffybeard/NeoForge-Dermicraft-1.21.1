@@ -55,12 +55,24 @@ public class ModItemModelProvider extends ItemModelProvider {
         // full 16x16 canvas, so a same-size icon would completely cover the background frame. These
         // are our own pre-shrunk, centered, transparent-padded copies (item/module/icons/) instead,
         // so the frame stays visible around a smaller icon.
+        // Vanilla's own iron_shovel texture as the icon layer directly -- mirrors the recipe's own
+        // Iron Shovel ingredient (see ModRecipeProvider), no custom pre-shrunk icon asset needed,
+        // vanilla's item textures already sit comfortably inside the frame at this scale.
         moduleItem(ModItems.AGGREGATE_MODULE.get(), "item/module/target_module_frame",
-                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/gravel_icon"));
+                ResourceLocation.withDefaultNamespace("item/iron_shovel"));
+        // Same "target" family frame as Aggregate -- Beam is a targeting module too, just a
+        // different material roster (see ModTags.Blocks.STONE_ORE). Three-layer stack: frame, then
+        // Ender Pearl (our own icon asset) with vanilla's Iron Pickaxe texture layered on top --
+        // mirrors the recipe's own Ender Pearl + Iron Pickaxe ingredients (see ModRecipeProvider).
+        moduleItem(ModItems.BEAM_MODULE.get(), "item/module/target_module_frame",
+                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/ender_pearl_icon"),
+                ResourceLocation.withDefaultNamespace("item/iron_pickaxe"));
         moduleItem(ModItems.FLUID_BYPASS_MODULE.get(), "item/module/fluid_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/water_bucket_icon"));
         moduleItem(ModItems.HEAT_SAFETY_MODULE.get(), "item/module/hazard_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/lava_bucket_icon"));
+        moduleItem(ModItems.METAPHYSICAL_SAFETY_MODULE.get(), "item/module/hazard_module_frame",
+                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/ender_pearl_icon"));
 
         // Non-standard texture folder (item/sunder_chains/, not item/) -- basicItem()'s default
         // texture-path-matches-item-id assumption doesn't reach it, hence the explicit path.
@@ -150,5 +162,14 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
                 .texture("layer0", ResourceLocation.fromNamespaceAndPath(id.getNamespace(), backgroundTexturePath))
                 .texture("layer1", iconTexture);
+    }
+
+    /** Three-layer variant -- frame, then two stacked icons, for modules whose crafting identity
+     * needs more than one ingredient represented (first use: Beam Module's Ender Pearl + Iron
+     * Pickaxe). {@code item/generated} supports arbitrary numbered layers natively, so this is just
+     * one more texture reference, no new model shape. */
+    private ItemModelBuilder moduleItem(Item item, String backgroundTexturePath, ResourceLocation icon1Texture, ResourceLocation icon2Texture) {
+        return moduleItem(item, backgroundTexturePath, icon1Texture)
+                .texture("layer2", icon2Texture);
     }
 }

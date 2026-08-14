@@ -110,8 +110,10 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Gadget Modules\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.AGGREGATE_MODULE);
+                        output.accept(ModItems.BEAM_MODULE);
                         output.accept(ModItems.FLUID_BYPASS_MODULE);
                         output.accept(ModItems.HEAT_SAFETY_MODULE);
+                        output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);

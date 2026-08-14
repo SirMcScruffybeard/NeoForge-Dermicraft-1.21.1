@@ -38,6 +38,25 @@ public class ModTags {
         // variant, e.g.) with a datapack addition, no code change.
         public static final TagKey<Block> AGGREGATE = createTag("aggregate");
 
+        // Aggregate targets that are hazardous to mine plain -- membership alone doesn't make them
+        // minable, unlike AGGREGATE above. EaterItem additionally requires the gadget's installed
+        // Safety Module hazard tolerance to cover the relevant hazard (EXTREME_HEAT for this tag) --
+        // see the Heat Safety Module's design note in dermicraft-gadget-notes.md.
+        public static final TagKey<Block> AGGREGATE_HOT = createTag("aggregate_hot");
+
+        // Aggregate targets hazardous in a metaphysical rather than thermal sense -- same shape as
+        // AGGREGATE_HOT, just gated on METAPHYSICAL_MILD tolerance instead of EXTREME_HEAT. Members:
+        // Soul Sand and Soul Soil, both tied thematically (and tag-wise) to the Molten Soul Silica
+        // fluid's own METAPHYSICAL_MILD tag -- see ModFluidTagProvider.
+        public static final TagKey<Block> AGGREGATE_METAPHYSICAL = createTag("aggregate_metaphysical");
+
+        // What the Beam Module lets Eater target instead -- regular stone/ore, independent of
+        // Aggregate (see MODULE_BEAM in Items below: the two Modules gate two unrelated material
+        // roosters, neither implies the other). Beam mining doesn't hazard-gate the way AGGREGATE_HOT
+        // does; the metaphysical destabilization mechanic doesn't care about heat the way a physical
+        // vacuum would (see the beam design discussion).
+        public static final TagKey<Block> STONE_ORE = createTag("stone_ore");
+
 
         private static TagKey<Block> createTag(String name) {
             return BlockTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
@@ -87,6 +106,12 @@ public class ModTags {
         // to do). Each kind gets its own specific tag; membership IS the whole behavior, no extra
         // data map needed the way Safety Modules need one below.
         public static final TagKey<Item> MODULE_AGGREGATE = createTag("module/aggregate");
+
+        // Beam mining -- targets ModTags.Blocks.STONE_ORE, independently of Aggregate (see that
+        // tag's own comment). Drops/break-speed simulate a stone pickaxe at base level regardless of
+        // the block's real requirement (always breaks; higher-tier ores just won't drop their
+        // resource until Eater itself gets strengthened later -- see the beam design discussion).
+        public static final TagKey<Item> MODULE_BEAM = createTag("module/beam");
 
         // "Fluid" family -- mundane "can target through plain fluid at all," kept deliberately
         // separate from hazard tolerance (see MODULE_SAFETY below) so kelp/fish-style combos (which

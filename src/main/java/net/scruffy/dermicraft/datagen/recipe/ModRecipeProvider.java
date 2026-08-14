@@ -297,20 +297,36 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         ////////////////////Gadget Modules\\\\\\\\\\\\\\\\\\\\
         // Aggregate Module: a Hopper (the actual intake mechanism -- same "a Hopper's real function
-        // already is 'sucks items in'" precedent Eater's own Fabrication recipe uses) topped with
-        // Gravel (material identity) on a Module Frame -- crafting-table, not implant/Mutator, per
-        // the Modules direction note. Not cheap despite only 1 Gravel: the Hopper (5 Iron Ingots + a
-        // Chest) and the Frame (Chassis + 3000 mB Synapse Catalyst) already carry real weight; Gravel
-        // is flavor here, not the cost driver.
+        // already is 'sucks items in'" precedent Eater's own Fabrication recipe uses) topped with an
+        // Iron Shovel (material identity -- mirrors EaterItem's own AGGREGATE_SPEED_TOOL_STAND_IN,
+        // same reasoning as Beam Module's pickaxe below, not just flavor) on a Module Frame --
+        // crafting-table, not implant/Mutator, per the Modules direction note.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.AGGREGATE_MODULE.get())
-                .pattern("G")
+                .pattern("S")
                 .pattern("H")
                 .pattern("F")
-                .define('G', Items.GRAVEL)
+                .define('S', Items.IRON_SHOVEL)
                 .define('H', Items.HOPPER)
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("aggregate_module_crafting_table"));
+
+        // Beam Module: built FROM the Metaphysical Safety Module rather than a Module Frame directly
+        // -- the metaphysical destabilization mechanic is the actual capability being crafted in, the
+        // Safety Module just already carries that material identity (see the beam design discussion's
+        // recipe-carries-the-crossover reasoning). Iron Pickaxe on top mirrors EaterItem's own
+        // BEAM_SPEED_TOOL_STAND_IN, same "recipe material mirrors the simulated tool" pattern Aggregate's
+        // shovel follows above. Metaphysical Safety Module itself has no recipe yet -- see that
+        // item's own open recipe question -- so this stays uncraftable until that lands, by design.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.BEAM_MODULE.get())
+                .pattern(" P ")
+                .pattern(" H ")
+                .pattern(" M ")
+                .define('P', Items.IRON_PICKAXE)
+                .define('H', Items.HOPPER)
+                .define('M', ModItems.METAPHYSICAL_SAFETY_MODULE.get())
+                .unlockedBy("has_metaphysical_safety_module", has(ModItems.METAPHYSICAL_SAFETY_MODULE.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("beam_module_crafting_table"));
 
         // Fluid Bypass Module: deliberately cheap relative to Aggregate/Heat Safety -- see the
         // Modules direction discussion. Bypass doesn't unlock anything otherwise unreachable (every
@@ -346,6 +362,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("heat_safety_module_crafting_table"));
+
+        // Metaphysical Safety Module: deliberately mirrors Heat Safety Module's own shape/weight --
+        // an Ender Pearl (metaphysical identity, playing Magma Block's role) over a Molten Soul Silica
+        // Bucket (the hazard's real content -- the fluid actually tagged METAPHYSICAL_MILD, same
+        // "value the content, not the container" framing as every other bucket recipe here) over the
+        // Module Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Heat.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.METAPHYSICAL_SAFETY_MODULE.get())
+                .pattern("IPI")
+                .pattern("ISI")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('P', Items.ENDER_PEARL)
+                .define('S', ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get())
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_crafting_table"));
 
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse

@@ -24,19 +24,25 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.scruffy.dermicraft.component.BulkItemData;
 import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveItemData;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -181,17 +187,23 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * the mode-cycle branch below instead of ever starting the held vacuum that would have let
      * {@link #aggregateTick} run at all. */
     private boolean hasVacuumTarget(Level level, Player player, ItemStack stack) {
-        if (!nearbyVacuumTargets(level, player).isEmpty()) return true;
-        if (!hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) return false;
-        return aggregateTarget(level, player, hasModule(stack, ModTags.Items.MODULE_FLUID_BYPASS)) != null;
+        if (!nearbyVacuumTargets(level, player, stack).isEmpty()) return true;
+        if (!hasModule(stack, ModTags.Items.MODULE_AGGREGATE) && !hasModule(stack, ModTags.Items.MODULE_BEAM)) return false;
+        return aggregateTarget(level, player, stack) != null;
     }
 
-    /** Items within {@link #RADIUS} AND inside the forward cone -- the single filter both the
-     * targetless-click check and the real vacuum tick scan through, so they can never disagree
-     * about what counts as reachable. */
-    private static List<ItemEntity> nearbyVacuumTargets(Level level, Player player) {
+    /** Items within {@link #RADIUS}, inside the forward cone, AND whose straight-line path from the
+     * player's eye is hazard-tolerated -- the single filter both the targetless-click check and the
+     * real vacuum tick scan through, so they can never disagree about what counts as reachable.
+     * Gated the same way {@link #aggregateTarget}'s Fluid Bypass path is: an item resting past a
+     * lava flow isn't reachable at all without the gadget's installed Safety Modules ({@link
+     * #installedHazardProfile}) tolerating what's in the way, regardless of Fluid Bypass -- Bypass
+     * only concerns Aggregate's block-targeting raycast, loose items were never fluid-obstructed to
+     * begin with, this just adds the hazard half of that check. */
+    private static List<ItemEntity> nearbyVacuumTargets(Level level, Player player, ItemStack stack) {
         Vec3 look = player.getLookAngle();
         Vec3 eyePos = player.getEyePosition();
+        HazardProfile profile = installedHazardProfile(stack);
 
         List<ItemEntity> all = level.getEntitiesOfClass(ItemEntity.class, player.getBoundingBox().inflate(RADIUS),
                 ItemEntity::isAlive);
@@ -210,9 +222,10 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
 
             Vec3 toTarget = candidate.position().subtract(eyePos);
             double lengthSq = toTarget.lengthSqr();
-            if (lengthSq < 1.0E-4 || toTarget.normalize().dot(look) >= CONE_COS_THRESHOLD) {
-                targets.add(candidate);
-            }
+            boolean inCone = lengthSq < 1.0E-4 || toTarget.normalize().dot(look) >= CONE_COS_THRESHOLD;
+            if (!inCone) continue;
+            if (!fluidPathTolerated(level, eyePos, candidate.position(), profile)) continue;
+            targets.add(candidate);
         }
         return targets;
     }
@@ -329,7 +342,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         // Candidates need protecting from vanilla's own walk-over-item pickup for the WHOLE hold,
         // not just once the windup ends -- otherwise vanilla grabs them during the windup, before
         // Eater ever touches them, which looks identical to Eater doing nothing at all.
-        if (holdingTrigger) protectVacuumCandidates(level, player);
+        if (holdingTrigger) protectVacuumCandidates(level, player, stack);
 
         boolean pastWindup = holdingTrigger && player.getTicksUsingItem() >= VACUUM_WINDUP_TICKS;
         if (pastWindup) {
@@ -339,6 +352,25 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
             // Trigger released (or still mid-windup) -- don't leave a stale crack overlay/progress
             // entry sitting on whatever block was last targeted.
             clearAggregateProgress(player);
+        }
+
+        // Broadcasts the mining beam's target to everyone ELSE tracking this player, so third parties
+        // see it too -- the holder's own client renders its own beam off a local, zero-latency
+        // raycast instead (see GadgetBeamTargetPayload's javadoc for the full reasoning).
+        //
+        // Requires Beam Module specifically -- no beam at all without it, matching the emitter bone's
+        // own visibility gate. With Beam installed, ANY block aggregateTarget accepts counts: a
+        // STONE_ORE hit needs only Beam, but an AGGREGATE/AGGREGATE_HOT hit is only ever returned by
+        // aggregateTarget when Aggregate is ALSO installed (that gate lives inside aggregateTarget
+        // itself) -- so this single check already implements "beam shows for Aggregate targets too,
+        // but only with both Modules installed" without needing to test for Aggregate again here.
+        // Never active for loose-item vacuuming (see vacuumTick above): this only ever asks
+        // aggregateTarget, which is block-only, so plain item pickup can't produce a beam.
+        if (player instanceof ServerPlayer serverPlayer) {
+            boolean canBeamMine = pastWindup && hasModule(stack, ModTags.Items.MODULE_BEAM);
+            BlockHitResult beamHit = canBeamMine ? aggregateTarget(level, player, stack) : null;
+            net.scruffy.dermicraft.util.GadgetBeamSync.tick(serverPlayer, beamHit != null,
+                    beamHit != null ? beamHit.getLocation() : null);
         }
 
         // Drives the mouth-bloom animation off "trigger held", not "actually pulling something" --
@@ -365,11 +397,39 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
     private static final int PULL_PICKUP_DELAY_TICKS = 40;
 
     /** Refreshes every candidate's pickup delay for the whole windup, before Eater has any other
-     * business with them -- see the windup comment in {@link #inventoryTick}. */
-    private static void protectVacuumCandidates(Level level, Player player) {
-        for (ItemEntity candidate : nearbyVacuumTargets(level, player)) {
+     * business with them -- see the windup comment in {@link #inventoryTick}. Also refreshes lava
+     * protection (see {@link #markLavaProtected}) for any candidate currently sitting in lava while
+     * Heat Safety is installed -- without this, an item only reachable in the first place because
+     * its path was heat-tolerated (see {@link #nearbyVacuumTargets}) would still burn to nothing
+     * mid-pull, defeating the point of tolerating the path at all. */
+    private static void protectVacuumCandidates(Level level, Player player, ItemStack stack) {
+        boolean heatTolerant = installedHazardProfile(stack).tolerated().contains(ModTags.Fluids.EXTREME_HEAT);
+        for (ItemEntity candidate : nearbyVacuumTargets(level, player, stack)) {
             candidate.setPickUpDelay(PULL_PICKUP_DELAY_TICKS);
+            if (heatTolerant && candidate.isInLava()) {
+                markLavaProtected(candidate);
+            }
         }
+    }
+
+    /** Item entities Heat Safety is currently shielding from lava's own damage/ignite while Eater
+     * pulls them through it -- refreshed every tick a candidate qualifies (see
+     * {@link #protectVacuumCandidates}), read by {@link GadgetEvents}'s invulnerability hook. Short
+     * expiry rather than persistent, so a released trigger or an item that leaves lava on its own
+     * stops being protected almost immediately -- same "harmless stale entry" reasoning as
+     * {@link #AGGREGATE_PROGRESS}. */
+    private static final Map<UUID, Long> LAVA_PROTECTED_UNTIL = new HashMap<>();
+    private static final int LAVA_PROTECTION_GRACE_TICKS = 5;
+
+    private static void markLavaProtected(ItemEntity entity) {
+        LAVA_PROTECTED_UNTIL.put(entity.getUUID(), entity.level().getGameTime() + LAVA_PROTECTION_GRACE_TICKS);
+    }
+
+    /** Whether Heat Safety is currently shielding {@code entity} from fire/lava damage -- see
+     * {@link #markLavaProtected}. */
+    public static boolean isLavaProtected(Entity entity) {
+        Long until = LAVA_PROTECTED_UNTIL.get(entity.getUUID());
+        return until != null && entity.level().getGameTime() <= until;
     }
 
     /** The point the pull actually eases items toward -- roughly chest height, not the feet.
@@ -382,7 +442,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
     }
 
     private void vacuumTick(Level level, Player player, ItemStack stack) {
-        List<ItemEntity> nearby = nearbyVacuumTargets(level, player);
+        List<ItemEntity> nearby = nearbyVacuumTargets(level, player, stack);
         Vec3 target = pullTarget(player);
 
         for (ItemEntity entity : nearby) {
@@ -451,67 +511,101 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         return toStore.getCount() - remaining.getCount();
     }
 
-    ////////////////////Aggregate mining (Aggregate Module)\\\\\\\\\\\\\\\\\\\\
+    ////////////////////Aggregate/Beam mining (Aggregate Module, Beam Module)\\\\\\\\\\\\\\\\\\\\
 
     /** Cadence for block mining specifically, distinct from the per-tick item-pull loop -- each
      * "hit" lands once per this many ticks, not every tick. */
     private static final int AGGREGATE_STEP_TICKS = 5;
 
-    /** Hits needed to break a target -- flat across every Aggregate block rather than scaled by
-     * real vanilla hardness, since the whole roster (dirt/sand/gravel/clay/snow) is already
-     * uniformly soft. At the current cadence this is ~1 second of continuous aim per block, first
-     * pass, untuned. */
-    private static final int AGGREGATE_HITS_TO_BREAK = 4;
+    /** What each Module simulates holding for break SPEED purposes -- fixed per Module regardless of
+     * the specific target block (unlike {@link #minimumToolFor}, which varies per Beam target for
+     * drop-gating purposes; Aggregate targets never gate drops on a tool at all, so Aggregate only
+     * ever needs a speed stand-in, no per-block minimum). Both user-decided tiers -- Aggregate at
+     * iron shovel, Beam upgraded from its original stone-pickaxe baseline to iron. Plain, unenchanted
+     * stand-ins. */
+    private static final ItemStack AGGREGATE_SPEED_TOOL_STAND_IN = new ItemStack(net.minecraft.world.item.Items.IRON_SHOVEL);
+    private static final ItemStack BEAM_SPEED_TOOL_STAND_IN = new ItemStack(net.minecraft.world.item.Items.IRON_PICKAXE);
+
+    /** What Beam mining simulates holding for drop-tier purposes: the block always breaks, but drops
+     * are computed as if using EXACTLY the minimum pickaxe tier that block actually requires,
+     * unenchanted -- coal/iron/redstone/etc. each get their own real requirement rather than one flat
+     * assumed tier, and nothing needing better than that minimum (there isn't one, by construction)
+     * ever fails to drop. A fresh plain stack per call, not player-visible or stored anywhere --
+     * purely a stand-in passed to vanilla's own tool-aware APIs. Aggregate targets never need this:
+     * none of dirt/sand/gravel/clay/snow/netherrack require a correct tool to drop at all. */
+    private static ItemStack minimumToolFor(BlockState state) {
+        if (state.is(net.minecraft.tags.BlockTags.NEEDS_DIAMOND_TOOL)) return new ItemStack(net.minecraft.world.item.Items.DIAMOND_PICKAXE);
+        if (state.is(net.minecraft.tags.BlockTags.NEEDS_IRON_TOOL)) return new ItemStack(net.minecraft.world.item.Items.IRON_PICKAXE);
+        if (state.is(net.minecraft.tags.BlockTags.NEEDS_STONE_TOOL)) return new ItemStack(net.minecraft.world.item.Items.STONE_PICKAXE);
+        return new ItemStack(net.minecraft.world.item.Items.WOODEN_PICKAXE);
+    }
 
     /** Transient, server-only mining progress, keyed per player -- deliberately NOT gadget item
      * data (unlike everything else this session): breaking progress is momentary interaction state,
      * not something meaningful to persist/sync with the stack, the same reason vanilla's own block-
      * breaking progress lives on {@code ServerPlayerGameMode} rather than on the tool. A stale entry
      * left behind by a player who disconnects mid-swing is harmless (just a few bytes, overwritten
-     * or ignored on their next swing) -- not worth a logout-listener for a first pass. */
+     * or ignored on their next swing) -- not worth a logout-listener for a first pass.
+     *
+     * <p>{@code progress} is a 0..1 fraction -- both Modules now share the same hardness-scaled
+     * formula ({@link #progressPerStep}), just with different simulated tools, so one accumulator
+     * shape covers both. */
     private static final Map<UUID, AggregateProgress> AGGREGATE_PROGRESS = new HashMap<>();
 
-    private record AggregateProgress(BlockPos pos, int hits) {}
+    private record AggregateProgress(BlockPos pos, float progress) {}
 
     /**
-     * Damages the block Eater is looking at, if -- and only if -- an Aggregate Module is installed
-     * (see {@link #hasModule}) and that block is tagged {@link ModTags.Blocks#AGGREGATE}, breaking
-     * (and vacuuming) it only once {@link #AGGREGATE_HITS_TO_BREAK} hits land on the SAME position
-     * consecutively -- aiming away and back, or switching targets entirely, restarts progress from
-     * zero, same as vanilla's own mining. {@link Level#destroyBlockProgress} drives the real crack
-     * overlay so this reads as actual mining, not a silent timer.
+     * Damages the block Eater is looking at, if -- and only if -- an Aggregate or Beam Module is
+     * installed (see {@link #hasModule}) and {@link #aggregateTarget} accepts it, breaking (and
+     * vacuuming) it only once progress reaches 1.0 on the SAME position consecutively -- aiming away
+     * and back, or switching targets entirely, restarts progress from zero, same as vanilla's own
+     * mining. {@link Level#destroyBlockProgress} drives the real crack overlay so this reads as
+     * actual mining, not a silent timer.
      *
-     * <p>On break: routes the real vanilla drops (gravel's flint chance, clay's 4-ball yield, etc.
-     * -- reusing {@link Block#getDrops}, not a hardcoded "drops itself" assumption) through the
-     * exact same {@link #routeIncoming} every other vacuum target already goes through, so Storage/
-     * Transfer/Disposal modes apply identically. Whatever doesn't fit drops on the ground at the
-     * mined position, same as a buffer-full loose item is simply left uncollected rather than lost.
+     * <p>On break: routes the real vanilla drops (gravel's flint chance, clay's 4-ball yield, an
+     * ore's raw resource, etc. -- reusing {@link Block#getDrops}, not a hardcoded "drops itself"
+     * assumption) through the exact same {@link #routeIncoming} every other vacuum target already
+     * goes through, so Storage/Transfer/Disposal modes apply identically. Whatever doesn't fit drops
+     * on the ground at the mined position, same as a buffer-full loose item is simply left
+     * uncollected rather than lost. Beam targets pass {@link #minimumToolFor} as the drop-loot tool
+     * instead of {@link ItemStack#EMPTY}, so ore loot tables gate on it same as a real pickaxe would.
      */
     private void aggregateTick(Level level, Player player, ItemStack stack) {
-        if (!hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) return;
+        if (!hasModule(stack, ModTags.Items.MODULE_AGGREGATE) && !hasModule(stack, ModTags.Items.MODULE_BEAM)) return;
         if (level.getGameTime() % AGGREGATE_STEP_TICKS != 0) return;
         if (!(level instanceof ServerLevel serverLevel)) return;
 
-        BlockHitResult hit = aggregateTarget(level, player, hasModule(stack, ModTags.Items.MODULE_FLUID_BYPASS));
+        BlockHitResult hit = aggregateTarget(level, player, stack);
         if (hit == null) {
             clearAggregateProgress(player);
             return;
         }
 
         BlockPos pos = hit.getBlockPos();
-        AggregateProgress existing = AGGREGATE_PROGRESS.get(player.getUUID());
-        int hits = (existing != null && existing.pos().equals(pos)) ? existing.hits() + 1 : 1;
+        BlockState state = level.getBlockState(pos);
+        boolean beamTarget = state.is(ModTags.Blocks.STONE_ORE);
+        // Netherrack is Aggregate roster, but a shovel isn't its correct tool in vanilla (pickaxe is)
+        // -- special-cased to the Beam pickaxe stand-in for both speed and drops rather than the
+        // shared Aggregate shovel stand-in, so it mines as if the correct tool were actually used.
+        boolean netherrackTarget = !beamTarget && state.is(net.minecraft.world.level.block.Blocks.NETHERRACK);
 
-        if (hits < AGGREGATE_HITS_TO_BREAK) {
-            AGGREGATE_PROGRESS.put(player.getUUID(), new AggregateProgress(pos, hits));
-            level.destroyBlockProgress(player.getId(), pos, Math.min(9, (hits * 10) / AGGREGATE_HITS_TO_BREAK));
+        ItemStack minimumTool = beamTarget ? minimumToolFor(state)
+                : netherrackTarget ? BEAM_SPEED_TOOL_STAND_IN : ItemStack.EMPTY;
+        ItemStack speedTool = beamTarget || netherrackTarget ? BEAM_SPEED_TOOL_STAND_IN : AGGREGATE_SPEED_TOOL_STAND_IN;
+        float increment = progressPerStep(state, level, pos, speedTool);
+
+        AggregateProgress existing = AGGREGATE_PROGRESS.get(player.getUUID());
+        float progress = (existing != null && existing.pos().equals(pos) ? existing.progress() : 0F) + increment;
+
+        if (progress < 1F) {
+            AGGREGATE_PROGRESS.put(player.getUUID(), new AggregateProgress(pos, progress));
+            level.destroyBlockProgress(player.getId(), pos, Math.min(9, (int) (progress * 10F)));
             return;
         }
 
         clearAggregateProgress(player);
 
-        BlockState state = level.getBlockState(pos);
-        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos), player, ItemStack.EMPTY);
+        List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos), player, minimumTool);
         // destroyBlock (not removeBlock) so this plays the same break particle burst + sound vanilla
         // mining always does -- that event fires independently of the drop flag, which stays false
         // since drops are already computed and routed through the buffer ourselves below.
@@ -524,6 +618,23 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
             ItemStack leftover = drop.copyWithCount(drop.getCount() - consumed);
             Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), leftover);
         }
+    }
+
+    /** Vanilla's own per-tick destroy-progress formula (speed / hardness / (30 or 100)), scaled up
+     * by {@link #AGGREGATE_STEP_TICKS} since this only actually evaluates once every that-many
+     * ticks rather than every tick the way real mining does -- keeps the accumulated progress
+     * equivalent to "as if evaluated every tick" despite the coarser cadence. Unbreakable blocks
+     * (negative hardness) never progress, same as vanilla. Shared by both Modules; {@code speedTool}
+     * is whichever of {@link #AGGREGATE_SPEED_TOOL_STAND_IN}/{@link #BEAM_SPEED_TOOL_STAND_IN} the
+     * caller passes. */
+    private static float progressPerStep(BlockState state, Level level, BlockPos pos, ItemStack speedTool) {
+        float hardness = state.getDestroySpeed(level, pos);
+        if (hardness < 0) return 0F;
+
+        float speed = speedTool.getDestroySpeed(state);
+        boolean correctTool = !state.requiresCorrectToolForDrops() || speedTool.isCorrectToolForDrops(state);
+        float perTick = speed / hardness / (correctTool ? 30F : 100F);
+        return perTick * AGGREGATE_STEP_TICKS;
     }
 
     /** Clears this player's mining progress and the crack overlay it was driving -- called both on
@@ -542,20 +653,31 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * "what am I actually looking at" is the natural targeting model, same as vanilla's own
      * block-breaking reach).
      *
-     * <p>{@code fluidBypass} flips whether fluid blocks the ray: Eater deliberately treats fluid as
-     * an obstruction by DEFAULT (the opposite of vanilla's own block-interaction raycast, which
-     * always ignores fluid) -- see the Fluid Bypass Module's own design note ("Fluids block Eater's
+     * <p>Fluid Bypass flips whether fluid blocks the ray: Eater deliberately treats fluid as an
+     * obstruction by DEFAULT (the opposite of vanilla's own block-interaction raycast, which always
+     * ignores fluid) -- see the Fluid Bypass Module's own design note ("Fluids block Eater's
      * block-targeting raycast by default, deliberately, not a bug to fix"). With Bypass installed,
-     * the ray passes through fluid like vanilla's does, reaching a submerged Aggregate deposit; the
-     * flagship "Aggregate + Fluid Bypass" combo the Modules design describes.
+     * the ray passes through fluid like vanilla's does, but only fluid the gadget's installed Safety
+     * Modules actually tolerate ({@link #installedHazardProfile}) -- Bypass alone reaches a
+     * submerged Aggregate deposit through plain water, but not through lava, unless a Heat Safety
+     * Module is ALSO installed (see {@link #fluidPathTolerated}). Without Bypass, fluid blocks the
+     * ray outright regardless of hazard tolerance, same as before.
      *
-     * <p>Filters to {@link ModTags.Blocks#AGGREGATE} here (not left to each caller) so
-     * {@link #hasVacuumTarget} and {@link #aggregateTick} can never disagree about what counts as a
-     * real target -- the same "one filter, two callers" rule {@link #nearbyVacuumTargets} already
-     * follows for loose items.
+     * <p>The target block itself also needs a valid reason to be minable, gated per-Module
+     * independently (see {@link ModTags.Items#MODULE_BEAM}'s own comment -- Beam and Aggregate are
+     * unrelated capabilities, neither implies the other): Aggregate covers plain
+     * {@link ModTags.Blocks#AGGREGATE} membership, or {@link ModTags.Blocks#AGGREGATE_HOT}
+     * membership (currently just Magma Block) gated on the installed hazard tolerance covering
+     * {@code EXTREME_HEAT} -- the Heat Safety Module's other half of its behavior. Beam covers
+     * {@link ModTags.Blocks#STONE_ORE}, with no hazard gating of its own (see that tag's comment).
+     *
+     * <p>Filters here (not left to each caller) so {@link #hasVacuumTarget} and
+     * {@link #aggregateTick} can never disagree about what counts as a real target -- the same "one
+     * filter, two callers" rule {@link #nearbyVacuumTargets} already follows for loose items.
      */
     @Nullable
-    private BlockHitResult aggregateTarget(Level level, Player player, boolean fluidBypass) {
+    public static BlockHitResult aggregateTarget(Level level, Player player, ItemStack stack) {
+        boolean fluidBypass = hasModule(stack, ModTags.Items.MODULE_FLUID_BYPASS);
         Vec3 eyePos = player.getEyePosition();
         Vec3 endPos = eyePos.add(player.getLookAngle().scale(RADIUS));
 
@@ -564,7 +686,65 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
                 ClipContext.Block.COLLIDER, fluidMode, player));
         if (hit.getType() != HitResult.Type.BLOCK) return null;
 
-        return level.getBlockState(hit.getBlockPos()).is(ModTags.Blocks.AGGREGATE) ? hit : null;
+        HazardProfile profile = installedHazardProfile(stack);
+        if (fluidBypass && !fluidPathTolerated(level, eyePos, hit.getLocation(), profile)) return null;
+
+        BlockState targetState = level.getBlockState(hit.getBlockPos());
+        if (hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) {
+            if (targetState.is(ModTags.Blocks.AGGREGATE)) return hit;
+            if (targetState.is(ModTags.Blocks.AGGREGATE_HOT)
+                    && profile.tolerated().contains(ModTags.Fluids.EXTREME_HEAT)) return hit;
+            if (targetState.is(ModTags.Blocks.AGGREGATE_METAPHYSICAL)
+                    && profile.tolerated().contains(ModTags.Fluids.METAPHYSICAL_MILD)) return hit;
+        }
+        if (hasModule(stack, ModTags.Items.MODULE_BEAM) && targetState.is(ModTags.Blocks.STONE_ORE)) return hit;
+        return null;
+    }
+
+    /** Distance between fluid samples along the raycast when Fluid Bypass is checking what it's
+     * passing through -- fine enough to not skip a thin fluid layer, coarse enough to stay cheap on
+     * a per-tick held-trigger check. */
+    private static final double FLUID_PATH_SAMPLE_STEP = 0.2;
+
+    /** Whether every fluid block between {@code from} and {@code to} is tolerated by
+     * {@code profile} -- Fluid Bypass alone (an empty, {@link HazardProfile#TIER_1}-shaped profile)
+     * passes through non-hazardous fluid like water, but a hazardous one (lava, tagged
+     * {@code EXTREME_HEAT}) still blocks the ray unless a Safety Module granting that hazard is also
+     * installed. Samples along the segment rather than reusing a single {@code ClipContext} call
+     * since vanilla's fluid clipping has no per-hazard granularity to ask for directly. */
+    private static boolean fluidPathTolerated(Level level, Vec3 from, Vec3 to, HazardProfile profile) {
+        double length = from.distanceTo(to);
+        int steps = Math.max(1, (int) Math.ceil(length / FLUID_PATH_SAMPLE_STEP));
+        for (int i = 0; i <= steps; i++) {
+            Vec3 point = from.lerp(to, (double) i / steps);
+            FluidState fluidState = level.getBlockState(BlockPos.containing(point)).getFluidState();
+            if (fluidState.isEmpty()) continue;
+            if (!profile.accepts(new FluidStack(fluidState.getType(), 1))) return false;
+        }
+        return true;
+    }
+
+    /** Union of every hazard kind {@code eaterStack}'s currently-installed Safety Modules grant --
+     * see the Modules direction note's "derived capability" section. Recomputed on demand rather
+     * than cached: Eater has no permanent per-hazard tier profile yet (see the design notes' open
+     * questions), so there's nothing to union this against besides the empty
+     * {@link HazardProfile#TIER_1} base for now. */
+    private static HazardProfile installedHazardProfile(ItemStack eaterStack) {
+        BulkItemData data = eaterStack.getOrDefault(ModDataComponentTypes.MODULE_DATA.get(), BulkItemData.empty(MODULE_SLOT_COUNT));
+        HazardProfile profile = HazardProfile.TIER_1;
+        for (int i = 0; i < MODULE_SLOT_COUNT; i++) {
+            ItemStack module = data.slot(i).asDisplayStack();
+            if (module.isEmpty() || !module.is(ModTags.Items.MODULE_SAFETY)) continue;
+
+            SafetyModuleProperties properties = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.SAFETY_MODULE_PROPERTIES);
+            if (properties == null) continue;
+
+            for (net.minecraft.tags.TagKey<net.minecraft.world.level.material.Fluid> hazard : properties.hazards()) {
+                profile = profile.plus(hazard);
+            }
+        }
+        return profile;
     }
 
     /** Whether {@code eaterStack} currently has a Module tagged {@code moduleTag} installed in any

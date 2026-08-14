@@ -2,23 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "F": {
-      "item": "dermicraft:module_frame"
-    },
     "H": {
       "item": "minecraft:hopper"
     },
-    "S": {
-      "item": "minecraft:iron_shovel"
+    "M": {
+      "item": "dermicraft:metaphysical_safety_module"
+    },
+    "P": {
+      "item": "minecraft:iron_pickaxe"
     }
   },
   "pattern": [
-    "S",
-    "H",
-    "F"
+    " P ",
+    " H ",
+    " M "
   ],
   "result": {
     "count": 1,
-    "id": "dermicraft:aggregate_module"
+    "id": "dermicraft:beam_module"
   }
 }

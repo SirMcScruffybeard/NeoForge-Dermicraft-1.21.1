@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
@@ -175,6 +176,61 @@ public class WorkbenchMenu extends AbstractModMenu {
         if (!level.isClientSide) {
             be.onMenuOpened();
         }
+    }
+
+    /**
+     * Shift-click transfer across every non-vanilla slot this menu built, however many that is --
+     * {@link AbstractModMenu}'s generic version is built around a slot count fixed at construction
+     * (here: just the Storage strip's 9), so the work slot, the gadget panel's own variable-size
+     * slots (Sunder's 2 vs Eater's 3 Module + 4 buffer), and the Fabrication output all silently
+     * no-op on shift-click without this.
+     *
+     * <p>Only ACTIVE slots are valid destinations -- the Mod and Fabrication pages hide each other's
+     * slots via {@code isActive()} (see the constructor), and shift-clicking into a slot the player
+     * can't currently see would be invisible and confusing. {@code moveItemStackTo} doesn't check
+     * {@code isActive} itself, hence the explicit pre-pass.
+     */
+    @Override
+    public ItemStack quickMoveStack(Player player, int index) {
+        Slot sourceSlot = slots.get(index);
+        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
+
+        ItemStack sourceStack = sourceSlot.getItem();
+        ItemStack copy = sourceStack.copy();
+
+        int vanillaCount = VANILLA_SLOT_COUNT;
+        boolean moved;
+        if (index < vanillaCount) {
+            moved = moveToActiveMenuSlots(sourceStack, vanillaCount);
+        } else {
+            moved = moveItemStackTo(sourceStack, 0, vanillaCount, false);
+        }
+        if (!moved) return ItemStack.EMPTY;
+
+        if (sourceStack.isEmpty()) {
+            sourceSlot.set(ItemStack.EMPTY);
+        } else {
+            sourceSlot.setChanged();
+        }
+        sourceSlot.onTake(player, sourceStack);
+        return copy;
+    }
+
+    /** Walks the menu-side slots one contiguous run at a time, skipping inactive ones -- see
+     * {@link #quickMoveStack}'s note on why inactive slots must not be filled. */
+    private boolean moveToActiveMenuSlots(ItemStack stack, int firstMenuSlot) {
+        boolean movedAny = false;
+        int i = firstMenuSlot;
+        while (i < slots.size() && !stack.isEmpty()) {
+            if (!slots.get(i).isActive()) {
+                i++;
+                continue;
+            }
+            int runStart = i;
+            while (i < slots.size() && slots.get(i).isActive()) i++;
+            movedAny |= moveItemStackTo(stack, runStart, i, false);
+        }
+        return movedAny;
     }
 
     @Override

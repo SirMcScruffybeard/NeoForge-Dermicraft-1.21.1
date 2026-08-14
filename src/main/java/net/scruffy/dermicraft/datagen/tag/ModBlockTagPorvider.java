@@ -2,6 +2,7 @@ package net.scruffy.dermicraft.datagen.tag;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
@@ -78,6 +79,37 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(Blocks.CLAY)
                 .add(Blocks.SNOW)
                 .add(Blocks.SNOW_BLOCK)
+                .add(Blocks.NETHERRACK)
+        ;
+
+        tag(ModTags.Blocks.AGGREGATE_HOT)
+                .add(Blocks.MAGMA_BLOCK)
+        ;
+
+        tag(ModTags.Blocks.AGGREGATE_METAPHYSICAL)
+                .add(Blocks.SOUL_SAND)
+                .add(Blocks.SOUL_SOIL)
+        ;
+
+        tag(ModTags.Blocks.STONE_ORE)
+                .add(Blocks.STONE)
+                .add(Blocks.COBBLESTONE)
+                .add(Blocks.DEEPSLATE)
+                .add(Blocks.COBBLED_DEEPSLATE)
+                .add(Blocks.GRANITE)
+                .add(Blocks.DIORITE)
+                .add(Blocks.ANDESITE)
+                .add(Blocks.TUFF)
+                .add(Blocks.CALCITE)
+                .add(Blocks.OBSIDIAN)
+                .addTag(BlockTags.COAL_ORES)
+                .addTag(BlockTags.COPPER_ORES)
+                .addTag(BlockTags.IRON_ORES)
+                .addTag(BlockTags.GOLD_ORES)
+                .addTag(BlockTags.REDSTONE_ORES)
+                .addTag(BlockTags.LAPIS_ORES)
+                .addTag(BlockTags.DIAMOND_ORES)
+                .addTag(BlockTags.EMERALD_ORES)
         ;
 
         tag(ModTags.Blocks.EXTRACTABLE)

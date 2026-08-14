@@ -117,9 +117,13 @@ public class ModItems {
     // Java identity here is just for recipes/creative-tab/model wiring.
     public static final DeferredItem<Item> AGGREGATE_MODULE = ITEMS.register("aggregate_module",
             () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> BEAM_MODULE = ITEMS.register("beam_module",
+            () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> FLUID_BYPASS_MODULE = ITEMS.register("fluid_bypass_module",
             () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> HEAT_SAFETY_MODULE = ITEMS.register("heat_safety_module",
+            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> METAPHYSICAL_SAFETY_MODULE = ITEMS.register("metaphysical_safety_module",
             () -> new Item(new Item.Properties()));
 
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\

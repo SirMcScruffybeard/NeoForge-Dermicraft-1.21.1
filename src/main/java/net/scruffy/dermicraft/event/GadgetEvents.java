@@ -1,16 +1,19 @@
 package net.scruffy.dermicraft.event;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityInvulnerabilityCheckEvent;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.scruffy.dermicraft.interfaces.IGadget;
+import net.scruffy.dermicraft.item.custom.EaterItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 /**
@@ -46,6 +49,21 @@ public class GadgetEvents {
      */
     private static final int[] DAMAGE_TOTALS = {1, 2, 4, 7, 12, 20, 33};
     private static final int[] DAMAGE_TERMS = {1, 1, 2, 3, 5, 8, 13};
+
+    /** The Eater half of the Heat Safety Module -- a candidate {@link EaterItem} marks as lava-
+     * protected (see {@link EaterItem#isLavaProtected}) is immune to lava/fire damage for the
+     * marked window, so an item whose pull path is only reachable BECAUSE Heat Safety tolerates the
+     * lava it crosses doesn't burn up before it arrives. Checked against {@link DamageTypeTags#IS_FIRE}
+     * rather than a lava-specific damage type, since fire ticks picked up on the way through would
+     * otherwise keep hurting the item for a few ticks after it clears the flow. */
+    @SubscribeEvent
+    public static void onLavaInvulnerabilityCheck(EntityInvulnerabilityCheckEvent event) {
+        if (!(event.getEntity() instanceof ItemEntity item)) return;
+        if (!event.getSource().is(DamageTypeTags.IS_FIRE)) return;
+        if (EaterItem.isLavaProtected(item)) {
+            event.setInvulnerable(true);
+        }
+    }
 
     @SubscribeEvent
     public static void onGadgetTossed(ItemTossEvent event) {

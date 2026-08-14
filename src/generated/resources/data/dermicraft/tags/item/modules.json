@@ -1,7 +1,9 @@
 {
   "values": [
     "dermicraft:aggregate_module",
+    "dermicraft:beam_module",
     "dermicraft:fluid_bypass_module",
-    "dermicraft:heat_safety_module"
+    "dermicraft:heat_safety_module",
+    "dermicraft:metaphysical_safety_module"
   ]
 }

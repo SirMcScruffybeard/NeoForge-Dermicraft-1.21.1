@@ -8,6 +8,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
@@ -106,6 +107,42 @@ public class ScrenchMenu extends AbstractModMenu {
 
     public int getSunderFuelCapacity() {
         return SunderItem.FUEL_CAPACITY;
+    }
+
+    /**
+     * Shift-click transfer across the WHOLE panel, however many slots the held gadget's panel
+     * actually built -- {@link AbstractModMenu}'s generic version can't do this, since it's built
+     * around a slot count fixed at construction, while a gadget panel's size varies per gadget
+     * (Sunder's 2 vs Eater's 3 Module + 4 buffer). Without this override, every panel slot past that
+     * fixed count silently no-ops on shift-click.
+     *
+     * <p>Panel slots always come after the 36 vanilla ones here (see the constructor's ordering), so
+     * the split is just "index &lt; 36 means player inventory".
+     */
+    @Override
+    public ItemStack quickMoveStack(Player playerIn, int index) {
+        Slot sourceSlot = slots.get(index);
+        if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
+
+        ItemStack sourceStack = sourceSlot.getItem();
+        ItemStack copy = sourceStack.copy();
+
+        int vanillaCount = 36;
+        boolean fromPlayer = index < vanillaCount;
+        // Respects each destination slot's own isItemValid (moveItemStackTo checks it), so a Module
+        // slot still won't accept a non-Module and vice versa.
+        boolean moved = fromPlayer
+                ? moveItemStackTo(sourceStack, vanillaCount, slots.size(), false)
+                : moveItemStackTo(sourceStack, 0, vanillaCount, false);
+        if (!moved) return ItemStack.EMPTY;
+
+        if (sourceStack.isEmpty()) {
+            sourceSlot.set(ItemStack.EMPTY);
+        } else {
+            sourceSlot.setChanged();
+        }
+        sourceSlot.onTake(playerIn, sourceStack);
+        return copy;
     }
 
     @Override

@@ -120,6 +120,8 @@ public class ModDataMapProvider extends DataMapProvider {
         this.builder(ModDataMaps.SAFETY_MODULE_PROPERTIES)
                 .add(getResourceLocation(ModItems.HEAT_SAFETY_MODULE),
                         new SafetyModuleProperties(List.of(ModTags.Fluids.EXTREME_HEAT)), false)
+                .add(getResourceLocation(ModItems.METAPHYSICAL_SAFETY_MODULE),
+                        new SafetyModuleProperties(List.of(ModTags.Fluids.METAPHYSICAL_MILD)), false)
 
                 ;
 

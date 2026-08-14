@@ -57,5 +57,13 @@ public class ModNetworking {
         registrar.playToClient(WorkbenchPoolSyncPayload.TYPE, WorkbenchPoolSyncPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() ->
                         WorkbenchClientPool.update(payload.pos(), payload.items(), payload.fluids())));
+
+        // Server -> client: see GadgetBeamTargetPayload's own javadoc. Only ever updates the static
+        // client-side GadgetBeamTracker cache, same "safe to run directly" reasoning as the pool
+        // sync payload above.
+        registrar.playToClient(GadgetBeamTargetPayload.TYPE, GadgetBeamTargetPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() ->
+                        net.scruffy.dermicraft.client.GadgetBeamTracker.update(payload.entityId(), payload.active(),
+                                new net.minecraft.world.phys.Vec3(payload.x(), payload.y(), payload.z()))));
     }
 }

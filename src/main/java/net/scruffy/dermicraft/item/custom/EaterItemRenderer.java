@@ -19,6 +19,11 @@ public class EaterItemRenderer extends GeoItemRenderer<EaterItem> {
     public EaterItemRenderer() {
         super(new EaterItemModel());
 
+        // Must run before the other layers touch the model -- it's a pure bone-visibility toggle
+        // (see its own javadoc), not something with a render pass of its own, so ordering relative
+        // to the rest only matters in that it should take effect before anything else renders.
+        addRenderLayer(new EaterEmitterVisibilityLayer(this));
+
         addRenderLayer(new EaterGlowLayer(this));
 
         // One glow layer per screen bone -- see EaterScreenGlowLayer's javadoc for why this can't

@@ -4,6 +4,11 @@
       "hazards": [
         "#dermicraft:hazard/extreme_heat"
       ]
+    },
+    "dermicraft:metaphysical_safety_module": {
+      "hazards": [
+        "#dermicraft:hazard/metaphysical_mild"
+      ]
     }
   }
 }

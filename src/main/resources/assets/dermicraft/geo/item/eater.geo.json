@@ -324,6 +324,37 @@
 					]
 				},
 				{
+					"name": "emitter",
+					"parent": "display",
+					"pivot": [0, 0, 0.2],
+					"cubes": [
+						{
+							"origin": [-1.4, 6.5, -3.8],
+							"size": [2.8, 2.875, 3.1],
+							"uv": {
+								"north": {"uv": [0, 36], "uv_size": [3, 3]},
+								"east": {"uv": [0, 45], "uv_size": [3, 3]},
+								"south": {"uv": [32, 32], "uv_size": [2, 2]},
+								"west": {"uv": [0, 39], "uv_size": [3, 3]},
+								"up": {"uv": [0, 42], "uv_size": [3, 3]},
+								"down": {"uv": [30, 34], "uv_size": [2, -2]}
+							}
+						},
+						{
+							"origin": [-1, 7, -3.9],
+							"size": [2, 2, 0.1],
+							"uv": {
+								"north": {"uv": [4, 37], "uv_size": [15, 15]},
+								"east": {"uv": [3, 47], "uv_size": [1, 5]},
+								"south": {"uv": [34, 32], "uv_size": [2, 2]},
+								"west": {"uv": [3, 42], "uv_size": [1, 5]},
+								"up": {"uv": [9, 52], "uv_size": [5, 1]},
+								"down": {"uv": [4, 53], "uv_size": [5, -1]}
+							}
+						}
+					]
+				},
+				{
 					"name": "grip",
 					"parent": "body",
 					"pivot": [0, 1, -0.25],

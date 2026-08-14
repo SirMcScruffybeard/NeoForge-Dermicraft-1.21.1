@@ -2,6 +2,7 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "dermicraft:item/module/target_module_frame",
-    "layer1": "minecraft:item/iron_shovel"
+    "layer1": "dermicraft:item/module/icons/ender_pearl_icon",
+    "layer2": "minecraft:item/iron_pickaxe"
   }
 }

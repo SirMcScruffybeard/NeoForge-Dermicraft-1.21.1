@@ -80,12 +80,18 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.MODULES)
                 .add(ModItems.AGGREGATE_MODULE.get())
+                .add(ModItems.BEAM_MODULE.get())
                 .add(ModItems.FLUID_BYPASS_MODULE.get())
                 .add(ModItems.HEAT_SAFETY_MODULE.get())
+                .add(ModItems.METAPHYSICAL_SAFETY_MODULE.get())
         ;
 
         tag(ModTags.Items.MODULE_AGGREGATE)
                 .add(ModItems.AGGREGATE_MODULE.get())
+        ;
+
+        tag(ModTags.Items.MODULE_BEAM)
+                .add(ModItems.BEAM_MODULE.get())
         ;
 
         tag(ModTags.Items.MODULE_FLUID_BYPASS)
@@ -94,6 +100,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.MODULE_SAFETY)
                 .add(ModItems.HEAT_SAFETY_MODULE.get())
+                .add(ModItems.METAPHYSICAL_SAFETY_MODULE.get())
         ;
 
         tag(ModTags.Items.STONE_BLEND_ROSTER)
