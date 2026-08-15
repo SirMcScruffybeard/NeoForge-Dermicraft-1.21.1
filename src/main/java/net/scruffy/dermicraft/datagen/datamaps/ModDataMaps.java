@@ -15,6 +15,7 @@ import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
+import net.scruffy.dermicraft.property.ShatterHeadProperties;
 
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
 public class ModDataMaps {
@@ -67,6 +68,14 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** Per-material Shatter head stats, keyed on the head Item -- see {@link ShatterHeadProperties}. */
+    public static final DataMapType<Item, ShatterHeadProperties> SHATTER_HEAD_PROPERTIES =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "shatter_head_properties"),
+                            Registries.ITEM,
+                            ShatterHeadProperties.CODEC
+                    )
+                    .build();
 
     @SubscribeEvent
     public static void register(RegisterDataMapTypesEvent event) {
@@ -75,5 +84,6 @@ public class ModDataMaps {
         event.register(SUNDER_CHAIN_PROPERTIES);
         event.register(SAFETY_MODULE_PROPERTIES);
         event.register(DECAPITATION_HEADS);
+        event.register(SHATTER_HEAD_PROPERTIES);
     }
 }

@@ -16,6 +16,7 @@ import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
+import net.scruffy.dermicraft.property.ShatterHeadProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -115,13 +116,47 @@ public class ModDataMapProvider extends DataMapProvider {
 
                 ;
 
+        // Iron is the baseline material -- explicitly untinted (0xFFFFFF, a no-op vertex-colour
+        // multiply) rather than the light-gray Sunder gives its own Iron chain, per the decision that
+        // Iron's face/tail bones should show the bare grayscale texture as-authored.
+        // Bone -- also untinted for now (its own item icon is hand-painted, not tinted at all -- see
+        // ModItems.BONE_SHATTER_HEAD -- but the mounted weapon's face/tail bones still read this
+        // entry, so it needs a real value too, not a null/missing one).
+        //
+        // Mining tiers (2026-08-12, decided) match vanilla's own pickaxe tier numbering
+        // (Tiers#getLevel(): 0 = Wood/Gold, 1 = Stone, 2 = Iron, 3 = Diamond, 4 = Netherite) -- Bone
+        // stands in for the Stone tier (no dedicated Wood-tier head exists), the rest match their
+        // real-world vanilla counterpart directly. See ShatterItem#meetsMiningTier for the actual gate.
+        //
+        // Damage shifts (2026-08-12, decided) -- see ShatterHeadProperties#damageShift's own javadoc
+        // for the reasoning; the actual target numbers (a flat +2 total damage margin kept over each
+        // material's own vanilla pickaxe total) live on ShatterItem#BASE_ATTACK_DAMAGE. Iron = 0.0f
+        // (the baseline, no modifier emitted -- see ShatterItem's own "skip the no-op" comment there).
+        this.builder(ModDataMaps.SHATTER_HEAD_PROPERTIES)
+                .add(getResourceLocation(ModItems.IRON_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 2, 0.0f), false)
+                // Stone Pickaxe totals 3 damage -- Bone's shift (-1.0f) brings Shatter to 5, a +2
+                // margin, same margin every material keeps.
+                .add(getResourceLocation(ModItems.BONE_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 1, -1.0f), false)
+                // Same gold tint Sunder's own Gold chain uses, for visual consistency across the two
+                // weapons' gold materials. Mining tier 0, same as vanilla's Gold Pickaxe (gold is a
+                // soft metal -- fast digging, but no better than bare hands against tool-gated blocks).
+                // Gold Pickaxe totals 2 damage -- shift (-2.0f) brings Shatter to 4, the same +2 margin.
+                .add(getResourceLocation(ModItems.GOLD_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0xD4AF37), 0, -2.0f), false)
+                // Also hand-painted, untinted -- same reasoning as Bone. Diamond Pickaxe totals 5
+                // damage -- shift (+1.0f) brings Shatter to 7, the same +2 margin.
+                .add(getResourceLocation(ModItems.DIAMOND_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 3, 1.0f), false);
+
         // Heat Safety Module grants exactly EXTREME_HEAT (lava) -- the tag-vs-data split means
         // adding a Radiation/Biohazard Safety Module later is just another entry here, no new tag.
         this.builder(ModDataMaps.SAFETY_MODULE_PROPERTIES)
                 .add(getResourceLocation(ModItems.HEAT_SAFETY_MODULE),
                         new SafetyModuleProperties(List.of(ModTags.Fluids.EXTREME_HEAT)), false)
                 .add(getResourceLocation(ModItems.METAPHYSICAL_SAFETY_MODULE),
-                        new SafetyModuleProperties(List.of(ModTags.Fluids.METAPHYSICAL_MILD)), false)
+                        new SafetyModuleProperties(List.of(ModTags.Fluids.METAPHYSICAL_MILD, ModTags.Fluids.METAPHYSICAL_SEVERE)), false)
 
                 ;
 

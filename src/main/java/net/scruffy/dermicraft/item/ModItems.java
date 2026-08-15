@@ -75,6 +75,35 @@ public class ModItems {
     public static final DeferredItem<Item> SUNDER = ITEMS.register("sunder",
             () -> new SunderItem(new Item.Properties().stacksTo(1).durability(SunderItem.MAX_HP)));
 
+    // Registration/visibility pass only -- see ShatterItem's class javadoc.
+    public static final DeferredItem<Item> SHATTER = ITEMS.register("shatter",
+            () -> new ShatterItem(new Item.Properties().stacksTo(1).durability(ShatterItem.MAX_HP)));
+
+    // Durability matches its corresponding vanilla pickaxe's own max damage exactly (2026-08-12,
+    // decided) -- head wear is per-block-mined/per-attack, see ShatterItem#wearHead. Iron: 250,
+    // same as vanilla's Iron Pickaxe -- the baseline material, see the Shatter design notes.
+    public static final DeferredItem<Item> IRON_SHATTER_HEAD = ITEMS.register("iron_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(250)));
+
+    // Bone -- hand-painted face/tail texture (not the shared grayscale one), so no runtime tint is
+    // registered for its item icon; the mounted weapon still reads its tint from ShatterHeadProperties
+    // (set untinted, same as Iron) so the piston bones show the bare tool texture until a real tint
+    // is decided. Durability 131 -- matches vanilla's Stone Pickaxe, since Bone stands in for the
+    // Stone mining tier (see ShatterHeadProperties' mining_tier entry for this material).
+    public static final DeferredItem<Item> BONE_SHATTER_HEAD = ITEMS.register("bone_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(131)));
+
+    // Gold -- shared grayscale face/tail texture, tinted at runtime (same technique as Iron, just a
+    // real color this time instead of a no-op white). Durability 32, matching vanilla's Gold Pickaxe
+    // (gold is a soft, fragile metal -- lowest durability of any vanilla tool material).
+    public static final DeferredItem<Item> GOLD_SHATTER_HEAD = ITEMS.register("gold_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(32)));
+
+    // Diamond -- hand-painted face/tail texture, same as Bone. Durability 1561, matching vanilla's
+    // Diamond Pickaxe.
+    public static final DeferredItem<Item> DIAMOND_SHATTER_HEAD = ITEMS.register("diamond_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(1561)));
+
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",
             () -> new PartItem(new Item.Properties().food(ModFoodProperties.EYE)));

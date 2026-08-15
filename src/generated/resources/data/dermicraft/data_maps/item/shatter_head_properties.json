@@ -1,0 +1,23 @@
+{
+  "values": {
+    "dermicraft:bone_shatter_head": {
+      "damage_shift": -1.0,
+      "mining_tier": 1,
+      "tint": "#FFFFFF"
+    },
+    "dermicraft:diamond_shatter_head": {
+      "damage_shift": 1.0,
+      "mining_tier": 3,
+      "tint": "#FFFFFF"
+    },
+    "dermicraft:gold_shatter_head": {
+      "damage_shift": -2.0,
+      "mining_tier": 0,
+      "tint": "#D4AF37"
+    },
+    "dermicraft:iron_shatter_head": {
+      "mining_tier": 2,
+      "tint": "#FFFFFF"
+    }
+  }
+}

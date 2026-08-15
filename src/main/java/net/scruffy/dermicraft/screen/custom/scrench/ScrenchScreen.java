@@ -8,6 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.item.custom.EaterItem;
+import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
@@ -49,6 +50,8 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
         super.init();
         if (isSunder()) {
             fuelRenderer = createFluidRenderer16x40(menu.getSunderFuelCapacity());
+        } else if (isShatter()) {
+            fuelRenderer = createFluidRenderer16x40(menu.getShatterFuelCapacity());
         }
     }
 
@@ -58,6 +61,10 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
 
     private boolean isEater() {
         return menu.getGadgetStack().getItem() instanceof EaterItem;
+    }
+
+    private boolean isShatter() {
+        return menu.getGadgetStack().getItem() instanceof ShatterItem;
     }
 
     @Override
@@ -73,6 +80,18 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
                     ScrenchMenu.chainSlotX() + 1, ScrenchMenu.chainSlotY() + 1,
                     menu.getSlot(0).getItem(), Component.translatable("tooltip.dermicraft.slot.chain"));
+        }
+
+        if (isShatter()) {
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    ScrenchMenu.shatterHeadSlotX() + 1, ScrenchMenu.shatterHeadSlotY() + 1,
+                    menu.getSlot(0).getItem(), Component.translatable("tooltip.dermicraft.slot.shatter_head"));
+
+            if (fuelRenderer != null) {
+                renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.getShatterFluid(),
+                        ScrenchMenu.shatterFuelTankX() + 1, ScrenchMenu.shatterFuelTankY() + 1, fuelRenderer,
+                        Component.translatable("tooltip.dermicraft.gauge.fuel"));
+            }
         }
     }
 
@@ -91,6 +110,22 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             renderSunderBg(guiGraphics, x, y);
         } else if (isEater()) {
             renderEaterBg(guiGraphics, x, y);
+        } else if (isShatter()) {
+            renderShatterBg(guiGraphics, x, y);
+        }
+    }
+
+    /** Head slot plus fuel tank/slot pairing -- same layout as Sunder's own background above,
+     * head slot standing in for Sunder's chain slot. */
+    private void renderShatterBg(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(ITEM_SLOT_TEXTURE, x + ScrenchMenu.shatterHeadSlotX(), y + ScrenchMenu.shatterHeadSlotY(), 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+
+        guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + ScrenchMenu.shatterFuelTankX(), y + ScrenchMenu.shatterFuelTankY(), 0, 0,
+                TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT, TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
+
+        if (fuelRenderer != null) {
+            fuelRenderer.render(guiGraphics, x + ScrenchMenu.shatterFuelTankX() + 1, y + ScrenchMenu.shatterFuelTankY() + 1, menu.getShatterFluid());
         }
     }
 

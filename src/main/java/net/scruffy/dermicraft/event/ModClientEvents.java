@@ -69,6 +69,10 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.WITHER_ESSENCE_BUCKET.get(), ModFluidTypes.WITHER_ESSENCE_FLUID_TYPE);
         registerBucketTint(event, ModFluids.ENDER_ESSENCE_BUCKET.get(), ModFluidTypes.ENDER_ESSENCE_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get(), ModFluidTypes.MOLTEN_SOUL_SILICA_FLUID_TYPE);
+
+        ////////////////////Shatter Heads\\\\\\\\\\\\\\\\\\\\
+        registerShatterHeadTint(event, ModItems.IRON_SHATTER_HEAD.get());
+        registerShatterHeadTint(event, ModItems.GOLD_SHATTER_HEAD.get());
     }
 
     //////////////HelperMethods\\\\\\\\\\\\\\
@@ -97,6 +101,20 @@ public class ModClientEvents {
             if (tintIndex != 1) return -1;
             return IClientFluidTypeExtensions.of(fluidType.get()).getTintColor();
         }, bucket);
+    }
+
+    // layer0 (face/tail) is tinted per-material via ModDataMaps.SHATTER_HEAD_PROPERTIES; layer1
+    // (piston) stays untinted -- no handler registered for index 1, same "only register the index
+    // that needs tinting" shape registerBucketTint uses.
+    private static void registerShatterHeadTint(RegisterColorHandlersEvent.Item event, Item head) {
+        event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) return -1;
+
+            net.scruffy.dermicraft.property.ShatterHeadProperties properties =
+                    net.minecraft.core.registries.BuiltInRegistries.ITEM.wrapAsHolder(stack.getItem())
+                            .getData(net.scruffy.dermicraft.datagen.datamaps.ModDataMaps.SHATTER_HEAD_PROPERTIES);
+            return properties == null ? getDefaultTint() : (0xFF000000 | properties.tint().getValue());
+        }, head);
     }
 
     private static DataComponentType<FluidData> getFluidDataType() {

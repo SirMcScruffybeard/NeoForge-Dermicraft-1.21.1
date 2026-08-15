@@ -82,6 +82,12 @@ public class ModItemModelProvider extends ItemModelProvider {
         singleTextureItem(ModItems.DIAMOND_SUNDER_CHAIN.get(), "item/sunder_chains/diamond_sunder_chain");
         singleTextureItem(ModItems.BONE_SUNDER_CHAIN.get(), "item/sunder_chains/bone_sunder_chain");
 
+        ////////////////////Shatter Heads\\\\\\\\\\\\\\\\\\\\
+        shatterHeadItem(ModItems.IRON_SHATTER_HEAD.get());
+        paintedShatterHeadItem(ModItems.BONE_SHATTER_HEAD.get(), "item/shatter/bone_face_tail");
+        shatterHeadItem(ModItems.GOLD_SHATTER_HEAD.get());
+        paintedShatterHeadItem(ModItems.DIAMOND_SHATTER_HEAD.get(), "item/shatter/diamond_face_tail");
+
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
         chunkyBucketItem(ModFluids.CALCIUM_BLEND_BUCKET.get());
@@ -141,6 +147,27 @@ public class ModItemModelProvider extends ItemModelProvider {
         getBuilder(id.toString())
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
                 .texture("layer0", ResourceLocation.fromNamespaceAndPath(id.getNamespace(), texturePath));
+    }
+
+    // layer0 is the shared face/tail texture, tinted per-material via item color handlers (see
+    // ModClientEvents#registerShatterHeadTint); layer1 is the piston top, deliberately untinted (no
+    // color handler registered for index 1). Shared across every head material -- only the tint
+    // varies, no per-material texture files (unlike Sunder's chains).
+    private ItemModelBuilder shatterHeadItem(Item item) {
+        return paintedShatterHeadItem(item, "item/shatter/face_tail");
+    }
+
+    // Same layer1 (piston, untinted) as shatterHeadItem() above, but layer0 is a dedicated,
+    // already-colored texture rather than the shared grayscale one -- for hand-painted materials
+    // (e.g. Bone) where the material's look comes from the art itself, not a runtime tint. No color
+    // handler gets registered for these items' layer0 (see ModClientEvents), so it renders exactly
+    // as painted.
+    private ItemModelBuilder paintedShatterHeadItem(Item item, String faceTailTexturePath) {
+        ResourceLocation id = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item));
+        return getBuilder(id.toString())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, faceTailTexturePath))
+                .texture("layer1", ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/shatter/piston"));
     }
 
     // layer0 is the untinted vanilla bucket body; layer1 is the fill overlay, tinted per-fluid via item color handlers.

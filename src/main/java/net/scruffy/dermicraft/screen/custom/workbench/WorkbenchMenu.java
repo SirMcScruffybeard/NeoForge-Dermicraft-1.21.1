@@ -20,6 +20,7 @@ import net.scruffy.dermicraft.block.entity.custom.WorkbenchBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
@@ -76,6 +77,11 @@ public class WorkbenchMenu extends AbstractModMenu {
     // WorkbenchScreen's Sunder-specific tooltip lookups regardless of which host built the panel.
     public static final int CHAIN_SLOT_INDEX = PANEL_SLOTS_START_INDEX;
     public static final int FUEL_FILL_SLOT_INDEX = PANEL_SLOTS_START_INDEX + 1;
+    // Shatter's own panel is the same [part slot, fuel-fill slot] shape (see
+    // ShatterItem.ShatterSwapPanel#slots) -- same index values as Sunder's own (any single-part+fuel
+    // gadget's panel lands here), named separately purely for readability at Shatter-specific call
+    // sites in WorkbenchScreen.
+    public static final int HEAD_SLOT_INDEX = PANEL_SLOTS_START_INDEX;
 
     // clickMenuButton ids, mirrors vanilla's loom/enchant-table button convention (already used
     // in this codebase by MrShepardMenu's population-cap buttons). Absolute row-set ids and the
@@ -392,5 +398,18 @@ public class WorkbenchMenu extends AbstractModMenu {
 
     public int getSunderFuelCapacity() {
         return SunderItem.FUEL_CAPACITY;
+    }
+
+    public boolean isWorkItemShatter() {
+        return getWorkItemStack().getItem() instanceof ShatterItem;
+    }
+
+    /** Same shape as {@link #getSunderFluid}. */
+    public FluidStack getShatterFluid() {
+        return getWorkItemStack().getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidStack();
+    }
+
+    public int getShatterFuelCapacity() {
+        return ShatterItem.FUEL_CAPACITY;
     }
 }

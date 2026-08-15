@@ -14,6 +14,7 @@ import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.item.custom.ScrenchItem;
+import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
@@ -91,6 +92,13 @@ public class ScrenchMenu extends AbstractModMenu {
     public static int fuelTankX() { return SunderItem.FUEL_TANK_X; }
     public static int fuelTankY() { return SunderItem.FUEL_TANK_Y; }
 
+    /** Shatter-only convenience accessors, same shape as the Sunder ones above -- delegates to
+     * ShatterItem's own panel constants. */
+    public static int shatterHeadSlotX() { return ShatterItem.HEAD_SLOT_X; }
+    public static int shatterHeadSlotY() { return ShatterItem.HEAD_SLOT_Y; }
+    public static int shatterFuelTankX() { return ShatterItem.FUEL_TANK_X; }
+    public static int shatterFuelTankY() { return ShatterItem.FUEL_TANK_Y; }
+
     /** The gadget currently held in {@code gadgetHand}, read fresh -- lets the screen decide which
      * gadget-specific chrome to draw (fuel gauge, Module slots, ...) without this menu needing to
      * know what any of that looks like. */
@@ -107,6 +115,15 @@ public class ScrenchMenu extends AbstractModMenu {
 
     public int getSunderFuelCapacity() {
         return SunderItem.FUEL_CAPACITY;
+    }
+
+    /** Shatter-only convenience accessors, same shape as the Sunder ones above. */
+    public FluidStack getShatterFluid() {
+        return player.getItemInHand(gadgetHand).getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidStack();
+    }
+
+    public int getShatterFuelCapacity() {
+        return ShatterItem.FUEL_CAPACITY;
     }
 
     /**

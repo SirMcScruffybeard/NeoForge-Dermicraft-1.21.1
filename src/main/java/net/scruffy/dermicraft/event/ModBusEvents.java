@@ -168,6 +168,14 @@ public class ModBusEvents {
                 stack, net.scruffy.dermicraft.item.custom.SunderItem.FUEL_CAPACITY, HazardProfile.TIER_1,
                 fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.SUNDER.get());
+
+        // Shatter: same biofuel-only fuel tank shape as Sunder's own -- nothing reads/gates on it
+        // yet (see ShatterItem's class javadoc), but the capability exists so the Scrench maintenance
+        // GUI's fuel gauge/fill slot has a real tank to display and fill.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, net.scruffy.dermicraft.item.custom.ShatterItem.FUEL_CAPACITY, HazardProfile.TIER_1,
+                fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
+                ModItems.SHATTER.get());
     }
 
     /** All Gate Buffers directly touching {@code portPos}, in {@link Direction#values()} order. */

@@ -111,6 +111,20 @@ public class ModDataComponentTypes {
                     .persistent(HeldItemData.CODEC)
                     .networkSynchronized(HeldItemData.STREAM_CODEC));
 
+    /** Shatter's charge/release state -- see {@link ShatterModeData}. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ShatterModeData>> SHATTER_MODE_DATA =
+            register("shatter_mode_data", builder -> builder
+                    .persistent(ShatterModeData.CODEC)
+                    .networkSynchronized(ShatterModeData.STREAM_CODEC));
+
+    /** The head currently mounted on Shatter -- same real-nested-ItemStack shape as
+     * {@link #SUNDER_MOUNTED_CHAIN} and the same reasoning for why (see that field's javadoc);
+     * registered separately so a mounted head is never confused with Sunder's mounted chain. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<HeldItemData>> SHATTER_MOUNTED_HEAD =
+            register("shatter_mounted_head", builder -> builder
+                    .persistent(HeldItemData.CODEC)
+                    .networkSynchronized(HeldItemData.STREAM_CODEC));
+
 
 
 

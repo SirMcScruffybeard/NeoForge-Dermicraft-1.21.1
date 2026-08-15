@@ -12,6 +12,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
 import net.scruffy.dermicraft.item.custom.EaterItem;
+import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
@@ -24,7 +25,7 @@ import java.util.Optional;
 
 /**
  * Workbench's screen -- see dermicraft-gear-stations-notes.md -> Workbench. Builds the Mod page
- * (Sunder swap sub-panel), the Fabrication page (recipe grid + ingredient/craft detail panel), and
+ * (Sunder/Shatter/Eater swap sub-panel), the Fabrication page (recipe grid + ingredient/craft detail panel), and
  * the persistent Storage strip along the bottom shared by both. Point-Spend (the design's eventual
  * 3rd right-strip page) remains deferred, not built here.
  */
@@ -204,7 +205,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     @Override
     protected void init() {
         super.init();
-        fuelRenderer = createFluidRenderer16x40(menu.getSunderFuelCapacity());
+        // Both currently 1000mB, but read whichever gadget is actually present rather than assuming
+        // they always match -- same reasoning as every other per-gadget branch on this screen.
+        int fuelCapacity = menu.isWorkItemShatter() ? menu.getShatterFuelCapacity() : menu.getSunderFuelCapacity();
+        fuelRenderer = createFluidRenderer16x40(fuelCapacity);
         setPage(currentPage);
     }
 
@@ -227,6 +231,14 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
                 renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
                         SunderItem.CHAIN_SLOT_X + 1, SunderItem.CHAIN_SLOT_Y + 1,
                         menu.getSlot(WorkbenchMenu.CHAIN_SLOT_INDEX).getItem(), Component.translatable("tooltip.dermicraft.slot.chain"));
+            } else if (menu.isWorkItemShatter()) {
+                renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.getShatterFluid(),
+                        ShatterItem.FUEL_TANK_X + 1, ShatterItem.FUEL_TANK_Y + 1, fuelRenderer,
+                        Component.translatable("tooltip.dermicraft.gauge.fuel"));
+
+                renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
+                        ShatterItem.HEAD_SLOT_X + 1, ShatterItem.HEAD_SLOT_Y + 1,
+                        menu.getSlot(WorkbenchMenu.HEAD_SLOT_INDEX).getItem(), Component.translatable("tooltip.dermicraft.slot.shatter_head"));
             }
 
             renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
@@ -330,6 +342,21 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
                 ResourceLocation fillTexture = fillButtonPressedFlash ? FILL_BUTTON_PRESSED_TEXTURE : FILL_BUTTON_TEXTURE;
                 guiGraphics.blit(fillTexture, x + FILL_BUTTON_X, y + FILL_BUTTON_Y, 0, 0,
+                        FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE);
+            } else if (menu.isWorkItemShatter()) {
+                // Same layout as Sunder's own branch above -- head slot standing in for the chain
+                // slot, same fuel tank/slot coordinates (ShatterItem.FUEL_TANK_X/Y equal Sunder's own,
+                // see ShatterItem's own field javadoc), same Fill-from-pool button (Shatter's fuel is
+                // just as much a consumable resource as Sunder's).
+                guiGraphics.blit(ITEM_SLOT_TEXTURE, x + ShatterItem.HEAD_SLOT_X, y + ShatterItem.HEAD_SLOT_Y, 0, 0,
+                        ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+
+                guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + ShatterItem.FUEL_TANK_X, y + ShatterItem.FUEL_TANK_Y, 0, 0,
+                        TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT, TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT);
+                fuelRenderer.render(guiGraphics, x + ShatterItem.FUEL_TANK_X + 1, y + ShatterItem.FUEL_TANK_Y + 1, menu.getShatterFluid());
+
+                ResourceLocation shatterFillTexture = fillButtonPressedFlash ? FILL_BUTTON_PRESSED_TEXTURE : FILL_BUTTON_TEXTURE;
+                guiGraphics.blit(shatterFillTexture, x + FILL_BUTTON_X, y + FILL_BUTTON_Y, 0, 0,
                         FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE);
             } else if (menu.isWorkItemEater()) {
                 renderSlotBackgrounds(guiGraphics, MODULE_SLOT_TEXTURE, x, y,
@@ -659,7 +686,8 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             return true;
         }
 
-        if (menu.isWorkItemSunder() && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + FILL_BUTTON_X, y + FILL_BUTTON_Y,
+        if ((menu.isWorkItemSunder() || menu.isWorkItemShatter())
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + FILL_BUTTON_X, y + FILL_BUTTON_Y,
                 FILL_BUTTON_SIZE, FILL_BUTTON_SIZE)) {
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.BUTTON_FILL_FROM_POOL);
             fillButtonPressedFlash = true;

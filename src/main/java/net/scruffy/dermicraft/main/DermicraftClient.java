@@ -167,6 +167,17 @@ public class DermicraftClient {
             }
         }, net.scruffy.dermicraft.item.ModItems.SUNDER.get());
 
+        // Registration/visibility pass only -- see ShatterItem's class javadoc.
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private final net.scruffy.dermicraft.item.custom.ShatterItemRenderer renderer =
+                    new net.scruffy.dermicraft.item.custom.ShatterItemRenderer();
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return renderer;
+            }
+        }, net.scruffy.dermicraft.item.ModItems.SHATTER.get());
+
         // See WorkbenchBottomItemRenderer's own javadoc -- a plain BlockItem isn't a GeoItem, so
         // GeckoLib's own automatic item-render hook never fires for it without this.
         event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
