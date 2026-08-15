@@ -113,10 +113,9 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
      * same metal for consistency. */
     private static final float BASE_ATTACK_DAMAGE = 5.0F;
 
-    /** Base attack speed modifier -- a bit more negative than a vanilla sword's shared -2.4 (every
-     * sword tier uses the same speed), landing at 1.4 attacks/second instead of a sword's 1.6, per
-     * "slightly slower swing speed." */
-    private static final float BASE_ATTACK_SPEED = -2.6F;
+    /** Dropped from -2.6F to -3.0F (2026-08-12) -- 1.4 attacks/second read as too fast for a
+     * chainsaw-style Weapon in practice; -3.0F lands at 1.0 attacks/second (base 4.0 - 3.0) instead. */
+    private static final float BASE_ATTACK_SPEED = -3.0F;
 
     /** Damage penalty applied when no chain is mounted -- a fraction of total, so -0.6 means the
      * swing lands at 40% strength. Placeholder magnitude; the notes only commit to "a large

@@ -3,6 +3,9 @@ package net.scruffy.dermicraft.event;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -13,7 +16,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -44,6 +49,65 @@ import java.util.List;
  */
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
 public class ShatterEvents {
+
+    /** Thin wiring only -- the actual crater-advancement logic (and its own pending-state map) lives
+     * on {@link ShatterItem#tickCraters}, not here; GeckoLib items aren't event-bus subscribers
+     * themselves, so this class is just where the tick hook has to live. */
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+        ShatterItem.tickCraters(event.getServer());
+    }
+
+    /** Placeholder "heavy bonus" magnitude vs skeletons/wither skeletons -- flat additive, not a
+     * multiplier, so it stacks the same way regardless of head material. Not tuned. */
+    private static final float SKELETON_BONUS_DAMAGE = 3.0F;
+
+    /** Placeholder "heavy bonus" durability damage per equipped armor piece -- on top of vanilla's
+     * own normal 1-2 points of wear per hit taken, not replacing it. Not tuned. */
+    private static final int ARMOR_BONUS_DURABILITY_DAMAGE = 3;
+
+    private static final EquipmentSlot[] ARMOR_SLOTS =
+            {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+
+    /**
+     * Skeleton/wither bonus damage -- {@code AbstractSkeleton} covers Skeleton, Wither Skeleton, AND
+     * Stray for free (a skeleton variant, matches the design notes' spirit even though not named
+     * explicitly). Modifies the damage value itself via {@code LivingDamageEvent.Pre} (modern
+     * NeoForge's own "adjust damage before it lands" hook, not the older {@code LivingHurtEvent}) --
+     * a flat add, not a multiplier, so a weak/no-head swing still gets the same bonus a strong one
+     * does. Extra drops/status effect explicitly scoped OUT of this pass (design notes still call
+     * both "possibly", left for later).
+     */
+    @SubscribeEvent
+    public static void onSkeletonBonusDamage(LivingDamageEvent.Pre event) {
+        ItemStack weapon = event.getSource().getWeaponItem();
+        if (weapon == null || !(weapon.getItem() instanceof ShatterItem)) return;
+        if (!(event.getEntity() instanceof AbstractSkeleton)) return;
+
+        event.setNewDamage(event.getNewDamage() + SKELETON_BONUS_DAMAGE);
+    }
+
+    /**
+     * Heavy bonus armor durability damage, applied uniformly across every equipped armor piece --
+     * see the design notes' "no chainmail exception" decision (dropped 2026-08-11, the old
+     * piercing-logic reasoning for exempting chainmail doesn't hold for a blunt weapon). Fires on
+     * {@code LivingDamageEvent.Post} (after the hit is finalized) rather than {@code .Pre}, so this
+     * only wears armor on a hit that actually landed, not one that got fully blocked/no-opped.
+     */
+    @SubscribeEvent
+    public static void onArmorBonusWear(LivingDamageEvent.Post event) {
+        ItemStack weapon = event.getSource().getWeaponItem();
+        if (weapon == null || !(weapon.getItem() instanceof ShatterItem)) return;
+        if (event.getNewDamage() <= 0) return;
+
+        LivingEntity target = event.getEntity();
+        for (EquipmentSlot slot : ARMOR_SLOTS) {
+            ItemStack armor = target.getItemBySlot(slot);
+            if (!armor.isEmpty()) {
+                armor.hurtAndBreak(ARMOR_BONUS_DURABILITY_DAMAGE, target, slot);
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void onBlockBroken(BlockEvent.BreakEvent event) {

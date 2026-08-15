@@ -76,14 +76,29 @@
 			}
 		},
 		"attack": {
-			"animation_length": 0.125,
+			"animation_length": 0.25,
 			"bones": {
+				"main": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.1": {
+							"vector": [-45, 0, 0],
+							"easing": "easeOutQuad"
+						},
+						"0.25": {
+							"vector": [0, 0, 0],
+							"easing": "easeInQuad"
+						}
+					}
+				},
 				"piston": {
 					"position": {
 						"0.0": {
 							"vector": [0, 0, 2.35]
 						},
-						"0.125": {
+						"0.1": {
 							"vector": [0, 0, 0]
 						}
 					}

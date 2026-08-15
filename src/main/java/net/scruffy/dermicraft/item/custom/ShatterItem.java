@@ -244,21 +244,111 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
     }
 
     /**
-     * Trigger released -- fires the {@code attack} animation against a valid target (no world effect
-     * yet, per the current design pass) and pays the fuel/hunger cost, or plays the {@code release}
-     * animation and costs nothing if nothing's aimed at -- "a safely released charge spends no fuel"
-     * (see the class javadoc's Fuel discussion). Either way resets back to IDLE.
+     * Trigger released -- fires the special against whatever's aimed at (a mob gets a single-target
+     * burst, a block starts a crater), paying the fuel/hunger cost, or plays the {@code release}
+     * animation and costs nothing if nothing's aimed at all, OR if no head is mounted -- "no head
+     * installed = no special available at all" (same shape as Sunder's own no-chain state, see the
+     * design notes' Heads section) applies here too, not just to the attribute-modifier penalty.
+     * Mobs take precedence over blocks, same ordering the old design notes' left-click branching
+     * used. Either way resets back to IDLE.
      */
     private ShatterModeData release(ItemStack stack, Level level, Player player) {
-        LivingEntity target = findTarget(level, player);
+        LivingEntity target = hasMountedHead(stack) ? findTarget(level, player) : null;
+        boolean fired;
         if (target != null) {
             payForAttack(stack, player);
             wearHead(stack, HEAD_WEAR_PER_ATTACK);
+            fireMobBurst(stack, player, target);
+            fired = true;
+        } else if (hasMountedHead(stack) && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+            net.minecraft.world.phys.BlockHitResult blockHit = findBlockHit(level, player);
+            if (blockHit != null) {
+                payForAttack(stack, player);
+                startCrater(stack, serverLevel, player, blockHit);
+                fired = true;
+            } else {
+                fired = false;
+            }
+        } else {
+            fired = false;
+        }
+
+        // Explicit stopUsingItem() before swinging -- see SunderItem#tickSawing's own comment on
+        // this exact limitation: ItemInHandRenderer renders the static held-item pose (never the
+        // swing pose) for as long as isUsingItem() reads true, and vanilla only flips that false via
+        // a real stopUsingItem() call. holdingTrigger going false in inventoryTick means the CLIENT
+        // has already released the input, but nothing forces isUsingItem() itself false server-side
+        // before this point -- without this call there's a race where the swing fires while
+        // isUsingItem() is technically still true, and the static pose silently wins.
+        player.stopUsingItem();
+
+        // Normal vanilla arm-swing on a real hit, same as any ordinary attack -- GeckoLib's own item
+        // model animation ("attack") carries Shatter's own visual, but the player's ARM never swings
+        // for it on its own since this fires from startUsingItem's held-trigger path, not a left-click
+        // attack. player.swing(hand) is the same call/network sync vanilla's own attack path uses.
+        // Determined by which hand currently holds this exact stack, not player.getUsedItemHand() --
+        // a foolproof check either way.
+        if (fired) {
+            player.swing(player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND);
         }
 
         long id = GeoItem.getOrAssignId(stack, (net.minecraft.server.level.ServerLevel) level);
-        triggerAnim(player, id, "Body", target != null ? "attack" : "release");
+        triggerAnim(player, id, "Body", fired ? "attack" : "release");
         return ShatterModeData.of(ShatterModeData.State.IDLE, level.getGameTime());
+    }
+
+    /** Base multiplier at the worst (Crude) fuel grade -- "2x with an Iron head mounted" was the
+     * explicit target (2026-08-12), chosen so the special reads as clearly stronger than a standard
+     * swing even on the worst fuel, rather than only becoming special once a better grade is used. */
+    private static final float SPECIAL_BASE_MULTIPLIER = 2.0F;
+
+    /** Single-target burst -- {@code totalAttackDamage * SPECIAL_BASE_MULTIPLIER * speedRatio(stack)}.
+     * Reads the player's LIVE {@code ATTACK_DAMAGE} attribute value (already includes Shatter's own
+     * base + the mounted head's damageShift, see {@link #getDefaultAttributeModifiers}) rather than
+     * recomputing the formula by hand, so this can never drift out of sync with the tooltip's own
+     * computed Damage line. */
+    private void fireMobBurst(ItemStack stack, Player player, LivingEntity target) {
+        double totalDamage = player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
+        float burst = (float) (totalDamage * SPECIAL_BASE_MULTIPLIER * speedRatio(stack));
+        target.hurt(player.damageSources().playerAttack(player), burst);
+    }
+
+    /** Fuel grade's speed value relative to Crude's own -- the single axis driving both the mob
+     * burst's damage multiplier and the crater's wave count (see the design notes' Fuel section:
+     * "speed drives charge speed and damage"). 1.0 at Crude itself; empty/unrecognized fuel also
+     * falls back to 1.0 rather than erroring, since charging is already gated on having SOME fuel
+     * (see {@link #hasFuel}) -- this is a defensive fallback, not an expected path. */
+    private float speedRatio(ItemStack stack) {
+        FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+        float crudeSpeed = biofuelSpeed(net.scruffy.dermicraft.fluid.ModFluids.SOURCE_CRUDE_SLURRY.get());
+        if (data.isFluidEmpty() || crudeSpeed <= 0.0F) return 1.0F;
+
+        float fuelSpeed = biofuelSpeed(data.getFluid());
+        return fuelSpeed / crudeSpeed;
+    }
+
+    private static float biofuelSpeed(net.minecraft.world.level.material.Fluid fluid) {
+        net.scruffy.dermicraft.property.BiofuelProperties props =
+                BuiltInRegistries.FLUID.wrapAsHolder(fluid).getData(ModDataMaps.BIOFUELS);
+        return props != null ? props.speed() : 0.1F; // Crude's own real baseline value as the ultimate fallback
+    }
+
+    /** Raycast along the player's standard block-interaction reach -- purely a "what's the player
+     * aiming at" check (no state mutation), used to decide whether the release should start a crater
+     * at all. Distinct from {@code faceStruck} in {@code ShatterEvents} (which re-derives the same
+     * kind of hit for the left-click AoE) since that one runs from a `BlockEvent.BreakEvent` context
+     * this class has no access to. */
+    @Nullable
+    private net.minecraft.world.phys.BlockHitResult findBlockHit(Level level, Player player) {
+        Vec3 eyePos = player.getEyePosition();
+        Vec3 lookVec = player.getLookAngle();
+        double range = player.blockInteractionRange();
+        Vec3 endPos = eyePos.add(lookVec.scale(range));
+
+        net.minecraft.world.phys.BlockHitResult hit = level.clip(new net.minecraft.world.level.ClipContext(eyePos, endPos,
+                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, player));
+
+        return hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK ? hit : null;
     }
 
     /** Non-empty, not any specific amount -- gate for starting a charge, same shape as Sunder's own
@@ -405,6 +495,209 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
     @Override
     public boolean isCorrectToolForDrops(ItemStack stack, net.minecraft.world.level.block.state.BlockState state) {
         return meetsMiningTier(stack, state);
+    }
+
+    ////////////////////Special: block crater\\\\\\\\\\\\\\\\\\\\
+
+    /** Base wave count at Crude (worst grade) -- see the design notes' crater section. */
+    private static final int CRATER_BASE_WAVES = 2;
+
+    /** How much {@link #speedRatio} has to grow past 1.0 before the crater gains another wave --
+     * calibrated off Concentrated Slurry's REAL speed value relative to Crude's (0.125 / 0.1 = 1.25,
+     * a +0.25 edge), not an invented number, so "+1 wave per grade" holds exactly for that one known
+     * step and scales proportionally for anything stronger. */
+    private static final double CRATER_WAVE_STEP_RATIO = 0.25;
+
+    /** Circular-mask radius for a brand-new layer's very first wave -- 1.5 is deliberate, not
+     * rounded: every cell of the existing flat 3x3 AoE face sits at Euclidean distance <= sqrt(2) =
+     * 1.414 from its center, so radius 1.5 reproduces that exact 9-cell shape ("the standard 3x3
+     * pattern," per the design discussion) as wave 0's starting layer, while every ring added after
+     * it is genuinely round (not another square ring) -- see {@link #craterWaveCells}. */
+    private static final double CRATER_BASE_RADIUS = 1.5;
+
+    /** 1 second -- "enough for the player to notice," the explicit reasoning given for this pacing,
+     * and also a server-load safety valve (spreads a big crater's block-breaking across several
+     * ticks instead of one). */
+    private static final long CRATER_WAVE_INTERVAL_TICKS = 20;
+
+    /** Waves in progress, keyed by player UUID -- transient server memory only (lost on
+     * server-restart/reload, same as {@code EaterItem}'s own {@code AGGREGATE_PROGRESS} map uses for
+     * its similarly time-spread mining action), advanced by {@link #tickCraters}. A player starting a
+     * second crater before their first finishes simply overwrites the pending entry -- the earlier
+     * one is abandoned mid-sequence, a known simplification, not handled specially. */
+    private static final java.util.Map<java.util.UUID, PendingCrater> PENDING_CRATERS = new java.util.HashMap<>();
+
+    private record PendingCrater(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> levelKey,
+                                  BlockPos origin, net.minecraft.core.Direction intoDirection,
+                                  int totalWaves, int wavesFired, long nextWaveTick) {}
+
+    /** Fires wave 0 immediately (synchronous with the release, matching "upon impact... broken") and
+     * schedules the rest via {@link #PENDING_CRATERS} if more than one wave is due and the first
+     * didn't already destroy the head. */
+    private void startCrater(ItemStack stack, net.minecraft.server.level.ServerLevel level, Player player,
+                              net.minecraft.world.phys.BlockHitResult hit) {
+        int totalWaves = craterWaveCount(stack);
+        net.minecraft.core.Direction intoDirection = hit.getDirection().getOpposite();
+        BlockPos origin = hit.getBlockPos();
+
+        boolean destroyed = fireCraterWave(stack, level, player, origin, intoDirection, 0);
+        if (destroyed || totalWaves <= 1) return;
+
+        PENDING_CRATERS.put(player.getUUID(), new PendingCrater(level.dimension(), origin, intoDirection,
+                totalWaves, 1, level.getGameTime() + CRATER_WAVE_INTERVAL_TICKS));
+    }
+
+    /** {@code CRATER_BASE_WAVES + floor((speedRatio - 1.0) / CRATER_WAVE_STEP_RATIO)} -- driven by
+     * the fuel's actual numeric speed value rather than a per-grade lookup table, so a future fluid
+     * added specifically to maximize crater size scales the wave count proportionally with no new
+     * case needed here. No cap, deliberately -- "the only way to make a bigger crater is a better
+     * fuel" (2026-08-12 decision), so there's no reason to clamp it. */
+    private int craterWaveCount(ItemStack stack) {
+        double ratio = speedRatio(stack);
+        return CRATER_BASE_WAVES + (int) Math.floor((ratio - 1.0) / CRATER_WAVE_STEP_RATIO);
+    }
+
+    /**
+     * One wave: breaks every newly-revealed cell (see {@link #craterWaveCells}), always drops
+     * normally regardless of tier (unlike the left-click AoE's "leave untouched" rule -- see the
+     * design notes for why the special is deliberately different here), wears the head per block at
+     * the normal mining rate, and destroys the head outright -- ignoring remaining durability -- if
+     * this wave touched even one block above the head's tier. The wave still finishes breaking
+     * everything in it before that happens; the destruction only prevents FUTURE waves.
+     *
+     * <p>{@code Block.getDrops} is called with the real {@code stack} regardless of tier -- it
+     * doesn't itself consult {@code isCorrectToolForDrops} (that gating happens externally, in the
+     * normal player-mining pipeline this method deliberately bypasses), so passing the real tool
+     * here is what makes "always drops normally" actually true rather than needing a fake stand-in
+     * tool the way {@code ShatterEvents}' left-click AoE avoids for the opposite reason.
+     *
+     * @return true if the head was destroyed (an over-tier block was hit) -- the caller uses this to
+     * stop scheduling further waves.
+     */
+    private static boolean fireCraterWave(ItemStack stack, net.minecraft.server.level.ServerLevel level, Player player,
+                                           BlockPos origin, net.minecraft.core.Direction intoDirection, int waveIndex) {
+        boolean overTier = false;
+
+        for (BlockPos pos : craterWaveCells(origin, intoDirection, waveIndex)) {
+            net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
+            if (state.isAir()) continue;
+            if (state.getDestroySpeed(level, pos) < 0) continue; // unbreakable (bedrock, etc.)
+
+            if (!meetsMiningTier(stack, state)) overTier = true;
+
+            List<ItemStack> drops = net.minecraft.world.level.block.Block.getDrops(
+                    state, level, pos, level.getBlockEntity(pos), player, stack);
+            level.destroyBlock(pos, false, player);
+            for (ItemStack drop : drops) {
+                net.minecraft.world.level.block.Block.popResource(level, pos, drop);
+            }
+
+            wearHead(stack, HEAD_WEAR_PER_BLOCK);
+        }
+
+        if (overTier) {
+            clearMountedHead(stack);
+            return true;
+        }
+        return false;
+    }
+
+    /** Every NEW cell wave {@code waveIndex} (0-based) adds -- prior waves' cells are already broken,
+     * so this is a delta, not the full crater shape. For each depth layer 0..waveIndex (depth 0 =
+     * the struck face itself), the layer's radius grows by 1 block of round radius per wave past its
+     * own birth wave ({@code radius = CRATER_BASE_RADIUS + (waveIndex - depth)}); a layer's very
+     * first appearance (its birth wave, {@code depth == waveIndex}) contributes its whole disk, every
+     * later wave only contributes the newly-added ring past its previous radius -- this is what
+     * makes each wave visibly "grow deeper and wider" (a fresh disk at the new deepest point, plus a
+     * wider ring on every shallower layer) rather than recomputing overlapping geometry. Depth 0 ends
+     * up with the largest radius and each deeper layer is strictly narrower -- an inverted cone, a
+     * regular crater silhouette, not a flared one. */
+    private static List<BlockPos> craterWaveCells(BlockPos origin, net.minecraft.core.Direction intoDirection, int waveIndex) {
+        List<BlockPos> cells = new java.util.ArrayList<>();
+
+        for (int depth = 0; depth <= waveIndex; depth++) {
+            boolean brandNewLayer = depth == waveIndex;
+            double newRadius = CRATER_BASE_RADIUS + (waveIndex - depth);
+            double oldRadiusSq = brandNewLayer ? -1.0 : Math.pow(CRATER_BASE_RADIUS + (waveIndex - 1 - depth), 2);
+            double newRadiusSq = newRadius * newRadius;
+            int maxOffset = (int) Math.ceil(newRadius);
+
+            for (int a = -maxOffset; a <= maxOffset; a++) {
+                for (int b = -maxOffset; b <= maxOffset; b++) {
+                    double distSq = (double) a * a + (double) b * b;
+                    if (distSq > newRadiusSq) continue;
+                    if (!brandNewLayer && distSq <= oldRadiusSq) continue;
+
+                    cells.add(craterCellPos(origin, intoDirection, depth, a, b));
+                }
+            }
+        }
+
+        return cells;
+    }
+
+    /** The two perpendicular offsets (a, b) live in the plane orthogonal to {@code intoDirection}'s
+     * axis -- same per-axis offset shape {@code ShatterEvents#facePositions} already uses for the
+     * flat left-click AoE, just parameterized by depth here instead of being fixed at 0. */
+    private static BlockPos craterCellPos(BlockPos origin, net.minecraft.core.Direction intoDirection, int depth, int a, int b) {
+        BlockPos depthPos = origin.relative(intoDirection, depth);
+        return switch (intoDirection.getAxis()) {
+            case X -> depthPos.offset(0, a, b);
+            case Y -> depthPos.offset(a, 0, b);
+            case Z -> depthPos.offset(a, b, 0);
+        };
+    }
+
+    /**
+     * Advances every pending crater whose next wave is due -- called once per server tick from
+     * {@code ShatterEvents#onServerTick}, not subscribed here directly, since GeckoLib items aren't
+     * otherwise event-bus subscribers and adding one just for this would be an odd asymmetry.
+     *
+     * <p>Re-locates the player's currently-held Shatter stack fresh each wave rather than caching an
+     * {@code ItemStack} reference in {@link PendingCrater} -- component writes (mode data, fuel,
+     * mounted head) regularly produce a different object even for "the same" logical item, the same
+     * lesson {@code WorkbenchMenu}'s own supplier-not-reference pattern is built around. A player no
+     * longer holding Shatter in either hand (dropped it, switched away) simply abandons that pending
+     * crater rather than erroring.
+     */
+    public static void tickCraters(net.minecraft.server.MinecraftServer server) {
+        if (PENDING_CRATERS.isEmpty()) return;
+
+        java.util.Iterator<java.util.Map.Entry<java.util.UUID, PendingCrater>> it = PENDING_CRATERS.entrySet().iterator();
+        while (it.hasNext()) {
+            java.util.Map.Entry<java.util.UUID, PendingCrater> entry = it.next();
+            PendingCrater pending = entry.getValue();
+
+            net.minecraft.server.level.ServerLevel level = server.getLevel(pending.levelKey());
+            Player player = level != null ? level.getPlayerByUUID(entry.getKey()) : null;
+            if (level == null || player == null) {
+                it.remove();
+                continue;
+            }
+            if (level.getGameTime() < pending.nextWaveTick()) continue;
+
+            ItemStack stack = findShatterStack(player);
+            if (stack == null) {
+                it.remove();
+                continue;
+            }
+
+            boolean destroyed = fireCraterWave(stack, level, player, pending.origin(), pending.intoDirection(), pending.wavesFired());
+            int nextWaveIndex = pending.wavesFired() + 1;
+            if (destroyed || nextWaveIndex >= pending.totalWaves()) {
+                it.remove();
+            } else {
+                entry.setValue(new PendingCrater(pending.levelKey(), pending.origin(), pending.intoDirection(),
+                        pending.totalWaves(), nextWaveIndex, level.getGameTime() + CRATER_WAVE_INTERVAL_TICKS));
+            }
+        }
+    }
+
+    @Nullable
+    private static ItemStack findShatterStack(Player player) {
+        if (player.getMainHandItem().getItem() instanceof ShatterItem) return player.getMainHandItem();
+        if (player.getOffhandItem().getItem() instanceof ShatterItem) return player.getOffhandItem();
+        return null;
     }
 
     ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\

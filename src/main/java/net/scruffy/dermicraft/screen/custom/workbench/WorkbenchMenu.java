@@ -115,14 +115,19 @@ public class WorkbenchMenu extends AbstractModMenu {
 
     public final WorkbenchBlockEntity be;
     private final Level level;
+    private final Player owningPlayer;
 
     // The current working item's own IWorkbenchSwappable panel, if it has one -- built once at
-    // menu-open against whatever's in WORK_ITEM at that moment (see #panel's own field javadoc for
-    // the known limitation this carries: swapping to a DIFFERENT gadget type while this menu stays
-    // open doesn't rebuild the panel, same limitation the pre-existing Sunder-only implementation
-    // already had). Null if the work item is empty or not swappable.
+    // menu-open against whatever's in WORK_ITEM at that moment. Null if the work item is empty or
+    // not swappable.
     @Nullable
     private final IWorkbenchSwappable.SwapPanel panel;
+
+    // The swappable item's own CLASS at panel-build time (null if nothing swappable was present) --
+    // see #broadcastChanges below. Captured once here rather than re-deriving it, so the comparison
+    // there is a single reference/equals check against a fixed baseline.
+    @Nullable
+    private final Class<?> panelItemClass;
 
     // Mirrors WorkbenchBlockEntity#isFabricationPageActive (initialized from it below) so slot
     // visibility is correct from the first frame, not just after the screen's own init() runs.
@@ -144,6 +149,7 @@ public class WorkbenchMenu extends AbstractModMenu {
 
         this.be = (WorkbenchBlockEntity) blockEntity;
         this.level = inventory.player.level();
+        this.owningPlayer = inventory.player;
         this.modPageActive = !be.isFabricationPageActive();
 
         addPlayerInventory(inventory);
@@ -165,6 +171,7 @@ public class WorkbenchMenu extends AbstractModMenu {
         this.panel = workStack.getItem() instanceof IWorkbenchSwappable swappable
                 ? swappable.openSwapPanel(() -> be.WORK_ITEM.getStackInSlot(0), inventory.player, false)
                 : null;
+        this.panelItemClass = panel != null ? workStack.getItem().getClass() : null;
         if (panel != null) {
             panel.slots(PANEL_X, PANEL_Y, () -> modPageActive).forEach(this::addSlot);
         }
@@ -181,6 +188,46 @@ public class WorkbenchMenu extends AbstractModMenu {
         // local screen's mirror, so this must not double-count there.
         if (!level.isClientSide) {
             be.onMenuOpened();
+        }
+    }
+
+    /**
+     * Auto-reopens this menu (fresh {@link #be} state, so a fresh {@link #panel}) once a NEW
+     * swappable-typed item actually LANDS in the work slot while the GUI stays open -- {@link #panel}
+     * and {@link #panelItemClass} are otherwise fixed for this menu instance's whole lifetime (built
+     * once in the constructor), so swapping a different gadget into the work slot without closing the
+     * GUI previously left stale/missing panel slots behind (background art reads the work item live
+     * every frame so it looked correct, but there was no real {@code Slot} underneath it) -- confirmed
+     * across Sunder/Shatter/Eater alike, since all three share this same construction-time capture.
+     *
+     * <p>{@code broadcastChanges()} is called every server tick for any open menu (via the owning
+     * player's own tick), making it a convenient existing hook rather than needing a dedicated
+     * ticker. {@code ServerPlayer#openMenu} already closes whatever menu is currently open before
+     * creating the new one, so no explicit {@code closeContainer()} call is needed here -- same
+     * open call {@code WorkbenchTopBlock#useWithoutItem} itself uses to open this menu in the first
+     * place, just re-triggered automatically instead of requiring the player to manually close and
+     * reopen (which was already the workaround that reliably fixed it).
+     *
+     * <p>Deliberately waits for something to actually LAND in the work slot rather than reopening
+     * the instant it goes empty -- a plain pick-up-to-drag leaves the slot transiently empty for
+     * every tick in between, and reopening on that transient state was cutting the drag short (the
+     * menu recreation drops the cursor-held stack context) instead of letting the player carry it
+     * over to place elsewhere. An empty work slot just keeps showing the previous gadget's (now
+     * stale) panel until something new is actually placed -- an accepted tradeoff, not a full fix
+     * for the empty case, per the explicit "landing, not removal" framing this was asked for.
+     */
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+
+        if (level.isClientSide || !(owningPlayer instanceof net.minecraft.server.level.ServerPlayer serverPlayer)) return;
+
+        ItemStack currentWork = be.WORK_ITEM.getStackInSlot(0);
+        if (currentWork.isEmpty()) return;
+
+        Class<?> currentClass = currentWork.getItem() instanceof IWorkbenchSwappable ? currentWork.getItem().getClass() : null;
+        if (!java.util.Objects.equals(currentClass, panelItemClass)) {
+            serverPlayer.openMenu(be, buf -> buf.writeBlockPos(be.getBlockPos()));
         }
     }
 

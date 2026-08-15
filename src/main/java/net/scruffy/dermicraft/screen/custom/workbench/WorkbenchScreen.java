@@ -197,6 +197,14 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
     private FluidTankRenderer fuelRenderer;
 
+    // Last known RAW (GLFW window-space, not GUI-scaled) cursor position -- static, not an instance
+    // field, so it survives across WorkbenchMenu#broadcastChanges' auto-reopen (a fresh WorkbenchScreen
+    // instance is constructed each time the menu recreates itself). Without restoring this, that
+    // reopen visibly snapped the cursor to the screen's default position every time a gadget landed
+    // in the work slot. -1 means "nothing captured yet" (first-ever open), skip the warp.
+    private static double lastCursorX = -1;
+    private static double lastCursorY = -1;
+
     public WorkbenchScreen(WorkbenchMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageHeight = MAIN_PANEL_HEIGHT + STRIP_GAP + STRIP_BACKGROUND_HEIGHT + STRIP_BOTTOM_MARGIN;
@@ -210,6 +218,23 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         int fuelCapacity = menu.isWorkItemShatter() ? menu.getShatterFuelCapacity() : menu.getSunderFuelCapacity();
         fuelRenderer = createFluidRenderer16x40(fuelCapacity);
         setPage(currentPage);
+
+        // Restores the cursor to wherever it was on the PREVIOUS screen instance -- see
+        // lastCursorX/Y's own javadoc. GLFW's own cursor-position call, not anything Screen exposes,
+        // since MouseHandler has no public warp method.
+        if (lastCursorX >= 0 && lastCursorY >= 0) {
+            org.lwjgl.glfw.GLFW.glfwSetCursorPos(this.minecraft.getWindow().getWindow(), lastCursorX, lastCursorY);
+        }
+    }
+
+    /** Continuously tracks the RAW cursor position (not the GUI-scaled {@code mouseX}/{@code mouseY}
+     * this method is actually handed) so {@link #init} always has an up-to-date value to restore on
+     * the next reopen, however that reopen happens to be triggered. */
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        super.mouseMoved(mouseX, mouseY);
+        lastCursorX = this.minecraft.mouseHandler.xpos();
+        lastCursorY = this.minecraft.mouseHandler.ypos();
     }
 
     private void setPage(Page page) {
