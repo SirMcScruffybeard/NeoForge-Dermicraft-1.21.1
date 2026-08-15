@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "tag": "c:bones"
+    },
+    "M": {
+      "item": "dermicraft:dense_muscle"
+    },
+    "X": {
+      "tag": "c:bones"
+    }
+  },
+  "pattern": [
+    "XMX",
+    "XBX",
+    "XMX"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:bone_shatter_head"
+  }
+}

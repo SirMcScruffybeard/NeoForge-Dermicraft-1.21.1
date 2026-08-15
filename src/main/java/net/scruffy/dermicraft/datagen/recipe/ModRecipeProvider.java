@@ -210,6 +210,48 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("bone_sunder_chain_crafting_table"));
 
 
+        ////////////////////Shatter Heads\\\\\\\\\\\\\\\\\\\\
+        // Shared pattern across every material (2026-08-15) -- Bone (vanilla, always) at center as
+        // the structural core, Dense Muscle (always) top/bottom-center as the binding flesh, and the
+        // head's own material filling BOTH side columns entirely (6 units) -- deliberately heavier
+        // than Sunder's own chain recipe (which only uses 4 units of its varying material) since a
+        // Shatter head gates the whole weapon's mining tier and durability the way a chain doesn't.
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.IRON_SHATTER_HEAD)
+                .pattern("XMX").pattern("XBX").pattern("XMX")
+                .define('X', Tags.Items.INGOTS_IRON)
+                .define('M', ModItems.DENSE_MUSCLE)
+                .define('B', Tags.Items.BONES)
+                .unlockedBy("has_iron_ingot", has(Tags.Items.INGOTS_IRON))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("iron_shatter_head_crafting_table"));
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.GOLD_SHATTER_HEAD)
+                .pattern("XMX").pattern("XBX").pattern("XMX")
+                .define('X', Tags.Items.INGOTS_GOLD)
+                .define('M', ModItems.DENSE_MUSCLE)
+                .define('B', Tags.Items.BONES)
+                .unlockedBy("has_gold_ingot", has(Tags.Items.INGOTS_GOLD))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("gold_shatter_head_crafting_table"));
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.DIAMOND_SHATTER_HEAD)
+                .pattern("XMX").pattern("XBX").pattern("XMX")
+                .define('X', Tags.Items.GEMS_DIAMOND)
+                .define('M', ModItems.DENSE_MUSCLE)
+                .define('B', Tags.Items.BONES)
+                .unlockedBy("has_diamond", has(Tags.Items.GEMS_DIAMOND))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("diamond_shatter_head_crafting_table"));
+
+        // Bone head -- the material itself is also Bone, same "the material IS the structural core"
+        // overlap the pattern allows for naturally (7 total Bone between the X columns and center,
+        // no special-casing needed to keep the shared pattern's slots consistent).
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.BONE_SHATTER_HEAD)
+                .pattern("XMX").pattern("XBX").pattern("XMX")
+                .define('X', Tags.Items.BONES)
+                .define('M', ModItems.DENSE_MUSCLE)
+                .define('B', Tags.Items.BONES)
+                .unlockedBy("has_bone", has(Tags.Items.BONES))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("bone_shatter_head_crafting_table"));
+
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.OUTERFACE)
                 .pattern("III")
                 .pattern("IEI")
@@ -1381,6 +1423,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
                         new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 2500)),
                 ModItems.SUNDER.get(), ModMath.Time.getSecondsToTicks(30), 1);
+
+        // Shatter -- mirrors Sunder's own recipe exactly (same "not a smart device, no Proto Brain"
+        // reasoning, same Fuel Bladder rather than a general buffer, same chainless/headless-on-
+        // completion rule -- the head is mounted afterward via Scrench, not baked into the recipe).
+        // Only difference: Ferrous Blend bumped from Sunder's 2500 to 3000 mB, to account for the
+        // extra mass of the piston hammer head housing itself.
+        RecipeBuilders.fabricateGadget(recipeOutput, "shatter_fabricating",
+                List.of(
+                        new ItemStack(ModItems.CHASSIS.get(), 2),
+                        new ItemStack(ModItems.FUEL_BLADDER.get())),
+                List.of(
+                        new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 3000)),
+                ModItems.SHATTER.get(), ModMath.Time.getSecondsToTicks(30), 1);
     }
 
     ////////////////////Vanilla item lookup helpers (for the dye-keyed loops above)\\\\\\\\\\\\\\\\\\\\

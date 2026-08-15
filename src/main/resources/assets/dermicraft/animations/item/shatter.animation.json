@@ -84,7 +84,7 @@
 							"vector": [0, 0, 0]
 						},
 						"0.1": {
-							"vector": [-45, 0, 0],
+							"vector": [45, 0, 0],
 							"easing": "easeOutQuad"
 						},
 						"0.25": {

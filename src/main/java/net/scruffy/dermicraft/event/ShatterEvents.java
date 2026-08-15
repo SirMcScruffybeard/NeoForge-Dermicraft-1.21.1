@@ -50,12 +50,14 @@ import java.util.List;
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
 public class ShatterEvents {
 
-    /** Thin wiring only -- the actual crater-advancement logic (and its own pending-state map) lives
-     * on {@link ShatterItem#tickCraters}, not here; GeckoLib items aren't event-bus subscribers
-     * themselves, so this class is just where the tick hook has to live. */
+    /** Thin wiring only -- the actual crater/burst advancement logic (and their own pending-state
+     * maps) lives on {@link ShatterItem#tickCraters}/{@link ShatterItem#tickBursts}, not here;
+     * GeckoLib items aren't event-bus subscribers themselves, so this class is just where the tick
+     * hook has to live. */
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
         ShatterItem.tickCraters(event.getServer());
+        ShatterItem.tickBursts(event.getServer());
     }
 
     /** Placeholder "heavy bonus" magnitude vs skeletons/wither skeletons -- flat additive, not a

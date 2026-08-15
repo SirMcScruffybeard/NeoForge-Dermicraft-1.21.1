@@ -107,20 +107,23 @@ public class BladderItem extends ToolItem implements IHaveFluidData {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // Refuel shortcut: right-clicking with Sunder in the other hand tries filling it directly,
-        // no trip to Scrench's maintenance screen needed for a simple top-off. Only intercepts the
-        // click when it actually moves fluid -- an empty Bladder (or an already-full Sunder tank)
-        // falls straight through to the normal pickup/pour logic below instead of blocking it.
+        // Refuel shortcut: right-clicking with any ModTags.Items.FUEL_CONSUMING_GADGETS weapon in the
+        // other hand tries filling it directly, no trip to Scrench's maintenance screen needed for a
+        // simple top-off. Tag-driven (2026-08-15, generalized from separate Sunder/Shatter instanceof
+        // checks) so a future fuel-tank weapon just needs adding to the tag, not a new branch here --
+        // same tag the Workbench's own passive recharge duty already keys off. Only intercepts the
+        // click when it actually moves fluid -- an empty Bladder (or an already-full tank) falls
+        // straight through to the normal pickup/pour logic below instead of blocking it.
         InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
-        if (player.getItemInHand(otherHand).getItem() instanceof SunderItem) {
+        if (player.getItemInHand(otherHand).is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.FUEL_CONSUMING_GADGETS)) {
             if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
-            if (tryFillSunder(player, hand, otherHand)) {
+            if (tryFillFuelGadget(player, hand, otherHand)) {
                 return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), false);
             }
         }
-        // The reverse hand ordering (Sunder main hand, Bladder off hand) is SunderItem's own
-        // matching check, same split as the existing Scrench/Sunder pairing -- see ScrenchItem's
-        // javadoc for why each item only covers its own hand ordering.
+        // The reverse hand ordering (weapon main hand, Bladder off hand) is each weapon's own matching
+        // check, same split as the existing Scrench/Sunder pairing -- see ScrenchItem's javadoc for
+        // why each item only covers its own hand ordering.
 
         FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
 
@@ -165,31 +168,34 @@ public class BladderItem extends ToolItem implements IHaveFluidData {
         return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
     }
 
-    /** Bladder-on-Sunder quick refuel -- mirrors {@code SippingItem#tryHandTransfer}'s shape, but
-     * one direction only (Bladder into Sunder), since this is specifically a refuel shortcut rather
-     * than a general two-way transfer. Static (not just private) and called from both hand orderings
-     * -- {@link #use} for "Bladder main hand, Sunder off hand" and {@code SunderItem#use} for the
-     * reverse -- same split as the existing Scrench/Sunder pairing (see {@code ScrenchItem}'s
-     * javadoc).
+    /** Bladder-on-fuel-gadget quick refuel -- mirrors {@code SippingItem#tryHandTransfer}'s shape,
+     * but one direction only (Bladder into the weapon), since this is specifically a refuel shortcut
+     * rather than a general two-way transfer. Generalized 2026-08-15 from separate per-weapon
+     * {@code tryFillSunder}/{@code tryFillShatter} methods once the {@link #use} check itself became
+     * tag-driven -- any current or future {@code ModTags.Items.FUEL_CONSUMING_GADGETS} member works
+     * here with no changes needed, the same way {@code IWorkbenchSwappable} generalized the Scrench
+     * swap flow. Static (not just private) and called from both hand orderings -- {@link #use} for
+     * "Bladder main hand, weapon off hand" and each weapon's own {@code use} for the reverse -- same
+     * split as the existing Scrench/Sunder pairing (see {@code ScrenchItem}'s javadoc).
      *
      * <p>Handlers aren't guaranteed to mutate the stack we handed them in place -- vanilla's bucket
      * wrapper represents a fill/drain as swapping to a whole different {@code Item} and only
      * reflects that on its own {@code getContainer()}, not on the original stack. Our own
      * component-based items already are their own container, so writing both containers back into
      * the player's hands afterward is a no-op for them and the fix for everything else. */
-    static boolean tryFillSunder(Player player, InteractionHand bladderHand, InteractionHand sunderHand) {
+    static boolean tryFillFuelGadget(Player player, InteractionHand bladderHand, InteractionHand gadgetHand) {
         ItemStack bladderStack = player.getItemInHand(bladderHand);
-        ItemStack sunderStack = player.getItemInHand(sunderHand);
+        ItemStack gadgetStack = player.getItemInHand(gadgetHand);
 
         IFluidHandlerItem bladderHandler = bladderStack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        IFluidHandlerItem sunderHandler = sunderStack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        if (bladderHandler == null || sunderHandler == null) return false;
+        IFluidHandlerItem gadgetHandler = gadgetStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (bladderHandler == null || gadgetHandler == null) return false;
 
-        FluidStack moved = FluidUtil.tryFluidTransfer(sunderHandler, bladderHandler, Integer.MAX_VALUE, true);
+        FluidStack moved = FluidUtil.tryFluidTransfer(gadgetHandler, bladderHandler, Integer.MAX_VALUE, true);
         if (moved.isEmpty()) return false;
 
         player.setItemInHand(bladderHand, bladderHandler.getContainer());
-        player.setItemInHand(sunderHand, sunderHandler.getContainer());
+        player.setItemInHand(gadgetHand, gadgetHandler.getContainer());
         player.displayClientMessage(Component.translatable("tooltip.dermicraft.bladder.refueled", moved.getAmount()), true);
 
         return true;

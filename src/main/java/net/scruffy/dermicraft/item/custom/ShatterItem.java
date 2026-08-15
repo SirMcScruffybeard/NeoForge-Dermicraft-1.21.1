@@ -210,6 +210,14 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
+        // Reverse ordering of BladderItem's own refuel-shortcut check -- see that method's javadoc.
+        if (player.getItemInHand(otherHand).getItem() instanceof BladderItem) {
+            if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
+            if (BladderItem.tryFillFuelGadget(player, otherHand, hand)) {
+                return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), false);
+            }
+        }
+
         player.startUsingItem(hand);
         return InteractionResultHolder.consume(stack);
     }
@@ -255,12 +263,12 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
     private ShatterModeData release(ItemStack stack, Level level, Player player) {
         LivingEntity target = hasMountedHead(stack) ? findTarget(level, player) : null;
         boolean fired;
-        if (target != null) {
+        if (target != null && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             payForAttack(stack, player);
             wearHead(stack, HEAD_WEAR_PER_ATTACK);
-            fireMobBurst(stack, player, target);
+            scheduleMobBurst(stack, serverLevel, player, target);
             fired = true;
-        } else if (hasMountedHead(stack) && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+        } else if (target == null && hasMountedHead(stack) && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             net.minecraft.world.phys.BlockHitResult blockHit = findBlockHit(level, player);
             if (blockHit != null) {
                 payForAttack(stack, player);
@@ -302,15 +310,57 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
      * swing even on the worst fuel, rather than only becoming special once a better grade is used. */
     private static final float SPECIAL_BASE_MULTIPLIER = 2.0F;
 
-    /** Single-target burst -- {@code totalAttackDamage * SPECIAL_BASE_MULTIPLIER * speedRatio(stack)}.
-     * Reads the player's LIVE {@code ATTACK_DAMAGE} attribute value (already includes Shatter's own
-     * base + the mounted head's damageShift, see {@link #getDefaultAttributeModifiers}) rather than
-     * recomputing the formula by hand, so this can never drift out of sync with the tooltip's own
-     * computed Damage line. */
-    private void fireMobBurst(ItemStack stack, Player player, LivingEntity target) {
+    /** 0.5 seconds -- the block-break/damage moment of the special was landing visibly before the
+     * swing animation reached its own impact point; this defers BOTH the mob burst and the crater's
+     * first wave to line up with it instead, rather than firing the world effect synchronously with
+     * the release itself. */
+    private static final long SPECIAL_IMPACT_DELAY_TICKS = 10;
+
+    /** Pending single-target bursts, keyed by attacking player UUID -- same transient in-memory,
+     * player-UUID-keyed shape {@link #PENDING_CRATERS} uses, advanced by {@link #tickBursts}. */
+    private static final java.util.Map<java.util.UUID, PendingBurst> PENDING_BURSTS = new java.util.HashMap<>();
+
+    private record PendingBurst(net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level> levelKey,
+                                 java.util.UUID targetId, float damage, long fireTick) {}
+
+    /** Computes the burst amount NOW (reading the live {@code ATTACK_DAMAGE} attribute, which
+     * already includes Shatter's own base + the mounted head's damageShift, see
+     * {@link #getDefaultAttributeModifiers}) but doesn't apply it until {@link #tickBursts} finds it
+     * due -- see {@link #SPECIAL_IMPACT_DELAY_TICKS}. Computing the damage at release time rather
+     * than at impact time is deliberate: it's what the player was actually charging up to deal,
+     * unaffected by anything that changes about their gear in the half-second before it lands. */
+    private void scheduleMobBurst(ItemStack stack, net.minecraft.server.level.ServerLevel level, Player player, LivingEntity target) {
         double totalDamage = player.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE);
         float burst = (float) (totalDamage * SPECIAL_BASE_MULTIPLIER * speedRatio(stack));
-        target.hurt(player.damageSources().playerAttack(player), burst);
+        PENDING_BURSTS.put(player.getUUID(), new PendingBurst(level.dimension(), target.getUUID(), burst,
+                level.getGameTime() + SPECIAL_IMPACT_DELAY_TICKS));
+    }
+
+    /** Advances every pending burst whose impact moment has arrived -- called once per server tick
+     * from {@code ShatterEvents#onServerTick}, same wiring shape as {@link #tickCraters}. Re-resolves
+     * both the attacking player and the target fresh by UUID rather than holding live references
+     * across ticks; a target that died or unloaded in the meantime is simply skipped, not errored. */
+    public static void tickBursts(net.minecraft.server.MinecraftServer server) {
+        if (PENDING_BURSTS.isEmpty()) return;
+
+        java.util.Iterator<java.util.Map.Entry<java.util.UUID, PendingBurst>> it = PENDING_BURSTS.entrySet().iterator();
+        while (it.hasNext()) {
+            java.util.Map.Entry<java.util.UUID, PendingBurst> entry = it.next();
+            PendingBurst pending = entry.getValue();
+
+            net.minecraft.server.level.ServerLevel level = server.getLevel(pending.levelKey());
+            Player player = level != null ? level.getPlayerByUUID(entry.getKey()) : null;
+            if (level == null || player == null) {
+                it.remove();
+                continue;
+            }
+            if (level.getGameTime() < pending.fireTick()) continue;
+
+            it.remove();
+            if (level.getEntity(pending.targetId()) instanceof LivingEntity target && target.isAlive()) {
+                target.hurt(player.damageSources().playerAttack(player), pending.damage());
+            }
+        }
     }
 
     /** Fuel grade's speed value relative to Crude's own -- the single axis driving both the mob
@@ -531,20 +581,18 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
                                   BlockPos origin, net.minecraft.core.Direction intoDirection,
                                   int totalWaves, int wavesFired, long nextWaveTick) {}
 
-    /** Fires wave 0 immediately (synchronous with the release, matching "upon impact... broken") and
-     * schedules the rest via {@link #PENDING_CRATERS} if more than one wave is due and the first
-     * didn't already destroy the head. */
+    /** Schedules wave 0 through the SAME {@link #PENDING_CRATERS}/{@link #tickCraters} path every
+     * later wave already uses, rather than firing it synchronously with the release -- wave 0 used
+     * to fire instantly, which landed visibly before the swing animation's own impact point; now
+     * every wave, including the first, waits out {@link #SPECIAL_IMPACT_DELAY_TICKS} from release. */
     private void startCrater(ItemStack stack, net.minecraft.server.level.ServerLevel level, Player player,
                               net.minecraft.world.phys.BlockHitResult hit) {
         int totalWaves = craterWaveCount(stack);
         net.minecraft.core.Direction intoDirection = hit.getDirection().getOpposite();
         BlockPos origin = hit.getBlockPos();
 
-        boolean destroyed = fireCraterWave(stack, level, player, origin, intoDirection, 0);
-        if (destroyed || totalWaves <= 1) return;
-
         PENDING_CRATERS.put(player.getUUID(), new PendingCrater(level.dimension(), origin, intoDirection,
-                totalWaves, 1, level.getGameTime() + CRATER_WAVE_INTERVAL_TICKS));
+                totalWaves, 0, level.getGameTime() + SPECIAL_IMPACT_DELAY_TICKS));
     }
 
     /** {@code CRATER_BASE_WAVES + floor((speedRatio - 1.0) / CRATER_WAVE_STEP_RATIO)} -- driven by
