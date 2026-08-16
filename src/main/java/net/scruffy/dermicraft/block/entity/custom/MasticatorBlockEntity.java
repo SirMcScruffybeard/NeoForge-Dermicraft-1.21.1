@@ -346,6 +346,13 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
 
     @Override
     protected boolean hasCraftingOutputRoom() {
+        // hasRoom() alone only checks capacity, not fluid type -- if RESULT_TANK already holds a
+        // DIFFERENT fluid (e.g. left over from a previous recipe), there can still be "room" by
+        // amount, but RESULT_TANK.fill() would silently refuse it in onCraftComplete() (vanilla
+        // FluidTank.fill() rejects a mismatched fluid), consuming the item/reagent for nothing.
+        FluidStack pendingResult = craftResult(resultAmount);
+        FluidStack current = RESULT_TANK.getFluid();
+        if (!current.isEmpty() && !current.getFluid().isSame(pendingResult.getFluid())) return false;
         return RESULT_TANK.hasRoom(resultAmount);
     }
 
@@ -356,20 +363,29 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         // null out activeRecipe before this method reaches it (mirrors the same hazard documented
         // in MetastasizerBlockEntity#onCraftComplete).
         int itemAmount = activeRecipe.value().itemAmount();
+        int fluidCost = requiredIngredientFluidAmount();
         FluidStack result = craftResult(resultAmount);
 
-        INGREDIENT_TANK.useFluid(resultAmount);
+        INGREDIENT_TANK.useFluid(fluidCost);
         RESULT_TANK.fill(result, IFluidHandler.FluidAction.EXECUTE);
         INVENTORY.extractItem(INGREDIENT_ITEM_SLOT, itemAmount, false);
     }
 
     private boolean hasIngredients() {
-        if (!isIngredientSlotEmpty()) return true;
-        return hasEnoughIngredientFluid();
+        return !isIngredientSlotEmpty() && hasEnoughIngredientFluid();
     }
 
     private boolean hasEnoughIngredientFluid() {
-        return INGREDIENT_TANK.hasEnoughFluid(resultAmount);
+        return INGREDIENT_TANK.hasEnoughFluid(requiredIngredientFluidAmount());
+    }
+
+    // A recipe's ingredientFluidAmount is a fixed cost (e.g. raw iron's 250 mB Primitive Catalyst)
+    // EXCEPT for vague recipes, which store -1 there deliberately -- their real input requirement
+    // scales with the dynamic result amount (see IVagueRecipe/vagueMasticateWithTagAndWater, always
+    // built at a 1:1 water-to-output ratio), so resultAmount is the correct stand-in only in that case.
+    private int requiredIngredientFluidAmount() {
+        int fixedAmount = activeRecipe.value().ingredientFluidAmount();
+        return fixedAmount < 0 ? resultAmount : fixedAmount;
     }
 
     private boolean isIngredientSlotEmpty() {

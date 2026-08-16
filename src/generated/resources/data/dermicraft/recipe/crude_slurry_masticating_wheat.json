@@ -4,10 +4,10 @@
     "item": "minecraft:wheat"
   },
   "ingredient_fluid": "minecraft:water",
-  "ingredient_fluid_amount": 175,
+  "ingredient_fluid_amount": 170,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_crude_slurry",
-  "result_fluid_amount": 175,
-  "ticks": 600
+  "result_fluid_amount": 170,
+  "ticks": 70
 }

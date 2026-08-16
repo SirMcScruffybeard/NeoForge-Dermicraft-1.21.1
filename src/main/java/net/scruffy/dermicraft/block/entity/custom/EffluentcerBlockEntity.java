@@ -322,6 +322,13 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
 
     @Override
     protected boolean hasCraftingOutputRoom() {
+        // hasRoom() alone only checks capacity, not fluid type -- if RESULT_TANK already holds a
+        // DIFFERENT fluid (e.g. left over from a previous recipe), there can still be "room" by
+        // amount, but RESULT_TANK.fill() would silently refuse it in onCraftComplete() (vanilla
+        // FluidTank.fill() rejects a mismatched fluid), consuming both inputs for nothing.
+        FluidStack pendingResult = craftResult(resultAmount);
+        FluidStack current = RESULT_TANK.getFluid();
+        if (!current.isEmpty() && !current.getFluid().isSame(pendingResult.getFluid())) return false;
         return RESULT_TANK.hasRoom(resultAmount);
     }
 

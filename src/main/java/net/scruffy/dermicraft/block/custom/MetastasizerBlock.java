@@ -110,10 +110,10 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
     // Right-click routing mirrors the automation face pattern: top = fuel tank, sides = both
     // the reagent tank (bucket) and the pattern item, bottom = result slot (extract only).
     //
-    // Empty-hand clicks fall through to useWithoutItem (the GUI) only when there's nothing to
-    // extract at that face. A held item always resolves to SUCCESS here and never falls through --
-    // vanilla opens the GUI on ANY PASS_TO_DEFAULT_BLOCK_INTERACTION result regardless of held item
-    // (it doesn't check for an empty hand), so e.g. holding cobblestone at the fuel face (no fluid
+    // Empty-hand clicks always fall through to useWithoutItem (the GUI) -- no quick-extract
+    // shortcut. A held item always resolves to SUCCESS here and never falls through -- vanilla
+    // opens the GUI on ANY PASS_TO_DEFAULT_BLOCK_INTERACTION result regardless of held item (it
+    // doesn't check for an empty hand), so e.g. holding cobblestone at the fuel face (no fluid
     // handler, no pattern slot there) would otherwise fall through and pop the GUI open. Mirrors
     // MasticatorBlock/EffluentcerBlock's interaction shape.
     @NotNull
@@ -125,24 +125,11 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        Direction face = hitResult.getDirection();
-
         if (stack.isEmpty()) {
-            if (face == Direction.DOWN) {
-                ItemStack extracted = be.extractResult();
-                if (!extracted.isEmpty()) {
-                    player.setItemInHand(hand, extracted);
-                    return ItemInteractionResult.SUCCESS;
-                }
-            } else if (face != Direction.UP) {
-                ItemStack extracted = be.extractPattern();
-                if (!extracted.isEmpty()) {
-                    player.setItemInHand(hand, extracted);
-                    return ItemInteractionResult.SUCCESS;
-                }
-            }
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
+
+        Direction face = hitResult.getDirection();
 
         if (FluidUtil.interactWithFluidHandler(player, hand, level, pos, face)) {
             be.setChanged();

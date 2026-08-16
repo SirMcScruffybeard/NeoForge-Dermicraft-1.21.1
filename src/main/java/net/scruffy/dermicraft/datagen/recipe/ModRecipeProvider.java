@@ -497,11 +497,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,
-                ModMath.Time.getMinutesToTicks(1));
+                ModMath.Time.getSecondsToTicks(45));
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL), 1,
                 Fluids.WATER, 334, ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, -1,
-                ModMath.Time.getMinutesToTicks(1));
+                ModMath.Time.getSecondsToTicks(15));
 
 
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 1000,
@@ -518,10 +518,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Wheat has no vanilla FoodProperties, so it can't use the nutrition-scaled vague formula
         // above (that's what already covers Bread, via the PLANT_FOOD tag) -- a fixed yield instead.
-        // 175 mB is a clean number sitting close to 520/3 (~173.3), so 3 Wheat masticated directly
-        // (525 mB) comes out negligibly ahead of baking into Bread first (520 mB).
-        RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_wheat", Items.WHEAT, 175,
-                ModFluids.SOURCE_CRUDE_SLURRY.get(), 175, ModMath.Time.getSecondsToTicks(30));
+        // Deliberately just under/over a third of Bread's own vague-formula numbers (520 mB / 200
+        // ticks) -- raw Wheat should be a slightly worse deal (both slower AND lower-yield) than
+        // baking it into Bread first and masticating that.
+        RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_wheat", Items.WHEAT, 170,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 170, ModMath.Time.getSecondsToTicks(3.5f));
 
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 2.6f,
                 ModFluids.SOURCE_PROTEIN_BLEND.get());
@@ -533,10 +534,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // * (saturation + 1)), same 2.6 modifier) rather than a flat/tiered guess. Same formula
         // already backs "metastasizing_bread" (Crude Slurry family) for a cross-check: nutrition 5,
         // saturation 0.6 -> round(65 * 5 * 1.6) = 520 mB, matching the existing hardcoded value.
-        // Ticks use the same formula's craft-time half (baseTicks 30 instead of the 25 mB multiplier).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beef", Items.BEEF, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 117);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_porkchop", Items.PORKCHOP, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 117);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chicken", Items.CHICKEN, ModFluids.SOURCE_PROTEIN_BLEND.get(), 169, 78);
+        // Ticks use the same formula's craft-time half (baseTicks 25 instead of the 25 mB multiplier).
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beef", Items.BEEF, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 98);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_porkchop", Items.PORKCHOP, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 98);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chicken", Items.CHICKEN, ModFluids.SOURCE_PROTEIN_BLEND.get(), 169, 65);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_rabbit", Items.RABBIT, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 117);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_mutton", Items.MUTTON, ModFluids.SOURCE_PROTEIN_BLEND.get(), 169, 78);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_beef", Items.COOKED_BEEF, ModFluids.SOURCE_PROTEIN_BLEND.get(), 936, 432);
@@ -660,14 +661,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Metal Blends - Ingot/Nugget tiers use Water 1:1; Raw tier uses a flat 250 mB Primitive Catalyst dose for 2000 mB output.
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_ingot", Items.IRON_INGOT, 1000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_nugget", Items.IRON_NUGGET, 110,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_bucket", Items.BUCKET, 3000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModMath.Time.getSecondsToTicks(45));
 
         // Blood Nugget -- second half of the Protein Blend alternate route (see the Metastasizer's
         // metastasizing_blood_nugget). 25 mB/nugget -- well under a plain Iron Nugget's own 110 mB,
@@ -1248,25 +1249,30 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         ////////////////////Mr. Farmer\\\\\\\\\\\\\\\\\\\\
         // Carved Pumpkin as the structural item -- matches the "head in pain" flavor -- plus a Hoe
         // for the farming function, sutured with the standard Masticator-tier 5-item cost.
+        // Proto Brain instead of a raw Nerve Cluster -- Mr. Farmer is full unattended automation
+        // (an entire gameplay loop run hands-off), so it's gated behind the real Proto Brain
+        // production chain (10 Nerve Clusters + Synapse Catalyst + Craw incubation, see
+        // proto_brain_incubating) rather than one cheap organ part.
         RecipeBuilders.buildEarlyImplant(recipeOutput, "mr_farmer_implant",
                 List.of(
                         Ingredient.of(Items.CARVED_PUMPKIN),
                         Ingredient.of(Items.IRON_HOE),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
-                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                        Ingredient.of(ModItems.PROTO_BRAIN.get())),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_FARMER.asItem());
 
         ////////////////////Mr. Shepard\\\\\\\\\\\\\\\\\\\\
         // Shears as the structural/defining item (matches the shearing duty), same 5-item implant shape.
+        // Proto Brain in place of the Nerve Cluster -- see Mr. Farmer's note above, same reasoning.
         RecipeBuilders.buildEarlyImplant(recipeOutput, "mr_shepard_implant",
                 List.of(
                         Ingredient.of(Items.CARVED_PUMPKIN),
                         Ingredient.of(Items.SHEARS),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
-                        Ingredient.of(ModItems.NERVE_CLUSTER.get())),
+                        Ingredient.of(ModItems.PROTO_BRAIN.get())),
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_SHEPARD.asItem());
 
