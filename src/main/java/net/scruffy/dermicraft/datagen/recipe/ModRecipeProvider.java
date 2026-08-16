@@ -135,8 +135,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModBlocks.BEAKER_ITEM)
                 .pattern("G G")
                 .pattern(" G ")
-                .define('G', Tags.Items.GLASS_BLOCKS_CHEAP)
-                .unlockedBy("has_glass", has(Tags.Items.GLASS_BLOCKS_CHEAP))
+                .pattern("G G")
+                .define('G', Items.GLASS_PANE)
+                .unlockedBy("has_glass_pane", has(Items.GLASS_PANE))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("beaker_crafting_table"));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.BLADDER)
@@ -665,6 +666,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_bucket", Items.BUCKET, 3000,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModMath.Time.getSecondsToTicks(60));
 
         // Blood Nugget -- second half of the Protein Blend alternate route (see the Metastasizer's
         // metastasizing_blood_nugget). 25 mB/nugget -- well under a plain Iron Nugget's own 110 mB,
@@ -733,6 +736,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Ingot/Nugget fluid amounts above 1:1. No Cuprous Nugget, same reason as the Masticator side.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_BLEND.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bucket", Items.BUCKET, ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, solidTicks);
 
         // Blood Nugget -- alternate trace-iron route from Protein Blend. Iron Nugget is a
         // non-consumed pattern (same as every other Metastasizer recipe here); Protein Blend is the
