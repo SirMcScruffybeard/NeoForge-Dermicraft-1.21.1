@@ -366,6 +366,7 @@
   "jei.dermicraft.category.puddle_crafting": "Puddle Crafting",
   "jei.dermicraft.category.puddle_crafting.description": "Drop items into this fluid in the world",
   "jei.dermicraft.category.early_implant": "Early Implant",
-  "jei.dermicraft.category.early_implant.description": "Feed into a Stitched Tumor with a Suture Kit",
-  "jei.dermicraft.category.harvesting": "Harvesting"
+  "jei.dermicraft.category.early_implant.description": "Place in Marred Tumor. Sow and Inject.",
+  "jei.dermicraft.category.harvesting": "Harvesting",
+  "jei.dermicraft.category.hand_shredding": "Hand Shredding"
 }

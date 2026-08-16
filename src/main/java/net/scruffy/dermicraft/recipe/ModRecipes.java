@@ -13,6 +13,7 @@ import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
+import net.scruffy.dermicraft.recipe.hand_shredding.HandShreddingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
@@ -138,6 +139,17 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "gadget_fabricating";
+                }
+            });
+
+
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<HandShreddingRecipe>> HAND_SHREDDING_SERIALIZER =
+            SERIALIZERS.register("hand_shredding", HandShreddingRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<HandShreddingRecipe>> HAND_SHREDDING_TYPE =
+            TYPES.register("hand_shredding", () -> new RecipeType<HandShreddingRecipe>() {
+                @Override
+                public String toString() {
+                    return "hand_shredding";
                 }
             });
 

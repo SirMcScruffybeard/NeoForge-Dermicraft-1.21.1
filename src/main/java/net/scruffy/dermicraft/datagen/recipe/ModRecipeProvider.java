@@ -262,6 +262,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("outerface_crafting_table"));
 
+        RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_scalpel",
+                Ingredient.of(ModItems.SCALPEL.get()), Ingredient.of(ItemTags.WOOL),
+                new ItemStack(Items.STRING, 4), 0, false);
+        RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_primitive_scalpel",
+                Ingredient.of(ModItems.PRIMITIVE_SCALPEL.get()), Ingredient.of(ItemTags.WOOL),
+                new ItemStack(Items.STRING, 4), 1, false);
+        RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_flint",
+                Ingredient.of(Items.FLINT), Ingredient.of(ItemTags.WOOL),
+                new ItemStack(Items.STRING, 4), 0, true);
+
         RecipeBuilders.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem());
 
         RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem());

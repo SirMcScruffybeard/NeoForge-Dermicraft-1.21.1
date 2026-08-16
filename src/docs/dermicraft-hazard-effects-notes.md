@@ -105,16 +105,16 @@ Reuses vanilla lava/fire behavior directly (burning). No custom effect required 
 
 - **Dumb machines are natively immune.** Ordinary machine families (Masticator, Mutator, Metastasizer, Effluentcer, etc. — permanently Brain-free by rule) can contain and process Metaphysical-tagged fluids **with no special protection and at no tier requirement for the Metaphysical tag itself.** Any *other* hazard tags on the fluid still gate normally (e.g. Ender Essence's Extreme Heat still requires a Tier 2 machine — the Metaphysical Severe tag just passes through the mindless machine like wind through an empty house).
 - **Ducts/Nodes are mindless connective tissue** — Metaphysical tags are **exempt from the duct hazard-tier weakest-link filter** (their physical hazard tags still filter normally). Needs the explicit carve-out in the `HazardProfile` check.
-- **Smart structures ARE affected** — the OT (Brain/Core), Gear Stations, and the Imago Engine all have minds and need protection from Metaphysical exposure.
+- **Smart structures ARE affected** — the FL (Brain/Core), Gear Worx Stations, and the Imago Engine all have minds and need protection from Metaphysical exposure.
 - **The player is a mind** — nothing changes player-side: hand-in-a-bucket classification, Drinker tier gating, and the two suit Hazard stats all still apply to Metaphysical fluids exactly as before.
 
 **Design consequence — the hazard hierarchy inverts:** every other hazard says "better machine = safer." Metaphysical says **intelligence is the vulnerability** — the dumbest grinder handles Ender Essence without noticing; the factory's crowning brain needs shielding from it. This is the genre's thesis expressed as a mechanic, and it's what un-blocked the Eye of Ender recipe (see machine notes → Mutator).
 
-**Exposure definition (confirmed): containment, not proximity.** A smart structure is exposed when a Metaphysical-tagged fluid is **contained within the structure or its network** — e.g. a tank attached to the OT's floor network holding Ender Essence exposes the OT. Cheap to compute (the OT already knows its network contents via Knitting/direct access — no proximity scanning), and fair (the player chose to pipe it in).
+**Exposure definition (confirmed): containment, not proximity.** A smart structure is exposed when a Metaphysical-tagged fluid is **contained within the structure or its network** — e.g. a tank attached to the FL's floor network holding Ender Essence exposes the FL. Cheap to compute (the FL already knows its network contents via Knitting/direct access — no proximity scanning), and fair (the player chose to pipe it in).
 
 **Effect on an exposed, unprotected smart structure (confirmed direction): the GUI glitches out until the hazard is removed.** Madness, not damage — non-destructive, self-resolving on removal of the fluid, instantly legible as "something is wrong with this machine's *mind*," and still a real gate (an unreadable GUI can't be operated). Severity ladder falls out of the existing tags for free: **Mild = visual noise/flicker but usable; Severe = GUI fully illegible until purged.**
 
-**Open questions:** What "protection" for a smart structure actually is (a shielding block? an upgrade? — the relocated remainder of the old "what handles Metaphysical" question). Exact GUI-glitch presentation per severity. Whether exposure has any effect beyond the GUI (e.g. does a Severe-exposed OT also misbehave — misroute crafts, Knit wrong — or is the GUI the whole effect for now?).
+**Open questions:** What "protection" for a smart structure actually is (a shielding block? an upgrade? — the relocated remainder of the old "what handles Metaphysical" question). Exact GUI-glitch presentation per severity. Whether exposure has any effect beyond the GUI (e.g. does a Severe-exposed FL also misbehave — misroute crafts, Knit wrong — or is the GUI the whole effect for now?).
 
 ---
 

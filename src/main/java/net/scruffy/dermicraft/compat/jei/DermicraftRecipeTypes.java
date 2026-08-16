@@ -7,6 +7,7 @@ import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
+import net.scruffy.dermicraft.recipe.hand_shredding.HandShreddingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
@@ -41,6 +42,8 @@ public final class DermicraftRecipeTypes {
             RecipeType.create(Dermicraft.MOD_ID, "rendering", uncheckedCast(RecipeHolder.class));
     public static final RecipeType<HarvestDisplay> HARVESTING =
             RecipeType.create(Dermicraft.MOD_ID, "harvesting", HarvestDisplay.class);
+    public static final RecipeType<RecipeHolder<HandShreddingRecipe>> HAND_SHREDDING =
+            RecipeType.create(Dermicraft.MOD_ID, "hand_shredding", uncheckedCast(RecipeHolder.class));
 
     @SuppressWarnings("unchecked")
     private static <T> Class<T> uncheckedCast(Class<?> clazz) {

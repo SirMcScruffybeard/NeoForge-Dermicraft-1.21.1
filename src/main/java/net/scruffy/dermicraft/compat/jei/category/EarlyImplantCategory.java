@@ -34,6 +34,8 @@ public class EarlyImplantCategory implements IRecipeCategory<RecipeHolder<EarlyI
 
     private static final int MAX_INGREDIENTS = 8;
     private static final int GRID_X = 0, GRID_Y_ROW1 = 0, GRID_Y_ROW2 = 20;
+    private static final int DESCRIPTION_X = GRID_X, DESCRIPTION_Y = GRID_Y_ROW2 + JeiTextures.ITEM_SLOT_SIZE + 4;
+    private static final int DESCRIPTION_WIDTH = 4 * 20 - 2;
     private static final int SUTURE_X = 90, SUTURE_Y = 21;
     private static final int TANK_X = 119, TANK_Y = 0;
     // The tank_and_slot.png backdrop has a paired item-slot baked into its bottom, matching how
@@ -104,9 +106,9 @@ public class EarlyImplantCategory implements IRecipeCategory<RecipeHolder<EarlyI
         arrowBackground.draw(guiGraphics, ARROW_X, ARROW_Y);
         arrowFull.draw(guiGraphics, ARROW_X, ARROW_Y);
 
-        guiGraphics.drawString(Minecraft.getInstance().font,
+        guiGraphics.drawWordWrap(Minecraft.getInstance().font,
                 Component.translatable("jei.dermicraft.category.early_implant.description"),
-                0, HEIGHT - 10, 0x808080, false);
+                DESCRIPTION_X, DESCRIPTION_Y, DESCRIPTION_WIDTH, 0x808080);
     }
 
     @Override

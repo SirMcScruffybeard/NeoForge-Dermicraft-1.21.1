@@ -21,6 +21,7 @@ import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
+import net.scruffy.dermicraft.recipe.hand_shredding.HandShreddingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
 import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
@@ -39,6 +40,14 @@ public class RecipeBuilders {
 
         ResourceLocation id = getResourceLocation(name);
         VagueDroolingRecipe recipe = new VagueDroolingRecipe(ingredient, modifier, result);
+        output.accept(id, recipe, null);
+    }
+
+    ////////////////////HandShredding\\\\\\\\\\\\\\\\\\\\
+    public static void buildHandShredding(RecipeOutput output, String name, Ingredient tool, Ingredient input,
+                                           ItemStack result, int toolDamage, boolean consumeTool) {
+        ResourceLocation id = getResourceLocation(name);
+        HandShreddingRecipe recipe = new HandShreddingRecipe(tool, input, result, toolDamage, consumeTool);
         output.accept(id, recipe, null);
     }
 

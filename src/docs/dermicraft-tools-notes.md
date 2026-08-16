@@ -32,7 +32,7 @@ Scalpel, Suture Kit, Forceps, and Syringe were named in the primer from the star
 
 **Open questions:** None remaining.
 
-**Deferred discussion (not yet resolved) — a Tier 2 Inert Tumor variant?** Raised while working out Tier 2 Machine evolutions (see `dermicraft-machine-notes.md` → Machine Evolution — Smart vs. Dumb / Standard Tier 2 evolution recipe template): should a **Tier 2 Inert Tumor** exist, paired with **Tier 2 implant recipes** for Machines, as a hand-crafted counterpart to the OT's Tier 2 native-construction recipes? Currently, Tier 1→2 Machine evolution only has the forced Evolution Catalyst path (evolving an existing Tier 1 Machine in place) — there's no hand-crafted "build a Tier 2 Machine from scratch via a Tier 2 Inert Tumor" route the way Tier 1 machines have their own implant recipes. Not designed yet — flagged for a future session.
+**Deferred discussion (not yet resolved) — a Tier 2 Inert Tumor variant?** Raised while working out Tier 2 Machine evolutions (see `dermicraft-machine-notes.md` → Machine Evolution — Smart vs. Dumb / Standard Tier 2 evolution recipe template): should a **Tier 2 Inert Tumor** exist, paired with **Tier 2 implant recipes** for Machines, as a hand-crafted counterpart to the FL's Tier 2 native-construction recipes? Currently, Tier 1→2 Machine evolution only has the forced Evolution Catalyst path (evolving an existing Tier 1 Machine in place) — there's no hand-crafted "build a Tier 2 Machine from scratch via a Tier 2 Inert Tumor" route the way Tier 1 machines have their own implant recipes. Not designed yet — flagged for a future session.
 
 ---
 
@@ -95,7 +95,7 @@ All three ended up on the same injection fluid rather than each getting its own 
 **Current per-machine status:**
 - **Drooling Cauldron**, **Masticator**, **Effluentcer**, and **Skin Tank** — all have recipes implemented. Skin Tank's blocking ingredient issue is resolved: `skin_tank_implant.json` is 2× Dense Muscle + 2× Nerve Cluster + 1× Beaker (sutured), injected with 100 mB Primitive Catalyst.
 - **Metastasizer** — implant recipe now **designed** (1× Beaker + 2× Dense Muscle + 4× Nerve Cluster + 1× Eye, injected with 100 mB Primitive Catalyst, sutured — see `dermicraft-machine-notes.md` Metastasizer), but **not yet implemented in code** (needs the recipe JSON + datagen).
-- **All other Machines** in `dermicraft-machine-notes.md` (Drooling Crucible, Operating Theater, Filling Station, the farming trio) — recipes not yet defined; standing ToDo.
+- **All other Machines** in `dermicraft-machine-notes.md` (Drooling Crucible, Flesh Lab, Filling Station, the farming trio) — recipes not yet defined; standing ToDo.
 
 **Open questions:** Whether every Machine's injection fluid is Primitive Catalyst specifically, or whether some Machines might call for a different fluid depending on their own identity (same way the tumor mutations above will each need their own fluid). Exact recipes for every Machine beyond Drooling Cauldron and Masticator.
 
@@ -224,7 +224,7 @@ Roster explicitly open-ended — more passive mobs can be added anytime a natura
 
 ## Open questions (general, across this doc) — left as-is
 
-- **Per-machine tumor recipes** for everything beyond Drooling Cauldron, Masticator, Effluentcer, and Skin Tank (Metastasizer, Drooling Crucible, Operating Theater, Filling Station, the farming trio) — none written yet.
+- **Per-machine tumor recipes** for everything beyond Drooling Cauldron, Masticator, Effluentcer, and Skin Tank (Metastasizer, Drooling Crucible, Flesh Lab, Filling Station, the farming trio) — none written yet.
 - **Squid ink effect cooldown length** — not located in code.
 - **Creeper C-Stuff disruption duration and cooldown length** — not located in code.
 - **Suture Kit multiplayer use-on-others** — design decision, not a code question.

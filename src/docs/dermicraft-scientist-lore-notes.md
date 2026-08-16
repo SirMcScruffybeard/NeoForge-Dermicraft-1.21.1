@@ -12,11 +12,15 @@ Everything in this doc is brainstorm-stage — reacted-to and refined in convers
 
 ## Motivation
 
-**Status:** Decided, replaces an earlier "progress for progress's sake" placeholder.
+**Status:** Decided, replaces an earlier "progress for progress's sake" placeholder. **Confirmed 2026-08-14: motivation is two-stage, not a single fixed drive** — it starts as fear of decline and escalates into godhood/immortality-seeking as his madness deepens (see "Goal escalation," below). Everything in this section describes the **starting** state; the escalation is the whole point of the arc, not a contradiction of it.
 
 **What it is:** The Scientist isn't driven by ambition or curiosity for its own sake. He's afraid of his mind and body breaking down with age — but the fear isn't really about the number, and it isn't really about dying either; he doesn't fear death much at all. What he fears is **decline**: the erosion of his own faculties and continuity while he's still around to experience it. That fear is what pushed him past ordinary science into increasingly extreme self-alteration — chasing a way to stop breaking down, and then a way to actively improve past his own baseline, rather than accept decay.
 
 **Why it works:** Gives him a specific, personal reason to escalate, rather than a generic mad-scientist drive. Also lines up cleanly with material already in the mod's fiction — Living Catalyst's defining trait is toughness + self-repair. That's not a coincidental thematic match; the Scientist's whole research arc can be read as him inventing anti-decay biology out of personal terror, and the player's own late-game tech (Living Catalyst, Living Metal) is a continuation of exactly that line of research, just carried further than he ever got.
+
+**Goal escalation — decline-avoidance curdles into godhood.** The modest original goal (stop breaking down) is not where he ends up. As his self-alteration escalates — the same escalation that eventually costs him a continuous self (see "The cosmic horror turn," below) — the goal warps in scale along with the methods: "stop declining" becomes "actively improve past baseline" (already present above) becomes, by the time real madness has set in, an unspoken reach for outright **immortality/godhood** through strengthening and refining "the flesh." This escalation is **never a clean jump** and **never flatly stated**, even once it's clearly what's driving him — it stays present under the surface, inferred rather than declared, consistent with a man whose own sense of what he wants is escalating in real time along with everything else about him. **Whether the late-stage godhood-seeking is self-interested or something he'd rationalize as benefiting others (science, humanity) is deliberately left ambiguous** — a man who no longer has a single continuous self left to interrogate his own motives wouldn't have a clean answer, and giving him one would flatten the character.
+
+**Tone arc, tied to the escalation:** grounded and composed early (the fear-of-decline stage), gradually stranger/more unstable as the goal escalates toward godhood — this tracks his own proximity to whatever he pushed too far into, and mirrors the player's own progression toward and past the Flesh Lab. See `dermicraft-misc-notes.md` → In-game Guide System for how this plays out structurally in the Notebook/Journal split (the Journal is the only place this escalation and voice actually show up — the 8 clean reference categories stay flat/functional throughout).
 
 ## The cosmic horror turn — loss of continuous self
 
@@ -59,4 +63,4 @@ A separate Hallucination Table idea surfaced alongside the Scientist discussion:
 - Whether the Living-Metal-motivated retcon of the Scientist's motivation needs to be reflected anywhere in existing Notebook/Tablet text, or stays purely author-side framing.
 - How "nonlinear timeline" forms are telegraphed to the player, if at all, before any late-game reveal.
 - Pocket dimension access method.
-- Whether the player ever learns the full "fear of decline → loss of continuous self" arc in-game, or whether that stays implicit/external lore.
+- Whether the player ever learns the full "fear of decline → godhood-seeking → loss of continuous self" arc in-game, or whether that stays implicit/external lore.

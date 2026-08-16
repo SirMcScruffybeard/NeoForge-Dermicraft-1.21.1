@@ -16,6 +16,7 @@ import net.scruffy.dermicraft.compat.jei.category.DippingCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCauldronCategory;
 import net.scruffy.dermicraft.compat.jei.category.EarlyImplantCategory;
 import net.scruffy.dermicraft.compat.jei.category.EffluencingCategory;
+import net.scruffy.dermicraft.compat.jei.category.HandShreddingCategory;
 import net.scruffy.dermicraft.compat.jei.category.HarvestingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MasticatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MetastasizingCategory;
@@ -56,7 +57,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 new PuddleCraftingCategory(gui),
                 new EarlyImplantCategory(gui),
                 new RenderingCategory(gui),
-                new HarvestingCategory(gui)
+                new HarvestingCategory(gui),
+                new HandShreddingCategory(gui)
         );
     }
 
@@ -81,6 +83,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipes(DermicraftRecipeTypes.RENDERING,
                 recipeManager.getAllRecipesFor(ModRecipes.RENDERING_TYPE.get()));
         registration.addRecipes(DermicraftRecipeTypes.HARVESTING, buildHarvestDisplays());
+        registration.addRecipes(DermicraftRecipeTypes.HAND_SHREDDING,
+                recipeManager.getAllRecipesFor(ModRecipes.HAND_SHREDDING_TYPE.get()));
     }
 
     @Override
