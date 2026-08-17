@@ -33,6 +33,8 @@ public class MetastasizerMenu extends AbstractModMenu {
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getReagentTank().SLOT, 31, 60));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MetastasizerBlockEntity.PATTERN_SLOT, 61, 35));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MetastasizerBlockEntity.OUTPUT_SLOT, 121, 35));
+
+        setQuickMoveInputSlots(2, 1); // PATTERN_SLOT only -- skip fuel/reagent tank slots and OUTPUT_SLOT
     }
 
     @Override

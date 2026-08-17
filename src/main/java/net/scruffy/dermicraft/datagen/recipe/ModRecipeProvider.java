@@ -505,13 +505,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
 
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 1000,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal", Items.COAL, 110,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 112, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_CARBON_BLEND.get(), 112, ModMath.Time.getSecondsToTicks(15));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 110,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(15));
 
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "crude_slurry_vague_masticating", ModTags.Items.PLANT_FOOD, 2.6f,
                 ModFluids.SOURCE_CRUDE_SLURRY.get());
@@ -563,7 +563,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Placeholder yields - Sediment Blend balance values not yet finalized, see crafting notes.
         RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating", ModTags.Items.STONE_BLEND_ROSTER, 1000,
-                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_masticating", ModTags.Items.SILICA_BLEND_ROSTER, 1000,
                 ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
@@ -587,7 +587,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "stone_blend_masticating_boosted_with_silica_blend",
                 Ingredient.of(ModTags.Items.STONE_BLEND_ROSTER), 1,
                 ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModFluids.SOURCE_STONE_BLEND.get(), 1250, -1,
-                ModMath.Time.getSecondsToTicks(60));
+                ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "silica_blend_masticating_boosted_with_clay_blend",
                 Ingredient.of(ModTags.Items.SILICA_BLEND_ROSTER), 1,

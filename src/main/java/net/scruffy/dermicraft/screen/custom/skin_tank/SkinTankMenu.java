@@ -38,6 +38,8 @@ public class SkinTankMenu extends AbstractModMenu {
                 return 1;
             }
         });
+
+        setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT
     }
 
     @Override

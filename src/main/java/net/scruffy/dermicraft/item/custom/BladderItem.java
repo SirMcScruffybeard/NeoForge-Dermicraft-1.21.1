@@ -127,9 +127,17 @@ public class BladderItem extends ToolItem implements IHaveFluidData {
 
         FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
 
-        if (drinkable && FluidFoodUtil.canDrink(player, data.getFluidStack())) {
-            player.startUsingItem(hand);
-            return InteractionResultHolder.consume(stack);
+        if (drinkable && !data.isFluidEmpty() && FluidFoodUtil.isEdible(data.getFluidStack())) {
+            if (FluidFoodUtil.canDrink(player, data.getFluidStack())) {
+                player.startUsingItem(hand);
+                return InteractionResultHolder.consume(stack);
+            }
+            // Edible content is for drinking, not for placing as a source block in the world --
+            // without this, a failed canDrink() (player not hungry enough right now, or less than
+            // a full drink's worth left) fell through to the bucket-style pour logic below, which
+            // happily dumped the food fluid into the world as a placed block and drained a full
+            // 1000 mB "bucket" worth from the container for it. Just no-op instead.
+            return InteractionResultHolder.pass(stack);
         }
 
         boolean pickingUp = data.isFluidEmpty();

@@ -36,6 +36,8 @@ public class DroolingCauldronMenu extends AbstractModMenu {
                 return 1;
             }
         });
+
+        setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT
     }
 
     @Override

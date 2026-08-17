@@ -135,8 +135,14 @@ public class MasticatorBlock extends ModBaseEntityBlock implements TieredMachine
             }
         } else if (!player.getItemInHand(hand).isEmpty()
                 && stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
-            player.setItemInHand(hand, masticator.insertItemStack(stack));
-            return ItemInteractionResult.SUCCESS;
+            int before = stack.getCount();
+            ItemStack leftover = masticator.insertItemStack(stack);
+            if (leftover.getCount() != before) {
+                player.setItemInHand(hand, leftover);
+                return ItemInteractionResult.SUCCESS;
+            }
+            // Nothing was actually inserted (ingredient slot already occupied by something else) --
+            // don't eat the click, fall through so vanilla opens the GUI instead.
         }
 
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;

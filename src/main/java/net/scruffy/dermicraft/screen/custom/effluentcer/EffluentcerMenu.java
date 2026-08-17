@@ -38,6 +38,11 @@ public class EffluentcerMenu extends AbstractModMenu {
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getInputATank().SLOT, 41, 60));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getInputBTank().SLOT, 61, 60));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 113, 60));
+
+        // Every slot here is a fluid-container passthrough (fuel/inputA/inputB/result) -- there's
+        // no real solid item input, so shift-click from the player's inventory has nothing to
+        // target and just no-ops rather than dumping into a tank slot.
+        setQuickMoveInputSlots(0, 0);
     }
 
     @Override

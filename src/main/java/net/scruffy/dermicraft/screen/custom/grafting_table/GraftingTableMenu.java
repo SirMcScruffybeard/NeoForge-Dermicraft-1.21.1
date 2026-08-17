@@ -62,6 +62,8 @@ public class GraftingTableMenu extends AbstractModMenu {
         }
 
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), GraftingTableBlockEntity.OUTPUT_SLOT, 101, 30));
+
+        setQuickMoveInputSlots(1, GraftingTableBlockEntity.GRID_SIZE); // grid slots only -- skip fuel tank slot and OUTPUT_SLOT
     }
 
     @Override

@@ -32,6 +32,10 @@ public class RenderKilnMenu extends AbstractModMenu {
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getInputTank().SLOT, 55, 60));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), RenderKilnBlockEntity.OUTPUT_SLOT, 101, 35));
+
+        // Input here is fluid-only (BE.getInputTank(), a bucket passthrough slot) -- no real solid
+        // item input exists, so shift-click from the player's inventory has nothing to target.
+        setQuickMoveInputSlots(0, 0);
     }
 
     @Override

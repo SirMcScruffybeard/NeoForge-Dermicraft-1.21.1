@@ -32,6 +32,8 @@ public class RenderFurnaceMenu extends AbstractModMenu {
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), RenderFurnaceBlockEntity.INPUT_SLOT, 61, 35));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), RenderFurnaceBlockEntity.OUTPUT_SLOT, 121, 35));
+
+        setQuickMoveInputSlots(1, 1); // INPUT_SLOT only -- skip fuel tank slot and OUTPUT_SLOT
     }
 
     @Override

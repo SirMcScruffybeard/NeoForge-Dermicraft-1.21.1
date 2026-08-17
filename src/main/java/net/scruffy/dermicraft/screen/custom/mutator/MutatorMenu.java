@@ -33,6 +33,8 @@ public class MutatorMenu extends AbstractModMenu {
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getReagentTank().SLOT, 31, 60));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MutatorBlockEntity.INPUT_SLOT, 61, 35));
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MutatorBlockEntity.OUTPUT_SLOT, 121, 35));
+
+        setQuickMoveInputSlots(2, 1); // INPUT_SLOT only -- skip fuel/reagent tank slots and OUTPUT_SLOT
     }
 
     @Override
