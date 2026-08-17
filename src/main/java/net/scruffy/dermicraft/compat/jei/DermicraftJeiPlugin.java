@@ -15,6 +15,7 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.compat.jei.category.DippingCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCauldronCategory;
 import net.scruffy.dermicraft.compat.jei.category.EarlyImplantCategory;
+import net.scruffy.dermicraft.compat.jei.category.EarlyIncubatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.EffluencingCategory;
 import net.scruffy.dermicraft.compat.jei.category.HandShreddingCategory;
 import net.scruffy.dermicraft.compat.jei.category.HarvestingCategory;
@@ -56,6 +57,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 new DippingCategory(gui),
                 new PuddleCraftingCategory(gui),
                 new EarlyImplantCategory(gui),
+                new EarlyIncubatingCategory(gui),
                 new RenderingCategory(gui),
                 new HarvestingCategory(gui),
                 new HandShreddingCategory(gui)
@@ -80,6 +82,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 recipeManager.getAllRecipesFor(ModRecipes.PUDDLE_FLUID_CRAFTING_TYPE.get()));
         registration.addRecipes(DermicraftRecipeTypes.EARLY_IMPLANT,
                 recipeManager.getAllRecipesFor(ModRecipes.EARLY_IMPLANT_TYPE.get()));
+        registration.addRecipes(DermicraftRecipeTypes.EARLY_INCUBATING,
+                recipeManager.getAllRecipesFor(ModRecipes.EARLY_INCUBATING_TYPE.get()));
         registration.addRecipes(DermicraftRecipeTypes.RENDERING,
                 recipeManager.getAllRecipesFor(ModRecipes.RENDERING_TYPE.get()));
         registration.addRecipes(DermicraftRecipeTypes.HARVESTING, buildHarvestDisplays());
@@ -95,6 +99,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.METASTASIZER.get()), DermicraftRecipeTypes.METASTASIZING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MUTATOR.get()), DermicraftRecipeTypes.MUTATING);
         registration.addRecipeCatalyst(new ItemStack(ModItems.SUTURE_KIT.get()), DermicraftRecipeTypes.EARLY_IMPLANT);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRAW.get()), DermicraftRecipeTypes.EARLY_INCUBATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.RENDER_KILN.get()), DermicraftRecipeTypes.RENDERING);
         registration.addRecipeCatalyst(new ItemStack(ModItems.SCALPEL.get()), DermicraftRecipeTypes.HARVESTING);
     }

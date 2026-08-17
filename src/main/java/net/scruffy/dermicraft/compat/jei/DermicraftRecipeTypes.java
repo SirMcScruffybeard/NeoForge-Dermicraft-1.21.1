@@ -6,6 +6,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
+import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.recipe.hand_shredding.HandShreddingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
@@ -38,6 +39,8 @@ public final class DermicraftRecipeTypes {
             RecipeType.create(Dermicraft.MOD_ID, "puddle_crafting", uncheckedCast(RecipeHolder.class));
     public static final RecipeType<RecipeHolder<EarlyImplantRecipe>> EARLY_IMPLANT =
             RecipeType.create(Dermicraft.MOD_ID, "early_implant", uncheckedCast(RecipeHolder.class));
+    public static final RecipeType<RecipeHolder<EarlyIncubatingRecipe>> EARLY_INCUBATING =
+            RecipeType.create(Dermicraft.MOD_ID, "early_incubating", uncheckedCast(RecipeHolder.class));
     public static final RecipeType<RecipeHolder<RenderingRecipe>> RENDERING =
             RecipeType.create(Dermicraft.MOD_ID, "rendering", uncheckedCast(RecipeHolder.class));
     public static final RecipeType<HarvestDisplay> HARVESTING =

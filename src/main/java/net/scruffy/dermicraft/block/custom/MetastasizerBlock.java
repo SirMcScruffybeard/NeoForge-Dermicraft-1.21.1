@@ -139,7 +139,14 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
 
         if (face != Direction.UP && face != Direction.DOWN
                 && stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
-            player.setItemInHand(hand, be.insertPattern(stack));
+            int before = stack.getCount();
+            ItemStack leftover = be.insertPattern(stack);
+            if (leftover.getCount() == before) {
+                // Nothing was actually inserted (pattern slot already occupied by something else) --
+                // don't eat the click, fall through so vanilla opens the GUI instead.
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+            player.setItemInHand(hand, leftover);
         }
 
         return ItemInteractionResult.SUCCESS;

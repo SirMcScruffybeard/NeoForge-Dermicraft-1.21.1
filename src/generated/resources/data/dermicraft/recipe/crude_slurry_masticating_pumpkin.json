@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:pumpkin"
+  },
+  "ingredient_fluid": "minecraft:water",
+  "ingredient_fluid_amount": 845,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_crude_slurry",
+  "result_fluid_amount": 845,
+  "ticks": 325
+}

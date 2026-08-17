@@ -2,6 +2,7 @@
   "values": [
     "#dermicraft:animal_meats",
     "#c:foods/cooked_meat",
+    "#c:foods/cooked_fish",
     "dermicraft:meat_flavored_meat"
   ]
 }

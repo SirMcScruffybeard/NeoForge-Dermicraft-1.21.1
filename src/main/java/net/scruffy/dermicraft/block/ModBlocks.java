@@ -65,8 +65,12 @@ public class ModBlocks {
                     .isViewBlocking((state, getter, pos) -> false)          // Allows line-of-sight (e.g., endermen)
             ));
 
+    // Matches vanilla Cauldron's own hardness/blast resistance (strength 2.0, pickaxe required) --
+    // was bare Properties.of() (hardness 0) despite being modeled on it.
     public static final DeferredBlock<Block> DROOLING_CAULDRON = registerBlock("drooling_cauldron",
-            () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()));
+            () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()
+                    .strength(2.0f)
+                    .requiresCorrectToolForDrops()));
 
     // Workbench bottom half -- keeps the registry id "workbench" (established before the top half
     // existed) and hosts the real Storage/Mod/Fabrication GUI (see WorkbenchBlock's own javadoc).
@@ -102,38 +106,48 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> OUTERFACE = registerBlock("outerface", OuterfaceBlock::new);
 
+    // Furnace-tier hardness/blast resistance -- a bare Properties.of() (hardness 0, one-hit-with-
+    // fists, no tool required) was far too fragile for a real machine. Applied mod-wide across
+    // every machine block below (Drooling Cauldron deliberately excepted -- modeled on a vanilla
+    // Cauldron's own fragility).
+    private static BlockBehaviour.Properties machineProperties() {
+        return BlockBehaviour.Properties.of()
+                .strength(3.5f)
+                .requiresCorrectToolForDrops();
+    }
+
     public static final DeferredBlock<Block> MASTICATOR = registerBlock("masticator",
-            () -> new  MasticatorBlock(BlockBehaviour.Properties.of()));
+            () -> new  MasticatorBlock(machineProperties()));
 
     public static final DeferredBlock<Block> SKIN_TANK = registerBlock("skin_tank",
-            () -> new SkinTankBlock(BlockBehaviour.Properties.of()));
+            () -> new SkinTankBlock(machineProperties()));
 
     public static final DeferredBlock<Block> EFFLUENTCER = registerBlock("effluentcer",
-            () -> new EffluentcerBlock(BlockBehaviour.Properties.of()));
+            () -> new EffluentcerBlock(machineProperties()));
 
     public static final DeferredBlock<Block> METASTASIZER = registerBlock("metastasizer",
-            () -> new MetastasizerBlock(BlockBehaviour.Properties.of()));
+            () -> new MetastasizerBlock(machineProperties()));
 
     public static final DeferredBlock<Block> MUTATOR = registerBlock("mutator",
-            () -> new MutatorBlock(BlockBehaviour.Properties.of()));
+            () -> new MutatorBlock(machineProperties()));
 
     public static final DeferredBlock<Block> RENDER_FURNACE = registerBlock("render_furnace",
-            () -> new RenderFurnaceBlock(BlockBehaviour.Properties.of()));
+            () -> new RenderFurnaceBlock(machineProperties()));
 
     public static final DeferredBlock<Block> GRAFTING_TABLE = registerBlock("grafting_table",
-            () -> new GraftingTableBlock(BlockBehaviour.Properties.of()));
+            () -> new GraftingTableBlock(machineProperties()));
 
     public static final DeferredBlock<Block> RENDER_KILN = registerBlock("render_kiln",
-            () -> new RenderKilnBlock(BlockBehaviour.Properties.of()));
+            () -> new RenderKilnBlock(machineProperties()));
 
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
-            () -> new CrawBlock(BlockBehaviour.Properties.of()));
+            () -> new CrawBlock(machineProperties()));
 
     public static final DeferredBlock<Block> MR_FARMER = registerBlock("mr_farmer",
-            () -> new MrFarmerBlock(BlockBehaviour.Properties.of()));
+            () -> new MrFarmerBlock(machineProperties()));
 
     public static final DeferredBlock<Block> MR_SHEPARD = registerBlock("mr_shepard",
-            () -> new net.scruffy.dermicraft.block.custom.MrShepardBlock(BlockBehaviour.Properties.of()));
+            () -> new net.scruffy.dermicraft.block.custom.MrShepardBlock(machineProperties()));
 
     // Ducts and Nodes are the exception to the "destroyed on normal break" rule: they drop
     // themselves (see ModBlockLootTableProvider) so players aren't punished for pipe re-fiddling.

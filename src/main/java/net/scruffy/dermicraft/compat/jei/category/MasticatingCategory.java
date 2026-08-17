@@ -84,9 +84,15 @@ public class MasticatingCategory implements IRecipeCategory<DynamicRecipeDisplay
     public void setRecipe(IRecipeLayoutBuilder builder, DynamicRecipeDisplay<MasticatingRecipe> display,
                            @NotNull IFocusGroup focuses) {
         MasticatingRecipe recipe = display.source().value();
-        int reagentAmount = Math.max(1, recipe.ingredientFluidAmount());
-        FluidStack reagent = new FluidStack(recipe.ingredientFluid(), reagentAmount);
         FluidStack result = display.computedResult();
+        // Vague recipes store -1 here (their real input scales with the dynamic result rather
+        // than a fixed amount -- see MasticatorBlockEntity#requiredIngredientFluidAmount, always
+        // built at a 1:1 water-to-output ratio), so fall back to the computed result amount rather
+        // than collapsing to Math.max(1, -1) = 1 mB.
+        int reagentAmount = recipe.ingredientFluidAmount() < 0
+                ? Math.max(1, result.getAmount())
+                : recipe.ingredientFluidAmount();
+        FluidStack reagent = new FluidStack(recipe.ingredientFluid(), reagentAmount);
 
         builder.addSlot(RecipeIngredientRole.INPUT, ITEM_X + 1, ITEM_Y + 1)
                 .addItemStack(display.concreteIngredient());

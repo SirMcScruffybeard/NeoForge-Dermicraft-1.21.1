@@ -368,5 +368,7 @@
   "jei.dermicraft.category.early_implant": "Early Implant",
   "jei.dermicraft.category.early_implant.description": "Place in Marred Tumor. Sow and Inject.",
   "jei.dermicraft.category.harvesting": "Harvesting",
-  "jei.dermicraft.category.hand_shredding": "Hand Shredding"
+  "jei.dermicraft.category.hand_shredding": "Hand Shredding",
+  "jei.dermicraft.category.early_incubating": "Early Incubating",
+  "jei.dermicraft.category.early_incubating.description": "Load into a Craw and inject"
 }

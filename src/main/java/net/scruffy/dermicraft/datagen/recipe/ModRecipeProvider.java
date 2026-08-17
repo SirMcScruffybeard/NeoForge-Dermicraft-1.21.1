@@ -524,6 +524,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_wheat", Items.WHEAT, 170,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 170, ModMath.Time.getSecondsToTicks(3.5f));
 
+        // Melon/Pumpkin blocks have no vanilla FoodProperties either (only Melon Slice is real
+        // food), so they're pinned to a fixed value like Wheat above -- set equal to 5 Melon Slices
+        // processed individually through the vague formula (nutrition 2, saturation 0.3 ->
+        // foodWeight 2.6 -> 169 mB / 65 ticks each; x5 = 845 mB / 325 ticks). Pumpkin matched to the
+        // same value for parity -- it has no edible sub-product to derive an equivalent from.
+        RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_melon", Items.MELON, 845,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 845, 325);
+        RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_pumpkin", Items.PUMPKIN, 845,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 845, 325);
+
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 2.6f,
                 ModFluids.SOURCE_PROTEIN_BLEND.get());
 

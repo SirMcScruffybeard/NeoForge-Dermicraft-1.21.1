@@ -290,18 +290,33 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
      * Harvests a mature crop and immediately replants the SAME crop from the seed reserve (falling back
      * to a random reserved seed, else leaving the cell empty). Seeds go to the reserve, products to the
      * buffer -- so no persistent crop-per-cell tracking is needed, the crop is known right here.
+     *
+     * <p>Carrot/Potato are self-seeding -- their "seed" item IS the product (getSeedItem() returns
+     * Items.CARROT/Items.POTATO), so every drop matches seedItem and would otherwise route entirely
+     * into the hidden reserve, starving the visible buffer until the reserve cap fills. For those two,
+     * each drop is split instead: the greater half goes to the buffer like a normal product, the rest
+     * (still subject to the existing cap/overflow) goes to the reserve.
      */
     private void harvestAndReplant(ServerLevel level, BlockPos cropPos, BlockState state) {
         matureSinceTick.remove(cropPos);
         Block cropBlock = state.getBlock();
         Item seedItem = getSeedItem(level, state);
+        boolean selfSeeding = isSelfSeedingCrop(cropBlock);
 
         List<ItemStack> drops = Block.getDrops(state, level, cropPos, null);
         level.destroyBlock(cropPos, false); // false = we route the drops ourselves
 
         for (ItemStack drop : drops) {
             if (drop.is(seedItem)) {
-                bankSeeds(level, cropBlock, drop.getCount()); // seeds -> reserve (overflow to buffer)
+                if (selfSeeding) {
+                    int total = drop.getCount();
+                    int toBuffer = (total + 1) / 2; // greater half, rounds up
+                    int toReserve = total - toBuffer;
+                    if (toBuffer > 0) overflowToBufferOrDrop(level, cropPos, new ItemStack(seedItem, toBuffer));
+                    if (toReserve > 0) bankSeeds(level, cropBlock, toReserve);
+                } else {
+                    bankSeeds(level, cropBlock, drop.getCount()); // seeds -> reserve (overflow to buffer)
+                }
             } else {
                 overflowToBufferOrDrop(level, cropPos, drop); // products -> buffer, spill if full
             }
@@ -312,6 +327,11 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         } else {
             replantRandom(level, cropPos); // same-crop seed exhausted -> random fallback
         }
+    }
+
+    /** Carrot/Potato drop the same item they plant with, unlike Wheat/Beetroot's distinct seed items. */
+    private boolean isSelfSeedingCrop(Block cropBlock) {
+        return cropBlock == Blocks.CARROTS || cropBlock == Blocks.POTATOES;
     }
 
     // Mature-crop test: covers vanilla wheat/carrot/potato/beetroot and modded crops that extend

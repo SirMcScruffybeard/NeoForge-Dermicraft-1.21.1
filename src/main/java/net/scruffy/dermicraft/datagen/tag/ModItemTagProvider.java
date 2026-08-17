@@ -46,6 +46,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.ANIMAL_MEATS)
                 .addTag(Tags.Items.FOODS_RAW_MEAT)
+                .addTag(Tags.Items.FOODS_RAW_FISH)
                 .add(Items.ROTTEN_FLESH)
         ;
 
@@ -59,6 +60,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.MEAT_FOOD)
                 .addTag(ModTags.Items.ANIMAL_MEATS)
                 .addTag(Tags.Items.FOODS_COOKED_MEAT)
+                .addTag(Tags.Items.FOODS_COOKED_FISH)
                 .add(ModItems.MEAT_FLAVORED_MEAT.get())
         ;
 
