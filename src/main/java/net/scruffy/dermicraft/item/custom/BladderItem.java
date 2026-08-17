@@ -159,6 +159,16 @@ public class BladderItem extends ToolItem implements IHaveFluidData {
         FluidActionResult actionResult;
         if (pickingUp) {
             actionResult = FluidUtil.tryPickUpFluid(stack, player, level, pos, face);
+        } else if (!drinkable) {
+            // Non-drinkable bladders (Fuel Bladder) never pour a source block into the world --
+            // only fill an actual fluid-handler capability (a tank/machine). Machines with their
+            // own useItemOn already intercept this before it ever reaches here, so this only
+            // matters for a fluid-handler block that doesn't (or no handler at all, e.g. plain
+            // terrain) -- in which case this is just a no-op rather than dumping fuel on the ground.
+            if (!FluidUtil.interactWithFluidHandler(player, hand, level, pos, face)) {
+                return InteractionResultHolder.pass(stack);
+            }
+            return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide());
         } else {
             BlockState state = level.getBlockState(pos);
             BlockPos placePos = state.canBeReplaced() ? pos : pos.relative(face);

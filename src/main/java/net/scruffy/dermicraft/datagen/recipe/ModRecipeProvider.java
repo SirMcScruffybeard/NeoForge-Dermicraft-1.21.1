@@ -708,7 +708,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.buildMasticating(recipeOutput, "cuprous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_COPPER), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Copper building block family -- unaffected (fresh) state only, deliberately not covering
         // Exposed/Weathered/Oxidized or Waxed variants (oxidation is a passive weathering effect, not
@@ -744,7 +744,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.buildMasticating(recipeOutput, "aurous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Light Weighted Pressure Plate -- 2 Gold Ingots' worth, same treatment as its Iron counterpart above.
         RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_light_weighted_pressure_plate",
