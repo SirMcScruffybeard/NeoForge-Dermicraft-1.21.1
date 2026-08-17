@@ -87,6 +87,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         paintedShatterHeadItem(ModItems.BONE_SHATTER_HEAD.get(), "item/shatter/bone_face_tail");
         shatterHeadItem(ModItems.GOLD_SHATTER_HEAD.get());
         paintedShatterHeadItem(ModItems.DIAMOND_SHATTER_HEAD.get(), "item/shatter/diamond_face_tail");
+        shatterHeadItem(ModItems.COPPER_SHATTER_HEAD.get());
 
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\

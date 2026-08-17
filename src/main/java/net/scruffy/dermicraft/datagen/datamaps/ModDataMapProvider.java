@@ -135,6 +135,12 @@ public class ModDataMapProvider extends DataMapProvider {
         this.builder(ModDataMaps.SHATTER_HEAD_PROPERTIES)
                 .add(getResourceLocation(ModItems.IRON_SHATTER_HEAD),
                         new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 2, 0.0f), false)
+                // Copper -- same tint as Sunder's own Copper chain, for visual consistency across the
+                // two weapons' copper materials. Mining tier 2 and damage shift 0.0f both match Iron
+                // exactly (2026-08-17, decided) -- Copper's only distinction from Iron is durability
+                // (see ModItems.COPPER_SHATTER_HEAD), not tier or damage.
+                .add(getResourceLocation(ModItems.COPPER_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0xB87333), 2, 0.0f), false)
                 // Stone Pickaxe totals 3 damage -- Bone's shift (-1.0f) brings Shatter to 5, a +2
                 // margin, same margin every material keeps.
                 .add(getResourceLocation(ModItems.BONE_SHATTER_HEAD),

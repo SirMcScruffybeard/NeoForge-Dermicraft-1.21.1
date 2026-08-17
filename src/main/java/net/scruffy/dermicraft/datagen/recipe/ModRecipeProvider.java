@@ -241,6 +241,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_diamond", has(Tags.Items.GEMS_DIAMOND))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("diamond_shatter_head_crafting_table"));
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, ModItems.COPPER_SHATTER_HEAD)
+                .pattern("XMX").pattern("XBX").pattern("XMX")
+                .define('X', Tags.Items.INGOTS_COPPER)
+                .define('M', ModItems.DENSE_MUSCLE)
+                .define('B', Tags.Items.BONES)
+                .unlockedBy("has_copper_ingot", has(Tags.Items.INGOTS_COPPER))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("copper_shatter_head_crafting_table"));
+
         // Bone head -- the material itself is also Bone, same "the material IS the structural core"
         // overlap the pattern allows for naturally (7 total Bone between the X columns and center,
         // no special-casing needed to keep the shared pattern's slots consistent).

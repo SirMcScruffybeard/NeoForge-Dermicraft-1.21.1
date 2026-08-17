@@ -87,6 +87,13 @@ public class ModItems {
     public static final DeferredItem<Item> IRON_SHATTER_HEAD = ITEMS.register("iron_shatter_head",
             () -> new ShatterHeadItem(new Item.Properties().durability(500)));
 
+    // Copper -- same mining tier and damage as Iron (no combat/mining identity of its own), but
+    // durability closer to Bone/Stone's 262 than Iron's 500 -- a cheaper, weaker-wearing alternative
+    // to Iron rather than a distinct material tier. Deliberately no dedicated special (2026-08-17,
+    // decided): just tier + durability, nothing else.
+    public static final DeferredItem<Item> COPPER_SHATTER_HEAD = ITEMS.register("copper_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(230)));
+
     // Bone -- hand-painted face/tail texture (not the shared grayscale one), so no runtime tint is
     // registered for its item icon; the mounted weapon still reads its tint from ShatterHeadProperties
     // (set untinted, same as Iron) so the piston bones show the bare tool texture until a real tint

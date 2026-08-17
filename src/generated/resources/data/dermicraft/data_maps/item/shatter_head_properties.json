@@ -5,6 +5,10 @@
       "mining_tier": 1,
       "tint": "#FFFFFF"
     },
+    "dermicraft:copper_shatter_head": {
+      "mining_tier": 2,
+      "tint": "#B87333"
+    },
     "dermicraft:diamond_shatter_head": {
       "damage_shift": 1.0,
       "mining_tier": 3,

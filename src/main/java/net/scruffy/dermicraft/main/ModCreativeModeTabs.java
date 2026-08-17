@@ -100,9 +100,10 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.SIPPING);
                         output.accept(ModItems.SUNDER);
                         output.accept(ModItems.SHATTER);
-                        output.accept(ModItems.IRON_SHATTER_HEAD);
                         output.accept(ModItems.BONE_SHATTER_HEAD);
+                        output.accept(ModItems.COPPER_SHATTER_HEAD);
                         output.accept(ModItems.GOLD_SHATTER_HEAD);
+                        output.accept(ModItems.IRON_SHATTER_HEAD);
                         output.accept(ModItems.DIAMOND_SHATTER_HEAD);
                         output.accept(ModItems.BLADDER);
                         output.accept(ModItems.FUEL_BLADDER);
