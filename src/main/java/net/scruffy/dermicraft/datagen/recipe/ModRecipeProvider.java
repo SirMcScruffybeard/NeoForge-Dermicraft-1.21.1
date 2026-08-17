@@ -455,23 +455,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.METASTASIZER.asItem());
 
-        // F-Stuff/C-Stuff: 30-second (600-tick) craft time, dynamically scaled. `ticks` is
-        // negative -- EffluencingRecipe.getCraftingTime() scales it per 100 mB of result
-        // output, so the value here is "ticks per 100 mB" (600 / (resultAmount / 100)), not
-        // a raw tick count.
+        // F-Stuff/C-Stuff: 25% faster than the original 30-second (600-tick) craft time ->
+        // 22.5s (450 ticks). `ticks` is negative -- EffluencingRecipe.getCraftingTime() scales
+        // it per 100 mB of result output, so the value here is "ticks per 100 mB"
+        // (450 / (resultAmount / 100)), not a raw tick count.
         RecipeBuilders.buildEffluencing(recipeOutput, "f_stuff_effluencing",
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 250, ModFluids.SOURCE_PROTEIN_BLEND.get(), 250,
-                ModFluids.SOURCE_F_STUFF.get(), 500, -120);
+                ModFluids.SOURCE_F_STUFF.get(), 500, -90);
 
         RecipeBuilders.buildEffluencing(recipeOutput, "c_stuff_effluencing",
                 ModFluids.SOURCE_CARBON_BLEND.get(), 250, ModFluids.SOURCE_CALCIUM_BLEND.get(), 250,
-                ModFluids.SOURCE_C_STUFF.get(), 500, -120);
+                ModFluids.SOURCE_C_STUFF.get(), 500, -90);
 
-        // Primitive Catalyst: fixed 45-second craft time, not dynamic (positive ticks are
-        // used directly by EffluencingRecipe.getCraftingTime()).
+        // Primitive Catalyst: 25% faster than the original fixed 45-second craft time -> 33.75s
+        // (positive ticks are used directly by EffluencingRecipe.getCraftingTime()).
         RecipeBuilders.buildEffluencing(recipeOutput, "primitive_catalyst_effluencing",
                 ModFluids.SOURCE_F_STUFF.get(), 500, ModFluids.SOURCE_C_STUFF.get(), 500,
-                ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
+                ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(33.75f));
 
         // Concentrated Slurry: fixed 50-tick craft time (steady-trickle design -- small batch,
         // short cycle, see dermicraft-slurry-notes.md). 10:1 Crude:Catalyst, a minor catalytic
@@ -687,7 +687,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Blend + 1000 mB Primitive Catalyst -- a genuine slow trickle, not a mining replacement.
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_blood_nugget",
                 Ingredient.of(ModItems.BLOOD_NUGGET.get()), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, -1, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Heavy Weighted Pressure Plate -- 2 Iron Ingots' worth (real vanilla recipe cost), so 2000 mB.
         // Craft time stays at Ingot's own 60s rather than doubling -- same precedent as Raw (also

@@ -49,7 +49,12 @@ public class MrShepardBlock extends ModBaseEntityBlock {
     // Blocks can still be placed on top; placement only checks the target position for replaceability
     // and entities, never a neighbour's collision shape (same as placing a block atop a fence).
     // The block above will visually clip the hat -- accepted, pending a new model.
-    private static final VoxelShape COLLISION_SHAPE = Block.box(0, 0, 0, 16, 24, 16);
+    //
+    // X AND Z both extend .25 block (4px) past each side (-4 to 20 instead of 0 to 16) to close the
+    // sliver gap animals could otherwise squeeze through at the seam with the neighbouring fence
+    // blocks. Both axes rather than just the fence-line axis -- this shape isn't rotated by FACING,
+    // so it can't tell which way a given pen's wall actually runs.
+    private static final VoxelShape COLLISION_SHAPE = Block.box(-4, 0, -4, 20, 24, 20);
 
     public MrShepardBlock(Properties properties) {
         super(properties.noLootTable());
