@@ -21,6 +21,7 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModMath;
@@ -28,7 +29,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SkinTankBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IHasChannels {
+public class SkinTankBlockEntity extends MachineBaseBlockEntity
+        implements MenuProvider, IHaveInventory, IHasChannels, IPreserveContentsOnPickup {
 
     public static final int CAPACITY = FluidType.BUCKET_VOLUME * 10;
 

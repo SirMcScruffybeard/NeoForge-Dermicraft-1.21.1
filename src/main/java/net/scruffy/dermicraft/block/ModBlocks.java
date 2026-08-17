@@ -21,6 +21,7 @@ import net.scruffy.dermicraft.block.custom.gate.GatePortBlock;
 import net.scruffy.dermicraft.block.custom.tumor.*;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BeakerItem;
+import net.scruffy.dermicraft.item.custom.SkinTankBlockItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.function.Supplier;
@@ -119,8 +120,13 @@ public class ModBlocks {
     public static final DeferredBlock<Block> MASTICATOR = registerBlock("masticator",
             () -> new  MasticatorBlock(machineProperties()));
 
-    public static final DeferredBlock<Block> SKIN_TANK = registerBlock("skin_tank",
+    // Registered manually (not via registerBlock's auto-generated plain BlockItem) -- Skin Tank
+    // preserves its contents on Forceps pickup (see IPreserveContentsOnPickup/ICollectBlocks), so
+    // its item needs SkinTankBlockItem's shift-hidden fluid tooltip to actually show what's inside.
+    public static final DeferredBlock<Block> SKIN_TANK = BLOCKS.register("skin_tank",
             () -> new SkinTankBlock(machineProperties()));
+    public static final DeferredItem<Item> SKIN_TANK_ITEM = ModItems.ITEMS.register("skin_tank",
+            () -> new SkinTankBlockItem(SKIN_TANK.get(), new Item.Properties()));
 
     public static final DeferredBlock<Block> EFFLUENTCER = registerBlock("effluentcer",
             () -> new EffluentcerBlock(machineProperties()));

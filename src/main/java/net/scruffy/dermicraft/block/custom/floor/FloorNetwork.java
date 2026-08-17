@@ -3,6 +3,8 @@ package net.scruffy.dermicraft.block.custom.floor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -107,10 +109,21 @@ public final class FloorNetwork {
         Region region = walkFloor(level, origin);
         List<IItemHandler> handlers = new ArrayList<>();
         for (Neighbor neighbor : neighborsOf(level, origin, region.tiles())) {
+            // A double chest's RIGHT half exposes the same merged (both-halves) capability as its
+            // LEFT half -- querying both positions would count every item in the chest twice.
+            // Skipping RIGHT (keeping LEFT/SINGLE) still reaches the whole double chest through the
+            // one handler, just without the duplicate.
+            if (isRedundantChestHalf(level, neighbor.pos())) continue;
+
             IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, neighbor.pos(), neighbor.accessDirection());
             if (handler != null) handlers.add(handler);
         }
         return handlers;
+    }
+
+    private static boolean isRedundantChestHalf(Level level, BlockPos pos) {
+        var state = level.getBlockState(pos);
+        return state.getBlock() instanceof ChestBlock && state.getValue(ChestBlock.TYPE) == ChestType.RIGHT;
     }
 
     /**

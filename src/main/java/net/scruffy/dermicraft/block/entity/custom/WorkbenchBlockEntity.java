@@ -309,6 +309,13 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         maxProgress = recipe.getCraftingTime();
         setChanged();
         updateBlock();
+        // Ingredients were just really drained from the pool -- push the new totals immediately
+        // rather than waiting for the next periodic tickPoolSync. Without this, the client's cached
+        // display can still show the pre-consumption count for up to CRAFT_TICKS, which reads as
+        // "stock available" even though the live server-side pool (what actually gates crafting)
+        // is already short -- exactly the kind of stale-display/real-shortfall mismatch this sync
+        // exists to prevent in the first place.
+        broadcastPoolSync();
         return true;
     }
 
