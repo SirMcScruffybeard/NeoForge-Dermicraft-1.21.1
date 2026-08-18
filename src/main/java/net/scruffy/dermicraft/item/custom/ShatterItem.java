@@ -241,7 +241,10 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
             case IDLE -> holdingTrigger && hasFuel(stack) ? ShatterModeData.of(ShatterModeData.State.CHARGING, now) : null;
             case CHARGING -> {
                 if (!holdingTrigger) {
-                    yield release(stack, level, player);
+                    // Released before reaching full charge -- no special, same as a plain right-click
+                    // with nothing to trigger (2026-08-18, decided: charging must be held its full
+                    // second, not just used as a same-tick fire-on-release shortcut).
+                    yield elapsed >= CHARGE_TICKS ? release(stack, level, player) : cancelCharge(stack, level, player);
                 }
                 yield elapsed >= CHARGE_TICKS ? ShatterModeData.of(ShatterModeData.State.CHARGED, now) : null;
             }
@@ -260,6 +263,19 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
      * Mobs take precedence over blocks, same ordering the old design notes' left-click branching
      * used. Either way resets back to IDLE.
      */
+    /**
+     * Trigger released before {@link #CHARGE_TICKS} elapsed -- no special, no fuel/hunger cost, just
+     * the same {@code stopUsingItem()}/{@code release} anim reset {@link #release} plays on its own
+     * no-target branch. Kept separate from {@link #release} rather than folding into it with a flag,
+     * since this path never touches target-finding, fuel, or head wear at all.
+     */
+    private ShatterModeData cancelCharge(ItemStack stack, Level level, Player player) {
+        player.stopUsingItem();
+        long id = GeoItem.getOrAssignId(stack, (net.minecraft.server.level.ServerLevel) level);
+        triggerAnim(player, id, "Body", "release");
+        return ShatterModeData.of(ShatterModeData.State.IDLE, level.getGameTime());
+    }
+
     private ShatterModeData release(ItemStack stack, Level level, Player player) {
         LivingEntity target = hasMountedHead(stack) ? findTarget(level, player) : null;
         boolean fired;
