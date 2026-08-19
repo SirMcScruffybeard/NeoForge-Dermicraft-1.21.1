@@ -71,7 +71,7 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
     private static final int TAB_X = -TAB_WIDTH + 2;
     private static final int TAB_GAP = 4;
     private static final int TAB_FIRST_Y = 8;
-    private static final float TAB_TEXT_SCALE = 0.8F;
+    private static final float TAB_TEXT_SCALE = 0.7F;
 
     /** One entry in a screen's tab bar -- a label and the text color to draw it in. Position is
      * implied by index within the list passed to {@link #renderTabs}/{@link #tabClickedAt}: stacked
