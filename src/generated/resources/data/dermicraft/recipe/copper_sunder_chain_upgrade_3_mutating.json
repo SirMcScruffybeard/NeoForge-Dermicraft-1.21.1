@@ -1,0 +1,18 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_cuprous_blend",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:copper_sunder_chain"
+  },
+  "required_tier": 2,
+  "result": {
+    "components": {
+      "dermicraft:part_upgrade_tier": 3,
+      "minecraft:max_damage": 375
+    },
+    "count": 1,
+    "id": "dermicraft:copper_sunder_chain"
+  },
+  "ticks": 200
+}

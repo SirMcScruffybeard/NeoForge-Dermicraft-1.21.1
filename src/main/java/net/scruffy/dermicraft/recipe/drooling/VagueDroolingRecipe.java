@@ -59,7 +59,7 @@ public record VagueDroolingRecipe(Ingredient ingredient, float modifier, Fluid r
 
     @Override
     public int getCraftingTime(ItemStack stack) {
-        return getCraftingTime(stack, 12);
+        return getCraftingTime(stack, 10);
     }
 
     public int getCraftingAmount(ItemStack stack) {

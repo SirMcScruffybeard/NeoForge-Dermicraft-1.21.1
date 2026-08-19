@@ -3,6 +3,6 @@
   "ingredient": {
     "tag": "c:foods"
   },
-  "modifier": 1.0,
+  "modifier": 2.0,
   "result_fluid": "minecraft:water"
 }

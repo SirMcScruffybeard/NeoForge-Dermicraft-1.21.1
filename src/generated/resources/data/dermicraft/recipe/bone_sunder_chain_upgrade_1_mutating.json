@@ -1,0 +1,18 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_reinforcing_catalyst",
+  "fluid_amount": 1000,
+  "ingredient": {
+    "item": "dermicraft:bone_sunder_chain"
+  },
+  "required_tier": 0,
+  "result": {
+    "components": {
+      "dermicraft:part_upgrade_tier": 1,
+      "minecraft:max_damage": 113
+    },
+    "count": 1,
+    "id": "dermicraft:bone_sunder_chain"
+  },
+  "ticks": 200
+}

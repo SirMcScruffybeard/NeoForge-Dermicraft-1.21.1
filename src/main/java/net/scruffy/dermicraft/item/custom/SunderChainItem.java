@@ -7,6 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.property.ChainProperties;
 
@@ -25,6 +26,22 @@ import java.util.List;
 public class SunderChainItem extends Item {
     public SunderChainItem(Properties properties) {
         super(properties);
+    }
+
+    /** Current Mutator-upgrade tier (0 = base/unupgraded) -- see
+     * {@code project_shatter_head_upgrade_design} design notes; same shared {@code PART_UPGRADE_TIER}
+     * component {@code ShatterHeadItem} uses. Missing component reads as 0. */
+    public static int getUpgradeTier(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponentTypes.PART_UPGRADE_TIER.get(), 0);
+    }
+
+    /** Appends " +N" for an upgraded chain (e.g. "Iron Sunder Chain +1") -- same convention as
+     * {@code ShatterHeadItem#getName}. */
+    @Override
+    public Component getName(ItemStack stack) {
+        int tier = getUpgradeTier(stack);
+        Component base = super.getName(stack);
+        return tier <= 0 ? base : base.copy().append(" +" + tier);
     }
 
     /** Shift-gated stat readout -- damage/Bleed/decap always present, bonus loot chance only shown

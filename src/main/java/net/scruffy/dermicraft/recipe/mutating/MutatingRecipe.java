@@ -27,8 +27,18 @@ import org.jetbrains.annotations.NotNull;
  * more complex item result. Unlike the Metastasizer's pattern (which stays in the machine
  * indefinitely), the input item here is fully consumed -- this is a transformation, not a
  * duplication.
+ *
+ * <p>{@code requiredTier} is {@code -1} for every ordinary recipe (no check at all) -- it only
+ * matters for equipment-part upgrade recipes (Shatter heads, Sunder chains), where {@code Ingredient}
+ * alone (item/tag only, no component awareness) can't tell a base part apart from an already-upgraded
+ * one. When {@code >= 0} it's also checked against the input stack's {@code PART_UPGRADE_TIER}
+ * component (default 0), so e.g. the +2 recipe only matches a part that's currently exactly +1 --
+ * without this a player could "upgrade" a +2 part with the +1 recipe and downgrade its durability
+ * back down. Deliberately checks one shared component regardless of which part type the recipe
+ * targets -- see {@code PART_UPGRADE_TIER}'s own javadoc for why it's shared rather than per-type.
  */
-public record MutatingRecipe(Ingredient ingredient, Fluid fluid, int fluidAmount, ItemStack result, int ticks)
+public record MutatingRecipe(Ingredient ingredient, Fluid fluid, int fluidAmount, ItemStack result, int ticks,
+                              int requiredTier)
         implements Recipe<OneFluidOneItemRecipeInput> {
 
     @Override @NotNull
@@ -43,11 +53,19 @@ public record MutatingRecipe(Ingredient ingredient, Fluid fluid, int fluidAmount
         if (level.isClientSide()) return false;
 
         return testIngredient(input.getItem(0))
+                && testTier(input.getItem(0))
                 && testFluid(input.getFluid());
     }
 
     public boolean testIngredient(ItemStack stack) {
         return !stack.isEmpty() && ingredient.test(stack);
+    }
+
+    private boolean testTier(ItemStack stack) {
+        if (requiredTier < 0) return true;
+        int currentTier = stack.getOrDefault(
+                net.scruffy.dermicraft.component.ModDataComponentTypes.PART_UPGRADE_TIER.get(), 0);
+        return currentTier == requiredTier;
     }
 
     public boolean testFluid(FluidStack fluidStack) {
@@ -113,7 +131,9 @@ public record MutatingRecipe(Ingredient ingredient, Fluid fluid, int fluidAmount
                                 BuiltInRegistries.FLUID.byNameCodec().fieldOf("fluid").forGetter(MutatingRecipe::fluid),
                                 Codec.INT.fieldOf("fluid_amount").forGetter(MutatingRecipe::fluidAmount),
                                 ItemStack.CODEC.fieldOf("result").forGetter(MutatingRecipe::result),
-                                Codec.INT.fieldOf("ticks").forGetter(MutatingRecipe::ticks)).apply(inst, MutatingRecipe::new));
+                                Codec.INT.fieldOf("ticks").forGetter(MutatingRecipe::ticks),
+                                Codec.INT.optionalFieldOf("required_tier", -1).forGetter(MutatingRecipe::requiredTier))
+                                .apply(inst, MutatingRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, MutatingRecipe> STREAM_CODEC =
                 StreamCodec.composite(
@@ -122,6 +142,7 @@ public record MutatingRecipe(Ingredient ingredient, Fluid fluid, int fluidAmount
                         ByteBufCodecs.VAR_INT, MutatingRecipe::fluidAmount,
                         ItemStack.STREAM_CODEC, MutatingRecipe::result,
                         ByteBufCodecs.VAR_INT, MutatingRecipe::ticks,
+                        ByteBufCodecs.VAR_INT, MutatingRecipe::requiredTier,
                         MutatingRecipe::new);
     }
 }

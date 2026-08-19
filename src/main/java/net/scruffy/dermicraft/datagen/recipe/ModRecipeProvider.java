@@ -501,7 +501,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
-        RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 1, Fluids.WATER);
+        RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.WATER);
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,
@@ -898,6 +898,34 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // rather than a one-time build.
         RecipeBuilders.mutate(recipeOutput, "module_frame_mutating", ModItems.CHASSIS.get(),
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.MODULE_FRAME.get(), solidTicks);
+
+        // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
+        // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier
+        // is 1.5x/2.0x/2.5x of the material's OWN base durability (not compounding). Bone uses
+        // Reinforcing Catalyst (same reagent Chassis uses above); the metals each use their own
+        // Blend fluid (Ferrous=Iron, Cuprous=Copper, Aurous=Gold) -- Diamond is deferred until it has
+        // its own Blend fluid (only Molten Diamond exists today, a different fluid family).
+        buildPartUpgradeTiers(recipeOutput, "bone_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 262, solidTicks);
+        buildPartUpgradeTiers(recipeOutput, "copper_shatter_head", ModItems.COPPER_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 230, solidTicks);
+        buildPartUpgradeTiers(recipeOutput, "gold_shatter_head", ModItems.GOLD_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 64, solidTicks);
+        buildPartUpgradeTiers(recipeOutput, "iron_shatter_head", ModItems.IRON_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 500, solidTicks);
+
+        // Sunder chain upgrades -- same shared 3-tier ladder, mechanics, and fluid-per-material
+        // mapping as the Shatter heads above (Bone = Reinforcing Catalyst, metals = their own Blend
+        // fluid). Diamond is deferred for the same reason as Shatter's Diamond head: no Diamond Blend
+        // fluid exists yet (only Molten Diamond, a different fluid family) -- revisit once it does.
+        buildPartUpgradeTiers(recipeOutput, "bone_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 75, solidTicks);
+        buildPartUpgradeTiers(recipeOutput, "copper_sunder_chain", ModItems.COPPER_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 150, solidTicks);
+        buildPartUpgradeTiers(recipeOutput, "gold_sunder_chain", ModItems.GOLD_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 100, solidTicks);
+        buildPartUpgradeTiers(recipeOutput, "iron_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, solidTicks);
 
         // Glassmaking family (Silica Blend) - Mutator half: Dye + Silica Blend -> Stained Glass BLOCK
         // only (see the collision note above for why the pane isn't here). Priced at parity with the
@@ -1479,6 +1507,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     }
 
     ////////////////////Vanilla item lookup helpers (for the dye-keyed loops above)\\\\\\\\\\\\\\\\\\\\
+    // Fixed 3-tier ladder shared by every upgradeable equipment part (Shatter heads, Sunder chains)
+    // -- see project_shatter_head_upgrade_design. Multiplier is stepped (1.5x/2.0x/2.5x of the
+    // material's OWN base durability), not compounding; cost escalates 1 bucket per tier
+    // (1000/2000/3000 mB).
+    private static final float[] PART_UPGRADE_MULTIPLIERS = {1.5f, 2.0f, 2.5f};
+
+    private static void buildPartUpgradeTiers(RecipeOutput recipeOutput, String idPrefix, ItemLike partItem,
+                                              Fluid fluid, int baseDurability, int ticks) {
+        for (int tier = 0; tier < PART_UPGRADE_MULTIPLIERS.length; tier++) {
+            int fluidAmount = (tier + 1) * 1000;
+            RecipeBuilders.equipmentPartUpgrade(recipeOutput, idPrefix + "_upgrade_" + (tier + 1) + "_mutating",
+                    partItem, fluid, fluidAmount, tier, baseDurability, PART_UPGRADE_MULTIPLIERS[tier], ticks);
+        }
+    }
+
     private static Item dyeItem(String colorName) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(colorName + "_dye"));
     }

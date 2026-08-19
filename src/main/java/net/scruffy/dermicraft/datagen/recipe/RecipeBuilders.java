@@ -130,8 +130,13 @@ public class RecipeBuilders {
     ////////////////////Mutating\\\\\\\\\\\\\\\\\\\\
     public static void buildMutating(RecipeOutput output, String name, Ingredient ingredient, Fluid fluid,
                                      int fluidAmount, ItemStack result, int ticks) {
+        buildMutating(output, name, ingredient, fluid, fluidAmount, result, ticks, -1);
+    }
+
+    public static void buildMutating(RecipeOutput output, String name, Ingredient ingredient, Fluid fluid,
+                                     int fluidAmount, ItemStack result, int ticks, int requiredTier) {
         ResourceLocation id = getResourceLocation(name);
-        MutatingRecipe recipe = new MutatingRecipe(ingredient, fluid, fluidAmount, result, ticks);
+        MutatingRecipe recipe = new MutatingRecipe(ingredient, fluid, fluidAmount, result, ticks, requiredTier);
         output.accept(id, recipe, null);
     }
 
@@ -140,6 +145,26 @@ public class RecipeBuilders {
     public static void mutate(RecipeOutput output, String name, ItemLike ingredient, Fluid fluid, int fluidAmount,
                               ItemLike result, int ticks) {
         buildMutating(output, name, Ingredient.of(ingredient), fluid, fluidAmount, new ItemStack(result), ticks);
+    }
+
+    /**
+     * An equipment-part upgrade tier -- Shatter heads or Sunder chains, see
+     * {@code project_shatter_head_upgrade_design}. {@code fromTier} gates the recipe to only match a
+     * part currently at that exact tier (0 = base/unupgraded, see {@link MutatingRecipe#requiredTier});
+     * the result is the SAME part item with its upgrade-tier component set to {@code fromTier + 1},
+     * damage reset to 0 (fully mended), and max damage set to
+     * {@code Math.round(baseDurability * multiplier)} -- durability-only, no change to any of the
+     * part's other stats (mining tier/damage shift for a head, damage/bleed/decap for a chain --
+     * both stay wherever their own material data map already puts them, unaffected by this component).
+     */
+    public static void equipmentPartUpgrade(RecipeOutput output, String name, ItemLike partItem, Fluid fluid,
+                                            int fluidAmount, int fromTier, int baseDurability, float multiplier,
+                                            int ticks) {
+        ItemStack result = new ItemStack(partItem);
+        result.set(net.minecraft.core.component.DataComponents.DAMAGE, 0);
+        result.set(net.minecraft.core.component.DataComponents.MAX_DAMAGE, Math.round(baseDurability * multiplier));
+        result.set(net.scruffy.dermicraft.component.ModDataComponentTypes.PART_UPGRADE_TIER.get(), fromTier + 1);
+        buildMutating(output, name, Ingredient.of(partItem), fluid, fluidAmount, result, ticks, fromTier);
     }
 
 

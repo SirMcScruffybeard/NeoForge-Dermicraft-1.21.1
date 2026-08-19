@@ -3,8 +3,11 @@ package net.scruffy.dermicraft.block.custom;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -70,31 +73,56 @@ public class DroolingCauldronBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
+    // Empty-hand quick-extraction is a CROUCH action -- a plain empty-hand click always falls
+    // through to useWithoutItem (the GUI); crouch + empty hand pulls the ingredient item instead.
+    // A held item that doesn't actually insert anywhere (ingredient slot already occupied) falls
+    // through too, rather than eating the click. Mirrors MasticatorBlock's interaction shape.
     @Override @NotNull
-    protected  ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
-            if (level.getBlockEntity(pos) instanceof DroolingCauldronBlockEntity be) {
-                IFluidHandler tank = be.getTank(null);
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
-                if (FluidUtil.interactWithFluidHandler(player, hand, tank)) {
-                    be.setChanged();
-                    be.updateBlock();
-                    return ItemInteractionResult.SUCCESS;
-                }
-
-
-                if (player.getItemInHand(hand).isEmpty()) {
-                    player.setItemInHand(hand, be.extractItemStack());
-                    return ItemInteractionResult.SUCCESS;
-
-                } else if (stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
-                    player.setItemInHand(hand, be.insertItemStack(stack));
-                    return ItemInteractionResult.SUCCESS;
-                }
-            }
+        if (!(level.getBlockEntity(pos) instanceof DroolingCauldronBlockEntity be)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        return ItemInteractionResult.SUCCESS;
+        if (FluidUtil.interactWithFluidHandler(player, hand, be.getTank(null))) {
+            be.setChanged();
+            be.updateBlock();
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        boolean crouchExtract = player.getItemInHand(hand).isEmpty() && player.isShiftKeyDown();
+        if (crouchExtract) {
+            ItemStack extracted = be.extractItemStack();
+            if (!extracted.isEmpty()) {
+                player.setItemInHand(hand, extracted);
+                return ItemInteractionResult.SUCCESS;
+            }
+        } else if (!player.getItemInHand(hand).isEmpty()
+                && stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
+            int before = stack.getCount();
+            ItemStack leftover = be.insertItemStack(stack);
+            if (leftover.getCount() != before) {
+                player.setItemInHand(hand, leftover);
+                return ItemInteractionResult.SUCCESS;
+            }
+            // Nothing was actually inserted (ingredient slot already occupied) -- don't eat the
+            // click, fall through so vanilla opens the GUI instead.
+        }
+
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    // Opens the GUI directly on any empty-hand click that useItemOn didn't claim (i.e. not
+    // crouching, or crouching at a face with nothing to pull) -- no Outerface required. Mirrors
+    // MasticatorBlock's interaction shape.
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof MenuProvider menuProvider
+                && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(menuProvider, buf -> buf.writeBlockPos(pos));
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Override

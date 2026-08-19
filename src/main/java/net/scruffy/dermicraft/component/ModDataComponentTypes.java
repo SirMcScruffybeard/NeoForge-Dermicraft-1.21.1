@@ -125,6 +125,28 @@ public class ModDataComponentTypes {
                     .persistent(HeldItemData.CODEC)
                     .networkSynchronized(HeldItemData.STREAM_CODEC));
 
+    /** A Mutator-upgrade tier (0 = base, unupgraded material, up to 3) for a standalone equipment
+     * part -- currently Shatter heads ({@code ShatterHeadItem}) and Sunder chains
+     * ({@code SunderChainItem}), see {@code project_shatter_head_upgrade_design} design notes.
+     * Deliberately ONE shared component across both item types, not one per item type the way
+     * {@code SHATTER_MOUNTED_HEAD}/{@code SUNDER_MOUNTED_CHAIN} are kept separate -- those two guard
+     * against two DIFFERENT mounted-item slots on the same weapon being confused with each other,
+     * which doesn't apply here: this lives on the standalone part item itself (already a distinct
+     * Item class per part type), and {@link net.scruffy.dermicraft.recipe.mutating.MutatingRecipe}'s
+     * tier gate needs to check it generically for whichever part type a given upgrade recipe targets,
+     * without knowing in advance which part type that is.
+     *
+     * <p>Absent (not just 0) on every part that's never been upgraded -- both item classes treat a
+     * missing value as tier 0 rather than requiring an explicit zero on creation. Durability-only:
+     * each tier fully mends the part (sets {@code DataComponents.DAMAGE} to 0) and raises
+     * {@code DataComponents.MAX_DAMAGE} by a fixed per-tier multiplier of the material's own base
+     * durability -- this component is purely the "which tier" marker driving that, not a stat itself.
+     */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> PART_UPGRADE_TIER =
+            register("part_upgrade_tier", builder -> builder
+                    .persistent(com.mojang.serialization.Codec.INT)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
 
 
 
