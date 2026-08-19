@@ -46,6 +46,45 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         return false;
     }
 
+    /**
+     * Deserializes a saved handler, then re-asserts {@code expectedSize}.
+     *
+     * <p>Use this instead of calling {@code handler.deserializeNBT} directly whenever a machine's
+     * slot count has EVER changed, or might. NeoForge's {@code ItemStackHandler#deserializeNBT}
+     * calls {@code setSize(tag.getInt("Size"))} whenever the saved NBT carries a Size, trusting the
+     * saved value over the size the handler was just constructed with -- so a block saved before a
+     * new slot was added silently shrinks its freshly-built handler back to the old count on load.
+     * The menu then throws adding a slot past the end ("Slot N not in valid range - [0,N)"), which
+     * surfaces as a crash on WORLD LOAD rather than on opening the screen, and only in worlds that
+     * predate the change (never in a fresh test world -- which is exactly why it is easy to miss).
+     *
+     * <p><b>{@code setSize} does NOT preserve existing contents</b> -- it unconditionally replaces
+     * the backing list with a fresh all-empty one (verified against the real NeoForge 21.1.228
+     * bytecode, not assumed). Calling it straight after {@code deserializeNBT} would silently
+     * DELETE whatever had just been loaded into the surviving slots, turning a crash into a quieter
+     * and worse item-loss bug. This copies the loaded stacks out first and writes them back after
+     * resizing, up to however many still fit -- the same technique
+     * {@code WorkbenchBlockEntity}'s own hand-rolled STORAGE fix already used (this generalizes
+     * that one, not the other way around).
+     */
+    protected static void loadItemHandler(ItemStackHandler handler, int expectedSize,
+                                          HolderLookup.Provider registries, CompoundTag tag) {
+        handler.deserializeNBT(registries, tag);
+        if (handler.getSlots() == expectedSize) return;
+
+        int loadedSlots = handler.getSlots();
+        net.minecraft.world.item.ItemStack[] loaded = new net.minecraft.world.item.ItemStack[loadedSlots];
+        for (int i = 0; i < loadedSlots; i++) {
+            loaded[i] = handler.getStackInSlot(i);
+        }
+
+        handler.setSize(expectedSize);
+
+        for (int i = 0; i < Math.min(loadedSlots, expectedSize); i++) {
+            handler.setStackInSlot(i, loaded[i]);
+        }
+    }
+
     protected ItemStackHandler createItemHandler(int size, int limitedSlot) {
         return new ItemStackHandler(size) {
             @Override

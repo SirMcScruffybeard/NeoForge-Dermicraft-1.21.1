@@ -36,9 +36,9 @@ public class SkinTankMenu extends AbstractModMenu {
     }
 
     public SkinTankMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
-        super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId, 3);
+        super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId, SkinTankBlockEntity.INVENTORY_SIZE);
 
-        checkContainerSize(inventory, 3);
+        checkContainerSize(inventory, SkinTankBlockEntity.INVENTORY_SIZE);
         this.be = (SkinTankBlockEntity) blockEntity;
         this.level = inventory.player.level();
 

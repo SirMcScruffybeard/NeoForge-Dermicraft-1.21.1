@@ -454,13 +454,10 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains("inventory")) {
-            // ItemStackHandler#deserializeNBT resizes itself to the saved "Size" -- worlds saved
-            // before INGREDIENT_ITEM_SLOT existed have Size=3, which would shrink INVENTORY back
-            // down and crash the menu (slot 3 out of range). Bump the saved size forward first;
-            // the new slot has no old data to load, so it comes back empty either way.
-            CompoundTag inventoryTag = tag.getCompound("inventory");
-            if (inventoryTag.getInt("Size") < 4) inventoryTag.putInt("Size", 4);
-            INVENTORY.deserializeNBT(registries, inventoryTag);
+            // Worlds saved before INGREDIENT_ITEM_SLOT existed have Size=3 -- see
+            // MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would shrink
+            // INVENTORY back down and crash the menu (slot 3 out of range).
+            loadItemHandler(INVENTORY, 4, registries, tag.getCompound("inventory"));
         }
         if (tag.contains("craft")) INGREDIENT_TANK.readFromNBT(registries, tag.getCompound("craft"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));

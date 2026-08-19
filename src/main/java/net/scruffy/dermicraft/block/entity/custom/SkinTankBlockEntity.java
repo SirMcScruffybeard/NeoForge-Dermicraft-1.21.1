@@ -50,6 +50,10 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     public static final int OUTPUT = 1;
     public static final int MODULE = 2;
 
+    /** Single source of truth for the handler's slot count -- also re-asserted after
+     * {@code deserializeNBT}, see {@link #loadAdditional} for why that's load-bearing. */
+    public static final int INVENTORY_SIZE = 3;
+
     public final ItemStackHandler INVENTORY = createInventory();
 
     private final VulnerableTank TANK = createVulnerableTank(CAPACITY, -1, this::installedHazardProfile);
@@ -164,13 +168,16 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        INVENTORY.deserializeNBT(registries, tag.getCompound("skin_tank_inv"));
+        // NOT a plain INVENTORY.deserializeNBT -- a Skin Tank saved before the Module slot existed
+        // carries Size=2 and would shrink this handler back to 2 slots, crashing on world load when
+        // the menu adds its Module slot at index 2. See MachineBaseBlockEntity#loadItemHandler.
+        loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("skin_tank_inv"));
         TANK.readFromNBT(registries, tag);
         moduleTabActive = tag.getBoolean("module_tab_active");
     }
 
     private ItemStackHandler createInventory() {
-        return new ItemStackHandler(3) {
+        return new ItemStackHandler(INVENTORY_SIZE) {
            @Override
            protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide) {
