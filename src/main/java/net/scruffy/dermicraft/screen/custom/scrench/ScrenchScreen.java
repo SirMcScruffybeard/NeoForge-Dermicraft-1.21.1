@@ -56,6 +56,8 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             fuelRenderer = createFluidRenderer16x40(menu.getShatterFuelCapacity());
         } else if (isDrinker()) {
             fuelRenderer = createFluidRenderer16x40(menu.getDrinkerCapacity());
+        } else if (isSipping()) {
+            fuelRenderer = createFluidRenderer16x40(menu.getSippingCapacity());
         }
     }
 
@@ -111,6 +113,12 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
                     DrinkerItem.TANK_X + 1, DrinkerItem.TANK_Y + 1, fuelRenderer,
                     Component.translatable("tooltip.dermicraft.gauge.buffer"));
         }
+
+        if (isSipping() && fuelRenderer != null) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.getSippingFluid(),
+                    SippingItem.TANK_X + 1, SippingItem.TANK_Y + 1, fuelRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.buffer"));
+        }
     }
 
     @Override
@@ -137,11 +145,18 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
         }
     }
 
-    /** Module slot only, no gauge -- Sipping's own hand-to-hand transfer already covers fluid
-     * movement, so it doesn't need the buffer-gauge/drain-slot pairing Drinker's background adds. */
+    /** Module slot plus the buffer-gauge/fill-drain-slot pairing, same tank_and_slot layout as
+     * Drinker's own background. */
     private void renderSippingBg(GuiGraphics guiGraphics, int x, int y) {
         guiGraphics.blit(MODULE_SLOT_TEXTURE, x + SippingItem.MODULE_SLOT_X, y + SippingItem.MODULE_SLOT_Y, 0, 0,
                 SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+
+        guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + SippingItem.TANK_X, y + SippingItem.TANK_Y, 0, 0,
+                TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT, TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
+
+        if (fuelRenderer != null) {
+            fuelRenderer.render(guiGraphics, x + SippingItem.TANK_X + 1, y + SippingItem.TANK_Y + 1, menu.getSippingFluid());
+        }
     }
 
     /** Module slot (yellow, same coordinates Eater's own Module row starts from) plus the

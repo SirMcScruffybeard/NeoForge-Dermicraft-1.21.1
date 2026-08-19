@@ -250,26 +250,38 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData, IGadge
     public static final int MODULE_SLOT_X = 8;
     public static final int MODULE_SLOT_Y = 27;
 
+    // Buffer gauge + fill/drain slot -- same tank-above-slot pairing as Drinker's own (and Sunder's/
+    // Shatter's fuel gauge before that), same coordinates as Drinker's DRAIN_SLOT_X/Y since nothing
+    // else competes for the space on either panel.
+    public static final int FILL_DRAIN_SLOT_X = 113;
+    public static final int FILL_DRAIN_SLOT_Y = 60;
+    public static final int TANK_X = FILL_DRAIN_SLOT_X;
+    public static final int TANK_Y = FILL_DRAIN_SLOT_Y - 48;
+
     @Override
     public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
         return new SippingSwapPanel(gadgetStackSupplier, fieldHosted);
     }
 
     /**
-     * S.I.P.P.I.N.G.'s Module-only panel -- unlike Drinker's, no drain slot alongside it: Sipping
-     * already has its own direct fluid interaction ({@link #tryHandTransfer}, a hand-to-hand swap
-     * with whatever's in the other hand), so a second GUI-side transfer path isn't needed here. Same
-     * pure live-view shape as Eater's/Drinker's own panels (see those classes' identical javadoc for
-     * why): reads/writes straight through to {@link ModDataComponentTypes#SIPPING_MODULE_DATA}, so
-     * there's nothing to materialize or write back on close.
+     * S.I.P.P.I.N.G.'s Module + fill/drain panel. Unlike Drinker's drain-only slot, this one is
+     * bidirectional -- same priority order as {@link #tryHandTransfer} (try draining Sipping's own
+     * buffer into the placed container first, then the reverse), since Sipping's GUI-side transfer
+     * is meant to be the same operation as its hand-to-hand one, just through a slot instead of the
+     * other hand. Module slot is the same pure live-view shape as Eater's/Drinker's own panels (see
+     * those classes' identical javadoc for why): reads/writes straight through to
+     * {@link ModDataComponentTypes#SIPPING_MODULE_DATA}, so there's nothing to materialize or write
+     * back on close.
      */
     private final class SippingSwapPanel implements SwapPanel {
 
+        private final java.util.function.Supplier<ItemStack> gadgetStackSupplier;
         private final boolean fieldHosted;
         private final IItemHandlerModifiable moduleHandler;
         private boolean moduleSlotChanged = false;
 
         private SippingSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
+            this.gadgetStackSupplier = gadgetStackSupplier;
             this.fieldHosted = fieldHosted;
             this.moduleHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
                     ModDataComponentTypes.SIPPING_MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
@@ -278,14 +290,63 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
         @Override
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
-            return IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
-                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true);
+            List<Slot> slots = new java.util.ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+            slots.add(new FillDrainSlot(panelX + FILL_DRAIN_SLOT_X + 1, panelY + FILL_DRAIN_SLOT_Y + 1, active));
+            return slots;
         }
 
         @Override
         public void onClosed(Player player) {
             if (fieldHosted && moduleSlotChanged) {
                 player.getCooldowns().addCooldown(SippingItem.this, SWAP_RECALIBRATION_COOLDOWN_TICKS);
+            }
+        }
+
+        /**
+         * Bidirectional: drains Sipping's own buffer into a placed container first, falling back to
+         * filling Sipping from the container if the buffer is empty (or the container's already
+         * full) -- same priority and same {@code FluidUtil.tryFluidTransfer} mechanics as
+         * {@link #tryHandTransfer}, just through this slot instead of the other hand. All-or-nothing
+         * either way: {@code tryFluidTransfer} only executes when the destination's own simulate-fill
+         * reports it can take the entire amount, so a hazard-gated destination refusing what Sipping
+         * offers (or vice versa) simply leaves both sides untouched rather than partially moving.
+         */
+        private final class FillDrainSlot extends Slot {
+            private final java.util.function.BooleanSupplier active;
+
+            FillDrainSlot(int x, int y, java.util.function.BooleanSupplier active) {
+                super(new net.minecraft.world.SimpleContainer(1), 0, x, y);
+                this.active = active;
+            }
+
+            @Override
+            public boolean isActive() {
+                return active.getAsBoolean();
+            }
+
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ItemStack held = getItem();
+                if (held.isEmpty()) return;
+
+                IFluidHandlerItem sippingHandler = gadgetStackSupplier.get().getCapability(Capabilities.FluidHandler.ITEM, null);
+                IFluidHandlerItem containerHandler = held.getCapability(Capabilities.FluidHandler.ITEM, null);
+                if (sippingHandler == null || containerHandler == null) return;
+
+                FluidStack moved = FluidUtil.tryFluidTransfer(containerHandler, sippingHandler, Integer.MAX_VALUE, true);
+                if (moved.isEmpty()) {
+                    moved = FluidUtil.tryFluidTransfer(sippingHandler, containerHandler, Integer.MAX_VALUE, true);
+                }
+                if (moved.isEmpty()) return;
+
+                set(containerHandler.getContainer());
             }
         }
     }
