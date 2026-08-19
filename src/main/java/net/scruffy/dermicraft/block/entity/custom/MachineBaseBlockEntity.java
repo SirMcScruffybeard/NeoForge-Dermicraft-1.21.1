@@ -74,6 +74,23 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         };
     }
 
+    /** Same as {@link #createVulnerableTank(int, int)}, but the hazard profile is read fresh from
+     * {@code profileSupplier} on every fill/drain instead of fixed at Tier 1 forever -- see
+     * {@link VulnerableTank}'s own supplier constructor. For a machine whose Module slot can grant
+     * extra hazard tolerance (Decision Point #2, dermicraft-progression-notes.md). */
+    protected VulnerableTank createVulnerableTank(int capacity, int slot, java.util.function.Supplier<net.scruffy.dermicraft.hazard.HazardProfile> profileSupplier) {
+        return new VulnerableTank(capacity, slot, profileSupplier) {
+            @Override
+            protected void onContentsChanged()
+            {
+                if (!level.isClientSide) {
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
     protected ModFluidTank createFluidTank(int capacity, int slot) {
         return new ModFluidTank(capacity, slot) {
             @Override

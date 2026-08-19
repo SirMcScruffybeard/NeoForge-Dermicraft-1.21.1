@@ -14,6 +14,20 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
 
 public class SkinTankMenu extends AbstractModMenu {
 
+    // Tab indices -- pilot for the shared tab-bar helper (dermicraft-progression-notes.md Decision
+    // Point #2). Only two tabs, so no enum; a third machine adopting this pattern with more tabs is
+    // the point at which an enum (mirroring WorkbenchScreen's own Page, but through the shared
+    // mechanism instead of a bespoke one) becomes worth it over bare indices.
+    public static final int MAIN_TAB = 0;
+    public static final int MODULE_TAB = 1;
+
+    // Module slot position -- public so SkinTankScreen can draw the matching background under it,
+    // same convention as every other machine's screen/menu coordinate split (e.g. ScrenchMenu's own
+    // chainSlotX()/chainSlotY()). Centered under the tank, roughly where INPUT/OUTPUT sit
+    // vertically on the Main tab, since the Module tab has nothing else competing for space.
+    public static final int MODULE_SLOT_X = 79;
+    public static final int MODULE_SLOT_Y = 34;
+
     public final SkinTankBlockEntity be;
     private Level level;
 
@@ -22,24 +36,51 @@ public class SkinTankMenu extends AbstractModMenu {
     }
 
     public SkinTankMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
-        super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId, 2);
+        super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId, 3);
 
-        checkContainerSize(inventory, 2);
+        checkContainerSize(inventory, 3);
         this.be = (SkinTankBlockEntity) blockEntity;
         this.level = inventory.player.level();
 
         addPlayerInventory(inventory);
         addPlayerHotbar(inventory);
 
-        this.addSlot(new SlotItemHandler(be.INVENTORY, 0, 43, 34));
-        this.addSlot(new SlotItemHandler(be.INVENTORY, 1, 117, 34) {
+        this.addSlot(new SlotItemHandler(be.INVENTORY, SkinTankBlockEntity.INPUT, 43, 34) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MAIN_TAB;
+            }
+        });
+        this.addSlot(new SlotItemHandler(be.INVENTORY, SkinTankBlockEntity.OUTPUT, 117, 34) {
             @Override
             public int getMaxStackSize() {
                 return 1;
             }
+
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MAIN_TAB;
+            }
+        });
+        this.addSlot(new SlotItemHandler(be.INVENTORY, SkinTankBlockEntity.MODULE,
+                MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MODULE_TAB;
+            }
         });
 
-        setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT
+        setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT and the Module slot
+
+        // Restores whichever tab was open last, same reasoning as
+        // WorkbenchScreen#currentPage/WorkbenchBlockEntity#isFabricationPageActive -- correct from
+        // the first frame rather than only after the screen's own init() runs.
+        setActiveTab(be.isModuleTabActive() ? MODULE_TAB : MAIN_TAB);
+    }
+
+    @Override
+    protected void onTabChanged(int index) {
+        be.setModuleTabActive(index == MODULE_TAB);
     }
 
     @Override

@@ -58,6 +58,27 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
 
     protected static final int SLOT_SIZE = 18;
 
+    // Tab bar -- generalized off WorkbenchScreen's own Page tab art/click handling, see
+    // AbstractModMenu's matching "Shared tab-bar state" section for the server-side half. Stacked
+    // vertically on the left edge, sticking out past imageWidth (negative X), same visual language
+    // WorkbenchScreen already established.
+    private static final ResourceLocation OPEN_TAB_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/backgrounds/open_tab.png");
+    private static final ResourceLocation CLOSED_TAB_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/backgrounds/closed_tab.png");
+    protected static final int TAB_WIDTH = 20;
+    protected static final int TAB_HEIGHT = 56;
+    private static final int TAB_X = -TAB_WIDTH + 2;
+    private static final int TAB_GAP = 4;
+    private static final int TAB_FIRST_Y = 8;
+    private static final float TAB_TEXT_SCALE = 0.8F;
+
+    /** One entry in a screen's tab bar -- a label and the text color to draw it in. Position is
+     * implied by index within the list passed to {@link #renderTabs}/{@link #tabClickedAt}: stacked
+     * top-to-bottom starting at {@link #TAB_FIRST_Y}, {@link #TAB_HEIGHT} + {@link #TAB_GAP} apart. */
+    public record Tab(Component label, int textColor) {
+    }
+
     // Subtle translucent divider -- separates a swap panel's own slot rows from the player's own
     // inventory grid below it (e.g. Eater's buffer row) without needing a dedicated texture asset.
     private static final int DIVIDER_COLOR = 0x80000000;
@@ -197,5 +218,64 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
 
     public static boolean isMouseAboveArea(int pMouseX, int pMouseY, int x, int y, int offsetX, int offsetY, FluidTankRenderer renderer) {
         return MouseUtil.isMouseOver(pMouseX, pMouseY, x + offsetX, y + offsetY, renderer.getWidth(), renderer.getHeight());
+    }
+
+    /**
+     * Draws every tab in {@code tabs}, open art + label for {@code activeIndex}, closed art for the
+     * rest -- stacked vertically off the screen's left edge starting at {@code (x, y)} (the same
+     * screen-origin passed to every other render helper here). Doesn't draw the active tab's
+     * CONTENT -- that's still each screen's own job, exactly like {@code WorkbenchScreen}'s Mod vs.
+     * Fabrication background branch; this only draws the chrome that picks which content shows.
+     */
+    protected void renderTabs(GuiGraphics guiGraphics, int x, int y, List<Tab> tabs, int activeIndex) {
+        for (int i = 0; i < tabs.size(); i++) {
+            Tab tab = tabs.get(i);
+            int tabY = y + TAB_FIRST_Y + i * (TAB_HEIGHT + TAB_GAP);
+
+            blitFlippedX(guiGraphics, i == activeIndex ? OPEN_TAB_TEXTURE : CLOSED_TAB_TEXTURE,
+                    x + TAB_X, tabY, TAB_WIDTH, TAB_HEIGHT);
+            drawScaledString(guiGraphics, tab.label(), x + TAB_X + 3, tabY + TAB_HEIGHT / 2 - 4,
+                    tab.textColor(), TAB_TEXT_SCALE);
+        }
+    }
+
+    /** Which tab (if any) sits under {@code (mouseX, mouseY)} -- same geometry {@link #renderTabs}
+     * draws against, so the two can never disagree about where a tab actually is. -1 for no hit. */
+    protected int tabClickedAt(double mouseX, double mouseY, int x, int y, int tabCount) {
+        for (int i = 0; i < tabCount; i++) {
+            int tabY = y + TAB_FIRST_Y + i * (TAB_HEIGHT + TAB_GAP);
+            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + TAB_X, tabY, TAB_WIDTH, TAB_HEIGHT)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Draws text at a smaller size than the font's native scale -- see {@link #blitFlippedX} for
+     * the identical pose-stack approach, scaling uniformly instead of mirroring. x/y are the position
+     * the text should visually appear at; dividing by scale before drawing compensates for the
+     * scaled-up coordinate space so it lands in the right place rather than drifting toward the
+     * corner as scale shrinks. */
+    protected void drawScaledString(GuiGraphics guiGraphics, Component text, int x, int y, int color, float scale) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().scale(scale, scale, 1);
+        guiGraphics.drawString(font, text, (int) (x / scale), (int) (y / scale), color);
+        guiGraphics.pose().popPose();
+    }
+
+    /** Mirrors a texture horizontally at render time (180deg around the Y axis) -- no second,
+     * flipped copy of the art needed. Standard pose-stack trick: translate the origin to the far
+     * edge of the target rect, then scale X by -1 so the blit draws back across it reversed. */
+    protected void blitFlippedX(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int width, int height) {
+        // A negative X scale reverses the quad's winding order -- without this, backface culling
+        // (enabled for this render pass in 1.21's GuiGraphics) discards the flipped quad entirely
+        // instead of drawing it mirrored, which is why the tab vanished rather than just flipping.
+        com.mojang.blaze3d.systems.RenderSystem.disableCull();
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x + width, y, 0);
+        guiGraphics.pose().scale(-1, 1, 1);
+        guiGraphics.blit(texture, 0, 0, 0, 0, width, height, width, height);
+        guiGraphics.pose().popPose();
+        com.mojang.blaze3d.systems.RenderSystem.enableCull();
     }
 }

@@ -18,17 +18,29 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModMath;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+/**
+ * Pilot for machine Module slots (dermicraft-progression-notes.md, Decision Point #2 -> sequencing
+ * step 4) -- chosen as the simplest case: one plain tank, no crafting, nothing else competing for
+ * screen space. The Module slot lives as an ordinary slot in the existing INVENTORY handler rather
+ * than a separate gadget-style {@code BulkItemData} component (there's no {@link ItemStack} for a
+ * machine to carry one on) -- see {@link IHaveModules#installedHazardProfile(HazardProfile, ItemStack)},
+ * the single-slot overload added specifically for this case.
+ */
 public class SkinTankBlockEntity extends MachineBaseBlockEntity
         implements MenuProvider, IHaveInventory, IHasChannels, IPreserveContentsOnPickup {
 
@@ -36,10 +48,30 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
+    public static final int MODULE = 2;
 
     public final ItemStackHandler INVENTORY = createInventory();
 
-    private final VulnerableTank TANK =  createVulnerableTank(FluidType.BUCKET_VOLUME * 10, -1);
+    private final VulnerableTank TANK = createVulnerableTank(CAPACITY, -1, this::installedHazardProfile);
+
+    /** Tier 1 base, plus whatever the Module slot's currently-installed Safety Module grants -- same
+     * "union, never reset" rule as every gadget's identical method (DrinkerItem, SippingItem). Public
+     * so a future screen/tooltip can read it without duplicating the union logic. */
+    public HazardProfile installedHazardProfile() {
+        return IHaveModules.installedHazardProfile(HazardProfile.TIER_1, INVENTORY.getStackInSlot(MODULE));
+    }
+
+    // Which screen tab was last open -- mirrors WorkbenchBlockEntity#isFabricationPageActive so
+    // reopening this Skin Tank's screen returns to the tab last viewed instead of always resetting.
+    private boolean moduleTabActive = false;
+
+    public boolean isModuleTabActive() {
+        return moduleTabActive;
+    }
+
+    public void setModuleTabActive(boolean active) {
+        this.moduleTabActive = active;
+    }
 
     public SkinTankBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.SKIN_TANK_BE.get(), pos, blockState);
@@ -125,6 +157,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.put("skin_tank_inv", INVENTORY.serializeNBT(registries));
         tag = TANK.writeToNBT(registries, tag);
+        tag.putBoolean("module_tab_active", moduleTabActive);
         super.saveAdditional(tag, registries);
     }
 
@@ -133,10 +166,11 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         super.loadAdditional(tag, registries);
         INVENTORY.deserializeNBT(registries, tag.getCompound("skin_tank_inv"));
         TANK.readFromNBT(registries, tag);
+        moduleTabActive = tag.getBoolean("module_tab_active");
     }
 
     private ItemStackHandler createInventory() {
-        return new ItemStackHandler(2) {
+        return new ItemStackHandler(3) {
            @Override
            protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide) {
@@ -156,7 +190,16 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
             @Override
             public int getSlotLimit(int slot) {
-                return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
+                return (slot == OUTPUT || slot == MODULE) ? 1 : super.getSlotLimit(slot);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                // Same tag every gadget's Module slot filters to (ModTags.Items.MODULES) -- a
+                // machine's Module slot is exactly the same "scarce, tag-identified" convention,
+                // not a bespoke allowlist. INPUT/OUTPUT stay unrestricted, matching every other
+                // machine's own fluid-container-only-in-practice slots.
+                return slot != MODULE || stack.is(ModTags.Items.MODULES);
             }
         };
     }

@@ -75,16 +75,31 @@ public interface IHaveModules {
         BulkItemData data = stack.getOrDefault(moduleDataType, BulkItemData.empty(moduleSlotCount));
         HazardProfile profile = base;
         for (int i = 0; i < moduleSlotCount; i++) {
-            ItemStack module = data.slot(i).asDisplayStack();
-            if (module.isEmpty() || !module.is(ModTags.Items.MODULE_SAFETY)) continue;
+            profile = installedHazardProfile(profile, data.slot(i).asDisplayStack());
+        }
+        return profile;
+    }
 
-            SafetyModuleProperties properties = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.SAFETY_MODULE_PROPERTIES);
-            if (properties == null) continue;
+    /**
+     * Single-slot core of the hazard union above, factored out so a consumer whose Module slot
+     * isn't {@link BulkItemData}-backed at all can still get the identical rule. Machines are the
+     * case this exists for: a machine's Module slot is one ordinary slot in its own
+     * {@code ItemStackHandler} (persisted the same way every other machine slot already is), not a
+     * gadget-style component on an {@link ItemStack} -- there's no {@link ItemStack} to hold a
+     * {@link BulkItemData} component in the first place. {@code base.plus(hazard)}-per-tag, unioning
+     * onto whatever {@code base} already tolerates -- same "never resets, only adds" rule as the
+     * multi-slot overload.
+     */
+    static HazardProfile installedHazardProfile(HazardProfile base, ItemStack module) {
+        if (module.isEmpty() || !module.is(ModTags.Items.MODULE_SAFETY)) return base;
 
-            for (TagKey<Fluid> hazard : properties.hazards()) {
-                profile = profile.plus(hazard);
-            }
+        SafetyModuleProperties properties = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                .getData(ModDataMaps.SAFETY_MODULE_PROPERTIES);
+        if (properties == null) return base;
+
+        HazardProfile profile = base;
+        for (TagKey<Fluid> hazard : properties.hazards()) {
+            profile = profile.plus(hazard);
         }
         return profile;
     }

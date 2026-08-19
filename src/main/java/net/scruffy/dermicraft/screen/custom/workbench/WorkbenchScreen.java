@@ -594,33 +594,8 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         return false;
     }
 
-    /** Draws text at a smaller size than the font's native scale -- same pose-stack approach as
-     * {@link #blitFlippedX}, just scaling uniformly instead of mirroring. x/y are the position the
-     * text should visually appear at; dividing by scale before drawing compensates for the
-     * scaled-up coordinate space so it lands in the right place rather than drifting toward the
-     * corner as scale shrinks. */
-    private void drawScaledString(GuiGraphics guiGraphics, Component text, int x, int y, int color, float scale) {
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(scale, scale, 1);
-        guiGraphics.drawString(font, text, (int) (x / scale), (int) (y / scale), color);
-        guiGraphics.pose().popPose();
-    }
-
-    /** Mirrors a texture horizontally at render time (180deg around the Y axis) -- no second,
-     * flipped copy of the art needed. Standard pose-stack trick: translate the origin to the far
-     * edge of the target rect, then scale X by -1 so the blit draws back across it reversed. */
-    private void blitFlippedX(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int width, int height) {
-        // A negative X scale reverses the quad's winding order -- without this, backface culling
-        // (enabled for this render pass in 1.21's GuiGraphics) discards the flipped quad entirely
-        // instead of drawing it mirrored, which is why the tab vanished rather than just flipping.
-        RenderSystem.disableCull();
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(x + width, y, 0);
-        guiGraphics.pose().scale(-1, 1, 1);
-        guiGraphics.blit(texture, 0, 0, 0, 0, width, height, width, height);
-        guiGraphics.pose().popPose();
-        RenderSystem.enableCull();
-    }
+    // drawScaledString/blitFlippedX moved to AbstractModScreen (generalized for the shared tab-bar
+    // helper, dermicraft-progression-notes.md Decision Point #2) -- inherited from there now.
 
     private void renderScrollbar(GuiGraphics guiGraphics, int trackX, int trackY) {
         guiGraphics.blit(SCROLL_BAR_TEXTURE, trackX, trackY, 0, 0,
