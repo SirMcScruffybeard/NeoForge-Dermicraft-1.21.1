@@ -80,6 +80,16 @@ public class ModDataComponentTypes {
                     .persistent(BulkItemData.CODEC)
                     .networkSynchronized(BulkItemData.STREAM_CODEC));
 
+    /** S.I.P.P.I.N.G.'s Gadget Module loadout -- third consumer of the shared Module system, same
+     * "separate registration per consumer" rule as {@link #DRINKER_MODULE_DATA}'s own javadoc. A
+     * Safety Module here is what lets Storage mode's buffer, and Disposal mode's void, hold/destroy
+     * a hazardous fluid at all -- both currently hardcoded to {@code HazardProfile.TIER_1} with no
+     * flex, same gap Drinker had before it got Modules. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulkItemData>> SIPPING_MODULE_DATA =
+            register("sipping_module_data", builder -> builder
+                    .persistent(BulkItemData.CODEC)
+                    .networkSynchronized(BulkItemData.STREAM_CODEC));
+
     /** Eater's mode state -- same shape as D.R.I.N.K.E.R.'s, registered separately so a mode set on
      * one item is never confused with the other's. Reuses {@link DrinkerModeData}'s codecs rather
      * than a duplicate record; the Storage/Transfer/Disposal cycle-step shape is identical. */

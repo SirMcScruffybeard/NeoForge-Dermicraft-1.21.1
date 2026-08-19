@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.item.custom.EaterItem;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
+import net.scruffy.dermicraft.item.custom.SippingItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
@@ -74,6 +75,10 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
         return menu.getGadgetStack().getItem() instanceof DrinkerItem;
     }
 
+    private boolean isSipping() {
+        return menu.getGadgetStack().getItem() instanceof SippingItem;
+    }
+
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         int x = (width - imageWidth) / 2;
@@ -127,7 +132,16 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             renderShatterBg(guiGraphics, x, y);
         } else if (isDrinker()) {
             renderDrinkerBg(guiGraphics, x, y);
+        } else if (isSipping()) {
+            renderSippingBg(guiGraphics, x, y);
         }
+    }
+
+    /** Module slot only, no gauge -- Sipping's own hand-to-hand transfer already covers fluid
+     * movement, so it doesn't need the buffer-gauge/drain-slot pairing Drinker's background adds. */
+    private void renderSippingBg(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + SippingItem.MODULE_SLOT_X, y + SippingItem.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
     }
 
     /** Module slot (yellow, same coordinates Eater's own Module row starts from) plus the

@@ -157,11 +157,17 @@ public class ModBusEvents {
         // S.I.P.P.I.N.G.: Storage mode is a flexible hazard-gated buffer (same shape as Bladder);
         // Disposal mode bypasses the buffer entirely and voids anything the hazard profile accepts.
         // Which handler is returned depends on the stack's current mode, read fresh each lookup.
+        // Both branches read SippingItem.installedHazardProfile(stack) rather than a fixed TIER_1 --
+        // this factory lambda is re-invoked fresh on every getCapability() lookup, so a currently-
+        // installed Safety Module's grant is picked up live in either mode. Same fix as Drinker's
+        // identical bug (see that registration's own comment): a hardcoded TIER_1 here would
+        // silently override whatever a Module granted.
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> {
             SippingModeData mode = stack.getOrDefault(ModDataComponentTypes.SIPPING_MODE_DATA.get(), SippingModeData.DEFAULT);
+            HazardProfile profile = SippingItem.installedHazardProfile(stack);
             return mode.disposalMode()
-                    ? new IHaveFluidData.DisposalFluidHandler(stack, HazardProfile.TIER_1)
-                    : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, HazardProfile.TIER_1);
+                    ? new IHaveFluidData.DisposalFluidHandler(stack, profile)
+                    : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, profile);
         }, ModItems.SIPPING.get());
 
         // E.A.T.E.R.: 4-slot bulk item buffer, no filter -- base tier accepts anything it vacuums.
