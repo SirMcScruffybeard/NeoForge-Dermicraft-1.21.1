@@ -46,6 +46,7 @@ import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
+import net.scruffy.dermicraft.util.ModFluidUtil;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
@@ -605,25 +606,21 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
             if (candidate.getCount() == 1) {
                 IFluidHandlerItem handler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
-                if (handler == null || !canHold(handler, offer)) continue;
+                if (handler == null || !ModFluidUtil.canHold(handler, offer)) continue;
 
                 int accepted = handler.fill(offer, action);
                 if (accepted <= 0) continue;
                 remaining -= accepted;
 
                 // Write the handler's own container back, exactly as the stacked branch below
-                // already does. A handler is NOT required to mutate the stack it was resolved
-                // from: vanilla's bucket wrapper represents a fill by swapping to a different
-                // Item and reflects that ONLY on getContainer(). Without this the fill reported
-                // success, the buffer was drained for it, and the fluid vanished -- the receiving
-                // stack was never actually changed.
-                if (action.execute()) setInInventory(player, candidate, handler.getContainer());
+                // already does -- see ModFluidUtil's "container-swap write-back" section for why.
+                if (action.execute()) ModFluidUtil.writeBackToPlayer(player, candidate, handler.getContainer());
                 continue;
             }
 
             ItemStack single = candidate.copyWithCount(1);
             IFluidHandlerItem handler = single.getCapability(Capabilities.FluidHandler.ITEM, null);
-            if (handler == null || !canHold(handler, offer)) continue;
+            if (handler == null || !ModFluidUtil.canHold(handler, offer)) continue;
 
             int accepted = handler.fill(offer, action);
             if (accepted <= 0) continue;
@@ -637,47 +634,6 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
             }
         }
         return fluid.getAmount() - remaining;
-    }
-
-    /**
-     * Whether a destination container is actually willing to hold this fluid, asked BEFORE offering
-     * it. {@code fill()} alone is not a sufficient gate: only some containers gate on hazard at all
-     * (the Bladder family does, via {@code HazardGatedFluidDataFluidHandler}; the Beaker, Glass
-     * Flask, I.D.E.P. and every vanilla bucket do not), so without this DRINKER would happily pour
-     * an extreme-heat fluid into a container whose own tier forbids it -- laundering fluid past the
-     * hazard ladder that decides what may carry what.
-     *
-     * <p>DRINKER being ABLE to siphon a fluid (its own Safety Module said so) says nothing about
-     * whether the thing it's pouring into can survive it -- that's the destination's own call, and
-     * {@link IFluidHandler#isFluidValid} is where a gated handler expresses it.
-     */
-    private static boolean canHold(IFluidHandler handler, FluidStack fluid) {
-        for (int tank = 0; tank < handler.getTanks(); tank++) {
-            if (handler.isFluidValid(tank, fluid)) return true;
-        }
-        return false;
-    }
-
-    /**
-     * Replaces {@code original} with {@code filled} wherever it currently sits in the player's
-     * inventory -- needed only for handlers that swap container identity rather than mutating in
-     * place (see the call site). A no-op when the handler already mutated the stack directly, which
-     * is the case for every one of this mod's own component-backed containers.
-     */
-    private static void setInInventory(Player player, ItemStack original, ItemStack filled) {
-        if (filled == original) return;
-
-        Inventory inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            if (inventory.getItem(slot) == original) {
-                inventory.setItem(slot, filled);
-                return;
-            }
-        }
-        // Defensive: getContainerSize() spans main/armor/offhand, so a candidate that came from
-        // orderedContainers should always be found above. Hand it back rather than silently
-        // losing it if it somehow isn't.
-        IHaveFluidData.giveOrDrop(player, filled);
     }
 
     /**
@@ -817,12 +773,12 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
                 IFluidHandlerItem containerHandler = held.getCapability(Capabilities.FluidHandler.ITEM, null);
                 if (drinkerBuffer == null || containerHandler == null) return;
 
-                // Same destination hazard gate as fillContainers -- see canHold. Without it this
+                // Same destination hazard gate as fillContainers -- see ModFluidUtil#canHold. Without it this
                 // slot is a second route around the tier ladder: the buffer may legitimately hold
                 // an extreme-heat fluid thanks to a Safety Module, but that says nothing about
                 // whether the container placed here can.
                 FluidStack buffered = drinkerBuffer.getFluidInTank(0);
-                if (buffered.isEmpty() || !canHold(containerHandler, buffered)) return;
+                if (buffered.isEmpty() || !ModFluidUtil.canHold(containerHandler, buffered)) return;
 
                 if (net.neoforged.neoforge.fluids.FluidUtil.tryFluidTransfer(containerHandler, drinkerBuffer, Integer.MAX_VALUE, true).isEmpty()) return;
                 set(containerHandler.getContainer());

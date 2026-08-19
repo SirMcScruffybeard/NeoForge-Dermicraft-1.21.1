@@ -29,6 +29,7 @@ import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.item.custom.base.ToolItem;
+import net.scruffy.dermicraft.util.ModFluidUtil;
 
 import java.util.List;
 
@@ -313,21 +314,10 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
             // would fill every item in it -- see IHaveFluidData#isSingleContainer.
             if (!IHaveFluidData.isSingleContainer(candidate)) continue;
 
-            IFluidHandlerItem candidateHandler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
-            if (candidateHandler == null) continue;
-
-            int accepted = candidateHandler.fill(available, IFluidHandler.FluidAction.SIMULATE);
-            if (accepted <= 0) continue;
-
-            FluidStack drained = idepHandler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
-            candidateHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
-            // Write the handler's own container back: a handler needn't mutate the stack it was
-            // resolved from -- vanilla's bucket wrapper swaps to a different Item and reflects it
-            // only on getContainer(). Without this the drain happened and the fluid vanished.
-            if (candidateHandler.getContainer() != candidate) {
-                inventory.setItem(i, candidateHandler.getContainer());
-            }
-            return;
+            // Handles the destination check and the container-swap write-back both -- see
+            // ModFluidUtil's "container-swap write-back" section for why hand-rolling this loses
+            // fluid into a vanilla bucket.
+            if (ModFluidUtil.fillPlayerContainer(player, candidate, idepHandler, available.getAmount()) > 0) return;
         }
     }
 }

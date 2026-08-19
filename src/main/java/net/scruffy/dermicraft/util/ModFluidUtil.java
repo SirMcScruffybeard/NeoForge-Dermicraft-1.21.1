@@ -67,9 +67,13 @@ public class ModFluidUtil {
 
     public static boolean hasEmptyFluidHandlerInSlotForTransfer(ItemStackHandler itemHandler, int slot, FluidTank tank) {
         IFluidHandlerItem handler = getItemFluidHandler(itemHandler.getStackInSlot(slot));
+        // isEmpty(), not != FluidStack.EMPTY: the latter is reference identity against the EMPTY
+        // singleton, which only happened to work because tryFluidTransfer returns exactly that
+        // instance on failure. Any path handing back a distinct zero-amount stack would have read
+        // as a successful transfer.
         return handler != null
                 && (handler.getFluidInTank(0).isEmpty()
-                || FluidUtil.tryFluidTransfer(handler, tank, Integer.MAX_VALUE, false) != FluidStack.EMPTY);
+                || !FluidUtil.tryFluidTransfer(handler, tank, Integer.MAX_VALUE, false).isEmpty());
     }
 
     public static boolean hasEmptyFluidHandlerInSlot(ItemStackHandler itemHandler, int slot) {
@@ -89,6 +93,117 @@ public class ModFluidUtil {
         if (result.isSuccess() && !result.result.isEmpty()) {
             itemHandler.setStackInSlot(itemSlot, result.result);
         }
+    }
+
+    //////////Container fill/drain with container-swap write-back\\\\\\\\\\
+
+    /*
+     * WHY THESE EXIST -- read before hand-rolling another container fill.
+     *
+     * An IFluidHandlerItem is NOT required to mutate the ItemStack it was resolved from. Our own
+     * component-backed containers (Bladder, Beaker, Flask, every gadget tank) do, because the stack
+     * IS the handler's container -- so a fill/drain writes straight through and nothing else is
+     * needed. Vanilla's bucket wrapper does not: it represents a fill as swapping to a whole
+     * different Item (empty bucket <-> lava bucket) and reflects that ONLY on getContainer().
+     *
+     * Miss the write-back and the source is debited while the destination stack never changes --
+     * the fluid is silently destroyed. That bug has now been found three separate times (D.R.I.N.K.E.R.
+     * Transfer, I.D.E.P. auto-fill, and earlier the Bladder refuel path), always in code that fills
+     * an ARBITRARY player-inventory container, which is the only place a vanilla bucket turns up.
+     * Prefer these helpers over calling fill()/drain() plus a hand-written write-back.
+     */
+
+    /**
+     * Fills the container in {@code slot} of {@code itemHandler} from {@code source}, writing any
+     * swapped container back into that same slot.
+     *
+     * @return mB actually moved (0 if the container refused it, or the slot held no container)
+     */
+    public static int fillContainerInSlot(ItemStackHandler itemHandler, int slot, IFluidHandler source, int max) {
+        ItemStack container = itemHandler.getStackInSlot(slot);
+        IFluidHandlerItem handler = getItemFluidHandler(container);
+        if (handler == null) return 0;
+
+        int moved = transferInto(handler, source, max);
+        if (moved > 0 && handler.getContainer() != container) {
+            itemHandler.setStackInSlot(slot, handler.getContainer());
+        }
+        return moved;
+    }
+
+    /**
+     * Fills {@code container} from {@code source}, writing any swapped container back into the
+     * player's inventory (or handing it to them if the original wasn't found there).
+     *
+     * <p>Only ever call this with a single (unstacked) container -- a fluid data component belongs
+     * to the WHOLE stack, so filling a stack of five in place fills all five from one container's
+     * worth. See {@code IHaveFluidData#isSingleContainer}; split one off first if you need stacked
+     * containers to work.
+     *
+     * @return mB actually moved (0 if the container refused it)
+     */
+    public static int fillPlayerContainer(net.minecraft.world.entity.player.Player player,
+                                          ItemStack container, IFluidHandler source, int max) {
+        IFluidHandlerItem handler = getItemFluidHandler(container);
+        if (handler == null) return 0;
+
+        int moved = transferInto(handler, source, max);
+        if (moved > 0 && handler.getContainer() != container) {
+            writeBackToPlayer(player, container, handler.getContainer());
+        }
+        return moved;
+    }
+
+    /**
+     * Whether {@code destination} will take {@code fluid} at all, asked BEFORE offering it.
+     *
+     * <p>A successful fill() is not on its own proof the destination SHOULD have taken it: only some
+     * containers gate on hazard (the Bladder family does, the Beaker/Glass Flask/I.D.E.P. and every
+     * vanilla bucket do not), and a handler that doesn't gate will happily swallow a fluid its tier
+     * forbids. {@link IFluidHandler#isFluidValid} is where a gated handler expresses that refusal.
+     */
+    public static boolean canHold(IFluidHandler destination, FluidStack fluid) {
+        for (int tank = 0; tank < destination.getTanks(); tank++) {
+            if (destination.isFluidValid(tank, fluid)) return true;
+        }
+        return false;
+    }
+
+    /** Drain-then-fill sized by what the destination will actually take, so nothing is ever pulled
+     * out of {@code source} that {@code destination} can't accept. Gated by {@link #canHold}. */
+    private static int transferInto(IFluidHandler destination, IFluidHandler source, int max) {
+        FluidStack available = source.drain(max, IFluidHandler.FluidAction.SIMULATE);
+        if (available.isEmpty() || !canHold(destination, available)) return 0;
+
+        int accepted = destination.fill(available, IFluidHandler.FluidAction.SIMULATE);
+        if (accepted <= 0) return 0;
+
+        // Drain by stack, not by amount: on a multi-tank source, drain(int) could pull a different
+        // fluid than the one just approved.
+        FluidStack request = available.copy();
+        request.setAmount(accepted);
+        FluidStack drained = source.drain(request, IFluidHandler.FluidAction.EXECUTE);
+        if (drained.isEmpty()) return 0;
+
+        return destination.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+    }
+
+    /** Replaces {@code original} wherever it sits in the player's inventory. getContainerSize()
+     * spans main/armor/offhand, so a container the caller found on the player is always located;
+     * the fallback only guards against losing it if it somehow isn't.
+     *
+     * <p>Public for callers doing their own fill loop rather than using {@link #fillPlayerContainer}
+     * -- e.g. one tracking a running remainder across several containers. */
+    public static void writeBackToPlayer(net.minecraft.world.entity.player.Player player,
+                                         ItemStack original, ItemStack replacement) {
+        var inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            if (inventory.getItem(slot) == original) {
+                inventory.setItem(slot, replacement);
+                return;
+            }
+        }
+        net.scruffy.dermicraft.interfaces.IHaveFluidData.giveOrDrop(player, replacement);
     }
 
     //////////External Transfer Methods\\\\\\\\\\
