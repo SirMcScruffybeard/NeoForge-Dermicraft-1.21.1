@@ -63,6 +63,7 @@
   "tooltip.dermicraft.drinker.nothing_held": "Buffer is empty",
   "tooltip.dermicraft.drinker.no_container": "No container with room in inventory",
   "tooltip.dermicraft.drinker.transferred": "Transferred %s mB",
+  "tooltip.dermicraft.drinker.transferred_partial": "Transferred %s mB -- %s mB left, out of room",
   "tooltip.dermicraft.drinker.void_warning": "Contents will be voided -- crouch-click again to confirm",
   "tooltip.dermicraft.drinker.voided": "Contents voided",
   "tooltip.dermicraft.sipping.disposal_warning": "Contents will be voided -- right-click again to confirm",

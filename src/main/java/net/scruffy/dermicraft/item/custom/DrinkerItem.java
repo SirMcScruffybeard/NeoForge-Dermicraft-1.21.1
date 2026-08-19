@@ -283,21 +283,117 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     }
 
     private void transferOut(Player player, ItemStack stack) {
-        FluidStack held = bufferContents(stack);
-        if (held.isEmpty()) {
+        if (bufferContents(stack).isEmpty()) {
             player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.nothing_held"), true);
             return;
         }
 
-        int moved = fillContainers(stack, player, held, IFluidHandler.FluidAction.EXECUTE);
+        int moved = distributeBuffer(player, stack);
         if (moved <= 0) {
             player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.no_container")
                     .withStyle(ChatFormatting.RED), true);
             return;
         }
 
-        drainBuffer(stack, moved);
-        player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.transferred", moved), true);
+        FluidStack leftover = bufferContents(stack);
+        player.displayClientMessage(leftover.isEmpty()
+                ? Component.translatable("tooltip.dermicraft.drinker.transferred", moved)
+                : Component.translatable("tooltip.dermicraft.drinker.transferred_partial", moved, leftover.getAmount()),
+                true);
+    }
+
+    /**
+     * Empties as much of the buffer as the player's containers will take: fill one to capacity, move
+     * to the next, and so on until either the buffer runs dry or nothing left will accept it.
+     * Whatever no container would take simply stays banked -- running out of room is a stopping
+     * condition, never a loss.
+     *
+     * <p><b>The buffer is debited per container, by exactly what that container accepted</b>, rather
+     * than by a total tallied across all of them and subtracted at the end. That older shape was
+     * only correct while every container's {@code fill()} return agreed exactly with what it
+     * actually stored; where the two diverged, the difference was silently destroyed. Paying for
+     * each fill as it happens removes the possibility structurally instead of relying on every
+     * present and future handler to report itself honestly.
+     *
+     * @return total mB actually placed into containers.
+     */
+    private static int distributeBuffer(Player player, ItemStack self) {
+        int moved = 0;
+
+        for (ItemStack candidate : orderedContainers(self, player, bufferContents(self))) {
+            if (bufferContents(self).isEmpty()) break;
+
+            // Keep going at THIS candidate until it's done rather than taking one and moving on --
+            // a stack of five Flasks should fill all five, and a partly-filled container should be
+            // topped off, before the search moves to the next one.
+            while (!candidate.isEmpty() && !bufferContents(self).isEmpty()) {
+                FillResult result = fillOneFromBuffer(player, self, candidate);
+                moved += result.moved();
+                if (result.moved() <= 0 || result.candidateConsumed()) break;
+            }
+        }
+        return moved;
+    }
+
+    /**
+     * One container's worth. {@code candidateConsumed} reports that {@code candidate} itself is no
+     * longer the stack sitting in the player's inventory -- only true when the handler swapped
+     * container identity outright (a vanilla bucket becoming a filled bucket). A stacked container
+     * having one item split off does NOT set this: {@code candidate} is the original stack, shrunk
+     * in place, still perfectly reusable for the next split. The caller must stop reusing the
+     * reference only when this is true; filling a genuinely stale stack would report a fill against
+     * something no longer there, creating fluid from nothing.
+     */
+    private record FillResult(int moved, boolean candidateConsumed) {
+        static final FillResult NONE = new FillResult(0, false);
+    }
+
+    private static FillResult fillOneFromBuffer(Player player, ItemStack self, ItemStack candidate) {
+        FluidStack held = bufferContents(self).copy();
+        if (held.isEmpty()) return FillResult.NONE;
+
+        // A fluid data component belongs to the whole stack, so a stacked container has one item
+        // split off and filled rather than being filled in place (which would fill every item in
+        // it) -- see IHaveFluidData#isSingleContainer.
+        boolean stacked = !IHaveFluidData.isSingleContainer(candidate);
+        ItemStack target = stacked ? candidate.copyWithCount(1) : candidate;
+
+        IFluidHandlerItem handler = target.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (handler == null || !ModFluidUtil.canHold(handler, held)) return FillResult.NONE;
+
+        int accepted = handler.fill(held, IFluidHandler.FluidAction.SIMULATE);
+        if (accepted <= 0) return FillResult.NONE;
+
+        // Take exactly what this container just agreed to, then hand it that same stack.
+        FluidStack request = held.copy();
+        request.setAmount(accepted);
+        FluidStack drained = drainBuffer(self, request);
+        if (drained.isEmpty()) return FillResult.NONE;
+
+        int filled = handler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (filled < drained.getAmount()) {
+            // Took less than it promised on the simulate. Bank the difference again immediately --
+            // it has already left the buffer at this point, so anything not returned here is gone.
+            FluidStack unplaced = drained.copy();
+            unplaced.setAmount(drained.getAmount() - filled);
+            fillBuffer(self, unplaced, IFluidHandler.FluidAction.EXECUTE);
+        }
+        if (filled <= 0) return FillResult.NONE;
+
+        if (stacked) {
+            candidate.shrink(1);
+            // getContainer() is the filled single -- the handler wrote into the copy, not the stack
+            // it came from, which is the entire point of splitting.
+            IHaveFluidData.giveOrDrop(player, handler.getContainer());
+            // NOT consumed: candidate is the original stack, shrunk in place, still a live slot
+            // reference -- the caller's while loop keeps splitting off it (its own isEmpty() check
+            // is what stops filling a five-Flask stack after the fifth, not this flag).
+            return new FillResult(filled, false);
+        }
+
+        boolean swapped = handler.getContainer() != candidate;
+        if (swapped) ModFluidUtil.writeBackToPlayer(player, candidate, handler.getContainer());
+        return new FillResult(filled, swapped);
     }
 
     /**
@@ -569,9 +665,11 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
         return buffer == null ? 0 : buffer.fill(fluid, action);
     }
 
-    private static void drainBuffer(ItemStack stack, int amount) {
+    /** Drains by stack, not by amount: on a multi-tank buffer, drain(int) could pull a different
+     * fluid than the one the caller already got a destination to agree to. */
+    private static FluidStack drainBuffer(ItemStack stack, FluidStack request) {
         IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        if (buffer != null) buffer.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+        return buffer == null ? FluidStack.EMPTY : buffer.drain(request, IFluidHandler.FluidAction.EXECUTE);
     }
 
     public static FluidStack bufferContents(ItemStack stack) {
