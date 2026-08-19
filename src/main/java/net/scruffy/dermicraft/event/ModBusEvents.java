@@ -140,8 +140,15 @@ public class ModBusEvents {
         // D.R.I.N.K.E.R.: one source block's worth, hazard-gated. The gate does double duty -- the
         // siphon checks "can this buffer take a full 1000mB?" against this handler, so a fluid the
         // profile refuses simply never accumulates, no separate hazard check needed in the item.
+        // Reads DrinkerItem.installedHazardProfile(stack) rather than a fixed TIER_1 -- this factory
+        // lambda is re-invoked fresh on every getCapability() lookup, so a currently-installed Safety
+        // Module's grant is picked up live. A hardcoded TIER_1 here silently overrode whatever a
+        // Module granted: the item's own use()-side check (accumulateSource/drainTank) already
+        // unions the Module in and would let a hazardous fluid through, but this handler's fill()
+        // still refused it underneath, so the siphon read that refusal back as "buffer too full."
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) ->
-                        new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, DrinkerItem.CAPACITY, HazardProfile.TIER_1),
+                        new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, DrinkerItem.CAPACITY,
+                                DrinkerItem.installedHazardProfile(stack)),
                 ModItems.DRINKER.get());
 
         // S.I.P.P.I.N.G.: Storage mode is a flexible hazard-gated buffer (same shape as Bladder);
