@@ -3,6 +3,7 @@
     "#c:foods/bread",
     "#c:foods/fruit",
     "#c:foods/berry",
-    "#c:foods/vegetable"
+    "#c:foods/vegetable",
+    "minecraft:baked_potato"
   ]
 }

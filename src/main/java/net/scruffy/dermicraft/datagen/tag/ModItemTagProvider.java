@@ -55,6 +55,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .addTag(Tags.Items.FOODS_FRUIT)
                 .addTag(Tags.Items.FOODS_BERRY)
                 .addTag(Tags.Items.FOODS_VEGETABLE)
+                .add(Items.BAKED_POTATO)
         ;
 
         tag(ModTags.Items.MEAT_FOOD)
