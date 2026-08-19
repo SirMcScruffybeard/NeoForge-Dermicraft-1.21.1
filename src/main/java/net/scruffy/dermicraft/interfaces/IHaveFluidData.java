@@ -165,7 +165,14 @@ public interface IHaveFluidData {
             }
 
             if (action.execute()) {
-                container.set(getDataType(), FluidData.createData(resource.copy()));
+                // Store exactly CAPACITY, never the offered amount. All-or-nothing means the offer
+                // must be at LEAST capacity (guarded above), not that it equals it -- so a caller
+                // offering more than this holds (D.R.I.N.K.E.R. pushing its whole 1000 mB buffer at
+                // a 250 mB Flask) used to have the surplus stored anyway while only CAPACITY was
+                // reported back and debited. That difference was created out of nothing.
+                FluidStack stored = resource.copy();
+                stored.setAmount(CAPACITY);
+                container.set(getDataType(), FluidData.createData(stored));
             }
             return CAPACITY;
         }
