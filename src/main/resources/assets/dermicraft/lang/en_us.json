@@ -337,6 +337,7 @@
   "tooltip.dermicraft.shatter.mining_tier": "Mining Tier: %s",
 
   "tooltip.dermicraft.gauge.fuel": "Fuel",
+  "tooltip.dermicraft.gauge.buffer": "Buffer",
   "tooltip.dermicraft.gauge.reagent": "Reagent",
   "tooltip.dermicraft.gauge.result": "Result",
   "tooltip.dermicraft.gauge.input_a": "Input A",

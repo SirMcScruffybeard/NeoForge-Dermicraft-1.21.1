@@ -675,28 +675,41 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     public static final int MODULE_SLOT_X = 8;
     public static final int MODULE_SLOT_Y = 27;
 
+    // Buffer gauge + drain slot -- same tank-above-slot pairing as Sunder's/Shatter's own fuel
+    // gauge (TANK_AND_SLOT_TEXTURE, 48px of tank above the slot's own top), just draining instead
+    // of filling. Public for the same reason as every other panel constant in this class: the
+    // screen needs to draw the matching background under exactly the slot DrinkerSwapPanel builds.
+    public static final int DRAIN_SLOT_X = 113;
+    public static final int DRAIN_SLOT_Y = 60;
+    public static final int TANK_X = DRAIN_SLOT_X;
+    public static final int TANK_Y = DRAIN_SLOT_Y - 48;
+
     @Override
     public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
         return new DrinkerSwapPanel(gadgetStackSupplier, fieldHosted);
     }
 
     /**
-     * DRINKER's single-slot Module panel. Unlike Eater's, there's no item buffer to expose here
-     * alongside it -- DRINKER's buffer is the fluid tank ({@link IHaveFluidData}), which already has
-     * its own screen presentation, not this gadget-part panel -- so this is purely the Module slot.
-     * Same pure live-view shape as Eater's own panel (see that class's identical javadoc for why):
-     * the slot reads/writes straight through to {@link ModDataComponentTypes#DRINKER_MODULE_DATA},
-     * so there's nothing to materialize or write back on close. Re-resolves a fresh
+     * DRINKER's Module + drain panel. Unlike Eater's, there's no item buffer to expose here
+     * alongside the Module slot -- DRINKER's own buffer is the fluid tank ({@link IHaveFluidData}) --
+     * but that buffer had no screen presentation of its own before this panel: DRINKER only had
+     * mode-cycling right-click and no GUI at all until the Module slot was wired up, which is why
+     * the fluid gauge and drain slot are added here rather than a separate screen. Module slot is
+     * the same pure live-view shape as Eater's own panel (see that class's identical javadoc for
+     * why): reads/writes straight through to {@link ModDataComponentTypes#DRINKER_MODULE_DATA}, so
+     * there's nothing to materialize or write back on close. Re-resolves a fresh
      * {@code BulkItemHandler} against {@code gadgetStackSupplier.get()} on every access (see
      * {@link IHaveItemData#liveHandler}), same reasoning as {@code EaterItem.EaterSwapPanel}.
      */
     private final class DrinkerSwapPanel implements SwapPanel {
 
+        private final java.util.function.Supplier<ItemStack> gadgetStackSupplier;
         private final boolean fieldHosted;
         private final IItemHandlerModifiable moduleHandler;
         private boolean moduleSlotChanged = false;
 
         private DrinkerSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
+            this.gadgetStackSupplier = gadgetStackSupplier;
             this.fieldHosted = fieldHosted;
             this.moduleHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
                     ModDataComponentTypes.DRINKER_MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
@@ -705,14 +718,55 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
         @Override
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
-            return IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
-                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true);
+            List<Slot> slots = new ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+            slots.add(new DrainSlot(panelX + DRAIN_SLOT_X + 1, panelY + DRAIN_SLOT_Y + 1, active));
+            return slots;
         }
 
         @Override
         public void onClosed(Player player) {
             if (fieldHosted && moduleSlotChanged) {
                 player.getCooldowns().addCooldown(DrinkerItem.this, SWAP_RECALIBRATION_COOLDOWN_TICKS);
+            }
+        }
+
+        /**
+         * Drains the buffer immediately into a fluid container placed here, mirroring Sunder's own
+         * {@code FuelFillSlot} exactly in shape, just the opposite direction -- source is DRINKER's
+         * own buffer capability (read fresh off {@code gadgetStackSupplier.get()}, same live-view
+         * rule as the Module slot above) rather than the tank being filled.
+         */
+        private final class DrainSlot extends Slot {
+            private final java.util.function.BooleanSupplier active;
+
+            DrainSlot(int x, int y, java.util.function.BooleanSupplier active) {
+                super(new net.minecraft.world.SimpleContainer(1), 0, x, y);
+                this.active = active;
+            }
+
+            @Override
+            public boolean isActive() {
+                return active.getAsBoolean();
+            }
+
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ItemStack held = getItem();
+                if (held.isEmpty()) return;
+
+                IFluidHandlerItem drinkerBuffer = gadgetStackSupplier.get().getCapability(Capabilities.FluidHandler.ITEM, null);
+                IFluidHandlerItem containerHandler = held.getCapability(Capabilities.FluidHandler.ITEM, null);
+                if (drinkerBuffer == null || containerHandler == null) return;
+
+                if (net.neoforged.neoforge.fluids.FluidUtil.tryFluidTransfer(containerHandler, drinkerBuffer, Integer.MAX_VALUE, true).isEmpty()) return;
+                set(containerHandler.getContainer());
             }
         }
     }

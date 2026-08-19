@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.item.custom.ScrenchItem;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
@@ -124,6 +125,17 @@ public class ScrenchMenu extends AbstractModMenu {
 
     public int getShatterFuelCapacity() {
         return ShatterItem.FUEL_CAPACITY;
+    }
+
+    /** Drinker-only convenience accessors, same shape as the Sunder/Shatter fluid ones above --
+     * reads DRINKER's own buffer capability rather than a {@code FLUID_DATA} component, since that's
+     * where the buffer actually lives (see {@code DrinkerItem#bufferContents}). */
+    public FluidStack getDrinkerFluid() {
+        return DrinkerItem.bufferContents(player.getItemInHand(gadgetHand));
+    }
+
+    public int getDrinkerCapacity() {
+        return DrinkerItem.CAPACITY;
     }
 
     /**
