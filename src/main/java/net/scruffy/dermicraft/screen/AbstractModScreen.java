@@ -234,7 +234,7 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
 
             blitFlippedX(guiGraphics, i == activeIndex ? OPEN_TAB_TEXTURE : CLOSED_TAB_TEXTURE,
                     x + TAB_X, tabY, TAB_WIDTH, TAB_HEIGHT);
-            drawScaledString(guiGraphics, tab.label(), x + TAB_X + 3, tabY + TAB_HEIGHT / 2 - 4,
+            drawScaledString(guiGraphics, tab.label(), x + TAB_X + 4, tabY + TAB_HEIGHT / 2 - 4,
                     tab.textColor(), TAB_TEXT_SCALE);
         }
     }
