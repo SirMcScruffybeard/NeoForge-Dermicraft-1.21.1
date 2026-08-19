@@ -221,7 +221,7 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
     private void jamClearGeneric(ItemStack stack, IItemHandler itemSource, int itemSlot, IFluidHandler fluidSource, Player player) {
         boolean movedSomething = false;
 
-        IFluidHandlerItem idepHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        IFluidHandlerItem idepHandler = internalTank(stack);
 
         ItemStack sourceItem = itemSource.getStackInSlot(itemSlot);
         if (!sourceItem.isEmpty()) {
@@ -239,7 +239,7 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
         }
 
         FluidStack sourceFluid = fluidSource.getFluidInTank(0);
-        if (!sourceFluid.isEmpty() && idepHandler != null) {
+        if (!sourceFluid.isEmpty()) {
             int accepted = idepHandler.fill(sourceFluid, IFluidHandler.FluidAction.SIMULATE);
             if (accepted > 0) {
                 FluidStack drained = fluidSource.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
@@ -251,17 +251,26 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
         send(player, Component.translatable(movedSomething ? "tooltip.dermicraft.idep.cleared" : "tooltip.dermicraft.idep.nothing_cleared"));
     }
 
+    /**
+     * I.D.E.P.'s own tank, unsealed -- the registered capability
+     * ({@link IHaveFluidData.SealedFillFluidDataFluidHandler}) refuses every fill so that nothing
+     * external can load this tool, which would refuse the tool's own jam-clearing intake too. Both
+     * write to the same {@code FluidData} component on the same stack, so this is the identical tank
+     * seen from the inside rather than a second one.
+     */
+    private static IFluidHandlerItem internalTank(ItemStack stack) {
+        return new IHaveFluidData.FlexibleFluidDataFluidHandler(stack, FLUID_CAPACITY);
+    }
+
     private boolean holdsFluid(ItemStack stack) {
-        IFluidHandlerItem idepHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        return idepHandler != null && !idepHandler.getFluidInTank(0).isEmpty();
+        return !internalTank(stack).getFluidInTank(0).isEmpty();
     }
 
     /** Right-click a tank block: push the tool's stored fluid into it. Standard simulate-first.
      * Returns whether anything actually moved, so the caller can fall back to describeFace when the
      * target doesn't accept it (e.g. wrong fluid already in an IHasChannels machine's tank). */
     private boolean depositFluidInto(ItemStack stack, IFluidHandler target, Player player) {
-        IFluidHandlerItem idepHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        if (idepHandler == null) return false;
+        IFluidHandlerItem idepHandler = internalTank(stack);
 
         FluidStack held = idepHandler.getFluidInTank(0);
         if (held.isEmpty()) return false;
@@ -291,8 +300,7 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
      * amount it needs, so the standard simulate-first check here naturally skips it unless the tool
      * holds enough -- no special-casing needed between rigid and flexible containers. */
     private void tryAutoFillInventoryContainer(ItemStack stack, Player player) {
-        IFluidHandlerItem idepHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        if (idepHandler == null) return;
+        IFluidHandlerItem idepHandler = internalTank(stack);
 
         FluidStack available = idepHandler.getFluidInTank(0);
         if (available.isEmpty()) return;
@@ -301,6 +309,9 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack candidate = inventory.getItem(i);
             if (candidate.isEmpty() || candidate == stack) continue;
+            // A data component belongs to the whole stack, so filling a stacked container in place
+            // would fill every item in it -- see IHaveFluidData#isSingleContainer.
+            if (!IHaveFluidData.isSingleContainer(candidate)) continue;
 
             IFluidHandlerItem candidateHandler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
             if (candidateHandler == null) continue;
@@ -310,6 +321,12 @@ public class IdepItem extends ToolItem implements IHaveFluidData {
 
             FluidStack drained = idepHandler.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
             candidateHandler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            // Write the handler's own container back: a handler needn't mutate the stack it was
+            // resolved from -- vanilla's bucket wrapper swaps to a different Item and reflects it
+            // only on getContainer(). Without this the drain happened and the fluid vanished.
+            if (candidateHandler.getContainer() != candidate) {
+                inventory.setItem(i, candidateHandler.getContainer());
+            }
             return;
         }
     }

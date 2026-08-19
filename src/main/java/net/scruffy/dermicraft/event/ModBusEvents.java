@@ -121,7 +121,10 @@ public class ModBusEvents {
 
         // I.D.E.P.'s fluid storage is flexible (partial fills), same shape as the Beaker -- it's a
         // maintenance tool draining a Buffer's fluid, not a fixed-dose container like a Flask/Syringe.
-        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.FlexibleFluidDataFluidHandler(stack, IdepItem.FLUID_CAPACITY), ModItems.IDEP.get());
+        // Fill-sealed, though: I.D.E.P. loads itself only by clearing a jam it was deliberately
+        // pointed at, so nothing external may push fluid into it (see the handler's own javadoc).
+        // Its own intake goes through IdepItem#internalTank, not this capability.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.SealedFillFluidDataFluidHandler(stack, IdepItem.FLUID_CAPACITY), ModItems.IDEP.get());
 
         // Bladder family: bulk mobile storage, same flexible (partial-fill) shape as Beaker/I.D.E.P.,
         // gated to Tier 1's hazard restrictions (no hazardous fluids at all -- same as Drinker).

@@ -291,6 +291,40 @@ public interface IHaveFluidData {
     }
 
     /**
+     * A {@link FlexibleFluidDataFluidHandler} that refuses every fill arriving through the
+     * capability, while leaving reads and drains fully open.
+     *
+     * <p>For a tool whose intake is meant to be its OWN deliberate interaction rather than something
+     * any passing fluid mover can push into -- I.D.E.P. is the case this exists for: it fills itself
+     * by clearing a jam it was pointed at, and nothing else should be able to load it. Sealing the
+     * capability is what makes that true generically, instead of each would-be filler (D.R.I.N.K.E.R.
+     * Transfer, a machine's auto-eject, a future gadget) having to know to skip it.
+     *
+     * <p>Drain deliberately stays open: the tool's whole purpose is depositing what it holds into a
+     * machine, and other tools reading its contents is harmless.
+     *
+     * <p><b>The owning item must not fill itself through the capability</b> -- it would get refused
+     * like anyone else. It should construct a plain {@link FlexibleFluidDataFluidHandler} over its
+     * own stack for internal intake; see {@code IdepItem#internalTank}.
+     */
+    class SealedFillFluidDataFluidHandler extends FlexibleFluidDataFluidHandler {
+
+        public SealedFillFluidDataFluidHandler(ItemStack stack, int capacity) {
+            super(stack, capacity);
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return false;
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return 0;
+        }
+    }
+
+    /**
      * Bottomless sink: accepts anything its {@link HazardProfile} tolerates and destroys it on the
      * spot. Backs the Disposal mode that gadgets share (S.I.P.P.I.N.G., and any later one that
      * sits in a machine's fill slot to be drained into).
