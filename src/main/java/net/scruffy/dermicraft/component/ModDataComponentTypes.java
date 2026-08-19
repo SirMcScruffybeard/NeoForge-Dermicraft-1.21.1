@@ -69,6 +69,17 @@ public class ModDataComponentTypes {
                     .persistent(BulkItemData.CODEC)
                     .networkSynchronized(BulkItemData.STREAM_CODEC));
 
+    /** D.R.I.N.K.E.R.'s Gadget Module loadout -- second consumer of the shared Module system
+     * generalized into {@code IHaveModules} (see dermicraft-progression-notes.md, step 3). Its own
+     * distinct registration, deliberately not reusing {@link #MODULE_DATA} above -- same
+     * "separate registration per consumer" rule that already keeps {@link #EATER_MODE_DATA} and
+     * {@link #DRINKER_MODE_DATA} apart, so Eater's and Drinker's Module loadouts (and slot counts --
+     * Drinker currently has 1, Eater has 3) can never collide or be confused with each other. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulkItemData>> DRINKER_MODULE_DATA =
+            register("drinker_module_data", builder -> builder
+                    .persistent(BulkItemData.CODEC)
+                    .networkSynchronized(BulkItemData.STREAM_CODEC));
+
     /** Eater's mode state -- same shape as D.R.I.N.K.E.R.'s, registered separately so a mode set on
      * one item is never confused with the other's. Reuses {@link DrinkerModeData}'s codecs rather
      * than a duplicate record; the Storage/Transfer/Disposal cycle-step shape is identical. */

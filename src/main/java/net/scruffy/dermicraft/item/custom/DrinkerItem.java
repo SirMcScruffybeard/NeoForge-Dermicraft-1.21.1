@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -35,9 +36,16 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
+import net.scruffy.dermicraft.interfaces.IHaveItemData;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
@@ -69,7 +77,7 @@ import java.util.List;
  * another would silently dump or destroy fluid the player never meant to touch. Acting on the
  * current buffer is always a separate, explicit gesture.
  */
-public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadget {
+public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadget, IHaveModules, IWorkbenchSwappable {
 
     /** One fluid source block's worth -- the buffer holds exactly one atomic pickup. */
     public static final int CAPACITY = 1000;
@@ -104,15 +112,38 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     /** Total ticks the Disposal confirm window stays open. */
     private static final long ARM_WINDOW_TICKS = 60;
 
+    /** Module loadout size -- see dermicraft-progression-notes.md, step 3. 1 general-purpose slot
+     * (deliberately smaller than Eater's 3 -- Drinker's Module catalog is Safety-only for now, no
+     * mouthpiece-style specialties competing for the budget). Backed by
+     * {@link ModDataComponentTypes#DRINKER_MODULE_DATA}, Drinker's own distinct component (never
+     * Eater's {@code MODULE_DATA} -- see that field's javadoc). */
+    public static final int MODULE_SLOT_COUNT = 1;
+    /** Exactly one Module per slot -- these aren't stackable resources. */
+    public static final int MODULE_SLOT_CAPACITY = IHaveModules.DEFAULT_MODULE_SLOT_CAPACITY;
+
+    /** Same field-swap cost shape as Eater's own Module slot -- see that class's identical constant
+     * for the reasoning (a harvesting/utility gadget doesn't carry Sunder's weapon-mid-combat
+     * stakes, so a brief "can't use again yet" cooldown is the right-sized cost, not a movement
+     * penalty). */
+    private static final int SWAP_RECALIBRATION_COOLDOWN_TICKS = 40;
+
     /**
-     * Tier 1: tolerates no hazard at all.
+     * Tier 1 base, plus whatever hazard kinds any currently-installed Safety Module grants -- see
+     * {@link IHaveModules#installedHazardProfile}. Drinker has no permanent per-hazard tier of its
+     * own yet (same open question as Eater's), so {@link HazardProfile#TIER_1} is the base every
+     * Safety Module's grant unions onto.
      *
      * <p>Checked explicitly rather than leaning on the buffer's own gated handler. That shortcut
      * worked while every route ended in the buffer, but Disposal voids fluid without touching it
      * and Transfer can push into arbitrary third-party containers whose gating is not ours -- so
      * hazard tolerance has to be a property of the DRINKER itself, applied before any routing.
+     * Public (not the previous field's {@code private}) so {@code DrinkerTargetScanner}'s readout
+     * can check the exact same profile the real siphon uses, rather than a second hardcoded copy.
      */
-    private static final HazardProfile PROFILE = HazardProfile.TIER_1;
+    public static HazardProfile installedHazardProfile(ItemStack stack) {
+        return IHaveModules.installedHazardProfile(stack, ModDataComponentTypes.DRINKER_MODULE_DATA.get(),
+                MODULE_SLOT_COUNT, HazardProfile.TIER_1);
+    }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -174,6 +205,16 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
+
+        // Same Scrench-pairing deferral as use() below -- without this, aiming DRINKER at a real
+        // siphon target (a machine/tank face) while a Scrench sits in the other hand would let
+        // this intercept fire first, making the swap panel unreachable in exactly the moment a
+        // player most wants it: about to touch a hazardous fluid and wanting to check/swap a
+        // Safety Module first. PASS here falls through to ordinary use() handling, per this
+        // method's own javadoc, which is where the actual Scrench-open check lives.
+        InteractionHand otherHand = context.getHand() == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (player.getItemInHand(otherHand).getItem() instanceof ScrenchItem) return InteractionResult.PASS;
+
         if (findSiphonTarget(context.getLevel(), player) == null) return InteractionResult.PASS;
 
         player.startUsingItem(context.getHand());
@@ -193,6 +234,17 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+
+        // Checks the other hand for a paired Scrench first, deferring to the Module-swap GUI if
+        // found -- same pattern as EaterItem's/SunderItem's own matching check (see EaterItem for
+        // why this has to happen before any of DRINKER's own click handling below, not after).
+        InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (player.getItemInHand(otherHand).getItem() instanceof ScrenchItem) {
+            if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+                ScrenchMenu.open(serverPlayer, hand);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        }
 
         if (findSiphonTarget(level, player) != null) {
             // Start the sustained-use state immediately on click -- all siphon logic keys off this,
@@ -397,7 +449,7 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     /** Continuous partial transfer out of a machine/tank face. */
     private boolean drainTank(ItemStack stack, Player player, IFluidHandler tank) {
         FluidStack available = tank.drain(SIPHON_RATE, IFluidHandler.FluidAction.SIMULATE);
-        if (available.isEmpty() || !PROFILE.accepts(available)) return false;
+        if (available.isEmpty() || !installedHazardProfile(stack).accepts(available)) return false;
 
         int accepted = route(stack, player, available, IFluidHandler.FluidAction.SIMULATE);
         if (accepted <= 0) return false;
@@ -417,7 +469,7 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     private boolean accumulateSource(Level level, Player player, ItemStack stack, Target target) {
         BlockState blockState = target.blockState();
         FluidStack source = new FluidStack(blockState.getFluidState().getType(), CAPACITY);
-        if (!PROFILE.accepts(source)) return false;
+        if (!installedHazardProfile(stack).accepts(source)) return false;
 
         // Somewhere for a WHOLE source block or nothing -- a partial route would strand fluid that
         // can never be picked up again.
@@ -612,6 +664,57 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
         sameFluid.addAll(others);
         return sameFluid;
+    }
+
+    ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\
+
+    // Panel layout -- public so ScrenchScreen/WorkbenchScreen can draw the matching background
+    // under exactly the slot DrinkerSwapPanel builds, without either screen needing to know
+    // DRINKER's internal panel shape beyond this coordinate. Same placeholder-coordinate caveat as
+    // EaterItem's own MODULE_SLOT_X/Y: functionally correct regardless of where the art ends up.
+    public static final int MODULE_SLOT_X = 8;
+    public static final int MODULE_SLOT_Y = 27;
+
+    @Override
+    public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
+        return new DrinkerSwapPanel(gadgetStackSupplier, fieldHosted);
+    }
+
+    /**
+     * DRINKER's single-slot Module panel. Unlike Eater's, there's no item buffer to expose here
+     * alongside it -- DRINKER's buffer is the fluid tank ({@link IHaveFluidData}), which already has
+     * its own screen presentation, not this gadget-part panel -- so this is purely the Module slot.
+     * Same pure live-view shape as Eater's own panel (see that class's identical javadoc for why):
+     * the slot reads/writes straight through to {@link ModDataComponentTypes#DRINKER_MODULE_DATA},
+     * so there's nothing to materialize or write back on close. Re-resolves a fresh
+     * {@code BulkItemHandler} against {@code gadgetStackSupplier.get()} on every access (see
+     * {@link IHaveItemData#liveHandler}), same reasoning as {@code EaterItem.EaterSwapPanel}.
+     */
+    private final class DrinkerSwapPanel implements SwapPanel {
+
+        private final boolean fieldHosted;
+        private final IItemHandlerModifiable moduleHandler;
+        private boolean moduleSlotChanged = false;
+
+        private DrinkerSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
+            this.fieldHosted = fieldHosted;
+            this.moduleHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
+                    ModDataComponentTypes.DRINKER_MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
+                    candidate -> candidate.is(ModTags.Items.MODULES)));
+        }
+
+        @Override
+        public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
+            return IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true);
+        }
+
+        @Override
+        public void onClosed(Player player) {
+            if (fieldHosted && moduleSlotChanged) {
+                player.getCooldowns().addCooldown(DrinkerItem.this, SWAP_RECALIBRATION_COOLDOWN_TICKS);
+            }
+        }
     }
 
     ////////////////////Gadget health\\\\\\\\\\\\\\\\\\\\

@@ -109,6 +109,8 @@ How the game actually resolves "what is this gadget currently capable of" from i
 
 **Fluid restriction:** Tier 1 (see `dermicraft-project-primer.md` Stage structure) — cannot handle hazardous fluids like lava. Confirmed behavior: it simply will not attempt to drain a hazardous fluid at all, rather than draining it and failing/breaking afterward.
 
+**Module slot (built 2026-08-19):** Drinker now carries **1 general-purpose Module slot** (`DrinkerItem.MODULE_SLOT_COUNT`), backed by its own `ModDataComponentTypes.DRINKER_MODULE_DATA` — the cross-gadget Safety Module support this doc already named as intended (see the Modules direction note above) is wired up, not just planned. A Safety Module installed here grants the exact same *temporary, local* hazard exception Eater's do: it lets Drinker **target and contain** a fluid carrying that hazard tag ahead of whatever Drinker's own permanent tier would otherwise allow — both the targeting check (`DrinkerTargetScanner`'s action-bar readout) and the actual siphon (`drainTank`/`accumulateSource`) read the same live-computed profile, so the readout can never promise something the siphon then refuses. Field-swappable via the Scrench, same as Eater's Module slot (aim Drinker, hold a Scrench in the other hand). No mouthpiece-style specialties compete for Drinker's one slot the way Eater's three do — its Module catalog is Safety-only for now.
+
 **Additional pull source (under review):** Currently can also pull from fluid-handling blocks (tanks, other machines with fluid capability), not just raw world fluid blocks. This may be removed — not finalized.
 
 **Modes:**
