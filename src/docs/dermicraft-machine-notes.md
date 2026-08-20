@@ -150,11 +150,31 @@ Every Machine here is physically born from an Inert Tumor block — recipe items
 
 **Balance note:** passive + food-boosted output (≈2.28 mB/tick while actively fed) is tuned to slightly exceed one Masticator's Water draw (≈2.17 mB/tick, 1:1 with its Crude Slurry output) when both are fed the same food, so a Cauldron can keep a Masticator supplied with Water with a small margin to spare.
 
-**Evolution:** Forced-evolves into the **Drooling Crucible** (Tier 2, produces lava instead of water — see below) via the standard Machines evolution process.
+**Evolution:** Forced-evolves into the **Drooling Crucible** (Tier 2, produces lava instead of water — see below) via the standard Machines evolution process. **As of 2026-08-19, gains a SECOND route to the same end state** -- see "Production Module" below.
 
 **FL-native recipe:** 1 Cauldron + 1500 mB Protein Blend + 100 mB Primitive Catalyst, FL-assembled (no suture) — full worked-out math with the other worked examples (see FL-native machine recipes, under the Core section).
 
 **Open questions:** Does passive generation require anything (placement conditions, etc.) or is it unconditional? Internal tank capacity? Tier restriction?
+
+#### Production Module (design decided 2026-08-19, not yet built)
+
+Chosen as the pilot for a new Module category, distinct from Safety Modules -- see `dermicraft-progression-notes.md`'s taxonomy for why hazard gating doesn't fit here at all (the Cauldron has no hazard concept; nothing for a hazard tag to gate). **Neither Drooling Crucible nor any Evolution Catalyst/forced-evolution mechanic exists in code yet** -- both are design-doc-only as of this writing, so this is genuinely new infrastructure, not an addition to something already built.
+
+**What it does:** a Module slot on the Cauldron's own screen (same tab-bar infra Skin Tank's Module tab piloted) holds a **selector** Module -- e.g. a Lava Module -- that decides which fluid the Cauldron currently produces, both passively and via food-boosted generation. Unlike a Safety Module, which *unions* extra tolerance onto a base, this *switches* output outright: installing it changes what comes out starting immediately, not gated behind any progress.
+
+**Gradual evolution, not instant:** while a selector Module is installed, the Cauldron accumulates evolution progress off its own **processing ticks** -- ticks spent actively producing, not wall-clock time regardless of state. (For the Cauldron specifically, passive generation runs unconditionally whenever placed, so in practice this is close to continuous ticking -- but the rule is framed as "producing," not "existing," so it stays correct if a future machine using this same mechanic only progresses during an active craft, the way Masticator's `progress` already only advances during a recipe.) On reaching the threshold, the block transforms into an actual **Drooling Crucible** -- the identical end state Evolution Catalyst injection produces -- and the Module is **consumed**, matching the existing self-resolving convention Safety Modules already follow (a Module that locally covers a gap the permanent tier hasn't reached yet, consumed once the tier catches up).
+
+**Removing the Module is a full reset, not a pause:** output reverts to water immediately, and ALL accumulated evolution progress is wiped, not paused/held. Reinstalling (even the same physical item, or a fresh one) starts the counter over from zero. This is a deliberate cost on tinkering/swapping, not an oversight.
+
+**Placeholder pacing (explicitly not tuned, pick a real number in-game before shipping):** 24000 ticks (one full Minecraft day of continuous operation) as the evolution threshold -- chosen only because it's a clean, legible unit, not because the real value has been worked out. Needs an actual playtested number before this ships.
+
+**Scope, deliberately narrow:** this selector+gradual-evolution Module pattern is for Drooling Cauldron specifically (and any future machine shaped like it -- single fixed output, no hazard concept of its own). It is explicitly NOT planned for Masticator/Effluentcer/Metastasizer, whose actual production bottleneck is hazard tolerance gating access to their many existing recipes, not "which one fixed thing do I make" -- Safety Modules (already built) are the correct and sufficient mechanism there. Don't generalize this pattern onto those three without a fresh reason; the taxonomy already has an answer for them.
+
+**Still fully open, blocking implementation:**
+- Drooling Crucible doesn't exist as a block/BE/menu/screen at all yet -- building it (matching this doc's existing Crucible entry: lava output, open questions about food-boost mode and passive rate) is a prerequisite, not a detail of the Module work.
+- No Evolution Catalyst/forced-evolution mechanic exists in code at all -- the Module's "gradual" path needs to either share a real trigger/transform mechanism with the (also unbuilt) instant Evolution Catalyst path, or the two need to be built as genuinely separate code paths that happen to reach the same block. Not decided which.
+- Exact evolution threshold (see placeholder above), and whether it should scale with anything (e.g. Cauldron's food-boost usage) rather than being a flat tick count.
+- Whether progress is visible to the player at all before completion (a tooltip readout, a particle/model tell, or a total surprise on the tick it finishes).
 
 ### Masticator
 
@@ -323,7 +343,7 @@ All 16 share flat pricing — **100 mB / 50 ticks**, the same cheap/decorative b
 
 **What it is:** An evolved form of the Drooling Cauldron — produces lava instead of water. Fits the Tier 2 pattern established elsewhere (lava capability is the defining Tier 2 upgrade — see `dermicraft-project-primer.md` Stage structure).
 
-**Confirmed:** Drooling Cauldron → Drooling Crucible is a real example of the Machines' forced-evolution mechanic — the Cauldron is forced into evolving into the Crucible via that process (Evolution Catalyst injection completes the transformation, per `dermicraft-project-primer.md` Machines).
+**Confirmed:** Drooling Cauldron → Drooling Crucible is a real example of the Machines' forced-evolution mechanic — the Cauldron is forced into evolving into the Crucible via that process (Evolution Catalyst injection completes the transformation, per `dermicraft-project-primer.md` Machines). **As of 2026-08-19, a second route to this exact same end state is designed (not built)** -- a gradual, Module-driven path, see the Drooling Cauldron entry's "Production Module" subsection above.
 
 **Open questions:** Does it keep Drooling Cauldron's food-boosted generation mode, adapted to lava (and if so, boosted by what kind of item)? Passive generation rate (same 1 mB/sec as Cauldron, or different for lava)?
 
