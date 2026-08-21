@@ -124,6 +124,31 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
      * shared across Drooling machines. */
     protected abstract RecipeType<R> recipeType();
 
+    /** Called first thing every server tick, before anything else in {@link #tick} touches this
+     * instance. Return {@code true} to skip the rest of this tick entirely -- for a subclass that
+     * just replaced itself with a different block (Drooling Cauldron completing its evolution into
+     * Drooling Crucible), so no further code runs against a now-stale block entity. No-op by
+     * default (returns {@code false}): most Drooling machines never replace themselves. */
+    protected boolean onTickStart(Level level) {
+        return false;
+    }
+
+    /** Called after every passive-fill attempt (the once-a-second cycle), with how much actually
+     * got added -- 0 if the tank had no room, or if the offered fluid didn't match what's already
+     * in there (e.g. mid-transition: Module installed targeting a new fluid, but old contents
+     * haven't fully drained yet, so nothing new can go in until they do). No-op by default; Drooling
+     * Cauldron overrides this to advance evolution progress only on cycles where real production
+     * actually happened, per direction -- not merely because a Module is installed. */
+    protected void onPassiveFillResult(int filledAmount) {
+    }
+
+    /** Called whenever the Module slot's contents change at all (installed, removed, or swapped for
+     * a different item) -- after the new contents are already visible via {@code INVENTORY}. No-op
+     * by default; Drooling Cauldron overrides this to reset evolution progress, matching the
+     * "removing/changing the Module wipes all progress" rule. */
+    protected void onModuleChanged() {
+    }
+
     ////////////////////Shared machinery, unchanged from the original Cauldron-only version\\\\\\\\\\\\\\\\\\\\
 
     @Override
@@ -223,11 +248,19 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     public void tick(Level level) {
         if (level.isClientSide) return;
 
+        // Checked first, before anything else this tick touches `this` -- a subclass whose
+        // evolution just completed (Drooling Cauldron) replaces the block here, which makes this
+        // instance stale. Returning immediately means no further code this tick runs against a
+        // block entity that's no longer the one at this position.
+        if (onTickStart(level)) return;
+
         resolvePendingRecipe(level);
 
         //////////Every Second (20 ticks)\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(1))) {
-            TANK.safeFill(new FluidStack(currentTargetFluid(), passiveYieldAmount()));
+            FluidStack offer = new FluidStack(currentTargetFluid(), passiveYieldAmount());
+            int filled = TANK.hasRoom(offer) ? TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE) : 0;
+            onPassiveFillResult(filled);
             setChanged();
             updateBlock();
         }
@@ -395,6 +428,10 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
                         if (TANK.hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT)) {
                             TANK.transferFluidFromTankToHandler(INVENTORY, OUTPUT);
                         }
+                    }
+
+                    if (slot == MODULE) {
+                        onModuleChanged();
                     }
 
                     setChanged();

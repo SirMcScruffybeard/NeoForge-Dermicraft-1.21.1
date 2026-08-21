@@ -166,6 +166,19 @@ public class ModDataMapProvider extends DataMapProvider {
 
                 ;
 
+        // Heat Evolution Module: targets lava for a selector consumer (Drooling Cauldron) AND
+        // grants EXTREME_HEAT for a hazard-gated consumer (Masticator, eventually) -- same physical
+        // item serves either shape depending on which machine's Module slot it sits in. Threshold
+        // is an explicit placeholder (one Minecraft day of continuous active production), not a
+        // tuned number -- see dermicraft-machine-notes.md.
+        this.builder(ModDataMaps.EVOLUTION_MODULE_PROPERTIES)
+                .add(getResourceLocation(ModItems.HEAT_EVOLUTION_MODULE),
+                        new net.scruffy.dermicraft.property.EvolutionModuleProperties(
+                                java.util.Optional.of(net.minecraft.world.level.material.Fluids.LAVA),
+                                List.of(ModTags.Fluids.EXTREME_HEAT),
+                                24000), false)
+                ;
+
         // Scoped to mobs with a real vanilla head/skull item already -- see the design notes.
         // Player excluded deliberately: a real player head needs profile NBT, not just an Item
         // reference, so it doesn't fit this data map's shape -- a separate mechanism if ever wanted.

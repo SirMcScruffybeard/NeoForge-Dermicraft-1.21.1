@@ -1,35 +1,67 @@
 package net.scruffy.dermicraft.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
+import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Drooling Cauldron -- water, per {@link #currentTargetFluid} below. Everything else lives on
  * {@link DroolingMachineBlockEntity}, the shared Drooling-family base this and
  * {@link DroolingCrucibleBlockEntity} both extend.
+ *
+ * <p>Selector + gradual evolution -- see dermicraft-machine-notes.md's "Evolution Module family".
+ * An {@link EvolutionModuleProperties} entry in the Module slot both switches {@link #currentTargetFluid}
+ * immediately and accumulates {@link #evolutionProgress} toward transforming this block into an
+ * actual {@link DroolingCrucibleBlockEntity} in place.
  */
 public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<VagueDroolingRecipe> implements MenuProvider {
 
     /** Same 5 buckets the original hardcoded-water version always had. */
     public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 5;
-    /** Same 4 mB/s the original hardcoded-water version always had. */
+    /** Same 4 mB/s the original hardcoded-water version always had -- also the "fully evolved"
+     * rate; see {@link #passiveYieldAmount} for the halved rate while evolving. */
     public static final int PASSIVE_YIELD = 4;
+
+    /** Ticks of genuinely active production accumulated toward evolution -- only advances on a
+     * cycle where {@link #onPassiveFillResult} actually added fluid, per direction (not merely
+     * because a Module sits in the slot; not during the halt-while-old-fluid-drains period). */
+    private int evolutionProgress = 0;
+
+    /** Set when {@link #evolutionProgress} reaches threshold, consumed at the very start of the
+     * NEXT tick via {@link #onTickStart} -- deliberately not performed synchronously from inside
+     * {@link #onPassiveFillResult}, since that runs mid-way through this instance's own tick() and
+     * replacing the block right then would leave the rest of that tick() call running against a
+     * now-stale block entity. */
+    private boolean readyToEvolve = false;
 
     public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
@@ -37,12 +69,14 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
 
     @Override
     protected Fluid currentTargetFluid() {
-        return Fluids.WATER;
+        return installedEvolutionProperties()
+                .flatMap(EvolutionModuleProperties::targetFluid)
+                .orElse(Fluids.WATER);
     }
 
     @Override
     protected int passiveYieldAmount() {
-        return PASSIVE_YIELD;
+        return installedEvolutionProperties().isPresent() ? Math.round(PASSIVE_YIELD * 0.5f) : PASSIVE_YIELD;
     }
 
     @Override
@@ -53,6 +87,98 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
     @Override
     protected RecipeType<VagueDroolingRecipe> recipeType() {
         return ModRecipes.VAGUE_DROOLING_TYPE.get();
+    }
+
+    /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
+     * -- a plain {@code MODULES}-tagged item with no such data (Aggregate Module, Beam Module, etc.
+     * left in this slot) is inert here, same as it would be doing nothing useful in any other
+     * machine's Module slot it doesn't apply to. */
+    private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
+        ItemStack module = INVENTORY.getStackInSlot(MODULE);
+        if (module.isEmpty()) return Optional.empty();
+        return Optional.ofNullable(
+                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+    }
+
+    @Override
+    protected void onModuleChanged() {
+        // Full reset on ANY change to the slot -- installed, removed, or swapped for a different
+        // Module -- matching "pulling the Module wipes all progress" from the design doc, extended
+        // to swaps for the same reason (a fresh commitment, not a continuation).
+        evolutionProgress = 0;
+    }
+
+    @Override
+    protected void onPassiveFillResult(int filledAmount) {
+        if (filledAmount <= 0) return; // no real production this cycle -- see the doc's own rule
+
+        installedEvolutionProperties().ifPresent(props -> {
+            evolutionProgress += ModMath.Time.getSecondsToTicks(1);
+            if (evolutionProgress >= props.evolutionThreshold()) {
+                readyToEvolve = true;
+            }
+        });
+    }
+
+    @Override
+    protected boolean onTickStart(Level level) {
+        if (!readyToEvolve) return false;
+        readyToEvolve = false;
+        completeEvolution(level);
+        return true;
+    }
+
+    /**
+     * Transforms this block into a Drooling Crucible in place, carrying over the ingredient/output
+     * items and whatever's in the tank (by construction, always the Module's target fluid by the
+     * time evolution completes) -- but deliberately NOT the recipe-in-progress bookkeeping
+     * (active recipe/item, craft progress). That state is keyed to THIS class's own
+     * {@code VAGUE_DROOLING_TYPE}; blindly copying it into a Crucible whose recipe type is
+     * different could leave stale, type-mismatched data sitting in the new instance for no benefit
+     * -- a half-finished food-boost cycle just restarts cleanly on the new block instead. The
+     * Module itself is not carried over either: this transform is what consumes it.
+     */
+    private void completeEvolution(Level level) {
+        ItemStack inputItem = INVENTORY.getStackInSlot(INPUT);
+        ItemStack outputItem = INVENTORY.getStackInSlot(OUTPUT);
+        FluidStack tankContents = TANK.getFluid().copy();
+        BlockState oldState = getBlockState();
+
+        // Clear this instance's own contents BEFORE the block swap -- DroolingMachineBlock#onRemove
+        // drops whatever's still in INVENTORY when the block itself changes, which would otherwise
+        // duplicate everything captured above once it's handed to the new Crucible instance.
+        INVENTORY.setStackInSlot(INPUT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(OUTPUT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        if (!tankContents.isEmpty()) {
+            TANK.drain(tankContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
+        }
+
+        BlockState newState = ModBlocks.DROOLING_CRUCIBLE.get().defaultBlockState()
+                .setValue(DroolingMachineBlock.FACING, oldState.getValue(DroolingMachineBlock.FACING));
+        level.setBlock(worldPosition, newState, Block.UPDATE_ALL);
+
+        if (level.getBlockEntity(worldPosition) instanceof DroolingCrucibleBlockEntity crucible) {
+            crucible.INVENTORY.setStackInSlot(DroolingCrucibleBlockEntity.INPUT, inputItem);
+            crucible.INVENTORY.setStackInSlot(DroolingCrucibleBlockEntity.OUTPUT, outputItem);
+            if (!tankContents.isEmpty()) {
+                crucible.TANK.fill(tankContents, IFluidHandler.FluidAction.EXECUTE);
+            }
+            crucible.setChanged();
+            crucible.updateBlock();
+        }
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putInt("cauldron_evolution_progress", evolutionProgress);
+        super.saveAdditional(tag, registries);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        evolutionProgress = tag.getInt("cauldron_evolution_progress");
     }
 
     @Override
