@@ -54,6 +54,13 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntity::getTank);
 
+        // Was missed when Drooling Crucible was first built (Phase 1) -- caught while adding its
+        // Module slot. Without this, pipes/automation silently couldn't reach Crucible's tank or
+        // ingredient slot at all, even though in-hand bucket interaction worked fine (that path
+        // goes through the block entity directly, not this capability).
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingCrucibleBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingCrucibleBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
 

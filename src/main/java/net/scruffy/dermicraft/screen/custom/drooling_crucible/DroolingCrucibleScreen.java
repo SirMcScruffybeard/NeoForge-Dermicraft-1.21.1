@@ -8,7 +8,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
+
+import java.util.List;
 
 public class DroolingCrucibleScreen extends AbstractModScreen<DroolingCrucibleMenu> {
 
@@ -37,7 +40,10 @@ public class DroolingCrucibleScreen extends AbstractModScreen<DroolingCrucibleMe
     private static final int ARROW_WIDTH = 17;
     private static final int ARROW_HEIGHT = 10;
 
+    private static final int TAB_TEXT_COLOR = 0x007F0E;
+
     private FluidTankRenderer fluidRenderer;
+    private List<Tab> tabs;
 
     public DroolingCrucibleScreen(DroolingCrucibleMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -48,13 +54,19 @@ public class DroolingCrucibleScreen extends AbstractModScreen<DroolingCrucibleMe
         super.init();
 
         fluidRenderer = createFluidRenderer16x64(menu.BE.getTank(null).getTankCapacity(0));
+        tabs = List.of(
+                new Tab(Component.translatable("screen.dermicraft.drooling_crucible.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.drooling_crucible.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.BE.getFluid(), 80, 8, fluidRenderer);
+
+        if (menu.getActiveTab() == DroolingCrucibleMenu.MAIN_TAB) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.BE.getFluid(), 80, 8, fluidRenderer);
+        }
     }
 
     @Override
@@ -67,7 +79,16 @@ public class DroolingCrucibleScreen extends AbstractModScreen<DroolingCrucibleMe
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
+        if (menu.getActiveTab() == DroolingCrucibleMenu.MAIN_TAB) {
+            renderMainTab(guiGraphics, x, y);
+        } else {
+            renderModuleTab(guiGraphics, x, y);
+        }
+    }
+
+    private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
         guiGraphics.blit(TALL_TANK_TEXTURE, x + 79, y + 7, 0, 0, TALL_TANK_WIDTH, TALL_TANK_HEIGHT,
                 TALL_TANK_WIDTH, TALL_TANK_HEIGHT);
 
@@ -83,6 +104,28 @@ public class DroolingCrucibleScreen extends AbstractModScreen<DroolingCrucibleMe
         renderArrowBackground(guiGraphics, x + 98, y + 37); // output arrow: track only, no progress fill
 
         fluidRenderer.render(guiGraphics, x + 80, y + 8, menu.BE.getFluid());
+    }
+
+    /** One yellow Module slot -- nothing else on this tab, matching Eater's/Drinker's/Skin Tank's
+     * own bare Module-slot-only look. */
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + DroolingCrucibleMenu.MODULE_SLOT_X, y + DroolingCrucibleMenu.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void renderItemSlot(GuiGraphics guiGraphics, int x, int y) {

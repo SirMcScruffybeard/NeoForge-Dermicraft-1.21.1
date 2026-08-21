@@ -24,6 +24,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
@@ -63,6 +64,11 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
+    public static final int MODULE = 2;
+    /** Single source of truth for the handler's slot count -- also re-asserted after
+     * {@code deserializeNBT}, see {@link #loadAdditional} for why that's load-bearing (a Cauldron/
+     * Crucible saved before this slot existed carries Size=2). */
+    public static final int INVENTORY_SIZE = 3;
 
     public final ItemStackHandler INVENTORY = createInventory();
     protected final DroolingTank TANK;
@@ -73,6 +79,18 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     @Nullable
     private ResourceLocation pendingRecipeId = null;
+
+    // Which screen tab was last open -- same pattern as SkinTankBlockEntity's own
+    // isModuleTabActive/setModuleTabActive, so reopening the screen returns to the tab last viewed.
+    private boolean moduleTabActive = false;
+
+    public boolean isModuleTabActive() {
+        return moduleTabActive;
+    }
+
+    public void setModuleTabActive(boolean active) {
+        this.moduleTabActive = active;
+    }
 
     protected DroolingMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -305,17 +323,23 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
         if (isRecipeValid(activeRecipe)) tag.putString("drooling_saved_recipe", activeRecipe.id().toString());
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
         tag.putString("drooling_active_item", itemKey.toString());
+        tag.putBoolean("drooling_module_tab_active", moduleTabActive);
         super.saveAdditional(tag, registries);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("drooling_items")) loadItemHandler(INVENTORY, 2, registries, tag.getCompound("drooling_items"));
+        // NOT a plain INVENTORY.deserializeNBT -- a Cauldron/Crucible saved before the Module slot
+        // existed carries Size=2 and would shrink this handler back down, crashing on world load
+        // when the menu adds its Module slot at index 2 (same bug MachineBaseBlockEntity#loadItemHandler
+        // was generalized to fix, see SkinTankBlockEntity's own identical note).
+        if (tag.contains("drooling_items")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("drooling_items"));
         if (tag.contains("drooling_tank")) TANK.readFromNBT(registries, tag.getCompound("drooling_tank"));
         this.progress = tag.getInt("drooling_progress");
         this.maxProgress = tag.getInt("drooling_max");
         resultAmount = tag.getInt("drooling_result_amount");
+        moduleTabActive = tag.getBoolean("drooling_module_tab_active");
 
         if (tag.contains("drooling_saved_recipe", CompoundTag.TAG_STRING)) {
             pendingRecipeId = ResourceLocation.parse(tag.getString("drooling_saved_recipe"));
@@ -323,7 +347,15 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     }
 
     private ItemStackHandler createInventory() {
-        return new ItemStackHandler(2) {
+        return new ItemStackHandler(INVENTORY_SIZE) {
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                // Same tag every gadget's Module slot filters to -- a machine's Module slot is the
+                // same "scarce, tag-identified" convention, not a bespoke allowlist. INPUT/OUTPUT
+                // stay unrestricted, matching this class's own existing behavior.
+                return slot != MODULE || stack.is(ModTags.Items.MODULES);
+            }
+
             @Override
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide()) {
@@ -372,7 +404,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
             @Override
             public int getSlotLimit(int slot) {
-                return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
+                return (slot == OUTPUT || slot == MODULE) ? 1 : super.getSlotLimit(slot);
             }
         };
     }
