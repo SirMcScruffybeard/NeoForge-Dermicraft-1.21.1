@@ -4,7 +4,7 @@
 	"texture_size": [64, 64],
 	"textures": {
 		"0": "dermicraft:block/drooling_cauldron",
-		"particle": "block/drooling_cauldron"
+		"particle": "dermicraft:block/drooling_cauldron"
 	},
 	"elements": [
 		{
