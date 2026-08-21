@@ -165,6 +165,14 @@ public class ModItems {
     public static final DeferredItem<Item> METAPHYSICAL_SAFETY_MODULE = ITEMS.register("metaphysical_safety_module",
             () -> new Item(new Item.Properties()));
 
+    // Evolution Module family (dermicraft-progression-notes.md / dermicraft-machine-notes.md,
+    // Drooling Cauldron entry "Evolution Module family") -- item only for now, no mechanics wired
+    // up yet. Not tagged MODULE_SAFETY like the Safety Modules above: that tag is what makes
+    // IHaveModules#installedHazardProfile treat an item as granting hazard tolerance, and this
+    // doesn't do that (yet) -- just MODULES, so it can sit in a Module slot.
+    public static final DeferredItem<Item> HEAT_EVOLUTION_MODULE = ITEMS.register("heat_evolution_module",
+            () -> new Item(new Item.Properties()));
+
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> MRE = ITEMS.register("mre",
             () -> new Item(new Item.Properties().food(ModFoodProperties.MRE)));

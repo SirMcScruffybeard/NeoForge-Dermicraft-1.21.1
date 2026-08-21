@@ -74,6 +74,12 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.METAPHYSICAL_SAFETY_MODULE.get(), "item/module/hazard_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/ender_pearl_icon"));
 
+        // Evolution Module family -- same lava bucket icon Heat Safety Module uses (this is its own
+        // Heat-flavored variant), on the new Evolution frame background rather than the hazard one,
+        // so the two families read as visually distinct at a glance despite sharing an icon.
+        moduleItem(ModItems.HEAT_EVOLUTION_MODULE.get(), "item/module/evolution_module_frame",
+                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/lava_bucket_icon"));
+
         // Non-standard texture folder (item/sunder_chains/, not item/) -- basicItem()'s default
         // texture-path-matches-item-id assumption doesn't reach it, hence the explicit path.
         singleTextureItem(ModItems.IRON_SUNDER_CHAIN.get(), "item/sunder_chains/iron_sunder_chain");

@@ -88,6 +88,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.FLUID_BYPASS_MODULE.get())
                 .add(ModItems.HEAT_SAFETY_MODULE.get())
                 .add(ModItems.METAPHYSICAL_SAFETY_MODULE.get())
+                .add(ModItems.HEAT_EVOLUTION_MODULE.get())
         ;
 
         tag(ModTags.Items.MODULE_AGGREGATE)

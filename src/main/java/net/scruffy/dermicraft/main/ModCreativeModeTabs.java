@@ -122,6 +122,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.BEAM_MODULE);
                         output.accept(ModItems.FLUID_BYPASS_MODULE);
                         output.accept(ModItems.HEAT_SAFETY_MODULE);
+                        output.accept(ModItems.HEAT_EVOLUTION_MODULE); // no mechanics yet, item only
                         output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
 
                         buildFlaskContents(output);
