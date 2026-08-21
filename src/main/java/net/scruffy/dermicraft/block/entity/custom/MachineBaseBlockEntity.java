@@ -24,7 +24,6 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
-import net.scruffy.dermicraft.tank.WaterTank;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MachineBaseBlockEntity extends BlockEntity {
@@ -119,6 +118,22 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
      * extra hazard tolerance (Decision Point #2, dermicraft-progression-notes.md). */
     protected VulnerableTank createVulnerableTank(int capacity, int slot, java.util.function.Supplier<net.scruffy.dermicraft.hazard.HazardProfile> profileSupplier) {
         return new VulnerableTank(capacity, slot, profileSupplier) {
+            @Override
+            protected void onContentsChanged()
+            {
+                if (!level.isClientSide) {
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
+    /** For the Drooling machine family -- see {@link net.scruffy.dermicraft.tank.DroolingTank}'s
+     * own javadoc for why this reads the target fluid fresh on every fill rather than fixing it at
+     * construction. */
+    protected net.scruffy.dermicraft.tank.DroolingTank createDroolingTank(int capacity, int slot, java.util.function.Supplier<net.minecraft.world.level.material.Fluid> currentTarget) {
+        return new net.scruffy.dermicraft.tank.DroolingTank(capacity, slot, currentTarget) {
             @Override
             protected void onContentsChanged()
             {

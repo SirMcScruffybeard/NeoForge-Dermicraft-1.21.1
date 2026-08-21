@@ -42,6 +42,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.CALCIUM_GLASS);
                         output.accept(ModBlocks.OUTERFACE);
                         output.accept(ModBlocks.DROOLING_CAULDRON);
+                        // No craft recipe yet -- standalone-reachable Evolution/Catalyst path isn't
+                        // built (dermicraft-machine-notes.md). Visible in creative for testing only.
+                        output.accept(ModBlocks.DROOLING_CRUCIBLE);
                         output.accept(ModBlocks.MASTICATOR);
                         output.accept(ModBlocks.SKIN_TANK);
                         output.accept(ModBlocks.EFFLUENTCER);
@@ -185,7 +188,7 @@ public class ModCreativeModeTabs {
         output.accept(ModItems.PRIMITIVE_SYRINGE.get());
 
         //output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
-        output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
+        //output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
 
         //output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
@@ -227,7 +230,8 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_QUARTZ.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_AMETHYST.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_DIAMOND.get()));        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_LAPIS.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_DIAMOND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_LAPIS.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_NETHERITE.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_BLAZE_ESSENCE.get()));
@@ -244,12 +248,12 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildFlaskStack(Fluids.WATER));
         output.accept(ModItemUtil.buildFlaskStack(Fluids.LAVA));
 
-        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CARBON_BLEND.get()));
-        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
 
         output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
-        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
     }
 }

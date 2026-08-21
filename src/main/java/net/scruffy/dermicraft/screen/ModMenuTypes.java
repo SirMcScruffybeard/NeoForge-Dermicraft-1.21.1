@@ -11,6 +11,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
+import net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleMenu;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerMenu;
@@ -33,6 +34,9 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<DroolingCauldronMenu>> DROOLING_CAULDRON_MENU =
             registerMenuType("drooling_cauldron_menu", DroolingCauldronMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<DroolingCrucibleMenu>> DROOLING_CRUCIBLE_MENU =
+            registerMenuType("drooling_crucible_menu", DroolingCrucibleMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<MasticatorMenu>> MASTICATOR_MENU =
             registerMenuType("masticator_menu", MasticatorMenu::new);

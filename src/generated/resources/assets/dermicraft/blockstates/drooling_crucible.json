@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "dermicraft:block/drooling_crucible",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "dermicraft:block/drooling_crucible"
+    },
+    "facing=south": {
+      "model": "dermicraft:block/drooling_crucible",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "dermicraft:block/drooling_crucible",
+      "y": 270
+    }
+  }
+}

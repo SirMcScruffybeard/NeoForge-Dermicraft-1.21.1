@@ -73,6 +73,16 @@ public class ModBlocks {
                     .strength(2.0f)
                     .requiresCorrectToolForDrops()));
 
+    // Tier 2 -- standalone for now (evolution FROM Drooling Cauldron isn't built yet, see
+    // dermicraft-machine-notes.md's Drooling Cauldron entry). Same strength/tool requirement as
+    // Cauldron; lightLevel matches its lava-producing identity, same convention as other
+    // lava-adjacent blocks in this mod.
+    public static final DeferredBlock<Block> DROOLING_CRUCIBLE = registerBlock("drooling_crucible",
+            () -> new DroolingCrucibleBlock(BlockBehaviour.Properties.of()
+                    .strength(2.0f)
+                    .requiresCorrectToolForDrops()
+                    .lightLevel(state -> 10)));
+
     // Workbench bottom half -- keeps the registry id "workbench" (established before the top half
     // existed) and hosts the real Storage/Mod/Fabrication GUI (see WorkbenchBlock's own javadoc).
     // noOcclusion -- GeckoLib-rendered, doesn't fill the full cube, so a neighbor's face shouldn't

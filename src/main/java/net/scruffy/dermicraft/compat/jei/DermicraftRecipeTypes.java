@@ -4,6 +4,7 @@ import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
@@ -25,6 +26,8 @@ public final class DermicraftRecipeTypes {
 
     public static final RecipeType<DynamicRecipeDisplay<VagueDroolingRecipe>> DROOLING_CAULDRON =
             RecipeType.create(Dermicraft.MOD_ID, "drooling_cauldron", uncheckedCast(DynamicRecipeDisplay.class));
+    public static final RecipeType<DynamicRecipeDisplay<VagueDroolingCrucibleRecipe>> DROOLING_CRUCIBLE =
+            RecipeType.create(Dermicraft.MOD_ID, "drooling_crucible", uncheckedCast(DynamicRecipeDisplay.class));
     public static final RecipeType<DynamicRecipeDisplay<MasticatingRecipe>> MASTICATING =
             RecipeType.create(Dermicraft.MOD_ID, "masticating", uncheckedCast(DynamicRecipeDisplay.class));
     public static final RecipeType<RecipeHolder<EffluencingRecipe>> EFFLUENCING =

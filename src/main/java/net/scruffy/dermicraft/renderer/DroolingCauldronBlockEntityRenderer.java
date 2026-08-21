@@ -15,20 +15,22 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.DroolingMachineBlockEntity;
 
 
 // Credits to TurtyWurty
 // Under MIT-License: https://github.com/DaRealTurtyWurty/1.20-Tutorial-Mod?tab=MIT-1-ov-file#readme
-public class DroolingCauldronBlockEntityRenderer extends TankBlockEntityRenderer implements BlockEntityRenderer<DroolingCauldronBlockEntity> {
+// Generalized (2026-08-20) to the shared Drooling-family base so Drooling Crucible can reuse this
+// same renderer instead of a near-duplicate class -- nothing here ever depended on which specific
+// fluid or machine, only on getFluid()/getTank(), both on DroolingMachineBlockEntity itself.
+public class DroolingCauldronBlockEntityRenderer extends TankBlockEntityRenderer implements BlockEntityRenderer<DroolingMachineBlockEntity<?>> {
 
     public DroolingCauldronBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void render(DroolingCauldronBlockEntity pBlockEntity, float partialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, int packedOverlay) {
+    public void render(DroolingMachineBlockEntity<?> pBlockEntity, float partialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, int packedOverlay) {
         FluidStack fluidStack = pBlockEntity.getFluid();
         if (fluidStack.isEmpty())
             return;

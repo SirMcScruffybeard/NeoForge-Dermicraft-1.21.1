@@ -78,6 +78,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.DROOLING_CAULDRON.getId().getPath(),
                 modLoc("block/" + ModBlocks.DROOLING_CAULDRON.getId().getPath()));
 
+        // Shares Cauldron's geometry via model-level parenting (models/block/drooling_crucible.json
+        // parents drooling_cauldron.json, only the texture differs) -- same convention as the item
+        // model below.
+        horizontalBlock(ModBlocks.DROOLING_CRUCIBLE.get(), models().getExistingFile(ModBlocks.DROOLING_CRUCIBLE.getId()));
+        itemModels().withExistingParent(ModBlocks.DROOLING_CRUCIBLE.getId().getPath(),
+                modLoc("block/" + ModBlocks.DROOLING_CRUCIBLE.getId().getPath()));
+
 
         masticatorBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),

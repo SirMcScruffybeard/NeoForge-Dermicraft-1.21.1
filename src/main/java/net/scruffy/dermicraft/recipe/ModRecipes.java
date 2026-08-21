@@ -8,6 +8,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
@@ -34,6 +35,19 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "vague_drooling";
+                }
+            });
+
+    // Drooling Crucible's own food-boost recipe type -- deliberately separate from
+    // VAGUE_DROOLING_TYPE above, see VagueDroolingCrucibleRecipe's class javadoc for why sharing
+    // one type would make Cauldron's and Crucible's recipes ambiguous against the same ingredient.
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<VagueDroolingCrucibleRecipe>> VAGUE_DROOLING_CRUCIBLE_SERIALIZER =
+            SERIALIZERS.register("vague_drooling_crucible", VagueDroolingCrucibleRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<VagueDroolingCrucibleRecipe>> VAGUE_DROOLING_CRUCIBLE_TYPE =
+            TYPES.register("vague_drooling_crucible", () -> new RecipeType<VagueDroolingCrucibleRecipe>() {
+                @Override
+                public String toString() {
+                    return "vague_drooling_crucible";
                 }
             });
 

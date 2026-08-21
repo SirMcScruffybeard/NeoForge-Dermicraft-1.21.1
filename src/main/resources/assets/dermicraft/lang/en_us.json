@@ -192,6 +192,8 @@
 
   "block.dermicraft.drooling_cauldron": "Drooling Cauldron",
   "blockEntity.dermicraft.drooling_cauldron_be": "Drooling Cauldron",
+  "block.dermicraft.drooling_crucible": "Drooling Crucible",
+  "blockEntity.dermicraft.drooling_crucible_be": "Drooling Crucible",
 
   "block.dermicraft.masticator": "Masticator",
   "blockEntity.dermicraft.masticator_be": "Masticator",
@@ -290,7 +292,7 @@
   "tooltip.dermicraft.idep.face.effluentcer_input_a": "Input A tank",
   "tooltip.dermicraft.idep.face.effluentcer_input_b": "Input B tank",
 
-  "tooltip.dermicraft.idep.face.drooling_cauldron_ingredient": "Ingredient slot (+ Result tank)",
+  "tooltip.dermicraft.idep.face.drooling_ingredient": "Ingredient slot (+ Result tank)",
 
   "tooltip.dermicraft.idep.face.skin_tank_storage": "Storage tank (+ fill/drain bucket slots)",
 

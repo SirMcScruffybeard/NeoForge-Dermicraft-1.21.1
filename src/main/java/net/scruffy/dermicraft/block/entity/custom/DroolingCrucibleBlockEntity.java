@@ -13,31 +13,37 @@ import net.minecraft.world.level.material.Fluids;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.recipe.ModRecipes;
-import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
-import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
+import net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Drooling Cauldron -- water, per {@link #currentTargetFluid} below. Everything else lives on
+ * Drooling Crucible -- lava, per {@link #currentTargetFluid} below. Everything else lives on
  * {@link DroolingMachineBlockEntity}, the shared Drooling-family base this and
- * {@link DroolingCrucibleBlockEntity} both extend.
+ * {@link DroolingCauldronBlockEntity} both extend.
+ *
+ * <p>Standalone Tier 2 machine for now -- see dermicraft-machine-notes.md's Drooling Cauldron
+ * entry ("Evolution Module family"): the evolution-FROM-Cauldron path (Evolution Catalyst
+ * injection, or the gradual Evolution Module) is separate, not-yet-built work. This class's own
+ * base passive rate matches Cauldron's exactly (4 mB/s), per direction -- not because the two are
+ * required to match forever, just the confirmed starting number.
  */
-public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<VagueDroolingRecipe> implements MenuProvider {
+public class DroolingCrucibleBlockEntity extends DroolingMachineBlockEntity<VagueDroolingCrucibleRecipe> implements MenuProvider {
 
-    /** Same 5 buckets the original hardcoded-water version always had. */
+    /** Same capacity as Cauldron's -- no reason given yet to differ. */
     public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 5;
-    /** Same 4 mB/s the original hardcoded-water version always had. */
+    /** Same rate as Cauldron's water, per direction. */
     public static final int PASSIVE_YIELD = 4;
 
-    public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
+    public DroolingCrucibleBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), pos, blockState);
     }
 
     @Override
     protected Fluid currentTargetFluid() {
-        return Fluids.WATER;
+        return Fluids.LAVA;
     }
 
     @Override
@@ -51,19 +57,19 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
     }
 
     @Override
-    protected RecipeType<VagueDroolingRecipe> recipeType() {
-        return ModRecipes.VAGUE_DROOLING_TYPE.get();
+    protected RecipeType<VagueDroolingCrucibleRecipe> recipeType() {
+        return ModRecipes.VAGUE_DROOLING_CRUCIBLE_TYPE.get();
     }
 
     @Override
     @NotNull
     public Component getDisplayName() {
-        return super.getDisplayName(ModBlocks.DROOLING_CAULDRON);
+        return super.getDisplayName(ModBlocks.DROOLING_CRUCIBLE);
     }
 
     @Override
     @Nullable
     public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
-        return new DroolingCauldronMenu(containerId, inventory, this);
+        return new DroolingCrucibleMenu(containerId, inventory, this);
     }
 }

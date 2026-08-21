@@ -502,6 +502,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.WATER);
+        // Same ingredient/modifier as Cauldron's own -- "they produce what they produce regardless
+        // of food... exposure to food drives their hunger more" (dermicraft-machine-notes.md).
+        // Separate recipe type only, not a different ingredient list.
+        RecipeBuilders.buildVagueDroolingCrucible(recipeOutput, "lava_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.LAVA);
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,

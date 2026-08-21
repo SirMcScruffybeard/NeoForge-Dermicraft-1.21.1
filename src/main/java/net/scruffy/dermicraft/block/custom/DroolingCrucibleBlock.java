@@ -9,14 +9,14 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.DroolingCrucibleBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class DroolingCauldronBlock extends DroolingMachineBlock {
+public class DroolingCrucibleBlock extends DroolingMachineBlock {
 
-    public static final MapCodec<DroolingCauldronBlock> CODEC = simpleCodec(DroolingCauldronBlock::new);
+    public static final MapCodec<DroolingCrucibleBlock> CODEC = simpleCodec(DroolingCrucibleBlock::new);
 
-    public DroolingCauldronBlock(Properties properties) {
+    public DroolingCrucibleBlock(Properties properties) {
         super(properties);
     }
 
@@ -27,7 +27,7 @@ public class DroolingCauldronBlock extends DroolingMachineBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new DroolingCauldronBlockEntity(blockPos, blockState);
+        return new DroolingCrucibleBlockEntity(blockPos, blockState);
     }
 
     @Nullable
@@ -36,7 +36,7 @@ public class DroolingCauldronBlock extends DroolingMachineBlock {
         if (pLevel.isClientSide()) {
             return null;
         }
-        return createTickerHelper(pBlockEntityType, ModBlockEntities.DROOLING_CAULDRON_BE.get(),
-                ((level, blockPos, blockState, DcBlockEntity) -> DcBlockEntity.tick(level)));
+        return createTickerHelper(pBlockEntityType, ModBlockEntities.DROOLING_CRUCIBLE_BE.get(),
+                ((level, blockPos, blockState, be) -> be.tick(level)));
     }
 }
