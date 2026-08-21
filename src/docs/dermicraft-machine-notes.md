@@ -347,13 +347,17 @@ All 16 share flat pricing — **100 mB / 50 ticks**, the same cheap/decorative b
 
 ### Drooling Crucible
 
-**Status:** Concept stage only. First confirmed **Tier 2** machine.
+**Status:** ✅ Built (2026-08-20) as a standalone Tier 2 machine — Block/BlockEntity/Menu/Screen, registration, and datagen all live in code. Not yet reachable in survival (no craft recipe on purpose, see below) and not yet actually connected to Cauldron by any evolution mechanic — both are separate, deliberately deferred follow-up work, not gaps in this build.
 
-**What it is:** An evolved form of the Drooling Cauldron — produces lava instead of water. Fits the Tier 2 pattern established elsewhere (lava capability is the defining Tier 2 upgrade — see `dermicraft-project-primer.md` Stage structure).
+**What it is:** Produces lava instead of water, otherwise identical in shape to Drooling Cauldron — passive generation (4 mB/s, same rate as Cauldron, per direction) plus food-boosted generation (same ingredient list/modifier as Cauldron's own, a straight copy under its own recipe type — see below). Fits the Tier 2 pattern established elsewhere (lava capability is the defining Tier 2 upgrade — see `dermicraft-project-primer.md` Stage structure).
 
-**Confirmed:** Drooling Cauldron → Drooling Crucible is a real example of the Machines' forced-evolution mechanic — the Cauldron is forced into evolving into the Crucible via that process (Evolution Catalyst injection completes the transformation, per `dermicraft-project-primer.md` Machines). **As of 2026-08-19, a second route to this exact same end state is designed (not built)** -- a gradual, Module-driven path, see the Drooling Cauldron entry's "Production Module" subsection above.
+**Implementation note:** built via `DroolingMachineBlockEntity<R>`/`DroolingMachineBlock`, a shared base extracted from what used to be Cauldron-only code — see the Drooling Cauldron entry's "Evolution Module family" subsection for the hooks this exposes (`currentTargetFluid`, `passiveYieldAmount`) and why they're shaped the way they are (built specifically so a future evolving Cauldron can share the exact same tank/block-entity machinery). Its own food-boost recipe (`VagueDroolingCrucibleRecipe`) is a separate `RecipeType` from Cauldron's, not a shared one — two recipes matching the same ingredient under one type would be ambiguous to Minecraft's own recipe lookup.
 
-**Open questions:** Does it keep Drooling Cauldron's food-boosted generation mode, adapted to lava (and if so, boosted by what kind of item)? Passive generation rate (same 1 mB/sec as Cauldron, or different for lava)?
+**Not yet built, still real work:** reachability (no implant/FL-native recipe — visible in creative only), and the evolution path connecting it to Drooling Cauldron at all (Evolution Catalyst injection, and/or the gradual Evolution Module — see Cauldron's own entry). Both are confirmed direction, not built.
+
+**Confirmed:** Drooling Cauldron → Drooling Crucible is a real example of the Machines' forced-evolution mechanic — the Cauldron is forced into evolving into the Crucible via that process (Evolution Catalyst injection completes the transformation, per `dermicraft-project-primer.md` Machines). **As of 2026-08-19, a second route to this exact same end state is designed (not built)** -- a gradual, Module-driven path, see the Drooling Cauldron entry's "Evolution Module family" subsection above.
+
+**Open questions:** ✅ Resolved (2026-08-20) — keeps food-boosted generation, same ingredients as Cauldron; passive rate is 4 mB/s, same as Cauldron.
 
 ### Craw
 
