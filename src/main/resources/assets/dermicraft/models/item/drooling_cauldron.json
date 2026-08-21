@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "dermicraft:item/drooling_cauldron_item"
-  }
-}

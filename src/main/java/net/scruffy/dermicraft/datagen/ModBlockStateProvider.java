@@ -72,6 +72,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItemWithRenderTypeWithSideAndEnds("skin_tank", ModBlocks.SKIN_TANK, "translucent");
 
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
+        // New model carries its own display transforms (2026-08-20) -- item model now parents
+        // straight to the block model, same convention every other machine already uses (see
+        // Masticator below), rather than the old hand-authored flat item/generated icon.
+        itemModels().withExistingParent(ModBlocks.DROOLING_CAULDRON.getId().getPath(),
+                modLoc("block/" + ModBlocks.DROOLING_CAULDRON.getId().getPath()));
 
 
         masticatorBlockState(skinTankEnd);
