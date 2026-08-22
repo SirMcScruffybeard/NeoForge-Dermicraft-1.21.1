@@ -274,13 +274,26 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
                 return;
             }
 
-            if (isMaxProgressValid() && hasIngredients() && TANK.hasRoom(resultAmount)) {
+            // The fluid added is ALWAYS currentTargetFluid() -- never the recipe's own stored
+            // result field. A food-boost recipe only ever decided the ingredient/amount/time
+            // formula; which fluid actually comes out has to track whatever the machine currently
+            // produces, the same as passive generation does, or a Cauldron mid-evolution (tank
+            // already holding the Module's target fluid) tries to add the recipe's water instead of
+            // lava -- which the tank then silently refuses (can't mix two different fluids), while
+            // the ingredient still got eaten for nothing. Checked via a SIMULATE first (matches
+            // Masticator's own "won't even attempt it" convention) rather than the old
+            // amount-only TANK.hasRoom check, which said yes even when the fluid didn't match.
+            FluidStack offer = new FluidStack(currentTargetFluid(), resultAmount);
+            boolean canComplete = isMaxProgressValid() && hasIngredients()
+                    && TANK.fill(offer, IFluidHandler.FluidAction.SIMULATE) >= offer.getAmount();
+
+            if (canComplete) {
                 if (isStillCrafting()) {
                     incrementProgress();
                     setChanged();
 
                 } else {
-                    TANK.fill(activeRecipe.value().getResultFluidStack(resultAmount), IFluidHandler.FluidAction.EXECUTE);
+                    TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE);
                     INVENTORY.extractItem(INPUT, 1, false);
                     resetProgress();
                 }
