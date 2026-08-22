@@ -138,6 +138,14 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
             protected void onContentsChanged()
             {
                 if (!level.isClientSide) {
+                    // Restores the original Cauldron-only WaterTank's own onContentsChanged, lost
+                    // when this factory was generalized out of it -- passive generation filling the
+                    // tank should keep auto-pushing downward, same as before. Hazard-safe for free:
+                    // pushFluidToBelowNeighbour's own FluidUtil.tryFluidTransfer simulates the fill
+                    // against the destination first, so a hazard-gated tank below (e.g. a
+                    // VulnerableTank) still correctly refuses lava on its own -- no extra gating
+                    // needed here, the destination already decides.
+                    this.pushFluidToBelowNeighbour(level, worldPosition);
                     setChanged();
                     updateBlock();
                 }
