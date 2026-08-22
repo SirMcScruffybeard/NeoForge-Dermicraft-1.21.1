@@ -89,6 +89,16 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
         return ModRecipes.VAGUE_DROOLING_TYPE.get();
     }
 
+    /** 0 when not evolving at all (no Module, or one with no real Evolution properties); otherwise
+     * how far {@link #evolutionProgress} is toward {@code evolutionThreshold}, 0-1. Public purely
+     * for {@code DroolingCauldronBlockEntityRenderer}'s creeping overlay -- no other consumer needs
+     * this, evolution completion itself reads the raw fields directly. */
+    public float getEvolutionProgressFraction() {
+        return installedEvolutionProperties()
+                .map(props -> Math.min(1f, evolutionProgress / (float) props.evolutionThreshold()))
+                .orElse(0f);
+    }
+
     /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
      * -- a plain {@code MODULES}-tagged item with no such data (Aggregate Module, Beam Module, etc.
      * left in this slot) is inert here, same as it would be doing nothing useful in any other
