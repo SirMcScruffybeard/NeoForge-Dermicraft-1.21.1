@@ -11,7 +11,7 @@ How the mod's hazard tag system (`hazard/*` — see `dermicraft-project-primer.m
 Every suit (Exo, Recon, Assault) carries both of the following. Same two stats mod-wide — each suit just expresses/grows them differently, per its own identity (see Per-Suit Expression, below).
 
 - **Hazard Resistance** — governs **non-damaging** hazard effects (status-effect-style hazards, e.g. Radiation Mild's Nausea/Hunger/Slowness) — covering both the **timing** side (how long before effects kick in / how fast they taper off) and the **strength** side (how severe the effects are once active). Both are facets of this one stat; which facet actually moves is a per-suit expression choice (see Per-Suit Expression, below), not two separate stats.
-- **Hazard Defense** — governs **damaging** hazard effects, uniformly across all three suits. For Assault specifically, this stat also discounts the raw hazard-damage baseline *before* it's banked as H.E.A.T. (see `one-punch-full-breakdown.md`) — mirroring how the now-folded-in "Heat Resistance" concept worked, generalized from Extreme-Heat-only to all damaging hazards.
+- **Hazard Defense** — governs **damaging** hazard effects, uniformly across all three suits. For Assault specifically, this stat also discounts the raw hazard-damage baseline *before* it's banked as H.E.A.T. (see `one-punch-full-breakdown.md`) — mirroring how the now-folded-in "Heat Resistance" concept worked, generalized from Thermal-only to all damaging hazards.
 
 **Exo baseline: both stats are 0.** Consistent with Exo's permanent zero-defense identity — neither stat grows through normal suit progression. Any Hazard Resistance/Defense Exo ever has would have to come from add-ons (not yet designed — deferred to a future session, see Open Questions).
 
@@ -31,7 +31,7 @@ Same two stats, different mechanism per suit — this is deliberate, not an over
 
 Which hazards feed Assault's H.E.A.T. (see `one-punch-full-breakdown.md`) is decided by **one general rule based on the mechanism of harm**, not a per-hazard-tag whitelist:
 
-- **Outside-in / direct-contact damage generates H.E.A.T.** The harm comes from an external source actively hurting the player right now, tied to ongoing contact — Extreme Heat (fire/lava) is the confirmed example: **generates H.E.A.T. continuously, per tick, up to the capacity cap**, for as long as contact continues.
+- **Outside-in / direct-contact damage generates H.E.A.T.** The harm comes from an external source actively hurting the player right now, tied to ongoing contact — Thermal Hazard (fire/lava) is the confirmed example: **generates H.E.A.T. continuously, per tick, up to the capacity cap**, for as long as contact continues.
 - **Inside-out / deterioration damage does NOT generate H.E.A.T.**, even when it deals real HP damage. The harm is the player's own body breaking down internally, independent of whether the source is still nearby — Radiation and Biohazard are both this category. This is a **feel-based distinction, not a strict engine rule** (vanilla Fire is technically tick-based under the hood too) — the actual test is "is something hurting you from outside right now" vs. "is something now wrong inside you regardless of the source."
 - **This retroactively explains Biohazard's "no H.E.A.T." note** (see Per-Hazard Effect Design, below) — it was never a special-cased exception, it's simply another deterioration-type hazard, same bucket as Radiation. Biohazard's "fully resisted at high Assault tier" is just Hazard Resistance/Defense scaling toward zero-effect, unrelated to H.E.A.T. logic.
 - **Litmus test for future hazards (including Metaphysical, not yet designed):** ask whether the hazard hurts the player from outside (→ H.E.A.T.-generating) or breaks something down inside them (→ not H.E.A.T.-generating), rather than deciding per-tag from scratch each time.
@@ -40,7 +40,7 @@ Which hazards feed Assault's H.E.A.T. (see `one-punch-full-breakdown.md`) is dec
 
 ## Per-Hazard Effect Design
 
-### Extreme Heat — confirmed, no new mechanic needed
+### Thermal Hazard — confirmed, no new mechanic needed
 Reuses vanilla lava/fire behavior directly (burning). No custom effect required — every Molten-family fluid inherits this via the family-wide hazard tag rule (see `dermicraft-crafting-notes.md` → Stage 2 Crafting Blends).
 
 ### Radiation (Mild) — confirmed direction
@@ -103,7 +103,7 @@ Reuses vanilla lava/fire behavior directly (burning). No custom effect required 
 
 **Core rule: Metaphysical hazard only affects things with minds.** Grounded in the genre convention (cosmic horror attacks the mind first — the body later or never; things without minds are inert to it, the way the cultist goes mad while the stone idol just sits there), and mapped onto a boundary the mod *already formally defines*: the **Smart vs. Dumb machine rule** ("smart" = the Brain, or a Brain-derived ingredient, is required in the recipe).
 
-- **Dumb machines are natively immune.** Ordinary machine families (Masticator, Mutator, Metastasizer, Effluentcer, etc. — permanently Brain-free by rule) can contain and process Metaphysical-tagged fluids **with no special protection and at no tier requirement for the Metaphysical tag itself.** Any *other* hazard tags on the fluid still gate normally (e.g. Ender Essence's Extreme Heat still requires a Tier 2 machine — the Metaphysical Severe tag just passes through the mindless machine like wind through an empty house).
+- **Dumb machines are natively immune.** Ordinary machine families (Masticator, Mutator, Metastasizer, Effluentcer, etc. — permanently Brain-free by rule) can contain and process Metaphysical-tagged fluids **with no special protection and at no tier requirement for the Metaphysical tag itself.** Any *other* hazard tags on the fluid still gate normally (e.g. Ender Essence's Thermal Hazard still requires a Tier 2 machine — the Metaphysical Severe tag just passes through the mindless machine like wind through an empty house).
 - **Ducts/Nodes are mindless connective tissue** — Metaphysical tags are **exempt from the duct hazard-tier weakest-link filter** (their physical hazard tags still filter normally). Needs the explicit carve-out in the `HazardProfile` check.
 - **Smart structures ARE affected** — the FL (Brain/Core), Gear Worx Stations, and the Imago Engine all have minds and need protection from Metaphysical exposure.
 - **The player is a mind** — nothing changes player-side: hand-in-a-bucket classification, Drinker tier gating, and the two suit Hazard stats all still apply to Metaphysical fluids exactly as before.

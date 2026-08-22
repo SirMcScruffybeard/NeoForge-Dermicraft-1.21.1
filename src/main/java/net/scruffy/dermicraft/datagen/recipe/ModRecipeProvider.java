@@ -389,10 +389,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_metaphysical_safety_module", has(ModItems.METAPHYSICAL_SAFETY_MODULE.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("beam_module_crafting_table"));
 
-        // Fluid Bypass Module: deliberately cheap relative to Aggregate/Heat Safety -- see the
+        // Fluid Bypass Module: deliberately cheap relative to Aggregate/Thermal Safety -- see the
         // Modules direction discussion. Bypass doesn't unlock anything otherwise unreachable (every
         // target it lets you reach through fluid is already obtainable by ordinary means), it's pure
-        // convenience, not a capability skip the way Heat Safety's hazard bypass is -- so it doesn't
+        // convenience, not a capability skip the way Thermal Safety's hazard bypass is -- so it doesn't
         // deserve capability-tier cost. Wool (soft, permeable material -- a filter/membrane) + Water
         // Bucket for the water itself, not the bucket's iron -- vanilla's own crafting-remainder
         // returns the bucket empty, same as Cake/Mushroom Stew, so this genuinely only spends the
@@ -407,7 +407,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("fluid_bypass_module_crafting_table"));
 
-        // Heat Safety Module: the priciest of the three, deliberately -- this is the one that
+        // Thermal Safety Module: the priciest of the three, deliberately -- this is the one that
         // actually skips a real progression gate (early hazard tolerance), not just convenience
         // (Fluid Bypass) or a harvesting-category unlock (Aggregate). Magma Block (heat-resistant
         // identity) over a Lava Bucket (the hazard itself, not the bucket's iron -- same "value the
@@ -424,11 +424,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("heat_safety_module_crafting_table"));
 
-        // Metaphysical Safety Module: deliberately mirrors Heat Safety Module's own shape/weight --
+        // Metaphysical Safety Module: deliberately mirrors Thermal Safety Module's own shape/weight --
         // an Ender Pearl (metaphysical identity, playing Magma Block's role) over a Molten Soul Silica
         // Bucket (the hazard's real content -- the fluid actually tagged METAPHYSICAL_MILD, same
         // "value the content, not the container" framing as every other bucket recipe here) over the
-        // Module Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Heat.
+        // Module Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Thermal.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.METAPHYSICAL_SAFETY_MODULE.get())
                 .pattern("IPI")
                 .pattern("ISI")

@@ -2,9 +2,14 @@ package net.scruffy.dermicraft.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -22,6 +27,7 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
@@ -30,6 +36,7 @@ import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.Optional;
 
@@ -56,12 +63,17 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
      * because a Module sits in the slot; not during the halt-while-old-fluid-drains period). */
     private int evolutionProgress = 0;
 
-    /** Set when {@link #evolutionProgress} reaches threshold, consumed at the very start of the
-     * NEXT tick via {@link #onTickStart} -- deliberately not performed synchronously from inside
-     * {@link #onPassiveFillResult}, since that runs mid-way through this instance's own tick() and
-     * replacing the block right then would leave the rest of that tick() call running against a
-     * now-stale block entity. */
-    private boolean readyToEvolve = false;
+    /** Ticks remaining in the evolution flourish -- a burst of particles/sound that visibly covers
+     * the block swap so it doesn't read as an instant flip. -1 means not flourishing. Set when
+     * {@link #evolutionProgress} reaches threshold (start of the NEXT tick via {@link #onTickStart},
+     * not synchronously from inside {@link #onPassiveFillResult}, since that runs mid-way through
+     * this instance's own tick() and swapping the block right then would leave the rest of that
+     * tick() call running against a now-stale block entity); counts down once per tick, and the
+     * actual block swap ({@link #completeEvolution}) only fires once it reaches 0 -- by then the
+     * particle cloud built up over {@link #FLOURISH_DURATION_TICKS} is already covering the block. */
+    private int flourishTicksRemaining = -1;
+
+    private static final int FLOURISH_DURATION_TICKS = 40;
 
     public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
@@ -124,18 +136,73 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
 
         installedEvolutionProperties().ifPresent(props -> {
             evolutionProgress += ModMath.Time.getSecondsToTicks(1);
-            if (evolutionProgress >= props.evolutionThreshold()) {
-                readyToEvolve = true;
+            if (evolutionProgress >= props.evolutionThreshold() && flourishTicksRemaining < 0) {
+                startEvolutionFlourish();
             }
         });
     }
 
     @Override
     protected boolean onTickStart(Level level) {
-        if (!readyToEvolve) return false;
-        readyToEvolve = false;
-        completeEvolution(level);
+        if (flourishTicksRemaining < 0) return false;
+
+        if (level instanceof ServerLevel serverLevel) {
+            spawnFlourishParticles(serverLevel, flourishTicksRemaining);
+        }
+
+        flourishTicksRemaining--;
+        if (flourishTicksRemaining < 0) {
+            completeEvolution(level);
+        }
         return true;
+    }
+
+    /** Kicks off the flourish: a rising hum immediately, then {@link #FLOURISH_DURATION_TICKS} of
+     * particles via {@link #onTickStart} before the block actually swaps. */
+    private void startEvolutionFlourish() {
+        flourishTicksRemaining = FLOURISH_DURATION_TICKS;
+        if (level != null) {
+            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+        }
+    }
+
+    /** Dense, growing burst tinted to the target fluid's own colour, so it reads as "this fluid is
+     * consuming the machine" rather than a generic effect -- plus smoke for raw visual bulk, since
+     * tinted dust alone is too sparse to actually hide the model underneath. Density ramps up as
+     * {@code ticksRemaining} counts down toward 0, so the block is fully obscured right as the swap
+     * happens instead of the cloud being front-loaded and thinning out by the time it matters. */
+    private void spawnFlourishParticles(ServerLevel serverLevel, int ticksRemaining) {
+        double cx = worldPosition.getX() + 0.5;
+        double cy = worldPosition.getY() + 0.5;
+        double cz = worldPosition.getZ() + 0.5;
+
+        float progress = 1f - (ticksRemaining / (float) FLOURISH_DURATION_TICKS);
+        int dustCount = 4 + Math.round(progress * 10);
+        DustParticleOptions dust = tintedDust();
+        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
+
+        if (ticksRemaining % 4 == 0) {
+            int smokeCount = 2 + Math.round(progress * 6);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, smokeCount, 0.35, 0.35, 0.35, 0.02);
+        }
+
+        if (ticksRemaining == 0) {
+            // Completion burst, right as the block swap fires -- masks the actual moment of change.
+            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
+            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    private DustParticleOptions tintedDust() {
+        int tint = 0xFFCF4B12; // fallback: lava-orange, matches Heat's own target fluid
+        if (currentTargetFluid().getFluidType() instanceof BaseFluidType baseType) {
+            tint = baseType.getTintColor();
+        }
+        return new DustParticleOptions(new Vector3f(
+                ((tint >> 16) & 0xFF) / 255.0F,
+                ((tint >> 8) & 0xFF) / 255.0F,
+                (tint & 0xFF) / 255.0F), 1.4F);
     }
 
     /**
@@ -182,6 +249,7 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.putInt("cauldron_evolution_progress", evolutionProgress);
+        tag.putInt("cauldron_evolution_flourish_ticks", flourishTicksRemaining);
         super.saveAdditional(tag, registries);
     }
 
@@ -189,6 +257,8 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         evolutionProgress = tag.getInt("cauldron_evolution_progress");
+        flourishTicksRemaining = tag.contains("cauldron_evolution_flourish_ticks")
+                ? tag.getInt("cauldron_evolution_flourish_ticks") : -1;
     }
 
     @Override

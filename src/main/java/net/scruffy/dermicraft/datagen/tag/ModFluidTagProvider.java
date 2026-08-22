@@ -35,7 +35,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
         ;
 
         // --- Hazard kinds ---
-        tag(ModTags.Fluids.EXTREME_HEAT)
+        tag(ModTags.Fluids.THERMAL)
                 .addTag(FluidTags.LAVA)
                 .add(ModFluids.SOURCE_MOLTEN_REDSTONE.get())
                 .add(ModFluids.SOURCE_MOLTEN_QUARTZ.get())
@@ -71,7 +71,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
 
         // Union of every hazard kind above.
         tag(ModTags.Fluids.HAZARDOUS)
-                .addTag(ModTags.Fluids.EXTREME_HEAT)
+                .addTag(ModTags.Fluids.THERMAL)
                 .addTag(ModTags.Fluids.RADIATION_MILD)
                 .addTag(ModTags.Fluids.RADIATION_SEVERE)
                 .addTag(ModTags.Fluids.BIOHAZARD)

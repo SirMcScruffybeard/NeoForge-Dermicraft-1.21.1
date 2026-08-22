@@ -229,7 +229,7 @@ Step deltas (effective speed/heal): +0.25, +0.50, +0.75, +1.00.
 
 **Negative heal modifier — new to the property model.** Serums are the first fuel type to use a heal modifier below zero, repurposing the existing stat as a damage-over-time value instead of a healing one. No new stat was needed to support Booster Serum's drawback — the sign of the existing heal modifier just flips.
 
-**Progression placement:** Targeted for **Stage 2** introduction. This is primarily a pacing/balance decision (players have more machines running by this point, more reason to want a burst tool) rather than a strict thematic requirement — but there's a real possibility Serum recipes end up gated behind extreme heat (Lava), which would tie the family back into Stage 2's established "forged with heat, not soaked" identity (see Crafting fluids in the primer) without that link being mandatory.
+**Progression placement:** Targeted for **Stage 2** introduction. This is primarily a pacing/balance decision (players have more machines running by this point, more reason to want a burst tool) rather than a strict thematic requirement — but there's a real possibility Serum recipes end up gated behind thermal hazard (Lava), which would tie the family back into Stage 2's established "forged with heat, not soaked" identity (see Crafting fluids in the primer) without that link being mandatory.
 
 ### Healing Serum
 
@@ -260,7 +260,7 @@ Step deltas (effective speed/heal): +0.25, +0.50, +0.75, +1.00.
 ### Open questions — Serum family, general
 
 - Exact recipes/ingredients for both known Serums — a Main Line Slurry is expected as a component but nothing is locked in.
-- Whether Serum recipes end up requiring Lava/extreme heat, tying the family thematically to Stage 2 rather than just placement-wise.
+- Whether Serum recipes end up requiring Lava/thermal hazard, tying the family thematically to Stage 2 rather than just placement-wise.
 - Whether more Serums are planned beyond Healing and Booster.
 - Exact numeric values across the board (heal, speed, use rate) for both current members.
 

@@ -395,7 +395,7 @@ All stat-growth values provisional and easy to retune without breaking the under
 
 **Capacity:** 5 cells, 500 mB each (5×100 mB doses) — 25 total doses across up to 5 different fluids. Deliberately no upgrade tree — full capability from creation, specialized enough not to need a tier ladder the way machines/other gadgets do.
 
-**Fluid gating:** its own `injectable` fluid tag, independent of the mod-wide `HazardProfile` system — a positive allow-list rather than general hazard tolerance, since the Injection Gun only ever needs to move fluids meant to go into a tumor. A fluid can be both `injectable` and separately hazard-tagged (e.g. `EXTREME_HEAT`) — the injector can knowingly carry something Drinker would refuse to touch.
+**Fluid gating:** its own `injectable` fluid tag, independent of the mod-wide `HazardProfile` system — a positive allow-list rather than general hazard tolerance, since the Injection Gun only ever needs to move fluids meant to go into a tumor. A fluid can be both `injectable` and separately hazard-tagged (e.g. `THERMAL`) — the injector can knowingly carry something Drinker would refuse to touch.
 
 **Presentation:** GeckoLib model with HP/death flourish, matching Drinker/Sipper's `IGadget` pattern. One window near the top of the model reflects only the active cell (dark/greyscale when empty, tinted per-fluid when filled via the same `registerBucketTint` approach as bucket fill layers) — identity only, not amount. Tooltip reports the selected cell's exact fluid and amount.
 

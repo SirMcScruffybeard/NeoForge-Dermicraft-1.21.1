@@ -400,7 +400,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * its path was heat-tolerated (see {@link #nearbyVacuumTargets}) would still burn to nothing
      * mid-pull, defeating the point of tolerating the path at all. */
     private static void protectVacuumCandidates(Level level, Player player, ItemStack stack) {
-        boolean heatTolerant = installedHazardProfile(stack).tolerated().contains(ModTags.Fluids.EXTREME_HEAT);
+        boolean heatTolerant = installedHazardProfile(stack).tolerated().contains(ModTags.Fluids.THERMAL);
         for (ItemEntity candidate : nearbyVacuumTargets(level, player, stack)) {
             candidate.setPickUpDelay(PULL_PICKUP_DELAY_TICKS);
             if (heatTolerant && candidate.isInLava()) {
@@ -665,7 +665,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * unrelated capabilities, neither implies the other): Aggregate covers plain
      * {@link ModTags.Blocks#AGGREGATE} membership, or {@link ModTags.Blocks#AGGREGATE_HOT}
      * membership (currently just Magma Block) gated on the installed hazard tolerance covering
-     * {@code EXTREME_HEAT} -- the Heat Safety Module's other half of its behavior. Beam covers
+     * {@code THERMAL} -- the Thermal Safety Module's other half of its behavior. Beam covers
      * {@link ModTags.Blocks#STONE_ORE}, with no hazard gating of its own (see that tag's comment).
      *
      * <p>Filters here (not left to each caller) so {@link #hasVacuumTarget} and
@@ -690,7 +690,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         if (hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) {
             if (targetState.is(ModTags.Blocks.AGGREGATE)) return hit;
             if (targetState.is(ModTags.Blocks.AGGREGATE_HOT)
-                    && profile.tolerated().contains(ModTags.Fluids.EXTREME_HEAT)) return hit;
+                    && profile.tolerated().contains(ModTags.Fluids.THERMAL)) return hit;
             if (targetState.is(ModTags.Blocks.AGGREGATE_METAPHYSICAL)
                     && profile.tolerated().contains(ModTags.Fluids.METAPHYSICAL_MILD)) return hit;
         }
@@ -706,7 +706,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
     /** Whether every fluid block between {@code from} and {@code to} is tolerated by
      * {@code profile} -- Fluid Bypass alone (an empty, {@link HazardProfile#TIER_1}-shaped profile)
      * passes through non-hazardous fluid like water, but a hazardous one (lava, tagged
-     * {@code EXTREME_HEAT}) still blocks the ray unless a Safety Module granting that hazard is also
+     * {@code THERMAL}) still blocks the ray unless a Safety Module granting that hazard is also
      * installed. Samples along the segment rather than reusing a single {@code ClipContext} call
      * since vanilla's fluid clipping has no per-hazard granularity to ask for directly. */
     private static boolean fluidPathTolerated(Level level, Vec3 from, Vec3 to, HazardProfile profile) {

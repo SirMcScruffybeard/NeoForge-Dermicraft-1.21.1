@@ -2,7 +2,7 @@
   "values": {
     "dermicraft:heat_safety_module": {
       "hazards": [
-        "#dermicraft:hazard/extreme_heat"
+        "#dermicraft:hazard/thermal"
       ]
     },
     "dermicraft:metaphysical_safety_module": {

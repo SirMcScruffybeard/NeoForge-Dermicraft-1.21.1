@@ -121,9 +121,13 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.AGGREGATE_MODULE);
                         output.accept(ModItems.BEAM_MODULE);
                         output.accept(ModItems.FLUID_BYPASS_MODULE);
+
+                        // Safety Modules
                         output.accept(ModItems.HEAT_SAFETY_MODULE);
-                        output.accept(ModItems.HEAT_EVOLUTION_MODULE); // no mechanics yet, item only
                         output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
+
+                        // Evolution Modules
+                        output.accept(ModItems.HEAT_EVOLUTION_MODULE); // no mechanics yet, item only
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);

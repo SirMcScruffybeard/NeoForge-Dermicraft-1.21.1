@@ -24,7 +24,7 @@ Changes from the Metastasizer copy:
 
 1. **Slots (4, same layout):** 0 = fuel container, 1 = reagent container, 2 = `INPUT_SLOT`, 3 = `OUTPUT_SLOT`.
    - `INPUT_SLOT` is a normal stackable slot (drop the pattern slot's `getSlotLimit == 1` override) — the machine processes one item per cycle (Masticator convention) but the slot may hold a stack.
-2. **Tanks:** `FUEL_TANK` (from base) + `VulnerableTank` reagent tank, 5000 mB each — unchanged from the copy. `VulnerableTank` = the Tier 1 hazard guard; the Metaphysical Mind Rule needs no code here yet (Metaphysical-tagged fluids are all also Extreme Heat, which `VulnerableTank` already rejects — the Mind Rule only matters code-wise when smart structures and the duct filter carve-out get built).
+2. **Tanks:** `FUEL_TANK` (from base) + `VulnerableTank` reagent tank, 5000 mB each — unchanged from the copy. `VulnerableTank` = the Tier 1 hazard guard; the Metaphysical Mind Rule needs no code here yet (Metaphysical-tagged fluids are all also Thermal Hazard, which `VulnerableTank` already rejects — the Mind Rule only matters code-wise when smart structures and the duct filter carve-out get built).
 3. **Mode state:** `enum Mode { MUTATE, FILL }` field, default `MUTATE`, NBT-persisted (`"mode"`), exposed to the menu via `ContainerData` (int ordinal) so the toggle survives GUI reopen and syncs client-side.
 4. **`onCraftComplete()` (mutate mode):** consume the fluid **and shrink the input stack by 1** (the one behavioral difference from the Metastasizer's non-consumed pattern), insert result into `OUTPUT_SLOT`.
 5. **Fill mode (new tick path, active only when `mode == FILL`):**

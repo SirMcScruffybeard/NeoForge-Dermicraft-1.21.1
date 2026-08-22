@@ -25,9 +25,9 @@ import java.util.Optional;
  *   Module already grants.</li>
  * </ul>
  *
- * <p>A given item is free to populate one field, the other, or (in principle) both -- Heat Evolution
- * Module currently sets both {@code targetFluid} (lava, for Cauldron) and {@code hazards}
- * (EXTREME_HEAT, for whichever hazard-gated machine eventually reads it), since the same physical
+ * <p>A given item is free to populate one field, the other, or (in principle) both -- Thermal
+ * Evolution Module currently sets both {@code targetFluid} (lava, for Cauldron) and {@code hazards}
+ * (THERMAL, for whichever hazard-gated machine eventually reads it), since the same physical
  * item is meant to serve either consumer shape depending on which machine's Module slot it's in.
  *
  * <p>{@code evolutionThreshold} is ticks of genuinely active production (not wall-clock/idle time --
