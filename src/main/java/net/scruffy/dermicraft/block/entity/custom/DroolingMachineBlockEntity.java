@@ -24,6 +24,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
@@ -147,6 +148,28 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
      * by default; Drooling Cauldron overrides this to reset evolution progress, matching the
      * "removing/changing the Module wipes all progress" rule. */
     protected void onModuleChanged() {
+    }
+
+    /**
+     * Keeps this block's actual world light emission in sync with whatever's in {@link #TANK} --
+     * same pattern {@code BeakerBlockEntity} already uses for the identical problem (a fluid-holding
+     * block whose held fluid, and therefore how much it should glow, can change). Without this, a
+     * Drooling Cauldron holding lava mid-evolution rendered exactly as dark as one holding water --
+     * lava is supposed to glow regardless of ambient light, and nothing was telling the world (or
+     * this block's own light value, which the tank-fluid renderer's packed light comes from) that it
+     * should.
+     */
+    @Override
+    protected void onTankContentsChanged() {
+        if (level == null) return;
+
+        FluidStack fluid = TANK.getFluid();
+        int lightLevel = fluid.isEmpty() ? 0 : fluid.getFluid().getFluidType().getLightLevel(fluid);
+
+        BlockState state = getBlockState();
+        if (state.getValue(DroolingMachineBlock.LIGHT_LEVEL) != lightLevel) {
+            level.setBlock(worldPosition, state.setValue(DroolingMachineBlock.LIGHT_LEVEL, lightLevel), 3);
+        }
     }
 
     ////////////////////Shared machinery, unchanged from the original Cauldron-only version\\\\\\\\\\\\\\\\\\\\

@@ -148,9 +148,18 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
                     this.pushFluidToBelowNeighbour(level, worldPosition);
                     setChanged();
                     updateBlock();
+                    onTankContentsChanged();
                 }
             }
         };
+    }
+
+    /** Called whenever a machine's own tank contents change -- no-op by default, generic across
+     * every machine (not just the Drooling family), for a subclass that wants to react without
+     * needing its own tank-factory override. Currently only wired into {@link #createDroolingTank},
+     * for the Drooling family's dynamic light level -- see
+     * {@code DroolingMachineBlockEntity#updateLightLevel}. */
+    protected void onTankContentsChanged() {
     }
 
     protected ModFluidTank createFluidTank(int capacity, int slot) {

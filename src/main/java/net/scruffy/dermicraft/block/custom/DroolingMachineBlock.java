@@ -1,6 +1,7 @@
 package net.scruffy.dermicraft.block.custom;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -39,11 +41,24 @@ public abstract class DroolingMachineBlock extends BaseEntityBlock {
 
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
+    /** Drives actual world light emission, kept in sync with whatever's currently in the tank --
+     * same pattern BeakerBlock already uses (see that class/its block entity's own updateLightLevel).
+     * Existing horizontalBlock() datagen call needed no changes: it already enumerates every
+     * FACING x LIGHT_LEVEL combination (4 x 16 = 64 variant entries instead of 4), each correctly
+     * pointing at the one model -- confirmed by inspecting the generated blockstate JSON, not
+     * assumed. Without this property, a Drooling Cauldron holding lava mid-evolution rendered
+     * exactly as dark as one holding water -- lava is supposed to glow regardless of ambient light,
+     * and nothing here was telling the world (or this block's own light value, which the tank-fluid
+     * renderer's packed light comes from) that it should. */
+    public static final IntegerProperty LIGHT_LEVEL = IntegerProperty.create("light_level", 0, 15);
+
     protected DroolingMachineBlock(Properties properties) {
         super(properties
                 .noLootTable()
                 .ignitedByLava()
+                .lightLevel(state -> state.getValue(LIGHT_LEVEL))
         );
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIGHT_LEVEL, 0));
     }
 
     @Override
@@ -63,7 +78,7 @@ public abstract class DroolingMachineBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, LIGHT_LEVEL);
     }
 
     @NotNull
