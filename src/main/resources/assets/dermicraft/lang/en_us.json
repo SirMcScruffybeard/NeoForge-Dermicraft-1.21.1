@@ -119,6 +119,7 @@
   "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
   "item.dermicraft.reinforcing_catalyst_bucket": "Reinforcing Catalyst Bucket",
   "item.dermicraft.synapse_catalyst_bucket": "Synapse Catalyst Bucket",
+  "item.dermicraft.evolution_catalyst_bucket": "Evolution Catalyst Bucket",
 
   "item.dermicraft.stone_blend_bucket": "Stone Blend Bucket",
   "item.dermicraft.silica_blend_bucket": "Silica Blend Bucket",
@@ -156,6 +157,7 @@
   "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
   "fluid_type.dermicraft.reinforcing_catalyst_fluid": "Reinforcing Catalyst",
   "fluid_type.dermicraft.synapse_catalyst_fluid": "Synapse Catalyst",
+  "fluid_type.dermicraft.evolution_catalyst_fluid": "Evolution Catalyst",
 
   "fluid_type.dermicraft.stone_blend_fluid": "Stone Blend",
   "fluid_type.dermicraft.silica_blend_fluid": "Silica Blend",

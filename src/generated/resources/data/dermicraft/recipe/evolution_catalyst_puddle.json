@@ -1,0 +1,19 @@
+{
+  "type": "dermicraft:puddle_fluid_crafting",
+  "ingredients": [
+    {
+      "item": "minecraft:phantom_membrane"
+    },
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "item": "minecraft:glowstone_dust"
+    }
+  ],
+  "item_amount": 0,
+  "puddle": "dermicraft:source_synapse_catalyst",
+  "result_fluid": "dermicraft:source_evolution_catalyst",
+  "result_item": "minecraft:air",
+  "ticks": 200
+}

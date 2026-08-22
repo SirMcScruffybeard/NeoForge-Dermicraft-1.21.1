@@ -813,6 +813,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(),
                 ModMath.Time.getSecondsToTicks(10));
 
+        RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "evolution_catalyst_puddle",
+                List.of(Ingredient.of(Items.PHANTOM_MEMBRANE), Ingredient.of(Items.QUARTZ), Ingredient.of(Items.GLOWSTONE_DUST)),
+                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), ModFluids.SOURCE_EVOLUTION_CATALYST.get(),
+                ModMath.Time.getSecondsToTicks(10));
+
         RecipeBuilders.PuddleCraft.MakeItems.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 ModBlocks.INERT_TUMOR.asItem(), 1, ModMath.Time.getSecondsToTicks(10));
 
@@ -902,6 +907,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // rather than a one-time build.
         RecipeBuilders.mutate(recipeOutput, "module_frame_mutating", ModItems.CHASSIS.get(),
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.MODULE_FRAME.get(), solidTicks);
+
+        // Evolution Modules: matching Safety Module + a bucket (1000 mB) of Evolution Catalyst --
+        // same cost tier as Chassis, since it's an upgrade-part item rather than permanent
+        // infrastructure like the Module Frame above.
+        RecipeBuilders.mutate(recipeOutput, "heat_evolution_module_mutating", ModItems.HEAT_SAFETY_MODULE.get(),
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.HEAT_EVOLUTION_MODULE.get(), solidTicks);
 
         // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
         // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier

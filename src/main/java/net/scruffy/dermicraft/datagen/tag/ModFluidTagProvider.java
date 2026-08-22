@@ -108,7 +108,10 @@ public class ModFluidTagProvider extends FluidTagsProvider {
         ;
 
         tag(ModTags.Fluids.THIN)
-                .add(Fluids.WATER);
+                .add(Fluids.WATER)
+                .add(ModFluids.SOURCE_PRIMITIVE_CATALYST.get())
+                .add(ModFluids.SOURCE_SYNAPSE_CATALYST.get())
+                .add(ModFluids.SOURCE_EVOLUTION_CATALYST.get())
         ;
     }
 
