@@ -122,10 +122,16 @@ public class DroolingCauldronBlockEntityRenderer extends TankBlockEntityRenderer
         drawQuad(builder, poseStack, lo, 0, lo, hi, height, lo,
                 sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), packedLight, EVOLUTION_TINT);
 
-        // South wall.
+        // South wall. The -1.8 translate.z here was NOT a transform that stays valid for any quad
+        // bound -- it was tuned specifically for drawDefaultSides' own 0.9 literal (working out to
+        // world z = 1.8 - 0.9 = 0.9, i.e. translate.z = -(2 * 0.9)). Copying it unchanged while
+        // swapping the quad's own bound to `hi` left the two out of sync: this wall was landing at
+        // world z = 1.8 - hi = 0.798, well short of the other three faces' outward bound at `hi`.
+        // Correct in general: translate.z = -(2 * hi), which resolves to world z = hi for whatever
+        // hi actually is.
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(180));
-        poseStack.translate(-1f, 0, -1.8f);
+        poseStack.translate(-1f, 0, -(2 * hi));
         drawQuad(builder, poseStack, lo, 0, hi, hi, height, hi,
                 sprite.getU0(), sprite.getV0(), sprite.getU1(), sprite.getV1(), packedLight, EVOLUTION_TINT);
         poseStack.popPose();
