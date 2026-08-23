@@ -38,6 +38,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("masticator_be", () -> BlockEntityType.Builder.of(
                     MasticatorBlockEntity::new, ModBlocks.MASTICATOR.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredMasticatorBlockEntity>> CHARRED_MASTICATOR_BE =
+            BLOCK_ENTITIES.register("charred_masticator_be", () -> BlockEntityType.Builder.of(
+                    CharredMasticatorBlockEntity::new, ModBlocks.CHARRED_MASTICATOR.get()).build(null));
+
     public static final Supplier<BlockEntityType<SkinTankBlockEntity>> SKIN_TANK_BE =
             BLOCK_ENTITIES.register("skin_tank_be", () -> BlockEntityType.Builder.of(
                     SkinTankBlockEntity::new, ModBlocks.SKIN_TANK.get()).build(null));

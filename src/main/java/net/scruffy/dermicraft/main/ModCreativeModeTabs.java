@@ -48,6 +48,7 @@ public class ModCreativeModeTabs {
                         // built (dermicraft-machine-notes.md). Visible in creative for testing only.
                         output.accept(ModBlocks.DROOLING_CRUCIBLE);
                         output.accept(ModBlocks.MASTICATOR);
+                        output.accept(ModBlocks.CHARRED_MASTICATOR); // no craft recipe yet
                         output.accept(ModBlocks.SKIN_TANK);
                         output.accept(ModBlocks.EFFLUENTCER);
                         output.accept(ModBlocks.METASTASIZER);

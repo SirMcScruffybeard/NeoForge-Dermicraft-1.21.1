@@ -154,6 +154,11 @@ public class ModBlocks {
     public static final DeferredBlock<Block> MASTICATOR = registerBlock("masticator",
             () -> new  MasticatorBlock(machineProperties()));
 
+    // Charred Masticator -- Masticator's hazard-gated Tier 2 evolution, see
+    // CharredMasticatorBlockEntity for the actual capability leap (thermal-tolerant tanks).
+    public static final DeferredBlock<Block> CHARRED_MASTICATOR = registerBlock("charred_masticator",
+            () -> new CharredMasticatorBlock(machineProperties()));
+
     // Registered manually (not via registerBlock's auto-generated plain BlockItem) -- Skin Tank
     // preserves its contents on Forceps pickup (see IPreserveContentsOnPickup/ICollectBlocks), so
     // its item needs SkinTankBlockItem's shift-hidden fluid tooltip to actually show what's inside.

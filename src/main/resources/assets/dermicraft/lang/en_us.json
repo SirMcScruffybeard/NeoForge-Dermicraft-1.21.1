@@ -202,6 +202,9 @@
 
   "block.dermicraft.masticator": "Masticator",
   "blockEntity.dermicraft.masticator_be": "Masticator",
+  "block.dermicraft.charred_masticator": "Charred Masticator",
+  "blockentity.dermicraft.charred_masticator": "Charred Masticator",
+  "blockEntity.dermicraft.charred_masticator_be": "Charred Masticator",
 
 
   "block.dermicraft.outerface": "Outerface",

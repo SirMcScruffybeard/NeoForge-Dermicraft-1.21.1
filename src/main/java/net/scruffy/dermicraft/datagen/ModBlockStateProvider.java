@@ -98,6 +98,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),
                 modLoc("block/" + ModBlocks.MASTICATOR.getId().getPath()));
 
+        // Charred Masticator -- same 3-face-texture shape as the base Masticator, but Charred
+        // Machine Port replaces skin_tank_end on the other 5 faces instead.
+        charredMasticatorBlockState("block/charred_machine_port");
+        itemModels().withExistingParent(ModBlocks.CHARRED_MASTICATOR.getId().getPath(),
+                modLoc("block/" + ModBlocks.CHARRED_MASTICATOR.getId().getPath()));
+
         effluentcerBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
                 modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
@@ -335,6 +341,31 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(MasticatorBlock.FACING, facing).with(MasticatorBlock.STATE, MasticatorVisualState.RECOVERING)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+    // Mirrors masticatorBlockState exactly, but swaps skin_tank_end for Charred Machine Port on the
+    // 5 non-front faces (Charred Masticator's shared visual identity with Charred Tumor/Hot Bone,
+    // not the generic tank-end look every other Tier 1 machine uses) and uses the charred face
+    // texture set for the front face.
+    private void charredMasticatorBlockState(String machinePort) {
+        ModelFile idle = models().cube(ModBlocks.CHARRED_MASTICATOR.getId().getPath(),
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/masticator/charred_masticator_face"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/masticator/charred_masticator_face"));
+        ModelFile running = models().cube("charred_masticator_on",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/masticator/charred_masticator_face_on"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/masticator/charred_masticator_face_on"));
+        ModelFile recovering = models().cube("charred_masticator_error",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/masticator/charred_masticator_face_error"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/masticator/charred_masticator_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.CHARRED_MASTICATOR.get());
+        putMasticatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.WEST, 270);
     }
 
     // Mirrors masticatorBlockState/mutatorBlockState -- 4 horizontal facings x 3

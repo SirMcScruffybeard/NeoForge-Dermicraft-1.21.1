@@ -20,6 +20,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -68,7 +69,15 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     private Item activeItem = Items.AIR;
 
     public MasticatorBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
+        this(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
+    }
+
+    // Lets a capability-leap subclass (e.g. Charred Masticator) register under its own
+    // BlockEntityType while reusing everything else this class provides -- see MachineTier's own
+    // javadoc on why a genuine capability leap (here: hazard-tolerant tanks) is a hook override,
+    // not a new MachineTier constant.
+    protected MasticatorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
     }
 
     @Override
@@ -392,7 +401,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         return INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT).isEmpty();
     }
 
-    private Optional<RecipeHolder<MasticatingRecipe>> getRecipeOptional() {
+    protected Optional<RecipeHolder<MasticatingRecipe>> getRecipeOptional() {
         if (level == null) return Optional.empty();
 
         RecipeManager recipeManager = level.getRecipeManager();
@@ -403,7 +412,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
                 new OneFluidOneItemRecipeInput(stack, fluid), this.level);
     }
 
-    private void setActiveRecipe(Optional<RecipeHolder<MasticatingRecipe>> opt) {
+    protected void setActiveRecipe(Optional<RecipeHolder<MasticatingRecipe>> opt) {
         if (opt.isPresent()) {
             this.activeRecipe = opt.get();
         } else {
@@ -412,7 +421,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         }
     }
 
-    private void setResultAmount() {
+    protected void setResultAmount() {
         resultAmount = activeRecipe.value().getCraftingAmount(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
@@ -435,7 +444,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         return FluidStack.EMPTY;
     }
 
-    private void setMaxProgress() {
+    protected void setMaxProgress() {
         maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
@@ -585,7 +594,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         };
     }
 
-    private VulnerableTank createIngredientTank() {
+    protected VulnerableTank createIngredientTank() {
         return new VulnerableTank(getTier().tankCapacity(), 1) {
             @Override
             protected void onContentsChanged() {
@@ -609,7 +618,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         };
     }
 
-    private VulnerableTank createResultTank() {
+    protected VulnerableTank createResultTank() {
         return new VulnerableTank(getTier().tankCapacity(), 2) {
             @Override
             protected void onContentsChanged() {
