@@ -31,6 +31,7 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MasticatorBlock;
 import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
@@ -56,17 +57,36 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     // purely a fluid-container passthrough for filling/draining the Water tank (bucket in, bucket
     // out), same as FUEL_TANK.SLOT/RESULT_TANK.SLOT.
     public static final int INGREDIENT_ITEM_SLOT = 3;
+    // Module slot -- same tab-gated pattern as Skin Tank/Drooling Cauldron (see MasticatorMenu's
+    // MAIN_TAB/MODULE_TAB). Declared here rather than per-variant so Charred Masticator inherits it
+    // for free. No consumption logic wired up yet (no installedHazardProfile()/Evolution hook) --
+    // this is the GUI/slot infrastructure only; what a Module installed here actually DOES is a
+    // separate follow-up.
+    public static final int MODULE = 4;
+    public static final int INVENTORY_SIZE = 5;
 
     private final VulnerableTank INGREDIENT_TANK = createIngredientTank();
     private final VulnerableTank RESULT_TANK = createResultTank();
 
     private boolean isTransferringFluids = false;
 
-    private final ItemStackHandler INVENTORY = createItemHandler(4);
+    private final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
 
     private int resultAmount = 0;
 
     private Item activeItem = Items.AIR;
+
+    // Which screen tab was last open -- same pattern as SkinTankBlockEntity/DroolingMachineBlockEntity's
+    // own isModuleTabActive/setModuleTabActive, so reopening the screen returns to the tab last viewed.
+    private boolean moduleTabActive = false;
+
+    public boolean isModuleTabActive() {
+        return moduleTabActive;
+    }
+
+    public void setModuleTabActive(boolean active) {
+        this.moduleTabActive = active;
+    }
 
     public MasticatorBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.MASTICATOR_BE.get(), pos, blockState);
@@ -448,6 +468,13 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
+    /** Called whenever the Module slot's contents change at all (installed, removed, or swapped for
+     * a different item). No-op for now -- this class doesn't yet consume anything a Module might
+     * grant (hazard tolerance, Evolution progress); this is purely the extension point a future
+     * mechanic hooks into, matching DroolingMachineBlockEntity's identical hook. */
+    protected void onModuleChanged() {
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -457,20 +484,22 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         tag.putInt("resultFluid", resultAmount);
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
         tag.putString("activeItem", itemKey.toString());
+        tag.putBoolean("module_tab_active", moduleTabActive);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         if (tag.contains("inventory")) {
-            // Worlds saved before INGREDIENT_ITEM_SLOT existed have Size=3 -- see
+            // Worlds saved before INGREDIENT_ITEM_SLOT/MODULE existed have a smaller Size -- see
             // MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would shrink
-            // INVENTORY back down and crash the menu (slot 3 out of range).
-            loadItemHandler(INVENTORY, 4, registries, tag.getCompound("inventory"));
+            // INVENTORY back down and crash the menu (slot out of range).
+            loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
         }
         if (tag.contains("craft")) INGREDIENT_TANK.readFromNBT(registries, tag.getCompound("craft"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
         resultAmount = tag.getInt("resultFluid");
+        moduleTabActive = tag.getBoolean("module_tab_active");
 
         if (tag.contains("activeItem", CompoundTag.TAG_STRING)) {
             String itemStringId = tag.getString("activeItem");
@@ -496,6 +525,10 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
             @Override
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide()) {
+
+                    if (slot == MODULE) {
+                        onModuleChanged();
+                    }
 
                     if(slot == INGREDIENT_ITEM_SLOT) {
                         ItemStack stack = getStackInSlot(INGREDIENT_ITEM_SLOT);
@@ -588,8 +621,15 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
             // and returns the remainder, so the custom insertItem override below is no longer needed.
             @Override
             public int getSlotLimit(int slot) {
-                if (slot == FUEL_TANK.SLOT || slot == INGREDIENT_TANK.SLOT || slot == RESULT_TANK.SLOT) return 1;
+                if (slot == FUEL_TANK.SLOT || slot == INGREDIENT_TANK.SLOT || slot == RESULT_TANK.SLOT || slot == MODULE) return 1;
                 return super.getSlotLimit(slot);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                // Same "scarce, tag-identified" Module slot convention as DroolingMachineBlockEntity's
+                // own MODULE slot -- every other slot here stays unrestricted.
+                return slot != MODULE || stack.is(ModTags.Items.MODULES);
             }
         };
     }

@@ -9,11 +9,17 @@ import net.minecraft.world.entity.player.Inventory;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
+
+    private static final int TAB_TEXT_COLOR = 0x007F0E;
+    private List<Tab> tabs;
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
@@ -77,6 +83,9 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
         ingredientRenderer = createFluidRenderer16x40(menu.BE.getIngredientTank().getCapacity());
         resultRenderer = createFluidRenderer16x40(menu.BE.getResultTank().getCapacity());
+        tabs = List.of(
+                new Tab(Component.translatable("screen.dermicraft.masticator.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.masticator.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -84,34 +93,38 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), 151, 12, fuelRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.fuel"));
+        if (menu.getActiveTab() == MasticatorMenu.MAIN_TAB) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    menu.BE.getFluid(menu.BE.getFuelTank().SLOT), 151, 12, fuelRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getIngredientTank().SLOT), 67, 12, ingredientRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.reagent"));
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    menu.BE.getFluid(menu.BE.getIngredientTank().SLOT), 67, 12, ingredientRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.reagent"));
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getResultTank().SLOT), 123, 12, resultRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.result"));
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    menu.BE.getFluid(menu.BE.getResultTank().SLOT), 123, 12, resultRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.result"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 151, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.fuel_container"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 151, 60,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.fuel_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 67, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getIngredientTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.reagent_container"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 67, 60,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getIngredientTank().SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.reagent_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 123, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getResultTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.result_container"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 123, 60,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getResultTank().SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.result_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 38, 35,
-                menu.BE.getItemHandler(null).getStackInSlot(MasticatorBlockEntity.INGREDIENT_ITEM_SLOT),
-                Component.translatable("tooltip.dermicraft.slot.ingredient"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, 38, 35,
+                    menu.BE.getItemHandler(null).getStackInSlot(MasticatorBlockEntity.INGREDIENT_ITEM_SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.ingredient"));
+        }
 
+        // Health bar stays visible/interactive regardless of tab -- ambient status, not tied to
+        // either tab's own content.
         if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
             int maxHealth = menu.getMaxHealth();
             int percent = maxHealth <= 0 ? 0 : Math.round(100f * menu.getHealth() / maxHealth);
@@ -131,18 +144,50 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
+        renderHealthBar(guiGraphics, x, y); // ambient status, visible on both tabs
+
+        if (menu.getActiveTab() == MasticatorMenu.MAIN_TAB) {
+            renderMainTab(guiGraphics, x, y);
+        } else {
+            renderModuleTab(guiGraphics, x, y);
+        }
+    }
+
+    private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
         renderTankAndSlot(guiGraphics, x + 150, y + 11);
         renderTankAndSlot(guiGraphics, x + 66, y + 11);
         renderTankAndSlot(guiGraphics, x + 122, y + 11);
         renderItemSlot(guiGraphics, x + 37, y + 34);
 
         renderProgressArrow(guiGraphics, x, y);
-        renderHealthBar(guiGraphics, x, y);
 
         fuelRenderer.render(guiGraphics, x + 151, y + 12, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
         ingredientRenderer.render(guiGraphics, x + 67, y + 12, menu.BE.getFluid(menu.BE.getIngredientTank().SLOT));
         resultRenderer.render(guiGraphics, x + 123, y + 12, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
+    }
+
+    /** One yellow Module slot -- nothing else on this tab, matching Drooling Cauldron/Skin Tank's
+     * own bare Module-slot-only look. */
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + MasticatorMenu.MODULE_SLOT_X, y + MasticatorMenu.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void renderItemSlot(GuiGraphics guiGraphics, int x, int y) {

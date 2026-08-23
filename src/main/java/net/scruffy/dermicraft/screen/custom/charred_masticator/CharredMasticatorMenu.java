@@ -12,12 +12,20 @@ import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
-/** Charred Masticator's menu -- identical layout/slots to {@code MasticatorMenu}, just typed to
- * {@link CharredMasticatorBlockEntity} and checked against {@link ModBlocks#CHARRED_MASTICATOR} in
- * {@link #stillValid}. A distinct class rather than reusing MasticatorMenu because stillValid needs
- * to match the actual block at this position -- same split the Drooling family uses for
- * Cauldron/Crucible. */
+/** Charred Masticator's menu -- identical layout/slots to {@code MasticatorMenu} (Module tab
+ * included), just typed to {@link CharredMasticatorBlockEntity} and checked against
+ * {@link ModBlocks#CHARRED_MASTICATOR} in {@link #stillValid}. A distinct class rather than reusing
+ * MasticatorMenu because stillValid needs to match the actual block at this position -- same split
+ * the Drooling family uses for Cauldron/Crucible. */
 public class CharredMasticatorMenu extends AbstractModMenu {
+
+    public static final int MAIN_TAB = 0;
+    public static final int MODULE_TAB = 1;
+
+    // Matches Drooling Cauldron's/base Masticator's own Module slot position -- one consistent
+    // mod-wide GUI convention.
+    public static final int MODULE_SLOT_X = 79;
+    public static final int MODULE_SLOT_Y = 34;
 
     public final CharredMasticatorBlockEntity BE;
     private Level level;
@@ -27,7 +35,7 @@ public class CharredMasticatorMenu extends AbstractModMenu {
     }
 
     public CharredMasticatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), containerId, 4);
+        super(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), containerId, 5);
         checkContainerSize(inv, 2);
         this.BE = ((CharredMasticatorBlockEntity) blockEntity);
         this.level = inv.player.level();
@@ -35,12 +43,45 @@ public class CharredMasticatorMenu extends AbstractModMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60));
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getIngredientTank().SLOT, 67, 60));
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 123, 60));
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MasticatorBlockEntity.INGREDIENT_ITEM_SLOT, 38, 35));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MAIN_TAB;
+            }
+        });
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getIngredientTank().SLOT, 67, 60) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MAIN_TAB;
+            }
+        });
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 123, 60) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MAIN_TAB;
+            }
+        });
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MasticatorBlockEntity.INGREDIENT_ITEM_SLOT, 38, 35) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MAIN_TAB;
+            }
+        });
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MasticatorBlockEntity.MODULE, MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MODULE_TAB;
+            }
+        });
 
-        setQuickMoveInputSlots(3, 1); // INGREDIENT_ITEM_SLOT only -- skip fuel/ingredient/result tank slots
+        setQuickMoveInputSlots(3, 1); // INGREDIENT_ITEM_SLOT only -- skip fuel/ingredient/result tank slots and Module
+
+        setActiveTab(BE.isModuleTabActive() ? MODULE_TAB : MAIN_TAB);
+    }
+
+    @Override
+    protected void onTabChanged(int index) {
+        BE.setModuleTabActive(index == MODULE_TAB);
     }
 
     @Override
