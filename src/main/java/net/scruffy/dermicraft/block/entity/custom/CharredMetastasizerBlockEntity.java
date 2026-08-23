@@ -17,16 +17,23 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Charred Metastasizer -- the Metastasizer family's hazard-gated Tier 2 evolution, same shape as
  * {@link CharredMasticatorBlockEntity}. Everything about the base engine (fuel/health, recipe
- * lookup, visual state, item/fluid IO layout) is inherited from {@link MetastasizerBlockEntity}
- * unchanged; the only real difference is {@link #createReagentTank()}, overridden to accept and
- * hold {@code HazardProfile.TIER_2} fluids instead of the base's TIER_1-locked reagent tank. No
- * Module tab/slot exists on the Metastasizer family yet (unlike Masticator), so this is scoped to
- * the same starting point Charred Masticator had before that follow-up work.
+ * lookup, visual state, item/fluid IO layout, Module tab, evolution mechanic) is inherited from
+ * {@link MetastasizerBlockEntity} unchanged; the only real differences are
+ * {@link #createReagentTank()} (unconditional {@code HazardProfile.TIER_2} instead of the base's
+ * Module-dependent one) and {@link #canEvolve()} (already evolved, nothing further to do).
  */
 public class CharredMetastasizerBlockEntity extends MetastasizerBlockEntity {
 
     public CharredMetastasizerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.CHARRED_METASTASIZER_BE.get(), pos, blockState);
+    }
+
+    // Already evolved -- installing a Module here does nothing: this class's own tanks are
+    // unconditionally TIER_2 regardless of any Module, and there's no further Tier to accumulate
+    // progress toward.
+    @Override
+    protected boolean canEvolve() {
+        return false;
     }
 
     @Override

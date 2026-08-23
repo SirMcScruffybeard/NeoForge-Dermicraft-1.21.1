@@ -9,14 +9,19 @@ import net.minecraft.world.entity.player.Inventory;
 import net.scruffy.dermicraft.block.entity.custom.MetastasizerBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
-/** Charred Metastasizer's screen -- identical GUI layout/textures to {@code MetastasizerScreen},
- * just typed to {@link CharredMetastasizerMenu}. See that class's javadoc for why this is a
- * separate class rather than reusing MetastasizerScreen. */
+import java.util.List;
+
+/** Charred Metastasizer's screen -- identical GUI layout/textures (Module tab included) to
+ * {@code MetastasizerScreen}, just typed to {@link CharredMetastasizerMenu}. */
 public class CharredMetastasizerScreen extends AbstractModScreen<CharredMetastasizerMenu> {
+
+    private static final int TAB_TEXT_COLOR = 0x007F0E;
+    private List<Tab> tabs;
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
@@ -80,6 +85,9 @@ public class CharredMetastasizerScreen extends AbstractModScreen<CharredMetastas
         super.init();
         reagentRenderer = createFluidRenderer16x40(menu.BE.getReagentTank().getCapacity());
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        tabs = List.of(
+                new Tab(Component.translatable("screen.dermicraft.charred_metastasizer.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.charred_metastasizer.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -87,29 +95,31 @@ public class CharredMetastasizerScreen extends AbstractModScreen<CharredMetastas
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getReagentTank().SLOT), REAGENT_X + 1, TANK_Y + 1, reagentRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.reagent"));
+        if (menu.getActiveTab() == CharredMetastasizerMenu.MAIN_TAB) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    menu.BE.getFluid(menu.BE.getReagentTank().SLOT), REAGENT_X + 1, TANK_Y + 1, reagentRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.reagent"));
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.fuel"));
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, REAGENT_X + 1, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getReagentTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.reagent_container"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, REAGENT_X + 1, 60,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getReagentTank().SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.reagent_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_X + 1, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.fuel_container"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_X + 1, 60,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.fuel_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, PATTERN_X + 1, SLOT_Y + 1,
-                menu.BE.getItemHandler(null).getStackInSlot(MetastasizerBlockEntity.PATTERN_SLOT),
-                Component.translatable("tooltip.dermicraft.slot.pattern"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, PATTERN_X + 1, SLOT_Y + 1,
+                    menu.BE.getItemHandler(null).getStackInSlot(MetastasizerBlockEntity.PATTERN_SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.pattern"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, OUTPUT_X + 1, SLOT_Y + 1,
-                menu.BE.getItemHandler(null).getStackInSlot(MetastasizerBlockEntity.OUTPUT_SLOT),
-                Component.translatable("tooltip.dermicraft.slot.result"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, OUTPUT_X + 1, SLOT_Y + 1,
+                    menu.BE.getItemHandler(null).getStackInSlot(MetastasizerBlockEntity.OUTPUT_SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.result"));
+        }
 
         if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
             int maxHealth = menu.getMaxHealth();
@@ -130,9 +140,18 @@ public class CharredMetastasizerScreen extends AbstractModScreen<CharredMetastas
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
         renderHealthBar(guiGraphics, x, y);
 
+        if (menu.getActiveTab() == CharredMetastasizerMenu.MAIN_TAB) {
+            renderMainTab(guiGraphics, x, y);
+        } else {
+            renderModuleTab(guiGraphics, x, y);
+        }
+    }
+
+    private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
         renderTankAndSlot(guiGraphics, x + REAGENT_X, y + TANK_Y);
         renderItemSlot(guiGraphics, x + PATTERN_X, y + SLOT_Y);
         renderProgressArrow(guiGraphics, x + ARROW_X, y + ARROW_Y);
@@ -141,6 +160,26 @@ public class CharredMetastasizerScreen extends AbstractModScreen<CharredMetastas
 
         reagentRenderer.render(guiGraphics, x + REAGENT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getReagentTank().SLOT));
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+    }
+
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredMetastasizerMenu.MODULE_SLOT_X, y + CharredMetastasizerMenu.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {
