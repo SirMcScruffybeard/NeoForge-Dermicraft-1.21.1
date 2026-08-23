@@ -95,7 +95,12 @@ public class ModBlocks {
     public static final DeferredBlock<Block> DROOLING_CAULDRON = registerBlock("drooling_cauldron",
             () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()
                     .strength(2.0f)
-                    .requiresCorrectToolForDrops()));
+                    .requiresCorrectToolForDrops()
+                    // Cauldron-shaped model (walls + open fluid-pool cavity), not a full cube --
+                    // without this, neighboring blocks' touching faces get culled as if this were
+                    // opaque, leaving the block behind visibly see-through. Matches vanilla's own
+                    // Cauldron, which sets the same flag for the same reason.
+                    .noOcclusion()));
 
     // Tier 2 -- standalone for now (evolution FROM Drooling Cauldron isn't built yet, see
     // dermicraft-machine-notes.md's Drooling Cauldron entry). Same strength/tool requirement as
@@ -105,7 +110,8 @@ public class ModBlocks {
     public static final DeferredBlock<Block> DROOLING_CRUCIBLE = registerBlock("drooling_crucible",
             () -> new DroolingCrucibleBlock(BlockBehaviour.Properties.of()
                     .strength(2.0f)
-                    .requiresCorrectToolForDrops()));
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion())); // same cauldron-shaped-model reasoning as Drooling Cauldron above
 
     // Workbench bottom half -- keeps the registry id "workbench" (established before the top half
     // existed) and hosts the real Storage/Mod/Fabrication GUI (see WorkbenchBlock's own javadoc).
