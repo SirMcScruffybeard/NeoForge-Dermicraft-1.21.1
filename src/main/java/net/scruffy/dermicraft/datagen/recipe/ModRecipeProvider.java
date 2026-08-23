@@ -1288,6 +1288,70 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + c + "_dye", dyeItem(c), dyeFluid(color), 100, lightTicks);
         }
 
+        ////////////////////Molten Family (Stage 2, Charred Masticator only)\\\\\\\\\\\\\\\\\\\\
+        // Resolves the long-flagged reachability gap: Tier 1 Masticator tanks reject Lava, so none
+        // of this family could actually be crafted until Charred Masticator existed. Item inputs/
+        // yields below are placeholder-quality defaults (flat 110 mB/item, 1:1 Lava cost, 30s) for
+        // the fluids `dermicraft-crafting-notes.md` still marks "not yet decided" -- easy to retune
+        // later, the goal right now is reachability for testing. Molten Redstone is the one member
+        // with real confirmed numbers (Redstone Block -> 1000 mB, loose Dust -> 110 mB).
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_block",
+                Ingredient.of(Items.REDSTONE_BLOCK), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_dust",
+                Ingredient.of(Items.REDSTONE), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_quartz_masticating",
+                Ingredient.of(Items.QUARTZ), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_glowstone_masticating",
+                Ingredient.of(Items.GLOWSTONE_DUST), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_amethyst_masticating",
+                Ingredient.of(Items.AMETHYST_SHARD), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating",
+                Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_lapis_masticating",
+                Ingredient.of(Items.LAPIS_LAZULI), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_LAPIS.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_raw_netherite_scrap_masticating",
+                Ingredient.of(Items.NETHERITE_SCRAP), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "blaze_essence_masticating",
+                Ingredient.of(Items.BLAZE_POWDER), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "ghast_essence_masticating",
+                Ingredient.of(Items.GHAST_TEAR), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_GHAST_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "wither_essence_masticating",
+                Ingredient.of(Items.WITHER_SKELETON_SKULL), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_WITHER_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "ender_essence_masticating",
+                Ingredient.of(Items.ENDER_PEARL), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_ENDER_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_soul_silica_masticating",
+                Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Molten Netherite (Molten Raw Netherite Scrap + Aurous Blend -> Molten Netherite) is
+        // deliberately NOT added here yet. Its confirmed machine is the Effluentcer, which has no
+        // Charred/Tier 2 variant yet -- its tanks are still hardcoded TIER_1 and would reject the
+        // Thermal-hazard Scrap input, so registering this recipe now would just create a second,
+        // still-unreachable gap instead of resolving one. Needs a Charred Effluentcer first.
+
         ////////////////////Render Kiln\\\\\\\\\\\\\\\\\\\\
         // Fluid alone -> a fixed default item, no pattern/no ingredient item -- see machine notes and
         // the Render Kiln build plan doc. Deliberately mirrors the existing Metastasizer reverse-
