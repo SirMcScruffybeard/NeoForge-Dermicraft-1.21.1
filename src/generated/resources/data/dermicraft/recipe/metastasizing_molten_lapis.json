@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_molten_lapis",
+  "fluid_amount": 110,
+  "pattern": {
+    "item": "minecraft:lapis_lazuli"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:lapis_lazuli"
+  },
+  "ticks": 50
+}

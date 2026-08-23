@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_molten_redstone",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:redstone_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:redstone_block"
+  },
+  "ticks": 200
+}

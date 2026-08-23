@@ -1352,6 +1352,37 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Thermal-hazard Scrap input, so registering this recipe now would just create a second,
         // still-unreachable gap instead of resolving one. Needs a Charred Effluentcer first.
 
+        // Reverse route (Charred Metastasizer, pattern-based duplication) -- mirrors every Molten
+        // Masticating recipe above 1:1 on item and mB, same "forward mirrors reverse" convention as
+        // the Ingot/Nugget/Coal/Stone families elsewhere in this file. Needs Charred Metastasizer
+        // since these fluids all carry Thermal Hazard, same reachability logic as the forward route.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_block",
+                Items.REDSTONE_BLOCK, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_dust",
+                Items.REDSTONE, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_quartz",
+                Items.QUARTZ, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_glowstone",
+                Items.GLOWSTONE_DUST, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_amethyst",
+                Items.AMETHYST_SHARD, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond",
+                Items.DIAMOND, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_lapis",
+                Items.LAPIS_LAZULI, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_raw_netherite_scrap",
+                Items.NETHERITE_SCRAP, ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_essence",
+                Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ghast_essence",
+                Items.GHAST_TEAR, ModFluids.SOURCE_GHAST_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_wither_essence",
+                Items.WITHER_SKELETON_SKULL, ModFluids.SOURCE_WITHER_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ender_essence",
+                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_soul_silica",
+                Items.SOUL_SAND, ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 110, lightTicks);
+
         ////////////////////Render Kiln\\\\\\\\\\\\\\\\\\\\
         // Fluid alone -> a fixed default item, no pattern/no ingredient item -- see machine notes and
         // the Render Kiln build plan doc. Deliberately mirrors the existing Metastasizer reverse-
