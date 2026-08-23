@@ -69,6 +69,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.MUSCLE_TUMOR);
         blockWithItem(ModBlocks.NERVE_TUMOR);
 
+        // Charred Tumor -- plain Block, not part of the TumorBlock family, so its texture lives at
+        // the top-level block/ path rather than block/tumor/.
+        simpleBlockWithItem(ModBlocks.CHARRED_TUMOR.get(), models().cubeAll("charred_tumor",
+                modLoc("block/charred_tumor")));
+
         blockWithItemWithRenderTypeWithSideAndEnds("skin_tank", ModBlocks.SKIN_TANK, "translucent");
 
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));

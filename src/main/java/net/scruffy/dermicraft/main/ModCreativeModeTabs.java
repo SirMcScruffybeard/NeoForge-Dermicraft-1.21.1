@@ -37,6 +37,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.EYE_TUMOR);
                         output.accept(ModBlocks.MUSCLE_TUMOR);
                         output.accept(ModBlocks.NERVE_TUMOR);
+                        output.accept(ModBlocks.CHARRED_TUMOR); // no craft recipe yet
 
                         ////////////////////Machines and Tanks\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.CALCIUM_GLASS);

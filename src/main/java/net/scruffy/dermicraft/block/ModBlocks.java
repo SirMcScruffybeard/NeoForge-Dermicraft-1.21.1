@@ -54,6 +54,17 @@ public class ModBlocks {
                 .ignitedByLava();
     }
 
+    // Charred Tumor -- a plain Block (no TumorBlock harvest/inject/suture mechanics), paired with
+    // the new charred-flesh texture. Slightly tougher than Inert Tumor's own strength, since it's
+    // meant to read as flesh that's been hardened by heat rather than the soft raw kind. No
+    // ignitedByLava -- already charred, re-igniting it doesn't fit.
+    public static final DeferredBlock<Block> CHARRED_TUMOR = registerBlock("charred_tumor",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .strength(.35f)
+                    .explosionResistance(15f)
+                    .sound(SoundType.SLIME_BLOCK)
+                    .friction(0.6f)));
+
     public static final DeferredBlock<Block> CALCIUM_GLASS = registerBlock("calcium_glass",
             () -> new ModGlassBlock(BlockBehaviour.Properties.of()
                     .instrument(NoteBlockInstrument.HAT) // Makes hat sound on note blocks
