@@ -375,11 +375,11 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 **Hazard tagging (confirmed, blanket rule):** every member of this family carries **Thermal Hazard** (`hazard/thermal`), inherited directly from Lava as their base fluid — masticating anything with Lava makes the result Thermal-hazardous, no per-fluid decision needed. This is a rule for the *whole* family, not something to re-confirm fluid-by-fluid (see `dermicraft-project-primer.md` → Hazard tag hierarchy, and [[project_hazard_profile_system]] in Claude Code memory for the code-level tag). Dragon's Milk is the one exception worth double-checking when it's built, since it skips the Masticator/Lava step entirely.
 
-**Reachability gap (flagged, blocking the whole family) — no Tier 2 Masticator exists yet.** The Tier 1 Masticator's tanks reject Lava (`HazardProfile.TIER_1`), so nothing in this family can actually be crafted until an evolved Masticator exists — see `dermicraft-machine-notes.md` → Masticator entry for the full note. Don't implement any Molten-family recipe ahead of that evolution.
+**Reachability gap — ✅ RESOLVED (2026-08-23).** Charred Masticator now exists and its tanks accept Thermal-hazard fluids, so every Masticator-route member of this family (everything except Molten Netherite, see its own entry) has a real recipe in datagen. Most use placeholder-quality item inputs/amounts (flat 110 mB/item, one obvious source item, 30s) since their exact numbers were never locked — see `dermicraft-machine-notes.md` → Masticator entry and [[project_evolution_module_recipe_design]] in Claude Code memory for the mechanic that unblocked this.
 
 ### Molten Redstone
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival (matches the family-wide reachability gap, see `dermicraft-machine-notes.md`). (Renamed from "Liquid Redstone" to match the family's naming scheme — mechanic and item-yield values unchanged.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Redstone Block -> 1000 mB, loose Redstone Dust -> 110 mB (confirmed numbers, both live in datagen). (Renamed from "Liquid Redstone" to match the family's naming scheme -- mechanic and item-yield values unchanged.)
 
 **FluidType (confirmed, implemented):** tint `0xFFB22222` (firebrick red — glowing-red-lava read). `viscosity(5200)`, `density(3200)` — near Lava's own weight/thickness, since Lava is the literal base fluid. `temperature(1450)` — deliberately *hotter* than plain Lava (~1300); reasoning: redstone is already "vibrating with potential energy," and heat exposure doesn't dissipate through it the way it would through an inert material, it compounds instead. `motionScale(0.035)` — the "energetic" tell: despite being as thick/heavy as Lava, it responds to movement far more than something this viscous should, echoing Primitive Catalyst's own inverted-motion-scale trick but with an in-fluid justification (redstone = literal energy conduction) instead of "wrongness for its own sake." `lightLevel(8)` — emissive, deliberately pitched between a Redstone Torch's light level (7) and lit Redstone Ore's (9) rather than matching either exactly. `canHydrate(false)`.
 
@@ -401,7 +401,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Quartz
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (Renamed from "Liquid Quartz.")
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Nether Quartz -> 110 mB, placeholder-quality pending real tuning (see the family-wide reachability note below). (Renamed from "Liquid Quartz.")
 
 **What it is:** Nether Quartz in fluid form. Confirmed use as one of Living Catalyst's three fluid inputs (see `dermicraft-catalyst-notes.md`), where it represents time/duration in that recipe's logic.
 
@@ -417,7 +417,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Glowstone
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Glowstone Dust -> 110 mB, placeholder-quality pending real tuning.
 
 **What it is:** Glowstone in fluid form — the plain, non-living Stage 2 precursor to **Living Glowstone** (Stage 3). Molten Glowstone + Living Catalyst → Living Glowstone via the Gestator (see `dermicraft-catalyst-notes.md` and `dermicraft-machine-notes.md`). Not living or self-replicating — those properties are Living Glowstone's alone. **Revised: it is emissive**, just dimmer than the Living form (see FluidType below) — "not itself... emissive" from the original draft was walked back once the fluid actually got built.
 
@@ -433,7 +433,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Amethyst
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Amethyst Shard -> 110 mB, placeholder-quality pending real tuning.
 
 **What it is:** Amethyst in fluid form — resolves the earlier "Amethyst flagged as a Tier 2 concept" open question from the Sediment Blend section above. Sits adjacent to Molten Quartz (both clear/crystalline Nether-and-cave minerals), but now has two independent points of distinction (see FluidType and Tinted Glass, below) rather than reading as a straight reskin.
 
@@ -453,7 +453,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Diamond
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Diamond -> 110 mB, placeholder-quality pending real tuning.
 
 **What it is:** Diamond in fluid form.
 
@@ -475,7 +475,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Lapis
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Lapis Lazuli -> 110 mB, placeholder-quality pending real tuning.
 
 **What it is:** Lapis Lazuli in fluid form.
 
@@ -491,7 +491,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Raw Netherite Scrap → Molten Netherite → Living Netherite
 
-**Status:** Chain confirmed, supersedes the earlier direct "Netherite Scrap + Living Gold" draft. Molten Raw Netherite Scrap and Molten Netherite are both registered and implemented (bucket, block, FluidType, tags, creative tab); Living Netherite is still design-only, deliberately excluded from this registration pass (no Living fluids yet). Exact yields not yet decided.
+**Status:** Chain confirmed, supersedes the earlier direct "Netherite Scrap + Living Gold" draft. Molten Raw Netherite Scrap and Molten Netherite are both registered and implemented (bucket, block, FluidType, tags, creative tab); Living Netherite is still design-only, deliberately excluded from this registration pass (no Living fluids yet). **Molten Raw Netherite Scrap is reachable (2026-08-23) via Charred Masticator** -- Netherite Scrap -> 110 mB, placeholder-quality pending real tuning. **Molten Netherite is still unreachable** -- its confirmed machine is the Effluentcer, which has no Charred/Tier 2 variant yet, so a recipe there would just create a second gap; deliberately not added until Charred Effluentcer exists. Exact yields not yet decided.
 
 **What it is:** A three-stage chain giving Netherite a full Molten/Living pipeline, deliberately deeper than the single-step Molten fluids above — fitting Netherite's status as the rarest material in the chain.
 
@@ -513,7 +513,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Blaze Essence
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (No "Molten" prefix — see naming split above.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Blaze Powder -> 110 mB, placeholder-quality pending real tuning. (No "Molten" prefix -- see naming split above.)
 
 **What it is:** Blaze Rod/Powder processed with Lava — a creature-drop "Essence," not a literal melt. Confirmed use as one of Living Catalyst's three fluid inputs (see `dermicraft-catalyst-notes.md`).
 
@@ -531,7 +531,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Ghast Essence
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (No "Molten" prefix — see naming split above.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Ghast Tear -> 110 mB, placeholder-quality pending real tuning. (No "Molten" prefix -- see naming split above.)
 
 **What it is:** Ghast Tear processed with Lava — a creature-drop "Essence," matching Blaze Essence's naming and role, but deliberately opposite in character: a Ghast isn't a fire elemental, it's a sorrowful, passively-drifting creature (the crying sound is iconic), so its fluid identity leans "sad/cold drift" rather than Blaze's "energetic fire."
 
@@ -549,7 +549,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Wither Essence
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. (No "Molten" prefix — see naming split above.)
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Wither Skeleton Skull -> 110 mB, placeholder-quality pending real tuning. (No "Molten" prefix -- see naming split above.)
 
 **What it is:** Sourced from **Wither Skeletons** (not the Wither boss itself) — deliberately pitched at Nether-fortress difficulty, not boss-fight difficulty. A separate, later, harder-tier fluid (tentatively **Liquid Nether Star**) is reserved as the actual Wither-boss-tier counterpart, keeping the two power levels distinct rather than collapsing them into one fluid.
 
@@ -567,7 +567,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Ender Essence
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet for the fluid itself, though a downstream Eyes of Ender recipe consuming it already exists (see below). Item input/yield not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Ender Pearl -> 110 mB, placeholder-quality pending real tuning. Also has a downstream Eyes of Ender recipe consuming it (see below, needs Tier 2 Mutator too).
 
 **What it is:** Ender Pearl processed with Lava — a creature-drop "Essence" (see naming split above), sourced from Endermen. **Placement note:** Endermen spawn in both the Nether and the Overworld, so despite Ender Pearl's End association, gathering it doesn't actually require Stage 3/End access — this is why Ender Essence sits here in Stage 2, earlier than the rest of the mod's End-tier content (deferred elsewhere — see the Sediment Blend blacklist's "End rocks deferred to a later Stage" note), on the strength of *when the player can acquire the material* rather than its thematic dimension.
 
@@ -587,7 +587,7 @@ All Stage 2 Crafting Blends use **Lava** as their base fluid rather than Water o
 
 ### Molten Soul Silica
 
-**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab) — no recipe yet, so currently unreachable in survival, same reachability gap as the rest of the family. Standalone (not part of the Sediment Blend cross-feed web); item input/yield not yet decided.
+**Status:** Fluid registered and implemented (bucket, block, FluidType, tags, creative tab). **Reachable (2026-08-23) via Charred Masticator** -- Soul Sand -> 110 mB, placeholder-quality pending real tuning. Standalone (not part of the Sediment Blend cross-feed web).
 
 **What it is:** Soul Sand in fluid form — the Stage 2/lava-based parallel to Stage 1's Silica Blend (Sand + Water), giving the Nether's sand variant its own liquid identity. Deliberately **does not** cross-feed with Stone/Silica/Clay Blend — Soul Sand is treated as a different nature of material despite vanilla's shared sand tag, not a fourth member of that web.
 
