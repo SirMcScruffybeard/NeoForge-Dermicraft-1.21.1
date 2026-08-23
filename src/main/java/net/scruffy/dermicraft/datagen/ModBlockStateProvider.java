@@ -74,6 +74,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(ModBlocks.CHARRED_TUMOR.get(), models().cubeAll("charred_tumor",
                 modLoc("block/charred_tumor")));
 
+        simpleBlockWithItem(ModBlocks.HOT_BONE.get(), models().cubeAll("hot_bone",
+                modLoc("block/hot_bone")));
+
         blockWithItemWithRenderTypeWithSideAndEnds("skin_tank", ModBlocks.SKIN_TANK, "translucent");
 
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));

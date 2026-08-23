@@ -31,6 +31,7 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
 
         dropSelf(ModBlocks.CALCIUM_GLASS.get());
         dropSelf(ModBlocks.CHARRED_TUMOR.get());
+        dropSelf(ModBlocks.HOT_BONE.get());
         dropSelf(ModBlocks.OUTERFACE.get());
         dropSelf(ModBlocks.BRAIN.get());
 

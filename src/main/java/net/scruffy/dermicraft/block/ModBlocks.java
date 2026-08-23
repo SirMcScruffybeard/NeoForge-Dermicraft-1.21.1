@@ -4,6 +4,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -64,6 +65,18 @@ public class ModBlocks {
                     .explosionResistance(15f)
                     .sound(SoundType.SLIME_BLOCK)
                     .friction(0.6f)));
+
+    // Hot Bone -- a vanilla MagmaBlock subclass (not a custom class), reusing its exact
+    // walk-on-damage behavior wholesale rather than reimplementing it. Slightly weaker than vanilla
+    // Bone Block's 2.0 strength. Emissive via lightLevel, same technique as the Molten fluid family
+    // (whole-block glow, not a per-pixel emissive texture layer) -- see MagmaBlock's own vanilla
+    // light level (3) for precedent; bumped higher here since this is meant to read as hotter/more
+    // "actively molten" than plain magma.
+    public static final DeferredBlock<Block> HOT_BONE = registerBlock("hot_bone",
+            () -> new MagmaBlock(BlockBehaviour.Properties.of()
+                    .strength(1.5f)
+                    .sound(SoundType.BONE_BLOCK)
+                    .lightLevel(state -> 6)));
 
     public static final DeferredBlock<Block> CALCIUM_GLASS = registerBlock("calcium_glass",
             () -> new ModGlassBlock(BlockBehaviour.Properties.of()
