@@ -34,6 +34,14 @@ public class CharredMasticatorBlockEntity extends MasticatorBlockEntity {
         super(ModBlockEntities.CHARRED_MASTICATOR_BE.get(), pos, blockState);
     }
 
+    // Already evolved -- installing a Thermal Evolution Module here does nothing: this class's own
+    // tanks are unconditionally TIER_2 regardless of any Module (see createIngredientTank/
+    // createResultTank below), and there's no further Tier for it to accumulate progress toward.
+    @Override
+    protected boolean canEvolve() {
+        return false;
+    }
+
     @Override
     protected VulnerableTank createIngredientTank() {
         return new VulnerableTank(getTier().tankCapacity(), 1, () -> HazardProfile.TIER_2) {

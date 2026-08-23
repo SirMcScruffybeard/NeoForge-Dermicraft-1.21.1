@@ -3,10 +3,15 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,10 +36,15 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MasticatorBlock;
 import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.fluid.BaseFluidType;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
@@ -44,6 +54,7 @@ import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModFluidUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +70,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     public static final int INGREDIENT_ITEM_SLOT = 3;
     // Module slot -- same tab-gated pattern as Skin Tank/Drooling Cauldron (see MasticatorMenu's
     // MAIN_TAB/MODULE_TAB). Declared here rather than per-variant so Charred Masticator inherits it
-    // for free. No consumption logic wired up yet (no installedHazardProfile()/Evolution hook) --
-    // this is the GUI/slot infrastructure only; what a Module installed here actually DOES is a
-    // separate follow-up.
+    // for free.
     public static final int MODULE = 4;
     public static final int INVENTORY_SIZE = 5;
 
@@ -75,6 +84,18 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     private int resultAmount = 0;
 
     private Item activeItem = Items.AIR;
+
+    // ---- Evolution (installed Thermal Evolution Module -> eventual Charred Masticator) --------
+    // Mirrors DroolingCauldronBlockEntity's own evolution mechanic, adapted to this class's
+    // hazard-gated consumer shape instead of Cauldron's fluid-selector shape: installing an
+    // Evolution Module here grants its hazard tolerance IMMEDIATELY (see installedHazardProfile()),
+    // and separately accumulates evolutionProgress toward eventually transforming this block into
+    // an actual placed Charred Masticator -- which then tolerates that hazard PERMANENTLY, without
+    // needing any Module installed, at MachineTier.CHARRED's own faster speed. Not gated to
+    // Thermal specifically -- whatever hazard(s) the installed Module's data map entry grants.
+    private int evolutionProgress = 0;
+    private int flourishCyclesRemaining = -1;
+    private static final int FLOURISH_DURATION_CYCLES = 4; // 4 * CRAFT_TICKS(10) = 40 ticks, ~2s
 
     // Which screen tab was last open -- same pattern as SkinTankBlockEntity/DroolingMachineBlockEntity's
     // own isModuleTabActive/setModuleTabActive, so reopening the screen returns to the tab last viewed.
@@ -126,7 +147,100 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     protected boolean tickHealing(boolean fueled) {
         boolean healed = super.tickHealing(fueled);
         updateVisualState();
+        tickEvolutionFlourish();
         return healed;
+    }
+
+    /** Runs once per CRAFT_TICKS cycle (this class's natural cadence, same one visual-state/healing
+     * already use) rather than every raw tick -- a coarser particle cadence than Drooling Cauldron's
+     * per-tick version, but the same overall shape: density ramps up, then the block swap fires in
+     * the same instant as the densest burst. */
+    private void tickEvolutionFlourish() {
+        if (flourishCyclesRemaining < 0) return;
+
+        if (level instanceof ServerLevel serverLevel) {
+            spawnFlourishParticles(serverLevel, flourishCyclesRemaining);
+        }
+
+        flourishCyclesRemaining--;
+        if (flourishCyclesRemaining < 0) {
+            completeEvolution(level);
+        }
+    }
+
+    private void startEvolutionFlourish() {
+        flourishCyclesRemaining = FLOURISH_DURATION_CYCLES;
+        if (level != null) {
+            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+        }
+    }
+
+    private void spawnFlourishParticles(ServerLevel serverLevel, int cyclesRemaining) {
+        double cx = worldPosition.getX() + 0.5;
+        double cy = worldPosition.getY() + 0.5;
+        double cz = worldPosition.getZ() + 0.5;
+
+        float progress = 1f - (cyclesRemaining / (float) FLOURISH_DURATION_CYCLES);
+        int dustCount = 8 + Math.round(progress * 16);
+        DustParticleOptions dust = tintedDust();
+        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
+        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 3 + Math.round(progress * 8), 0.35, 0.35, 0.35, 0.02);
+
+        if (cyclesRemaining == 0) {
+            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
+            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    private DustParticleOptions tintedDust() {
+        int tint = 0xFFCF4B12; // fallback: lava-orange, matches Thermal's own target fluid
+        Optional<net.minecraft.world.level.material.Fluid> targetFluid = installedEvolutionProperties()
+                .flatMap(EvolutionModuleProperties::targetFluid);
+        if (targetFluid.isPresent() && targetFluid.get().getFluidType() instanceof BaseFluidType baseType) {
+            tint = baseType.getTintColor();
+        }
+        return new DustParticleOptions(new Vector3f(
+                ((tint >> 16) & 0xFF) / 255.0F,
+                ((tint >> 8) & 0xFF) / 255.0F,
+                (tint & 0xFF) / 255.0F), 1.4F);
+    }
+
+    /**
+     * Transforms this block into a Charred Masticator in place, carrying over the ingredient item
+     * and tank contents -- but deliberately NOT the recipe-in-progress bookkeeping (active recipe/
+     * item, craft progress), same reasoning as DroolingCauldronBlockEntity#completeEvolution: a
+     * half-finished cycle just restarts cleanly on the new block instead. The Module itself is not
+     * carried over -- this transform is what consumes it.
+     */
+    private void completeEvolution(Level level) {
+        ItemStack ingredientItem = INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT);
+        FluidStack fuelContents = FUEL_TANK.getFluid().copy();
+        FluidStack ingredientContents = INGREDIENT_TANK.getFluid().copy();
+        FluidStack resultContents = RESULT_TANK.getFluid().copy();
+        BlockState oldState = getBlockState();
+
+        // Clear this instance's own contents BEFORE the block swap -- the block's own onRemove drops
+        // whatever's still in INVENTORY when the block itself changes, which would otherwise
+        // duplicate everything captured above once it's handed to the new instance.
+        INVENTORY.setStackInSlot(INGREDIENT_ITEM_SLOT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        if (!fuelContents.isEmpty()) FUEL_TANK.drain(fuelContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
+        if (!ingredientContents.isEmpty()) INGREDIENT_TANK.drain(ingredientContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
+        if (!resultContents.isEmpty()) RESULT_TANK.drain(resultContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
+
+        BlockState newState = ModBlocks.CHARRED_MASTICATOR.get().defaultBlockState()
+                .setValue(MasticatorBlock.FACING, oldState.getValue(MasticatorBlock.FACING));
+        level.setBlock(worldPosition, newState, Block.UPDATE_ALL);
+
+        if (level.getBlockEntity(worldPosition) instanceof MasticatorBlockEntity charred) {
+            charred.INVENTORY.setStackInSlot(INGREDIENT_ITEM_SLOT, ingredientItem);
+            if (!fuelContents.isEmpty()) charred.FUEL_TANK.fill(fuelContents, IFluidHandler.FluidAction.EXECUTE);
+            if (!ingredientContents.isEmpty()) charred.INGREDIENT_TANK.fill(ingredientContents, IFluidHandler.FluidAction.EXECUTE);
+            if (!resultContents.isEmpty()) charred.RESULT_TANK.fill(resultContents, IFluidHandler.FluidAction.EXECUTE);
+            charred.setChanged();
+            charred.updateBlock();
+        }
     }
 
     private void updateVisualState() {
@@ -370,7 +484,9 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
 
     @Override
     protected boolean hasCraftingInputs() {
-        return hasIngredients();
+        // Frozen during the evolution flourish, same as Drooling Cauldron pausing production while
+        // it transforms -- the swap should happen mid-flourish, not mid-craft.
+        return flourishCyclesRemaining < 0 && hasIngredients();
     }
 
     @Override
@@ -395,9 +511,18 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         int fluidCost = requiredIngredientFluidAmount();
         FluidStack result = craftResult(resultAmount);
 
+        int completedTicks = maxProgress;
+
         INGREDIENT_TANK.useFluid(fluidCost);
         RESULT_TANK.fill(result, IFluidHandler.FluidAction.EXECUTE);
         INVENTORY.extractItem(INGREDIENT_ITEM_SLOT, itemAmount, false);
+
+        installedEvolutionProperties().ifPresent(props -> {
+            evolutionProgress += completedTicks;
+            if (evolutionProgress >= props.evolutionThreshold() && flourishCyclesRemaining < 0) {
+                startEvolutionFlourish();
+            }
+        });
     }
 
     private boolean hasIngredients() {
@@ -469,10 +594,49 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     }
 
     /** Called whenever the Module slot's contents change at all (installed, removed, or swapped for
-     * a different item). No-op for now -- this class doesn't yet consume anything a Module might
-     * grant (hazard tolerance, Evolution progress); this is purely the extension point a future
-     * mechanic hooks into, matching DroolingMachineBlockEntity's identical hook. */
+     * a different item) -- full reset, matching Drooling Cauldron's own "pulling the Module wipes
+     * all progress" rule, extended to swaps for the same reason (a fresh commitment). */
     protected void onModuleChanged() {
+        evolutionProgress = 0;
+    }
+
+    /** Whether this instance can still evolve at all -- true for the base Masticator, overridden to
+     * false by {@link CharredMasticatorBlockEntity} (already evolved; installing an Evolution Module
+     * there does nothing, since its tanks are permanently hazard-tolerant regardless of any Module,
+     * and there's nothing further for it to transform into). */
+    protected boolean canEvolve() {
+        return true;
+    }
+
+    /** Union of this machine's base (TIER_1) hazard tolerance with whatever the installed Module
+     * grants -- a Safety Module (via the shared {@link IHaveModules} helper) or an Evolution Module
+     * (read directly here, since {@code IHaveModules} only knows about Safety Modules). Recomputed
+     * on demand, not cached, matching every other consumer of this data map. */
+    protected HazardProfile installedHazardProfile() {
+        ItemStack module = INVENTORY.getStackInSlot(MODULE);
+        HazardProfile profile = IHaveModules.installedHazardProfile(HazardProfile.TIER_1, module);
+
+        if (canEvolve() && !module.isEmpty()) {
+            EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+            if (evoProps != null) {
+                for (var hazard : evoProps.hazards()) {
+                    profile = profile.plus(hazard);
+                }
+            }
+        }
+        return profile;
+    }
+
+    /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
+     * AND {@link #canEvolve()} -- a plain {@code MODULES}-tagged item with no such data (or any
+     * Module at all once this is already a Charred Masticator) is inert here. */
+    private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
+        if (!canEvolve()) return Optional.empty();
+        ItemStack module = INVENTORY.getStackInSlot(MODULE);
+        if (module.isEmpty()) return Optional.empty();
+        return Optional.ofNullable(
+                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
     }
 
     @Override
@@ -485,6 +649,8 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
         tag.putString("activeItem", itemKey.toString());
         tag.putBoolean("module_tab_active", moduleTabActive);
+        tag.putInt("evolution_progress", evolutionProgress);
+        tag.putInt("evolution_flourish_cycles", flourishCyclesRemaining);
     }
 
     @Override
@@ -500,6 +666,8 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
         resultAmount = tag.getInt("resultFluid");
         moduleTabActive = tag.getBoolean("module_tab_active");
+        evolutionProgress = tag.getInt("evolution_progress");
+        flourishCyclesRemaining = tag.contains("evolution_flourish_cycles") ? tag.getInt("evolution_flourish_cycles") : -1;
 
         if (tag.contains("activeItem", CompoundTag.TAG_STRING)) {
             String itemStringId = tag.getString("activeItem");
@@ -635,7 +803,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     }
 
     protected VulnerableTank createIngredientTank() {
-        return new VulnerableTank(getTier().tankCapacity(), 1) {
+        return new VulnerableTank(getTier().tankCapacity(), 1, this::installedHazardProfile) {
             @Override
             protected void onContentsChanged() {
 
@@ -659,7 +827,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     }
 
     protected VulnerableTank createResultTank() {
-        return new VulnerableTank(getTier().tankCapacity(), 2) {
+        return new VulnerableTank(getTier().tankCapacity(), 2, this::installedHazardProfile) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {
