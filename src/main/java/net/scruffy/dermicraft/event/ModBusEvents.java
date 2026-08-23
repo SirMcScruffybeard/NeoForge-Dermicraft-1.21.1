@@ -64,6 +64,14 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
 
+        // Charred Masticator has its own BlockEntityType (CHARRED_MASTICATOR_BE), so it does NOT
+        // inherit MASTICATOR_BE's capability registration above -- same gap that bit Drooling
+        // Crucible originally (see that comment above). Without this, MasticatorBlock#useItemOn's
+        // FluidUtil.interactWithFluidHandler call finds nothing at this block's position, silently
+        // fails, and falls through to opening the GUI instead of actually filling/draining a tank.
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
