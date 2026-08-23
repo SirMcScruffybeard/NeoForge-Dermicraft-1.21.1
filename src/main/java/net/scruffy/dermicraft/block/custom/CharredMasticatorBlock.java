@@ -25,7 +25,7 @@ public class CharredMasticatorBlock extends MasticatorBlock {
     public static final MapCodec<CharredMasticatorBlock> CODEC = simpleCodec(CharredMasticatorBlock::new);
 
     public CharredMasticatorBlock(Properties properties) {
-        super(properties, MachineTier.BASIC);
+        super(properties, MachineTier.CHARRED);
     }
 
     @Override
