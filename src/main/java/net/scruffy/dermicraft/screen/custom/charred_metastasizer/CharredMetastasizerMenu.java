@@ -1,0 +1,65 @@
+package net.scruffy.dermicraft.screen.custom.charred_metastasizer;
+
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.items.SlotItemHandler;
+import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.entity.custom.CharredMetastasizerBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.MetastasizerBlockEntity;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
+import net.scruffy.dermicraft.screen.ModMenuTypes;
+
+/** Charred Metastasizer's menu -- identical layout/slots to {@code MetastasizerMenu}, just typed to
+ * {@link CharredMetastasizerBlockEntity} and checked against {@link ModBlocks#CHARRED_METASTASIZER}
+ * in {@link #stillValid}. Distinct class for the same reason CharredMasticatorMenu is. */
+public class CharredMetastasizerMenu extends AbstractModMenu {
+
+    public final CharredMetastasizerBlockEntity BE;
+    private final Level level;
+
+    public CharredMetastasizerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
+    }
+
+    public CharredMetastasizerMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
+        super(ModMenuTypes.CHARRED_METASTASIZER_MENU.get(), containerId, 4);
+        checkContainerSize(inv, 2);
+        this.BE = (CharredMetastasizerBlockEntity) blockEntity;
+        this.level = inv.player.level();
+
+        addPlayerInventory(inv);
+        addPlayerHotbar(inv);
+
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getReagentTank().SLOT, 31, 60));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MetastasizerBlockEntity.PATTERN_SLOT, 61, 35));
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MetastasizerBlockEntity.OUTPUT_SLOT, 121, 35));
+
+        setQuickMoveInputSlots(2, 1); // PATTERN_SLOT only -- skip fuel/reagent tank slots and OUTPUT_SLOT
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return super.stillValid(level, player, ModBlocks.CHARRED_METASTASIZER, BE);
+    }
+
+    public boolean isCrafting() {
+        return BE.isStillCrafting();
+    }
+
+    public int getScaledArrowProgress() {
+        int arrowPixels = 15;
+        return BE.getScaledProgress(arrowPixels);
+    }
+
+    public int getHealth() {
+        return BE.getHealth();
+    }
+
+    public int getMaxHealth() {
+        return BE.getMaxHealth();
+    }
+}

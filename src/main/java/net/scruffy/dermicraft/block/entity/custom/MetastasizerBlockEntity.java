@@ -15,6 +15,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -59,7 +60,14 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     private int requiredFluid = 0;
 
     public MetastasizerBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.METASTASIZER_BE.get(), pos, blockState);
+        this(ModBlockEntities.METASTASIZER_BE.get(), pos, blockState);
+    }
+
+    // Lets a capability-leap subclass (e.g. Charred Metastasizer) register under its own
+    // BlockEntityType while reusing everything else this class provides -- same pattern as
+    // MasticatorBlockEntity's identical overload.
+    protected MetastasizerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
     }
 
     @Override
@@ -352,7 +360,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         this.requiredFluid = recipe.value().getFluidAmount();
     }
 
-    private void resolveRecipe() {
+    protected void resolveRecipe() {
         Optional<RecipeHolder<MetastasizingRecipe>> opt = getRecipeOptional();
         if (opt.isPresent()) {
             this.activeRecipe = opt.get();
@@ -465,7 +473,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         };
     }
 
-    private VulnerableTank createReagentTank() {
+    protected VulnerableTank createReagentTank() {
         return new VulnerableTank(getTier().tankCapacity(), 1) {
             @Override
             protected void onContentsChanged() {

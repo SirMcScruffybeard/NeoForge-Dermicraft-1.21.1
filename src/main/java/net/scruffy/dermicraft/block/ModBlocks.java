@@ -179,6 +179,11 @@ public class ModBlocks {
     public static final DeferredBlock<Block> METASTASIZER = registerBlock("metastasizer",
             () -> new MetastasizerBlock(machineProperties()));
 
+    // Charred Metastasizer -- Metastasizer's hazard-gated Tier 2 evolution, see
+    // CharredMetastasizerBlockEntity for the actual capability leap (thermal-tolerant reagent tank).
+    public static final DeferredBlock<Block> CHARRED_METASTASIZER = registerBlock("charred_metastasizer",
+            () -> new CharredMetastasizerBlock(machineProperties()));
+
     public static final DeferredBlock<Block> MUTATOR = registerBlock("mutator",
             () -> new MutatorBlock(machineProperties()));
 

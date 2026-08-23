@@ -112,6 +112,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.METASTASIZER.getId().getPath(),
                 modLoc("block/" + ModBlocks.METASTASIZER.getId().getPath()));
 
+        // Charred Metastasizer -- unlike the base Metastasizer's 3-texture split (skinTankEnd top/
+        // bottom + dedicated metastasizer_side), Charred Machine Port covers ALL 5 non-front faces,
+        // matching Charred Masticator's own single-port-texture shape and unifying the family's look.
+        charredMetastasizerBlockState("block/charred_machine_port");
+        itemModels().withExistingParent(ModBlocks.CHARRED_METASTASIZER.getId().getPath(),
+                modLoc("block/" + ModBlocks.CHARRED_METASTASIZER.getId().getPath()));
+
         mutatorBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.MUTATOR.getId().getPath(),
                 modLoc("block/" + ModBlocks.MUTATOR.getId().getPath()));
@@ -436,6 +443,31 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.RECOVERING)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+    // Mirrors metastasizerBlockState, but Charred Machine Port replaces BOTH skin_tank_end (top/
+    // bottom) and metastasizer_side (the other 3 horizontal faces) uniformly -- one texture on all
+    // 5 non-front faces, matching Charred Masticator's shape instead of the base Metastasizer's own
+    // 3-texture split.
+    private void charredMetastasizerBlockState(String machinePort) {
+        ModelFile idle = models().cube(ModBlocks.CHARRED_METASTASIZER.getId().getPath(),
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/metastasizer/charred_metastasizer_face"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/metastasizer/charred_metastasizer_face"));
+        ModelFile running = models().cube("charred_metastasizer_on",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/metastasizer/charred_metastasizer_face_on"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/metastasizer/charred_metastasizer_face_on"));
+        ModelFile recovering = models().cube("charred_metastasizer_error",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/metastasizer/charred_metastasizer_face_error"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/metastasizer/charred_metastasizer_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.CHARRED_METASTASIZER.get());
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.WEST, 270);
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {

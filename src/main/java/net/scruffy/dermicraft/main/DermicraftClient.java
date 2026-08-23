@@ -30,6 +30,7 @@ import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronSc
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
 import net.scruffy.dermicraft.screen.custom.charred_masticator.CharredMasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
+import net.scruffy.dermicraft.screen.custom.charred_metastasizer.CharredMetastasizerScreen;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerScreen;
 import net.scruffy.dermicraft.screen.custom.render_kiln.RenderKilnScreen;
 import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableScreen;
@@ -215,6 +216,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), CharredMasticatorScreen::new);
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
         event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);
+        event.register(ModMenuTypes.CHARRED_METASTASIZER_MENU.get(), CharredMetastasizerScreen::new);
         event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
         event.register(ModMenuTypes.INNARDS_NODE_MENU.get(), NodeScreen::new);
         event.register(ModMenuTypes.MR_FARMER_MENU.get(), MrFarmerScreen::new);

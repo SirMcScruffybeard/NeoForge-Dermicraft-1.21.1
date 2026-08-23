@@ -52,6 +52,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.SKIN_TANK);
                         output.accept(ModBlocks.EFFLUENTCER);
                         output.accept(ModBlocks.METASTASIZER);
+                        output.accept(ModBlocks.CHARRED_METASTASIZER); // no craft recipe yet
                         output.accept(ModBlocks.MUTATOR);
                         output.accept(ModBlocks.RENDER_FURNACE);
                         output.accept(ModBlocks.GRAFTING_TABLE);

@@ -217,6 +217,9 @@
 
   "block.dermicraft.metastasizer": "Metastasizer",
   "blockEntity.dermicraft.metastasizer_be": "Metastasizer",
+  "block.dermicraft.charred_metastasizer": "Charred Metastasizer",
+  "blockentity.dermicraft.charred_metastasizer": "Charred Metastasizer",
+  "blockEntity.dermicraft.charred_metastasizer_be": "Charred Metastasizer",
 
   "block.dermicraft.mutator": "Mutator",
   "blockEntity.dermicraft.mutator_be": "Mutator",
