@@ -2,8 +2,11 @@ package net.scruffy.dermicraft.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -15,7 +18,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,9 +66,20 @@ public class SkinTankBlock extends ModBaseEntityBlock {
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof SkinTankBlockEntity tankBlockEntity) {
             FluidUtil.interactWithFluidHandler(player, hand, tankBlockEntity.getTank(null));
-           // player.openMenu(new SimpleMenuProvider(tankBlockEntity, Component.literal("Tank")), pos);
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    // Opens the GUI directly on any empty-hand click that useItemOn didn't claim -- no Outerface
+    // required. The block still carries the HAS_SCREEN tag, so the Outerface continues to work too.
+    // Mirrors MasticatorBlock's identical override.
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof MenuProvider menuProvider
+                && player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.openMenu(menuProvider, buf -> buf.writeBlockPos(pos));
+        }
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Nullable

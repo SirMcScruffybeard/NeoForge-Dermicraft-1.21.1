@@ -46,6 +46,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("skin_tank_be", () -> BlockEntityType.Builder.of(
                     SkinTankBlockEntity::new, ModBlocks.SKIN_TANK.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredTankBlockEntity>> CHARRED_TANK_BE =
+            BLOCK_ENTITIES.register("charred_tank_be", () -> BlockEntityType.Builder.of(
+                    CharredTankBlockEntity::new, ModBlocks.CHARRED_TANK.get()).build(null));
+
     public static final Supplier<BlockEntityType<EffluentcerBlockEntity>> EFFLUENTCER_BE =
             BLOCK_ENTITIES.register("effluentcer_be", () -> BlockEntityType.Builder.of(
                     EffluentcerBlockEntity::new, ModBlocks.EFFLUENTCER.get()).build(null));

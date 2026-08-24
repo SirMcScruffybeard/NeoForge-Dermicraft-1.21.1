@@ -50,6 +50,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.MASTICATOR);
                         output.accept(ModBlocks.CHARRED_MASTICATOR); // no craft recipe yet
                         output.accept(ModBlocks.SKIN_TANK);
+                        output.accept(ModBlocks.CHARRED_TANK); // no craft recipe yet
                         output.accept(ModBlocks.EFFLUENTCER);
                         output.accept(ModBlocks.METASTASIZER);
                         output.accept(ModBlocks.CHARRED_METASTASIZER); // no craft recipe yet

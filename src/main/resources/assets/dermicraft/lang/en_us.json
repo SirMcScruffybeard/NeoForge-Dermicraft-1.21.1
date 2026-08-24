@@ -211,6 +211,8 @@
 
   "block.dermicraft.skin_tank": "Skin Tank",
   "blockEntity.dermicraft.skin_tank_be": "Skin Tank",
+  "block.dermicraft.charred_tank": "Charred Tank",
+  "blockEntity.dermicraft.charred_tank_be": "Charred Tank",
 
   "block.dermicraft.effluentcer": "Effluentcer",
   "blockEntity.dermicraft.effluentcer_be": "Effluentcer",
@@ -366,6 +368,8 @@
   "screen.dermicraft.workbench.fabrication_tab": "Fab",
   "screen.dermicraft.skin_tank.main_tab": "Main",
   "screen.dermicraft.skin_tank.module_tab": "Mod",
+  "screen.dermicraft.charred_tank.main_tab": "Main",
+  "screen.dermicraft.charred_tank.module_tab": "Mod",
   "screen.dermicraft.drooling_cauldron.main_tab": "Main",
   "screen.dermicraft.drooling_cauldron.module_tab": "Mod",
   "screen.dermicraft.masticator.main_tab": "Main",

@@ -32,8 +32,10 @@ import org.jetbrains.annotations.Nullable;
  */
 public class DroolingCrucibleBlockEntity extends DroolingMachineBlockEntity<VagueDroolingCrucibleRecipe> implements MenuProvider {
 
-    /** Same capacity as Cauldron's -- no reason given yet to differ. */
-    public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 5;
+    /** Double Cauldron's capacity -- Crucible is a Tier 2 evolution, whole-bucket capacity bump per
+     * the Charred family's own tier-2 convention (see {@code MachineTier.CHARRED}), even though this
+     * class doesn't go through {@code MachineTier} itself (the Drooling family predates it). */
+    public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 10;
     /** Same rate as Cauldron's water, per direction. */
     public static final int PASSIVE_YIELD = 4;
 

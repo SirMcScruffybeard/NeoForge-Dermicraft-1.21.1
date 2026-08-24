@@ -77,7 +77,21 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(ModBlocks.HOT_BONE.get(), models().cubeAll("hot_bone",
                 modLoc("block/hot_bone")));
 
-        blockWithItemWithRenderTypeWithSideAndEnds("skin_tank", ModBlocks.SKIN_TANK, "translucent");
+        // Side texture lives in its own skin_tank/ subdirectory (alongside the future Charred Tank's
+        // own side texture); end texture stays at the top-level block/ path, unmoved.
+        simpleBlockWithItem(ModBlocks.SKIN_TANK.get(), models().cubeBottomTop(ModBlocks.SKIN_TANK.getId().getPath(),
+                        modLoc("block/skin_tank/skin_tank_side"),
+                        modLoc("block/skin_tank_end"),
+                        modLoc("block/skin_tank_end"))
+                .renderType("translucent"));
+
+        // Charred Tank -- same translucent-window shape as Skin Tank, but Charred Machine Port
+        // replaces skin_tank_end on top/bottom (unifying with the rest of the Charred family's look).
+        simpleBlockWithItem(ModBlocks.CHARRED_TANK.get(), models().cubeBottomTop(ModBlocks.CHARRED_TANK.getId().getPath(),
+                        modLoc("block/skin_tank/charred_tank_side"),
+                        modLoc("block/charred_machine_port"),
+                        modLoc("block/charred_machine_port"))
+                .renderType("translucent"));
 
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
         // New model carries its own display transforms (2026-08-20) -- item model now parents
@@ -475,14 +489,5 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 deferredBlock.getId().getPath(),
                 modLoc("block/tumor/" + deferredBlock.getId().getPath())));
     }
-
-    private void blockWithItemWithRenderTypeWithSideAndEnds(String name, DeferredBlock<Block> block, String renderType) {
-        simpleBlockWithItem(block.get(), models().cubeBottomTop(block.getId().getPath(),
-                        modLoc("block/" + name + "_side"),
-                        modLoc("block/" + name + "_end"),
-                        modLoc("block/" + name + "_end"))
-                .renderType(renderType));
-    }
-
 
 }

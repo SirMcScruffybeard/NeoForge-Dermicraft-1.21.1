@@ -198,6 +198,7 @@ public class DermicraftClient {
     @SubscribeEvent
     public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntityRenderer::new);
@@ -205,11 +206,18 @@ public class DermicraftClient {
                 net.scruffy.dermicraft.renderer.WorkbenchTopBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.WORKBENCH_BE.get(),
                 net.scruffy.dermicraft.renderer.WorkbenchBottomBlockEntityRenderer::new);
+        // Base tier only -- Charred variants' canEvolve() is hardwired false, so their progress
+        // fraction is always 0 and the overlay would never actually draw anything.
+        event.registerBlockEntityRenderer(ModBlockEntities.MASTICATOR_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.METASTASIZER_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.SKIN_TANK_MENU.get(), SkinTankScreen::new);
+        event.register(ModMenuTypes.CHARRED_TANK_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankScreen::new);
         event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
         event.register(ModMenuTypes.DROOLING_CRUCIBLE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleScreen::new);
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);

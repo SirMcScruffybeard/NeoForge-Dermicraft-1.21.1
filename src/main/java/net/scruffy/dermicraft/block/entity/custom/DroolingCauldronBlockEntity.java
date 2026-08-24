@@ -28,6 +28,7 @@ import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
+import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
@@ -50,7 +51,7 @@ import java.util.Optional;
  * immediately and accumulates {@link #evolutionProgress} toward transforming this block into an
  * actual {@link DroolingCrucibleBlockEntity} in place.
  */
-public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<VagueDroolingRecipe> implements MenuProvider {
+public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<VagueDroolingRecipe> implements MenuProvider, IEvolvingMachine {
 
     /** Same 5 buckets the original hardcoded-water version always had. */
     public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 5;
@@ -103,8 +104,9 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
 
     /** 0 when not evolving at all (no Module, or one with no real Evolution properties); otherwise
      * how far {@link #evolutionProgress} is toward {@code evolutionThreshold}, 0-1. Public purely
-     * for {@code DroolingCauldronBlockEntityRenderer}'s creeping overlay -- no other consumer needs
+     * for {@code EvolutionOverlayBlockEntityRenderer}'s creeping overlay -- no other consumer needs
      * this, evolution completion itself reads the raw fields directly. */
+    @Override
     public float getEvolutionProgressFraction() {
         return installedEvolutionProperties()
                 .map(props -> Math.min(1f, evolutionProgress / (float) props.evolutionThreshold()))

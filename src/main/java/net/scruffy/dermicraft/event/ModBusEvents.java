@@ -74,6 +74,11 @@ public class ModBusEvents {
 
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntity::getTank);
 
+        // Charred Tank has its own BlockEntityType (CHARRED_TANK_BE), so it does NOT inherit
+        // SKIN_TANK_BE's capability registration above -- same gap that's bitten every other Charred
+        // variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);
 

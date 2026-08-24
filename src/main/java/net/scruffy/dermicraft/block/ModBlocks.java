@@ -173,6 +173,14 @@ public class ModBlocks {
     public static final DeferredItem<Item> SKIN_TANK_ITEM = ModItems.ITEMS.register("skin_tank",
             () -> new SkinTankBlockItem(SKIN_TANK.get(), new Item.Properties()));
 
+    // Charred Tank -- Skin Tank's hazard-gated Tier 2 evolution, see CharredTankBlockEntity for the
+    // actual capability leap (double capacity, thermal-tolerant tank). Reuses SkinTankBlockItem as-is
+    // -- it's already block-generic, not tied to SkinTankBlock specifically.
+    public static final DeferredBlock<Block> CHARRED_TANK = BLOCKS.register("charred_tank",
+            () -> new CharredTankBlock(machineProperties()));
+    public static final DeferredItem<Item> CHARRED_TANK_ITEM = ModItems.ITEMS.register("charred_tank",
+            () -> new SkinTankBlockItem(CHARRED_TANK.get(), new Item.Properties()));
+
     public static final DeferredBlock<Block> EFFLUENTCER = registerBlock("effluentcer",
             () -> new EffluentcerBlock(machineProperties()));
 

@@ -44,6 +44,7 @@ import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
@@ -62,7 +63,7 @@ import java.util.Optional;
 
 
 public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<MasticatingRecipe>
-        implements MenuProvider, IHaveInventory, IHasChannels {
+        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine {
 
     // The solid recipe ingredient (food item) lives in its own slot -- INGREDIENT_TANK.SLOT is
     // purely a fluid-container passthrough for filling/draining the Water tank (bucket in, bucket
@@ -626,6 +627,17 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
             }
         }
         return profile;
+    }
+
+    /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
+     * Charred Masticator); otherwise how far {@link #evolutionProgress} is toward
+     * {@code evolutionThreshold}, 0-1. Public purely for {@code EvolutionOverlayBlockEntityRenderer}'s
+     * creeping overlay -- mirrors DroolingCauldronBlockEntity's identical method. */
+    @Override
+    public float getEvolutionProgressFraction() {
+        return installedEvolutionProperties()
+                .map(props -> Math.min(1f, evolutionProgress / (float) props.evolutionThreshold()))
+                .orElse(0f);
     }
 
     /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
