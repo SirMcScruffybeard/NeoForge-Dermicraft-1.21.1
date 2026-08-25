@@ -1,13 +1,13 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_molten_amethyst",
-  "fluid_amount": 1000,
+  "fluid_amount": 4000,
   "pattern": {
-    "item": "minecraft:amethyst_shard"
+    "item": "minecraft:amethyst_block"
   },
   "result": {
     "count": 1,
-    "id": "minecraft:amethyst_shard"
+    "id": "minecraft:amethyst_block"
   },
-  "ticks": 600
+  "ticks": 1200
 }

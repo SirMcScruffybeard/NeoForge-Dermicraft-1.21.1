@@ -1,10 +1,7 @@
 {
-  "type": "dermicraft:metastasizing",
+  "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_molten_soul_silica",
   "fluid_amount": 1000,
-  "pattern": {
-    "item": "minecraft:soul_sand"
-  },
   "result": {
     "count": 1,
     "id": "minecraft:soul_sand"
