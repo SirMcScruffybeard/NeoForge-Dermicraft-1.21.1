@@ -1,13 +1,13 @@
 {
   "type": "dermicraft:masticating",
   "ingredient": {
-    "item": "minecraft:diamond"
+    "item": "minecraft:diamond_block"
   },
   "ingredient_fluid": "minecraft:lava",
-  "ingredient_fluid_amount": 1000,
+  "ingredient_fluid_amount": 9000,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_molten_diamond",
-  "result_fluid_amount": 1000,
-  "ticks": 600
+  "result_fluid_amount": 9000,
+  "ticks": 1800
 }

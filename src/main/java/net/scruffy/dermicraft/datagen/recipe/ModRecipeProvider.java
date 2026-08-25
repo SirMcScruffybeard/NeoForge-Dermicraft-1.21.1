@@ -1378,8 +1378,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating",
-                Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Diamond Block -- real 9:1 vanilla ratio, same convention as Coal/Redstone/the metal blocks.
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating_block",
+                Ingredient.of(Items.DIAMOND_BLOCK), 1, Fluids.LAVA, 9000,
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_lapis_masticating",
                 Ingredient.of(Items.LAPIS_LAZULI), 1, Fluids.LAVA, 110,
@@ -1434,7 +1439,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_amethyst",
                 Items.AMETHYST_SHARD, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond",
-                Items.DIAMOND, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 110, lightTicks);
+                Items.DIAMOND, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond_block",
+                Items.DIAMOND_BLOCK, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_lapis",
                 Items.LAPIS_LAZULI, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_raw_netherite_scrap",
