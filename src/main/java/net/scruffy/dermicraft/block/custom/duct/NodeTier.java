@@ -24,6 +24,7 @@ public record NodeTier(int itemThroughput, int fluidThroughput, HazardProfile ha
     /** The baseline the progenitor Node uses. Matches the old hard-coded values. */
     public static final NodeTier TIER_1 = new NodeTier(4, 100, HazardProfile.TIER_1);
 
-    // To add a stat-only upgrade tier later, declare it here and hand it to a new node block, e.g.:
-    // public static final NodeTier TIER_2 = new NodeTier(16, 400, HazardProfile.TIER_2);
+    /** The Charred Node's tier -- thermal-hazard tolerance (matches Charred Duct/Charred Tank's own
+     * HazardProfile.TIER_2 convention), plus the throughput bump this file's own comment sketched. */
+    public static final NodeTier TIER_2 = new NodeTier(16, 400, HazardProfile.TIER_2);
 }

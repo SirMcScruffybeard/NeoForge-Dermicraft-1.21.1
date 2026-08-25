@@ -87,4 +87,8 @@ public class SkinTankMenu extends AbstractModMenu {
     public boolean stillValid(Player player) {
         return super.stillValid(level, player, ModBlocks.SKIN_TANK, be);
     }
+
+    public boolean isAutoDrainEnabled() {
+        return be.isAutoDrainEnabled();
+    }
 }

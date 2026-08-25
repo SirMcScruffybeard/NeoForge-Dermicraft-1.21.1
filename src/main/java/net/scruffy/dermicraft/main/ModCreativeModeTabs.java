@@ -71,7 +71,9 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_DUCT);
+                        output.accept(ModBlocks.CHARRED_INNARDS_DUCT);
                         output.accept(ModBlocks.INNARDS_NODE);
+                        output.accept(ModBlocks.CHARRED_INNARDS_NODE);
 
                         ////////////////////Gate\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_GATE_CONTROLLER);

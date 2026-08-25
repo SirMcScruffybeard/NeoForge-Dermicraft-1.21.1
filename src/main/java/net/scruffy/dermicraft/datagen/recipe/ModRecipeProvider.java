@@ -1473,6 +1473,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "innards_duct_metastasizing", ModBlocks.INNARDS_DUCT.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
 
+        // Charred (thermal-hazard-tolerant) Duct -- a Tier 1 Duct quenched/hardened in 100mB Lava.
+        RecipeBuilders.mutate(recipeOutput, "charred_innards_duct_mutating", ModBlocks.INNARDS_DUCT.get(),
+                Fluids.LAVA, 100, ModBlocks.CHARRED_INNARDS_DUCT.get(), solidTicks);
+
         // Innards Node: Redstone (routing/signal) above a Beaker (the body it routes through),
         // an Inert Tumor at the base (the raw biological seed it's grown from).
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_NODE)
@@ -1484,6 +1488,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('T', ModBlocks.INERT_TUMOR)
                 .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("innards_node_crafting_table"));
+
+        // Charred (thermal-hazard-tolerant) Node -- a Tier 1 Node quenched/hardened in a full
+        // bucket's worth of Lava, matching the Charred Duct's own convention at 10x the fluid cost
+        // (the Node is the one place fluid actually sits in the whole system).
+        RecipeBuilders.mutate(recipeOutput, "charred_innards_node_mutating", ModBlocks.INNARDS_NODE.get(),
+                Fluids.LAVA, 1000, ModBlocks.CHARRED_INNARDS_NODE.get(), solidTicks);
 
         // Innards Gate Controller: Redstone Repeater (the logic/priority core) flanked by Nerve
         // Clusters (signal-routing tissue), Inert Tumor at the bottom center (biological seed).

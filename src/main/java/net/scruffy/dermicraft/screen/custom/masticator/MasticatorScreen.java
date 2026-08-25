@@ -6,8 +6,10 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
@@ -26,6 +28,7 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     private static final String SLOTS_DIR = "textures/gui/slots/";
     private static final String ARROWS_DIR = "textures/gui/arrows/";
     private static final String HEALTH_DIR = "textures/gui/health/";
+    private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
@@ -71,6 +74,16 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     private static final int HEALTH_BAR_X = 8; // evenly spaced with fuel/ingredient/arrow/result
     private static final int HEALTH_BAR_Y = 11; // top of the fluid tank renderers
 
+    // Auto-drain toggle -- fluid-side counterpart to CrawScreen's own item auto-push toggle, reusing
+    // the same shared icons (output, rotated 90 degrees, for ON; no-use for OFF). Sits right of the
+    // result tank (x+122, 18px wide -> ends x+140), 4px gap matching Craw's own spacing convention.
+    private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
+    private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
+    private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
+    private static final int AUTO_DRAIN_BUTTON_X = 144;
+    private static final int AUTO_DRAIN_BUTTON_Y = 11;
 
     public MasticatorScreen(MasticatorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -132,6 +145,15 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
                     Component.literal("HP: " + percent + "%"),
                     pMouseX - x, pMouseY - y);
         }
+
+        if (menu.getActiveTab() == MasticatorMenu.MAIN_TAB
+                && MouseUtil.isMouseOver(pMouseX, pMouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            Component label = menu.isAutoDrainEnabled()
+                    ? Component.translatable("tooltip.dermicraft.machine.auto_drain_on")
+                    : Component.translatable("tooltip.dermicraft.machine.auto_drain_off");
+            guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
+        }
     }
 
     @Override
@@ -166,6 +188,17 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         fuelRenderer.render(guiGraphics, x + 151, y + 12, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
         ingredientRenderer.render(guiGraphics, x + 67, y + 12, menu.BE.getFluid(menu.BE.getIngredientTank().SLOT));
         resultRenderer.render(guiGraphics, x + 123, y + 12, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
+
+        renderAutoDrainButton(guiGraphics, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y);
+    }
+
+    private void renderAutoDrainButton(GuiGraphics guiGraphics, int x, int y) {
+        if (menu.isAutoDrainEnabled()) {
+            blitRotated90(guiGraphics, AUTO_DRAIN_ON_TEXTURE, x, y, AUTO_DRAIN_BUTTON_SIZE);
+        } else {
+            guiGraphics.blit(AUTO_DRAIN_OFF_TEXTURE, x, y, 0, 0, AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE);
+        }
     }
 
     /** One yellow Module slot -- nothing else on this tab, matching Drooling Cauldron/Skin Tank's
@@ -184,6 +217,13 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
         if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
             menu.setActiveTab(clickedTab);
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        if (menu.getActiveTab() == MasticatorMenu.MAIN_TAB
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            PacketDistributor.sendToServer(new AutoDrainToggleClickPayload(menu.BE.getBlockPos()));
             return true;
         }
 

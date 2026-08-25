@@ -13,6 +13,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.custom.*;
+import net.scruffy.dermicraft.block.custom.duct.CharredInnardsDuctBlock;
+import net.scruffy.dermicraft.block.custom.duct.CharredNodeBlock;
 import net.scruffy.dermicraft.block.custom.duct.InnardsDuctBlock;
 import net.scruffy.dermicraft.block.custom.floor.LabFloorBlock;
 import net.scruffy.dermicraft.block.custom.duct.NodeBlock;
@@ -243,8 +245,24 @@ public class ModBlocks {
     public static final DeferredBlock<Block> INNARDS_DUCT_END = registerBlock("innards_duct_end",
             () -> new Block(BlockBehaviour.Properties.of().noOcclusion().noLootTable()));
 
+    // Thermal-hazard-tolerant Duct tier -- same shape/Properties as INNARDS_DUCT, mutated from it
+    // in the Mutator (see RecipeBuilders.mutate call). No new capability registration needed: the
+    // duct has no block entity, see CharredInnardsDuctBlock's own javadoc.
+    public static final DeferredBlock<Block> CHARRED_INNARDS_DUCT = registerBlock("charred_innards_duct",
+            () -> new CharredInnardsDuctBlock(BlockBehaviour.Properties.of()
+                    .strength(0.5f)
+                    .sound(SoundType.HONEY_BLOCK)
+                    .noOcclusion()));
+
     public static final DeferredBlock<Block> INNARDS_NODE = registerBlock("innards_node",
             () -> new NodeBlock(BlockBehaviour.Properties.of()
+                    .strength(0.8f)
+                    .sound(SoundType.HONEY_BLOCK)));
+
+    // Thermal-hazard-tolerant Node tier -- same Properties as INNARDS_NODE, mutated from it in the
+    // Mutator. Shares INNARDS_NODE_BE (see ModBlockEntities), no new capability registration needed.
+    public static final DeferredBlock<Block> CHARRED_INNARDS_NODE = registerBlock("charred_innards_node",
+            () -> new CharredNodeBlock(BlockBehaviour.Properties.of()
                     .strength(0.8f)
                     .sound(SoundType.HONEY_BLOCK)));
 

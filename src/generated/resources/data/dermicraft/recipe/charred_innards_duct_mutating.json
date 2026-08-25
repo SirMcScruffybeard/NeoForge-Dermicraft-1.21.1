@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "minecraft:lava",
+  "fluid_amount": 100,
+  "ingredient": {
+    "item": "dermicraft:innards_duct"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:charred_innards_duct"
+  },
+  "ticks": 200
+}

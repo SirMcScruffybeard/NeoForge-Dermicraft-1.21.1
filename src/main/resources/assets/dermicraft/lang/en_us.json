@@ -253,7 +253,9 @@
   "block.dermicraft.innards_duct": "Innards Duct",
   "block.dermicraft.innards_duct_arm": "Innards Duct Arm",
   "block.dermicraft.innards_duct_end": "Innards Duct End",
+  "block.dermicraft.charred_innards_duct": "Charred Innards Duct",
   "block.dermicraft.innards_node": "Innards Node",
+  "block.dermicraft.charred_innards_node": "Charred Innards Node",
 
   "block.dermicraft.innards_gate_controller": "Innards Gate Controller",
   "block.dermicraft.innards_gate_buffer": "Innards Gate Buffer",
@@ -307,6 +309,8 @@
   "tooltip.dermicraft.mutator.mode_fill": "Mode: Fill (fluid -> container)",
   "tooltip.dermicraft.craw.auto_push_on": "Auto-push: On (click to disable)",
   "tooltip.dermicraft.craw.auto_push_off": "Auto-push: Off (click to enable)",
+  "tooltip.dermicraft.machine.auto_drain_on": "Auto-drain: On (click to disable)",
+  "tooltip.dermicraft.machine.auto_drain_off": "Auto-drain: Off (click to enable)",
 
   "tooltip.dermicraft.idep.face.effluentcer_fuel": "Fuel tank",
   "tooltip.dermicraft.idep.face.effluentcer_result": "Result tank",

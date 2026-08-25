@@ -72,7 +72,9 @@ public class CharredMasticatorBlockEntity extends MasticatorBlockEntity {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {
-                    this.pushFluidToBelowNeighbour(level, worldPosition);
+                    if (autoDrainEnabled) {
+                        this.pushFluidToBelowNeighbour(level, worldPosition);
+                    }
                     setChanged();
                 }
             }

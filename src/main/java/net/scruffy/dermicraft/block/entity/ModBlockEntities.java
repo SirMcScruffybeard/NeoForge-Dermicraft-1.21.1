@@ -98,9 +98,11 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("charred_craw_be", () -> BlockEntityType.Builder.of(
                     CharredCrawBlockEntity::new, ModBlocks.CHARRED_CRAW.get()).build(null));
 
+    // Charred Node shares this same type/BE class -- see NodeTier's own javadoc for why a stat-only
+    // tier doesn't need its own BlockEntityType.
     public static final Supplier<BlockEntityType<NodeBlockEntity>> INNARDS_NODE_BE =
             BLOCK_ENTITIES.register("innards_node_be", () -> BlockEntityType.Builder.of(
-                    NodeBlockEntity::new, ModBlocks.INNARDS_NODE.get()).build(null));
+                    NodeBlockEntity::new, ModBlocks.INNARDS_NODE.get(), ModBlocks.CHARRED_INNARDS_NODE.get()).build(null));
 
     public static final Supplier<BlockEntityType<GateControllerBlockEntity>> INNARDS_GATE_CONTROLLER_BE =
             BLOCK_ENTITIES.register("innards_gate_controller_be", () -> BlockEntityType.Builder.of(

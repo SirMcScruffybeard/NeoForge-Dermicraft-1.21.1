@@ -6,7 +6,9 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
@@ -24,6 +26,7 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
     private static final String TANKS_DIR = "textures/gui/tanks/";
     private static final String ARROWS_DIR = "textures/gui/arrows/";
     private static final String HEALTH_DIR = "textures/gui/health/";
+    private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
@@ -69,6 +72,17 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
     private FluidTankRenderer inputARenderer;
     private FluidTankRenderer inputBRenderer;
     private FluidTankRenderer resultRenderer;
+
+    // Auto-drain toggle -- the only free gap on this row is between the result tank (RESULT_X=112,
+    // 18px wide -> ends 130) and the fuel tank (FUEL_X=150), a 20px gap that exactly fits an 18px
+    // icon with a 1px margin either side.
+    private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
+    private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
+    private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
+    private static final int AUTO_DRAIN_BUTTON_X = 131;
+    private static final int AUTO_DRAIN_BUTTON_Y = TANK_Y;
 
     public EffluentcerScreen(EffluentcerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -133,6 +147,14 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
                     Component.literal("HP: " + percent + "%"),
                     pMouseX - x, pMouseY - y);
         }
+
+        if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            Component label = menu.isAutoDrainEnabled()
+                    ? Component.translatable("tooltip.dermicraft.machine.auto_drain_on")
+                    : Component.translatable("tooltip.dermicraft.machine.auto_drain_off");
+            guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
+        }
     }
 
     @Override
@@ -168,6 +190,17 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
         inputARenderer.render(guiGraphics, x + INPUT_A_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputATank().SLOT));
         inputBRenderer.render(guiGraphics, x + INPUT_B_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputBTank().SLOT));
         resultRenderer.render(guiGraphics, x + RESULT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
+
+        renderAutoDrainButton(guiGraphics, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y);
+    }
+
+    private void renderAutoDrainButton(GuiGraphics guiGraphics, int x, int y) {
+        if (menu.isAutoDrainEnabled()) {
+            blitRotated90(guiGraphics, AUTO_DRAIN_ON_TEXTURE, x, y, AUTO_DRAIN_BUTTON_SIZE);
+        } else {
+            guiGraphics.blit(AUTO_DRAIN_OFF_TEXTURE, x, y, 0, 0, AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE);
+        }
     }
 
     /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
@@ -186,6 +219,13 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
         if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
             menu.setActiveTab(clickedTab);
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        if (menu.getActiveTab() == EffluentcerMenu.MAIN_TAB
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            PacketDistributor.sendToServer(new AutoDrainToggleClickPayload(menu.BE.getBlockPos()));
             return true;
         }
 

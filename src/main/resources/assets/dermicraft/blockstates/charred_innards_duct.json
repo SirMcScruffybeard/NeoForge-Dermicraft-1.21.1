@@ -1,0 +1,23 @@
+{
+  "multipart": [
+    { "apply": { "model": "dermicraft:block/charred_innards_duct" } },
+
+    { "when": { "north": "pipe" }, "apply": { "model": "dermicraft:block/charred_innards_duct_arm" } },
+    { "when": { "north": "end" },  "apply": { "model": "dermicraft:block/charred_innards_duct_end" } },
+
+    { "when": { "east": "pipe" }, "apply": { "model": "dermicraft:block/charred_innards_duct_arm", "y": 90 } },
+    { "when": { "east": "end" },  "apply": { "model": "dermicraft:block/charred_innards_duct_end", "y": 90 } },
+
+    { "when": { "south": "pipe" }, "apply": { "model": "dermicraft:block/charred_innards_duct_arm", "y": 180 } },
+    { "when": { "south": "end" },  "apply": { "model": "dermicraft:block/charred_innards_duct_end", "y": 180 } },
+
+    { "when": { "west": "pipe" }, "apply": { "model": "dermicraft:block/charred_innards_duct_arm", "y": 270 } },
+    { "when": { "west": "end" },  "apply": { "model": "dermicraft:block/charred_innards_duct_end", "y": 270 } },
+
+    { "when": { "up": "pipe" }, "apply": { "model": "dermicraft:block/charred_innards_duct_arm", "x": 270 } },
+    { "when": { "up": "end" },  "apply": { "model": "dermicraft:block/charred_innards_duct_end", "x": 270 } },
+
+    { "when": { "down": "pipe" }, "apply": { "model": "dermicraft:block/charred_innards_duct_arm", "x": 90 } },
+    { "when": { "down": "end" },  "apply": { "model": "dermicraft:block/charred_innards_duct_end", "x": 90 } }
+  ]
+}

@@ -89,4 +89,8 @@ public class DroolingCrucibleMenu extends AbstractModMenu {
         int arrowPixels = 15;
         return BE.getScaledProgress(arrowPixels);
     }
+
+    public boolean isAutoDrainEnabled() {
+        return BE.isAutoDrainEnabled();
+    }
 }

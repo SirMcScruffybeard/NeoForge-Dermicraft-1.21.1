@@ -37,8 +37,38 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
     protected int health = 0;
     protected int maxHealth = 0;
 
+    // Auto-drain toggle -- mirrors CrawBlockEntity's own item auto-push toggle, but for the fluid
+    // side and hoisted here since every machine with an output tank that pushes to its neighbour
+    // (Masticator/Effluentcer/their Charred variants, Skin Tank/Charred Tank, Drooling
+    // Cauldron/Crucible) already extends this class. Harmless no-op on machines with no auto-push
+    // tank -- nothing ever reads it there.
+    protected boolean autoDrainEnabled = true;
+
     public MachineBaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+    }
+
+    public boolean isAutoDrainEnabled() {
+        return autoDrainEnabled;
+    }
+
+    public void toggleAutoDrain() {
+        autoDrainEnabled = !autoDrainEnabled;
+        setChanged();
+        updateBlock();
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putBoolean("auto_drain_enabled", autoDrainEnabled);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        // Defaults ON for worlds saved before this existed, same as Craw's auto-push flag.
+        autoDrainEnabled = !tag.contains("auto_drain_enabled") || tag.getBoolean("auto_drain_enabled");
     }
 
     public boolean hasTank() {
@@ -145,7 +175,9 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
                     // against the destination first, so a hazard-gated tank below (e.g. a
                     // VulnerableTank) still correctly refuses lava on its own -- no extra gating
                     // needed here, the destination already decides.
-                    this.pushFluidToBelowNeighbour(level, worldPosition);
+                    if (autoDrainEnabled) {
+                        this.pushFluidToBelowNeighbour(level, worldPosition);
+                    }
                     setChanged();
                     updateBlock();
                     onTankContentsChanged();

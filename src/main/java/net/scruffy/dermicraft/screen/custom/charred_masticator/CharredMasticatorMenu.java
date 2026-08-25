@@ -105,4 +105,8 @@ public class CharredMasticatorMenu extends AbstractModMenu {
     public int getMaxHealth() {
         return BE.getMaxHealth();
     }
+
+    public boolean isAutoDrainEnabled() {
+        return BE.isAutoDrainEnabled();
+    }
 }

@@ -314,7 +314,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
             // this instance is now stale, its own TANK already drained by completeEvolution.
             if (tickEvolutionFlourish()) return;
 
-            if (ModMath.Time.hasTicksPassed(sLevel, 20)) {
+            if (autoDrainEnabled && ModMath.Time.hasTicksPassed(sLevel, 20)) {
                 TANK.pushFluidToBelowNeighbour(level, worldPosition);
             }
         }

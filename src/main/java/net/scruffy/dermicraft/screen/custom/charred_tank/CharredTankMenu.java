@@ -81,4 +81,8 @@ public class CharredTankMenu extends AbstractModMenu {
     public boolean stillValid(Player player) {
         return super.stillValid(level, player, ModBlocks.CHARRED_TANK, be);
     }
+
+    public boolean isAutoDrainEnabled() {
+        return be.isAutoDrainEnabled();
+    }
 }

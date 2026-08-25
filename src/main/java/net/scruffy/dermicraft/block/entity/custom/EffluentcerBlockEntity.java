@@ -507,7 +507,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
 
     @Override
     protected void drainOutputs(Level level) {
-        if (!RESULT_TANK.isEmpty()) {
+        if (autoDrainEnabled && !RESULT_TANK.isEmpty()) {
             RESULT_TANK.pushFluidToBelowNeighbour(level, worldPosition);
         }
     }
@@ -785,7 +785,9 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {
-                    this.pushFluidToBelowNeighbour(level, worldPosition);
+                    if (autoDrainEnabled) {
+                        this.pushFluidToBelowNeighbour(level, worldPosition);
+                    }
                     setChanged();
                 }
             }
