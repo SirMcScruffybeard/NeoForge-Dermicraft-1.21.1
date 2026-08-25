@@ -800,6 +800,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
                 ModFluids.SOURCE_CARBON_BLEND.get(), 75, Items.TORCH, 4);
 
+        // Redstone torch's own dipping recipe -- mirrors vanilla's 1 stick + 1 redstone dust -> 1
+        // redstone torch ratio (unlike the plain torch's 4-output). 110 mB Molten Redstone matches
+        // the same "1 dust" rate metastasizing_molten_redstone_dust already uses below.
+        RecipeBuilders.simpleDipping(recipeOutput, "redstone_torch_dipping", Tags.Items.RODS_WOODEN, 1,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, Items.REDSTONE_TORCH, 1);
+
+        // Mutator copies of both dipping recipes above -- same ingredient/fluid/amount, just routed
+        // through the Mutator's MUTATE mode instead of a dipping tank. lightTicks matches the same
+        // "cheap single-dust-scale conversion" cadence metastasizing_molten_redstone_dust uses.
+        RecipeBuilders.buildMutating(recipeOutput, "mutating_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
+                ModFluids.SOURCE_CARBON_BLEND.get(), 75, new ItemStack(Items.TORCH, 4), lightTicks);
+        RecipeBuilders.buildMutating(recipeOutput, "mutating_redstone_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
+
         RecipeBuilders.PuddleCraft.MakeFluids.makeFromTag(recipeOutput, "crude_slurry_puddle", ModTags.Items.PLANT_FOOD, 4, Fluids.WATER,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10));
 

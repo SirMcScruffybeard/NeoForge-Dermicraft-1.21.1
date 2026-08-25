@@ -1,0 +1,11 @@
+{
+  "type": "dermicraft:dipping",
+  "ingredient": {
+    "tag": "c:rods/wooden"
+  },
+  "ingredient_fluid": "dermicraft:source_molten_redstone",
+  "ingredient_fluid_amount": 110,
+  "item_amount": 1,
+  "result": "minecraft:redstone_torch",
+  "result_amount": 1
+}
