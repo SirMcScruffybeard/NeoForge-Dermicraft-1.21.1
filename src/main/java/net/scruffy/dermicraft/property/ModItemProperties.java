@@ -14,6 +14,7 @@ import net.scruffy.dermicraft.component.HeldItemData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.BladderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItemProperties {
@@ -94,20 +95,33 @@ public class ModItemProperties {
                     return data.isEmpty() ? 0 : 1;
                 });
 
-        // Bladder family: empty / half (500-1499 mB) / full (1500+ mB) -- three fill-level textures,
-        // same thresholds shared by Bladder, Fuel Bladder, and Feeder Bladder.
+        // Bladder family: empty / half / full -- three fill-level textures, thresholds now expressed
+        // as fractions of each item's OWN capacity (see registerBladderFillProperty) rather than fixed
+        // mB, so the same registration works unchanged for Charred Bladder's larger capacity too.
         registerBladderFillProperty(ModItems.BLADDER.get());
         registerBladderFillProperty(ModItems.FUEL_BLADDER.get());
         registerBladderFillProperty(ModItems.FEEDER_BLADDER.get());
+        registerBladderFillProperty(ModItems.CHARRED_BLADDER.get());
+        registerBladderFillProperty(ModItems.CHARRED_FUEL_BLADDER.get());
+        registerBladderFillProperty(ModItems.CHARRED_FEEDER_BLADDER.get());
     }
 
+    /**
+     * Empty below 25% of the item's own capacity, half below 75%, full at/above -- matches the base
+     * Bladder's original fixed 500/1500 mB thresholds exactly at its 2000 mB capacity, but now scales
+     * with whatever {@link BladderItem#getCapacity()} the specific item reports, so a Charred Bladder
+     * (or any future capacity tier) reuses this one registration instead of needing its own copy with
+     * hand-recalculated absolute thresholds.
+     */
     private static void registerBladderFillProperty(Item item) {
+        int capacity = item instanceof BladderItem bladder ? bladder.getCapacity() : BladderItem.CAPACITY;
+
         ItemProperties.register(item,
                 getResourceLocation("full"),
                 (stack, level, entity, seed) -> {
                     FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
-                    if (data.isFluidEmpty() || data.getFluidAmount() < 500) return 0;
-                    if (data.getFluidAmount() < 1500) return 1;
+                    if (data.isFluidEmpty() || data.getFluidAmount() < capacity * 0.25f) return 0;
+                    if (data.getFluidAmount() < capacity * 0.75f) return 1;
                     return 2;
                 });
     }

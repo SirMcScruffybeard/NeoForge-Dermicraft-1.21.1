@@ -40,6 +40,15 @@ public class ModItems {
     public static final DeferredItem<Item> FUEL_BLADDER = ITEMS.register("fuel_bladder", () -> new BladderItem(false));
     public static final DeferredItem<Item> FEEDER_BLADDER = ITEMS.register("feeder_bladder", () -> new BladderItem(true));
 
+    // Thermal-hazard-tolerant Bladder tier -- double capacity (matches Charred Tank/Craw's own
+    // convention), mutated from the base Bladder in the Mutator.
+    public static final DeferredItem<Item> CHARRED_BLADDER = ITEMS.register("charred_bladder",
+            () -> new BladderItem(false, BladderItem.CAPACITY * 2));
+    public static final DeferredItem<Item> CHARRED_FUEL_BLADDER = ITEMS.register("charred_fuel_bladder",
+            () -> new BladderItem(false, BladderItem.CAPACITY * 2));
+    public static final DeferredItem<Item> CHARRED_FEEDER_BLADDER = ITEMS.register("charred_feeder_bladder",
+            () -> new BladderItem(true, BladderItem.CAPACITY * 2));
+
     // Generous durability, deliberately -- see ScrenchItem's class javadoc. 1 point of wear per
     // completed chain swap only (see ScrenchMenu#applyCompletedSwapCosts), so this is a long-tail
     // flavor mechanic, not a real balancing lever.

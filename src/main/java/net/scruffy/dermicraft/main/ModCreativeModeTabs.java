@@ -119,8 +119,11 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.IRON_SHATTER_HEAD);
                         output.accept(ModItems.DIAMOND_SHATTER_HEAD);
                         output.accept(ModItems.BLADDER);
+                        output.accept(ModItems.CHARRED_BLADDER);
                         output.accept(ModItems.FUEL_BLADDER);
+                        output.accept(ModItems.CHARRED_FUEL_BLADDER);
                         output.accept(ModItems.FEEDER_BLADDER);
+                        output.accept(ModItems.CHARRED_FEEDER_BLADDER);
                         output.accept(ModItems.IRON_SUNDER_CHAIN);
                         output.accept(ModItems.COPPER_SUNDER_CHAIN);
                         output.accept(ModItems.GOLD_SUNDER_CHAIN);

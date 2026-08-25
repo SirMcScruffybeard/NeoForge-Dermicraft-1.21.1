@@ -87,6 +87,15 @@
   "item.dermicraft.feeder_bladder": "Feeder Bladder",
   "item.dermicraft.feeder_bladder.filled": "Feeder Bladder of %s",
 
+  "item.dermicraft.charred_bladder": "Charred Bladder",
+  "item.dermicraft.charred_bladder.filled": "Charred Bladder of %s",
+
+  "item.dermicraft.charred_fuel_bladder": "Charred Fuel Bladder",
+  "item.dermicraft.charred_fuel_bladder.filled": "Charred Fuel Bladder of %s",
+
+  "item.dermicraft.charred_feeder_bladder": "Charred Feeder Bladder",
+  "item.dermicraft.charred_feeder_bladder.filled": "Charred Feeder Bladder of %s",
+
   "item.dermicraft.eye": "Eye",
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",

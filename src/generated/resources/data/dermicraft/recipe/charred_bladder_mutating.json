@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "minecraft:lava",
+  "fluid_amount": 1000,
+  "ingredient": {
+    "item": "dermicraft:bladder"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:charred_bladder"
+  },
+  "ticks": 200
+}

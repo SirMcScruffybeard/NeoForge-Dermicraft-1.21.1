@@ -910,6 +910,26 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_feeder_bladder", ModItems.BLADDER.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.FEEDER_BLADDER.get(), solidTicks);
 
+        // Charred (thermal-hazard-tolerant) Bladder -- quenched/hardened in a full bucket of Lava,
+        // matching the Charred Duct/Node's own convention.
+        RecipeBuilders.mutate(recipeOutput, "charred_bladder_mutating", ModItems.BLADDER.get(),
+                Fluids.LAVA, 1000, ModItems.CHARRED_BLADDER.get(), solidTicks);
+
+        // Charred Fuel/Feeder Bladder -- two paths in, same as the base Fuel/Feeder Bladder having
+        // its own quench recipe plus a specialization recipe off the plain Bladder: quench the
+        // already-specialized base variant in Lava, OR specialize an already-quenched Charred Bladder
+        // with the same conversion fluid/amount the base specialization recipe uses. Either order
+        // reaches the same result.
+        RecipeBuilders.mutate(recipeOutput, "charred_fuel_bladder_from_fuel_bladder_mutating", ModItems.FUEL_BLADDER.get(),
+                Fluids.LAVA, 1000, ModItems.CHARRED_FUEL_BLADDER.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "charred_fuel_bladder_from_charred_bladder_mutating", ModItems.CHARRED_BLADDER.get(),
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 750, ModItems.CHARRED_FUEL_BLADDER.get(), solidTicks);
+
+        RecipeBuilders.mutate(recipeOutput, "charred_feeder_bladder_from_feeder_bladder_mutating", ModItems.FEEDER_BLADDER.get(),
+                Fluids.LAVA, 1000, ModItems.CHARRED_FEEDER_BLADDER.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "charred_feeder_bladder_from_charred_bladder_mutating", ModItems.CHARRED_BLADDER.get(),
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.CHARRED_FEEDER_BLADDER.get(), solidTicks);
+
         // Chassis: Iron Bars (mechanical scaffold) + Calcium-Blend-derived Reinforcing Catalyst
         // (skeletal reagent) -- shared structural item across Gadgets and the Module Frame below.
         RecipeBuilders.mutate(recipeOutput, "chassis_mutating", Items.IRON_BARS,

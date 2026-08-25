@@ -41,6 +41,7 @@ public class BladderItem extends ToolItem implements IHaveFluidData {
     public static final int CAPACITY = 2000;
 
     private final boolean drinkable;
+    private final int capacity;
 
     public BladderItem() {
         this(false);
@@ -52,8 +53,24 @@ public class BladderItem extends ToolItem implements IHaveFluidData {
      *                  pickup/place. Bladder/Fuel Bladder stay fuel-logistics-only.
      */
     public BladderItem(boolean drinkable) {
+        this(drinkable, CAPACITY);
+    }
+
+    /**
+     * @param capacity Lets a Charred variant carry more (see {@code ModItems.CHARRED_BLADDER}) without
+     *                  needing its own subclass -- the actual fluid-handler capability is registered
+     *                  externally (ModBusEvents) with its own capacity/{@link net.scruffy.dermicraft.hazard.HazardProfile}
+     *                  anyway, so this only needs to agree with that for the fill-level texture bands
+     *                  (see {@code ModItemProperties#registerBladderFillProperty}) to read correctly.
+     */
+    public BladderItem(boolean drinkable, int capacity) {
         super(new Item.Properties());
         this.drinkable = drinkable;
+        this.capacity = capacity;
+    }
+
+    public int getCapacity() {
+        return capacity;
     }
 
     @Override

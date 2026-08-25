@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_cuprous_blend",
+  "fluid_amount": 750,
+  "ingredient": {
+    "item": "dermicraft:charred_bladder"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:charred_fuel_bladder"
+  },
+  "ticks": 200
+}

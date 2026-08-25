@@ -182,6 +182,17 @@ public class ModBusEvents {
                 stack, BladderItem.CAPACITY, HazardProfile.TIER_1, fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.FUEL_BLADDER.get());
 
+        // Charred Bladder family: double capacity, thermal-hazard-tolerant (TIER_2) -- same convention
+        // as Charred Tank/Craw. Charred Fuel Bladder keeps the same biofuel-only restriction as its
+        // base counterpart.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, BladderItem.CAPACITY * 2, HazardProfile.TIER_2), ModItems.CHARRED_BLADDER.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, BladderItem.CAPACITY * 2, HazardProfile.TIER_2), ModItems.CHARRED_FEEDER_BLADDER.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, BladderItem.CAPACITY * 2, HazardProfile.TIER_2, fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
+                ModItems.CHARRED_FUEL_BLADDER.get());
+
         // D.R.I.N.K.E.R.: one source block's worth, hazard-gated. The gate does double duty -- the
         // siphon checks "can this buffer take a full 1000mB?" against this handler, so a fluid the
         // profile refuses simply never accumulates, no separate hazard check needed in the item.

@@ -1,0 +1,11 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/bladder/charred_fluid_bladder_empty",
+    "layer1": "dermicraft:item/bladder/charred_fluid_bladder_empty_skin"
+  },
+  "overrides": [
+    {"predicate": {"dermicraft:full": 1.0}, "model": "dermicraft:item/charred_bladder/charred_bladder_half"},
+    {"predicate": {"dermicraft:full": 2.0}, "model": "dermicraft:item/charred_bladder/charred_bladder_filled"}
+  ]
+}
