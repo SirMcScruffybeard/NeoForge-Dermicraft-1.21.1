@@ -839,6 +839,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMutating(recipeOutput, "mutating_redstone_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
                 ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
 
+        // Magma Block: any c:stones-tagged block baked in Lava. solidTicks matches the mod's usual
+        // "whole block, real transformation" cadence rather than the lighter dust-scale conversions
+        // above.
+        RecipeBuilders.buildMutating(recipeOutput, "mutating_magma_block", Ingredient.of(Tags.Items.STONES),
+                Fluids.LAVA, 1000, new ItemStack(Items.MAGMA_BLOCK), solidTicks);
+
         RecipeBuilders.PuddleCraft.MakeFluids.makeFromTag(recipeOutput, "crude_slurry_puddle", ModTags.Items.PLANT_FOOD, 4, Fluids.WATER,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10));
 
