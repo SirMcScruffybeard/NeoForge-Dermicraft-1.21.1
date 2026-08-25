@@ -64,8 +64,9 @@ public class SkinTankBlock extends ModBaseEntityBlock {
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
         BlockEntity entity = level.getBlockEntity(pos);
-        if (entity instanceof SkinTankBlockEntity tankBlockEntity) {
-            FluidUtil.interactWithFluidHandler(player, hand, tankBlockEntity.getTank(null));
+        if (entity instanceof SkinTankBlockEntity tankBlockEntity
+                && FluidUtil.interactWithFluidHandler(player, hand, tankBlockEntity.getTank(null))) {
+            return ItemInteractionResult.SUCCESS;
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }

@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.effluentcer;
+package net.scruffy.dermicraft.screen.custom.charred_mutator;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -7,77 +7,72 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
-import net.scruffy.dermicraft.block.entity.custom.EffluentcerBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.CharredMutatorBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
-public class EffluentcerMenu extends AbstractModMenu {
+/** Charred Mutator's menu -- identical layout/slots to {@code MutatorMenu} (Module tab included),
+ * just typed to {@link CharredMutatorBlockEntity} and checked against
+ * {@link ModBlocks#CHARRED_MUTATOR} in {@link #stillValid}. A distinct class rather than reusing
+ * MutatorMenu because stillValid needs to match the actual block at this position -- same split the
+ * Drooling family/Charred Masticator use. */
+public class CharredMutatorMenu extends AbstractModMenu {
 
-    // Same tab pattern as every other Module-tab machine.
     public static final int MAIN_TAB = 0;
     public static final int MODULE_TAB = 1;
 
-    // Matches every other machine's own Module slot position -- one consistent mod-wide GUI
-    // convention.
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
 
-    public final EffluentcerBlockEntity BE;
-    private Level level;
+    public final CharredMutatorBlockEntity BE;
+    private final Level level;
 
-    public EffluentcerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
+    public CharredMutatorMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
         this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
-    public EffluentcerMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.EFFLUENTCER_MENU.get(), containerId, 5);
+    public CharredMutatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
+        super(ModMenuTypes.CHARRED_MUTATOR_MENU.get(), containerId, 5);
         checkContainerSize(inv, 2);
-        this.BE = ((EffluentcerBlockEntity) blockEntity);
+        this.BE = (CharredMutatorBlockEntity) blockEntity;
         this.level = inv.player.level();
-
-        this.BE.setInteractingPlayer(inv.player);
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        // Coordinates follow the composited "inline pair" screen layout (see the machine
-        // notes): HP far-left, fuel far-right, input A+B together left of center, result
-        // beyond the arrow -- slot x tracks each tank column's blit x (+1), slot y fixed at 60.
         this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60) {
             @Override
             public boolean isActive() {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getInputATank().SLOT, 41, 60) {
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getReagentTank().SLOT, 31, 60) {
             @Override
             public boolean isActive() {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getInputBTank().SLOT, 61, 60) {
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MutatorBlockEntity.INPUT_SLOT, 61, 35) {
             @Override
             public boolean isActive() {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getResultTank().SLOT, 113, 60) {
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MutatorBlockEntity.OUTPUT_SLOT, 121, 35) {
             @Override
             public boolean isActive() {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), EffluentcerBlockEntity.MODULE, MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
+        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MutatorBlockEntity.MODULE, MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
             @Override
             public boolean isActive() {
                 return getActiveTab() == MODULE_TAB;
             }
         });
 
-        // Every Main-tab slot here is a fluid-container passthrough (fuel/inputA/inputB/result) --
-        // there's no real solid item input, so shift-click from the player's inventory has nothing
-        // to target and just no-ops rather than dumping into a tank slot.
-        setQuickMoveInputSlots(0, 0);
+        setQuickMoveInputSlots(2, 1);
 
         setActiveTab(BE.isModuleTabActive() ? MODULE_TAB : MAIN_TAB);
     }
@@ -89,7 +84,7 @@ public class EffluentcerMenu extends AbstractModMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return super.stillValid(level, player, ModBlocks.EFFLUENTCER, BE);
+        return super.stillValid(level, player, ModBlocks.CHARRED_MUTATOR, BE);
     }
 
     public boolean isCrafting() {
@@ -107,5 +102,9 @@ public class EffluentcerMenu extends AbstractModMenu {
 
     public int getMaxHealth() {
         return BE.getMaxHealth();
+    }
+
+    public MutatorBlockEntity.Mode getMode() {
+        return BE.getMode();
     }
 }

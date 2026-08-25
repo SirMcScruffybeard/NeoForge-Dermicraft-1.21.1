@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.mutator;
+package net.scruffy.dermicraft.screen.custom.charred_mutator;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,7 +18,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
+/** Charred Mutator's screen -- identical GUI layout/textures to {@code MutatorScreen} (Module tab
+ * included; the capability leap is entirely backend hazard-tolerance, not a different GUI), just
+ * typed to {@link CharredMutatorMenu}. See that class's javadoc for why this is a separate class
+ * rather than reusing MutatorScreen. */
+public class CharredMutatorScreen extends AbstractModScreen<CharredMutatorMenu> {
 
     private static final int TAB_TEXT_COLOR = 0x007F0E;
     private List<Tab> tabs;
@@ -65,10 +69,6 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
     private static final int HEALTH_BAR_X = 8;
     private static final int HEALTH_BAR_Y = 11;
 
-    // Mode toggle -- reuses the Node's existing item/fluid button pair. MUTATE shows the item icon
-    // (the machine is producing a different ITEM); FILL shows the fluid icon (the fluid becomes
-    // cargo packaged into the container). A single button that flips the mode on click, not a
-    // per-leg pair like the Node's -- no "off" state, it's always showing whichever mode is active.
     private static final ResourceLocation MODE_MUTATE_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "item_button.png");
     private static final ResourceLocation MODE_FILL_TEXTURE =
@@ -85,12 +85,12 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
     private static final int ARROW_Y = 37;
 
     private static final int MODE_BUTTON_X = INPUT_X;
-    private static final int MODE_BUTTON_Y = SLOT_Y - MODE_BUTTON_SIZE - 2; // directly above the input slot
+    private static final int MODE_BUTTON_Y = SLOT_Y - MODE_BUTTON_SIZE - 2;
 
     private FluidTankRenderer reagentRenderer;
     private FluidTankRenderer fuelRenderer;
 
-    public MutatorScreen(MutatorMenu menu, Inventory playerInventory, Component title) {
+    public CharredMutatorScreen(CharredMutatorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
@@ -100,8 +100,8 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         reagentRenderer = createFluidRenderer16x40(menu.BE.getReagentTank().getCapacity());
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
         tabs = List.of(
-                new Tab(Component.translatable("screen.dermicraft.mutator.main_tab"), TAB_TEXT_COLOR),
-                new Tab(Component.translatable("screen.dermicraft.mutator.module_tab"), TAB_TEXT_COLOR));
+                new Tab(Component.translatable("screen.dermicraft.charred_mutator.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.charred_mutator.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -116,7 +116,7 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
             return true;
         }
 
-        if (menu.getActiveTab() == MutatorMenu.MAIN_TAB
+        if (menu.getActiveTab() == CharredMutatorMenu.MAIN_TAB
                 && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MODE_BUTTON_X, y + MODE_BUTTON_Y,
                 MODE_BUTTON_SIZE, MODE_BUTTON_SIZE)) {
             PacketDistributor.sendToServer(new MutatorModeClickPayload(menu.BE.getBlockPos()));
@@ -131,7 +131,7 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        if (menu.getActiveTab() != MutatorMenu.MAIN_TAB) return;
+        if (menu.getActiveTab() != CharredMutatorMenu.MAIN_TAB) return;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
                 menu.BE.getFluid(menu.BE.getReagentTank().SLOT), REAGENT_X + 1, TANK_Y + 1, reagentRenderer,
@@ -185,9 +185,9 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
         renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
-        renderHealthBar(guiGraphics, x, y); // ambient status, visible on both tabs
+        renderHealthBar(guiGraphics, x, y);
 
-        if (menu.getActiveTab() == MutatorMenu.MAIN_TAB) {
+        if (menu.getActiveTab() == CharredMutatorMenu.MAIN_TAB) {
             renderMainTab(guiGraphics, x, y);
         } else {
             renderModuleTab(guiGraphics, x, y);
@@ -206,10 +206,8 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
     }
 
-    /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
-     * Module-slot-only look. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + MutatorMenu.MODULE_SLOT_X, y + MutatorMenu.MODULE_SLOT_Y, 0, 0,
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredMutatorMenu.MODULE_SLOT_X, y + CharredMutatorMenu.MODULE_SLOT_Y, 0, 0,
                 SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
     }
 
@@ -232,9 +230,6 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         guiGraphics.blit(ARROW_BACKGROUND_TEXTURE, arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT,
                 ARROW_WIDTH, ARROW_HEIGHT);
 
-        // No progress arrow makes sense in FILL mode -- fill is a continuous per-cycle operation
-        // with no single-shot completion (see MutatorBlockEntity#tickFill), so there's nothing to
-        // scale the arrow against. Only render fill in MUTATE mode.
         if (menu.getMode() == MutatorBlockEntity.Mode.MUTATE && menu.isCrafting()) {
             int progressWidth = 1 + menu.getScaledArrowProgress();
             guiGraphics.blit(ARROW_FULL_TEXTURE, arrowX, arrowY, 0, 0, progressWidth, ARROW_HEIGHT,

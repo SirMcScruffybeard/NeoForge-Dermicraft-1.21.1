@@ -184,6 +184,11 @@ public class ModBlocks {
     public static final DeferredBlock<Block> EFFLUENTCER = registerBlock("effluentcer",
             () -> new EffluentcerBlock(machineProperties()));
 
+    // Charred Effluentcer -- Effluentcer's hazard-gated Tier 2 evolution, see
+    // CharredEffluentcerBlockEntity for the actual capability leap (thermal-tolerant tanks).
+    public static final DeferredBlock<Block> CHARRED_EFFLUENTCER = registerBlock("charred_effluentcer",
+            () -> new CharredEffluentcerBlock(machineProperties()));
+
     public static final DeferredBlock<Block> METASTASIZER = registerBlock("metastasizer",
             () -> new MetastasizerBlock(machineProperties()));
 
@@ -194,6 +199,11 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> MUTATOR = registerBlock("mutator",
             () -> new MutatorBlock(machineProperties()));
+
+    // Charred Mutator -- Mutator's hazard-gated Tier 2 evolution, see CharredMutatorBlockEntity for
+    // the actual capability leap (thermal-tolerant reagent tank).
+    public static final DeferredBlock<Block> CHARRED_MUTATOR = registerBlock("charred_mutator",
+            () -> new CharredMutatorBlock(machineProperties()));
 
     public static final DeferredBlock<Block> RENDER_FURNACE = registerBlock("render_furnace",
             () -> new RenderFurnaceBlock(machineProperties()));

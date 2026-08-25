@@ -216,6 +216,8 @@
 
   "block.dermicraft.effluentcer": "Effluentcer",
   "blockEntity.dermicraft.effluentcer_be": "Effluentcer",
+  "block.dermicraft.charred_effluentcer": "Charred Effluentcer",
+  "blockEntity.dermicraft.charred_effluentcer_be": "Charred Effluentcer",
 
   "block.dermicraft.metastasizer": "Metastasizer",
   "blockEntity.dermicraft.metastasizer_be": "Metastasizer",
@@ -225,6 +227,8 @@
 
   "block.dermicraft.mutator": "Mutator",
   "blockEntity.dermicraft.mutator_be": "Mutator",
+  "block.dermicraft.charred_mutator": "Charred Mutator",
+  "blockEntity.dermicraft.charred_mutator_be": "Charred Mutator",
 
   "block.dermicraft.render_furnace": "Render Furnace",
   "blockEntity.dermicraft.render_furnace_be": "Render Furnace",
@@ -376,6 +380,14 @@
   "screen.dermicraft.masticator.module_tab": "Mod",
   "screen.dermicraft.charred_masticator.main_tab": "Main",
   "screen.dermicraft.charred_masticator.module_tab": "Mod",
+  "screen.dermicraft.effluentcer.main_tab": "Main",
+  "screen.dermicraft.effluentcer.module_tab": "Mod",
+  "screen.dermicraft.charred_effluentcer.main_tab": "Main",
+  "screen.dermicraft.charred_effluentcer.module_tab": "Mod",
+  "screen.dermicraft.mutator.main_tab": "Main",
+  "screen.dermicraft.mutator.module_tab": "Mod",
+  "screen.dermicraft.charred_mutator.main_tab": "Main",
+  "screen.dermicraft.charred_mutator.module_tab": "Mod",
   "screen.dermicraft.metastasizer.main_tab": "Main",
   "screen.dermicraft.metastasizer.module_tab": "Mod",
   "screen.dermicraft.charred_metastasizer.main_tab": "Main",

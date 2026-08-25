@@ -212,6 +212,10 @@ public class DermicraftClient {
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.METASTASIZER_BE.get(),
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.EFFLUENTCER_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.MUTATOR_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
@@ -223,6 +227,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
         event.register(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), CharredMasticatorScreen::new);
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
+        event.register(ModMenuTypes.CHARRED_EFFLUENTCER_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerScreen::new);
         event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);
         event.register(ModMenuTypes.CHARRED_METASTASIZER_MENU.get(), CharredMetastasizerScreen::new);
         event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
@@ -230,6 +235,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.MR_FARMER_MENU.get(), MrFarmerScreen::new);
         event.register(ModMenuTypes.MR_SHEPARD_MENU.get(), net.scruffy.dermicraft.screen.custom.mr_shepard.MrShepardScreen::new);
         event.register(ModMenuTypes.MUTATOR_MENU.get(), MutatorScreen::new);
+        event.register(ModMenuTypes.CHARRED_MUTATOR_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_mutator.CharredMutatorScreen::new);
         event.register(ModMenuTypes.RENDER_FURNACE_MENU.get(), RenderFurnaceScreen::new);
         event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);
         event.register(ModMenuTypes.RENDER_KILN_MENU.get(), RenderKilnScreen::new);

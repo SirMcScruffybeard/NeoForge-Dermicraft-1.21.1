@@ -9,6 +9,7 @@ import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.charred_masticator.CharredMasticatorMenu;
 import net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankMenu;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
@@ -20,6 +21,7 @@ import net.scruffy.dermicraft.screen.custom.charred_metastasizer.CharredMetastas
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerMenu;
 import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerMenu;
 import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableMenu;
+import net.scruffy.dermicraft.screen.custom.charred_mutator.CharredMutatorMenu;
 import net.scruffy.dermicraft.screen.custom.mutator.MutatorMenu;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
 import net.scruffy.dermicraft.screen.custom.render_furnace.RenderFurnaceMenu;
@@ -53,6 +55,9 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<EffluentcerMenu>> EFFLUENTCER_MENU =
             registerMenuType("effluentcer_menu", EffluentcerMenu::new);
 
+    public static final DeferredHolder<MenuType<?>, MenuType<CharredEffluentcerMenu>> CHARRED_EFFLUENTCER_MENU =
+            registerMenuType("charred_effluentcer_menu", CharredEffluentcerMenu::new);
+
     public static final DeferredHolder<MenuType<?>, MenuType<MetastasizerMenu>> METASTASIZER_MENU =
             registerMenuType("metastasizer_menu", MetastasizerMenu::new);
 
@@ -73,6 +78,9 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<MutatorMenu>> MUTATOR_MENU =
             registerMenuType("mutator_menu", MutatorMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<CharredMutatorMenu>> CHARRED_MUTATOR_MENU =
+            registerMenuType("charred_mutator_menu", CharredMutatorMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<RenderFurnaceMenu>> RENDER_FURNACE_MENU =
             registerMenuType("render_furnace_menu", RenderFurnaceMenu::new);

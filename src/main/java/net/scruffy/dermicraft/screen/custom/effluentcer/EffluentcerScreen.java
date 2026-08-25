@@ -8,11 +8,17 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
+
+    private static final int TAB_TEXT_COLOR = 0x007F0E;
+    private List<Tab> tabs;
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
@@ -76,12 +82,17 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
         inputARenderer = createFluidRenderer16x40(menu.BE.getInputATank().getCapacity());
         inputBRenderer = createFluidRenderer16x40(menu.BE.getInputBTank().getCapacity());
         resultRenderer = createFluidRenderer16x40(menu.BE.getResultTank().getCapacity());
+        tabs = List.of(
+                new Tab(Component.translatable("screen.dermicraft.effluentcer.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.effluentcer.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
+
+        if (menu.getActiveTab() != EffluentcerMenu.MAIN_TAB) return;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
                 menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer,
@@ -134,19 +145,51 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
+        renderHealthBar(guiGraphics, x, y); // ambient status, visible on both tabs
+
+        if (menu.getActiveTab() == EffluentcerMenu.MAIN_TAB) {
+            renderMainTab(guiGraphics, x, y);
+        } else {
+            renderModuleTab(guiGraphics, x, y);
+        }
+    }
+
+    private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
         renderTankAndSlot(guiGraphics, x + FUEL_X, y + TANK_Y);
         renderTankAndSlot(guiGraphics, x + INPUT_A_X, y + TANK_Y);
         renderTankAndSlot(guiGraphics, x + INPUT_B_X, y + TANK_Y);
         renderTankAndSlot(guiGraphics, x + RESULT_X, y + TANK_Y);
 
         renderProgressArrow(guiGraphics, x, y);
-        renderHealthBar(guiGraphics, x, y);
 
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
         inputARenderer.render(guiGraphics, x + INPUT_A_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputATank().SLOT));
         inputBRenderer.render(guiGraphics, x + INPUT_B_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputBTank().SLOT));
         resultRenderer.render(guiGraphics, x + RESULT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
+    }
+
+    /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
+     * Module-slot-only look. */
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + EffluentcerMenu.MODULE_SLOT_X, y + EffluentcerMenu.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {

@@ -54,6 +54,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("effluentcer_be", () -> BlockEntityType.Builder.of(
                     EffluentcerBlockEntity::new, ModBlocks.EFFLUENTCER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredEffluentcerBlockEntity>> CHARRED_EFFLUENTCER_BE =
+            BLOCK_ENTITIES.register("charred_effluentcer_be", () -> BlockEntityType.Builder.of(
+                    CharredEffluentcerBlockEntity::new, ModBlocks.CHARRED_EFFLUENTCER.get()).build(null));
+
     public static final Supplier<BlockEntityType<BeakerBlockEntity>> BEAKER_BE =
             BLOCK_ENTITIES.register("beaker_be", () -> BlockEntityType.Builder.of(
                     BeakerBlockEntity::new, ModBlocks.BEAKER.get()).build(null));
@@ -69,6 +73,10 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<MutatorBlockEntity>> MUTATOR_BE =
             BLOCK_ENTITIES.register("mutator_be", () -> BlockEntityType.Builder.of(
                     MutatorBlockEntity::new, ModBlocks.MUTATOR.get()).build(null));
+
+    public static final Supplier<BlockEntityType<CharredMutatorBlockEntity>> CHARRED_MUTATOR_BE =
+            BLOCK_ENTITIES.register("charred_mutator_be", () -> BlockEntityType.Builder.of(
+                    CharredMutatorBlockEntity::new, ModBlocks.CHARRED_MUTATOR.get()).build(null));
 
     public static final Supplier<BlockEntityType<RenderFurnaceBlockEntity>> RENDER_FURNACE_BE =
             BLOCK_ENTITIES.register("render_furnace_be", () -> BlockEntityType.Builder.of(

@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.mutator;
+package net.scruffy.dermicraft.screen.custom.charred_effluentcer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -6,10 +6,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
-import net.scruffy.dermicraft.network.MutatorModeClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
@@ -18,17 +15,19 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
+/** Charred Effluentcer's screen -- identical GUI layout/textures to {@code EffluentcerScreen}
+ * (Module tab included; the capability leap is entirely backend hazard-tolerance, not a different
+ * GUI), just typed to {@link CharredEffluentcerMenu}. See that class's javadoc for why this is a
+ * separate class rather than reusing EffluentcerScreen. */
+public class CharredEffluentcerScreen extends AbstractModScreen<CharredEffluentcerMenu> {
 
     private static final int TAB_TEXT_COLOR = 0x007F0E;
     private List<Tab> tabs;
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
-    private static final String SLOTS_DIR = "textures/gui/slots/";
     private static final String ARROWS_DIR = "textures/gui/arrows/";
     private static final String HEALTH_DIR = "textures/gui/health/";
-    private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
@@ -38,10 +37,6 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, TANKS_DIR + "tank_and_slot.png");
     private static final int TANK_AND_SLOT_WIDTH = 18;
     private static final int TANK_AND_SLOT_HEIGHT = 66;
-
-    private static final ResourceLocation ITEM_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
-    private static final int ITEM_SLOT_SIZE = 18;
 
     private static final ResourceLocation ARROW_BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_background.png");
@@ -64,66 +59,34 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
 
     private static final int HEALTH_BAR_X = 8;
     private static final int HEALTH_BAR_Y = 11;
-
-    // Mode toggle -- reuses the Node's existing item/fluid button pair. MUTATE shows the item icon
-    // (the machine is producing a different ITEM); FILL shows the fluid icon (the fluid becomes
-    // cargo packaged into the container). A single button that flips the mode on click, not a
-    // per-leg pair like the Node's -- no "off" state, it's always showing whichever mode is active.
-    private static final ResourceLocation MODE_MUTATE_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "item_button.png");
-    private static final ResourceLocation MODE_FILL_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "fluid_button.png");
-    private static final int MODE_BUTTON_SIZE = 18;
-
-    private static final int REAGENT_X = 30;
-    private static final int INPUT_X = 60;
-    private static final int ARROW_X = 90;
-    private static final int OUTPUT_X = 120;
+    private static final int INPUT_A_X = 40;
+    private static final int INPUT_B_X = 60;
+    private static final int ARROW_X = 86;
+    private static final int ARROW_Y = 38;
+    private static final int RESULT_X = 112;
     private static final int FUEL_X = 150;
     private static final int TANK_Y = 11;
-    private static final int SLOT_Y = 34;
-    private static final int ARROW_Y = 37;
 
-    private static final int MODE_BUTTON_X = INPUT_X;
-    private static final int MODE_BUTTON_Y = SLOT_Y - MODE_BUTTON_SIZE - 2; // directly above the input slot
-
-    private FluidTankRenderer reagentRenderer;
     private FluidTankRenderer fuelRenderer;
+    private FluidTankRenderer inputARenderer;
+    private FluidTankRenderer inputBRenderer;
+    private FluidTankRenderer resultRenderer;
 
-    public MutatorScreen(MutatorMenu menu, Inventory playerInventory, Component title) {
+    public CharredEffluentcerScreen(CharredEffluentcerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
     @Override
     protected void init() {
         super.init();
-        reagentRenderer = createFluidRenderer16x40(menu.BE.getReagentTank().getCapacity());
+
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        inputARenderer = createFluidRenderer16x40(menu.BE.getInputATank().getCapacity());
+        inputBRenderer = createFluidRenderer16x40(menu.BE.getInputBTank().getCapacity());
+        resultRenderer = createFluidRenderer16x40(menu.BE.getResultTank().getCapacity());
         tabs = List.of(
-                new Tab(Component.translatable("screen.dermicraft.mutator.main_tab"), TAB_TEXT_COLOR),
-                new Tab(Component.translatable("screen.dermicraft.mutator.module_tab"), TAB_TEXT_COLOR));
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int x = (width - imageWidth) / 2;
-        int y = (height - imageHeight) / 2;
-
-        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
-        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
-            menu.setActiveTab(clickedTab);
-            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
-            return true;
-        }
-
-        if (menu.getActiveTab() == MutatorMenu.MAIN_TAB
-                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MODE_BUTTON_X, y + MODE_BUTTON_Y,
-                MODE_BUTTON_SIZE, MODE_BUTTON_SIZE)) {
-            PacketDistributor.sendToServer(new MutatorModeClickPayload(menu.BE.getBlockPos()));
-            return true;
-        }
-
-        return super.mouseClicked(mouseX, mouseY, button);
+                new Tab(Component.translatable("screen.dermicraft.charred_effluentcer.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.charred_effluentcer.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -131,31 +94,39 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        if (menu.getActiveTab() != MutatorMenu.MAIN_TAB) return;
-
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getReagentTank().SLOT), REAGENT_X + 1, TANK_Y + 1, reagentRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.reagent"));
+        if (menu.getActiveTab() != CharredEffluentcerMenu.MAIN_TAB) return;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
                 menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer,
                 Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, REAGENT_X + 1, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getReagentTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.reagent_container"));
+        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                menu.BE.getFluid(menu.BE.getInputATank().SLOT), INPUT_A_X + 1, TANK_Y + 1, inputARenderer,
+                Component.translatable("tooltip.dermicraft.gauge.input_a"));
+
+        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                menu.BE.getFluid(menu.BE.getInputBTank().SLOT), INPUT_B_X + 1, TANK_Y + 1, inputBRenderer,
+                Component.translatable("tooltip.dermicraft.gauge.input_b"));
+
+        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                menu.BE.getFluid(menu.BE.getResultTank().SLOT), RESULT_X + 1, TANK_Y + 1, resultRenderer,
+                Component.translatable("tooltip.dermicraft.gauge.result"));
 
         renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_X + 1, 60,
                 menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
                 Component.translatable("tooltip.dermicraft.slot.fuel_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, INPUT_X + 1, SLOT_Y + 1,
-                menu.BE.getItemHandler(null).getStackInSlot(MutatorBlockEntity.INPUT_SLOT),
-                Component.translatable("tooltip.dermicraft.slot.ingredient"));
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, INPUT_A_X + 1, 60,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getInputATank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.input_a_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, OUTPUT_X + 1, SLOT_Y + 1,
-                menu.BE.getItemHandler(null).getStackInSlot(MutatorBlockEntity.OUTPUT_SLOT),
-                Component.translatable("tooltip.dermicraft.slot.result"));
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, INPUT_B_X + 1, 60,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getInputBTank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.input_b_container"));
+
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, RESULT_X + 1, 60,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getResultTank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.result_container"));
 
         if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
             int maxHealth = menu.getMaxHealth();
@@ -163,13 +134,6 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
             guiGraphics.renderTooltip(this.font,
                     Component.literal("HP: " + percent + "%"),
                     pMouseX - x, pMouseY - y);
-        }
-
-        if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + MODE_BUTTON_X, y + MODE_BUTTON_Y, MODE_BUTTON_SIZE, MODE_BUTTON_SIZE)) {
-            Component label = menu.getMode() == MutatorBlockEntity.Mode.FILL
-                    ? Component.translatable("tooltip.dermicraft.mutator.mode_fill")
-                    : Component.translatable("tooltip.dermicraft.mutator.mode_mutate");
-            guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
         }
     }
 
@@ -185,9 +149,9 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
         renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
-        renderHealthBar(guiGraphics, x, y); // ambient status, visible on both tabs
+        renderHealthBar(guiGraphics, x, y);
 
-        if (menu.getActiveTab() == MutatorMenu.MAIN_TAB) {
+        if (menu.getActiveTab() == CharredEffluentcerMenu.MAIN_TAB) {
             renderMainTab(guiGraphics, x, y);
         } else {
             renderModuleTab(guiGraphics, x, y);
@@ -195,22 +159,37 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
     }
 
     private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
-        renderTankAndSlot(guiGraphics, x + REAGENT_X, y + TANK_Y);
-        renderItemSlot(guiGraphics, x + INPUT_X, y + SLOT_Y);
-        renderProgressArrow(guiGraphics, x + ARROW_X, y + ARROW_Y);
-        renderItemSlot(guiGraphics, x + OUTPUT_X, y + SLOT_Y);
         renderTankAndSlot(guiGraphics, x + FUEL_X, y + TANK_Y);
-        renderModeButton(guiGraphics, x + MODE_BUTTON_X, y + MODE_BUTTON_Y);
+        renderTankAndSlot(guiGraphics, x + INPUT_A_X, y + TANK_Y);
+        renderTankAndSlot(guiGraphics, x + INPUT_B_X, y + TANK_Y);
+        renderTankAndSlot(guiGraphics, x + RESULT_X, y + TANK_Y);
 
-        reagentRenderer.render(guiGraphics, x + REAGENT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getReagentTank().SLOT));
+        renderProgressArrow(guiGraphics, x, y);
+
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+        inputARenderer.render(guiGraphics, x + INPUT_A_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputATank().SLOT));
+        inputBRenderer.render(guiGraphics, x + INPUT_B_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputBTank().SLOT));
+        resultRenderer.render(guiGraphics, x + RESULT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getResultTank().SLOT));
     }
 
-    /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
-     * Module-slot-only look. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + MutatorMenu.MODULE_SLOT_X, y + MutatorMenu.MODULE_SLOT_Y, 0, 0,
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredEffluentcerMenu.MODULE_SLOT_X, y + CharredEffluentcerMenu.MODULE_SLOT_Y, 0, 0,
                 SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {
@@ -218,24 +197,14 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
                 TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
     }
 
-    private void renderItemSlot(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(ITEM_SLOT_TEXTURE, x, y, 0, 0, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE,
-                ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
-    }
+    private void renderProgressArrow(GuiGraphics guiGraphics, int x, int y) {
+        int arrowX = x + ARROW_X;
+        int arrowY = y + ARROW_Y;
 
-    private void renderModeButton(GuiGraphics guiGraphics, int x, int y) {
-        ResourceLocation texture = menu.getMode() == MutatorBlockEntity.Mode.FILL ? MODE_FILL_TEXTURE : MODE_MUTATE_TEXTURE;
-        guiGraphics.blit(texture, x, y, 0, 0, MODE_BUTTON_SIZE, MODE_BUTTON_SIZE, MODE_BUTTON_SIZE, MODE_BUTTON_SIZE);
-    }
-
-    private void renderProgressArrow(GuiGraphics guiGraphics, int arrowX, int arrowY) {
         guiGraphics.blit(ARROW_BACKGROUND_TEXTURE, arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT,
                 ARROW_WIDTH, ARROW_HEIGHT);
 
-        // No progress arrow makes sense in FILL mode -- fill is a continuous per-cycle operation
-        // with no single-shot completion (see MutatorBlockEntity#tickFill), so there's nothing to
-        // scale the arrow against. Only render fill in MUTATE mode.
-        if (menu.getMode() == MutatorBlockEntity.Mode.MUTATE && menu.isCrafting()) {
+        if (menu.isCrafting()) {
             int progressWidth = 1 + menu.getScaledArrowProgress();
             guiGraphics.blit(ARROW_FULL_TEXTURE, arrowX, arrowY, 0, 0, progressWidth, ARROW_HEIGHT,
                     ARROW_WIDTH, ARROW_HEIGHT);
