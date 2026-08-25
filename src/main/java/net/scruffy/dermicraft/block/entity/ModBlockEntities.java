@@ -82,6 +82,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("render_furnace_be", () -> BlockEntityType.Builder.of(
                     RenderFurnaceBlockEntity::new, ModBlocks.RENDER_FURNACE.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredRenderFurnaceBlockEntity>> CHARRED_RENDER_FURNACE_BE =
+            BLOCK_ENTITIES.register("charred_render_furnace_be", () -> BlockEntityType.Builder.of(
+                    CharredRenderFurnaceBlockEntity::new, ModBlocks.CHARRED_RENDER_FURNACE.get()).build(null));
+
     public static final Supplier<BlockEntityType<GraftingTableBlockEntity>> GRAFTING_TABLE_BE =
             BLOCK_ENTITIES.register("grafting_table_be", () -> BlockEntityType.Builder.of(
                     GraftingTableBlockEntity::new, ModBlocks.GRAFTING_TABLE.get()).build(null));

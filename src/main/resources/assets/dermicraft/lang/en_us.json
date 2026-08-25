@@ -243,6 +243,8 @@
 
   "block.dermicraft.render_furnace": "Render Furnace",
   "blockEntity.dermicraft.render_furnace_be": "Render Furnace",
+  "block.dermicraft.charred_render_furnace": "Charred Render Furnace",
+  "blockEntity.dermicraft.charred_render_furnace_be": "Charred Render Furnace",
 
   "block.dermicraft.grafting_table": "Grafting Table",
   "blockEntity.dermicraft.grafting_table_be": "Grafting Table",
@@ -423,6 +425,12 @@
 
   "screen.dermicraft.charred_render_kiln.main_tab": "Main",
   "screen.dermicraft.charred_render_kiln.module_tab": "Mod",
+
+  "screen.dermicraft.render_furnace.main_tab": "Main",
+  "screen.dermicraft.render_furnace.module_tab": "Mod",
+
+  "screen.dermicraft.charred_render_furnace.main_tab": "Main",
+  "screen.dermicraft.charred_render_furnace.module_tab": "Mod",
   "screen.dermicraft.charred_metastasizer.main_tab": "Main",
   "screen.dermicraft.charred_metastasizer.module_tab": "Mod",
   "screen.dermicraft.drooling_crucible.main_tab": "Main",

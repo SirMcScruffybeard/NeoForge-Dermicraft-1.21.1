@@ -36,6 +36,11 @@ public record MachineTier(int tankCapacity, int maxHealth, float speedMultiplier
      * unchanged -- only speed and capacity differ. */
     public static final MachineTier CHARRED = new MachineTier(BASIC.tankCapacity() * 2, BASIC.maxHealth(), 1.25f, BASIC.healMultiplier());
 
+    /** The Charred upgrade tier for a {@link #NO_HEALTH} machine (Charred Render Furnace) -- same
+     * double-capacity/1.25x-speed treatment as {@link #CHARRED}, but keeps maxHealth at 0 since the
+     * progenitor never had the HP mechanic to begin with. */
+    public static final MachineTier CHARRED_NO_HEALTH = new MachineTier(NO_HEALTH.tankCapacity() * 2, NO_HEALTH.maxHealth(), 1.25f, NO_HEALTH.healMultiplier());
+
     // To add a stat-only upgrade tier later, declare it here and hand it to a new block, e.g.:
     // public static final MachineTier ADVANCED = new MachineTier(FluidType.BUCKET_VOLUME * 10, 400, 1.5f, 1.5f);
 }

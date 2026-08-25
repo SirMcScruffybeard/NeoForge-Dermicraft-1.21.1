@@ -210,6 +210,11 @@ public class ModBlocks {
     public static final DeferredBlock<Block> RENDER_FURNACE = registerBlock("render_furnace",
             () -> new RenderFurnaceBlock(machineProperties()));
 
+    // Charred Render Furnace -- Render Furnace's Tier 2 evolution, see
+    // CharredRenderFurnaceBlockEntity's own javadoc (pure stat upgrade, no hazard tank to widen).
+    public static final DeferredBlock<Block> CHARRED_RENDER_FURNACE = registerBlock("charred_render_furnace",
+            () -> new CharredRenderFurnaceBlock(machineProperties()));
+
     public static final DeferredBlock<Block> GRAFTING_TABLE = registerBlock("grafting_table",
             () -> new GraftingTableBlock(machineProperties()));
 

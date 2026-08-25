@@ -221,6 +221,8 @@ public class DermicraftClient {
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.RENDER_KILN_BE.get(),
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.RENDER_FURNACE_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
@@ -243,6 +245,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.MUTATOR_MENU.get(), MutatorScreen::new);
         event.register(ModMenuTypes.CHARRED_MUTATOR_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_mutator.CharredMutatorScreen::new);
         event.register(ModMenuTypes.RENDER_FURNACE_MENU.get(), RenderFurnaceScreen::new);
+        event.register(ModMenuTypes.CHARRED_RENDER_FURNACE_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_render_furnace.CharredRenderFurnaceScreen::new);
         event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);
         event.register(ModMenuTypes.RENDER_KILN_MENU.get(), RenderKilnScreen::new);
         event.register(ModMenuTypes.CHARRED_RENDER_KILN_MENU.get(), CharredRenderKilnScreen::new);

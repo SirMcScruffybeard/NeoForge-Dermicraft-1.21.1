@@ -11,6 +11,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.charred_masticator.CharredMasticatorMenu;
+import net.scruffy.dermicraft.screen.custom.charred_render_furnace.CharredRenderFurnaceMenu;
 import net.scruffy.dermicraft.screen.custom.charred_render_kiln.CharredRenderKilnMenu;
 import net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankMenu;
 import net.scruffy.dermicraft.screen.custom.charred_craw.CharredCrawMenu;
@@ -89,6 +90,9 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<RenderFurnaceMenu>> RENDER_FURNACE_MENU =
             registerMenuType("render_furnace_menu", RenderFurnaceMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<CharredRenderFurnaceMenu>> CHARRED_RENDER_FURNACE_MENU =
+            registerMenuType("charred_render_furnace_menu", CharredRenderFurnaceMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<GraftingTableMenu>> GRAFTING_TABLE_MENU =
             registerMenuType("grafting_table_menu", GraftingTableMenu::new);

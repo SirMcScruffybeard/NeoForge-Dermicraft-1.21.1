@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.render_furnace;
+package net.scruffy.dermicraft.screen.custom.charred_render_furnace;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -7,32 +7,34 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.entity.custom.CharredRenderFurnaceBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.RenderFurnaceBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
-public class RenderFurnaceMenu extends AbstractModMenu {
+/** Charred Render Furnace's menu -- identical layout/slots (Module tab included) to
+ * {@code RenderFurnaceMenu}, just typed to {@link CharredRenderFurnaceBlockEntity} and checked
+ * against {@link ModBlocks#CHARRED_RENDER_FURNACE} in {@link #stillValid}. Distinct class for the
+ * same reason CharredMetastasizerMenu is. */
+public class CharredRenderFurnaceMenu extends AbstractModMenu {
 
-    // Same tab pattern as every other Module-tab machine.
     public static final int MAIN_TAB = 0;
     public static final int MODULE_TAB = 1;
 
-    // Matches every other machine's own Module slot position -- one consistent mod-wide GUI
-    // convention.
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
 
-    public final RenderFurnaceBlockEntity BE;
+    public final CharredRenderFurnaceBlockEntity BE;
     private final Level level;
 
-    public RenderFurnaceMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
+    public CharredRenderFurnaceMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
         this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
-    public RenderFurnaceMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.RENDER_FURNACE_MENU.get(), containerId, RenderFurnaceBlockEntity.INVENTORY_SIZE);
+    public CharredRenderFurnaceMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
+        super(ModMenuTypes.CHARRED_RENDER_FURNACE_MENU.get(), containerId, RenderFurnaceBlockEntity.INVENTORY_SIZE);
         checkContainerSize(inv, 2);
-        this.BE = (RenderFurnaceBlockEntity) blockEntity;
+        this.BE = (CharredRenderFurnaceBlockEntity) blockEntity;
         this.level = inv.player.level();
 
         addPlayerInventory(inv);
@@ -75,7 +77,7 @@ public class RenderFurnaceMenu extends AbstractModMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return super.stillValid(level, player, ModBlocks.RENDER_FURNACE, BE);
+        return super.stillValid(level, player, ModBlocks.CHARRED_RENDER_FURNACE, BE);
     }
 
     public boolean isCrafting() {

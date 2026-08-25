@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.render_furnace;
+package net.scruffy.dermicraft.screen.custom.charred_render_furnace;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,11 +18,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-/** Same layout convention as every other machine's screen -- input/arrow/output in the middle,
- * fuel tank (paired with its own bucket-fill slot) on the far right. No HP bar -- the Render
- * Furnace has no HP mechanic at all (see MachineTier.NO_HEALTH). Gained a Module tab alongside
- * the Charred Render Furnace evolution mechanic -- same tab convention as every other machine. */
-public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
+/** Charred Render Furnace's screen -- identical GUI layout/textures to {@code RenderFurnaceScreen},
+ * just typed to {@link CharredRenderFurnaceMenu}. See that class's javadoc for why this is a
+ * separate class rather than reusing RenderFurnaceScreen. */
+public class CharredRenderFurnaceScreen extends AbstractModScreen<CharredRenderFurnaceMenu> {
 
     private static final int TAB_TEXT_COLOR = 0x007F0E;
     private List<Tab> tabs;
@@ -53,9 +52,6 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
     private static final int ARROW_WIDTH = 17;
     private static final int ARROW_HEIGHT = 10;
 
-    // Same coordinate scheme as the Metastasizer/Mutator screens, minus the reagent tank on the
-    // left -- visual consistency across every machine's GUI (input/arrow/output in the middle,
-    // fuel far right) matters more than reclaiming the now-empty space.
     private static final int INPUT_X = 60;
     private static final int ARROW_X = 90;
     private static final int OUTPUT_X = 120;
@@ -66,8 +62,6 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
 
     private FluidTankRenderer fuelRenderer;
 
-    // Auto-dispense toggle -- see RenderKilnScreen's own identical constants/comment. No HP bar here
-    // either, so the button sits at the very top of the input/arrow/output column.
     private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
     private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
@@ -76,7 +70,7 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
     private static final int AUTO_DRAIN_BUTTON_X = ARROW_X;
     private static final int AUTO_DRAIN_BUTTON_Y = TANK_Y;
 
-    public RenderFurnaceScreen(RenderFurnaceMenu menu, Inventory playerInventory, Component title) {
+    public CharredRenderFurnaceScreen(CharredRenderFurnaceMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
@@ -85,8 +79,8 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
         super.init();
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
         tabs = List.of(
-                new Tab(Component.translatable("screen.dermicraft.render_furnace.main_tab"), TAB_TEXT_COLOR),
-                new Tab(Component.translatable("screen.dermicraft.render_furnace.module_tab"), TAB_TEXT_COLOR));
+                new Tab(Component.translatable("screen.dermicraft.charred_render_furnace.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.charred_render_furnace.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -94,7 +88,7 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        if (menu.getActiveTab() == RenderFurnaceMenu.MAIN_TAB) {
+        if (menu.getActiveTab() == CharredRenderFurnaceMenu.MAIN_TAB) {
             renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
                     menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer,
                     Component.translatable("tooltip.dermicraft.gauge.fuel"));
@@ -133,7 +127,7 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
         renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
-        if (menu.getActiveTab() == RenderFurnaceMenu.MAIN_TAB) {
+        if (menu.getActiveTab() == CharredRenderFurnaceMenu.MAIN_TAB) {
             renderMainTab(guiGraphics, x, y);
         } else {
             renderModuleTab(guiGraphics, x, y);
@@ -151,10 +145,8 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
         renderAutoDrainButton(guiGraphics, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y);
     }
 
-    /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
-     * Module-slot-only look. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + RenderFurnaceMenu.MODULE_SLOT_X, y + RenderFurnaceMenu.MODULE_SLOT_Y, 0, 0,
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredRenderFurnaceMenu.MODULE_SLOT_X, y + CharredRenderFurnaceMenu.MODULE_SLOT_Y, 0, 0,
                 SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
     }
 
@@ -170,7 +162,7 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
             return true;
         }
 
-        if (menu.getActiveTab() == RenderFurnaceMenu.MAIN_TAB
+        if (menu.getActiveTab() == CharredRenderFurnaceMenu.MAIN_TAB
                 && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
                 AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
             PacketDistributor.sendToServer(new AutoDrainToggleClickPayload(menu.BE.getBlockPos()));
