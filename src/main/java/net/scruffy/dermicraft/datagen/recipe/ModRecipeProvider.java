@@ -501,6 +501,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
+        // Molten Netherite: mirrors the real 4 Scrap + 4 Gold Ingot -> 1 Netherite Ingot vanilla
+        // smithing ratio (each fluid is 1000 mB per item). 60s matches the mod's other 4:1-ratio
+        // recipes (Quartz Block/Glowstone/Amethyst Block). Requires the Charred Effluentcer --
+        // both inputs carry Thermal Hazard.
+        RecipeBuilders.buildEffluencing(recipeOutput, "molten_netherite_effluencing",
+                ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 4000, ModFluids.SOURCE_AUROUS_BLEND.get(), 4000,
+                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.WATER);
         // Same ingredient/modifier as Cauldron's own -- "they produce what they produce regardless
         // of food... exposure to food drives their hunger more" (dermicraft-machine-notes.md).
@@ -1433,12 +1441,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, 1000,
                 ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
-        // Molten Netherite (Molten Raw Netherite Scrap + Aurous Blend -> Molten Netherite) is
-        // deliberately NOT added here yet. Its confirmed machine is the Effluentcer, which has no
-        // Charred/Tier 2 variant yet -- its tanks are still hardcoded TIER_1 and would reject the
-        // Thermal-hazard Scrap input, so registering this recipe now would just create a second,
-        // still-unreachable gap instead of resolving one. Needs a Charred Effluentcer first.
-
         // Reverse route (Charred Metastasizer, pattern-based duplication) -- mirrors every Molten
         // Masticating recipe above 1:1 on item and mB, same "forward mirrors reverse" convention as
         // the Ingot/Nugget/Coal/Stone families elsewhere in this file. Needs Charred Metastasizer
@@ -1473,6 +1475,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.LAPIS_BLOCK, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 9000, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_raw_netherite_scrap",
                 Items.NETHERITE_SCRAP, ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        // Pattern is Netherite Ingot, not Scrap -- Molten Netherite is the refined-stage fluid
+        // (Scrap + Aurous Blend via Effluencing), so its duplication pattern mirrors that stage.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_netherite",
+                Items.NETHERITE_INGOT, ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_essence",
                 Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_ESSENCE.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ghast_essence",
@@ -1652,6 +1658,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.LAPIS_LAZULI, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_netherite_scrap", ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 1000,
                 Items.NETHERITE_SCRAP, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_netherite_ingot", ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000,
+                Items.NETHERITE_INGOT, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, Items.BONE_MEAL, lightTicks);
         // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Blend, solidTicks) --
         // same amount/timing, no pattern item since the Render Kiln is fluid-only input.

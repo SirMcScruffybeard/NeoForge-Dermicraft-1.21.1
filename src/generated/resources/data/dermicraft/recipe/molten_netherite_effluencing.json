@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_molten_raw_netherite_scrap",
+  "fluid_a_amount": 4000,
+  "fluid_b": "dermicraft:source_aurous_blend",
+  "fluid_b_amount": 4000,
+  "result_fluid": "dermicraft:source_molten_netherite",
+  "result_fluid_amount": 1000,
+  "ticks": 1200
+}

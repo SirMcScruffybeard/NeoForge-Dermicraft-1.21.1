@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_molten_netherite",
+  "fluid_amount": 1000,
+  "result": {
+    "count": 1,
+    "id": "minecraft:netherite_ingot"
+  },
+  "ticks": 1200
+}

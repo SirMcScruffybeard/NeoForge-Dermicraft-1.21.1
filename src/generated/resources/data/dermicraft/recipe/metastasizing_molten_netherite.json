@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_molten_netherite",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:netherite_ingot"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:netherite_ingot"
+  },
+  "ticks": 1200
+}
