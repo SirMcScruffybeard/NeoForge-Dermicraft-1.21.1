@@ -1422,20 +1422,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "blaze_essence_masticating",
-                Ingredient.of(Items.BLAZE_POWDER), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.BLAZE_POWDER), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "ghast_essence_masticating",
-                Ingredient.of(Items.GHAST_TEAR), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_GHAST_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.GHAST_TEAR), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_GHAST_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "wither_essence_masticating",
-                Ingredient.of(Items.WITHER_SKELETON_SKULL), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_WITHER_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.WITHER_SKELETON_SKULL), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_WITHER_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "ender_essence_masticating",
-                Ingredient.of(Items.ENDER_PEARL), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_ENDER_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.ENDER_PEARL), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_ENDER_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_soul_silica_masticating",
                 Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, 1000,
@@ -1480,13 +1480,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_netherite",
                 Items.NETHERITE_INGOT, ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_essence",
-                Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_ESSENCE.get(), 110, lightTicks);
+                Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ghast_essence",
-                Items.GHAST_TEAR, ModFluids.SOURCE_GHAST_ESSENCE.get(), 110, lightTicks);
+                Items.GHAST_TEAR, ModFluids.SOURCE_GHAST_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_wither_essence",
-                Items.WITHER_SKELETON_SKULL, ModFluids.SOURCE_WITHER_ESSENCE.get(), 110, lightTicks);
+                Items.WITHER_SKELETON_SKULL, ModFluids.SOURCE_WITHER_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ender_essence",
-                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_ESSENCE.get(), 110, lightTicks);
+                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_soul_silica",
                 Items.SOUL_SAND, ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
@@ -1660,6 +1660,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.NETHERITE_SCRAP, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_netherite_ingot", ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000,
                 Items.NETHERITE_INGOT, ModMath.Time.getSecondsToTicks(60));
+        RecipeBuilders.render(recipeOutput, "render_kiln_blaze_powder", ModFluids.SOURCE_BLAZE_ESSENCE.get(), 1000,
+                Items.BLAZE_POWDER, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_ghast_tear", ModFluids.SOURCE_GHAST_ESSENCE.get(), 1000,
+                Items.GHAST_TEAR, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_wither_skeleton_skull", ModFluids.SOURCE_WITHER_ESSENCE.get(), 1000,
+                Items.WITHER_SKELETON_SKULL, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_ender_pearl", ModFluids.SOURCE_ENDER_ESSENCE.get(), 1000,
+                Items.ENDER_PEARL, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, Items.BONE_MEAL, lightTicks);
         // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Blend, solidTicks) --
         // same amount/timing, no pattern item since the Render Kiln is fluid-only input.

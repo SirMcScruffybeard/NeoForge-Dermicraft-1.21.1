@@ -1,10 +1,7 @@
 {
-  "type": "dermicraft:metastasizing",
+  "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_blaze_essence",
   "fluid_amount": 1000,
-  "pattern": {
-    "item": "minecraft:blaze_powder"
-  },
   "result": {
     "count": 1,
     "id": "minecraft:blaze_powder"

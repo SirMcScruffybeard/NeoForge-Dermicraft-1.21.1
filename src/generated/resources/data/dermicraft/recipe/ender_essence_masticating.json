@@ -4,10 +4,10 @@
     "item": "minecraft:ender_pearl"
   },
   "ingredient_fluid": "minecraft:lava",
-  "ingredient_fluid_amount": 110,
+  "ingredient_fluid_amount": 1000,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_ender_essence",
-  "result_fluid_amount": 110,
+  "result_fluid_amount": 1000,
   "ticks": 600
 }
