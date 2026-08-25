@@ -1,17 +1,11 @@
 package net.scruffy.dermicraft.item.custom;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.interfaces.IInject;
@@ -65,30 +59,11 @@ public class SyringeItem extends Item implements IInject, IHaveFluidData {
         return super.getName(stack);
     }
 
-    @Override
-    public InteractionResult useOn(UseOnContext context) {
-        Level level = context.getLevel();
-        if (!isServerSide(level)) return InteractionResult.SUCCESS;
-
-        BlockPos pos = context.getClickedPos();
-        Direction face = context.getClickedFace();
-        ItemStack stack = context.getItemInHand();
-
-        if (isValidFluidHandler(getTargetFluidHandler(level, pos, face))) {
-            draw(level, pos, face, stack);
-            return InteractionResult.SUCCESS;
-        }
-        return InteractionResult.PASS;
-    }
-
-    private void draw(Level level, BlockPos pos, Direction face, ItemStack stack) {
-        IFluidHandler handler = getTargetFluidHandler(level, pos, face);
-
-        if (isValidFluidHandler(handler) && targetHasEnough(CAPACITY, handler)) {
-            FluidData data = stack.getOrDefault(getFluidDataType(), FluidData.EMPTY);
-            if (data.isFluidEmpty()) {
-                stack.set(getFluidDataType(), FluidData.createData(handler.drain(CAPACITY, IFluidHandler.FluidAction.EXECUTE)));
-            }
-        }
-    }
+    // Tank draw/inject used to live here (useOn -> draw), but every machine block's
+    // useWithoutItem now unconditionally opens its GUI on a fallen-through click, which consumes
+    // the interaction before vanilla ever reaches an item's own useOn (see
+    // ServerPlayerGameMode#useItemOn: block's useItemOn -> block's useWithoutItem -> ONLY THEN the
+    // item's useOn). That logic moved to SyringeTankEvent (PlayerInteractEvent.RightClickBlock,
+    // which fires before all of that), so it stays effective regardless of any given block's own
+    // interaction shape. See that class for the real draw/inject implementation.
 }
