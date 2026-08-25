@@ -447,6 +447,24 @@ public class ModFluids {
             .block(ModFluids.MOLTEN_DIAMOND_BLOCK)
             .bucket(ModFluids.MOLTEN_DIAMOND_BUCKET);
 
+    //////////////////////////////Molten Emerald\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_MOLTEN_EMERALD = FLUIDS.register("source_molten_emerald",
+            () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_EMERALD_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_MOLTEN_EMERALD = FLUIDS.register("flowing_molten_emerald",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_EMERALD_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> MOLTEN_EMERALD_BLOCK = ModBlocks.BLOCKS.register("molten_emerald_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_EMERALD.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> MOLTEN_EMERALD_BUCKET = getBucket("molten_emerald_bucket", ModFluids.SOURCE_MOLTEN_EMERALD);
+
+    public static final BaseFlowingFluid.Properties MOLTEN_EMERALD_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.MOLTEN_EMERALD_FLUID_TYPE, SOURCE_MOLTEN_EMERALD, FLOWING_MOLTEN_EMERALD)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.MOLTEN_EMERALD_BLOCK)
+            .bucket(ModFluids.MOLTEN_EMERALD_BUCKET);
+
     //////////////////////////////Molten Lapis\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_MOLTEN_LAPIS = FLUIDS.register("source_molten_lapis",
             () -> new BaseFlowingFluid.Source(ModFluids.MOLTEN_LAPIS_PROPERTIES));

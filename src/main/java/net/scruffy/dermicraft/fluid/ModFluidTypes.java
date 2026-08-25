@@ -409,6 +409,22 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
+    public static final Supplier<FluidType> MOLTEN_EMERALD_FLUID_TYPE = registerFluidType("molten_emerald_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF3ACD64,
+                    setColorVector(58, 205, 100),
+                    FluidType.Properties.create()
+                            .viscosity(6200)
+                            .density(3800)
+                            .temperature(1300)
+                            .motionScale(0.005)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
     public static final Supplier<FluidType> MOLTEN_LAPIS_FLUID_TYPE = registerFluidType("molten_lapis_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF1B3F8B,
                     setColorVector(27, 63, 139),

@@ -1386,6 +1386,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.DIAMOND_BLOCK), 1, Fluids.LAVA, 9000,
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
 
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_emerald_masticating",
+                Ingredient.of(Items.EMERALD), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Emerald Block -- real 9:1 vanilla ratio, same convention as Diamond/Coal/Redstone/the metal blocks.
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_emerald_masticating_block",
+                Ingredient.of(Items.EMERALD_BLOCK), 1, Fluids.LAVA, 9000,
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
+
         RecipeBuilders.buildMasticating(recipeOutput, "molten_lapis_masticating",
                 Ingredient.of(Items.LAPIS_LAZULI), 1, Fluids.LAVA, 110,
                 ModFluids.SOURCE_MOLTEN_LAPIS.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
@@ -1442,6 +1451,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.DIAMOND, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond_block",
                 Items.DIAMOND_BLOCK, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_emerald",
+                Items.EMERALD, ModFluids.SOURCE_MOLTEN_EMERALD.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_emerald_block",
+                Items.EMERALD_BLOCK, ModFluids.SOURCE_MOLTEN_EMERALD.get(), 9000, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_lapis",
                 Items.LAPIS_LAZULI, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_raw_netherite_scrap",
@@ -1613,6 +1626,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.QUARTZ, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_glowstone_dust", ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 1000,
                 Items.GLOWSTONE_DUST, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_diamond", ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 1000,
+                Items.DIAMOND, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_emerald", ModFluids.SOURCE_MOLTEN_EMERALD.get(), 1000,
+                Items.EMERALD, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, Items.BONE_MEAL, lightTicks);
         // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Blend, solidTicks) --
         // same amount/timing, no pattern item since the Render Kiln is fluid-only input.

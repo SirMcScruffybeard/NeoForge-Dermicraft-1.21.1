@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_molten_emerald",
+  "fluid_amount": 1000,
+  "result": {
+    "count": 1,
+    "id": "minecraft:emerald"
+  },
+  "ticks": 600
+}

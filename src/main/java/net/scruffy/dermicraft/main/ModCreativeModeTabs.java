@@ -190,6 +190,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.MOLTEN_GLOWSTONE_BUCKET);
                         output.accept(ModFluids.MOLTEN_AMETHYST_BUCKET);
                         output.accept(ModFluids.MOLTEN_DIAMOND_BUCKET);                        output.accept(ModFluids.MOLTEN_LAPIS_BUCKET);
+                        output.accept(ModFluids.MOLTEN_EMERALD_BUCKET);
                         output.accept(ModFluids.MOLTEN_RAW_NETHERITE_SCRAP_BUCKET);
                         output.accept(ModFluids.MOLTEN_NETHERITE_BUCKET);
                         output.accept(ModFluids.BLAZE_ESSENCE_BUCKET);
@@ -254,6 +255,7 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_AMETHYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_DIAMOND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_LAPIS.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_EMERALD.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_NETHERITE.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_BLAZE_ESSENCE.get()));

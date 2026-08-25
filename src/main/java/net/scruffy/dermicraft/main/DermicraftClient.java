@@ -92,6 +92,7 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), ModFluids.FLOWING_MOLTEN_GLOWSTONE.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_AMETHYST.get(), ModFluids.FLOWING_MOLTEN_AMETHYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_DIAMOND.get(), ModFluids.FLOWING_MOLTEN_DIAMOND.get());            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_LAPIS.get(), ModFluids.FLOWING_MOLTEN_LAPIS.get());
+            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_EMERALD.get(), ModFluids.FLOWING_MOLTEN_EMERALD.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), ModFluids.FLOWING_MOLTEN_RAW_NETHERITE_SCRAP.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_NETHERITE.get(), ModFluids.FLOWING_MOLTEN_NETHERITE.get());
             renderTranslucentFluid(ModFluids.SOURCE_BLAZE_ESSENCE.get(), ModFluids.FLOWING_BLAZE_ESSENCE.get());
@@ -134,6 +135,7 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.MOLTEN_GLOWSTONE_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_AMETHYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE.get());        registerFluidType(event, ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.MOLTEN_EMERALD_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_RAW_NETHERITE_SCRAP_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_NETHERITE_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.BLAZE_ESSENCE_FLUID_TYPE.get());

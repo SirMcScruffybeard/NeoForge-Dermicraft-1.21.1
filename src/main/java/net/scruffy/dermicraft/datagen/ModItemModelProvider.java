@@ -126,6 +126,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         chunkyBucketItem(ModFluids.MOLTEN_GLOWSTONE_BUCKET.get());
         chunkyBucketItem(ModFluids.MOLTEN_AMETHYST_BUCKET.get());
         chunkyBucketItem(ModFluids.MOLTEN_DIAMOND_BUCKET.get());        chunkyBucketItem(ModFluids.MOLTEN_LAPIS_BUCKET.get());
+        chunkyBucketItem(ModFluids.MOLTEN_EMERALD_BUCKET.get());
         chunkyBucketItem(ModFluids.MOLTEN_RAW_NETHERITE_SCRAP_BUCKET.get());
         chunkyBucketItem(ModFluids.MOLTEN_NETHERITE_BUCKET.get());
 

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:emerald"
+  },
+  "ingredient_fluid": "minecraft:lava",
+  "ingredient_fluid_amount": 1000,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_molten_emerald",
+  "result_fluid_amount": 1000,
+  "ticks": 600
+}
