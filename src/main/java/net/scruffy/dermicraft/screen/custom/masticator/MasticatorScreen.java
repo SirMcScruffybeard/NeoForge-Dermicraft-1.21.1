@@ -75,14 +75,15 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     private static final int HEALTH_BAR_Y = 11; // top of the fluid tank renderers
 
     // Auto-drain toggle -- fluid-side counterpart to CrawScreen's own item auto-push toggle, reusing
-    // the same shared icons (output, rotated 90 degrees, for ON; no-use for OFF). Sits right of the
-    // result tank (x+122, 18px wide -> ends x+140), 4px gap matching Craw's own spacing convention.
+    // the same shared icons (output, rotated 90 degrees, for ON; no-use for OFF). Sits directly above
+    // the crafting-progress arrow (x+95), in the empty column between the ingredient item slot and
+    // the result tank.
     private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
     private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
-    private static final int AUTO_DRAIN_BUTTON_X = 144;
+    private static final int AUTO_DRAIN_BUTTON_X = 95;
     private static final int AUTO_DRAIN_BUTTON_Y = 11;
 
     public MasticatorScreen(MasticatorMenu menu, Inventory playerInventory, Component title) {

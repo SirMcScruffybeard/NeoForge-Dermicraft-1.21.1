@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.network.MutatorModeClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
@@ -87,6 +88,15 @@ public class CharredMutatorScreen extends AbstractModScreen<CharredMutatorMenu> 
     private static final int MODE_BUTTON_X = INPUT_X;
     private static final int MODE_BUTTON_Y = SLOT_Y - MODE_BUTTON_SIZE - 2;
 
+    // Auto-dispense toggle -- see MutatorScreen's own identical constants/comment.
+    private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
+    private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
+    private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
+    private static final int AUTO_DRAIN_BUTTON_X = ARROW_X;
+    private static final int AUTO_DRAIN_BUTTON_Y = TANK_Y;
+
     private FluidTankRenderer reagentRenderer;
     private FluidTankRenderer fuelRenderer;
 
@@ -120,6 +130,13 @@ public class CharredMutatorScreen extends AbstractModScreen<CharredMutatorMenu> 
                 && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MODE_BUTTON_X, y + MODE_BUTTON_Y,
                 MODE_BUTTON_SIZE, MODE_BUTTON_SIZE)) {
             PacketDistributor.sendToServer(new MutatorModeClickPayload(menu.BE.getBlockPos()));
+            return true;
+        }
+
+        if (menu.getActiveTab() == CharredMutatorMenu.MAIN_TAB
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            PacketDistributor.sendToServer(new AutoDrainToggleClickPayload(menu.BE.getBlockPos()));
             return true;
         }
 
@@ -171,6 +188,14 @@ public class CharredMutatorScreen extends AbstractModScreen<CharredMutatorMenu> 
                     : Component.translatable("tooltip.dermicraft.mutator.mode_mutate");
             guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
         }
+
+        if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            Component label = menu.isAutoDrainEnabled()
+                    ? Component.translatable("tooltip.dermicraft.machine.auto_dispense_on")
+                    : Component.translatable("tooltip.dermicraft.machine.auto_dispense_off");
+            guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
+        }
     }
 
     @Override
@@ -201,9 +226,19 @@ public class CharredMutatorScreen extends AbstractModScreen<CharredMutatorMenu> 
         renderItemSlot(guiGraphics, x + OUTPUT_X, y + SLOT_Y);
         renderTankAndSlot(guiGraphics, x + FUEL_X, y + TANK_Y);
         renderModeButton(guiGraphics, x + MODE_BUTTON_X, y + MODE_BUTTON_Y);
+        renderAutoDrainButton(guiGraphics, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y);
 
         reagentRenderer.render(guiGraphics, x + REAGENT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getReagentTank().SLOT));
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+    }
+
+    private void renderAutoDrainButton(GuiGraphics guiGraphics, int x, int y) {
+        if (menu.isAutoDrainEnabled()) {
+            blitRotated90(guiGraphics, AUTO_DRAIN_ON_TEXTURE, x, y, AUTO_DRAIN_BUTTON_SIZE);
+        } else {
+            guiGraphics.blit(AUTO_DRAIN_OFF_TEXTURE, x, y, 0, 0, AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE);
+        }
     }
 
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {

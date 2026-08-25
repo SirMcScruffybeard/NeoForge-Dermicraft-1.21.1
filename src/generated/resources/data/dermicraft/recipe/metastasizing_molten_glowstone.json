@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_molten_glowstone",
-  "fluid_amount": 110,
+  "fluid_amount": 1000,
   "pattern": {
     "item": "minecraft:glowstone_dust"
   },
@@ -9,5 +9,5 @@
     "count": 1,
     "id": "minecraft:glowstone_dust"
   },
-  "ticks": 50
+  "ticks": 600
 }

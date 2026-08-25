@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_molten_redstone",
-  "fluid_amount": 110,
+  "fluid_amount": 500,
   "ingredient": {
     "tag": "c:rods/wooden"
   },

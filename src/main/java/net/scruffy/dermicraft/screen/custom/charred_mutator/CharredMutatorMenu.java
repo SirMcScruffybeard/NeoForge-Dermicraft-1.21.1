@@ -107,4 +107,8 @@ public class CharredMutatorMenu extends AbstractModMenu {
     public MutatorBlockEntity.Mode getMode() {
         return BE.getMode();
     }
+
+    public boolean isAutoDrainEnabled() {
+        return BE.isAutoDrainEnabled();
+    }
 }

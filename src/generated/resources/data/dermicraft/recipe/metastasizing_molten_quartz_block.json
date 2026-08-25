@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_molten_quartz",
+  "fluid_amount": 4000,
+  "pattern": {
+    "item": "minecraft:quartz_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:quartz_block"
+  },
+  "ticks": 1200
+}

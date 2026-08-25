@@ -247,6 +247,8 @@
 
   "block.dermicraft.render_kiln": "Render Kiln",
   "blockEntity.dermicraft.render_kiln_be": "Render Kiln",
+  "block.dermicraft.charred_render_kiln": "Charred Render Kiln",
+  "blockEntity.dermicraft.charred_render_kiln_be": "Charred Render Kiln",
 
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
@@ -320,6 +322,8 @@
   "tooltip.dermicraft.craw.auto_push_off": "Auto-push: Off (click to enable)",
   "tooltip.dermicraft.machine.auto_drain_on": "Auto-drain: On (click to disable)",
   "tooltip.dermicraft.machine.auto_drain_off": "Auto-drain: Off (click to enable)",
+  "tooltip.dermicraft.machine.auto_dispense_on": "Auto-dispense: On (click to disable)",
+  "tooltip.dermicraft.machine.auto_dispense_off": "Auto-dispense: Off (click to enable)",
 
   "tooltip.dermicraft.idep.face.effluentcer_fuel": "Fuel tank",
   "tooltip.dermicraft.idep.face.effluentcer_result": "Result tank",
@@ -411,6 +415,12 @@
   "screen.dermicraft.charred_craw.module_tab": "Mod",
   "screen.dermicraft.metastasizer.main_tab": "Main",
   "screen.dermicraft.metastasizer.module_tab": "Mod",
+
+  "screen.dermicraft.render_kiln.main_tab": "Main",
+  "screen.dermicraft.render_kiln.module_tab": "Mod",
+
+  "screen.dermicraft.charred_render_kiln.main_tab": "Main",
+  "screen.dermicraft.charred_render_kiln.module_tab": "Mod",
   "screen.dermicraft.charred_metastasizer.main_tab": "Main",
   "screen.dermicraft.charred_metastasizer.module_tab": "Mod",
   "screen.dermicraft.drooling_crucible.main_tab": "Main",

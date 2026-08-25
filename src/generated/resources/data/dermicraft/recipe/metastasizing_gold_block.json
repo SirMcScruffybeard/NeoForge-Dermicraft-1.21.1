@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_aurous_blend",
+  "fluid_amount": 9000,
+  "pattern": {
+    "item": "minecraft:gold_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:gold_block"
+  },
+  "ticks": 1800
+}

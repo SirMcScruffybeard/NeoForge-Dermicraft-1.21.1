@@ -355,7 +355,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
 
     @Override
     protected void drainOutputs(Level level) {
-        if (!INVENTORY.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
+        if (autoDrainEnabled && !INVENTORY.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
             ModItemUtil.pushItemToBelowNeighbour(level, worldPosition, INVENTORY, OUTPUT_SLOT);
         }
     }

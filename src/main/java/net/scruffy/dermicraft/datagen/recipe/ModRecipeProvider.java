@@ -516,14 +516,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModMath.Time.getSecondsToTicks(15));
 
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 1000,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 9000,
+                ModFluids.SOURCE_CARBON_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal", Items.COAL, 110,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 112, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal", Items.COAL, 1000,
+                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(15));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 110,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 1000,
+                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(15));
 
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "crude_slurry_vague_masticating", ModTags.Items.PLANT_FOOD, 2.6f,
                 ModFluids.SOURCE_CRUDE_SLURRY.get());
@@ -632,9 +632,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Carbon Blend reverse route -- mirrors each forward recipe's own output amount, same
         // convention as the Metal Blends' Ingot/Nugget reverse recipes above.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal", Items.COAL, ModFluids.SOURCE_CARBON_BLEND.get(), 112, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_charcoal", Items.CHARCOAL, ModFluids.SOURCE_CARBON_BLEND.get(), 110, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal_block", Items.COAL_BLOCK, ModFluids.SOURCE_CARBON_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal", Items.COAL, ModFluids.SOURCE_CARBON_BLEND.get(), 1000, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_charcoal", Items.CHARCOAL, ModFluids.SOURCE_CARBON_BLEND.get(), 1000, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal_block", Items.COAL_BLOCK, ModFluids.SOURCE_CARBON_BLEND.get(), 9000, solidTicks);
 
         // Stone Blend roster
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_gravel", Items.GRAVEL, ModFluids.SOURCE_STONE_BLEND.get(), 750, aggregateTicks);
@@ -688,9 +688,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_bucket", Items.BUCKET, 3000,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModMath.Time.getSecondsToTicks(45));
+
+        // Iron Block -- mirrors the Copper Block family's own vanilla-ratio-anchored 9000 mB (9
+        // Ingots) at the Sediment Blend's 5 mB/tick rate, same convention as Copper Block/Cut Copper.
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_iron_block", Items.IRON_BLOCK, 9000,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
 
         // Blood Nugget -- second half of the Protein Blend alternate route (see the Metastasizer's
         // metastasizing_blood_nugget). 25 mB/nugget -- well under a plain Iron Nugget's own 110 mB,
@@ -709,10 +714,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_ingot", Items.COPPER_INGOT, 1000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.buildMasticating(recipeOutput, "cuprous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_COPPER), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Copper building block family -- unaffected (fresh) state only, deliberately not covering
         // Exposed/Weathered/Oxidized or Waxed variants (oxidation is a passive weathering effect, not
@@ -743,23 +748,29 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(20));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_ingot", Items.GOLD_INGOT, 1000,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_nugget", Items.GOLD_NUGGET, 110,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.buildMasticating(recipeOutput, "aurous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Light Weighted Pressure Plate -- 2 Gold Ingots' worth, same treatment as its Iron counterpart above.
         RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_light_weighted_pressure_plate",
                 Items.LIGHT_WEIGHTED_PRESSURE_PLATE, 2000,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
 
+        // Gold Block -- mirrors the Copper Block family's own vanilla-ratio-anchored 9000 mB (9
+        // Ingots) at the Sediment Blend's 5 mB/tick rate, same convention as Copper Block/Cut Copper.
+        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_gold_block", Items.GOLD_BLOCK, 9000,
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+
         // Metal Blends - Metastasizer reverse route (Blend -> Ingot/Nugget), mirroring the Masticator's
         // Ingot/Nugget fluid amounts above 1:1. No Cuprous Nugget, same reason as the Masticator side.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_BLEND.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_bucket", Items.BUCKET, ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_block", Items.IRON_BLOCK, ModFluids.SOURCE_FERROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
 
         // Blood Nugget -- alternate trace-iron route from Protein Blend. Iron Nugget is a
         // non-consumed pattern (same as every other Metastasizer recipe here); Protein Blend is the
@@ -777,7 +788,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // discounted one-off. Unblocks the Drooling Cauldron's OT-native recipe.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cauldron", Items.CAULDRON, ModFluids.SOURCE_FERROUS_BLEND.get(), 7000, ModMath.Time.getSecondsToTicks(70));
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cuprous_ingot", Items.COPPER_INGOT, ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, solidTicks);
+        // Forward route back to Ferrous Blend -- matches the reverse metastasizing_cauldron above
+        // 1:1 (7000 mB, 70s), same convention as every other Masticator/Metastasizer pair.
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_cauldron", Items.CAULDRON, 7000,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 7000, ModMath.Time.getSecondsToTicks(70));
+
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cuprous_ingot", Items.COPPER_INGOT, ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
 
         // Copper building block family -- mirrors the Masticator recipes above 1:1, same convention
         // as every other Metal/Sediment Blend reverse route. Unaffected state only (see forward
@@ -791,28 +807,29 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_door", Items.COPPER_DOOR, ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(20));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_trapdoor", Items.COPPER_TRAPDOOR, ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(20));
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_ingot", Items.GOLD_INGOT, ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_ingot", Items.GOLD_INGOT, ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_nugget", Items.GOLD_NUGGET, ModFluids.SOURCE_AUROUS_BLEND.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_light_weighted_pressure_plate", Items.LIGHT_WEIGHTED_PRESSURE_PLATE,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gold_block", Items.GOLD_BLOCK, ModFluids.SOURCE_AUROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
 
 
         RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 75, Items.TORCH, 4);
+                ModFluids.SOURCE_CARBON_BLEND.get(), 500, Items.TORCH, 4);
 
         // Redstone torch's own dipping recipe -- mirrors vanilla's 1 stick + 1 redstone dust -> 1
         // redstone torch ratio (unlike the plain torch's 4-output). 110 mB Molten Redstone matches
         // the same "1 dust" rate metastasizing_molten_redstone_dust already uses below.
         RecipeBuilders.simpleDipping(recipeOutput, "redstone_torch_dipping", Tags.Items.RODS_WOODEN, 1,
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, Items.REDSTONE_TORCH, 1);
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, Items.REDSTONE_TORCH, 1);
 
         // Mutator copies of both dipping recipes above -- same ingredient/fluid/amount, just routed
         // through the Mutator's MUTATE mode instead of a dipping tank. lightTicks matches the same
         // "cheap single-dust-scale conversion" cadence metastasizing_molten_redstone_dust uses.
         RecipeBuilders.buildMutating(recipeOutput, "mutating_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
-                ModFluids.SOURCE_CARBON_BLEND.get(), 75, new ItemStack(Items.TORCH, 4), lightTicks);
+                ModFluids.SOURCE_CARBON_BLEND.get(), 500, new ItemStack(Items.TORCH, 4), lightTicks);
         RecipeBuilders.buildMutating(recipeOutput, "mutating_redstone_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
 
         RecipeBuilders.PuddleCraft.MakeFluids.makeFromTag(recipeOutput, "crude_slurry_puddle", ModTags.Items.PLANT_FOOD, 4, Fluids.WATER,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10));
@@ -1330,19 +1347,31 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // later, the goal right now is reachability for testing. Molten Redstone is the one member
         // with real confirmed numbers (Redstone Block -> 1000 mB, loose Dust -> 110 mB).
         RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_block",
-                Ingredient.of(Items.REDSTONE_BLOCK), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
+                Ingredient.of(Items.REDSTONE_BLOCK), 1, Fluids.LAVA, 9000,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 9000, -1, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_dust",
-                Ingredient.of(Items.REDSTONE), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.REDSTONE), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_quartz_masticating",
-                Ingredient.of(Items.QUARTZ), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.QUARTZ), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Quartz Block -- real vanilla ratio is 4 Quartz (unlike Coal/Redstone/the metal blocks'
+        // 9:1), so 4000 mB at double the item's own time, same "block ~2x item time" convention.
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_quartz_masticating_block",
+                Ingredient.of(Items.QUARTZ_BLOCK), 1, Fluids.LAVA, 4000,
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 4000, -1, ModMath.Time.getSecondsToTicks(60));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_glowstone_masticating",
-                Ingredient.of(Items.GLOWSTONE_DUST), 1, Fluids.LAVA, 110,
-                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.GLOWSTONE_DUST), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Glowstone (the block) -- real vanilla ratio is 4 Glowstone Dust, same reasoning as Quartz
+        // Block above.
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_glowstone_masticating_block",
+                Ingredient.of(Items.GLOWSTONE), 1, Fluids.LAVA, 4000,
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 4000, -1, ModMath.Time.getSecondsToTicks(60));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_amethyst_masticating",
                 Ingredient.of(Items.AMETHYST_SHARD), 1, Fluids.LAVA, 110,
@@ -1391,13 +1420,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // the Ingot/Nugget/Coal/Stone families elsewhere in this file. Needs Charred Metastasizer
         // since these fluids all carry Thermal Hazard, same reachability logic as the forward route.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_block",
-                Items.REDSTONE_BLOCK, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, solidTicks);
+                Items.REDSTONE_BLOCK, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 9000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_dust",
-                Items.REDSTONE, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, lightTicks);
+                Items.REDSTONE, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_quartz",
-                Items.QUARTZ, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 110, lightTicks);
+                Items.QUARTZ, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_quartz_block",
+                Items.QUARTZ_BLOCK, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 4000, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_glowstone",
-                Items.GLOWSTONE_DUST, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 110, lightTicks);
+                Items.GLOWSTONE_DUST, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_glowstone_block",
+                Items.GLOWSTONE, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 4000, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_amethyst",
                 Items.AMETHYST_SHARD, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond",
@@ -1566,7 +1599,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.render(recipeOutput, "render_kiln_iron_ingot", ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, Items.IRON_INGOT, solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_copper_ingot", ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, Items.COPPER_INGOT, solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_gold_ingot", ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, Items.GOLD_INGOT, solidTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_coal", ModFluids.SOURCE_CARBON_BLEND.get(), 112, Items.COAL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_coal", ModFluids.SOURCE_CARBON_BLEND.get(), 1000, Items.COAL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_redstone_dust", ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000,
+                Items.REDSTONE, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_quartz", ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000,
+                Items.QUARTZ, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_glowstone_dust", ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 1000,
+                Items.GLOWSTONE_DUST, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, Items.BONE_MEAL, lightTicks);
         // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Blend, solidTicks) --
         // same amount/timing, no pattern item since the Render Kiln is fluid-only input.

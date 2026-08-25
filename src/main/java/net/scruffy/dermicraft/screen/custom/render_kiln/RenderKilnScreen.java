@@ -6,20 +6,29 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.entity.custom.RenderKilnBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class RenderKilnScreen extends AbstractModScreen<RenderKilnMenu> {
+
+    private static final int TAB_TEXT_COLOR = 0x007F0E;
+    private List<Tab> tabs;
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
     private static final String SLOTS_DIR = "textures/gui/slots/";
     private static final String ARROWS_DIR = "textures/gui/arrows/";
     private static final String HEALTH_DIR = "textures/gui/health/";
+    private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
@@ -70,6 +79,17 @@ public class RenderKilnScreen extends AbstractModScreen<RenderKilnMenu> {
     private FluidTankRenderer inputRenderer;
     private FluidTankRenderer fuelRenderer;
 
+    // Auto-dispense toggle -- item-output counterpart to the fluid machines' own auto-drain toggle,
+    // same shared icons. Sits directly above the crafting-progress arrow, gated to the main tab now
+    // that a Module tab exists.
+    private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
+    private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
+    private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
+    private static final int AUTO_DRAIN_BUTTON_X = ARROW_X;
+    private static final int AUTO_DRAIN_BUTTON_Y = TANK_Y;
+
     public RenderKilnScreen(RenderKilnMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
@@ -79,6 +99,9 @@ public class RenderKilnScreen extends AbstractModScreen<RenderKilnMenu> {
         super.init();
         inputRenderer = createFluidRenderer16x40(menu.BE.getInputTank().getCapacity());
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        tabs = List.of(
+                new Tab(Component.translatable("screen.dermicraft.render_kiln.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.render_kiln.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -86,25 +109,35 @@ public class RenderKilnScreen extends AbstractModScreen<RenderKilnMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getInputTank().SLOT), INPUT_X + 1, TANK_Y + 1, inputRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.input"));
+        if (menu.getActiveTab() == RenderKilnMenu.MAIN_TAB) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    menu.BE.getFluid(menu.BE.getInputTank().SLOT), INPUT_X + 1, TANK_Y + 1, inputRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.input"));
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
-                menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer,
-                Component.translatable("tooltip.dermicraft.gauge.fuel"));
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                    menu.BE.getFluid(menu.BE.getFuelTank().SLOT), FUEL_X + 1, TANK_Y + 1, fuelRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, INPUT_X + 1, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getInputTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.input_container"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, INPUT_X + 1, 60,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getInputTank().SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.input_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_X + 1, 60,
-                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
-                Component.translatable("tooltip.dermicraft.slot.fuel_container"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_X + 1, 60,
+                    menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.fuel_container"));
 
-        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, OUTPUT_X + 1, SLOT_Y + 1,
-                menu.BE.getItemHandler(null).getStackInSlot(RenderKilnBlockEntity.OUTPUT_SLOT),
-                Component.translatable("tooltip.dermicraft.slot.result"));
+            renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, OUTPUT_X + 1, SLOT_Y + 1,
+                    menu.BE.getItemHandler(null).getStackInSlot(RenderKilnBlockEntity.OUTPUT_SLOT),
+                    Component.translatable("tooltip.dermicraft.slot.result"));
+
+            if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+                Component label = menu.isAutoDrainEnabled()
+                        ? Component.translatable("tooltip.dermicraft.machine.auto_dispense_on")
+                        : Component.translatable("tooltip.dermicraft.machine.auto_dispense_off");
+                guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
+            }
+        }
 
         if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
             int maxHealth = menu.getMaxHealth();
@@ -125,9 +158,18 @@ public class RenderKilnScreen extends AbstractModScreen<RenderKilnMenu> {
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
-        renderHealthBar(guiGraphics, x, y);
+        renderHealthBar(guiGraphics, x, y); // ambient status, visible on both tabs
 
+        if (menu.getActiveTab() == RenderKilnMenu.MAIN_TAB) {
+            renderMainTab(guiGraphics, x, y);
+        } else {
+            renderModuleTab(guiGraphics, x, y);
+        }
+    }
+
+    private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
         renderTankAndSlot(guiGraphics, x + INPUT_X, y + TANK_Y);
         renderProgressArrow(guiGraphics, x + ARROW_X, y + ARROW_Y);
         renderItemSlot(guiGraphics, x + OUTPUT_X, y + SLOT_Y);
@@ -135,6 +177,46 @@ public class RenderKilnScreen extends AbstractModScreen<RenderKilnMenu> {
 
         inputRenderer.render(guiGraphics, x + INPUT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getInputTank().SLOT));
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+
+        renderAutoDrainButton(guiGraphics, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y);
+    }
+
+    /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
+     * Module-slot-only look. */
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + RenderKilnMenu.MODULE_SLOT_X, y + RenderKilnMenu.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+    }
+
+    private void renderAutoDrainButton(GuiGraphics guiGraphics, int x, int y) {
+        if (menu.isAutoDrainEnabled()) {
+            blitRotated90(guiGraphics, AUTO_DRAIN_ON_TEXTURE, x, y, AUTO_DRAIN_BUTTON_SIZE);
+        } else {
+            guiGraphics.blit(AUTO_DRAIN_OFF_TEXTURE, x, y, 0, 0, AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE);
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        if (menu.getActiveTab() == RenderKilnMenu.MAIN_TAB
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            PacketDistributor.sendToServer(new AutoDrainToggleClickPayload(menu.BE.getBlockPos()));
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {

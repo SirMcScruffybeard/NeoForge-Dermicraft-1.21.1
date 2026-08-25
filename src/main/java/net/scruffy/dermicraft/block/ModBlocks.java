@@ -216,6 +216,11 @@ public class ModBlocks {
     public static final DeferredBlock<Block> RENDER_KILN = registerBlock("render_kiln",
             () -> new RenderKilnBlock(machineProperties()));
 
+    // Charred Render Kiln -- Render Kiln's hazard-gated Tier 2 evolution, see
+    // CharredRenderKilnBlockEntity's own javadoc.
+    public static final DeferredBlock<Block> CHARRED_RENDER_KILN = registerBlock("charred_render_kiln",
+            () -> new CharredRenderKilnBlock(machineProperties()));
+
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
             () -> new CrawBlock(machineProperties()));
 

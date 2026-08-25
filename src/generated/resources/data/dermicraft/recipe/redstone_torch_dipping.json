@@ -4,7 +4,7 @@
     "tag": "c:rods/wooden"
   },
   "ingredient_fluid": "dermicraft:source_molten_redstone",
-  "ingredient_fluid_amount": 110,
+  "ingredient_fluid_amount": 500,
   "item_amount": 1,
   "result": "minecraft:redstone_torch",
   "result_amount": 1

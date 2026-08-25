@@ -90,6 +90,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("render_kiln_be", () -> BlockEntityType.Builder.of(
                     RenderKilnBlockEntity::new, ModBlocks.RENDER_KILN.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredRenderKilnBlockEntity>> CHARRED_RENDER_KILN_BE =
+            BLOCK_ENTITIES.register("charred_render_kiln_be", () -> BlockEntityType.Builder.of(
+                    CharredRenderKilnBlockEntity::new, ModBlocks.CHARRED_RENDER_KILN.get()).build(null));
+
     public static final Supplier<BlockEntityType<CrawBlockEntity>> CRAW_BE =
             BLOCK_ENTITIES.register("craw_be", () -> BlockEntityType.Builder.of(
                     CrawBlockEntity::new, ModBlocks.CRAW.get()).build(null));

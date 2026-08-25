@@ -81,7 +81,7 @@ public class CharredEffluentcerScreen extends AbstractModScreen<CharredEffluentc
     private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
-    private static final int AUTO_DRAIN_BUTTON_X = 131;
+    private static final int AUTO_DRAIN_BUTTON_X = ARROW_X;
     private static final int AUTO_DRAIN_BUTTON_Y = TANK_Y;
 
     public CharredEffluentcerScreen(CharredEffluentcerMenu menu, Inventory playerInventory, Component title) {

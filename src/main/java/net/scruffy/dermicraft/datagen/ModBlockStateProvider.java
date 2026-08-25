@@ -180,6 +180,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.RENDER_KILN.getId().getPath(),
                 modLoc("block/" + ModBlocks.RENDER_KILN.getId().getPath()));
 
+        // Charred Render Kiln -- same 3-face-texture shape as the base Kiln, but Charred Machine
+        // Port replaces skin_tank_end on the other 5 faces, matching Charred Masticator's own
+        // single-port-texture shape.
+        charredRenderKilnBlockState("block/charred_machine_port");
+        itemModels().withExistingParent(ModBlocks.CHARRED_RENDER_KILN.getId().getPath(),
+                modLoc("block/" + ModBlocks.CHARRED_RENDER_KILN.getId().getPath()));
+
         mrFarmerBlockState();
         itemModels().getBuilder(ModBlocks.MR_FARMER.getId().getPath())
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
@@ -366,6 +373,30 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(RenderKilnBlock.FACING, facing).with(RenderKilnBlock.STATE, RenderKilnVisualState.RECOVERING)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+    // Mirrors renderKilnBlockState -- Charred Machine Port replaces skinTankEnd on all 5 non-front
+    // faces (Charred Render Kiln's shared visual identity with the rest of the Charred family) and
+    // uses the charred face texture set for the front face.
+    private void charredRenderKilnBlockState(String machinePort) {
+        ModelFile idle = models().cube(ModBlocks.CHARRED_RENDER_KILN.getId().getPath(),
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/render_kiln/charred_render_kiln_face"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/render_kiln/charred_render_kiln_face"));
+        ModelFile running = models().cube("charred_render_kiln_on",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/render_kiln/charred_render_kiln_face_on"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/render_kiln/charred_render_kiln_face_on"));
+        ModelFile recovering = models().cube("charred_render_kiln_error",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/render_kiln/charred_render_kiln_face_error"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/render_kiln/charred_render_kiln_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.CHARRED_RENDER_KILN.get());
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putRenderKilnVariant(builder, idle, running, recovering, Direction.WEST, 270);
     }
 
     // Mirrors mutatorBlockState -- 4 horizontal facings x 3 MasticatorVisualState values, only the

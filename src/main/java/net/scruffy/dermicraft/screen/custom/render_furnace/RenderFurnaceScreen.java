@@ -6,10 +6,13 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.entity.custom.RenderFurnaceBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
+import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
 /** Same layout convention as every other machine's screen -- input/arrow/output in the middle,
@@ -21,6 +24,7 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
     private static final String TANKS_DIR = "textures/gui/tanks/";
     private static final String SLOTS_DIR = "textures/gui/slots/";
     private static final String ARROWS_DIR = "textures/gui/arrows/";
+    private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
@@ -55,6 +59,16 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
 
     private FluidTankRenderer fuelRenderer;
 
+    // Auto-dispense toggle -- see RenderKilnScreen's own identical constants/comment. No HP bar here
+    // either, so the button sits at the very top of the input/arrow/output column.
+    private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
+    private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
+    private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
+    private static final int AUTO_DRAIN_BUTTON_X = ARROW_X;
+    private static final int AUTO_DRAIN_BUTTON_Y = TANK_Y;
+
     public RenderFurnaceScreen(RenderFurnaceMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
@@ -85,6 +99,14 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
         renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, OUTPUT_X + 1, SLOT_Y + 1,
                 menu.BE.getItemHandler(null).getStackInSlot(RenderFurnaceBlockEntity.OUTPUT_SLOT),
                 Component.translatable("tooltip.dermicraft.slot.result"));
+
+        if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            Component label = menu.isAutoDrainEnabled()
+                    ? Component.translatable("tooltip.dermicraft.machine.auto_dispense_on")
+                    : Component.translatable("tooltip.dermicraft.machine.auto_dispense_off");
+            guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
+        }
     }
 
     @Override
@@ -104,6 +126,31 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
         renderTankAndSlot(guiGraphics, x + FUEL_X, y + TANK_Y);
 
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+
+        renderAutoDrainButton(guiGraphics, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            PacketDistributor.sendToServer(new AutoDrainToggleClickPayload(menu.BE.getBlockPos()));
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void renderAutoDrainButton(GuiGraphics guiGraphics, int x, int y) {
+        if (menu.isAutoDrainEnabled()) {
+            blitRotated90(guiGraphics, AUTO_DRAIN_ON_TEXTURE, x, y, AUTO_DRAIN_BUTTON_SIZE);
+        } else {
+            guiGraphics.blit(AUTO_DRAIN_OFF_TEXTURE, x, y, 0, 0, AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE);
+        }
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {

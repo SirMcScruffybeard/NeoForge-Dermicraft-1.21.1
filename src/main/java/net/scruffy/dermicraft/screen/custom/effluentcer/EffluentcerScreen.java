@@ -73,15 +73,14 @@ public class EffluentcerScreen extends AbstractModScreen<EffluentcerMenu> {
     private FluidTankRenderer inputBRenderer;
     private FluidTankRenderer resultRenderer;
 
-    // Auto-drain toggle -- the only free gap on this row is between the result tank (RESULT_X=112,
-    // 18px wide -> ends 130) and the fuel tank (FUEL_X=150), a 20px gap that exactly fits an 18px
-    // icon with a 1px margin either side.
+    // Auto-drain toggle -- sits directly above the crafting-progress arrow (x+86), in the empty
+    // column between the input tanks and the result tank.
     private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
     private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
-    private static final int AUTO_DRAIN_BUTTON_X = 131;
+    private static final int AUTO_DRAIN_BUTTON_X = ARROW_X;
     private static final int AUTO_DRAIN_BUTTON_Y = TANK_Y;
 
     public EffluentcerScreen(EffluentcerMenu menu, Inventory playerInventory, Component title) {

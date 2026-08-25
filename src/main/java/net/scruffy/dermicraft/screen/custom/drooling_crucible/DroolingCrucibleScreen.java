@@ -55,8 +55,8 @@ public class DroolingCrucibleScreen extends AbstractModScreen<DroolingCrucibleMe
     private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
-    private static final int AUTO_DRAIN_BUTTON_X = 140;
-    private static final int AUTO_DRAIN_BUTTON_Y = 33;
+    private static final int AUTO_DRAIN_BUTTON_X = 98;
+    private static final int AUTO_DRAIN_BUTTON_Y = 11;
 
     public DroolingCrucibleScreen(DroolingCrucibleMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

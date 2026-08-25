@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_carbon_blend",
-  "fluid_amount": 110,
+  "fluid_amount": 1000,
   "pattern": {
     "item": "minecraft:charcoal"
   },

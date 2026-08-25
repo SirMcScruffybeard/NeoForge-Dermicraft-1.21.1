@@ -500,7 +500,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     protected void drainOutputs(Level level) {
         // Mirrors the fluid machines' RESULT_TANK.pushFluidToBelowNeighbour drain cadence -- the
         // Metastasizer's output is an item slot instead of a tank, so it uses the item counterpart.
-        if (!INVENTORY.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
+        if (autoDrainEnabled && !INVENTORY.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
             ModItemUtil.pushItemToBelowNeighbour(level, worldPosition, INVENTORY, OUTPUT_SLOT);
         }
     }

@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_molten_redstone",
+  "fluid_amount": 1000,
+  "result": {
+    "count": 1,
+    "id": "minecraft:redstone"
+  },
+  "ticks": 600
+}

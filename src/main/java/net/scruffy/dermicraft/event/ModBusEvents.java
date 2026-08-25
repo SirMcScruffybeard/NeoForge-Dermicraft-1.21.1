@@ -116,6 +116,12 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.RENDER_KILN_BE.get(), RenderKilnBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.RENDER_KILN_BE.get(), RenderKilnBlockEntity::getTank);
 
+        // Charred Render Kiln has its own BlockEntityType (CHARRED_RENDER_KILN_BE), so it does NOT
+        // inherit RENDER_KILN_BE's capability registration above -- same gap that's bitten every
+        // other Charred variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_KILN_BE.get(), RenderKilnBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_KILN_BE.get(), RenderKilnBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 
         // Charred Craw has its own BlockEntityType (CHARRED_CRAW_BE), so it does NOT inherit

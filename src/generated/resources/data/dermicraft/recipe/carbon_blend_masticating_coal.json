@@ -4,10 +4,10 @@
     "item": "minecraft:coal"
   },
   "ingredient_fluid": "minecraft:water",
-  "ingredient_fluid_amount": 110,
+  "ingredient_fluid_amount": 1000,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_carbon_blend",
-  "result_fluid_amount": 112,
+  "result_fluid_amount": 1000,
   "ticks": 300
 }

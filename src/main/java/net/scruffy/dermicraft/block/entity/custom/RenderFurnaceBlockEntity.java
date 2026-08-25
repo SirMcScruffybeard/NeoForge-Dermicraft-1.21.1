@@ -211,7 +211,7 @@ public class RenderFurnaceBlockEntity extends AbstractFueledMachineBlockEntity<S
 
     @Override
     protected void drainOutputs(Level level) {
-        if (!INVENTORY.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
+        if (autoDrainEnabled && !INVENTORY.getStackInSlot(OUTPUT_SLOT).isEmpty()) {
             ModItemUtil.pushItemToBelowNeighbour(level, worldPosition, INVENTORY, OUTPUT_SLOT);
         }
     }
