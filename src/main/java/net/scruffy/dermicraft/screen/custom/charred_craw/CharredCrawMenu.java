@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.craw;
+package net.scruffy.dermicraft.screen.custom.charred_craw;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -7,32 +7,34 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.entity.custom.CharredCrawBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
-public class CrawMenu extends AbstractModMenu {
+/** Charred Craw's menu -- identical layout/slots to {@code CrawMenu} (Module tab included), just
+ * typed to {@link CharredCrawBlockEntity} and checked against {@link ModBlocks#CHARRED_CRAW} in
+ * {@link #stillValid}. A distinct class rather than reusing CrawMenu because stillValid needs to
+ * match the actual block at this position -- same split the Drooling family/Charred Masticator use. */
+public class CharredCrawMenu extends AbstractModMenu {
 
-    // Same tab pattern as every other Module-tab machine.
     public static final int MAIN_TAB = 0;
     public static final int MODULE_TAB = 1;
 
-    // Matches every other machine's own Module slot position -- one consistent mod-wide GUI
-    // convention.
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
 
-    public final CrawBlockEntity be;
+    public final CharredCrawBlockEntity be;
     private final Level level;
 
-    public CrawMenu(int containerId, Inventory inventory, FriendlyByteBuf extraData) {
+    public CharredCrawMenu(int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(containerId, inventory, inventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
-    public CrawMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
-        super(ModMenuTypes.CRAW_MENU.get(), containerId, 3);
+    public CharredCrawMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
+        super(ModMenuTypes.CHARRED_CRAW_MENU.get(), containerId, 3);
 
-        this.be = (CrawBlockEntity) blockEntity;
+        this.be = (CharredCrawBlockEntity) blockEntity;
         this.level = inventory.player.level();
 
         addPlayerInventory(inventory);
@@ -67,7 +69,7 @@ public class CrawMenu extends AbstractModMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return super.stillValid(level, player, ModBlocks.CRAW, be);
+        return super.stillValid(level, player, ModBlocks.CHARRED_CRAW, be);
     }
 
     public int getStoredCount() {

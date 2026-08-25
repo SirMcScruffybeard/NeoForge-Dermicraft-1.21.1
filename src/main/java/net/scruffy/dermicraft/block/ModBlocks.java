@@ -217,6 +217,11 @@ public class ModBlocks {
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
             () -> new CrawBlock(machineProperties()));
 
+    // Charred Craw -- Craw's hazard-gated Tier 2 evolution in name only (see
+    // CharredCrawBlockEntity's own javadoc): double storage capacity + double auto-push throughput.
+    public static final DeferredBlock<Block> CHARRED_CRAW = registerBlock("charred_craw",
+            () -> new CharredCrawBlock(machineProperties()));
+
     public static final DeferredBlock<Block> MR_FARMER = registerBlock("mr_farmer",
             () -> new MrFarmerBlock(machineProperties()));
 

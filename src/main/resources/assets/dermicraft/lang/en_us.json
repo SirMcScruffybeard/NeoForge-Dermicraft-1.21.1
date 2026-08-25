@@ -241,6 +241,8 @@
 
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
+  "block.dermicraft.charred_craw": "Charred Craw",
+  "blockEntity.dermicraft.charred_craw_be": "Charred Craw",
 
   "block.dermicraft.mr_farmer": "Mr. Farmer",
   "blockEntity.dermicraft.mr_farmer_be": "Mr. Farmer",
@@ -303,6 +305,8 @@
 
   "tooltip.dermicraft.mutator.mode_mutate": "Mode: Mutate (item + reagent -> new item)",
   "tooltip.dermicraft.mutator.mode_fill": "Mode: Fill (fluid -> container)",
+  "tooltip.dermicraft.craw.auto_push_on": "Auto-push: On (click to disable)",
+  "tooltip.dermicraft.craw.auto_push_off": "Auto-push: Off (click to enable)",
 
   "tooltip.dermicraft.idep.face.effluentcer_fuel": "Fuel tank",
   "tooltip.dermicraft.idep.face.effluentcer_result": "Result tank",
@@ -388,6 +392,10 @@
   "screen.dermicraft.mutator.module_tab": "Mod",
   "screen.dermicraft.charred_mutator.main_tab": "Main",
   "screen.dermicraft.charred_mutator.module_tab": "Mod",
+  "screen.dermicraft.craw.main_tab": "Main",
+  "screen.dermicraft.craw.module_tab": "Mod",
+  "screen.dermicraft.charred_craw.main_tab": "Main",
+  "screen.dermicraft.charred_craw.module_tab": "Mod",
   "screen.dermicraft.metastasizer.main_tab": "Main",
   "screen.dermicraft.metastasizer.module_tab": "Mod",
   "screen.dermicraft.charred_metastasizer.main_tab": "Main",

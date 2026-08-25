@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.craw;
+package net.scruffy.dermicraft.screen.custom.charred_craw;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -15,7 +15,11 @@ import net.scruffy.dermicraft.util.MouseUtil;
 
 import java.util.List;
 
-public class CrawScreen extends AbstractModScreen<CrawMenu> {
+/** Charred Craw's screen -- identical GUI layout/textures to {@code CrawScreen} (Module tab
+ * included; the capability leaps are entirely backend capacity/throughput, not a different GUI),
+ * just typed to {@link CharredCrawMenu}. See that class's javadoc for why this is a separate class
+ * rather than reusing CrawScreen. */
+public class CharredCrawScreen extends AbstractModScreen<CharredCrawMenu> {
 
     private static final int TAB_TEXT_COLOR = 0x007F0E;
     private List<Tab> tabs;
@@ -38,17 +42,12 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
     private static final int ARROW_WIDTH = 17;
     private static final int ARROW_HEIGHT = 10;
 
-    // Auto-push toggle -- reuses the shared "output" icon (rotated 90 degrees, see
-    // AbstractModScreen#blitRotated90) for ON rather than a dedicated icon; OFF reuses the shared
-    // "no use" icon, same as every other simple on/off toggle in the mod.
     private static final ResourceLocation AUTO_PUSH_ON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
     private static final ResourceLocation AUTO_PUSH_OFF_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final int AUTO_PUSH_BUTTON_SIZE = 18;
 
-    // Logical slot positions in CrawMenu -- input feeds into storage, matching the input/arrow/
-    // result layout used by Masticator, just without a fill (the transfer here is instant).
     private static final int INPUT_SLOT_X = 51;
     private static final int INPUT_SLOT_Y = 35;
     private static final int STORAGE_SLOT_X = 110;
@@ -56,11 +55,10 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
     private static final int ARROW_X = 80;
     private static final int ARROW_Y = 39;
 
-    // Sits right of the storage slot, same row -- clear of the arrow/slots, no layout collision.
     private static final int AUTO_PUSH_BUTTON_X = STORAGE_SLOT_X + ITEM_SLOT_SIZE + 4;
     private static final int AUTO_PUSH_BUTTON_Y = STORAGE_SLOT_Y - 1;
 
-    public CrawScreen(CrawMenu menu, Inventory playerInventory, Component title) {
+    public CharredCrawScreen(CharredCrawMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
@@ -68,8 +66,8 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
     protected void init() {
         super.init();
         tabs = List.of(
-                new Tab(Component.translatable("screen.dermicraft.craw.main_tab"), TAB_TEXT_COLOR),
-                new Tab(Component.translatable("screen.dermicraft.craw.module_tab"), TAB_TEXT_COLOR));
+                new Tab(Component.translatable("screen.dermicraft.charred_craw.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.charred_craw.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -84,7 +82,7 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
             return true;
         }
 
-        if (menu.getActiveTab() == CrawMenu.MAIN_TAB
+        if (menu.getActiveTab() == CharredCrawMenu.MAIN_TAB
                 && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_PUSH_BUTTON_X, y + AUTO_PUSH_BUTTON_Y,
                 AUTO_PUSH_BUTTON_SIZE, AUTO_PUSH_BUTTON_SIZE)) {
             PacketDistributor.sendToServer(new CrawAutoPushToggleClickPayload(menu.be.getBlockPos()));
@@ -96,7 +94,7 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
-        if (menu.getActiveTab() != CrawMenu.MAIN_TAB) return;
+        if (menu.getActiveTab() != CharredCrawMenu.MAIN_TAB) return;
 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
@@ -122,7 +120,7 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
         renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
-        if (menu.getActiveTab() == CrawMenu.MAIN_TAB) {
+        if (menu.getActiveTab() == CharredCrawMenu.MAIN_TAB) {
             renderMainTab(guiGraphics, x, y);
         } else {
             renderModuleTab(guiGraphics, x, y);
@@ -148,10 +146,8 @@ public class CrawScreen extends AbstractModScreen<CrawMenu> {
         }
     }
 
-    /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
-     * Module-slot-only look. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CrawMenu.MODULE_SLOT_X, y + CrawMenu.MODULE_SLOT_Y, 0, 0,
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredCrawMenu.MODULE_SLOT_X, y + CharredCrawMenu.MODULE_SLOT_Y, 0, 0,
                 SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
     }
 

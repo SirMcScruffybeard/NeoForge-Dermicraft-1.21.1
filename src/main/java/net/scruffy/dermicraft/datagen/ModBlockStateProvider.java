@@ -163,6 +163,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc(skinTankEnd),
                 modLoc(skinTankEnd)));
 
+        // Charred Machine Port on all 6 faces -- no per-face split, unlike the base Craw's own
+        // side/top-bottom texture split.
+        simpleBlockWithItem(ModBlocks.CHARRED_CRAW.get(), models().cubeAll(
+                ModBlocks.CHARRED_CRAW.getId().getPath(),
+                modLoc("block/charred_machine_port")));
+
         simpleBlock(ModBlocks.BEAKER.get(), models().cubeBottomTop(
                 ModBlocks.BEAKER.getId().getPath(),
                 modLoc("block/beaker/beaker_side"),

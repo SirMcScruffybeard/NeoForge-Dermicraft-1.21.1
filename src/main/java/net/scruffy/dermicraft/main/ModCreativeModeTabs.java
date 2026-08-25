@@ -61,6 +61,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.GRAFTING_TABLE);
                         output.accept(ModBlocks.RENDER_KILN);
                         output.accept(ModBlocks.CRAW);
+                        output.accept(ModBlocks.CHARRED_CRAW); // no craft recipe yet
                         output.accept(ModBlocks.MR_FARMER);
                         output.accept(ModBlocks.MR_SHEPARD);
                         output.accept(ModBlocks.BRAIN);

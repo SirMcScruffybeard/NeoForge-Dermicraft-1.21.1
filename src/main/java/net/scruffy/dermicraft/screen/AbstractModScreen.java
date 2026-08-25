@@ -278,4 +278,17 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
         guiGraphics.pose().popPose();
         com.mojang.blaze3d.systems.RenderSystem.enableCull();
     }
+
+    /** Draws a square texture rotated 90 degrees clockwise -- lets a button reuse an existing icon
+     * (e.g. the shared "output" icon, sideways, for Craw's own auto-push toggle) instead of needing
+     * a dedicated rotated copy of the art. Rotates about the icon's own center, so its bounding box
+     * is unchanged for a square texture. */
+    protected void blitRotated90(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int size) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x + size / 2.0, y + size / 2.0, 0);
+        guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90));
+        guiGraphics.pose().translate(-size / 2.0, -size / 2.0, 0);
+        guiGraphics.blit(texture, 0, 0, 0, 0, size, size, size, size);
+        guiGraphics.pose().popPose();
+    }
 }

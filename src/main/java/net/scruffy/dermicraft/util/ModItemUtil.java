@@ -14,6 +14,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.CrawBlock;
 import net.scruffy.dermicraft.block.custom.duct.AbstractInnardsDuctBlock;
 import net.scruffy.dermicraft.block.custom.duct.AbstractNodeBlock;
 import net.scruffy.dermicraft.block.custom.duct.DuctRunResolver;
@@ -109,12 +110,25 @@ public class ModItemUtil {
      * deliberate transport blocks keeps auto-output opt-in: you get it by plumbing for it.
      */
     public static void pushItemToBelowTransport(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot) {
+        pushItemToBelowTransport(level, worldPosition, inventory, slot, Integer.MAX_VALUE);
+    }
+
+    /** Same as {@link #pushItemToBelowTransport(Level, BlockPos, ItemStackHandler, int)}, but caps a
+     * single push to at most {@code maxAmount} -- Craw's own per-cycle output throttle (see its own
+     * tick()); every other caller uses the uncapped overload above. */
+    public static void pushItemToBelowTransport(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot, int maxAmount) {
         Block below = level.getBlockState(worldPosition.below()).getBlock();
-        if (!(below instanceof AbstractInnardsDuctBlock) && !(below instanceof GatePortBlock)) return;
-        pushItemToNeighbour(level, worldPosition, inventory, slot, Direction.DOWN);
+        // A stacked Craw (base or Charred, CrawBlock covers both) is also a valid target -- lets
+        // players drain a full Craw down into another one below it, same as Duct/Gate Port.
+        if (!(below instanceof AbstractInnardsDuctBlock) && !(below instanceof GatePortBlock) && !(below instanceof CrawBlock)) return;
+        pushItemToNeighbour(level, worldPosition, inventory, slot, Direction.DOWN, maxAmount);
     }
 
     public static void pushItemToNeighbour(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot, Direction direction) {
+        pushItemToNeighbour(level, worldPosition, inventory, slot, direction, Integer.MAX_VALUE);
+    }
+
+    private static void pushItemToNeighbour(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot, Direction direction, int maxAmount) {
         BlockPos neighborPos = worldPosition.relative(direction);
         BlockState neighborState = level.getBlockState(neighborPos);
 
@@ -124,17 +138,17 @@ public class ModItemUtil {
         if (neighborState.getBlock() instanceof AbstractNodeBlock) return;
 
         if (direction == Direction.DOWN && neighborState.getBlock() instanceof AbstractInnardsDuctBlock) {
-            pushItemThroughDuct(level, worldPosition, inventory, slot);
+            pushItemThroughDuct(level, worldPosition, inventory, slot, maxAmount);
             return;
         }
 
         Direction hitSide = direction.getOpposite();
         IItemHandler neighborHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, neighborPos, hitSide);
         if (neighborHandler == null) return;
-        pushStack(inventory, slot, neighborHandler);
+        pushStack(inventory, slot, neighborHandler, maxAmount);
     }
 
-    private static void pushItemThroughDuct(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot) {
+    private static void pushItemThroughDuct(Level level, BlockPos worldPosition, ItemStackHandler inventory, int slot, int maxAmount) {
         Optional<DuctRunResolver.Endpoint> endpointOpt =
                 DuctRunResolver.resolveWithinFootprint(level, worldPosition, Direction.DOWN, DuctRunResolver.DRAIN_MAX_HOPS);
         if (endpointOpt.isEmpty()) return;
@@ -146,13 +160,21 @@ public class ModItemUtil {
 
         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
         if (handler == null) return;
-        pushStack(inventory, slot, handler);
+        pushStack(inventory, slot, handler, maxAmount);
     }
 
-    private static void pushStack(ItemStackHandler inventory, int slot, IItemHandler target) {
+    private static void pushStack(ItemStackHandler inventory, int slot, IItemHandler target, int maxAmount) {
         ItemStack current = inventory.getStackInSlot(slot);
         if (current.isEmpty()) return;
-        ItemStack leftover = ItemHandlerHelper.insertItemStacked(target, current, false);
-        inventory.setStackInSlot(slot, leftover);
+
+        int amountToPush = Math.min(current.getCount(), maxAmount);
+        ItemStack toPush = current.copyWithCount(amountToPush);
+        ItemStack leftover = ItemHandlerHelper.insertItemStacked(target, toPush, false);
+
+        int actuallyPushed = amountToPush - leftover.getCount();
+        if (actuallyPushed <= 0) return;
+
+        current.shrink(actuallyPushed);
+        inventory.setStackInSlot(slot, current);
     }
 }

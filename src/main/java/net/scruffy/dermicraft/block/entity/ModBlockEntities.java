@@ -94,6 +94,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("craw_be", () -> BlockEntityType.Builder.of(
                     CrawBlockEntity::new, ModBlocks.CRAW.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredCrawBlockEntity>> CHARRED_CRAW_BE =
+            BLOCK_ENTITIES.register("charred_craw_be", () -> BlockEntityType.Builder.of(
+                    CharredCrawBlockEntity::new, ModBlocks.CHARRED_CRAW.get()).build(null));
+
     public static final Supplier<BlockEntityType<NodeBlockEntity>> INNARDS_NODE_BE =
             BLOCK_ENTITIES.register("innards_node_be", () -> BlockEntityType.Builder.of(
                     NodeBlockEntity::new, ModBlocks.INNARDS_NODE.get()).build(null));
