@@ -43,10 +43,10 @@ public final class HazardProfile {
 
     // --- Ladder presets (cumulative, matching the design notes) ---
     public static final HazardProfile TIER_1 = new HazardProfile(Set.of());
-    public static final HazardProfile TIER_2 = of(ModTags.Fluids.EXTREME_HEAT);
-    public static final HazardProfile TIER_3 = of(ModTags.Fluids.EXTREME_HEAT, ModTags.Fluids.RADIATION_MILD);
+    public static final HazardProfile TIER_2 = of(ModTags.Fluids.THERMAL);
+    public static final HazardProfile TIER_3 = of(ModTags.Fluids.THERMAL, ModTags.Fluids.RADIATION_MILD);
     public static final HazardProfile TIER_4 = of(
-            ModTags.Fluids.EXTREME_HEAT,
+            ModTags.Fluids.THERMAL,
             ModTags.Fluids.RADIATION_MILD,
             ModTags.Fluids.RADIATION_SEVERE,
             ModTags.Fluids.BIOHAZARD);

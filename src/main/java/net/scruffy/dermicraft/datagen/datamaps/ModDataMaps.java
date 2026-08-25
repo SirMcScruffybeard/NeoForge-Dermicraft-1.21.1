@@ -14,6 +14,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
+import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
 
@@ -55,6 +56,18 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** Per-item Evolution Module data -- see {@link EvolutionModuleProperties}. Kind (is this an
+     * Evolution Module at all) lives on {@code ModTags.Items.MODULES}; a future sub-tag can narrow
+     * which machine's Module slot accepts it if that turns out to matter. This map is specifically
+     * WHAT a given one does. */
+    public static final DataMapType<Item, EvolutionModuleProperties> EVOLUTION_MODULE_PROPERTIES =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "evolution_module_properties"),
+                            Registries.ITEM,
+                            EvolutionModuleProperties.CODEC
+                    )
+                    .build();
+
     /** Which mobs can be mechanically decapitated -- scoped for now to mobs that already have a
      * real vanilla head/skull item (Skeleton, Wither Skeleton, Zombie, Creeper, Piglin), per the
      * design decision not to author brand-new head items for every mob type yet. Bare Item value
@@ -83,6 +96,7 @@ public class ModDataMaps {
         event.register(EDIBLE_FLUID);
         event.register(SUNDER_CHAIN_PROPERTIES);
         event.register(SAFETY_MODULE_PROPERTIES);
+        event.register(EVOLUTION_MODULE_PROPERTIES);
         event.register(DECAPITATION_HEADS);
         event.register(SHATTER_HEAD_PROPERTIES);
     }

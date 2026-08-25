@@ -116,6 +116,24 @@ public class ModFluidTypes {
                             .canHydrate(false)
                             .canConvertToSource(false)));
 
+    // Evolution Catalyst - Synapse Catalyst + Phantom Membrane + Nether Quartz + Glowstone Dust (or Living
+    // Glowstone, late-Stage-2 variant), the Evolution Module reagent (matching Safety Module + this, Mutator)
+    public static final Supplier<FluidType> EVOLUTION_CATALYST_FLUID_TYPE = registerFluidType("evolution_catalyst_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFE0B83C,
+                    setColorVector(224, 184, 60),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1500)
+                            .temperature(305)
+                            .motionScale(0.025)
+                            .lightLevel(7)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)));
+
 
     //////////////////////////////Slurries\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FluidType> CRUDE_SLURRY_FLUID_TYPE = registerFluidType("crude_slurry_fluid",

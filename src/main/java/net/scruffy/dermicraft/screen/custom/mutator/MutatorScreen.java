@@ -11,11 +11,17 @@ import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.network.MutatorModeClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
+
+    private static final int TAB_TEXT_COLOR = 0x007F0E;
+    private List<Tab> tabs;
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
@@ -93,6 +99,9 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         super.init();
         reagentRenderer = createFluidRenderer16x40(menu.BE.getReagentTank().getCapacity());
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        tabs = List.of(
+                new Tab(Component.translatable("screen.dermicraft.mutator.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.mutator.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -100,7 +109,15 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MODE_BUTTON_X, y + MODE_BUTTON_Y,
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        if (menu.getActiveTab() == MutatorMenu.MAIN_TAB
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MODE_BUTTON_X, y + MODE_BUTTON_Y,
                 MODE_BUTTON_SIZE, MODE_BUTTON_SIZE)) {
             PacketDistributor.sendToServer(new MutatorModeClickPayload(menu.BE.getBlockPos()));
             return true;
@@ -113,6 +130,8 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
     protected void renderLabels(@NotNull GuiGraphics guiGraphics, int pMouseX, int pMouseY) {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
+
+        if (menu.getActiveTab() != MutatorMenu.MAIN_TAB) return;
 
         renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
                 menu.BE.getFluid(menu.BE.getReagentTank().SLOT), REAGENT_X + 1, TANK_Y + 1, reagentRenderer,
@@ -164,9 +183,18 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
-        renderHealthBar(guiGraphics, x, y);
+        renderHealthBar(guiGraphics, x, y); // ambient status, visible on both tabs
 
+        if (menu.getActiveTab() == MutatorMenu.MAIN_TAB) {
+            renderMainTab(guiGraphics, x, y);
+        } else {
+            renderModuleTab(guiGraphics, x, y);
+        }
+    }
+
+    private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
         renderTankAndSlot(guiGraphics, x + REAGENT_X, y + TANK_Y);
         renderItemSlot(guiGraphics, x + INPUT_X, y + SLOT_Y);
         renderProgressArrow(guiGraphics, x + ARROW_X, y + ARROW_Y);
@@ -176,6 +204,13 @@ public class MutatorScreen extends AbstractModScreen<MutatorMenu> {
 
         reagentRenderer.render(guiGraphics, x + REAGENT_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getReagentTank().SLOT));
         fuelRenderer.render(guiGraphics, x + FUEL_X + 1, y + TANK_Y + 1, menu.BE.getFluid(menu.BE.getFuelTank().SLOT));
+    }
+
+    /** One yellow Module slot -- nothing else on this tab, matching every other machine's own bare
+     * Module-slot-only look. */
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + MutatorMenu.MODULE_SLOT_X, y + MutatorMenu.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {

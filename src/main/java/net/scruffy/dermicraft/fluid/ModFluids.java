@@ -135,6 +135,25 @@ public class ModFluids {
             .block(ModFluids.SYNAPSE_CATALYST_BLOCK)
             .bucket(ModFluids.SYNAPSE_CATALYST_BUCKET);
 
+    //////////////////////////////Evolution Catalyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_EVOLUTION_CATALYST = FLUIDS.register("source_evolution_catalyst",
+            () -> new BaseFlowingFluid.Source(ModFluids.EVOLUTION_CATALYST_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_EVOLUTION_CATALYST = FLUIDS.register("flowing_evolution_catalyst",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.EVOLUTION_CATALYST_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> EVOLUTION_CATALYST_BLOCK = ModBlocks.BLOCKS.register("evolution_catalyst_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_EVOLUTION_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .lightLevel(state -> 7).noLootTable()));
+
+    public static final DeferredItem<Item> EVOLUTION_CATALYST_BUCKET = getBucket("evolution_catalyst_bucket", ModFluids.SOURCE_EVOLUTION_CATALYST);
+
+    public static final BaseFlowingFluid.Properties EVOLUTION_CATALYST_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.EVOLUTION_CATALYST_FLUID_TYPE, SOURCE_EVOLUTION_CATALYST, FLOWING_EVOLUTION_CATALYST)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.EVOLUTION_CATALYST_BLOCK)
+            .bucket(ModFluids.EVOLUTION_CATALYST_BUCKET);
+
     //////////////////////////////Crude Slurry\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_CRUDE_SLURRY = FLUIDS.register("source_crude_slurry",
             () -> new BaseFlowingFluid.Source(ModFluids.CRUDE_SLURRY_PROPERTIES));

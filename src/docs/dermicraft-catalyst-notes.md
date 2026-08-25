@@ -51,18 +51,33 @@ Slightly thicker/heavier than vanilla water across viscosity, density, and tempe
 
 **Status:** Ingredient list decided, color decided. Now has two confirmed recipes (see below).
 
-**What it is:** Not part of a tier system — has a distinct purpose from other catalysts, though it uses Primitive Catalyst as a base. Used as the final step in a machine's "forced evolution" process: machine is loaded with its own specific items/fluids over time, then Evolution Catalyst is injected to complete the transformation. Visually, a successful evolution swaps the machine for a unique new block (details TBD in a later discussion).
+**What it is:** Not part of a tier system — has a distinct purpose from other catalysts. No longer tied to a "forced/instant evolution" mechanic (that mechanic is cut). Instead, Evolution Catalyst is a **crafting ingredient**, consumed in the **Mutator** alongside a matching Safety Module to produce that hazard's Evolution Module (e.g. Heat Safety Module + Evolution Catalyst → Heat Evolution Module) — see `dermicraft-progression-notes.md` Modules taxonomy. Evolution Modules are what drive the mod's actual (gradual, Module-slot-driven) evolution mechanic, piloted on Drooling Cauldron → Drooling Crucible.
 
 This catalyst also marks the player's transition into Stage 2 — the introduction of lava as a generated fluid/ingredient, which Stage 1 blocks/items can't handle. The Nether is the gate into Stage 2.
 
 **Recipe logic (original — Stage 1, the gate recipe):**
-- Base: pool of Primitive Catalyst
+- Base: pool of Synapse Catalyst
 - Phantom Membrane — unnatural regrowth (Phantoms are born of unnatural conditions; vanilla's only "regrowth" item). Carries the "forced/unnatural change" theme.
 - Nether Quartz — non-living, Nether-gated (reinforces the Stage 2 gate). Also vanilla's signal-amplifier material (comparators), giving it an energy/resonance read.
 - Glowstone Dust — non-living, pure light-energy rather than heat-energy. In vanilla brewing, glowstone intensifies an existing effect — fills the "push past natural limits" role without poison/instability connotations.
-- Copper Ingot — non-living, vanilla's metal most directly tied to conducting electricity (lightning rods) — reads as "high energy" more literally than iron or gold.
 
 **Second recipe — added (late Stage 2):** Evolution Catalyst now has two valid recipes. The original recipe above remains completely unchanged and still serves as the Stage 1→2 gate — every ingredient stays reachable within Stage 1, which is the whole point of a gate recipe. A **second, late-Stage-2 recipe** substitutes **Living Glowstone** (see entry below) for the raw Glowstone Dust, only available once that fluid exists. Both recipes produce the **exact same Evolution Catalyst result** — the late recipe is purely an efficiency upgrade over the original (either a lower material cost or a higher yield for equivalent cost; exact numbers not yet decided, both approaches considered equally valid options to choose between later). This follows the same "alternate efficient route to an already-existing result" pattern already used by Carbon/Calcium/Protein Blend.
+
+**Updated (2026-08-22):** Copper Ingot and the Primitive Catalyst base pool are both swapped out for **Synapse Catalyst** across both recipes — applies uniformly to the original and late-Stage-2 variants. Copper's "high energy" role is now folded into whatever Synapse Catalyst itself represents; open question below on whether that changes the ingredient-choice rationale or the color derivation.
+
+**Recipe 1 — BUILT (`evolution_catalyst_puddle.json`):** Phantom Membrane + Nether Quartz + Glowstone Dust tossed into a 1x1 puddle of Synapse Catalyst, wait 10 seconds, collect with a bucket. Mirrors Primitive Catalyst's own puddle-crafting shape exactly (base pool + 3 items). Recipe 2 (Living Glowstone substitution) is still blocked — Living Glowstone isn't registered in code yet.
+
+**Fluid properties (decided 2026-08-22):**
+- `.viscosity(1500)`
+- `.density(1500)`
+- `.temperature(305)`
+- `.motionScale(0.025)`
+
+Matches Synapse Catalyst / Primitive Catalyst exactly, since Evolution Catalyst is now brewed directly from Synapse Catalyst as its base pool and nothing in the added ingredients (Phantom Membrane, Nether Quartz, Glowstone Dust) reads as meaningfully thicker/hotter.
+
+- **Hazard:** None for now. The doc's original "no fire/heat imagery, no lava in the recipe" constraint still holds even outside the old forced-evolution framing — also avoids the circular problem of a Heat Evolution Module recipe needing a heat-hazardous ingredient before the player has heat tolerance.
+- **Light:** Emissive, at **half Glowstone's vanilla light level (7)** — earns the glow the notes flagged as a candidate, now that Living Glowstone is confirmed in the late-Stage-2 recipe, without matching full Glowstone/Living Glowstone brightness.
+- **Thin/thick tag:** Tagged **THIN** (breaks from Primitive Catalyst/Synapse Catalyst's earlier "deliberately untagged" precedent — that precedent is now reversed for all three: Primitive Catalyst and Synapse Catalyst were added to `ModTags.Fluids.THIN` in code this session; Evolution Catalyst will get the same tag once it's registered).
 
 **Design constraints kept in mind:**
 - No fire/heat imagery and no lava in the recipe itself — the catalyst foreshadows Stage 2 without being fire-themed. Theme is "high energy," not "heat."

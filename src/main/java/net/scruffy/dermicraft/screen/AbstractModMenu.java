@@ -53,6 +53,48 @@ public abstract class AbstractModMenu extends AbstractContainerMenu {
         this.quickMoveInputCount = count;
     }
 
+    // Shared tab-bar state, generalized off WorkbenchScreen's own Page/tab-click handling per
+    // dermicraft-progression-notes.md Decision Point #2 -- a machine opts into a Module tab (or any
+    // other multi-page screen) by using this instead of re-deriving the Workbench's bespoke
+    // mechanism per machine family. clickMenuButton IDs at or above TAB_BUTTON_BASE are reserved for
+    // tab selection; a subclass's own buttons (Workbench's BUTTON_SET_MOD_PAGE=101, a Fill-from-pool
+    // button, etc.) must stay below it to avoid collision -- 200 leaves comfortable headroom under
+    // that ceiling for any menu with its own buttons.
+    // Public, not protected: a screen (a different package, and not itself a subclass of this
+    // class -- screens extend AbstractModScreen) needs this constant to build the
+    // handleInventoryButtonClick id it sends on a tab click, same as WorkbenchMenu's own
+    // BUTTON_SET_MOD_PAGE/BUTTON_SET_FABRICATION_PAGE constants are public for the identical reason.
+    public static final int TAB_BUTTON_BASE = 200;
+
+    private int activeTab = 0;
+
+    public int getActiveTab() {
+        return activeTab;
+    }
+
+    /** Selects a tab locally (for instant client-side feedback) -- does NOT itself send anything
+     * over the network. The screen's click handler calls this immediately, then separately fires
+     * {@code handleInventoryButtonClick} so the server (and this same call server-side, via
+     * {@link #clickMenuButton}) agrees. Public, not protected, same reasoning as
+     * {@link #TAB_BUTTON_BASE}: the screen calling it isn't a subclass of this menu. */
+    public void setActiveTab(int index) {
+        this.activeTab = index;
+        onTabChanged(index);
+    }
+
+    /** Overridden by a subclass that persists the active tab somewhere durable (a block entity
+     * field, the same way {@code WorkbenchBlockEntity#isFabricationPageActive} survives a reopen).
+     * No-op by default -- plenty of tab bars are fine resetting to tab 0 every time the screen opens. */
+    protected void onTabChanged(int index) {
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id < TAB_BUTTON_BASE) return false;
+        setActiveTab(id - TAB_BUTTON_BASE);
+        return true;
+    }
+
     // CREDIT GOES TO: diesieben07 | https://github.com/diesieben07/SevenCommons
     // must assign a slot number to each of the slots used by the GUI.
     // For this container, we can see both the tile inventory's slots as well as the player inventory slots and the hotbar.

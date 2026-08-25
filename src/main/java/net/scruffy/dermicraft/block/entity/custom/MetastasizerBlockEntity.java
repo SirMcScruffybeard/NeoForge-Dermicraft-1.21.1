@@ -3,8 +3,14 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +21,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -25,9 +32,16 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MetastasizerBlock;
 import net.scruffy.dermicraft.block.custom.MetastasizerVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.fluid.BaseFluidType;
+import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
+import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
@@ -38,28 +52,57 @@ import net.scruffy.dermicraft.util.ModFluidUtil;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<MetastasizingRecipe>
-        implements MenuProvider, IHaveInventory, IHasChannels {
+        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine {
 
     public static final int PATTERN_SLOT = 2;
     public static final int OUTPUT_SLOT = 3;
+    // Module slot -- same tab-gated pattern as MasticatorBlockEntity's own, declared here so
+    // Charred Metastasizer inherits it for free.
+    public static final int MODULE = 4;
+    public static final int INVENTORY_SIZE = 5;
 
     private final VulnerableTank REAGENT_TANK = createReagentTank();
 
     private boolean isTransferringFluids = false;
 
-    private final ItemStackHandler INVENTORY = createInventory(4);
+    private final ItemStackHandler INVENTORY = createInventory(INVENTORY_SIZE);
 
     private ItemStack cachedResult = ItemStack.EMPTY;
     private int requiredFluid = 0;
 
+    private boolean moduleTabActive = false;
+
+    public boolean isModuleTabActive() {
+        return moduleTabActive;
+    }
+
+    public void setModuleTabActive(boolean active) {
+        this.moduleTabActive = active;
+    }
+
+    // ---- Evolution (installed Evolution Module -> eventual Charred Metastasizer) --------------
+    // Mirrors MasticatorBlockEntity's identical mechanic -- see that class's own comment for the
+    // full rationale.
+    private int evolutionProgress = 0;
+    private int flourishCyclesRemaining = -1;
+    private static final int FLOURISH_DURATION_CYCLES = 4; // 4 * CRAFT_TICKS(10) = 40 ticks, ~2s
+
     public MetastasizerBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.METASTASIZER_BE.get(), pos, blockState);
+        this(ModBlockEntities.METASTASIZER_BE.get(), pos, blockState);
+    }
+
+    // Lets a capability-leap subclass (e.g. Charred Metastasizer) register under its own
+    // BlockEntityType while reusing everything else this class provides -- same pattern as
+    // MasticatorBlockEntity's identical overload.
+    protected MetastasizerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
     }
 
     @Override
@@ -92,7 +135,146 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     protected boolean tickHealing(boolean fueled) {
         boolean healed = super.tickHealing(fueled);
         updateVisualState();
+        tickEvolutionFlourish();
         return healed;
+    }
+
+    /** Runs once per CRAFT_TICKS cycle -- see MasticatorBlockEntity's identical method for the
+     * full rationale (density ramps up, block swap fires in the densest part of the burst). */
+    private void tickEvolutionFlourish() {
+        if (flourishCyclesRemaining < 0) return;
+
+        if (level instanceof ServerLevel serverLevel) {
+            spawnFlourishParticles(serverLevel, flourishCyclesRemaining);
+        }
+
+        flourishCyclesRemaining--;
+        if (flourishCyclesRemaining < 0) {
+            completeEvolution(level);
+        }
+    }
+
+    private void startEvolutionFlourish() {
+        flourishCyclesRemaining = FLOURISH_DURATION_CYCLES;
+        if (level != null) {
+            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+        }
+    }
+
+    private void spawnFlourishParticles(ServerLevel serverLevel, int cyclesRemaining) {
+        double cx = worldPosition.getX() + 0.5;
+        double cy = worldPosition.getY() + 0.5;
+        double cz = worldPosition.getZ() + 0.5;
+
+        float progress = 1f - (cyclesRemaining / (float) FLOURISH_DURATION_CYCLES);
+        int dustCount = 8 + Math.round(progress * 16);
+        DustParticleOptions dust = tintedDust();
+        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
+        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 3 + Math.round(progress * 8), 0.35, 0.35, 0.35, 0.02);
+
+        if (cyclesRemaining == 0) {
+            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
+            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    private DustParticleOptions tintedDust() {
+        int tint = 0xFFCF4B12; // fallback: lava-orange, matches Thermal's own target fluid
+        Optional<net.minecraft.world.level.material.Fluid> targetFluid = installedEvolutionProperties()
+                .flatMap(EvolutionModuleProperties::targetFluid);
+        if (targetFluid.isPresent() && targetFluid.get().getFluidType() instanceof BaseFluidType baseType) {
+            tint = baseType.getTintColor();
+        }
+        return new DustParticleOptions(new Vector3f(
+                ((tint >> 16) & 0xFF) / 255.0F,
+                ((tint >> 8) & 0xFF) / 255.0F,
+                (tint & 0xFF) / 255.0F), 1.4F);
+    }
+
+    /**
+     * Transforms this block into a Charred Metastasizer in place, carrying over fuel/reagent tank
+     * contents and the pattern/output item slots -- but deliberately NOT the recipe-in-progress
+     * bookkeeping (active recipe, craft progress, cached result), same reasoning as
+     * MasticatorBlockEntity#completeEvolution: a half-finished cycle just restarts cleanly on the
+     * new block instead. The Module itself is not carried over -- this transform is what consumes it.
+     */
+    private void completeEvolution(Level level) {
+        ItemStack patternItem = INVENTORY.getStackInSlot(PATTERN_SLOT);
+        ItemStack outputItem = INVENTORY.getStackInSlot(OUTPUT_SLOT);
+        FluidStack fuelContents = FUEL_TANK.getFluid().copy();
+        FluidStack reagentContents = REAGENT_TANK.getFluid().copy();
+        BlockState oldState = getBlockState();
+
+        INVENTORY.setStackInSlot(PATTERN_SLOT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(OUTPUT_SLOT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        if (!fuelContents.isEmpty()) FUEL_TANK.drain(fuelContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
+        if (!reagentContents.isEmpty()) REAGENT_TANK.drain(reagentContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
+
+        BlockState newState = ModBlocks.CHARRED_METASTASIZER.get().defaultBlockState()
+                .setValue(MetastasizerBlock.FACING, oldState.getValue(MetastasizerBlock.FACING));
+        level.setBlock(worldPosition, newState, Block.UPDATE_ALL);
+
+        if (level.getBlockEntity(worldPosition) instanceof MetastasizerBlockEntity charred) {
+            charred.INVENTORY.setStackInSlot(PATTERN_SLOT, patternItem);
+            charred.INVENTORY.setStackInSlot(OUTPUT_SLOT, outputItem);
+            if (!fuelContents.isEmpty()) charred.FUEL_TANK.fill(fuelContents, IFluidHandler.FluidAction.EXECUTE);
+            if (!reagentContents.isEmpty()) charred.REAGENT_TANK.fill(reagentContents, IFluidHandler.FluidAction.EXECUTE);
+            charred.setChanged();
+            charred.updateBlock();
+        }
+    }
+
+    /** Whether this instance can still evolve at all -- true for the base Metastasizer, overridden
+     * to false by {@link CharredMetastasizerBlockEntity} (already evolved). */
+    protected boolean canEvolve() {
+        return true;
+    }
+
+    /** Union of this machine's base (TIER_1) hazard tolerance with whatever the installed Module
+     * grants -- see MasticatorBlockEntity#installedHazardProfile for the full rationale. */
+    protected HazardProfile installedHazardProfile() {
+        ItemStack module = INVENTORY.getStackInSlot(MODULE);
+        HazardProfile profile = IHaveModules.installedHazardProfile(HazardProfile.TIER_1, module);
+
+        if (canEvolve() && !module.isEmpty()) {
+            EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+            if (evoProps != null) {
+                for (var hazard : evoProps.hazards()) {
+                    profile = profile.plus(hazard);
+                }
+            }
+        }
+        return profile;
+    }
+
+    /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
+     * Charred Metastasizer); otherwise how far {@link #evolutionProgress} is toward
+     * {@code evolutionThreshold}, 0-1. Public purely for {@code EvolutionOverlayBlockEntityRenderer}'s
+     * creeping overlay -- mirrors DroolingCauldronBlockEntity's identical method. */
+    @Override
+    public float getEvolutionProgressFraction() {
+        return installedEvolutionProperties()
+                .map(props -> Math.min(1f, evolutionProgress / (float) props.evolutionThreshold()))
+                .orElse(0f);
+    }
+
+    /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
+     * AND {@link #canEvolve()}. */
+    private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
+        if (!canEvolve()) return Optional.empty();
+        ItemStack module = INVENTORY.getStackInSlot(MODULE);
+        if (module.isEmpty()) return Optional.empty();
+        return Optional.ofNullable(
+                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+    }
+
+    /** Called whenever the Module slot's contents change at all -- full reset, matching
+     * MasticatorBlockEntity's identical rule. */
+    protected void onModuleChanged() {
+        evolutionProgress = 0;
     }
 
     private void updateVisualState() {
@@ -325,7 +507,8 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
 
     @Override
     protected boolean hasCraftingInputs() {
-        return hasPattern() && hasEnoughReagent();
+        // Frozen during the evolution flourish, same as MasticatorBlockEntity.
+        return flourishCyclesRemaining < 0 && hasPattern() && hasEnoughReagent();
     }
 
     @Override
@@ -340,9 +523,17 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         // cachedResult before this method finishes.
         int amount = requiredFluid;
         ItemStack output = cachedResult.copy();
+        int completedTicks = maxProgress;
 
         REAGENT_TANK.useFluid(amount);
         INVENTORY.insertItem(OUTPUT_SLOT, output, false); // pattern is NOT consumed
+
+        installedEvolutionProperties().ifPresent(props -> {
+            evolutionProgress += completedTicks;
+            if (evolutionProgress >= props.evolutionThreshold() && flourishCyclesRemaining < 0) {
+                startEvolutionFlourish();
+            }
+        });
     }
 
     // Restores the cached result/fluid amount when a saved recipe is reloaded from NBT.
@@ -352,7 +543,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         this.requiredFluid = recipe.value().getFluidAmount();
     }
 
-    private void resolveRecipe() {
+    protected void resolveRecipe() {
         Optional<RecipeHolder<MetastasizingRecipe>> opt = getRecipeOptional();
         if (opt.isPresent()) {
             this.activeRecipe = opt.get();
@@ -410,14 +601,23 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         tag.put("inventory", INVENTORY.serializeNBT(registries));
         tag.put("reagent", REAGENT_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("requiredFluid", requiredFluid);
+        tag.putBoolean("module_tab_active", moduleTabActive);
+        tag.putInt("evolution_progress", evolutionProgress);
+        tag.putInt("evolution_flourish_cycles", flourishCyclesRemaining);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
+        // Worlds saved before MODULE existed have a smaller Size -- see
+        // MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would shrink
+        // INVENTORY back down and crash the menu (slot out of range).
+        if (tag.contains("inventory")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
         if (tag.contains("reagent")) REAGENT_TANK.readFromNBT(registries, tag.getCompound("reagent"));
         requiredFluid = tag.getInt("requiredFluid");
+        moduleTabActive = tag.getBoolean("module_tab_active");
+        evolutionProgress = tag.getInt("evolution_progress");
+        flourishCyclesRemaining = tag.contains("evolution_flourish_cycles") ? tag.getInt("evolution_flourish_cycles") : -1;
     }
 
     private ItemStackHandler createInventory(int size) {
@@ -425,6 +625,8 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
             @Override
             protected void onContentsChanged(int slot) {
                 if (level == null || level.isClientSide()) return;
+
+                if (slot == MODULE) onModuleChanged();
 
                 if (isTransferringFluids) return;
 
@@ -459,14 +661,19 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
             // needed.
             @Override
             public int getSlotLimit(int slot) {
-                if (slot == PATTERN_SLOT || slot == FUEL_TANK.SLOT || slot == REAGENT_TANK.SLOT) return 1;
+                if (slot == PATTERN_SLOT || slot == FUEL_TANK.SLOT || slot == REAGENT_TANK.SLOT || slot == MODULE) return 1;
                 return super.getSlotLimit(slot);
+            }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                return slot != MODULE || stack.is(ModTags.Items.MODULES);
             }
         };
     }
 
-    private VulnerableTank createReagentTank() {
-        return new VulnerableTank(getTier().tankCapacity(), 1) {
+    protected VulnerableTank createReagentTank() {
+        return new VulnerableTank(getTier().tankCapacity(), 1, this::installedHazardProfile) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {

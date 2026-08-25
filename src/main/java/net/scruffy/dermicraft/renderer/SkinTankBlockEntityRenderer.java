@@ -59,4 +59,3 @@ public class SkinTankBlockEntityRenderer extends TankBlockEntityRenderer impleme
     }
 
 }
-

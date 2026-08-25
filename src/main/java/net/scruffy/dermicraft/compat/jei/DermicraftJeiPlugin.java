@@ -14,6 +14,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.compat.jei.category.DippingCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCauldronCategory;
+import net.scruffy.dermicraft.compat.jei.category.DroolingCrucibleCategory;
 import net.scruffy.dermicraft.compat.jei.category.EarlyImplantCategory;
 import net.scruffy.dermicraft.compat.jei.category.EarlyIncubatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.EffluencingCategory;
@@ -27,6 +28,7 @@ import net.scruffy.dermicraft.compat.jei.category.RenderingCategory;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.ModRecipes;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 
@@ -50,6 +52,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
         var gui = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(
                 new DroolingCauldronCategory(gui),
+                new DroolingCrucibleCategory(gui),
                 new MasticatingCategory(gui),
                 new EffluencingCategory(gui),
                 new MetastasizingCategory(gui),
@@ -69,6 +72,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
         RecipeManager recipeManager = Objects.requireNonNull(Minecraft.getInstance().level).getRecipeManager();
 
         registration.addRecipes(DermicraftRecipeTypes.DROOLING_CAULDRON, buildDroolingDisplays(recipeManager));
+        registration.addRecipes(DermicraftRecipeTypes.DROOLING_CRUCIBLE, buildDroolingCrucibleDisplays(recipeManager));
         registration.addRecipes(DermicraftRecipeTypes.MASTICATING, buildMasticatingDisplays(recipeManager));
         registration.addRecipes(DermicraftRecipeTypes.EFFLUENCING,
                 recipeManager.getAllRecipesFor(ModRecipes.EFFLUENCING_TYPE.get()));
@@ -94,9 +98,12 @@ public class DermicraftJeiPlugin implements IModPlugin {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CAULDRON.get()), DermicraftRecipeTypes.DROOLING_CAULDRON);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CRUCIBLE.get()), DermicraftRecipeTypes.DROOLING_CRUCIBLE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MASTICATOR.get()), DermicraftRecipeTypes.MASTICATING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CHARRED_MASTICATOR.get()), DermicraftRecipeTypes.MASTICATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EFFLUENTCER.get()), DermicraftRecipeTypes.EFFLUENCING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.METASTASIZER.get()), DermicraftRecipeTypes.METASTASIZING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CHARRED_METASTASIZER.get()), DermicraftRecipeTypes.METASTASIZING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MUTATOR.get()), DermicraftRecipeTypes.MUTATING);
         registration.addRecipeCatalyst(new ItemStack(ModItems.SUTURE_KIT.get()), DermicraftRecipeTypes.EARLY_IMPLANT);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRAW.get()), DermicraftRecipeTypes.EARLY_INCUBATING);
@@ -111,6 +118,24 @@ public class DermicraftJeiPlugin implements IModPlugin {
         List<DynamicRecipeDisplay<VagueDroolingRecipe>> displays = new ArrayList<>();
         for (RecipeHolder<VagueDroolingRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.VAGUE_DROOLING_TYPE.get())) {
             VagueDroolingRecipe recipe = holder.value();
+            for (ItemStack stack : recipe.ingredient().getItems()) {
+                if (!recipe.testIngredient(stack)) continue;
+                int amount = recipe.getCraftingAmount(stack);
+                if (amount <= 0) continue;
+                int ticks = recipe.getCraftingTime(stack);
+                displays.add(new DynamicRecipeDisplay<>(holder, stack.copyWithCount(1),
+                        recipe.getResultFluidStack(amount), ticks));
+            }
+        }
+        return displays;
+    }
+
+    // Sibling of buildDroolingDisplays for Drooling Crucible's own recipe type -- see
+    // VagueDroolingCrucibleRecipe's class javadoc for why it's a separate type, not shared lookups.
+    private static List<DynamicRecipeDisplay<VagueDroolingCrucibleRecipe>> buildDroolingCrucibleDisplays(RecipeManager recipeManager) {
+        List<DynamicRecipeDisplay<VagueDroolingCrucibleRecipe>> displays = new ArrayList<>();
+        for (RecipeHolder<VagueDroolingCrucibleRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.VAGUE_DROOLING_CRUCIBLE_TYPE.get())) {
+            VagueDroolingCrucibleRecipe recipe = holder.value();
             for (ItemStack stack : recipe.ingredient().getItems()) {
                 if (!recipe.testIngredient(stack)) continue;
                 int amount = recipe.getCraftingAmount(stack);

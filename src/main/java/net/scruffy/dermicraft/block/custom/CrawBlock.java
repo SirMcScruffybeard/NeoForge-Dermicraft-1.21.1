@@ -2,6 +2,7 @@ package net.scruffy.dermicraft.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -62,29 +63,37 @@ public class CrawBlock extends ModBaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(
             ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
-        // Empty hand -> fall through to useWithoutItem for withdrawal.
+        // Empty hand -> fall through to useWithoutItem for withdrawal/GUI.
         if (stack.isEmpty()) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        if (!level.isClientSide) {
-            if (level.getBlockEntity(pos) instanceof CrawBlockEntity craw) {
-                // Injection tools are checked first -- an Early Incubating recipe (see
-                // EarlyIncubatingRecipe) triggers on a matching fluid injection rather than
-                // being deposited into storage like every other held item.
-                if (ToolUtil.isInjectionTool(stack)) {
-                    inject(level, player, stack, craw);
-                    return ItemInteractionResult.SUCCESS;
-                }
-
-                // Deposits the whole held stack -- see CrawBlockEntity.deposit for why this isn't
-                // crouch-gated (vanilla skips useItemOn entirely when crouching with a held item).
-                ItemStack leftover = craw.deposit(stack);
-                player.setItemInHand(hand, leftover);
-            }
+        if (!(level.getBlockEntity(pos) instanceof CrawBlockEntity craw)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        return ItemInteractionResult.SUCCESS;
+
+        // Injection tools are checked first -- an Early Incubating recipe (see
+        // EarlyIncubatingRecipe) triggers on a matching fluid injection rather than being
+        // deposited into storage like every other held item.
+        if (ToolUtil.isInjectionTool(stack)) {
+            inject(level, player, stack, craw);
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        // Deposits the whole held stack -- see CrawBlockEntity.deposit for why this isn't
+        // crouch-gated (vanilla skips useItemOn entirely when crouching with a held item).
+        int before = stack.getCount();
+        ItemStack leftover = craw.deposit(stack);
+        if (leftover.getCount() != before) {
+            player.setItemInHand(hand, leftover);
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        // Nothing was actually deposited (wrong item type, or Craw locked to a different item) --
+        // don't eat the click, fall through so vanilla opens the GUI instead.
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     /**
@@ -109,18 +118,24 @@ public class CrawBlock extends ModBaseEntityBlock {
         }
     }
 
+    // Crouch withdraws a full stack, unchanged. A plain (non-crouch) click used to withdraw a
+    // single item; it now opens the GUI instead -- matches every other machine's own "empty hand
+    // (or a held item useItemOn didn't claim) opens the GUI" convention. Also reached whenever
+    // useItemOn falls through with a non-empty invalid item (wrong type, or Craw locked to a
+    // different item), same as Masticator/Effluentcer/Mutator's identical fall-through shape.
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide) {
-            if (level.getBlockEntity(pos) instanceof CrawBlockEntity craw) {
-                // Regular click withdraws one item; crouch withdraws a full stack.
-                ItemStack withdrawn = craw.withdraw(player.isShiftKeyDown());
+        if (!level.isClientSide && level.getBlockEntity(pos) instanceof CrawBlockEntity craw) {
+            if (player.isShiftKeyDown()) {
+                ItemStack withdrawn = craw.withdraw(true);
                 if (!withdrawn.isEmpty()) {
                     player.getInventory().placeItemBackInInventory(withdrawn);
                 }
+            } else if (player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.openMenu(craw, buf -> buf.writeBlockPos(pos));
             }
         }
-        return InteractionResult.SUCCESS;
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     @Nullable

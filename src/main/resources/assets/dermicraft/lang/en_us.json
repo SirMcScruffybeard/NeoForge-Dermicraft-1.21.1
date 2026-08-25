@@ -63,6 +63,7 @@
   "tooltip.dermicraft.drinker.nothing_held": "Buffer is empty",
   "tooltip.dermicraft.drinker.no_container": "No container with room in inventory",
   "tooltip.dermicraft.drinker.transferred": "Transferred %s mB",
+  "tooltip.dermicraft.drinker.transferred_partial": "Transferred %s mB -- %s mB left, out of room",
   "tooltip.dermicraft.drinker.void_warning": "Contents will be voided -- crouch-click again to confirm",
   "tooltip.dermicraft.drinker.voided": "Contents voided",
   "tooltip.dermicraft.sipping.disposal_warning": "Contents will be voided -- right-click again to confirm",
@@ -86,6 +87,15 @@
   "item.dermicraft.feeder_bladder": "Feeder Bladder",
   "item.dermicraft.feeder_bladder.filled": "Feeder Bladder of %s",
 
+  "item.dermicraft.charred_bladder": "Charred Bladder",
+  "item.dermicraft.charred_bladder.filled": "Charred Bladder of %s",
+
+  "item.dermicraft.charred_fuel_bladder": "Charred Fuel Bladder",
+  "item.dermicraft.charred_fuel_bladder.filled": "Charred Fuel Bladder of %s",
+
+  "item.dermicraft.charred_feeder_bladder": "Charred Feeder Bladder",
+  "item.dermicraft.charred_feeder_bladder.filled": "Charred Feeder Bladder of %s",
+
   "item.dermicraft.eye": "Eye",
   "item.dermicraft.nerve_cluster": "Nerve Cluster",
   "item.dermicraft.dense_muscle": "Dense Muscle",
@@ -100,7 +110,8 @@
   "item.dermicraft.beam_module": "Beam Module",
   "item.dermicraft.fluid_bypass_module": "Fluid Bypass Module",
   "item.dermicraft.metaphysical_safety_module": "Metaphysical Safety Module",
-  "item.dermicraft.heat_safety_module": "Heat Safety Module",
+  "item.dermicraft.heat_safety_module": "Thermal Safety Module",
+  "item.dermicraft.heat_evolution_module": "Thermal Evolution Module",
   "item.dermicraft.mre": "MRE",
   "item.dermicraft.meat_flavored_meat": "Meat Flavored Meat",
 
@@ -117,6 +128,7 @@
   "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
   "item.dermicraft.reinforcing_catalyst_bucket": "Reinforcing Catalyst Bucket",
   "item.dermicraft.synapse_catalyst_bucket": "Synapse Catalyst Bucket",
+  "item.dermicraft.evolution_catalyst_bucket": "Evolution Catalyst Bucket",
 
   "item.dermicraft.stone_blend_bucket": "Stone Blend Bucket",
   "item.dermicraft.silica_blend_bucket": "Silica Blend Bucket",
@@ -154,6 +166,7 @@
   "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
   "fluid_type.dermicraft.reinforcing_catalyst_fluid": "Reinforcing Catalyst",
   "fluid_type.dermicraft.synapse_catalyst_fluid": "Synapse Catalyst",
+  "fluid_type.dermicraft.evolution_catalyst_fluid": "Evolution Catalyst",
 
   "fluid_type.dermicraft.stone_blend_fluid": "Stone Blend",
   "fluid_type.dermicraft.silica_blend_fluid": "Silica Blend",
@@ -180,6 +193,8 @@
   "fluid_type.dermicraft.molten_soul_silica_fluid": "Molten Soul Silica",
 
   "block.dermicraft.inert_tumor": "Inert Tumor",
+  "block.dermicraft.charred_tumor": "Charred Tumor",
+  "block.dermicraft.hot_bone": "Hot Bone",
   "block.dermicraft.marred_tumor": "Marred Tumor",
   "block.dermicraft.stitched_tumor": "Stitched Tumor",
 
@@ -191,24 +206,38 @@
 
   "block.dermicraft.drooling_cauldron": "Drooling Cauldron",
   "blockEntity.dermicraft.drooling_cauldron_be": "Drooling Cauldron",
+  "block.dermicraft.drooling_crucible": "Drooling Crucible",
+  "blockEntity.dermicraft.drooling_crucible_be": "Drooling Crucible",
 
   "block.dermicraft.masticator": "Masticator",
   "blockEntity.dermicraft.masticator_be": "Masticator",
+  "block.dermicraft.charred_masticator": "Charred Masticator",
+  "blockentity.dermicraft.charred_masticator": "Charred Masticator",
+  "blockEntity.dermicraft.charred_masticator_be": "Charred Masticator",
 
 
   "block.dermicraft.outerface": "Outerface",
 
   "block.dermicraft.skin_tank": "Skin Tank",
   "blockEntity.dermicraft.skin_tank_be": "Skin Tank",
+  "block.dermicraft.charred_tank": "Charred Tank",
+  "blockEntity.dermicraft.charred_tank_be": "Charred Tank",
 
   "block.dermicraft.effluentcer": "Effluentcer",
   "blockEntity.dermicraft.effluentcer_be": "Effluentcer",
+  "block.dermicraft.charred_effluentcer": "Charred Effluentcer",
+  "blockEntity.dermicraft.charred_effluentcer_be": "Charred Effluentcer",
 
   "block.dermicraft.metastasizer": "Metastasizer",
   "blockEntity.dermicraft.metastasizer_be": "Metastasizer",
+  "block.dermicraft.charred_metastasizer": "Charred Metastasizer",
+  "blockentity.dermicraft.charred_metastasizer": "Charred Metastasizer",
+  "blockEntity.dermicraft.charred_metastasizer_be": "Charred Metastasizer",
 
   "block.dermicraft.mutator": "Mutator",
   "blockEntity.dermicraft.mutator_be": "Mutator",
+  "block.dermicraft.charred_mutator": "Charred Mutator",
+  "blockEntity.dermicraft.charred_mutator_be": "Charred Mutator",
 
   "block.dermicraft.render_furnace": "Render Furnace",
   "blockEntity.dermicraft.render_furnace_be": "Render Furnace",
@@ -221,6 +250,8 @@
 
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
+  "block.dermicraft.charred_craw": "Charred Craw",
+  "blockEntity.dermicraft.charred_craw_be": "Charred Craw",
 
   "block.dermicraft.mr_farmer": "Mr. Farmer",
   "blockEntity.dermicraft.mr_farmer_be": "Mr. Farmer",
@@ -231,7 +262,9 @@
   "block.dermicraft.innards_duct": "Innards Duct",
   "block.dermicraft.innards_duct_arm": "Innards Duct Arm",
   "block.dermicraft.innards_duct_end": "Innards Duct End",
+  "block.dermicraft.charred_innards_duct": "Charred Innards Duct",
   "block.dermicraft.innards_node": "Innards Node",
+  "block.dermicraft.charred_innards_node": "Charred Innards Node",
 
   "block.dermicraft.innards_gate_controller": "Innards Gate Controller",
   "block.dermicraft.innards_gate_buffer": "Innards Gate Buffer",
@@ -283,13 +316,17 @@
 
   "tooltip.dermicraft.mutator.mode_mutate": "Mode: Mutate (item + reagent -> new item)",
   "tooltip.dermicraft.mutator.mode_fill": "Mode: Fill (fluid -> container)",
+  "tooltip.dermicraft.craw.auto_push_on": "Auto-push: On (click to disable)",
+  "tooltip.dermicraft.craw.auto_push_off": "Auto-push: Off (click to enable)",
+  "tooltip.dermicraft.machine.auto_drain_on": "Auto-drain: On (click to disable)",
+  "tooltip.dermicraft.machine.auto_drain_off": "Auto-drain: Off (click to enable)",
 
   "tooltip.dermicraft.idep.face.effluentcer_fuel": "Fuel tank",
   "tooltip.dermicraft.idep.face.effluentcer_result": "Result tank",
   "tooltip.dermicraft.idep.face.effluentcer_input_a": "Input A tank",
   "tooltip.dermicraft.idep.face.effluentcer_input_b": "Input B tank",
 
-  "tooltip.dermicraft.idep.face.drooling_cauldron_ingredient": "Ingredient slot (+ Result tank)",
+  "tooltip.dermicraft.idep.face.drooling_ingredient": "Ingredient slot (+ Result tank)",
 
   "tooltip.dermicraft.idep.face.skin_tank_storage": "Storage tank (+ fill/drain bucket slots)",
 
@@ -337,6 +374,7 @@
   "tooltip.dermicraft.shatter.mining_tier": "Mining Tier: %s",
 
   "tooltip.dermicraft.gauge.fuel": "Fuel",
+  "tooltip.dermicraft.gauge.buffer": "Buffer",
   "tooltip.dermicraft.gauge.reagent": "Reagent",
   "tooltip.dermicraft.gauge.result": "Result",
   "tooltip.dermicraft.gauge.input_a": "Input A",
@@ -349,6 +387,34 @@
   "tooltip.dermicraft.slot.workbench_work_item": "Gadget",
   "screen.dermicraft.workbench.mod_tab": "Mod",
   "screen.dermicraft.workbench.fabrication_tab": "Fab",
+  "screen.dermicraft.skin_tank.main_tab": "Main",
+  "screen.dermicraft.skin_tank.module_tab": "Mod",
+  "screen.dermicraft.charred_tank.main_tab": "Main",
+  "screen.dermicraft.charred_tank.module_tab": "Mod",
+  "screen.dermicraft.drooling_cauldron.main_tab": "Main",
+  "screen.dermicraft.drooling_cauldron.module_tab": "Mod",
+  "screen.dermicraft.masticator.main_tab": "Main",
+  "screen.dermicraft.masticator.module_tab": "Mod",
+  "screen.dermicraft.charred_masticator.main_tab": "Main",
+  "screen.dermicraft.charred_masticator.module_tab": "Mod",
+  "screen.dermicraft.effluentcer.main_tab": "Main",
+  "screen.dermicraft.effluentcer.module_tab": "Mod",
+  "screen.dermicraft.charred_effluentcer.main_tab": "Main",
+  "screen.dermicraft.charred_effluentcer.module_tab": "Mod",
+  "screen.dermicraft.mutator.main_tab": "Main",
+  "screen.dermicraft.mutator.module_tab": "Mod",
+  "screen.dermicraft.charred_mutator.main_tab": "Main",
+  "screen.dermicraft.charred_mutator.module_tab": "Mod",
+  "screen.dermicraft.craw.main_tab": "Main",
+  "screen.dermicraft.craw.module_tab": "Mod",
+  "screen.dermicraft.charred_craw.main_tab": "Main",
+  "screen.dermicraft.charred_craw.module_tab": "Mod",
+  "screen.dermicraft.metastasizer.main_tab": "Main",
+  "screen.dermicraft.metastasizer.module_tab": "Mod",
+  "screen.dermicraft.charred_metastasizer.main_tab": "Main",
+  "screen.dermicraft.charred_metastasizer.module_tab": "Mod",
+  "screen.dermicraft.drooling_crucible.main_tab": "Main",
+  "screen.dermicraft.drooling_crucible.module_tab": "Mod",
   "screen.dermicraft.workbench.craft": "Craft",
   "screen.dermicraft.scrench": "Sunder Maintenance",
   "tooltip.dermicraft.slot.reagent_container": "Reagent Container",

@@ -7,8 +7,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.item.custom.EaterItem;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
+import net.scruffy.dermicraft.item.custom.SippingItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
@@ -52,6 +54,10 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             fuelRenderer = createFluidRenderer16x40(menu.getSunderFuelCapacity());
         } else if (isShatter()) {
             fuelRenderer = createFluidRenderer16x40(menu.getShatterFuelCapacity());
+        } else if (isDrinker()) {
+            fuelRenderer = createFluidRenderer16x40(menu.getDrinkerCapacity());
+        } else if (isSipping()) {
+            fuelRenderer = createFluidRenderer16x40(menu.getSippingCapacity());
         }
     }
 
@@ -65,6 +71,14 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
 
     private boolean isShatter() {
         return menu.getGadgetStack().getItem() instanceof ShatterItem;
+    }
+
+    private boolean isDrinker() {
+        return menu.getGadgetStack().getItem() instanceof DrinkerItem;
+    }
+
+    private boolean isSipping() {
+        return menu.getGadgetStack().getItem() instanceof SippingItem;
     }
 
     @Override
@@ -93,6 +107,18 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
                         Component.translatable("tooltip.dermicraft.gauge.fuel"));
             }
         }
+
+        if (isDrinker() && fuelRenderer != null) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.getDrinkerFluid(),
+                    DrinkerItem.TANK_X + 1, DrinkerItem.TANK_Y + 1, fuelRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.buffer"));
+        }
+
+        if (isSipping() && fuelRenderer != null) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.getSippingFluid(),
+                    SippingItem.TANK_X + 1, SippingItem.TANK_Y + 1, fuelRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.buffer"));
+        }
     }
 
     @Override
@@ -112,6 +138,38 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             renderEaterBg(guiGraphics, x, y);
         } else if (isShatter()) {
             renderShatterBg(guiGraphics, x, y);
+        } else if (isDrinker()) {
+            renderDrinkerBg(guiGraphics, x, y);
+        } else if (isSipping()) {
+            renderSippingBg(guiGraphics, x, y);
+        }
+    }
+
+    /** Module slot plus the buffer-gauge/fill-drain-slot pairing, same tank_and_slot layout as
+     * Drinker's own background. */
+    private void renderSippingBg(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + SippingItem.MODULE_SLOT_X, y + SippingItem.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+
+        guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + SippingItem.TANK_X, y + SippingItem.TANK_Y, 0, 0,
+                TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT, TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
+
+        if (fuelRenderer != null) {
+            fuelRenderer.render(guiGraphics, x + SippingItem.TANK_X + 1, y + SippingItem.TANK_Y + 1, menu.getSippingFluid());
+        }
+    }
+
+    /** Module slot (yellow, same coordinates Eater's own Module row starts from) plus the
+     * buffer-gauge/drain-slot pairing, same tank_and_slot layout as Sunder's/Shatter's fuel gauge. */
+    private void renderDrinkerBg(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + DrinkerItem.MODULE_SLOT_X, y + DrinkerItem.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+
+        guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + DrinkerItem.TANK_X, y + DrinkerItem.TANK_Y, 0, 0,
+                TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT, TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
+
+        if (fuelRenderer != null) {
+            fuelRenderer.render(guiGraphics, x + DrinkerItem.TANK_X + 1, y + DrinkerItem.TANK_Y + 1, menu.getDrinkerFluid());
         }
     }
 

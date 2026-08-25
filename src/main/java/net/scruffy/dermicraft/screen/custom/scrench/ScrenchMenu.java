@@ -13,8 +13,10 @@ import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.item.custom.ScrenchItem;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
+import net.scruffy.dermicraft.item.custom.SippingItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
@@ -124,6 +126,28 @@ public class ScrenchMenu extends AbstractModMenu {
 
     public int getShatterFuelCapacity() {
         return ShatterItem.FUEL_CAPACITY;
+    }
+
+    /** Drinker-only convenience accessors, same shape as the Sunder/Shatter fluid ones above --
+     * reads DRINKER's own buffer capability rather than a {@code FLUID_DATA} component, since that's
+     * where the buffer actually lives (see {@code DrinkerItem#bufferContents}). */
+    public FluidStack getDrinkerFluid() {
+        return DrinkerItem.bufferContents(player.getItemInHand(gadgetHand));
+    }
+
+    public int getDrinkerCapacity() {
+        return DrinkerItem.CAPACITY;
+    }
+
+    /** Sipping-only convenience accessors, same shape as Sunder's/Shatter's -- Sipping's buffer is
+     * the standard {@code FLUID_DATA} component (unlike Drinker's own separate buffer capability),
+     * same as Sunder's/Shatter's fuel tanks. */
+    public FluidStack getSippingFluid() {
+        return player.getItemInHand(gadgetHand).getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidStack();
+    }
+
+    public int getSippingCapacity() {
+        return SippingItem.CAPACITY;
     }
 
     /**

@@ -27,6 +27,15 @@ public record MachineTier(int tankCapacity, int maxHealth, float speedMultiplier
      * Furnace, Grafting Table) that deliberately skip the health system entirely. */
     public static final MachineTier NO_HEALTH = new MachineTier(FluidType.BUCKET_VOLUME * 5, 0, 1.0f, 1.0f);
 
+    /** The Charred family's upgrade tier (Charred Masticator, and future Charred Metastasizer/
+     * Mutator/etc.) -- a flat 1.25x speed boost over BASIC, applying uniformly to every recipe the
+     * machine runs, not just the Tier 1 ones it's meant to blow through. New hazard-gated recipes
+     * introduced at this tier are deliberately given a longer base {@code ticks} value to compensate,
+     * rather than this multiplier being recipe-aware -- keeps the speed knob a plain stat, per this
+     * class's own "stat-only tier" design. Double BASIC's tank capacity (whole buckets); health/heal
+     * unchanged -- only speed and capacity differ. */
+    public static final MachineTier CHARRED = new MachineTier(BASIC.tankCapacity() * 2, BASIC.maxHealth(), 1.25f, BASIC.healMultiplier());
+
     // To add a stat-only upgrade tier later, declare it here and hand it to a new block, e.g.:
     // public static final MachineTier ADVANCED = new MachineTier(FluidType.BUCKET_VOLUME * 10, 400, 1.5f, 1.5f);
 }

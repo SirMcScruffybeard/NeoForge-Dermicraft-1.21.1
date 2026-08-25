@@ -389,10 +389,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_metaphysical_safety_module", has(ModItems.METAPHYSICAL_SAFETY_MODULE.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("beam_module_crafting_table"));
 
-        // Fluid Bypass Module: deliberately cheap relative to Aggregate/Heat Safety -- see the
+        // Fluid Bypass Module: deliberately cheap relative to Aggregate/Thermal Safety -- see the
         // Modules direction discussion. Bypass doesn't unlock anything otherwise unreachable (every
         // target it lets you reach through fluid is already obtainable by ordinary means), it's pure
-        // convenience, not a capability skip the way Heat Safety's hazard bypass is -- so it doesn't
+        // convenience, not a capability skip the way Thermal Safety's hazard bypass is -- so it doesn't
         // deserve capability-tier cost. Wool (soft, permeable material -- a filter/membrane) + Water
         // Bucket for the water itself, not the bucket's iron -- vanilla's own crafting-remainder
         // returns the bucket empty, same as Cake/Mushroom Stew, so this genuinely only spends the
@@ -407,7 +407,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("fluid_bypass_module_crafting_table"));
 
-        // Heat Safety Module: the priciest of the three, deliberately -- this is the one that
+        // Thermal Safety Module: the priciest of the three, deliberately -- this is the one that
         // actually skips a real progression gate (early hazard tolerance), not just convenience
         // (Fluid Bypass) or a harvesting-category unlock (Aggregate). Magma Block (heat-resistant
         // identity) over a Lava Bucket (the hazard itself, not the bucket's iron -- same "value the
@@ -424,11 +424,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("heat_safety_module_crafting_table"));
 
-        // Metaphysical Safety Module: deliberately mirrors Heat Safety Module's own shape/weight --
+        // Metaphysical Safety Module: deliberately mirrors Thermal Safety Module's own shape/weight --
         // an Ender Pearl (metaphysical identity, playing Magma Block's role) over a Molten Soul Silica
         // Bucket (the hazard's real content -- the fluid actually tagged METAPHYSICAL_MILD, same
         // "value the content, not the container" framing as every other bucket recipe here) over the
-        // Module Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Heat.
+        // Module Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Thermal.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.METAPHYSICAL_SAFETY_MODULE.get())
                 .pattern("IPI")
                 .pattern("ISI")
@@ -502,6 +502,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.WATER);
+        // Same ingredient/modifier as Cauldron's own -- "they produce what they produce regardless
+        // of food... exposure to food drives their hunger more" (dermicraft-machine-notes.md).
+        // Separate recipe type only, not a different ingredient list.
+        RecipeBuilders.buildVagueDroolingCrucible(recipeOutput, "lava_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.LAVA);
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,
@@ -796,6 +800,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
                 ModFluids.SOURCE_CARBON_BLEND.get(), 75, Items.TORCH, 4);
 
+        // Redstone torch's own dipping recipe -- mirrors vanilla's 1 stick + 1 redstone dust -> 1
+        // redstone torch ratio (unlike the plain torch's 4-output). 110 mB Molten Redstone matches
+        // the same "1 dust" rate metastasizing_molten_redstone_dust already uses below.
+        RecipeBuilders.simpleDipping(recipeOutput, "redstone_torch_dipping", Tags.Items.RODS_WOODEN, 1,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, Items.REDSTONE_TORCH, 1);
+
+        // Mutator copies of both dipping recipes above -- same ingredient/fluid/amount, just routed
+        // through the Mutator's MUTATE mode instead of a dipping tank. lightTicks matches the same
+        // "cheap single-dust-scale conversion" cadence metastasizing_molten_redstone_dust uses.
+        RecipeBuilders.buildMutating(recipeOutput, "mutating_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
+                ModFluids.SOURCE_CARBON_BLEND.get(), 75, new ItemStack(Items.TORCH, 4), lightTicks);
+        RecipeBuilders.buildMutating(recipeOutput, "mutating_redstone_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
+
         RecipeBuilders.PuddleCraft.MakeFluids.makeFromTag(recipeOutput, "crude_slurry_puddle", ModTags.Items.PLANT_FOOD, 4, Fluids.WATER,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10));
 
@@ -807,6 +825,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "primitive_catalyst_puddle_charcoal",
                 List.of(Ingredient.of(Items.CHARCOAL), Ingredient.of(Items.BONE), Ingredient.of(Tags.Items.FOODS_RAW_MEAT)),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(),
+                ModMath.Time.getSecondsToTicks(10));
+
+        RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "evolution_catalyst_puddle",
+                List.of(Ingredient.of(Items.PHANTOM_MEMBRANE), Ingredient.of(Items.QUARTZ), Ingredient.of(Items.GLOWSTONE_DUST)),
+                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), ModFluids.SOURCE_EVOLUTION_CATALYST.get(),
                 ModMath.Time.getSecondsToTicks(10));
 
         RecipeBuilders.PuddleCraft.MakeItems.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
@@ -887,6 +910,26 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_feeder_bladder", ModItems.BLADDER.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.FEEDER_BLADDER.get(), solidTicks);
 
+        // Charred (thermal-hazard-tolerant) Bladder -- quenched/hardened in a full bucket of Lava,
+        // matching the Charred Duct/Node's own convention.
+        RecipeBuilders.mutate(recipeOutput, "charred_bladder_mutating", ModItems.BLADDER.get(),
+                Fluids.LAVA, 1000, ModItems.CHARRED_BLADDER.get(), solidTicks);
+
+        // Charred Fuel/Feeder Bladder -- two paths in, same as the base Fuel/Feeder Bladder having
+        // its own quench recipe plus a specialization recipe off the plain Bladder: quench the
+        // already-specialized base variant in Lava, OR specialize an already-quenched Charred Bladder
+        // with the same conversion fluid/amount the base specialization recipe uses. Either order
+        // reaches the same result.
+        RecipeBuilders.mutate(recipeOutput, "charred_fuel_bladder_from_fuel_bladder_mutating", ModItems.FUEL_BLADDER.get(),
+                Fluids.LAVA, 1000, ModItems.CHARRED_FUEL_BLADDER.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "charred_fuel_bladder_from_charred_bladder_mutating", ModItems.CHARRED_BLADDER.get(),
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 750, ModItems.CHARRED_FUEL_BLADDER.get(), solidTicks);
+
+        RecipeBuilders.mutate(recipeOutput, "charred_feeder_bladder_from_feeder_bladder_mutating", ModItems.FEEDER_BLADDER.get(),
+                Fluids.LAVA, 1000, ModItems.CHARRED_FEEDER_BLADDER.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "charred_feeder_bladder_from_charred_bladder_mutating", ModItems.CHARRED_BLADDER.get(),
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.CHARRED_FEEDER_BLADDER.get(), solidTicks);
+
         // Chassis: Iron Bars (mechanical scaffold) + Calcium-Blend-derived Reinforcing Catalyst
         // (skeletal reagent) -- shared structural item across Gadgets and the Module Frame below.
         RecipeBuilders.mutate(recipeOutput, "chassis_mutating", Items.IRON_BARS,
@@ -898,6 +941,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // rather than a one-time build.
         RecipeBuilders.mutate(recipeOutput, "module_frame_mutating", ModItems.CHASSIS.get(),
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.MODULE_FRAME.get(), solidTicks);
+
+        // Evolution Modules: matching Safety Module + a bucket (1000 mB) of Evolution Catalyst --
+        // same cost tier as Chassis, since it's an upgrade-part item rather than permanent
+        // infrastructure like the Module Frame above.
+        RecipeBuilders.mutate(recipeOutput, "heat_evolution_module_mutating", ModItems.HEAT_SAFETY_MODULE.get(),
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.HEAT_EVOLUTION_MODULE.get(), solidTicks);
 
         // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
         // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier
@@ -1273,6 +1322,101 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + c + "_dye", dyeItem(c), dyeFluid(color), 100, lightTicks);
         }
 
+        ////////////////////Molten Family (Stage 2, Charred Masticator only)\\\\\\\\\\\\\\\\\\\\
+        // Resolves the long-flagged reachability gap: Tier 1 Masticator tanks reject Lava, so none
+        // of this family could actually be crafted until Charred Masticator existed. Item inputs/
+        // yields below are placeholder-quality defaults (flat 110 mB/item, 1:1 Lava cost, 30s) for
+        // the fluids `dermicraft-crafting-notes.md` still marks "not yet decided" -- easy to retune
+        // later, the goal right now is reachability for testing. Molten Redstone is the one member
+        // with real confirmed numbers (Redstone Block -> 1000 mB, loose Dust -> 110 mB).
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_block",
+                Ingredient.of(Items.REDSTONE_BLOCK), 1, Fluids.LAVA, 1000,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_dust",
+                Ingredient.of(Items.REDSTONE), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_quartz_masticating",
+                Ingredient.of(Items.QUARTZ), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_glowstone_masticating",
+                Ingredient.of(Items.GLOWSTONE_DUST), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_amethyst_masticating",
+                Ingredient.of(Items.AMETHYST_SHARD), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating",
+                Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_lapis_masticating",
+                Ingredient.of(Items.LAPIS_LAZULI), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_LAPIS.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_raw_netherite_scrap_masticating",
+                Ingredient.of(Items.NETHERITE_SCRAP), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "blaze_essence_masticating",
+                Ingredient.of(Items.BLAZE_POWDER), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "ghast_essence_masticating",
+                Ingredient.of(Items.GHAST_TEAR), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_GHAST_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "wither_essence_masticating",
+                Ingredient.of(Items.WITHER_SKELETON_SKULL), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_WITHER_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "ender_essence_masticating",
+                Ingredient.of(Items.ENDER_PEARL), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_ENDER_ESSENCE.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_soul_silica_masticating",
+                Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, 110,
+                ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 110, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Molten Netherite (Molten Raw Netherite Scrap + Aurous Blend -> Molten Netherite) is
+        // deliberately NOT added here yet. Its confirmed machine is the Effluentcer, which has no
+        // Charred/Tier 2 variant yet -- its tanks are still hardcoded TIER_1 and would reject the
+        // Thermal-hazard Scrap input, so registering this recipe now would just create a second,
+        // still-unreachable gap instead of resolving one. Needs a Charred Effluentcer first.
+
+        // Reverse route (Charred Metastasizer, pattern-based duplication) -- mirrors every Molten
+        // Masticating recipe above 1:1 on item and mB, same "forward mirrors reverse" convention as
+        // the Ingot/Nugget/Coal/Stone families elsewhere in this file. Needs Charred Metastasizer
+        // since these fluids all carry Thermal Hazard, same reachability logic as the forward route.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_block",
+                Items.REDSTONE_BLOCK, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_dust",
+                Items.REDSTONE, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_quartz",
+                Items.QUARTZ, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_glowstone",
+                Items.GLOWSTONE_DUST, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_amethyst",
+                Items.AMETHYST_SHARD, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond",
+                Items.DIAMOND, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_lapis",
+                Items.LAPIS_LAZULI, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_raw_netherite_scrap",
+                Items.NETHERITE_SCRAP, ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_essence",
+                Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ghast_essence",
+                Items.GHAST_TEAR, ModFluids.SOURCE_GHAST_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_wither_essence",
+                Items.WITHER_SKELETON_SKULL, ModFluids.SOURCE_WITHER_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ender_essence",
+                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_ESSENCE.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_soul_silica",
+                Items.SOUL_SAND, ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 110, lightTicks);
+
         ////////////////////Render Kiln\\\\\\\\\\\\\\\\\\\\
         // Fluid alone -> a fixed default item, no pattern/no ingredient item -- see machine notes and
         // the Render Kiln build plan doc. Deliberately mirrors the existing Metastasizer reverse-
@@ -1349,6 +1493,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "innards_duct_metastasizing", ModBlocks.INNARDS_DUCT.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
 
+        // Charred (thermal-hazard-tolerant) Duct -- a Tier 1 Duct quenched/hardened in 100mB Lava.
+        RecipeBuilders.mutate(recipeOutput, "charred_innards_duct_mutating", ModBlocks.INNARDS_DUCT.get(),
+                Fluids.LAVA, 100, ModBlocks.CHARRED_INNARDS_DUCT.get(), solidTicks);
+
         // Innards Node: Redstone (routing/signal) above a Beaker (the body it routes through),
         // an Inert Tumor at the base (the raw biological seed it's grown from).
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_NODE)
@@ -1360,6 +1508,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('T', ModBlocks.INERT_TUMOR)
                 .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("innards_node_crafting_table"));
+
+        // Charred (thermal-hazard-tolerant) Node -- a Tier 1 Node quenched/hardened in a full
+        // bucket's worth of Lava, matching the Charred Duct's own convention at 10x the fluid cost
+        // (the Node is the one place fluid actually sits in the whole system).
+        RecipeBuilders.mutate(recipeOutput, "charred_innards_node_mutating", ModBlocks.INNARDS_NODE.get(),
+                Fluids.LAVA, 1000, ModBlocks.CHARRED_INNARDS_NODE.get(), solidTicks);
 
         // Innards Gate Controller: Redstone Repeater (the logic/priority core) flanked by Nerve
         // Clusters (signal-routing tissue), Inert Tumor at the bottom center (biological seed).

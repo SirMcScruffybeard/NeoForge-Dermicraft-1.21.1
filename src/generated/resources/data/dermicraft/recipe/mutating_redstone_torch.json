@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_molten_redstone",
+  "fluid_amount": 110,
+  "ingredient": {
+    "tag": "c:rods/wooden"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:redstone_torch"
+  },
+  "ticks": 50
+}

@@ -4,6 +4,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.MagmaBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
@@ -12,6 +13,8 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.custom.*;
+import net.scruffy.dermicraft.block.custom.duct.CharredInnardsDuctBlock;
+import net.scruffy.dermicraft.block.custom.duct.CharredNodeBlock;
 import net.scruffy.dermicraft.block.custom.duct.InnardsDuctBlock;
 import net.scruffy.dermicraft.block.custom.floor.LabFloorBlock;
 import net.scruffy.dermicraft.block.custom.duct.NodeBlock;
@@ -54,6 +57,29 @@ public class ModBlocks {
                 .ignitedByLava();
     }
 
+    // Charred Tumor -- a plain Block (no TumorBlock harvest/inject/suture mechanics), paired with
+    // the new charred-flesh texture. Slightly tougher than Inert Tumor's own strength, since it's
+    // meant to read as flesh that's been hardened by heat rather than the soft raw kind. No
+    // ignitedByLava -- already charred, re-igniting it doesn't fit.
+    public static final DeferredBlock<Block> CHARRED_TUMOR = registerBlock("charred_tumor",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .strength(.35f)
+                    .explosionResistance(15f)
+                    .sound(SoundType.SLIME_BLOCK)
+                    .friction(0.6f)));
+
+    // Hot Bone -- a vanilla MagmaBlock subclass (not a custom class), reusing its exact
+    // walk-on-damage behavior wholesale rather than reimplementing it. Slightly weaker than vanilla
+    // Bone Block's 2.0 strength. Emissive via lightLevel, same technique as the Molten fluid family
+    // (whole-block glow, not a per-pixel emissive texture layer) -- see MagmaBlock's own vanilla
+    // light level (3) for precedent; bumped higher here since this is meant to read as hotter/more
+    // "actively molten" than plain magma.
+    public static final DeferredBlock<Block> HOT_BONE = registerBlock("hot_bone",
+            () -> new MagmaBlock(BlockBehaviour.Properties.of()
+                    .strength(1.5f)
+                    .sound(SoundType.BONE_BLOCK)
+                    .lightLevel(state -> 6)));
+
     public static final DeferredBlock<Block> CALCIUM_GLASS = registerBlock("calcium_glass",
             () -> new ModGlassBlock(BlockBehaviour.Properties.of()
                     .instrument(NoteBlockInstrument.HAT) // Makes hat sound on note blocks
@@ -71,7 +97,23 @@ public class ModBlocks {
     public static final DeferredBlock<Block> DROOLING_CAULDRON = registerBlock("drooling_cauldron",
             () -> new DroolingCauldronBlock(BlockBehaviour.Properties.of()
                     .strength(2.0f)
-                    .requiresCorrectToolForDrops()));
+                    .requiresCorrectToolForDrops()
+                    // Cauldron-shaped model (walls + open fluid-pool cavity), not a full cube --
+                    // without this, neighboring blocks' touching faces get culled as if this were
+                    // opaque, leaving the block behind visibly see-through. Matches vanilla's own
+                    // Cauldron, which sets the same flag for the same reason.
+                    .noOcclusion()));
+
+    // Tier 2 -- standalone for now (evolution FROM Drooling Cauldron isn't built yet, see
+    // dermicraft-machine-notes.md's Drooling Cauldron entry). Same strength/tool requirement as
+    // Cauldron. No lightLevel() call here -- DroolingMachineBlock's own constructor sets it
+    // dynamically off LIGHT_LEVEL (kept in sync with the tank's actual contents), which would
+    // silently override a fixed value set here anyway.
+    public static final DeferredBlock<Block> DROOLING_CRUCIBLE = registerBlock("drooling_crucible",
+            () -> new DroolingCrucibleBlock(BlockBehaviour.Properties.of()
+                    .strength(2.0f)
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion())); // same cauldron-shaped-model reasoning as Drooling Cauldron above
 
     // Workbench bottom half -- keeps the registry id "workbench" (established before the top half
     // existed) and hosts the real Storage/Mod/Fabrication GUI (see WorkbenchBlock's own javadoc).
@@ -120,6 +162,11 @@ public class ModBlocks {
     public static final DeferredBlock<Block> MASTICATOR = registerBlock("masticator",
             () -> new  MasticatorBlock(machineProperties()));
 
+    // Charred Masticator -- Masticator's hazard-gated Tier 2 evolution, see
+    // CharredMasticatorBlockEntity for the actual capability leap (thermal-tolerant tanks).
+    public static final DeferredBlock<Block> CHARRED_MASTICATOR = registerBlock("charred_masticator",
+            () -> new CharredMasticatorBlock(machineProperties()));
+
     // Registered manually (not via registerBlock's auto-generated plain BlockItem) -- Skin Tank
     // preserves its contents on Forceps pickup (see IPreserveContentsOnPickup/ICollectBlocks), so
     // its item needs SkinTankBlockItem's shift-hidden fluid tooltip to actually show what's inside.
@@ -128,14 +175,37 @@ public class ModBlocks {
     public static final DeferredItem<Item> SKIN_TANK_ITEM = ModItems.ITEMS.register("skin_tank",
             () -> new SkinTankBlockItem(SKIN_TANK.get(), new Item.Properties()));
 
+    // Charred Tank -- Skin Tank's hazard-gated Tier 2 evolution, see CharredTankBlockEntity for the
+    // actual capability leap (double capacity, thermal-tolerant tank). Reuses SkinTankBlockItem as-is
+    // -- it's already block-generic, not tied to SkinTankBlock specifically.
+    public static final DeferredBlock<Block> CHARRED_TANK = BLOCKS.register("charred_tank",
+            () -> new CharredTankBlock(machineProperties()));
+    public static final DeferredItem<Item> CHARRED_TANK_ITEM = ModItems.ITEMS.register("charred_tank",
+            () -> new SkinTankBlockItem(CHARRED_TANK.get(), new Item.Properties()));
+
     public static final DeferredBlock<Block> EFFLUENTCER = registerBlock("effluentcer",
             () -> new EffluentcerBlock(machineProperties()));
+
+    // Charred Effluentcer -- Effluentcer's hazard-gated Tier 2 evolution, see
+    // CharredEffluentcerBlockEntity for the actual capability leap (thermal-tolerant tanks).
+    public static final DeferredBlock<Block> CHARRED_EFFLUENTCER = registerBlock("charred_effluentcer",
+            () -> new CharredEffluentcerBlock(machineProperties()));
 
     public static final DeferredBlock<Block> METASTASIZER = registerBlock("metastasizer",
             () -> new MetastasizerBlock(machineProperties()));
 
+    // Charred Metastasizer -- Metastasizer's hazard-gated Tier 2 evolution, see
+    // CharredMetastasizerBlockEntity for the actual capability leap (thermal-tolerant reagent tank).
+    public static final DeferredBlock<Block> CHARRED_METASTASIZER = registerBlock("charred_metastasizer",
+            () -> new CharredMetastasizerBlock(machineProperties()));
+
     public static final DeferredBlock<Block> MUTATOR = registerBlock("mutator",
             () -> new MutatorBlock(machineProperties()));
+
+    // Charred Mutator -- Mutator's hazard-gated Tier 2 evolution, see CharredMutatorBlockEntity for
+    // the actual capability leap (thermal-tolerant reagent tank).
+    public static final DeferredBlock<Block> CHARRED_MUTATOR = registerBlock("charred_mutator",
+            () -> new CharredMutatorBlock(machineProperties()));
 
     public static final DeferredBlock<Block> RENDER_FURNACE = registerBlock("render_furnace",
             () -> new RenderFurnaceBlock(machineProperties()));
@@ -148,6 +218,11 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> CRAW = registerBlock("craw",
             () -> new CrawBlock(machineProperties()));
+
+    // Charred Craw -- Craw's hazard-gated Tier 2 evolution in name only (see
+    // CharredCrawBlockEntity's own javadoc): double storage capacity + double auto-push throughput.
+    public static final DeferredBlock<Block> CHARRED_CRAW = registerBlock("charred_craw",
+            () -> new CharredCrawBlock(machineProperties()));
 
     public static final DeferredBlock<Block> MR_FARMER = registerBlock("mr_farmer",
             () -> new MrFarmerBlock(machineProperties()));
@@ -170,8 +245,24 @@ public class ModBlocks {
     public static final DeferredBlock<Block> INNARDS_DUCT_END = registerBlock("innards_duct_end",
             () -> new Block(BlockBehaviour.Properties.of().noOcclusion().noLootTable()));
 
+    // Thermal-hazard-tolerant Duct tier -- same shape/Properties as INNARDS_DUCT, mutated from it
+    // in the Mutator (see RecipeBuilders.mutate call). No new capability registration needed: the
+    // duct has no block entity, see CharredInnardsDuctBlock's own javadoc.
+    public static final DeferredBlock<Block> CHARRED_INNARDS_DUCT = registerBlock("charred_innards_duct",
+            () -> new CharredInnardsDuctBlock(BlockBehaviour.Properties.of()
+                    .strength(0.5f)
+                    .sound(SoundType.HONEY_BLOCK)
+                    .noOcclusion()));
+
     public static final DeferredBlock<Block> INNARDS_NODE = registerBlock("innards_node",
             () -> new NodeBlock(BlockBehaviour.Properties.of()
+                    .strength(0.8f)
+                    .sound(SoundType.HONEY_BLOCK)));
+
+    // Thermal-hazard-tolerant Node tier -- same Properties as INNARDS_NODE, mutated from it in the
+    // Mutator. Shares INNARDS_NODE_BE (see ModBlockEntities), no new capability registration needed.
+    public static final DeferredBlock<Block> CHARRED_INNARDS_NODE = registerBlock("charred_innards_node",
+            () -> new CharredNodeBlock(BlockBehaviour.Properties.of()
                     .strength(0.8f)
                     .sound(SoundType.HONEY_BLOCK)));
 

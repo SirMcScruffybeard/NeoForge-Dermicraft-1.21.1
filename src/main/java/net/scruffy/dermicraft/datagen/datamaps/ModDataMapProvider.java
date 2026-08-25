@@ -156,14 +156,27 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModItems.DIAMOND_SHATTER_HEAD),
                         new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 3, 1.0f), false);
 
-        // Heat Safety Module grants exactly EXTREME_HEAT (lava) -- the tag-vs-data split means
+        // Thermal Safety Module grants exactly THERMAL (lava) -- the tag-vs-data split means
         // adding a Radiation/Biohazard Safety Module later is just another entry here, no new tag.
         this.builder(ModDataMaps.SAFETY_MODULE_PROPERTIES)
                 .add(getResourceLocation(ModItems.HEAT_SAFETY_MODULE),
-                        new SafetyModuleProperties(List.of(ModTags.Fluids.EXTREME_HEAT)), false)
+                        new SafetyModuleProperties(List.of(ModTags.Fluids.THERMAL)), false)
                 .add(getResourceLocation(ModItems.METAPHYSICAL_SAFETY_MODULE),
                         new SafetyModuleProperties(List.of(ModTags.Fluids.METAPHYSICAL_MILD, ModTags.Fluids.METAPHYSICAL_SEVERE)), false)
 
+                ;
+
+        // Thermal Evolution Module: targets lava for a selector consumer (Drooling Cauldron) AND
+        // grants THERMAL for a hazard-gated consumer (Masticator, eventually) -- same physical
+        // item serves either shape depending on which machine's Module slot it sits in. Threshold
+        // is an explicit placeholder (one Minecraft day of continuous active production), not a
+        // tuned number -- see dermicraft-machine-notes.md.
+        this.builder(ModDataMaps.EVOLUTION_MODULE_PROPERTIES)
+                .add(getResourceLocation(ModItems.HEAT_EVOLUTION_MODULE),
+                        new net.scruffy.dermicraft.property.EvolutionModuleProperties(
+                                java.util.Optional.of(net.minecraft.world.level.material.Fluids.LAVA),
+                                List.of(ModTags.Fluids.THERMAL),
+                                24000), false)
                 ;
 
         // Scoped to mobs with a real vanilla head/skull item already -- see the design notes.

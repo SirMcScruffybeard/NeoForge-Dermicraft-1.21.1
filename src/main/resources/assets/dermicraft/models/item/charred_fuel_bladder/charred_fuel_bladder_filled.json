@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/bladder/charred_fluid_bladder_full",
+    "layer1": "dermicraft:item/bladder/charred_fluid_bladder_full_skin",
+    "layer2": "dermicraft:item/bladder/fuel_bladder_adapter"
+  }
+}

@@ -43,6 +43,19 @@ public class RecipeBuilders {
         output.accept(id, recipe, null);
     }
 
+    /** Drooling Crucible's own sibling of {@link #buildVagueDrooling} -- see
+     * {@code VagueDroolingCrucibleRecipe}'s class javadoc for why it's a separate recipe type
+     * rather than reusing Cauldron's, even though the intent is to copy Cauldron's own ingredient
+     * list/modifier values verbatim ("they produce what they produce regardless of food"). */
+    public static void buildVagueDroolingCrucible(RecipeOutput output, String name, Ingredient ingredient, float modifier,
+                                                    Fluid result) {
+
+        ResourceLocation id = getResourceLocation(name);
+        net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe recipe =
+                new net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe(ingredient, modifier, result);
+        output.accept(id, recipe, null);
+    }
+
     ////////////////////HandShredding\\\\\\\\\\\\\\\\\\\\
     public static void buildHandShredding(RecipeOutput output, String name, Ingredient tool, Ingredient input,
                                            ItemStack result, int toolDamage, boolean consumeTool) {

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/module/evolution_module_frame",
+    "layer1": "dermicraft:item/module/icons/lava_bucket_icon"
+  }
+}

@@ -149,8 +149,14 @@ public class MutatorBlock extends ModBaseEntityBlock implements TieredMachine {
                 }
             } else if (!player.getItemInHand(hand).isEmpty()
                     && stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
-                player.setItemInHand(hand, be.insertInput(stack));
-                return ItemInteractionResult.SUCCESS;
+                int before = stack.getCount();
+                ItemStack leftover = be.insertInput(stack);
+                if (leftover.getCount() != before) {
+                    player.setItemInHand(hand, leftover);
+                    return ItemInteractionResult.SUCCESS;
+                }
+                // Nothing was actually inserted (input slot already occupied by something else) --
+                // don't eat the click, fall through so vanilla opens the GUI instead.
             }
         }
 

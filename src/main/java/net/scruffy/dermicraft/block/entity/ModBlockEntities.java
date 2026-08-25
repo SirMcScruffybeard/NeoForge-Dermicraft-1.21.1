@@ -30,17 +30,33 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("drooling_cauldron_be", () -> BlockEntityType.Builder.of(
                     DroolingCauldronBlockEntity::new, ModBlocks.DROOLING_CAULDRON.get()).build(null));
 
+    public static final Supplier<BlockEntityType<DroolingCrucibleBlockEntity>> DROOLING_CRUCIBLE_BE =
+            BLOCK_ENTITIES.register("drooling_crucible_be", () -> BlockEntityType.Builder.of(
+                    DroolingCrucibleBlockEntity::new, ModBlocks.DROOLING_CRUCIBLE.get()).build(null));
+
     public static final Supplier<BlockEntityType<MasticatorBlockEntity>> MASTICATOR_BE =
             BLOCK_ENTITIES.register("masticator_be", () -> BlockEntityType.Builder.of(
                     MasticatorBlockEntity::new, ModBlocks.MASTICATOR.get()).build(null));
+
+    public static final Supplier<BlockEntityType<CharredMasticatorBlockEntity>> CHARRED_MASTICATOR_BE =
+            BLOCK_ENTITIES.register("charred_masticator_be", () -> BlockEntityType.Builder.of(
+                    CharredMasticatorBlockEntity::new, ModBlocks.CHARRED_MASTICATOR.get()).build(null));
 
     public static final Supplier<BlockEntityType<SkinTankBlockEntity>> SKIN_TANK_BE =
             BLOCK_ENTITIES.register("skin_tank_be", () -> BlockEntityType.Builder.of(
                     SkinTankBlockEntity::new, ModBlocks.SKIN_TANK.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredTankBlockEntity>> CHARRED_TANK_BE =
+            BLOCK_ENTITIES.register("charred_tank_be", () -> BlockEntityType.Builder.of(
+                    CharredTankBlockEntity::new, ModBlocks.CHARRED_TANK.get()).build(null));
+
     public static final Supplier<BlockEntityType<EffluentcerBlockEntity>> EFFLUENTCER_BE =
             BLOCK_ENTITIES.register("effluentcer_be", () -> BlockEntityType.Builder.of(
                     EffluentcerBlockEntity::new, ModBlocks.EFFLUENTCER.get()).build(null));
+
+    public static final Supplier<BlockEntityType<CharredEffluentcerBlockEntity>> CHARRED_EFFLUENTCER_BE =
+            BLOCK_ENTITIES.register("charred_effluentcer_be", () -> BlockEntityType.Builder.of(
+                    CharredEffluentcerBlockEntity::new, ModBlocks.CHARRED_EFFLUENTCER.get()).build(null));
 
     public static final Supplier<BlockEntityType<BeakerBlockEntity>> BEAKER_BE =
             BLOCK_ENTITIES.register("beaker_be", () -> BlockEntityType.Builder.of(
@@ -50,9 +66,17 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("metastasizer_be", () -> BlockEntityType.Builder.of(
                     MetastasizerBlockEntity::new, ModBlocks.METASTASIZER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredMetastasizerBlockEntity>> CHARRED_METASTASIZER_BE =
+            BLOCK_ENTITIES.register("charred_metastasizer_be", () -> BlockEntityType.Builder.of(
+                    CharredMetastasizerBlockEntity::new, ModBlocks.CHARRED_METASTASIZER.get()).build(null));
+
     public static final Supplier<BlockEntityType<MutatorBlockEntity>> MUTATOR_BE =
             BLOCK_ENTITIES.register("mutator_be", () -> BlockEntityType.Builder.of(
                     MutatorBlockEntity::new, ModBlocks.MUTATOR.get()).build(null));
+
+    public static final Supplier<BlockEntityType<CharredMutatorBlockEntity>> CHARRED_MUTATOR_BE =
+            BLOCK_ENTITIES.register("charred_mutator_be", () -> BlockEntityType.Builder.of(
+                    CharredMutatorBlockEntity::new, ModBlocks.CHARRED_MUTATOR.get()).build(null));
 
     public static final Supplier<BlockEntityType<RenderFurnaceBlockEntity>> RENDER_FURNACE_BE =
             BLOCK_ENTITIES.register("render_furnace_be", () -> BlockEntityType.Builder.of(
@@ -70,9 +94,15 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("craw_be", () -> BlockEntityType.Builder.of(
                     CrawBlockEntity::new, ModBlocks.CRAW.get()).build(null));
 
+    public static final Supplier<BlockEntityType<CharredCrawBlockEntity>> CHARRED_CRAW_BE =
+            BLOCK_ENTITIES.register("charred_craw_be", () -> BlockEntityType.Builder.of(
+                    CharredCrawBlockEntity::new, ModBlocks.CHARRED_CRAW.get()).build(null));
+
+    // Charred Node shares this same type/BE class -- see NodeTier's own javadoc for why a stat-only
+    // tier doesn't need its own BlockEntityType.
     public static final Supplier<BlockEntityType<NodeBlockEntity>> INNARDS_NODE_BE =
             BLOCK_ENTITIES.register("innards_node_be", () -> BlockEntityType.Builder.of(
-                    NodeBlockEntity::new, ModBlocks.INNARDS_NODE.get()).build(null));
+                    NodeBlockEntity::new, ModBlocks.INNARDS_NODE.get(), ModBlocks.CHARRED_INNARDS_NODE.get()).build(null));
 
     public static final Supplier<BlockEntityType<GateControllerBlockEntity>> INNARDS_GATE_CONTROLLER_BE =
             BLOCK_ENTITIES.register("innards_gate_controller_be", () -> BlockEntityType.Builder.of(

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_carbon_blend",
+  "fluid_amount": 75,
+  "ingredient": {
+    "tag": "c:rods/wooden"
+  },
+  "result": {
+    "count": 4,
+    "id": "minecraft:torch"
+  },
+  "ticks": 50
+}

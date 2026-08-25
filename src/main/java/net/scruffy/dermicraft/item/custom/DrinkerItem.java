@@ -4,6 +4,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
@@ -35,9 +36,17 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
+import net.scruffy.dermicraft.interfaces.IHaveItemData;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.minecraft.world.inventory.Slot;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
+import net.scruffy.dermicraft.util.ModFluidUtil;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
@@ -69,7 +78,7 @@ import java.util.List;
  * another would silently dump or destroy fluid the player never meant to touch. Acting on the
  * current buffer is always a separate, explicit gesture.
  */
-public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadget {
+public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadget, IHaveModules, IWorkbenchSwappable {
 
     /** One fluid source block's worth -- the buffer holds exactly one atomic pickup. */
     public static final int CAPACITY = 1000;
@@ -104,15 +113,38 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     /** Total ticks the Disposal confirm window stays open. */
     private static final long ARM_WINDOW_TICKS = 60;
 
+    /** Module loadout size -- see dermicraft-progression-notes.md, step 3. 1 general-purpose slot
+     * (deliberately smaller than Eater's 3 -- Drinker's Module catalog is Safety-only for now, no
+     * mouthpiece-style specialties competing for the budget). Backed by
+     * {@link ModDataComponentTypes#DRINKER_MODULE_DATA}, Drinker's own distinct component (never
+     * Eater's {@code MODULE_DATA} -- see that field's javadoc). */
+    public static final int MODULE_SLOT_COUNT = 1;
+    /** Exactly one Module per slot -- these aren't stackable resources. */
+    public static final int MODULE_SLOT_CAPACITY = IHaveModules.DEFAULT_MODULE_SLOT_CAPACITY;
+
+    /** Same field-swap cost shape as Eater's own Module slot -- see that class's identical constant
+     * for the reasoning (a harvesting/utility gadget doesn't carry Sunder's weapon-mid-combat
+     * stakes, so a brief "can't use again yet" cooldown is the right-sized cost, not a movement
+     * penalty). */
+    private static final int SWAP_RECALIBRATION_COOLDOWN_TICKS = 40;
+
     /**
-     * Tier 1: tolerates no hazard at all.
+     * Tier 1 base, plus whatever hazard kinds any currently-installed Safety Module grants -- see
+     * {@link IHaveModules#installedHazardProfile}. Drinker has no permanent per-hazard tier of its
+     * own yet (same open question as Eater's), so {@link HazardProfile#TIER_1} is the base every
+     * Safety Module's grant unions onto.
      *
      * <p>Checked explicitly rather than leaning on the buffer's own gated handler. That shortcut
      * worked while every route ended in the buffer, but Disposal voids fluid without touching it
      * and Transfer can push into arbitrary third-party containers whose gating is not ours -- so
      * hazard tolerance has to be a property of the DRINKER itself, applied before any routing.
+     * Public (not the previous field's {@code private}) so {@code DrinkerTargetScanner}'s readout
+     * can check the exact same profile the real siphon uses, rather than a second hardcoded copy.
      */
-    private static final HazardProfile PROFILE = HazardProfile.TIER_1;
+    public static HazardProfile installedHazardProfile(ItemStack stack) {
+        return IHaveModules.installedHazardProfile(stack, ModDataComponentTypes.DRINKER_MODULE_DATA.get(),
+                MODULE_SLOT_COUNT, HazardProfile.TIER_1);
+    }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -174,6 +206,16 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
+
+        // Same Scrench-pairing deferral as use() below -- without this, aiming DRINKER at a real
+        // siphon target (a machine/tank face) while a Scrench sits in the other hand would let
+        // this intercept fire first, making the swap panel unreachable in exactly the moment a
+        // player most wants it: about to touch a hazardous fluid and wanting to check/swap a
+        // Safety Module first. PASS here falls through to ordinary use() handling, per this
+        // method's own javadoc, which is where the actual Scrench-open check lives.
+        InteractionHand otherHand = context.getHand() == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (player.getItemInHand(otherHand).getItem() instanceof ScrenchItem) return InteractionResult.PASS;
+
         if (findSiphonTarget(context.getLevel(), player) == null) return InteractionResult.PASS;
 
         player.startUsingItem(context.getHand());
@@ -193,6 +235,17 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+
+        // Checks the other hand for a paired Scrench first, deferring to the Module-swap GUI if
+        // found -- same pattern as EaterItem's/SunderItem's own matching check (see EaterItem for
+        // why this has to happen before any of DRINKER's own click handling below, not after).
+        InteractionHand otherHand = hand == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        if (player.getItemInHand(otherHand).getItem() instanceof ScrenchItem) {
+            if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+                ScrenchMenu.open(serverPlayer, hand);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        }
 
         if (findSiphonTarget(level, player) != null) {
             // Start the sustained-use state immediately on click -- all siphon logic keys off this,
@@ -230,21 +283,117 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     }
 
     private void transferOut(Player player, ItemStack stack) {
-        FluidStack held = bufferContents(stack);
-        if (held.isEmpty()) {
+        if (bufferContents(stack).isEmpty()) {
             player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.nothing_held"), true);
             return;
         }
 
-        int moved = fillContainers(stack, player, held, IFluidHandler.FluidAction.EXECUTE);
+        int moved = distributeBuffer(player, stack);
         if (moved <= 0) {
             player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.no_container")
                     .withStyle(ChatFormatting.RED), true);
             return;
         }
 
-        drainBuffer(stack, moved);
-        player.displayClientMessage(Component.translatable("tooltip.dermicraft.drinker.transferred", moved), true);
+        FluidStack leftover = bufferContents(stack);
+        player.displayClientMessage(leftover.isEmpty()
+                ? Component.translatable("tooltip.dermicraft.drinker.transferred", moved)
+                : Component.translatable("tooltip.dermicraft.drinker.transferred_partial", moved, leftover.getAmount()),
+                true);
+    }
+
+    /**
+     * Empties as much of the buffer as the player's containers will take: fill one to capacity, move
+     * to the next, and so on until either the buffer runs dry or nothing left will accept it.
+     * Whatever no container would take simply stays banked -- running out of room is a stopping
+     * condition, never a loss.
+     *
+     * <p><b>The buffer is debited per container, by exactly what that container accepted</b>, rather
+     * than by a total tallied across all of them and subtracted at the end. That older shape was
+     * only correct while every container's {@code fill()} return agreed exactly with what it
+     * actually stored; where the two diverged, the difference was silently destroyed. Paying for
+     * each fill as it happens removes the possibility structurally instead of relying on every
+     * present and future handler to report itself honestly.
+     *
+     * @return total mB actually placed into containers.
+     */
+    private static int distributeBuffer(Player player, ItemStack self) {
+        int moved = 0;
+
+        for (ItemStack candidate : orderedContainers(self, player, bufferContents(self))) {
+            if (bufferContents(self).isEmpty()) break;
+
+            // Keep going at THIS candidate until it's done rather than taking one and moving on --
+            // a stack of five Flasks should fill all five, and a partly-filled container should be
+            // topped off, before the search moves to the next one.
+            while (!candidate.isEmpty() && !bufferContents(self).isEmpty()) {
+                FillResult result = fillOneFromBuffer(player, self, candidate);
+                moved += result.moved();
+                if (result.moved() <= 0 || result.candidateConsumed()) break;
+            }
+        }
+        return moved;
+    }
+
+    /**
+     * One container's worth. {@code candidateConsumed} reports that {@code candidate} itself is no
+     * longer the stack sitting in the player's inventory -- only true when the handler swapped
+     * container identity outright (a vanilla bucket becoming a filled bucket). A stacked container
+     * having one item split off does NOT set this: {@code candidate} is the original stack, shrunk
+     * in place, still perfectly reusable for the next split. The caller must stop reusing the
+     * reference only when this is true; filling a genuinely stale stack would report a fill against
+     * something no longer there, creating fluid from nothing.
+     */
+    private record FillResult(int moved, boolean candidateConsumed) {
+        static final FillResult NONE = new FillResult(0, false);
+    }
+
+    private static FillResult fillOneFromBuffer(Player player, ItemStack self, ItemStack candidate) {
+        FluidStack held = bufferContents(self).copy();
+        if (held.isEmpty()) return FillResult.NONE;
+
+        // A fluid data component belongs to the whole stack, so a stacked container has one item
+        // split off and filled rather than being filled in place (which would fill every item in
+        // it) -- see IHaveFluidData#isSingleContainer.
+        boolean stacked = !IHaveFluidData.isSingleContainer(candidate);
+        ItemStack target = stacked ? candidate.copyWithCount(1) : candidate;
+
+        IFluidHandlerItem handler = target.getCapability(Capabilities.FluidHandler.ITEM, null);
+        if (handler == null || !ModFluidUtil.canHold(handler, held)) return FillResult.NONE;
+
+        int accepted = handler.fill(held, IFluidHandler.FluidAction.SIMULATE);
+        if (accepted <= 0) return FillResult.NONE;
+
+        // Take exactly what this container just agreed to, then hand it that same stack.
+        FluidStack request = held.copy();
+        request.setAmount(accepted);
+        FluidStack drained = drainBuffer(self, request);
+        if (drained.isEmpty()) return FillResult.NONE;
+
+        int filled = handler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (filled < drained.getAmount()) {
+            // Took less than it promised on the simulate. Bank the difference again immediately --
+            // it has already left the buffer at this point, so anything not returned here is gone.
+            FluidStack unplaced = drained.copy();
+            unplaced.setAmount(drained.getAmount() - filled);
+            fillBuffer(self, unplaced, IFluidHandler.FluidAction.EXECUTE);
+        }
+        if (filled <= 0) return FillResult.NONE;
+
+        if (stacked) {
+            candidate.shrink(1);
+            // getContainer() is the filled single -- the handler wrote into the copy, not the stack
+            // it came from, which is the entire point of splitting.
+            IHaveFluidData.giveOrDrop(player, handler.getContainer());
+            // NOT consumed: candidate is the original stack, shrunk in place, still a live slot
+            // reference -- the caller's while loop keeps splitting off it (its own isEmpty() check
+            // is what stops filling a five-Flask stack after the fifth, not this flag).
+            return new FillResult(filled, false);
+        }
+
+        boolean swapped = handler.getContainer() != candidate;
+        if (swapped) ModFluidUtil.writeBackToPlayer(player, candidate, handler.getContainer());
+        return new FillResult(filled, swapped);
     }
 
     /**
@@ -397,7 +546,7 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     /** Continuous partial transfer out of a machine/tank face. */
     private boolean drainTank(ItemStack stack, Player player, IFluidHandler tank) {
         FluidStack available = tank.drain(SIPHON_RATE, IFluidHandler.FluidAction.SIMULATE);
-        if (available.isEmpty() || !PROFILE.accepts(available)) return false;
+        if (available.isEmpty() || !installedHazardProfile(stack).accepts(available)) return false;
 
         int accepted = route(stack, player, available, IFluidHandler.FluidAction.SIMULATE);
         if (accepted <= 0) return false;
@@ -417,7 +566,7 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     private boolean accumulateSource(Level level, Player player, ItemStack stack, Target target) {
         BlockState blockState = target.blockState();
         FluidStack source = new FluidStack(blockState.getFluidState().getType(), CAPACITY);
-        if (!PROFILE.accepts(source)) return false;
+        if (!installedHazardProfile(stack).accepts(source)) return false;
 
         // Somewhere for a WHOLE source block or nothing -- a partial route would strand fluid that
         // can never be picked up again.
@@ -516,9 +665,11 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
         return buffer == null ? 0 : buffer.fill(fluid, action);
     }
 
-    private static void drainBuffer(ItemStack stack, int amount) {
+    /** Drains by stack, not by amount: on a multi-tank buffer, drain(int) could pull a different
+     * fluid than the one the caller already got a destination to agree to. */
+    private static FluidStack drainBuffer(ItemStack stack, FluidStack request) {
         IFluidHandlerItem buffer = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
-        if (buffer != null) buffer.drain(amount, IFluidHandler.FluidAction.EXECUTE);
+        return buffer == null ? FluidStack.EMPTY : buffer.drain(request, IFluidHandler.FluidAction.EXECUTE);
     }
 
     public static FluidStack bufferContents(ItemStack stack) {
@@ -553,14 +704,21 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
             if (candidate.getCount() == 1) {
                 IFluidHandlerItem handler = candidate.getCapability(Capabilities.FluidHandler.ITEM, null);
-                if (handler == null) continue;
-                remaining -= handler.fill(offer, action);
+                if (handler == null || !ModFluidUtil.canHold(handler, offer)) continue;
+
+                int accepted = handler.fill(offer, action);
+                if (accepted <= 0) continue;
+                remaining -= accepted;
+
+                // Write the handler's own container back, exactly as the stacked branch below
+                // already does -- see ModFluidUtil's "container-swap write-back" section for why.
+                if (action.execute()) ModFluidUtil.writeBackToPlayer(player, candidate, handler.getContainer());
                 continue;
             }
 
             ItemStack single = candidate.copyWithCount(1);
             IFluidHandlerItem handler = single.getCapability(Capabilities.FluidHandler.ITEM, null);
-            if (handler == null) continue;
+            if (handler == null || !ModFluidUtil.canHold(handler, offer)) continue;
 
             int accepted = handler.fill(offer, action);
             if (accepted <= 0) continue;
@@ -612,6 +770,118 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
 
         sameFluid.addAll(others);
         return sameFluid;
+    }
+
+    ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\
+
+    // Panel layout -- public so ScrenchScreen/WorkbenchScreen can draw the matching background
+    // under exactly the slot DrinkerSwapPanel builds, without either screen needing to know
+    // DRINKER's internal panel shape beyond this coordinate. Same placeholder-coordinate caveat as
+    // EaterItem's own MODULE_SLOT_X/Y: functionally correct regardless of where the art ends up.
+    public static final int MODULE_SLOT_X = 8;
+    public static final int MODULE_SLOT_Y = 27;
+
+    // Buffer gauge + drain slot -- same tank-above-slot pairing as Sunder's/Shatter's own fuel
+    // gauge (TANK_AND_SLOT_TEXTURE, 48px of tank above the slot's own top), just draining instead
+    // of filling. Public for the same reason as every other panel constant in this class: the
+    // screen needs to draw the matching background under exactly the slot DrinkerSwapPanel builds.
+    public static final int DRAIN_SLOT_X = 113;
+    public static final int DRAIN_SLOT_Y = 60;
+    public static final int TANK_X = DRAIN_SLOT_X;
+    public static final int TANK_Y = DRAIN_SLOT_Y - 48;
+
+    @Override
+    public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
+        return new DrinkerSwapPanel(gadgetStackSupplier, fieldHosted);
+    }
+
+    /**
+     * DRINKER's Module + drain panel. Unlike Eater's, there's no item buffer to expose here
+     * alongside the Module slot -- DRINKER's own buffer is the fluid tank ({@link IHaveFluidData}) --
+     * but that buffer had no screen presentation of its own before this panel: DRINKER only had
+     * mode-cycling right-click and no GUI at all until the Module slot was wired up, which is why
+     * the fluid gauge and drain slot are added here rather than a separate screen. Module slot is
+     * the same pure live-view shape as Eater's own panel (see that class's identical javadoc for
+     * why): reads/writes straight through to {@link ModDataComponentTypes#DRINKER_MODULE_DATA}, so
+     * there's nothing to materialize or write back on close. Re-resolves a fresh
+     * {@code BulkItemHandler} against {@code gadgetStackSupplier.get()} on every access (see
+     * {@link IHaveItemData#liveHandler}), same reasoning as {@code EaterItem.EaterSwapPanel}.
+     */
+    private final class DrinkerSwapPanel implements SwapPanel {
+
+        private final java.util.function.Supplier<ItemStack> gadgetStackSupplier;
+        private final boolean fieldHosted;
+        private final IItemHandlerModifiable moduleHandler;
+        private boolean moduleSlotChanged = false;
+
+        private DrinkerSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
+            this.gadgetStackSupplier = gadgetStackSupplier;
+            this.fieldHosted = fieldHosted;
+            this.moduleHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
+                    ModDataComponentTypes.DRINKER_MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
+                    candidate -> candidate.is(ModTags.Items.MODULES)));
+        }
+
+        @Override
+        public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
+            List<Slot> slots = new ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+            slots.add(new DrainSlot(panelX + DRAIN_SLOT_X + 1, panelY + DRAIN_SLOT_Y + 1, active));
+            return slots;
+        }
+
+        @Override
+        public void onClosed(Player player) {
+            if (fieldHosted && moduleSlotChanged) {
+                player.getCooldowns().addCooldown(DrinkerItem.this, SWAP_RECALIBRATION_COOLDOWN_TICKS);
+            }
+        }
+
+        /**
+         * Drains the buffer immediately into a fluid container placed here, mirroring Sunder's own
+         * {@code FuelFillSlot} exactly in shape, just the opposite direction -- source is DRINKER's
+         * own buffer capability (read fresh off {@code gadgetStackSupplier.get()}, same live-view
+         * rule as the Module slot above) rather than the tank being filled.
+         */
+        private final class DrainSlot extends Slot {
+            private final java.util.function.BooleanSupplier active;
+
+            DrainSlot(int x, int y, java.util.function.BooleanSupplier active) {
+                super(new net.minecraft.world.SimpleContainer(1), 0, x, y);
+                this.active = active;
+            }
+
+            @Override
+            public boolean isActive() {
+                return active.getAsBoolean();
+            }
+
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ItemStack held = getItem();
+                if (held.isEmpty()) return;
+
+                IFluidHandlerItem drinkerBuffer = gadgetStackSupplier.get().getCapability(Capabilities.FluidHandler.ITEM, null);
+                IFluidHandlerItem containerHandler = held.getCapability(Capabilities.FluidHandler.ITEM, null);
+                if (drinkerBuffer == null || containerHandler == null) return;
+
+                // Same destination hazard gate as fillContainers -- see ModFluidUtil#canHold. Without it this
+                // slot is a second route around the tier ladder: the buffer may legitimately hold
+                // an extreme-heat fluid thanks to a Safety Module, but that says nothing about
+                // whether the container placed here can.
+                FluidStack buffered = drinkerBuffer.getFluidInTank(0);
+                if (buffered.isEmpty() || !ModFluidUtil.canHold(containerHandler, buffered)) return;
+
+                if (net.neoforged.neoforge.fluids.FluidUtil.tryFluidTransfer(containerHandler, drinkerBuffer, Integer.MAX_VALUE, true).isEmpty()) return;
+                set(containerHandler.getContainer());
+            }
+        }
     }
 
     ////////////////////Gadget health\\\\\\\\\\\\\\\\\\\\

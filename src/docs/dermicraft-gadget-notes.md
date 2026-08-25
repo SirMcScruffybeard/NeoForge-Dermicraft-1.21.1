@@ -109,6 +109,8 @@ How the game actually resolves "what is this gadget currently capable of" from i
 
 **Fluid restriction:** Tier 1 (see `dermicraft-project-primer.md` Stage structure) — cannot handle hazardous fluids like lava. Confirmed behavior: it simply will not attempt to drain a hazardous fluid at all, rather than draining it and failing/breaking afterward.
 
+**Module slot (built 2026-08-19):** Drinker now carries **1 general-purpose Module slot** (`DrinkerItem.MODULE_SLOT_COUNT`), backed by its own `ModDataComponentTypes.DRINKER_MODULE_DATA` — the cross-gadget Safety Module support this doc already named as intended (see the Modules direction note above) is wired up, not just planned. A Safety Module installed here grants the exact same *temporary, local* hazard exception Eater's do: it lets Drinker **target and contain** a fluid carrying that hazard tag ahead of whatever Drinker's own permanent tier would otherwise allow — both the targeting check (`DrinkerTargetScanner`'s action-bar readout) and the actual siphon (`drainTank`/`accumulateSource`) read the same live-computed profile, so the readout can never promise something the siphon then refuses. Field-swappable via the Scrench, same as Eater's Module slot (aim Drinker, hold a Scrench in the other hand). No mouthpiece-style specialties compete for Drinker's one slot the way Eater's three do — its Module catalog is Safety-only for now.
+
 **Additional pull source (under review):** Currently can also pull from fluid-handling blocks (tanks, other machines with fluid capability), not just raw world fluid blocks. This may be removed — not finalized.
 
 **Modes:**
@@ -393,7 +395,7 @@ All stat-growth values provisional and easy to retune without breaking the under
 
 **Capacity:** 5 cells, 500 mB each (5×100 mB doses) — 25 total doses across up to 5 different fluids. Deliberately no upgrade tree — full capability from creation, specialized enough not to need a tier ladder the way machines/other gadgets do.
 
-**Fluid gating:** its own `injectable` fluid tag, independent of the mod-wide `HazardProfile` system — a positive allow-list rather than general hazard tolerance, since the Injection Gun only ever needs to move fluids meant to go into a tumor. A fluid can be both `injectable` and separately hazard-tagged (e.g. `EXTREME_HEAT`) — the injector can knowingly carry something Drinker would refuse to touch.
+**Fluid gating:** its own `injectable` fluid tag, independent of the mod-wide `HazardProfile` system — a positive allow-list rather than general hazard tolerance, since the Injection Gun only ever needs to move fluids meant to go into a tumor. A fluid can be both `injectable` and separately hazard-tagged (e.g. `THERMAL`) — the injector can knowingly carry something Drinker would refuse to touch.
 
 **Presentation:** GeckoLib model with HP/death flourish, matching Drinker/Sipper's `IGadget` pattern. One window near the top of the model reflects only the active cell (dark/greyscale when empty, tinted per-fluid when filled via the same `registerBucketTint` approach as bucket fill layers) — identity only, not amount. Tooltip reports the selected cell's exact fluid and amount.
 

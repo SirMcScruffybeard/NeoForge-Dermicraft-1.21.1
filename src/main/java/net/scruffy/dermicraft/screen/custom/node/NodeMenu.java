@@ -3,10 +3,11 @@ package net.scruffy.dermicraft.screen.custom.node;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.duct.AbstractNodeBlock;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
@@ -37,6 +38,13 @@ public class NodeMenu extends AbstractModMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return super.stillValid(level, player, ModBlocks.INNARDS_NODE, BE);
+        // Can't use the shared single-Block stillValid helper here -- Tier 1 and Charred Node are
+        // two different blocks sharing this menu, so a hardcoded ModBlocks.INNARDS_NODE identity
+        // check would fail (and instant-close the screen) whenever opened on a Charred Node. Accept
+        // any AbstractNodeBlock instead, replicating vanilla's own distance-gated logic.
+        return ContainerLevelAccess.create(level, BE.getBlockPos()).evaluate(
+                (lvl, pos) -> lvl.getBlockState(pos).getBlock() instanceof AbstractNodeBlock
+                        && player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0,
+                true);
     }
 }

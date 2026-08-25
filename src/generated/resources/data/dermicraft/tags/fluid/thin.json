@@ -1,5 +1,8 @@
 {
   "values": [
-    "minecraft:water"
+    "minecraft:water",
+    "dermicraft:source_primitive_catalyst",
+    "dermicraft:source_synapse_catalyst",
+    "dermicraft:source_evolution_catalyst"
   ]
 }

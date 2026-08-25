@@ -1,268 +1,266 @@
 package net.scruffy.dermicraft.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.IItemHandlerModifiable;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.interfaces.Channel;
-import net.scruffy.dermicraft.interfaces.IHasChannels;
-import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.fluid.BaseFluidType;
+import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
+import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
-import net.scruffy.dermicraft.tank.WaterTank;
+import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implements MenuProvider, IHaveInventory, IHasChannels {
+/**
+ * Drooling Cauldron -- water, per {@link #currentTargetFluid} below. Everything else lives on
+ * {@link DroolingMachineBlockEntity}, the shared Drooling-family base this and
+ * {@link DroolingCrucibleBlockEntity} both extend.
+ *
+ * <p>Selector + gradual evolution -- see dermicraft-machine-notes.md's "Evolution Module family".
+ * An {@link EvolutionModuleProperties} entry in the Module slot both switches {@link #currentTargetFluid}
+ * immediately and accumulates {@link #evolutionProgress} toward transforming this block into an
+ * actual {@link DroolingCrucibleBlockEntity} in place.
+ */
+public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<VagueDroolingRecipe> implements MenuProvider, IEvolvingMachine {
 
-    public final static int INPUT = 0;
-    public final static int OUTPUT = 1;
+    /** Same 5 buckets the original hardcoded-water version always had. */
+    public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 5;
+    /** Same 4 mB/s the original hardcoded-water version always had -- also the "fully evolved"
+     * rate; see {@link #passiveYieldAmount} for the halved rate while evolving. */
+    public static final int PASSIVE_YIELD = 4;
 
-    public final ItemStackHandler INVENTORY = createInventory();
-    private final WaterTank TANK = createTank();
+    /** Ticks of genuinely active production accumulated toward evolution -- only advances on a
+     * cycle where {@link #onPassiveFillResult} actually added fluid, per direction (not merely
+     * because a Module sits in the slot; not during the halt-while-old-fluid-drains period). */
+    private int evolutionProgress = 0;
 
-    private RecipeHolder<VagueDroolingRecipe> activeRecipe = null;
-    private Item activeItem = Items.AIR;
+    /** Ticks remaining in the evolution flourish -- a burst of particles/sound that visibly covers
+     * the block swap so it doesn't read as an instant flip. -1 means not flourishing. Set when
+     * {@link #evolutionProgress} reaches threshold (start of the NEXT tick via {@link #onTickStart},
+     * not synchronously from inside {@link #onPassiveFillResult}, since that runs mid-way through
+     * this instance's own tick() and swapping the block right then would leave the rest of that
+     * tick() call running against a now-stale block entity); counts down once per tick, and the
+     * actual block swap ({@link #completeEvolution}) only fires once it reaches 0 -- by then the
+     * particle cloud built up over {@link #FLOURISH_DURATION_TICKS} is already covering the block. */
+    private int flourishTicksRemaining = -1;
 
-    private int resultAmount = 0;
-
-    @Nullable
-    private ResourceLocation pendingRecipeId = null;
+    private static final int FLOURISH_DURATION_TICKS = 40;
 
     public DroolingCauldronBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CAULDRON_BE.get(), pos, blockState);
     }
 
     @Override
-    public boolean hasTank() {
+    protected Fluid currentTargetFluid() {
+        return installedEvolutionProperties()
+                .flatMap(EvolutionModuleProperties::targetFluid)
+                .orElse(Fluids.WATER);
+    }
+
+    @Override
+    protected int passiveYieldAmount() {
+        return installedEvolutionProperties().isPresent() ? Math.round(PASSIVE_YIELD * 0.5f) : PASSIVE_YIELD;
+    }
+
+    @Override
+    protected int tankCapacity() {
+        return CAPACITY;
+    }
+
+    @Override
+    protected RecipeType<VagueDroolingRecipe> recipeType() {
+        return ModRecipes.VAGUE_DROOLING_TYPE.get();
+    }
+
+    /** 0 when not evolving at all (no Module, or one with no real Evolution properties); otherwise
+     * how far {@link #evolutionProgress} is toward {@code evolutionThreshold}, 0-1. Public purely
+     * for {@code EvolutionOverlayBlockEntityRenderer}'s creeping overlay -- no other consumer needs
+     * this, evolution completion itself reads the raw fields directly. */
+    @Override
+    public float getEvolutionProgressFraction() {
+        return installedEvolutionProperties()
+                .map(props -> Math.min(1f, evolutionProgress / (float) props.evolutionThreshold()))
+                .orElse(0f);
+    }
+
+    /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
+     * -- a plain {@code MODULES}-tagged item with no such data (Aggregate Module, Beam Module, etc.
+     * left in this slot) is inert here, same as it would be doing nothing useful in any other
+     * machine's Module slot it doesn't apply to. */
+    private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
+        ItemStack module = INVENTORY.getStackInSlot(MODULE);
+        if (module.isEmpty()) return Optional.empty();
+        return Optional.ofNullable(
+                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+    }
+
+    @Override
+    protected void onModuleChanged() {
+        // Full reset on ANY change to the slot -- installed, removed, or swapped for a different
+        // Module -- matching "pulling the Module wipes all progress" from the design doc, extended
+        // to swaps for the same reason (a fresh commitment, not a continuation).
+        evolutionProgress = 0;
+    }
+
+    @Override
+    protected void onPassiveFillResult(int filledAmount) {
+        if (filledAmount <= 0) return; // no real production this cycle -- see the doc's own rule
+
+        installedEvolutionProperties().ifPresent(props -> {
+            evolutionProgress += ModMath.Time.getSecondsToTicks(1);
+            if (evolutionProgress >= props.evolutionThreshold() && flourishTicksRemaining < 0) {
+                startEvolutionFlourish();
+            }
+        });
+    }
+
+    @Override
+    protected boolean onTickStart(Level level) {
+        if (flourishTicksRemaining < 0) return false;
+
+        if (level instanceof ServerLevel serverLevel) {
+            spawnFlourishParticles(serverLevel, flourishTicksRemaining);
+        }
+
+        flourishTicksRemaining--;
+        if (flourishTicksRemaining < 0) {
+            completeEvolution(level);
+        }
         return true;
     }
 
-    public FluidStack getFluid() {
-        return TANK.getFluid();
+    /** Kicks off the flourish: a rising hum immediately, then {@link #FLOURISH_DURATION_TICKS} of
+     * particles via {@link #onTickStart} before the block actually swaps. */
+    private void startEvolutionFlourish() {
+        flourishTicksRemaining = FLOURISH_DURATION_TICKS;
+        if (level != null) {
+            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+        }
     }
 
-    /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler}
-     * literally. Both the TANK (result) and the ingredient item slot are reachable from every face
-     * (getTank ignores the face entirely; getItemHandler exposes the INPUT slot on all sides), so
-     * every face gets the same combined description. */
-    @Override
-    public Component describeFace(Direction face) {
-        return Component.translatable("tooltip.dermicraft.idep.face.drooling_cauldron_ingredient");
+    /** Dense, growing burst tinted to the target fluid's own colour, so it reads as "this fluid is
+     * consuming the machine" rather than a generic effect -- plus smoke for raw visual bulk, since
+     * tinted dust alone is too sparse to actually hide the model underneath. Density ramps up as
+     * {@code ticksRemaining} counts down toward 0, so the block is fully obscured right as the swap
+     * happens instead of the cloud being front-loaded and thinning out by the time it matters. */
+    private void spawnFlourishParticles(ServerLevel serverLevel, int ticksRemaining) {
+        double cx = worldPosition.getX() + 0.5;
+        double cy = worldPosition.getY() + 0.5;
+        double cz = worldPosition.getZ() + 0.5;
+
+        float progress = 1f - (ticksRemaining / (float) FLOURISH_DURATION_TICKS);
+        int dustCount = 4 + Math.round(progress * 10);
+        DustParticleOptions dust = tintedDust();
+        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
+
+        if (ticksRemaining % 4 == 0) {
+            int smokeCount = 2 + Math.round(progress * 6);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, smokeCount, 0.35, 0.35, 0.35, 0.02);
+        }
+
+        if (ticksRemaining == 0) {
+            // Completion burst, right as the block swap fires -- masks the actual moment of change.
+            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
+            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
     }
 
-    /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally (one tank,
-     * every face); describeFace names the ingredient item slot alongside it. */
-    @Override
-    public Component describeFluidFace(Direction face) {
-        return Component.translatable("tooltip.dermicraft.tank.result");
-    }
-
-    public IFluidHandler getTank(@Nullable Direction face) {
-        return TANK;
-    }
-
-    public IItemHandler getItemHandler(@Nullable Direction face) {
-        // null = internal/GUI access to the full inventory (INPUT + OUTPUT bucket passthrough).
-        // Any side exposes only the ingredient INPUT slot, so automation can reach it from every face.
-        if (face == null) return INVENTORY;
-        return ingredientChannelHandler();
+    private DustParticleOptions tintedDust() {
+        int tint = 0xFFCF4B12; // fallback: lava-orange, matches Heat's own target fluid
+        if (currentTargetFluid().getFluidType() instanceof BaseFluidType baseType) {
+            tint = baseType.getTintColor();
+        }
+        return new DustParticleOptions(new Vector3f(
+                ((tint >> 16) & 0xFF) / 255.0F,
+                ((tint >> 8) & 0xFF) / 255.0F,
+                (tint & 0xFF) / 255.0F), 1.4F);
     }
 
     /**
-     * Self-described channel list for the Gate multiblock -- see {@link IHasChannels}.
-     * Mirrors {@code getItemHandler(Direction)} and {@code getTank(Direction)}, both of which now
-     * expose their slot/tank on every face (INPUT slot for items, TANK for fluid). OUTPUT is a pure
-     * bucket-filling passthrough for TANK (see {@code createInventory}'s {@code onContentsChanged}),
-     * not an independent item channel -- matching the Effluentcer precedent, only the underlying
-     * fluid tank gets a channel, not its bucket-passthrough slot. TANK is auto-fed with water every
-     * second (never player/Gate-fed), so it's OUT-only here, same as every other machine's result tank.
-     *
-     * <p>Both ingredient and result reach all 6 faces, so each self-service check scans every face --
-     * if any adjacent block already services that kind, the Gate skips the redundant channel.
+     * Transforms this block into a Drooling Crucible in place, carrying over the ingredient/output
+     * items and whatever's in the tank (by construction, always the Module's target fluid by the
+     * time evolution completes) -- but deliberately NOT the recipe-in-progress bookkeeping
+     * (active recipe/item, craft progress). That state is keyed to THIS class's own
+     * {@code VAGUE_DROOLING_TYPE}; blindly copying it into a Crucible whose recipe type is
+     * different could leave stale, type-mismatched data sitting in the new instance for no benefit
+     * -- a half-finished food-boost cycle just restarts cleanly on the new block instead. The
+     * Module itself is not carried over either: this transform is what consumes it.
      */
-    @Override
-    public List<Channel> getChannels() {
-        List<Channel> channels = new ArrayList<>();
+    private void completeEvolution(Level level) {
+        ItemStack inputItem = INVENTORY.getStackInSlot(INPUT);
+        ItemStack outputItem = INVENTORY.getStackInSlot(OUTPUT);
+        FluidStack tankContents = TANK.getFluid().copy();
+        BlockState oldState = getBlockState();
 
-        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.values())) {
-            channels.add(new Channel.ItemChannel("ingredient", Component.literal("Ingredient"), Channel.IO.IN, ingredientChannelHandler()));
+        // Clear this instance's own contents BEFORE the block swap -- DroolingMachineBlock#onRemove
+        // drops whatever's still in INVENTORY when the block itself changes, which would otherwise
+        // duplicate everything captured above once it's handed to the new Crucible instance.
+        INVENTORY.setStackInSlot(INPUT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(OUTPUT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        if (!tankContents.isEmpty()) {
+            TANK.drain(tankContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
         }
-        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.values())) {
-            channels.add(new Channel.FluidChannel("result", Component.literal("Result"), Channel.IO.OUT, TANK));
+
+        BlockState newState = ModBlocks.DROOLING_CRUCIBLE.get().defaultBlockState()
+                .setValue(DroolingMachineBlock.FACING, oldState.getValue(DroolingMachineBlock.FACING));
+        level.setBlock(worldPosition, newState, Block.UPDATE_ALL);
+
+        if (level.getBlockEntity(worldPosition) instanceof DroolingCrucibleBlockEntity crucible) {
+            crucible.INVENTORY.setStackInSlot(DroolingCrucibleBlockEntity.INPUT, inputItem);
+            crucible.INVENTORY.setStackInSlot(DroolingCrucibleBlockEntity.OUTPUT, outputItem);
+            if (!tankContents.isEmpty()) {
+                crucible.TANK.fill(tankContents, IFluidHandler.FluidAction.EXECUTE);
+            }
+            crucible.setChanged();
+            crucible.updateBlock();
         }
-
-        return channels;
-    }
-
-    private IItemHandler ingredientChannelHandler() {
-        return new IItemHandlerModifiable() {
-            @Override
-            public void setStackInSlot(int slot, ItemStack stack) {
-                INVENTORY.setStackInSlot(INPUT, stack);
-            }
-
-            @Override
-            public int getSlots() {
-                return 1;
-            }
-
-            @Override
-            public ItemStack getStackInSlot(int slot) {
-                return INVENTORY.getStackInSlot(INPUT);
-            }
-
-            @Override
-            public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-                return INVENTORY.insertItem(INPUT, stack, simulate);
-            }
-
-            @Override
-            public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                return INVENTORY.extractItem(INPUT, amount, simulate);
-            }
-
-            @Override
-            public int getSlotLimit(int slot) {
-                return INVENTORY.getSlotLimit(INPUT);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                return INVENTORY.isItemValid(INPUT, stack);
-            }
-        };
     }
 
     @Override
-    public void drops() {
-        dropItems(level, INVENTORY, worldPosition);
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putInt("cauldron_evolution_progress", evolutionProgress);
+        tag.putInt("cauldron_evolution_flourish_ticks", flourishTicksRemaining);
+        super.saveAdditional(tag, registries);
     }
 
-    public ItemStack insertItemStack(ItemStack stack) {
-        return insertItemStack(INVENTORY, INPUT, stack);
-    }
-
-    public ItemStack extractItemStack() {
-        return extractItem(INVENTORY, INPUT, Integer.MAX_VALUE);
-    }
-
-    public void tick(Level level) {
-        if (level.isClientSide) return;
-
-        resolvePendingRecipe(level);
-
-        //////////Every Second (20 ticks)\\\\\\\\\\
-        if (ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(1))) {
-            TANK.safeFill(new FluidStack(Fluids.WATER, 4));
-            setChanged();
-            updateBlock();
-        }
-
-        //////////Craft\\\\\\\\\\
-        if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
-            if (!isRecipeValid(activeRecipe)) {
-                if (progress > 0) {
-                    resetProgress();
-                }
-                return;
-            }
-
-            if (isMaxProgressValid() && hasIngredients() && TANK.hasRoom(resultAmount)) {
-                if (isStillCrafting()) {
-                    incrementProgress();
-                    setChanged();
-
-                } else {
-                    TANK.fill(activeRecipe.value().getResultFluidStack(resultAmount), IFluidHandler.FluidAction.EXECUTE);
-                    INVENTORY.extractItem(INPUT, 1, false);
-                    resetProgress();
-                }
-            } else {
-                resetProgress();
-            }
-        }
-    }
-
-    private boolean hasIngredients() {
-        return !INVENTORY.getStackInSlot(INPUT).isEmpty();
-    }
-
-    private void resolvePendingRecipe(Level level) {
-        if (pendingRecipeId == null) return;
-
-        level.getRecipeManager().byKey(pendingRecipeId).ifPresent(recipeHolder -> {
-            if (recipeHolder.value() instanceof VagueDroolingRecipe) {
-                this.activeRecipe = (RecipeHolder<VagueDroolingRecipe>) recipeHolder;
-            }
-        });
-        pendingRecipeId = null;
-    }
-
-    private void setActiveRecipe() {
-        if (level == null) {
-            activeRecipe = null;
-            return;
-        }
-
-        Optional<RecipeHolder<VagueDroolingRecipe>> opt = level.getRecipeManager()
-                .getRecipeFor(ModRecipes.VAGUE_DROOLING_TYPE.get(),
-                        new SingleRecipeInput(INVENTORY.getStackInSlot(INPUT)), level);
-
-        opt.ifPresent(vagueDroolingRecipeRecipeHolder -> activeRecipe = vagueDroolingRecipeRecipeHolder);
-
-    }
-
-    public void setResultAmount() {
-        resultAmount = activeRecipe.value().getCraftingAmount(INVENTORY.getStackInSlot(INPUT));
-    }
-
-    private void resetActiveRecipe() {
-        activeRecipe = null;
-    }
-
-    private void resetActiveItem() {
-        activeItem = Items.AIR;
-    }
-
-    private void resetResultAmount() {
-        resultAmount = 0;
-    }
-
-    private void setMaxProgress() {
-        maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INPUT));
-    }
-
-    private void incrementProgress() {
-        progress += CRAFT_TICKS;
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        evolutionProgress = tag.getInt("cauldron_evolution_progress");
+        flourishTicksRemaining = tag.contains("cauldron_evolution_flourish_ticks")
+                ? tag.getInt("cauldron_evolution_flourish_ticks") : -1;
     }
 
     @Override
@@ -275,100 +273,5 @@ public class DroolingCauldronBlockEntity extends MachineBaseBlockEntity implemen
     @Nullable
     public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         return new DroolingCauldronMenu(containerId, inventory, this);
-    }
-
-    @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("dc_items", INVENTORY.serializeNBT(registries));
-        tag.put("dc_tank", TANK.writeToNBT(registries, new CompoundTag()));
-        tag.putInt("dc_progress", progress);
-        tag.putInt("dc_max", maxProgress);
-        tag.putInt("resultFluid", resultAmount);
-        if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
-        ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(this.activeItem);
-        tag.putString("activeItem", itemKey.toString());
-        super.saveAdditional(tag, registries);
-    }
-
-    @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        if (tag.contains("dc_items")) INVENTORY.deserializeNBT(registries, tag.getCompound("dc_items"));
-        if (tag.contains("dc_tank")) TANK.readFromNBT(registries, tag.getCompound("dc_tank"));
-        this.progress = tag.getInt("dc_progress");
-        this.maxProgress = tag.getInt("dc_max");
-        resultAmount = tag.getInt("resultFluid");
-
-        if (tag.contains("saved_recipe", CompoundTag.TAG_STRING)) {
-            pendingRecipeId = ResourceLocation.parse(tag.getString("saved_recipe"));
-        }
-    }
-
-    private ItemStackHandler createInventory() {
-        return new ItemStackHandler(2) {
-            @Override
-            protected void onContentsChanged(int slot) {
-                if (level != null && !level.isClientSide()) {
-
-                    if (slot == INPUT) {
-                        ItemStack stack = getStackInSlot(INPUT);
-                        Item currentItem = stack.getItem();
-
-                        if (stack.isEmpty()) {
-                            resetProgress();
-                            resetMaxProgress();
-                            resetActiveItem();
-                            resetActiveRecipe();
-                            resetResultAmount();
-                        }
-
-                        if (currentItem != activeItem) {
-                            activeItem = currentItem;
-                            resetProgress();
-                            resetMaxProgress();
-
-                            setActiveRecipe();
-
-                            if (isRecipeValid(activeRecipe)) {
-                                setMaxProgress();
-                                setResultAmount();
-                            } else {
-                                resetActiveRecipe();
-                                resetProgress();
-                                resetMaxProgress();
-                                resetResultAmount();
-                            }
-                        }
-                    }
-
-                    if (slot == OUTPUT) {
-                        if (TANK.hasEmptyFluidHandlerInSlot(INVENTORY, OUTPUT)) {
-                            TANK.transferFluidFromTankToHandler(INVENTORY, OUTPUT);
-                        }
-                    }
-
-                    setChanged();
-                    updateBlock();
-                }
-            }
-
-            @Override
-            public int getSlotLimit(int slot) {
-                return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
-            }
-        };
-    }
-
-    private WaterTank createTank() {
-        return new WaterTank(WaterTank.BUCKET_VOLUME * 5, -1) {
-
-            @Override
-            protected void onContentsChanged() {
-                if (level != null && !level.isClientSide()) {
-                    this.pushFluidToBelowNeighbour(level, worldPosition);
-                    setChanged();
-                }
-            }
-        };
     }
 }

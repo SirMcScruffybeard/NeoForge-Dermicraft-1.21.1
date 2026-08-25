@@ -11,6 +11,7 @@ import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * Item-side twin of {@link IHaveFluidData}: shared plumbing for gadgets that carry a multi-slot
@@ -42,6 +43,47 @@ public interface IHaveItemData {
     static void giveOrDrop(Player player, ItemStack stack) {
         if (stack.isEmpty() || player.getInventory().add(stack)) return;
         Containers.dropItemStack(player.level(), player.getX(), player.getY(), player.getZ(), stack);
+    }
+
+    /**
+     * Wraps a handler factory so every {@link IItemHandlerModifiable} call re-resolves a fresh
+     * delegate first, instead of binding to whatever backing {@link ItemStack} was current when the
+     * handler was built. Needed by any live-view swap panel hosted by the Workbench, whose
+     * working-item slot can have its contents swapped out entirely while the panel's menu stays
+     * open -- see {@link IWorkbenchSwappable#openSwapPanel}'s javadoc. Generalized off
+     * {@code EaterItem}'s own Module/buffer panel (its first use), which needed this identical
+     * wrapper for both its Module handler and its buffer handler.
+     */
+    static IItemHandlerModifiable liveHandler(Supplier<IItemHandlerModifiable> factory) {
+        return new IItemHandlerModifiable() {
+            @Override
+            public int getSlots() { return factory.get().getSlots(); }
+
+            @NotNull
+            @Override
+            public ItemStack getStackInSlot(int slot) { return factory.get().getStackInSlot(slot); }
+
+            @Override
+            public void setStackInSlot(int slot, @NotNull ItemStack stack) { factory.get().setStackInSlot(slot, stack); }
+
+            @Override
+            public int getSlotLimit(int slot) { return factory.get().getSlotLimit(slot); }
+
+            @Override
+            public boolean isItemValid(int slot, @NotNull ItemStack stack) { return factory.get().isItemValid(slot, stack); }
+
+            @NotNull
+            @Override
+            public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+                return factory.get().insertItem(slot, stack, simulate);
+            }
+
+            @NotNull
+            @Override
+            public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                return factory.get().extractItem(slot, amount, simulate);
+            }
+        };
     }
 
     /**

@@ -54,21 +54,58 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntity::getTank);
 
+        // Was missed when Drooling Crucible was first built (Phase 1) -- caught while adding its
+        // Module slot. Without this, pipes/automation silently couldn't reach Crucible's tank or
+        // ingredient slot at all, even though in-hand bucket interaction worked fine (that path
+        // goes through the block entity directly, not this capability).
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingCrucibleBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingCrucibleBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
 
+        // Charred Masticator has its own BlockEntityType (CHARRED_MASTICATOR_BE), so it does NOT
+        // inherit MASTICATOR_BE's capability registration above -- same gap that bit Drooling
+        // Crucible originally (see that comment above). Without this, MasticatorBlock#useItemOn's
+        // FluidUtil.interactWithFluidHandler call finds nothing at this block's position, silently
+        // fails, and falls through to opening the GUI instead of actually filling/draining a tank.
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntity::getTank);
+
+        // Charred Tank has its own BlockEntityType (CHARRED_TANK_BE), so it does NOT inherit
+        // SKIN_TANK_BE's capability registration above -- same gap that's bitten every other Charred
+        // variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);
+
+        // Charred Effluentcer has its own BlockEntityType (CHARRED_EFFLUENTCER_BE), so it does NOT
+        // inherit EFFLUENTCER_BE's capability registration above -- same gap that's bitten every
+        // other Charred variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.METASTASIZER_BE.get(), MetastasizerBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.METASTASIZER_BE.get(), MetastasizerBlockEntity::getTank);
 
+        // Charred Metastasizer has its own BlockEntityType, same gap that hit Charred Masticator
+        // and Drooling Crucible originally -- see those comments above.
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_METASTASIZER_BE.get(), MetastasizerBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_METASTASIZER_BE.get(), MetastasizerBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MUTATOR_BE.get(), MutatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MUTATOR_BE.get(), MutatorBlockEntity::getTank);
+
+        // Charred Mutator has its own BlockEntityType (CHARRED_MUTATOR_BE), so it does NOT inherit
+        // MUTATOR_BE's capability registration above -- same gap that's bitten every other Charred
+        // variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_MUTATOR_BE.get(), MutatorBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_MUTATOR_BE.get(), MutatorBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getTank);
@@ -80,6 +117,11 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.RENDER_KILN_BE.get(), RenderKilnBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CRAW_BE.get(), CrawBlockEntity::getItemHandler);
+
+        // Charred Craw has its own BlockEntityType (CHARRED_CRAW_BE), so it does NOT inherit
+        // CRAW_BE's capability registration above -- same gap that's bitten every other Charred
+        // variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 
         // Mr. Farmer: both capabilities on all six faces. Fluid = the fuel tank (biofuel-filtered fill,
         // drain). Items = the automation wrapper (buffer extract-only, fuel slot accepts containers).
@@ -121,7 +163,10 @@ public class ModBusEvents {
 
         // I.D.E.P.'s fluid storage is flexible (partial fills), same shape as the Beaker -- it's a
         // maintenance tool draining a Buffer's fluid, not a fixed-dose container like a Flask/Syringe.
-        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.FlexibleFluidDataFluidHandler(stack, IdepItem.FLUID_CAPACITY), ModItems.IDEP.get());
+        // Fill-sealed, though: I.D.E.P. loads itself only by clearing a jam it was deliberately
+        // pointed at, so nothing external may push fluid into it (see the handler's own javadoc).
+        // Its own intake goes through IdepItem#internalTank, not this capability.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.SealedFillFluidDataFluidHandler(stack, IdepItem.FLUID_CAPACITY), ModItems.IDEP.get());
 
         // Bladder family: bulk mobile storage, same flexible (partial-fill) shape as Beaker/I.D.E.P.,
         // gated to Tier 1's hazard restrictions (no hazardous fluids at all -- same as Drinker).
@@ -137,21 +182,45 @@ public class ModBusEvents {
                 stack, BladderItem.CAPACITY, HazardProfile.TIER_1, fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.FUEL_BLADDER.get());
 
+        // Charred Bladder family: double capacity, thermal-hazard-tolerant (TIER_2) -- same convention
+        // as Charred Tank/Craw. Charred Fuel Bladder keeps the same biofuel-only restriction as its
+        // base counterpart.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, BladderItem.CAPACITY * 2, HazardProfile.TIER_2), ModItems.CHARRED_BLADDER.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, BladderItem.CAPACITY * 2, HazardProfile.TIER_2), ModItems.CHARRED_FEEDER_BLADDER.get());
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, BladderItem.CAPACITY * 2, HazardProfile.TIER_2, fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
+                ModItems.CHARRED_FUEL_BLADDER.get());
+
         // D.R.I.N.K.E.R.: one source block's worth, hazard-gated. The gate does double duty -- the
         // siphon checks "can this buffer take a full 1000mB?" against this handler, so a fluid the
         // profile refuses simply never accumulates, no separate hazard check needed in the item.
+        // Reads DrinkerItem.installedHazardProfile(stack) rather than a fixed TIER_1 -- this factory
+        // lambda is re-invoked fresh on every getCapability() lookup, so a currently-installed Safety
+        // Module's grant is picked up live. A hardcoded TIER_1 here silently overrode whatever a
+        // Module granted: the item's own use()-side check (accumulateSource/drainTank) already
+        // unions the Module in and would let a hazardous fluid through, but this handler's fill()
+        // still refused it underneath, so the siphon read that refusal back as "buffer too full."
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) ->
-                        new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, DrinkerItem.CAPACITY, HazardProfile.TIER_1),
+                        new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, DrinkerItem.CAPACITY,
+                                DrinkerItem.installedHazardProfile(stack)),
                 ModItems.DRINKER.get());
 
         // S.I.P.P.I.N.G.: Storage mode is a flexible hazard-gated buffer (same shape as Bladder);
         // Disposal mode bypasses the buffer entirely and voids anything the hazard profile accepts.
         // Which handler is returned depends on the stack's current mode, read fresh each lookup.
+        // Both branches read SippingItem.installedHazardProfile(stack) rather than a fixed TIER_1 --
+        // this factory lambda is re-invoked fresh on every getCapability() lookup, so a currently-
+        // installed Safety Module's grant is picked up live in either mode. Same fix as Drinker's
+        // identical bug (see that registration's own comment): a hardcoded TIER_1 here would
+        // silently override whatever a Module granted.
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> {
             SippingModeData mode = stack.getOrDefault(ModDataComponentTypes.SIPPING_MODE_DATA.get(), SippingModeData.DEFAULT);
+            HazardProfile profile = SippingItem.installedHazardProfile(stack);
             return mode.disposalMode()
-                    ? new IHaveFluidData.DisposalFluidHandler(stack, HazardProfile.TIER_1)
-                    : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, HazardProfile.TIER_1);
+                    ? new IHaveFluidData.DisposalFluidHandler(stack, profile)
+                    : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, profile);
         }, ModItems.SIPPING.get());
 
         // E.A.T.E.R.: 4-slot bulk item buffer, no filter -- base tier accepts anything it vacuums.

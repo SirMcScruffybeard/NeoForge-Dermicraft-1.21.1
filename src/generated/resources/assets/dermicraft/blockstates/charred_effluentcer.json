@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,state=idle": {
+      "model": "dermicraft:block/charred_effluentcer",
+      "y": 90
+    },
+    "facing=east,state=recovering": {
+      "model": "dermicraft:block/charred_effluentcer_error",
+      "y": 90
+    },
+    "facing=east,state=running": {
+      "model": "dermicraft:block/charred_effluentcer_on",
+      "y": 90
+    },
+    "facing=north,state=idle": {
+      "model": "dermicraft:block/charred_effluentcer"
+    },
+    "facing=north,state=recovering": {
+      "model": "dermicraft:block/charred_effluentcer_error"
+    },
+    "facing=north,state=running": {
+      "model": "dermicraft:block/charred_effluentcer_on"
+    },
+    "facing=south,state=idle": {
+      "model": "dermicraft:block/charred_effluentcer",
+      "y": 180
+    },
+    "facing=south,state=recovering": {
+      "model": "dermicraft:block/charred_effluentcer_error",
+      "y": 180
+    },
+    "facing=south,state=running": {
+      "model": "dermicraft:block/charred_effluentcer_on",
+      "y": 180
+    },
+    "facing=west,state=idle": {
+      "model": "dermicraft:block/charred_effluentcer",
+      "y": 270
+    },
+    "facing=west,state=recovering": {
+      "model": "dermicraft:block/charred_effluentcer_error",
+      "y": 270
+    },
+    "facing=west,state=running": {
+      "model": "dermicraft:block/charred_effluentcer_on",
+      "y": 270
+    }
+  }
+}

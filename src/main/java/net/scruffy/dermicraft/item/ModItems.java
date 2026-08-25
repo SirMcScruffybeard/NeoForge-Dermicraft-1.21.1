@@ -40,6 +40,15 @@ public class ModItems {
     public static final DeferredItem<Item> FUEL_BLADDER = ITEMS.register("fuel_bladder", () -> new BladderItem(false));
     public static final DeferredItem<Item> FEEDER_BLADDER = ITEMS.register("feeder_bladder", () -> new BladderItem(true));
 
+    // Thermal-hazard-tolerant Bladder tier -- double capacity (matches Charred Tank/Craw's own
+    // convention), mutated from the base Bladder in the Mutator.
+    public static final DeferredItem<Item> CHARRED_BLADDER = ITEMS.register("charred_bladder",
+            () -> new BladderItem(false, BladderItem.CAPACITY * 2));
+    public static final DeferredItem<Item> CHARRED_FUEL_BLADDER = ITEMS.register("charred_fuel_bladder",
+            () -> new BladderItem(false, BladderItem.CAPACITY * 2));
+    public static final DeferredItem<Item> CHARRED_FEEDER_BLADDER = ITEMS.register("charred_feeder_bladder",
+            () -> new BladderItem(true, BladderItem.CAPACITY * 2));
+
     // Generous durability, deliberately -- see ScrenchItem's class javadoc. 1 point of wear per
     // completed chain swap only (see ScrenchMenu#applyCompletedSwapCosts), so this is a long-tail
     // flavor mechanic, not a real balancing lever.
@@ -163,6 +172,14 @@ public class ModItems {
     public static final DeferredItem<Item> HEAT_SAFETY_MODULE = ITEMS.register("heat_safety_module",
             () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> METAPHYSICAL_SAFETY_MODULE = ITEMS.register("metaphysical_safety_module",
+            () -> new Item(new Item.Properties()));
+
+    // Evolution Module family (dermicraft-progression-notes.md / dermicraft-machine-notes.md,
+    // Drooling Cauldron entry "Evolution Module family") -- item only for now, no mechanics wired
+    // up yet. Not tagged MODULE_SAFETY like the Safety Modules above: that tag is what makes
+    // IHaveModules#installedHazardProfile treat an item as granting hazard tolerance, and this
+    // doesn't do that (yet) -- just MODULES, so it can sit in a Module slot.
+    public static final DeferredItem<Item> HEAT_EVOLUTION_MODULE = ITEMS.register("heat_evolution_module",
             () -> new Item(new Item.Properties()));
 
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\

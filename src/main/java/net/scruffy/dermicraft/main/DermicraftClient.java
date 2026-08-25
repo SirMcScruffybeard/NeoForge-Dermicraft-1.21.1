@@ -28,7 +28,9 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
 import net.scruffy.dermicraft.screen.custom.craw.CrawScreen;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronScreen;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
+import net.scruffy.dermicraft.screen.custom.charred_masticator.CharredMasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
+import net.scruffy.dermicraft.screen.custom.charred_metastasizer.CharredMetastasizerScreen;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerScreen;
 import net.scruffy.dermicraft.screen.custom.render_kiln.RenderKilnScreen;
 import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableScreen;
@@ -69,6 +71,7 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.FLOWING_PRIMITIVE_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_REINFORCING_CATALYST.get(), ModFluids.FLOWING_REINFORCING_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_SYNAPSE_CATALYST.get(), ModFluids.FLOWING_SYNAPSE_CATALYST.get());
+            renderTranslucentFluid(ModFluids.SOURCE_EVOLUTION_CATALYST.get(), ModFluids.FLOWING_EVOLUTION_CATALYST.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_STONE_BLEND.get(), ModFluids.FLOWING_STONE_BLEND.get());
             renderTranslucentFluid(ModFluids.SOURCE_SILICA_BLEND.get(), ModFluids.FLOWING_SILICA_BLEND.get());
@@ -110,6 +113,7 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.REINFORCING_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.SYNAPSE_CATALYST_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.EVOLUTION_CATALYST_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.STONE_BLEND_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.SILICA_BLEND_FLUID_TYPE.get());
@@ -194,26 +198,45 @@ public class DermicraftClient {
     @SubscribeEvent
     public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.WORKBENCH_TOP_BE.get(),
                 net.scruffy.dermicraft.renderer.WorkbenchTopBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.WORKBENCH_BE.get(),
                 net.scruffy.dermicraft.renderer.WorkbenchBottomBlockEntityRenderer::new);
+        // Base tier only -- Charred variants' canEvolve() is hardwired false, so their progress
+        // fraction is always 0 and the overlay would never actually draw anything.
+        event.registerBlockEntityRenderer(ModBlockEntities.MASTICATOR_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.METASTASIZER_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.EFFLUENTCER_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.MUTATOR_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.SKIN_TANK_MENU.get(), SkinTankScreen::new);
+        event.register(ModMenuTypes.CHARRED_TANK_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankScreen::new);
         event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
+        event.register(ModMenuTypes.DROOLING_CRUCIBLE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleScreen::new);
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
+        event.register(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), CharredMasticatorScreen::new);
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
+        event.register(ModMenuTypes.CHARRED_EFFLUENTCER_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerScreen::new);
         event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);
+        event.register(ModMenuTypes.CHARRED_METASTASIZER_MENU.get(), CharredMetastasizerScreen::new);
         event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
+        event.register(ModMenuTypes.CHARRED_CRAW_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_craw.CharredCrawScreen::new);
         event.register(ModMenuTypes.INNARDS_NODE_MENU.get(), NodeScreen::new);
         event.register(ModMenuTypes.MR_FARMER_MENU.get(), MrFarmerScreen::new);
         event.register(ModMenuTypes.MR_SHEPARD_MENU.get(), net.scruffy.dermicraft.screen.custom.mr_shepard.MrShepardScreen::new);
         event.register(ModMenuTypes.MUTATOR_MENU.get(), MutatorScreen::new);
+        event.register(ModMenuTypes.CHARRED_MUTATOR_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_mutator.CharredMutatorScreen::new);
         event.register(ModMenuTypes.RENDER_FURNACE_MENU.get(), RenderFurnaceScreen::new);
         event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);
         event.register(ModMenuTypes.RENDER_KILN_MENU.get(), RenderKilnScreen::new);

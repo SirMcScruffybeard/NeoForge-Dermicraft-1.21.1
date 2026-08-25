@@ -24,7 +24,6 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
-import net.scruffy.dermicraft.tank.WaterTank;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class MachineBaseBlockEntity extends BlockEntity {
@@ -38,12 +37,81 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
     protected int health = 0;
     protected int maxHealth = 0;
 
+    // Auto-drain toggle -- mirrors CrawBlockEntity's own item auto-push toggle, but for the fluid
+    // side and hoisted here since every machine with an output tank that pushes to its neighbour
+    // (Masticator/Effluentcer/their Charred variants, Skin Tank/Charred Tank, Drooling
+    // Cauldron/Crucible) already extends this class. Harmless no-op on machines with no auto-push
+    // tank -- nothing ever reads it there.
+    protected boolean autoDrainEnabled = true;
+
     public MachineBaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
+    public boolean isAutoDrainEnabled() {
+        return autoDrainEnabled;
+    }
+
+    public void toggleAutoDrain() {
+        autoDrainEnabled = !autoDrainEnabled;
+        setChanged();
+        updateBlock();
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.saveAdditional(tag, registries);
+        tag.putBoolean("auto_drain_enabled", autoDrainEnabled);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        super.loadAdditional(tag, registries);
+        // Defaults ON for worlds saved before this existed, same as Craw's auto-push flag.
+        autoDrainEnabled = !tag.contains("auto_drain_enabled") || tag.getBoolean("auto_drain_enabled");
+    }
+
     public boolean hasTank() {
         return false;
+    }
+
+    /**
+     * Deserializes a saved handler, then re-asserts {@code expectedSize}.
+     *
+     * <p>Use this instead of calling {@code handler.deserializeNBT} directly whenever a machine's
+     * slot count has EVER changed, or might. NeoForge's {@code ItemStackHandler#deserializeNBT}
+     * calls {@code setSize(tag.getInt("Size"))} whenever the saved NBT carries a Size, trusting the
+     * saved value over the size the handler was just constructed with -- so a block saved before a
+     * new slot was added silently shrinks its freshly-built handler back to the old count on load.
+     * The menu then throws adding a slot past the end ("Slot N not in valid range - [0,N)"), which
+     * surfaces as a crash on WORLD LOAD rather than on opening the screen, and only in worlds that
+     * predate the change (never in a fresh test world -- which is exactly why it is easy to miss).
+     *
+     * <p><b>{@code setSize} does NOT preserve existing contents</b> -- it unconditionally replaces
+     * the backing list with a fresh all-empty one (verified against the real NeoForge 21.1.228
+     * bytecode, not assumed). Calling it straight after {@code deserializeNBT} would silently
+     * DELETE whatever had just been loaded into the surviving slots, turning a crash into a quieter
+     * and worse item-loss bug. This copies the loaded stacks out first and writes them back after
+     * resizing, up to however many still fit -- the same technique
+     * {@code WorkbenchBlockEntity}'s own hand-rolled STORAGE fix already used (this generalizes
+     * that one, not the other way around).
+     */
+    protected static void loadItemHandler(ItemStackHandler handler, int expectedSize,
+                                          HolderLookup.Provider registries, CompoundTag tag) {
+        handler.deserializeNBT(registries, tag);
+        if (handler.getSlots() == expectedSize) return;
+
+        int loadedSlots = handler.getSlots();
+        net.minecraft.world.item.ItemStack[] loaded = new net.minecraft.world.item.ItemStack[loadedSlots];
+        for (int i = 0; i < loadedSlots; i++) {
+            loaded[i] = handler.getStackInSlot(i);
+        }
+
+        handler.setSize(expectedSize);
+
+        for (int i = 0; i < Math.min(loadedSlots, expectedSize); i++) {
+            handler.setStackInSlot(i, loaded[i]);
+        }
     }
 
     protected ItemStackHandler createItemHandler(int size, int limitedSlot) {
@@ -72,6 +140,58 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
                 }
             }
         };
+    }
+
+    /** Same as {@link #createVulnerableTank(int, int)}, but the hazard profile is read fresh from
+     * {@code profileSupplier} on every fill/drain instead of fixed at Tier 1 forever -- see
+     * {@link VulnerableTank}'s own supplier constructor. For a machine whose Module slot can grant
+     * extra hazard tolerance (Decision Point #2, dermicraft-progression-notes.md). */
+    protected VulnerableTank createVulnerableTank(int capacity, int slot, java.util.function.Supplier<net.scruffy.dermicraft.hazard.HazardProfile> profileSupplier) {
+        return new VulnerableTank(capacity, slot, profileSupplier) {
+            @Override
+            protected void onContentsChanged()
+            {
+                if (!level.isClientSide) {
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
+    /** For the Drooling machine family -- see {@link net.scruffy.dermicraft.tank.DroolingTank}'s
+     * own javadoc for why this reads the target fluid fresh on every fill rather than fixing it at
+     * construction. */
+    protected net.scruffy.dermicraft.tank.DroolingTank createDroolingTank(int capacity, int slot, java.util.function.Supplier<net.minecraft.world.level.material.Fluid> currentTarget) {
+        return new net.scruffy.dermicraft.tank.DroolingTank(capacity, slot, currentTarget) {
+            @Override
+            protected void onContentsChanged()
+            {
+                if (!level.isClientSide) {
+                    // Restores the original Cauldron-only WaterTank's own onContentsChanged, lost
+                    // when this factory was generalized out of it -- passive generation filling the
+                    // tank should keep auto-pushing downward, same as before. Hazard-safe for free:
+                    // pushFluidToBelowNeighbour's own FluidUtil.tryFluidTransfer simulates the fill
+                    // against the destination first, so a hazard-gated tank below (e.g. a
+                    // VulnerableTank) still correctly refuses lava on its own -- no extra gating
+                    // needed here, the destination already decides.
+                    if (autoDrainEnabled) {
+                        this.pushFluidToBelowNeighbour(level, worldPosition);
+                    }
+                    setChanged();
+                    updateBlock();
+                    onTankContentsChanged();
+                }
+            }
+        };
+    }
+
+    /** Called whenever a machine's own tank contents change -- no-op by default, generic across
+     * every machine (not just the Drooling family), for a subclass that wants to react without
+     * needing its own tank-factory override. Currently only wired into {@link #createDroolingTank},
+     * for the Drooling family's dynamic light level -- see
+     * {@code DroolingMachineBlockEntity#updateLightLevel}. */
+    protected void onTankContentsChanged() {
     }
 
     protected ModFluidTank createFluidTank(int capacity, int slot) {

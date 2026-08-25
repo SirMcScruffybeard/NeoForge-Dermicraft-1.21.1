@@ -3,7 +3,7 @@
   "render_type": "minecraft:translucent",
   "textures": {
     "bottom": "dermicraft:block/skin_tank_end",
-    "side": "dermicraft:block/skin_tank_side",
+    "side": "dermicraft:block/skin_tank/skin_tank_side",
     "top": "dermicraft:block/skin_tank_end"
   }
 }

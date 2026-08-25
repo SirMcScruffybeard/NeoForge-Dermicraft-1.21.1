@@ -3,7 +3,10 @@
     "dermicraft:beaker",
     "dermicraft:drooling_cauldron",
     "dermicraft:masticator",
+    "dermicraft:charred_masticator",
     "dermicraft:skin_tank",
-    "dermicraft:effluentcer"
+    "dermicraft:charred_tank",
+    "dermicraft:effluentcer",
+    "dermicraft:charred_effluentcer"
   ]
 }

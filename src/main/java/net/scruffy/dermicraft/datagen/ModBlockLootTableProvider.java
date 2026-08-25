@@ -30,13 +30,17 @@ public class ModBlockLootTableProvider extends BlockLootSubProvider {
     protected void generate() {
 
         dropSelf(ModBlocks.CALCIUM_GLASS.get());
+        dropSelf(ModBlocks.CHARRED_TUMOR.get());
+        dropSelf(ModBlocks.HOT_BONE.get());
         dropSelf(ModBlocks.OUTERFACE.get());
         dropSelf(ModBlocks.BRAIN.get());
 
         // Ducts and Nodes are the exception to the mod's "destroyed on break" rule -- they drop
         // themselves so players aren't punished for pipe re-fiddling (they keep Forceps pickup too).
         dropSelf(ModBlocks.INNARDS_DUCT.get());
+        dropSelf(ModBlocks.CHARRED_INNARDS_DUCT.get());
         dropSelf(ModBlocks.INNARDS_NODE.get());
+        dropSelf(ModBlocks.CHARRED_INNARDS_NODE.get());
 
         // Gate blocks follow the same duct/node exception -- automation infrastructure that gets
         // re-fiddled, so it drops itself on a normal break (and keeps Forceps pickup via COLLECTIBLE).

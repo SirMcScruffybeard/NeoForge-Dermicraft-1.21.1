@@ -59,6 +59,8 @@ Each machine (Drooling Cauldron, Masticator, Skin Tank) follows a 4-part pattern
 3. **Menu** in `screen/custom/<machine>/` extends `AbstractModMenu`.
 4. **Screen** in `screen/custom/<machine>/` extends `AbstractModScreen`, registered client-side in `DermicraftClient.registerScreens`.
 
+**A variant with its own `BlockEntityType`** (a Charred-family evolution, Drooling Crucible, or any other block that reuses a base class's block entity via a distinct registered type) **needs its own `RegisterCapabilitiesEvent` entries in `ModBusEvents.java`** — capabilities are registered per `BlockEntityType`, not inherited by subclassing. Skipping this doesn't crash or show an error: `FluidUtil.interactWithFluidHandler`/hopper automation just silently find nothing there, and for a machine block whose `useItemOn` falls through to `useWithoutItem` on `PASS_TO_DEFAULT_BLOCK_INTERACTION` (the Masticator/Metastasizer/Mutator interaction shape), the *visible* symptom is holding a bucket and getting the GUI to open instead of the tank filling/draining. Has recurred three times already (Drooling Crucible, Charred Masticator, Charred Metastasizer) — check this immediately for any new variant block entity type.
+
 Fluid handling inside machines goes through `tank/ModFluidTank` (extends NeoForge's `FluidTank`, adds fill/drain/transfer convenience) and its subclasses `FuelTank`, `WaterTank`, `VulnerableTank`. Item/fluid transfer helpers used by tanks live in `util/ModFluidUtil.java`.
 
 ### Recipes

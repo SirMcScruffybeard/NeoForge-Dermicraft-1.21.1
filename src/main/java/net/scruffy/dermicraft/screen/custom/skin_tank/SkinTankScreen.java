@@ -6,17 +6,29 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
+import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
+import net.scruffy.dermicraft.util.MouseUtil;
 
+import java.util.List;
+
+/**
+ * Pilot for the shared tab-bar helper (dermicraft-progression-notes.md, Decision Point #2 ->
+ * sequencing step 4): a Main tab (the existing tank+slots content, unchanged) and a Module tab (one
+ * yellow Module slot, {@link SkinTankBlockEntity#installedHazardProfile} reads whatever's in it).
+ */
 public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
     private static final String SLOTS_DIR = "textures/gui/slots/";
     private static final String ARROWS_DIR = "textures/gui/arrows/";
+    private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     private static final ResourceLocation BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "screen_background.png");
@@ -38,14 +50,34 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
 
     private FluidTankRenderer fluidRenderer;
 
+    // Auto-drain toggle -- sits right of the OUTPUT slot (x+116, 18px wide -> ends 134), same 4px
+    // gap convention as Craw's/Masticator's own auto-push/auto-drain buttons.
+    private static final ResourceLocation AUTO_DRAIN_ON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
+    private static final ResourceLocation AUTO_DRAIN_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
+    private static final int AUTO_DRAIN_BUTTON_SIZE = 18;
+    private static final int AUTO_DRAIN_BUTTON_X = 140;
+    private static final int AUTO_DRAIN_BUTTON_Y = 33;
+
     public SkinTankScreen(SkinTankMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
+
+    // Tab bar -- see AbstractModScreen's "Shared tab-bar state"/Tab record. Only two entries;
+    // labels/colors mirror WorkbenchScreen's own tab text convention (a single green, since Skin
+    // Tank doesn't need per-tab colors to tell them apart the way Workbench's Mod/Fabrication split
+    // might eventually want).
+    private static final int TAB_TEXT_COLOR = 0x007F0E;
+    private List<Tab> tabs;
 
     @Override
     protected void init() {
         super.init();
         fluidRenderer = createFluidRenderer16x64(SkinTankBlockEntity.CAPACITY);
+        tabs = List.of(
+                new Tab(Component.translatable("screen.dermicraft.skin_tank.main_tab"), TAB_TEXT_COLOR),
+                new Tab(Component.translatable("screen.dermicraft.skin_tank.module_tab"), TAB_TEXT_COLOR));
     }
 
     @Override
@@ -53,7 +85,17 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.be.getFluid(), 80, 8, fluidRenderer);
+        if (menu.getActiveTab() == SkinTankMenu.MAIN_TAB) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.be.getFluid(), 80, 8, fluidRenderer);
+
+            if (MouseUtil.isMouseOver(pMouseX, pMouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+                Component label = menu.isAutoDrainEnabled()
+                        ? Component.translatable("tooltip.dermicraft.machine.auto_drain_on")
+                        : Component.translatable("tooltip.dermicraft.machine.auto_drain_off");
+                guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
+            }
+        }
     }
 
     @Override
@@ -66,7 +108,16 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
+        if (menu.getActiveTab() == SkinTankMenu.MAIN_TAB) {
+            renderMainTab(guiGraphics, x, y);
+        } else {
+            renderModuleTab(guiGraphics, x, y);
+        }
+    }
+
+    private void renderMainTab(GuiGraphics guiGraphics, int x, int y) {
         guiGraphics.blit(TALL_TANK_TEXTURE, x + 79, y + 7, 0, 0, TALL_TANK_WIDTH, TALL_TANK_HEIGHT,
                 TALL_TANK_WIDTH, TALL_TANK_HEIGHT);
 
@@ -80,6 +131,46 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
         renderArrowBackground(guiGraphics, x + 98, y + 37);
 
         fluidRenderer.render(guiGraphics, x + 80, y + 8, menu.be.getFluid());
+
+        renderAutoDrainButton(guiGraphics, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y);
+    }
+
+    private void renderAutoDrainButton(GuiGraphics guiGraphics, int x, int y) {
+        if (menu.isAutoDrainEnabled()) {
+            blitRotated90(guiGraphics, AUTO_DRAIN_ON_TEXTURE, x, y, AUTO_DRAIN_BUTTON_SIZE);
+        } else {
+            guiGraphics.blit(AUTO_DRAIN_OFF_TEXTURE, x, y, 0, 0, AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE,
+                    AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE);
+        }
+    }
+
+    /** One yellow Module slot -- nothing else on this tab, matching Eater's/Drinker's own bare
+     * Module-slot-only look where no gauge/drain slot sits alongside it. */
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + SkinTankMenu.MODULE_SLOT_X, y + SkinTankMenu.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
+            menu.setActiveTab(clickedTab);
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        if (menu.getActiveTab() == SkinTankMenu.MAIN_TAB
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + AUTO_DRAIN_BUTTON_X, y + AUTO_DRAIN_BUTTON_Y,
+                AUTO_DRAIN_BUTTON_SIZE, AUTO_DRAIN_BUTTON_SIZE)) {
+            PacketDistributor.sendToServer(new AutoDrainToggleClickPayload(menu.be.getBlockPos()));
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private void renderItemSlot(GuiGraphics guiGraphics, int x, int y) {

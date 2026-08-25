@@ -37,20 +37,31 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.EYE_TUMOR);
                         output.accept(ModBlocks.MUSCLE_TUMOR);
                         output.accept(ModBlocks.NERVE_TUMOR);
+                        output.accept(ModBlocks.CHARRED_TUMOR); // no craft recipe yet
+                        output.accept(ModBlocks.HOT_BONE); // no craft recipe yet
 
                         ////////////////////Machines and Tanks\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.CALCIUM_GLASS);
                         output.accept(ModBlocks.OUTERFACE);
                         output.accept(ModBlocks.DROOLING_CAULDRON);
+                        // No craft recipe yet -- standalone-reachable Evolution/Catalyst path isn't
+                        // built (dermicraft-machine-notes.md). Visible in creative for testing only.
+                        output.accept(ModBlocks.DROOLING_CRUCIBLE);
                         output.accept(ModBlocks.MASTICATOR);
+                        output.accept(ModBlocks.CHARRED_MASTICATOR); // no craft recipe yet
                         output.accept(ModBlocks.SKIN_TANK);
+                        output.accept(ModBlocks.CHARRED_TANK); // no craft recipe yet
                         output.accept(ModBlocks.EFFLUENTCER);
+                        output.accept(ModBlocks.CHARRED_EFFLUENTCER); // no craft recipe yet
                         output.accept(ModBlocks.METASTASIZER);
+                        output.accept(ModBlocks.CHARRED_METASTASIZER); // no craft recipe yet
                         output.accept(ModBlocks.MUTATOR);
+                        output.accept(ModBlocks.CHARRED_MUTATOR); // no craft recipe yet
                         output.accept(ModBlocks.RENDER_FURNACE);
                         output.accept(ModBlocks.GRAFTING_TABLE);
                         output.accept(ModBlocks.RENDER_KILN);
                         output.accept(ModBlocks.CRAW);
+                        output.accept(ModBlocks.CHARRED_CRAW); // no craft recipe yet
                         output.accept(ModBlocks.MR_FARMER);
                         output.accept(ModBlocks.MR_SHEPARD);
                         output.accept(ModBlocks.BRAIN);
@@ -60,7 +71,9 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_DUCT);
+                        output.accept(ModBlocks.CHARRED_INNARDS_DUCT);
                         output.accept(ModBlocks.INNARDS_NODE);
+                        output.accept(ModBlocks.CHARRED_INNARDS_NODE);
 
                         ////////////////////Gate\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_GATE_CONTROLLER);
@@ -106,8 +119,11 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.IRON_SHATTER_HEAD);
                         output.accept(ModItems.DIAMOND_SHATTER_HEAD);
                         output.accept(ModItems.BLADDER);
+                        output.accept(ModItems.CHARRED_BLADDER);
                         output.accept(ModItems.FUEL_BLADDER);
+                        output.accept(ModItems.CHARRED_FUEL_BLADDER);
                         output.accept(ModItems.FEEDER_BLADDER);
+                        output.accept(ModItems.CHARRED_FEEDER_BLADDER);
                         output.accept(ModItems.IRON_SUNDER_CHAIN);
                         output.accept(ModItems.COPPER_SUNDER_CHAIN);
                         output.accept(ModItems.GOLD_SUNDER_CHAIN);
@@ -118,8 +134,13 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.AGGREGATE_MODULE);
                         output.accept(ModItems.BEAM_MODULE);
                         output.accept(ModItems.FLUID_BYPASS_MODULE);
+
+                        // Safety Modules
                         output.accept(ModItems.HEAT_SAFETY_MODULE);
                         output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
+
+                        // Evolution Modules
+                        output.accept(ModItems.HEAT_EVOLUTION_MODULE); // no mechanics yet, item only
 
                         buildFlaskContents(output);
                         buildSyringeContents(output);
@@ -151,6 +172,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.PRIMITIVE_CATALYST_BUCKET);
                         output.accept(ModFluids.REINFORCING_CATALYST_BUCKET);
                         output.accept(ModFluids.SYNAPSE_CATALYST_BUCKET);
+                        output.accept(ModFluids.EVOLUTION_CATALYST_BUCKET);
 
                         output.accept(ModFluids.STONE_BLEND_BUCKET);
                         output.accept(ModFluids.SILICA_BLEND_BUCKET);
@@ -185,13 +207,14 @@ public class ModCreativeModeTabs {
         output.accept(ModItems.PRIMITIVE_SYRINGE.get());
 
         //output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
-        output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
+        //output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
 
         //output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_SYNAPSE_CATALYST.get()));
+        output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_EVOLUTION_CATALYST.get()));
     }
 
     private static void buildBeakerContents(CreativeModeTab.Output output) {
@@ -212,6 +235,7 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_REINFORCING_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SYNAPSE_CATALYST.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_EVOLUTION_CATALYST.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SILICA_BLEND.get()));
@@ -227,7 +251,8 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_QUARTZ.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_AMETHYST.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_DIAMOND.get()));        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_LAPIS.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_DIAMOND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_LAPIS.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_NETHERITE.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_BLAZE_ESSENCE.get()));
@@ -244,12 +269,12 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildFlaskStack(Fluids.WATER));
         output.accept(ModItemUtil.buildFlaskStack(Fluids.LAVA));
 
-        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
         output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CARBON_BLEND.get()));
-        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
 
         output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
-        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
     }
 }

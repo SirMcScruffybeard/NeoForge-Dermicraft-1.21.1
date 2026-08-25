@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_wither_essence",
+  "fluid_amount": 110,
+  "pattern": {
+    "item": "minecraft:wither_skeleton_skull"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:wither_skeleton_skull"
+  },
+  "ticks": 50
+}

@@ -69,26 +69,81 @@ public class ModBlockStateProvider extends BlockStateProvider {
         blockWithItem(ModBlocks.MUSCLE_TUMOR);
         blockWithItem(ModBlocks.NERVE_TUMOR);
 
-        blockWithItemWithRenderTypeWithSideAndEnds("skin_tank", ModBlocks.SKIN_TANK, "translucent");
+        // Charred Tumor -- plain Block, not part of the TumorBlock family, so its texture lives at
+        // the top-level block/ path rather than block/tumor/.
+        simpleBlockWithItem(ModBlocks.CHARRED_TUMOR.get(), models().cubeAll("charred_tumor",
+                modLoc("block/charred_tumor")));
+
+        simpleBlockWithItem(ModBlocks.HOT_BONE.get(), models().cubeAll("hot_bone",
+                modLoc("block/hot_bone")));
+
+        // Side texture lives in its own skin_tank/ subdirectory (alongside the future Charred Tank's
+        // own side texture); end texture stays at the top-level block/ path, unmoved.
+        simpleBlockWithItem(ModBlocks.SKIN_TANK.get(), models().cubeBottomTop(ModBlocks.SKIN_TANK.getId().getPath(),
+                        modLoc("block/skin_tank/skin_tank_side"),
+                        modLoc("block/skin_tank_end"),
+                        modLoc("block/skin_tank_end"))
+                .renderType("translucent"));
+
+        // Charred Tank -- same translucent-window shape as Skin Tank, but Charred Machine Port
+        // replaces skin_tank_end on top/bottom (unifying with the rest of the Charred family's look).
+        simpleBlockWithItem(ModBlocks.CHARRED_TANK.get(), models().cubeBottomTop(ModBlocks.CHARRED_TANK.getId().getPath(),
+                        modLoc("block/skin_tank/charred_tank_side"),
+                        modLoc("block/charred_machine_port"),
+                        modLoc("block/charred_machine_port"))
+                .renderType("translucent"));
 
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
+        // New model carries its own display transforms (2026-08-20) -- item model now parents
+        // straight to the block model, same convention every other machine already uses (see
+        // Masticator below), rather than the old hand-authored flat item/generated icon.
+        itemModels().withExistingParent(ModBlocks.DROOLING_CAULDRON.getId().getPath(),
+                modLoc("block/" + ModBlocks.DROOLING_CAULDRON.getId().getPath()));
+
+        // Shares Cauldron's geometry via model-level parenting (models/block/drooling_crucible.json
+        // parents drooling_cauldron.json, only the texture differs) -- same convention as the item
+        // model below.
+        horizontalBlock(ModBlocks.DROOLING_CRUCIBLE.get(), models().getExistingFile(ModBlocks.DROOLING_CRUCIBLE.getId()));
+        itemModels().withExistingParent(ModBlocks.DROOLING_CRUCIBLE.getId().getPath(),
+                modLoc("block/" + ModBlocks.DROOLING_CRUCIBLE.getId().getPath()));
 
 
         masticatorBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),
                 modLoc("block/" + ModBlocks.MASTICATOR.getId().getPath()));
 
+        // Charred Masticator -- same 3-face-texture shape as the base Masticator, but Charred
+        // Machine Port replaces skin_tank_end on the other 5 faces instead.
+        charredMasticatorBlockState("block/charred_machine_port");
+        itemModels().withExistingParent(ModBlocks.CHARRED_MASTICATOR.getId().getPath(),
+                modLoc("block/" + ModBlocks.CHARRED_MASTICATOR.getId().getPath()));
+
         effluentcerBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
                 modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
+
+        charredEffluentcerBlockState("block/charred_machine_port");
+        itemModels().withExistingParent(ModBlocks.CHARRED_EFFLUENTCER.getId().getPath(),
+                modLoc("block/" + ModBlocks.CHARRED_EFFLUENTCER.getId().getPath()));
 
         metastasizerBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.METASTASIZER.getId().getPath(),
                 modLoc("block/" + ModBlocks.METASTASIZER.getId().getPath()));
 
+        // Charred Metastasizer -- unlike the base Metastasizer's 3-texture split (skinTankEnd top/
+        // bottom + dedicated metastasizer_side), Charred Machine Port covers ALL 5 non-front faces,
+        // matching Charred Masticator's own single-port-texture shape and unifying the family's look.
+        charredMetastasizerBlockState("block/charred_machine_port");
+        itemModels().withExistingParent(ModBlocks.CHARRED_METASTASIZER.getId().getPath(),
+                modLoc("block/" + ModBlocks.CHARRED_METASTASIZER.getId().getPath()));
+
         mutatorBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.MUTATOR.getId().getPath(),
                 modLoc("block/" + ModBlocks.MUTATOR.getId().getPath()));
+
+        charredMutatorBlockState("block/charred_machine_port");
+        itemModels().withExistingParent(ModBlocks.CHARRED_MUTATOR.getId().getPath(),
+                modLoc("block/" + ModBlocks.CHARRED_MUTATOR.getId().getPath()));
 
         renderFurnaceBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.RENDER_FURNACE.getId().getPath(),
@@ -107,6 +162,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc("block/craw_side"),
                 modLoc(skinTankEnd),
                 modLoc(skinTankEnd)));
+
+        // Charred Machine Port on all 6 faces -- no per-face split, unlike the base Craw's own
+        // side/top-bottom texture split.
+        simpleBlockWithItem(ModBlocks.CHARRED_CRAW.get(), models().cubeAll(
+                ModBlocks.CHARRED_CRAW.getId().getPath(),
+                modLoc("block/charred_machine_port")));
 
         simpleBlock(ModBlocks.BEAKER.get(), models().cubeBottomTop(
                 ModBlocks.BEAKER.getId().getPath(),
@@ -221,6 +282,31 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
+    // Mirrors charredMasticatorBlockState -- Charred Machine Port replaces skinTankEnd on all 5
+    // non-front faces (Charred Mutator's shared visual identity with the rest of the Charred family,
+    // not the base Mutator's own generic tank-end look) and uses the charred face texture set for
+    // the front face.
+    private void charredMutatorBlockState(String machinePort) {
+        ModelFile idle = models().cube(ModBlocks.CHARRED_MUTATOR.getId().getPath(),
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/mutator/charred_mutator_face"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/mutator/charred_mutator_face"));
+        ModelFile running = models().cube("charred_mutator_on",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/mutator/charred_mutator_face_on"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/mutator/charred_mutator_face_on"));
+        ModelFile recovering = models().cube("charred_mutator_error",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/mutator/charred_mutator_face_error"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/mutator/charred_mutator_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.CHARRED_MUTATOR.get());
+        putMutatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMutatorVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMutatorVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMutatorVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
     // Same shape as mutatorBlockState, but only 2 models (no HP mechanic here -- see MachineTier.NO_HEALTH
     // -- so no "recovering" state) using a plain BooleanProperty ACTIVE, same idiom as Mr. Farmer's.
     private void renderFurnaceBlockState(String skinTankEnd) {
@@ -317,6 +403,31 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
+    // Mirrors masticatorBlockState exactly, but swaps skin_tank_end for Charred Machine Port on the
+    // 5 non-front faces (Charred Masticator's shared visual identity with Charred Tumor/Hot Bone,
+    // not the generic tank-end look every other Tier 1 machine uses) and uses the charred face
+    // texture set for the front face.
+    private void charredMasticatorBlockState(String machinePort) {
+        ModelFile idle = models().cube(ModBlocks.CHARRED_MASTICATOR.getId().getPath(),
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/masticator/charred_masticator_face"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/masticator/charred_masticator_face"));
+        ModelFile running = models().cube("charred_masticator_on",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/masticator/charred_masticator_face_on"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/masticator/charred_masticator_face_on"));
+        ModelFile recovering = models().cube("charred_masticator_error",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/masticator/charred_masticator_face_error"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/masticator/charred_masticator_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.CHARRED_MASTICATOR.get());
+        putMasticatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMasticatorVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
     // Mirrors masticatorBlockState/mutatorBlockState -- 4 horizontal facings x 3
     // EffluentcerVisualState values, only the front (north-authored) face texture differs between
     // the three models; effluentcer_side covers the other 3 horizontal faces and skinTankEnd covers
@@ -350,6 +461,31 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RECOVERING)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+    // Mirrors charredMasticatorBlockState -- Charred Machine Port replaces skinTankEnd/effluentcer_side
+    // on all 5 non-front faces (Charred Effluentcer's shared visual identity with the rest of the
+    // Charred family, not the base Effluentcer's own 2-texture split) and uses the charred face
+    // texture set for the front face.
+    private void charredEffluentcerBlockState(String machinePort) {
+        ModelFile idle = models().cube(ModBlocks.CHARRED_EFFLUENTCER.getId().getPath(),
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/effluentcer/charred_effluentcer_face"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/effluentcer/charred_effluentcer_face"));
+        ModelFile running = models().cube("charred_effluentcer_on",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/effluentcer/charred_effluentcer_face_on"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/effluentcer/charred_effluentcer_face_on"));
+        ModelFile recovering = models().cube("charred_effluentcer_error",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/effluentcer/charred_effluentcer_face_error"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/effluentcer/charred_effluentcer_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.CHARRED_EFFLUENTCER.get());
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putEffluentcerVariant(builder, idle, running, recovering, Direction.WEST, 270);
     }
 
     // Mirrors effluentcerBlockState/masticatorBlockState -- 4 horizontal facings x 3
@@ -387,19 +523,35 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
+    // Mirrors metastasizerBlockState, but Charred Machine Port replaces BOTH skin_tank_end (top/
+    // bottom) and metastasizer_side (the other 3 horizontal faces) uniformly -- one texture on all
+    // 5 non-front faces, matching Charred Masticator's shape instead of the base Metastasizer's own
+    // 3-texture split.
+    private void charredMetastasizerBlockState(String machinePort) {
+        ModelFile idle = models().cube(ModBlocks.CHARRED_METASTASIZER.getId().getPath(),
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/metastasizer/charred_metastasizer_face"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/metastasizer/charred_metastasizer_face"));
+        ModelFile running = models().cube("charred_metastasizer_on",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/metastasizer/charred_metastasizer_face_on"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/metastasizer/charred_metastasizer_face_on"));
+        ModelFile recovering = models().cube("charred_metastasizer_error",
+                        modLoc(machinePort), modLoc(machinePort), modLoc("block/metastasizer/charred_metastasizer_face_error"),
+                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
+                .texture("particle", modLoc("block/metastasizer/charred_metastasizer_face_error"));
+
+        var builder = getVariantBuilder(ModBlocks.CHARRED_METASTASIZER.get());
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putMetastasizerVariant(builder, idle, running, recovering, Direction.WEST, 270);
+    }
+
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {
         simpleBlockWithItem(deferredBlock.get(), models().cubeAll(
                 deferredBlock.getId().getPath(),
                 modLoc("block/tumor/" + deferredBlock.getId().getPath())));
     }
-
-    private void blockWithItemWithRenderTypeWithSideAndEnds(String name, DeferredBlock<Block> block, String renderType) {
-        simpleBlockWithItem(block.get(), models().cubeBottomTop(block.getId().getPath(),
-                        modLoc("block/" + name + "_side"),
-                        modLoc("block/" + name + "_end"),
-                        modLoc("block/" + name + "_end"))
-                .renderType(renderType));
-    }
-
 
 }

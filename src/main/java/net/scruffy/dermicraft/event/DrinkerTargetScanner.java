@@ -23,7 +23,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.DrinkerItem;
@@ -50,8 +49,6 @@ public class DrinkerTargetScanner {
     /** Ticks between re-scans -- the "slight delay on the render tick" the design notes call for. */
     private static final int SCAN_INTERVAL_TICKS = 3;
 
-    /** DRINKER's Tier 1 tolerance -- rejects any hazard tag at all. */
-    private static final HazardProfile PROFILE = HazardProfile.TIER_1;
     /** One fluid source block, the indivisible unit DRINKER picks up. */
     private static final int SOURCE_BLOCK_AMOUNT = 1000;
 
@@ -172,7 +169,7 @@ public class DrinkerTargetScanner {
         subject.append(Component.translatable(fluid.getFluid().getFluidType().getDescriptionId()));
         if (amount != null) subject.append(" (").append(amount).append(")");
 
-        if (!PROFILE.accepts(fluid)) {
+        if (!DrinkerItem.installedHazardProfile(drinker).accepts(fluid)) {
             show(player, false, Component.translatable("tooltip.dermicraft.drinker.blocked", subject)
                     .withStyle(ChatFormatting.RED));
             return;

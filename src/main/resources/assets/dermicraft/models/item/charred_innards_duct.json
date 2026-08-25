@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/innards_duct/charred_innards_duct_icon"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_ghast_essence",
+  "fluid_amount": 110,
+  "pattern": {
+    "item": "minecraft:ghast_tear"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:ghast_tear"
+  },
+  "ticks": 50
+}

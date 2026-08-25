@@ -165,7 +165,14 @@ public interface IHaveFluidData {
             }
 
             if (action.execute()) {
-                container.set(getDataType(), FluidData.createData(resource.copy()));
+                // Store exactly CAPACITY, never the offered amount. All-or-nothing means the offer
+                // must be at LEAST capacity (guarded above), not that it equals it -- so a caller
+                // offering more than this holds (D.R.I.N.K.E.R. pushing its whole 1000 mB buffer at
+                // a 250 mB Flask) used to have the surplus stored anyway while only CAPACITY was
+                // reported back and debited. That difference was created out of nothing.
+                FluidStack stored = resource.copy();
+                stored.setAmount(CAPACITY);
+                container.set(getDataType(), FluidData.createData(stored));
             }
             return CAPACITY;
         }
@@ -287,6 +294,40 @@ public interface IHaveFluidData {
 
         private DataComponentType<FluidData> getDataType() {
             return ModDataComponentTypes.FLUID_DATA.get();
+        }
+    }
+
+    /**
+     * A {@link FlexibleFluidDataFluidHandler} that refuses every fill arriving through the
+     * capability, while leaving reads and drains fully open.
+     *
+     * <p>For a tool whose intake is meant to be its OWN deliberate interaction rather than something
+     * any passing fluid mover can push into -- I.D.E.P. is the case this exists for: it fills itself
+     * by clearing a jam it was pointed at, and nothing else should be able to load it. Sealing the
+     * capability is what makes that true generically, instead of each would-be filler (D.R.I.N.K.E.R.
+     * Transfer, a machine's auto-eject, a future gadget) having to know to skip it.
+     *
+     * <p>Drain deliberately stays open: the tool's whole purpose is depositing what it holds into a
+     * machine, and other tools reading its contents is harmless.
+     *
+     * <p><b>The owning item must not fill itself through the capability</b> -- it would get refused
+     * like anyone else. It should construct a plain {@link FlexibleFluidDataFluidHandler} over its
+     * own stack for internal intake; see {@code IdepItem#internalTank}.
+     */
+    class SealedFillFluidDataFluidHandler extends FlexibleFluidDataFluidHandler {
+
+        public SealedFillFluidDataFluidHandler(ItemStack stack, int capacity) {
+            super(stack, capacity);
+        }
+
+        @Override
+        public boolean isFluidValid(int tank, FluidStack stack) {
+            return false;
+        }
+
+        @Override
+        public int fill(FluidStack resource, FluidAction action) {
+            return 0;
         }
     }
 

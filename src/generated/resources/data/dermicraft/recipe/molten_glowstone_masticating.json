@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:glowstone_dust"
+  },
+  "ingredient_fluid": "minecraft:lava",
+  "ingredient_fluid_amount": 110,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_molten_glowstone",
+  "result_fluid_amount": 110,
+  "ticks": 600
+}

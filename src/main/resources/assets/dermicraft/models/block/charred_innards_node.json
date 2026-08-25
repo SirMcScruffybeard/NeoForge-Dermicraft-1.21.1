@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "dermicraft:block/charred_machine_port",
+    "down": "dermicraft:block/charred_machine_port",
+    "up": "dermicraft:block/innards_duct/charred_node_face",
+    "north": "dermicraft:block/charred_machine_port",
+    "south": "dermicraft:block/charred_machine_port",
+    "east": "dermicraft:block/charred_machine_port",
+    "west": "dermicraft:block/charred_machine_port"
+  }
+}

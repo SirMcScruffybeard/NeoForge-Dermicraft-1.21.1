@@ -3,9 +3,13 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
@@ -16,15 +20,20 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
+import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipeInput;
@@ -32,6 +41,7 @@ import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -43,8 +53,9 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
 
     public static final int STORAGE_SLOT = 0;
     public static final int INPUT_SLOT = 0; // index within the separate INPUT handler
+    public static final int MODULE_SLOT = 0; // index within the separate MODULE handler
 
-    private static final int PUSH_INTERVAL_SECONDS = 5;
+    private static final int PUSH_INTERVAL_SECONDS = 1;
     private static final String INCUBATING_RECIPE_KEY = "incubating_recipe_id";
 
     // Early Incubating recipe cache -- re-evaluated whenever the storage slot's contents
@@ -59,7 +70,7 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     public final ItemStackHandler INVENTORY = new ItemStackHandler(1) {
         @Override
         public int getSlotLimit(int slot) {
-            return CAPACITY;
+            return capacity();
         }
 
         // ItemStackHandler.getStackLimit() normally clamps to the item's max stack size (64),
@@ -105,15 +116,161 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         }
     };
 
-    public void tick(Level level) {
-        if (!level.isClientSide) {
-            transferInputToStorage();
-            // Throttled to match the machines' own output-drain cadence -- storage has no crafting
-            // cycle to piggyback on, and pushing every tick is needless churn for a passive block.
-            if (ModMath.Time.hasSecondsPassed(level, PUSH_INTERVAL_SECONDS)) {
-                ModItemUtil.pushItemToBelowTransport(level, worldPosition, INVENTORY, STORAGE_SLOT);
+    // Module slot -- same tab-gated pattern as every other Module-tab machine, but standalone
+    // (like INPUT above) rather than sharing INVENTORY, since INVENTORY's own getSlotLimit/
+    // getStackLimit/isItemValid are all bulk-storage-specific and shouldn't apply to a Module.
+    public final ItemStackHandler MODULE = new ItemStackHandler(1) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            if (level != null && !level.isClientSide) {
+                onModuleChanged();
+                setChanged();
+                updateBlock();
             }
         }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return stack.is(ModTags.Items.MODULES);
+        }
+    };
+
+    // ---- Evolution (installed Evolution Module -> eventual Charred Craw) ---------------------
+    // Simpler than Masticator/Metastasizer/Effluentcer/Mutator's gradual-progress mechanic, same
+    // shape as Skin Tank -> Charred Tank: Craw holds items, not fluids, so there's no hazard
+    // tolerance to grant here at all -- the Module slot exists purely to hold the Evolution Module
+    // that triggers a flat 5-second countdown straight to the flourish, no progress render.
+    private int flourishTicksRemaining = -1;
+    private static final int FLOURISH_DURATION_TICKS = 100; // 5s
+
+    /** Whether this instance can still evolve at all -- true for the base Craw, overridden to false
+     * by {@code CharredCrawBlockEntity} (already evolved; installing an Evolution Module there does
+     * nothing, since capacity/throughput are permanently doubled regardless of any Module, and
+     * there's nothing further for it to transform into). */
+    protected boolean canEvolve() {
+        return true;
+    }
+
+    /** How many items of one type this instance can hold -- {@link #CAPACITY} for the base Craw,
+     * overridden to double that by Charred Craw. */
+    protected int capacity() {
+        return CAPACITY;
+    }
+
+    /** Called whenever the Module slot's contents change at all -- cancels any countdown already
+     * running (covers the Module being pulled back out mid-countdown), then starts a fresh one if
+     * the slot now holds a real Evolution Module. Mirrors SkinTankBlockEntity's identical rule. */
+    private void onModuleChanged() {
+        flourishTicksRemaining = -1;
+        if (!canEvolve()) return;
+        ItemStack module = MODULE.getStackInSlot(MODULE_SLOT);
+        if (module.isEmpty()) return;
+        EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+        if (evoProps != null) startEvolutionFlourish();
+    }
+
+    /** Runs every raw tick -- Craw's own {@link #tick} already runs every tick. Returns true once
+     * the countdown completes and the block swap has fired, so {@link #tick} can stop touching this
+     * now-stale instance. */
+    private boolean tickEvolutionFlourish() {
+        if (flourishTicksRemaining < 0) return false;
+
+        if (level instanceof ServerLevel serverLevel) {
+            spawnFlourishParticles(serverLevel, flourishTicksRemaining);
+        }
+
+        flourishTicksRemaining--;
+        if (flourishTicksRemaining < 0) {
+            completeEvolution(level);
+            return true;
+        }
+        return false;
+    }
+
+    private void startEvolutionFlourish() {
+        flourishTicksRemaining = FLOURISH_DURATION_TICKS;
+        if (level != null) {
+            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+        }
+    }
+
+    private void spawnFlourishParticles(ServerLevel serverLevel, int ticksRemaining) {
+        double cx = worldPosition.getX() + 0.5;
+        double cy = worldPosition.getY() + 0.5;
+        double cz = worldPosition.getZ() + 0.5;
+
+        float progress = 1f - (ticksRemaining / (float) FLOURISH_DURATION_TICKS);
+        int dustCount = 4 + Math.round(progress * 10);
+        // Lava-orange, matches every other Charred family flourish's own fallback tint (no target
+        // fluid here to derive a real tint from -- Craw has no tank at all).
+        DustParticleOptions dust = new DustParticleOptions(new Vector3f(1.0F, 70 / 255.0F, 20 / 255.0F), 1.4F);
+        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
+
+        if (ticksRemaining % 4 == 0) {
+            int smokeCount = 2 + Math.round(progress * 6);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, smokeCount, 0.35, 0.35, 0.35, 0.02);
+        }
+
+        if (ticksRemaining == 0) {
+            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
+            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    /**
+     * Transforms this block into a Charred Craw in place, carrying over the storage and input
+     * staging contents -- the Module itself is not carried over, this transform is what consumes
+     * it. No FACING (or any other block state) to preserve -- Craw has none.
+     */
+    private void completeEvolution(Level level) {
+        ItemStack storedItem = getStoredStack().copy();
+        ItemStack inputItem = INPUT.getStackInSlot(INPUT_SLOT);
+        @Nullable RecipeHolder<EarlyIncubatingRecipe> recipeHolder = this.cachedRecipeHolder;
+
+        INVENTORY.setStackInSlot(STORAGE_SLOT, ItemStack.EMPTY);
+        INPUT.setStackInSlot(INPUT_SLOT, ItemStack.EMPTY);
+        MODULE.setStackInSlot(MODULE_SLOT, ItemStack.EMPTY);
+
+        level.setBlock(worldPosition, ModBlocks.CHARRED_CRAW.get().defaultBlockState(), Block.UPDATE_ALL);
+
+        if (level.getBlockEntity(worldPosition) instanceof CrawBlockEntity charred) {
+            charred.INVENTORY.setStackInSlot(STORAGE_SLOT, storedItem);
+            charred.INPUT.setStackInSlot(INPUT_SLOT, inputItem);
+            charred.cachedRecipeHolder = recipeHolder;
+            charred.setChanged();
+            charred.updateBlock();
+        }
+    }
+
+    public void tick(Level level) {
+        if (!level.isClientSide) {
+            // Early-return on a completed swap -- same as SkinTankBlockEntity#tick -- this instance
+            // is now stale, its own storage already cleared by completeEvolution.
+            if (tickEvolutionFlourish()) return;
+
+            transferInputToStorage();
+            // Cadence-throttled (once per second) rather than amount-throttled by itself -- storage
+            // has no crafting cycle to piggyback on. Each push is ALSO capped to stacksPerPush() full
+            // stacks (see pushStack's own maxAmount param) -- pushing the entire 640-capacity slot in
+            // one shot was a burst most duct networks can't actually absorb at once; smaller, more
+            // frequent pushes are both more realistic and easier to reason about. Charred Craw
+            // overrides stacksPerPush() for its own doubled throughput -- see that class's javadoc.
+            if (autoPushEnabled && ModMath.Time.hasSecondsPassed(level, PUSH_INTERVAL_SECONDS)) {
+                ItemStack stored = getStoredStack();
+                if (!stored.isEmpty()) {
+                    int maxAmount = stacksPerPush() * stored.getMaxStackSize();
+                    ModItemUtil.pushItemToBelowTransport(level, worldPosition, INVENTORY, STORAGE_SLOT, maxAmount);
+                }
+            }
+        }
+    }
+
+    /** How many full stacks (of whatever item is currently stored) a single auto-push cycle may
+     * move -- 1 for the base Craw, overridden to 2 by Charred Craw. */
+    protected int stacksPerPush() {
+        return 1;
     }
 
     private void transferInputToStorage() {
@@ -130,7 +287,42 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     }
 
     public CrawBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.CRAW_BE.get(), pos, blockState);
+        this(ModBlockEntities.CRAW_BE.get(), pos, blockState);
+    }
+
+    // Lets a capability-leap subclass (Charred Craw) register under its own BlockEntityType while
+    // reusing everything else this class provides -- see MachineTier's own javadoc on why a genuine
+    // capability leap (here: doubled capacity/throughput) is a hook override, not a new MachineTier
+    // constant (Craw has no MachineTier concept at all, but the same split applies).
+    protected CrawBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
+    }
+
+    // Auto-push (pass-down) toggle -- default ON, matching the existing auto-push-when-a-valid-
+    // transport-target-is-present behavior exactly. Off simply skips the tick()'s own push attempt
+    // entirely; direct player deposit/withdraw and the GUI-only INPUT staging drain are unaffected.
+    private boolean autoPushEnabled = true;
+
+    public boolean isAutoPushEnabled() {
+        return autoPushEnabled;
+    }
+
+    public void toggleAutoPush() {
+        autoPushEnabled = !autoPushEnabled;
+        setChanged();
+        updateBlock();
+    }
+
+    // Which screen tab was last open -- same pattern as every other Module-tab machine, so
+    // reopening the screen returns to the tab last viewed.
+    private boolean moduleTabActive = false;
+
+    public boolean isModuleTabActive() {
+        return moduleTabActive;
+    }
+
+    public void setModuleTabActive(boolean active) {
+        this.moduleTabActive = active;
     }
 
     public IItemHandler getItemHandler(@Nullable Direction face) {
@@ -261,6 +453,7 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         INVENTORY.setStackInSlot(STORAGE_SLOT, ItemStack.EMPTY);
 
         dropItems(level, INPUT, worldPosition); // input never exceeds one stack, safe as-is
+        dropItems(level, MODULE, worldPosition);
     }
 
     @Override
@@ -286,6 +479,10 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
             tag.put("craw_storage", storageTag);
         }
         tag.put("craw_input_inv", INPUT.serializeNBT(registries));
+        tag.put("craw_module_inv", MODULE.serializeNBT(registries));
+        tag.putBoolean("module_tab_active", moduleTabActive);
+        tag.putBoolean("auto_push_enabled", autoPushEnabled);
+        tag.putInt("evolution_flourish_ticks", flourishTicksRemaining);
         if (this.cachedRecipeHolder != null) {
             tag.putString(INCUBATING_RECIPE_KEY, this.cachedRecipeHolder.id().toString());
         }
@@ -305,6 +502,13 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         }
         INVENTORY.setStackInSlot(STORAGE_SLOT, stored);
         INPUT.deserializeNBT(registries, tag.getCompound("craw_input_inv"));
+        if (tag.contains("craw_module_inv")) MODULE.deserializeNBT(registries, tag.getCompound("craw_module_inv"));
+        moduleTabActive = tag.getBoolean("module_tab_active");
+        // Absent on a world saved before this toggle existed -- default ON so pre-existing setups
+        // keep auto-pushing exactly as before, matching the field's own default.
+        autoPushEnabled = !tag.contains("auto_push_enabled") || tag.getBoolean("auto_push_enabled");
+        flourishTicksRemaining = tag.contains("evolution_flourish_ticks")
+                ? tag.getInt("evolution_flourish_ticks") : -1;
         if (tag.contains(INCUBATING_RECIPE_KEY, CompoundTag.TAG_STRING)) {
             this.lazyRecipeId = ResourceLocation.parse(tag.getString(INCUBATING_RECIPE_KEY));
         }

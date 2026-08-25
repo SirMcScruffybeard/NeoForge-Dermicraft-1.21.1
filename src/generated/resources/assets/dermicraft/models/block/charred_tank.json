@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "bottom": "dermicraft:block/charred_machine_port",
+    "side": "dermicraft:block/skin_tank/charred_tank_side",
+    "top": "dermicraft:block/charred_machine_port"
+  }
+}

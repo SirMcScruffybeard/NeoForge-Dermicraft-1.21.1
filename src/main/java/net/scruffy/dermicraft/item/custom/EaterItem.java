@@ -32,17 +32,14 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.scruffy.dermicraft.component.BulkItemData;
 import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
-import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveItemData;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
-import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -69,7 +66,7 @@ import java.util.UUID;
  * its destination. That's the whole reason this item's tick loop is simpler than DRINKER's
  * despite sharing the same held-trigger identity and mode cycle.
  */
-public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, IWorkbenchSwappable {
+public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, IHaveModules, IWorkbenchSwappable {
 
     /** Gadget Module loadout size -- see dermicraft-gadget-notes.md -> Gadget upgrade points ->
      * Modules direction note's worked Eater example ("3 general-purpose slots, no type
@@ -403,7 +400,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * its path was heat-tolerated (see {@link #nearbyVacuumTargets}) would still burn to nothing
      * mid-pull, defeating the point of tolerating the path at all. */
     private static void protectVacuumCandidates(Level level, Player player, ItemStack stack) {
-        boolean heatTolerant = installedHazardProfile(stack).tolerated().contains(ModTags.Fluids.EXTREME_HEAT);
+        boolean heatTolerant = installedHazardProfile(stack).tolerated().contains(ModTags.Fluids.THERMAL);
         for (ItemEntity candidate : nearbyVacuumTargets(level, player, stack)) {
             candidate.setPickUpDelay(PULL_PICKUP_DELAY_TICKS);
             if (heatTolerant && candidate.isInLava()) {
@@ -668,7 +665,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * unrelated capabilities, neither implies the other): Aggregate covers plain
      * {@link ModTags.Blocks#AGGREGATE} membership, or {@link ModTags.Blocks#AGGREGATE_HOT}
      * membership (currently just Magma Block) gated on the installed hazard tolerance covering
-     * {@code EXTREME_HEAT} -- the Heat Safety Module's other half of its behavior. Beam covers
+     * {@code THERMAL} -- the Thermal Safety Module's other half of its behavior. Beam covers
      * {@link ModTags.Blocks#STONE_ORE}, with no hazard gating of its own (see that tag's comment).
      *
      * <p>Filters here (not left to each caller) so {@link #hasVacuumTarget} and
@@ -693,7 +690,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         if (hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) {
             if (targetState.is(ModTags.Blocks.AGGREGATE)) return hit;
             if (targetState.is(ModTags.Blocks.AGGREGATE_HOT)
-                    && profile.tolerated().contains(ModTags.Fluids.EXTREME_HEAT)) return hit;
+                    && profile.tolerated().contains(ModTags.Fluids.THERMAL)) return hit;
             if (targetState.is(ModTags.Blocks.AGGREGATE_METAPHYSICAL)
                     && profile.tolerated().contains(ModTags.Fluids.METAPHYSICAL_MILD)) return hit;
         }
@@ -709,7 +706,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
     /** Whether every fluid block between {@code from} and {@code to} is tolerated by
      * {@code profile} -- Fluid Bypass alone (an empty, {@link HazardProfile#TIER_1}-shaped profile)
      * passes through non-hazardous fluid like water, but a hazardous one (lava, tagged
-     * {@code EXTREME_HEAT}) still blocks the ray unless a Safety Module granting that hazard is also
+     * {@code THERMAL}) still blocks the ray unless a Safety Module granting that hazard is also
      * installed. Samples along the segment rather than reusing a single {@code ClipContext} call
      * since vanilla's fluid clipping has no per-hazard granularity to ask for directly. */
     private static boolean fluidPathTolerated(Level level, Vec3 from, Vec3 to, HazardProfile profile) {
@@ -724,40 +721,24 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         return true;
     }
 
-    /** Union of every hazard kind {@code eaterStack}'s currently-installed Safety Modules grant --
-     * see the Modules direction note's "derived capability" section. Recomputed on demand rather
-     * than cached: Eater has no permanent per-hazard tier profile yet (see the design notes' open
-     * questions), so there's nothing to union this against besides the empty
-     * {@link HazardProfile#TIER_1} base for now. */
+    /** Union of {@link HazardProfile#TIER_1} (Eater has no permanent per-hazard tier profile yet,
+     * see the design notes' open questions) with every hazard kind {@code eaterStack}'s
+     * currently-installed Safety Modules grant. Thin wrapper over the shared
+     * {@link IHaveModules#installedHazardProfile} (generalized 2026-08-19, see
+     * dermicraft-progression-notes.md step 2) so every existing call site in this class keeps
+     * calling a bare, Eater-specific {@code installedHazardProfile(stack)}. */
     private static HazardProfile installedHazardProfile(ItemStack eaterStack) {
-        BulkItemData data = eaterStack.getOrDefault(ModDataComponentTypes.MODULE_DATA.get(), BulkItemData.empty(MODULE_SLOT_COUNT));
-        HazardProfile profile = HazardProfile.TIER_1;
-        for (int i = 0; i < MODULE_SLOT_COUNT; i++) {
-            ItemStack module = data.slot(i).asDisplayStack();
-            if (module.isEmpty() || !module.is(ModTags.Items.MODULE_SAFETY)) continue;
-
-            SafetyModuleProperties properties = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.SAFETY_MODULE_PROPERTIES);
-            if (properties == null) continue;
-
-            for (net.minecraft.tags.TagKey<net.minecraft.world.level.material.Fluid> hazard : properties.hazards()) {
-                profile = profile.plus(hazard);
-            }
-        }
-        return profile;
+        return IHaveModules.installedHazardProfile(eaterStack, ModDataComponentTypes.MODULE_DATA.get(),
+                MODULE_SLOT_COUNT, HazardProfile.TIER_1);
     }
 
     /** Whether {@code eaterStack} currently has a Module tagged {@code moduleTag} installed in any
      * of its 3 slots -- the generic capability-query dispatch the Modules direction note describes.
      * Reads {@link ModDataComponentTypes#MODULE_DATA} directly rather than through the swap panel,
-     * which only exists while a menu actually has this stack's panel open. */
+     * which only exists while a menu actually has this stack's panel open. Thin wrapper over the
+     * shared {@link IHaveModules#hasModule}, same reasoning as {@link #installedHazardProfile}. */
     public static boolean hasModule(ItemStack eaterStack, TagKey<Item> moduleTag) {
-        BulkItemData data = eaterStack.getOrDefault(ModDataComponentTypes.MODULE_DATA.get(), BulkItemData.empty(MODULE_SLOT_COUNT));
-        for (int i = 0; i < MODULE_SLOT_COUNT; i++) {
-            ItemStack module = data.slot(i).asDisplayStack();
-            if (!module.isEmpty() && module.is(moduleTag)) return true;
-        }
-        return false;
+        return IHaveModules.hasModule(eaterStack, ModDataComponentTypes.MODULE_DATA.get(), MODULE_SLOT_COUNT, moduleTag);
     }
 
     ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\
@@ -795,9 +776,9 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * cases to design around at all, since nothing is ever out of sync with the real stack.
      *
      * <p>Re-resolves a fresh {@code BulkItemHandler} against {@code gadgetStackSupplier.get()} on
-     * every access (see {@link #liveHandler}) rather than binding to one captured stack -- required
-     * for the Workbench host, whose working-item slot can be swapped out entirely while the menu
-     * stays open (see {@link IWorkbenchSwappable#openSwapPanel}'s own javadoc for why).
+     * every access (see {@link IHaveItemData#liveHandler}) rather than binding to one captured
+     * stack -- required for the Workbench host, whose working-item slot can be swapped out entirely
+     * while the menu stays open (see {@link IWorkbenchSwappable#openSwapPanel}'s own javadoc for why).
      *
      * <p>{@code onClosed} only has one job: apply the recalibration cooldown, and only if a Module
      * slot's contents actually changed THIS session (tracked via {@link #moduleSlotChanged}) and
@@ -818,68 +799,17 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         private EaterSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
             this.gadgetStackSupplier = gadgetStackSupplier;
             this.fieldHosted = fieldHosted;
-            this.moduleHandler = liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
+            this.moduleHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
                     ModDataComponentTypes.MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
                     stack -> stack.is(ModTags.Items.MODULES)));
-            this.bufferHandler = liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(), SLOT_COUNT, SLOT_CAPACITY));
-        }
-
-        /** Wraps a handler factory so every {@code IItemHandlerModifiable} call re-resolves a fresh
-         * delegate first -- a plain captured {@code BulkItemHandler} binds to whatever stack was
-         * current when it was constructed, which goes stale the moment the Workbench's working-item
-         * slot contents change. */
-        private static IItemHandlerModifiable liveHandler(java.util.function.Supplier<IItemHandlerModifiable> factory) {
-            return new IItemHandlerModifiable() {
-                @Override
-                public int getSlots() { return factory.get().getSlots(); }
-
-                @NotNull
-                @Override
-                public ItemStack getStackInSlot(int slot) { return factory.get().getStackInSlot(slot); }
-
-                @Override
-                public void setStackInSlot(int slot, @NotNull ItemStack stack) { factory.get().setStackInSlot(slot, stack); }
-
-                @Override
-                public int getSlotLimit(int slot) { return factory.get().getSlotLimit(slot); }
-
-                @Override
-                public boolean isItemValid(int slot, @NotNull ItemStack stack) { return factory.get().isItemValid(slot, stack); }
-
-                @NotNull
-                @Override
-                public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-                    return factory.get().insertItem(slot, stack, simulate);
-                }
-
-                @NotNull
-                @Override
-                public ItemStack extractItem(int slot, int amount, boolean simulate) {
-                    return factory.get().extractItem(slot, amount, simulate);
-                }
-            };
+            this.bufferHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(), SLOT_COUNT, SLOT_CAPACITY));
         }
 
         @Override
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
-            List<Slot> slots = new java.util.ArrayList<>();
-
-            for (int i = 0; i < MODULE_SLOT_COUNT; i++) {
-                int x = panelX + MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING;
-                int y = panelY + MODULE_SLOT_Y + 1;
-                slots.add(new SlotItemHandler(moduleHandler, i, x, y) {
-                    @Override
-                    public boolean isActive() {
-                        return active.getAsBoolean();
-                    }
-
-                    @Override
-                    public void setChanged() {
-                        super.setChanged();
-                        moduleSlotChanged = true;
-                    }
-                });
-            }
+            List<Slot> slots = new java.util.ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, MODULE_SLOT_SPACING,
+                    active, () -> moduleSlotChanged = true));
 
             for (int i = 0; i < SLOT_COUNT; i++) {
                 int x = panelX + BUFFER_SLOT_X + 1 + i * BUFFER_SLOT_SPACING;

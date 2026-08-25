@@ -1,0 +1,8 @@
+{
+  "type": "dermicraft:vague_drooling_crucible",
+  "ingredient": {
+    "tag": "c:foods"
+  },
+  "modifier": 2.0,
+  "result_fluid": "minecraft:lava"
+}
