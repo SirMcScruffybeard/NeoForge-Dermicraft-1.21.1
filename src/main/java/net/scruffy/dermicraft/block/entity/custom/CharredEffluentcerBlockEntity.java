@@ -39,6 +39,13 @@ public class CharredEffluentcerBlockEntity extends EffluentcerBlockEntity {
         return false;
     }
 
+    // The "Charred machines get an extra Module slot" upgrade -- see CharredTankBlockEntity's
+    // identical override for the pilot.
+    @Override
+    public int moduleSlotCount() {
+        return 2;
+    }
+
     // Matches createInputTank()/createResultTank() below -- without this override, the inherited
     // EffluentcerBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety Module)
     // instead of this class's real, unconditional TIER_2 tolerance.
