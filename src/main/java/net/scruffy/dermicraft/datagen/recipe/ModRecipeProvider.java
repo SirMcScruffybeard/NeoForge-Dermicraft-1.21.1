@@ -616,23 +616,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_masticating", ModTags.Items.SILICA_BLEND_ROSTER, 1000,
-                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_masticating", ModTags.Items.CLAY_BLEND_ROSTER, 1000,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_recycling_masticating", ModTags.Items.SILICA_BLEND_RECYCLING, 1000,
-                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_recycling_masticating", ModTags.Items.CLAY_BLEND_RECYCLING, 1000,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         // Cross-feed recipes - sibling-fluid feed instead of water, boosted yield (placeholder +25% over base 1000 mB).
         // Silica Blend is the hub: cross-feeds with both Stone Blend and Clay Blend.
         RecipeBuilders.buildMasticating(recipeOutput, "silica_blend_masticating_boosted_with_stone_blend",
                 Ingredient.of(ModTags.Items.SILICA_BLEND_ROSTER), 1,
                 ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModFluids.SOURCE_SILICA_BLEND.get(), 1250, -1,
-                ModMath.Time.getSecondsToTicks(60));
+                ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "stone_blend_masticating_boosted_with_silica_blend",
                 Ingredient.of(ModTags.Items.STONE_BLEND_ROSTER), 1,
@@ -642,12 +642,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "silica_blend_masticating_boosted_with_clay_blend",
                 Ingredient.of(ModTags.Items.SILICA_BLEND_ROSTER), 1,
                 ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModFluids.SOURCE_SILICA_BLEND.get(), 1250, -1,
-                ModMath.Time.getSecondsToTicks(60));
+                ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "clay_blend_masticating_boosted_with_silica_blend",
                 Ingredient.of(ModTags.Items.CLAY_BLEND_ROSTER), 1,
                 ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModFluids.SOURCE_CLAY_BLEND.get(), 1250, -1,
-                ModMath.Time.getSecondsToTicks(60));
+                ModMath.Time.getSecondsToTicks(30));
 
         // Metastasizer sediment duplication - one copy of the pattern block, fluid consumed, pattern retained.
         // Cost by tier: aggregate 750, cobble 900, solid 1000, small/light 250. Craft time by metaphorical
