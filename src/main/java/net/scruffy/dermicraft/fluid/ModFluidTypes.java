@@ -116,6 +116,26 @@ public class ModFluidTypes {
                             .canHydrate(false)
                             .canConvertToSource(false)));
 
+    // Kinetic Catalyst - Molten Redstone + Molten Quartz, the Work Speed Module reagent. Hot-rod
+    // red, deliberately more saturated/brighter than Molten Redstone (178,40,20) so the two read as
+    // distinct at a glance rather than a diluted blend of both parents' colors. Motion scale set
+    // ABOVE both parents and double Synapse Catalyst's own 0.025 -- the fluid visibly flows faster
+    // in-world, a small fiction touch reinforcing "kinetic" beyond just the name.
+    public static final Supplier<FluidType> KINETIC_CATALYST_FLUID_TYPE = registerFluidType("kinetic_catalyst_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFE61414,
+                    setColorVector(230, 20, 20),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1500)
+                            .temperature(305)
+                            .motionScale(0.05)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)));
+
     // Evolution Catalyst - Synapse Catalyst + Phantom Membrane + Nether Quartz + Glowstone Dust (or Living
     // Glowstone, late-Stage-2 variant), the Evolution Module reagent (matching Safety Module + this, Mutator)
     public static final Supplier<FluidType> EVOLUTION_CATALYST_FLUID_TYPE = registerFluidType("evolution_catalyst_fluid",

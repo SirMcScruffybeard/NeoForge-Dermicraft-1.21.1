@@ -135,6 +135,24 @@ public class ModFluids {
             .block(ModFluids.SYNAPSE_CATALYST_BLOCK)
             .bucket(ModFluids.SYNAPSE_CATALYST_BUCKET);
 
+    //////////////////////////////Kinetic Catalyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_KINETIC_CATALYST = FLUIDS.register("source_kinetic_catalyst",
+            () -> new BaseFlowingFluid.Source(ModFluids.KINETIC_CATALYST_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_KINETIC_CATALYST = FLUIDS.register("flowing_kinetic_catalyst",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.KINETIC_CATALYST_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> KINETIC_CATALYST_BLOCK = ModBlocks.BLOCKS.register("kinetic_catalyst_block",
+            () -> new LiquidBlock(ModFluids.SOURCE_KINETIC_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+
+    public static final DeferredItem<Item> KINETIC_CATALYST_BUCKET = getBucket("kinetic_catalyst_bucket", ModFluids.SOURCE_KINETIC_CATALYST);
+
+    public static final BaseFlowingFluid.Properties KINETIC_CATALYST_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.KINETIC_CATALYST_FLUID_TYPE, SOURCE_KINETIC_CATALYST, FLOWING_KINETIC_CATALYST)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.KINETIC_CATALYST_BLOCK)
+            .bucket(ModFluids.KINETIC_CATALYST_BUCKET);
+
     //////////////////////////////Evolution Catalyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_EVOLUTION_CATALYST = FLUIDS.register("source_evolution_catalyst",
             () -> new BaseFlowingFluid.Source(ModFluids.EVOLUTION_CATALYST_PROPERTIES));

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "K": {
+      "item": "dermicraft:kinetic_catalyst_bucket"
+    },
+    "S": {
+      "item": "minecraft:sugar"
+    }
+  },
+  "pattern": [
+    "ISI",
+    "IKI",
+    "IFI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:work_speed_module"
+  }
+}

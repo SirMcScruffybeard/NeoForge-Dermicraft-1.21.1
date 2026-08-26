@@ -17,6 +17,7 @@ import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
+import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -241,6 +242,12 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(EntityType.PIGLIN), Items.PIGLIN_HEAD, false)
                 .add(getResourceLocation(EntityType.ENDER_DRAGON), Items.DRAGON_HEAD, false)
 
+                ;
+
+        // Flat 25% craft-speed bonus -- see WorkSpeedModuleProperties for why this also nets a real
+        // fuel-per-craft savings, not just a time savings.
+        this.builder(ModDataMaps.WORK_SPEED_MODULE_PROPERTIES)
+                .add(getResourceLocation(ModItems.WORK_SPEED_MODULE), new WorkSpeedModuleProperties(1.25f), false)
                 ;
 
     }

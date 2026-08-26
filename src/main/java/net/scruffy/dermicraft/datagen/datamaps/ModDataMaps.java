@@ -17,6 +17,7 @@ import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
+import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
 public class ModDataMaps {
@@ -90,6 +91,17 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** Per-item speed multiplier for a Work Speed Module -- see {@link WorkSpeedModuleProperties}.
+     * Kind (is this a Work Speed Module at all) lives on {@code ModTags.Items.MODULE_WORK_SPEED};
+     * this data map is specifically WHAT multiplier a given one grants. */
+    public static final DataMapType<Item, WorkSpeedModuleProperties> WORK_SPEED_MODULE_PROPERTIES =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "work_speed_module_properties"),
+                            Registries.ITEM,
+                            WorkSpeedModuleProperties.CODEC
+                    )
+                    .build();
+
     @SubscribeEvent
     public static void register(RegisterDataMapTypesEvent event) {
         event.register(BIOFUELS);
@@ -99,5 +111,6 @@ public class ModDataMaps {
         event.register(EVOLUTION_MODULE_PROPERTIES);
         event.register(DECAPITATION_HEADS);
         event.register(SHATTER_HEAD_PROPERTIES);
+        event.register(WORK_SPEED_MODULE_PROPERTIES);
     }
 }

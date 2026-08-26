@@ -80,6 +80,11 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.HEAT_EVOLUTION_MODULE.get(), "item/module/evolution_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/lava_bucket_icon"));
 
+        // Work Speed Module -- plain module_frame background (not its own family frame), per
+        // explicit instruction, with the user's own hand-painted speed icon on top.
+        moduleItem(ModItems.WORK_SPEED_MODULE.get(), "item/module/module_frame",
+                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/speed_1_icon"));
+
         // Non-standard texture folder (item/sunder_chains/, not item/) -- basicItem()'s default
         // texture-path-matches-item-id assumption doesn't reach it, hence the explicit path.
         singleTextureItem(ModItems.IRON_SUNDER_CHAIN.get(), "item/sunder_chains/iron_sunder_chain");
@@ -113,6 +118,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         thinBucketItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.REINFORCING_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.SYNAPSE_CATALYST_BUCKET.get());
+        thinBucketItem(ModFluids.KINETIC_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.EVOLUTION_CATALYST_BUCKET.get());
 
         chunkyBucketItem(ModFluids.STONE_BLEND_BUCKET.get());

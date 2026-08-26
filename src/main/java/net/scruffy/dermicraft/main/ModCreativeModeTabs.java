@@ -150,6 +150,9 @@ public class ModCreativeModeTabs {
                         // Evolution Modules
                         output.accept(ModItems.HEAT_EVOLUTION_MODULE); // no mechanics yet, item only
 
+                        // Work Speed Modules
+                        output.accept(ModItems.WORK_SPEED_MODULE);
+
                         buildFlaskContents(output);
                         buildSyringeContents(output);
 
@@ -180,6 +183,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.PRIMITIVE_CATALYST_BUCKET);
                         output.accept(ModFluids.REINFORCING_CATALYST_BUCKET);
                         output.accept(ModFluids.SYNAPSE_CATALYST_BUCKET);
+                        output.accept(ModFluids.KINETIC_CATALYST_BUCKET);
                         output.accept(ModFluids.EVOLUTION_CATALYST_BUCKET);
 
                         output.accept(ModFluids.STONE_BLEND_BUCKET);
@@ -244,6 +248,7 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_REINFORCING_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SYNAPSE_CATALYST.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_KINETIC_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_EVOLUTION_CATALYST.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_BLEND.get()));

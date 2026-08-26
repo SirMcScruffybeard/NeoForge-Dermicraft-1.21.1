@@ -118,6 +118,7 @@
   "item.dermicraft.metaphysical_safety_module": "Metaphysical Safety Module",
   "item.dermicraft.heat_safety_module": "Thermal Safety Module",
   "item.dermicraft.heat_evolution_module": "Thermal Evolution Module",
+  "item.dermicraft.work_speed_module": "Work Speed Module",
   "item.dermicraft.mre": "MRE",
   "item.dermicraft.meat_flavored_meat": "Meat Flavored Meat",
 
@@ -134,6 +135,7 @@
   "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
   "item.dermicraft.reinforcing_catalyst_bucket": "Reinforcing Catalyst Bucket",
   "item.dermicraft.synapse_catalyst_bucket": "Synapse Catalyst Bucket",
+  "item.dermicraft.kinetic_catalyst_bucket": "Kinetic Catalyst Bucket",
   "item.dermicraft.evolution_catalyst_bucket": "Evolution Catalyst Bucket",
 
   "item.dermicraft.stone_blend_bucket": "Stone Blend Bucket",
@@ -173,6 +175,7 @@
   "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
   "fluid_type.dermicraft.reinforcing_catalyst_fluid": "Reinforcing Catalyst",
   "fluid_type.dermicraft.synapse_catalyst_fluid": "Synapse Catalyst",
+  "fluid_type.dermicraft.kinetic_catalyst_fluid": "Kinetic Catalyst",
   "fluid_type.dermicraft.evolution_catalyst_fluid": "Evolution Catalyst",
 
   "fluid_type.dermicraft.stone_blend_fluid": "Stone Blend",

@@ -440,6 +440,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_crafting_table"));
 
+        // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
+        // an identity item + the fluid's own bucket + Module Frame). Sugar stands in for the
+        // "speed" identity, mirroring Ender Pearl/Magma Block's role -- real vanilla precedent
+        // (Speed potions use Sugar), same "borrow vanilla's own logic" convention Metaphysical's
+        // Ender Pearl choice used.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.WORK_SPEED_MODULE.get())
+                .pattern("ISI")
+                .pattern("IKI")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('S', Items.SUGAR)
+                .define('K', ModFluids.KINETIC_CATALYST_BUCKET.get())
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("work_speed_module_crafting_table"));
+
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse
         // Catalyst injection (100 mB is the syringe's fixed physical volume, not a cost lever).
@@ -520,6 +536,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildEffluencing(recipeOutput, "synapse_catalyst_effluencing",
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
+
+        // Kinetic Catalyst: same even-parts 500+500->750/45s shape as Synapse Catalyst above --
+        // Molten Redstone + Molten Quartz instead of Cuprous Blend + Primitive Catalyst. Work Speed
+        // Module's reagent, Stage 2-reachable (both inputs are Stage 2 "Molten" family fluids).
+        RecipeBuilders.buildEffluencing(recipeOutput, "kinetic_catalyst_effluencing",
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 500,
+                ModFluids.SOURCE_KINETIC_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
         // Zombie/Piglin Head -> Synapse Catalyst -- rarity-gated 1:1 substitute for one full batch
         // of the recipe above (same 750 mB output, same 45s), not a cheaper bypass: the head pays

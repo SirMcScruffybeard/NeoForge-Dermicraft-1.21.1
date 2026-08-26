@@ -123,6 +123,11 @@ public class ModTags {
         // tag, so adding a new hazard kind later is a data map entry, not a new tag + new dispatch.
         public static final TagKey<Item> MODULE_SAFETY = createTag("module/safety");
 
+        // "Work Speed" family -- same kind-vs-data split as Safety Modules: generic membership only
+        // here, WHICH multiplier a specific one grants lives in
+        // ModDataMaps.WORK_SPEED_MODULE_PROPERTIES.
+        public static final TagKey<Item> MODULE_WORK_SPEED = createTag("module/work_speed");
+
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }
