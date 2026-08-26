@@ -199,8 +199,11 @@ public class CharredMasticatorScreen extends AbstractModScreen<CharredMasticator
     /** One yellow Module slot -- nothing else on this tab, matching Drooling Cauldron/base
      * Masticator's own bare Module-slot-only look. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredMasticatorMenu.MODULE_SLOT_X, y + CharredMasticatorMenu.MODULE_SLOT_Y, 0, 0,
-                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        for (int i = 0; i < menu.BE.moduleSlotCount(); i++) {
+            guiGraphics.blit(MODULE_SLOT_TEXTURE,
+                    x + CharredMasticatorMenu.MODULE_SLOT_X + i * CharredMasticatorMenu.MODULE_SLOT_SPACING,
+                    y + CharredMasticatorMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        }
     }
 
     @Override

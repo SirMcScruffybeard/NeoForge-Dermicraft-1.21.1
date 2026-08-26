@@ -21,6 +21,7 @@ public class MutatorMenu extends AbstractModMenu {
     // convention.
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
+    public static final int MODULE_SLOT_SPACING = 20;
 
     public final MutatorBlockEntity BE;
     private final Level level;
@@ -30,9 +31,10 @@ public class MutatorMenu extends AbstractModMenu {
     }
 
     public MutatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.MUTATOR_MENU.get(), containerId, 5);
-        checkContainerSize(inv, 2);
+        super(ModMenuTypes.MUTATOR_MENU.get(), containerId,
+                MutatorBlockEntity.INVENTORY_SIZE + ((MutatorBlockEntity) blockEntity).moduleSlotCount());
         this.BE = (MutatorBlockEntity) blockEntity;
+        checkContainerSize(inv, 2);
         this.level = inv.player.level();
 
         addPlayerInventory(inv);
@@ -62,12 +64,15 @@ public class MutatorMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MutatorBlockEntity.MODULE, MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MODULE_TAB;
-            }
-        });
+        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+            this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
+                    MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
+                @Override
+                public boolean isActive() {
+                    return getActiveTab() == MODULE_TAB;
+                }
+            });
+        }
 
         setQuickMoveInputSlots(2, 1); // INPUT_SLOT only -- skip fuel/reagent tank slots, OUTPUT_SLOT, and Module
 

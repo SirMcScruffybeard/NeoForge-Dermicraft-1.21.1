@@ -63,16 +63,17 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
 
     public static final int PATTERN_SLOT = 2;
     public static final int OUTPUT_SLOT = 3;
-    // Module slot -- same tab-gated pattern as MasticatorBlockEntity's own, declared here so
-    // Charred Metastasizer inherits it for free.
-    public static final int MODULE = 4;
-    public static final int INVENTORY_SIZE = 5;
+    public static final int INVENTORY_SIZE = 4;
 
     private final VulnerableTank REAGENT_TANK = createReagentTank();
 
     private boolean isTransferringFluids = false;
 
-    private final ItemStackHandler INVENTORY = createInventory(INVENTORY_SIZE);
+    public final ItemStackHandler INVENTORY = createInventory(INVENTORY_SIZE);
+
+    // Module slot(s) -- own dedicated handler, not part of INVENTORY above. Declared here so
+    // Charred Metastasizer inherits it for free; same tab-gated pattern as MasticatorBlockEntity's own.
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
 
     private ItemStack cachedResult = ItemStack.EMPTY;
     private int requiredFluid = 0;
@@ -208,7 +209,9 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
 
         INVENTORY.setStackInSlot(PATTERN_SLOT, ItemStack.EMPTY);
         INVENTORY.setStackInSlot(OUTPUT_SLOT, ItemStack.EMPTY);
-        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            MODULE_INVENTORY.setStackInSlot(slot, ItemStack.EMPTY);
+        }
         if (!fuelContents.isEmpty()) FUEL_TANK.drain(fuelContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
         if (!reagentContents.isEmpty()) REAGENT_TANK.drain(reagentContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
 
@@ -235,26 +238,33 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     /** Union of this machine's base (TIER_1) hazard tolerance with whatever the installed Module
      * grants -- see MasticatorBlockEntity#installedHazardProfile for the full rationale. */
     protected HazardProfile installedHazardProfile() {
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        HazardProfile profile = IHaveModules.installedHazardProfile(HazardProfile.TIER_1, module);
+        HazardProfile profile = HazardProfile.TIER_1;
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            profile = IHaveModules.installedHazardProfile(profile, module);
 
-        if (canEvolve() && !module.isEmpty()) {
-            EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-            if (evoProps != null) {
-                for (var hazard : evoProps.hazards()) {
-                    profile = profile.plus(hazard);
+            if (canEvolve() && !module.isEmpty()) {
+                EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                        .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+                if (evoProps != null) {
+                    for (var hazard : evoProps.hazards()) {
+                        profile = profile.plus(hazard);
+                    }
                 }
             }
         }
         return profile;
     }
 
-    /** Work Speed Module bonus in this machine's Module slot -- see
+    /** Work Speed Module bonus across this machine's Module slot(s) -- see
      * IHaveModules#workSpeedMultiplier for the diminishing-return stacking rule. */
     @Override
     protected float workSpeedMultiplier() {
-        return IHaveModules.workSpeedMultiplier(List.of(INVENTORY.getStackInSlot(MODULE)));
+        List<ItemStack> modules = new ArrayList<>();
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            modules.add(MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return IHaveModules.workSpeedMultiplier(modules);
     }
 
     /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
@@ -272,15 +282,20 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
      * AND {@link #canEvolve()}. */
     private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
         if (!canEvolve()) return Optional.empty();
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        if (module.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(
-                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            if (module.isEmpty()) continue;
+            EvolutionModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+            if (props != null) return Optional.of(props);
+        }
+        return Optional.empty();
     }
 
-    /** Called whenever the Module slot's contents change at all -- full reset, matching
+    /** Called whenever any Module slot's contents change at all -- full reset, matching
      * MasticatorBlockEntity's identical rule. */
-    protected void onModuleChanged() {
+    @Override
+    protected void onModuleSlotChanged(int slot) {
         evolutionProgress = 0;
     }
 
@@ -501,6 +516,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     @Override
     public void drops() {
         super.drops(INVENTORY);
+        super.drops(MODULE_INVENTORY);
     }
 
     @Override
@@ -606,6 +622,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
+        tag.put("module_inventory", MODULE_INVENTORY.serializeNBT(registries));
         tag.put("reagent", REAGENT_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("requiredFluid", requiredFluid);
         tag.putBoolean("module_tab_active", moduleTabActive);
@@ -616,10 +633,22 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        // Worlds saved before MODULE existed have a smaller Size -- see
+        // Worlds saved before INGREDIENT_ITEM_SLOT/OUTPUT_SLOT existed have a smaller Size -- see
         // MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would shrink
         // INVENTORY back down and crash the menu (slot out of range).
-        if (tag.contains("inventory")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
+        CompoundTag oldInventoryTag = tag.getCompound("inventory");
+        if (tag.contains("inventory")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
+
+        if (tag.contains("module_inventory")) {
+            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("module_inventory"));
+        } else {
+            // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
+            // (index 4, back when INVENTORY_SIZE was 5) -- see
+            // MachineBaseBlockEntity#extractLegacyModuleStack.
+            ItemStack legacyModule = extractLegacyModuleStack(registries, oldInventoryTag, 4);
+            if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
+        }
+
         if (tag.contains("reagent")) REAGENT_TANK.readFromNBT(registries, tag.getCompound("reagent"));
         requiredFluid = tag.getInt("requiredFluid");
         moduleTabActive = tag.getBoolean("module_tab_active");
@@ -632,8 +661,6 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
             @Override
             protected void onContentsChanged(int slot) {
                 if (level == null || level.isClientSide()) return;
-
-                if (slot == MODULE) onModuleChanged();
 
                 if (isTransferringFluids) return;
 
@@ -668,13 +695,8 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
             // needed.
             @Override
             public int getSlotLimit(int slot) {
-                if (slot == PATTERN_SLOT || slot == FUEL_TANK.SLOT || slot == REAGENT_TANK.SLOT || slot == MODULE) return 1;
+                if (slot == PATTERN_SLOT || slot == FUEL_TANK.SLOT || slot == REAGENT_TANK.SLOT) return 1;
                 return super.getSlotLimit(slot);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return slot != MODULE || stack.is(ModTags.Items.MODULES);
             }
         };
     }

@@ -242,8 +242,11 @@ public class CharredMutatorScreen extends AbstractModScreen<CharredMutatorMenu> 
     }
 
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredMutatorMenu.MODULE_SLOT_X, y + CharredMutatorMenu.MODULE_SLOT_Y, 0, 0,
-                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        for (int i = 0; i < menu.BE.moduleSlotCount(); i++) {
+            guiGraphics.blit(MODULE_SLOT_TEXTURE,
+                    x + CharredMutatorMenu.MODULE_SLOT_X + i * CharredMutatorMenu.MODULE_SLOT_SPACING,
+                    y + CharredMutatorMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        }
     }
 
     private void renderTankAndSlot(GuiGraphics guiGraphics, int x, int y) {

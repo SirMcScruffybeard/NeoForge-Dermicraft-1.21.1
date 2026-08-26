@@ -69,18 +69,20 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     // purely a fluid-container passthrough for filling/draining the Water tank (bucket in, bucket
     // out), same as FUEL_TANK.SLOT/RESULT_TANK.SLOT.
     public static final int INGREDIENT_ITEM_SLOT = 3;
-    // Module slot -- same tab-gated pattern as Skin Tank/Drooling Cauldron (see MasticatorMenu's
-    // MAIN_TAB/MODULE_TAB). Declared here rather than per-variant so Charred Masticator inherits it
-    // for free.
-    public static final int MODULE = 4;
-    public static final int INVENTORY_SIZE = 5;
+    public static final int INVENTORY_SIZE = 4;
 
     private final VulnerableTank INGREDIENT_TANK = createIngredientTank();
     private final VulnerableTank RESULT_TANK = createResultTank();
 
     private boolean isTransferringFluids = false;
 
-    private final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
+    public final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
+
+    // Module slot(s) -- own dedicated handler (see MachineBaseBlockEntity#createModuleInventory),
+    // not part of the general INVENTORY above. Declared here rather than per-variant so Charred
+    // Masticator inherits it for free; same tab-gated pattern as Skin Tank/Drooling Cauldron (see
+    // MasticatorMenu's MAIN_TAB/MODULE_TAB).
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
 
     private int resultAmount = 0;
 
@@ -225,7 +227,9 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         // whatever's still in INVENTORY when the block itself changes, which would otherwise
         // duplicate everything captured above once it's handed to the new instance.
         INVENTORY.setStackInSlot(INGREDIENT_ITEM_SLOT, ItemStack.EMPTY);
-        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            MODULE_INVENTORY.setStackInSlot(slot, ItemStack.EMPTY);
+        }
         if (!fuelContents.isEmpty()) FUEL_TANK.drain(fuelContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
         if (!ingredientContents.isEmpty()) INGREDIENT_TANK.drain(ingredientContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
         if (!resultContents.isEmpty()) RESULT_TANK.drain(resultContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
@@ -466,6 +470,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     @Override
     public void drops() {
         super.drops(INVENTORY);
+        super.drops(MODULE_INVENTORY);
     }
 
     public ItemStack insertItemStack(ItemStack stack) {
@@ -594,10 +599,11 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
-    /** Called whenever the Module slot's contents change at all (installed, removed, or swapped for
+    /** Called whenever any Module slot's contents change at all (installed, removed, or swapped for
      * a different item) -- full reset, matching Drooling Cauldron's own "pulling the Module wipes
      * all progress" rule, extended to swaps for the same reason (a fresh commitment). */
-    protected void onModuleChanged() {
+    @Override
+    protected void onModuleSlotChanged(int slot) {
         evolutionProgress = 0;
     }
 
@@ -614,26 +620,33 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
      * (read directly here, since {@code IHaveModules} only knows about Safety Modules). Recomputed
      * on demand, not cached, matching every other consumer of this data map. */
     protected HazardProfile installedHazardProfile() {
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        HazardProfile profile = IHaveModules.installedHazardProfile(HazardProfile.TIER_1, module);
+        HazardProfile profile = HazardProfile.TIER_1;
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            profile = IHaveModules.installedHazardProfile(profile, module);
 
-        if (canEvolve() && !module.isEmpty()) {
-            EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-            if (evoProps != null) {
-                for (var hazard : evoProps.hazards()) {
-                    profile = profile.plus(hazard);
+            if (canEvolve() && !module.isEmpty()) {
+                EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                        .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+                if (evoProps != null) {
+                    for (var hazard : evoProps.hazards()) {
+                        profile = profile.plus(hazard);
+                    }
                 }
             }
         }
         return profile;
     }
 
-    /** Work Speed Module bonus in this machine's Module slot -- see
+    /** Work Speed Module bonus across this machine's Module slot(s) -- see
      * IHaveModules#workSpeedMultiplier for the diminishing-return stacking rule. */
     @Override
     protected float workSpeedMultiplier() {
-        return IHaveModules.workSpeedMultiplier(List.of(INVENTORY.getStackInSlot(MODULE)));
+        List<ItemStack> modules = new ArrayList<>();
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            modules.add(MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return IHaveModules.workSpeedMultiplier(modules);
     }
 
     /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
@@ -652,16 +665,21 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
      * Module at all once this is already a Charred Masticator) is inert here. */
     private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
         if (!canEvolve()) return Optional.empty();
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        if (module.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(
-                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            if (module.isEmpty()) continue;
+            EvolutionModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+            if (props != null) return Optional.of(props);
+        }
+        return Optional.empty();
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
+        tag.put("module_inventory", MODULE_INVENTORY.serializeNBT(registries));
         tag.put("craft", INGREDIENT_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("output", RESULT_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("resultFluid", resultAmount);
@@ -675,12 +693,24 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        CompoundTag oldInventoryTag = tag.getCompound("inventory");
         if (tag.contains("inventory")) {
-            // Worlds saved before INGREDIENT_ITEM_SLOT/MODULE existed have a smaller Size -- see
+            // Worlds saved before INGREDIENT_ITEM_SLOT existed have a smaller Size -- see
             // MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would shrink
             // INVENTORY back down and crash the menu (slot out of range).
-            loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
+            loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
         }
+
+        if (tag.contains("module_inventory")) {
+            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("module_inventory"));
+        } else {
+            // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
+            // (index 4, back when INVENTORY_SIZE was 5) -- recover it before that data's gone for
+            // good. See MachineBaseBlockEntity#extractLegacyModuleStack.
+            ItemStack legacyModule = extractLegacyModuleStack(registries, oldInventoryTag, 4);
+            if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
+        }
+
         if (tag.contains("craft")) INGREDIENT_TANK.readFromNBT(registries, tag.getCompound("craft"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
         resultAmount = tag.getInt("resultFluid");
@@ -712,10 +742,6 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
             @Override
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide()) {
-
-                    if (slot == MODULE) {
-                        onModuleChanged();
-                    }
 
                     if(slot == INGREDIENT_ITEM_SLOT) {
                         ItemStack stack = getStackInSlot(INGREDIENT_ITEM_SLOT);
@@ -808,15 +834,8 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
             // and returns the remainder, so the custom insertItem override below is no longer needed.
             @Override
             public int getSlotLimit(int slot) {
-                if (slot == FUEL_TANK.SLOT || slot == INGREDIENT_TANK.SLOT || slot == RESULT_TANK.SLOT || slot == MODULE) return 1;
+                if (slot == FUEL_TANK.SLOT || slot == INGREDIENT_TANK.SLOT || slot == RESULT_TANK.SLOT) return 1;
                 return super.getSlotLimit(slot);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                // Same "scarce, tag-identified" Module slot convention as DroolingMachineBlockEntity's
-                // own MODULE slot -- every other slot here stays unrestricted.
-                return slot != MODULE || stack.is(ModTags.Items.MODULES);
             }
         };
     }

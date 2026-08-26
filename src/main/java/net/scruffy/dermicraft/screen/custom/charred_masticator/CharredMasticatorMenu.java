@@ -26,6 +26,7 @@ public class CharredMasticatorMenu extends AbstractModMenu {
     // mod-wide GUI convention.
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
+    public static final int MODULE_SLOT_SPACING = 20;
 
     public final CharredMasticatorBlockEntity BE;
     private Level level;
@@ -35,9 +36,10 @@ public class CharredMasticatorMenu extends AbstractModMenu {
     }
 
     public CharredMasticatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), containerId, 5);
-        checkContainerSize(inv, 2);
+        super(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), containerId,
+                MasticatorBlockEntity.INVENTORY_SIZE + ((CharredMasticatorBlockEntity) blockEntity).moduleSlotCount());
         this.BE = ((CharredMasticatorBlockEntity) blockEntity);
+        checkContainerSize(inv, 2);
         this.level = inv.player.level();
 
         addPlayerInventory(inv);
@@ -67,12 +69,15 @@ public class CharredMasticatorMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), MasticatorBlockEntity.MODULE, MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MODULE_TAB;
-            }
-        });
+        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+            this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
+                    MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
+                @Override
+                public boolean isActive() {
+                    return getActiveTab() == MODULE_TAB;
+                }
+            });
+        }
 
         setQuickMoveInputSlots(3, 1); // INGREDIENT_ITEM_SLOT only -- skip fuel/ingredient/result tank slots and Module
 

@@ -62,11 +62,7 @@ import java.util.Optional;
 public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<EffluencingRecipe>
         implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine {
 
-    // Module slot -- same tab-gated pattern as Masticator/Metastasizer (see EffluentcerMenu's
-    // MAIN_TAB/MODULE_TAB). Declared here rather than per-variant so Charred Effluentcer inherits it
-    // for free.
-    public static final int MODULE = 4;
-    public static final int INVENTORY_SIZE = 5;
+    public static final int INVENTORY_SIZE = 4;
 
     private final VulnerableTank INPUT_A_TANK = createInputTank(1);
     private final VulnerableTank INPUT_B_TANK = createInputTank(2);
@@ -74,7 +70,12 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
 
     private boolean isTransferringFluids = false;
 
-    private final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
+    public final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
+
+    // Module slot(s) -- own dedicated handler, not part of INVENTORY above. Declared here so
+    // Charred Effluentcer inherits it for free; same tab-gated pattern as Masticator/Metastasizer's
+    // own (see EffluentcerMenu's MAIN_TAB/MODULE_TAB).
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
 
     // Set by the menu whenever a player opens the GUI -- used only as an eject target for
     // the fill-and-eject item-slot behavior (see createItemHandler()).
@@ -255,7 +256,9 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         // Clear this instance's own contents BEFORE the block swap -- the block's own onRemove drops
         // whatever's still in INVENTORY when the block itself changes, which would otherwise
         // duplicate everything captured above once it's handed to the new instance.
-        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            MODULE_INVENTORY.setStackInSlot(slot, ItemStack.EMPTY);
+        }
         if (!fuelContents.isEmpty()) FUEL_TANK.drain(fuelContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
         if (!inputAContents.isEmpty()) INPUT_A_TANK.drain(inputAContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
         if (!inputBContents.isEmpty()) INPUT_B_TANK.drain(inputBContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
@@ -288,26 +291,33 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
      * (read directly here, since {@code IHaveModules} only knows about Safety Modules). Recomputed
      * on demand, not cached, matching every other consumer of this data map. */
     protected HazardProfile installedHazardProfile() {
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        HazardProfile profile = IHaveModules.installedHazardProfile(HazardProfile.TIER_1, module);
+        HazardProfile profile = HazardProfile.TIER_1;
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            profile = IHaveModules.installedHazardProfile(profile, module);
 
-        if (canEvolve() && !module.isEmpty()) {
-            EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-            if (evoProps != null) {
-                for (var hazard : evoProps.hazards()) {
-                    profile = profile.plus(hazard);
+            if (canEvolve() && !module.isEmpty()) {
+                EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                        .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+                if (evoProps != null) {
+                    for (var hazard : evoProps.hazards()) {
+                        profile = profile.plus(hazard);
+                    }
                 }
             }
         }
         return profile;
     }
 
-    /** Work Speed Module bonus in this machine's Module slot -- see
+    /** Work Speed Module bonus across this machine's Module slot(s) -- see
      * IHaveModules#workSpeedMultiplier for the diminishing-return stacking rule. */
     @Override
     protected float workSpeedMultiplier() {
-        return IHaveModules.workSpeedMultiplier(List.of(INVENTORY.getStackInSlot(MODULE)));
+        List<ItemStack> modules = new ArrayList<>();
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            modules.add(MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return IHaveModules.workSpeedMultiplier(modules);
     }
 
     /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
@@ -326,15 +336,20 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
      * Module at all once this is already a Charred Effluentcer) is inert here. */
     private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
         if (!canEvolve()) return Optional.empty();
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        if (module.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(
-                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            if (module.isEmpty()) continue;
+            EvolutionModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+            if (props != null) return Optional.of(props);
+        }
+        return Optional.empty();
     }
 
-    /** Called whenever the Module slot's contents change at all -- full reset, matching every other
+    /** Called whenever any Module slot's contents change at all -- full reset, matching every other
      * Evolution Module consumer's "pulling the Module wipes all progress" rule. */
-    protected void onModuleChanged() {
+    @Override
+    protected void onModuleSlotChanged(int slot) {
         evolutionProgress = 0;
     }
 
@@ -506,6 +521,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     @Override
     public void drops() {
         super.drops(INVENTORY);
+        super.drops(MODULE_INVENTORY);
     }
 
     public void setInteractingPlayer(@Nullable Player player) {
@@ -640,6 +656,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
+        tag.put("module_inventory", MODULE_INVENTORY.serializeNBT(registries));
         tag.put("inputA", INPUT_A_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("inputB", INPUT_B_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("output", RESULT_TANK.writeToNBT(registries, new CompoundTag()));
@@ -654,12 +671,24 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        CompoundTag oldInventoryTag = tag.getCompound("inventory");
         if (tag.contains("inventory")) {
-            // Worlds saved before MODULE existed have a smaller Size -- see
-            // MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would shrink
-            // INVENTORY back down and crash the menu (slot out of range).
-            loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
+            // Worlds saved before this handler existed at its current size have a smaller Size --
+            // see MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would
+            // shrink INVENTORY back down and crash the menu (slot out of range).
+            loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
         }
+
+        if (tag.contains("module_inventory")) {
+            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("module_inventory"));
+        } else {
+            // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
+            // (index 4, back when INVENTORY_SIZE was 5) -- see
+            // MachineBaseBlockEntity#extractLegacyModuleStack.
+            ItemStack legacyModule = extractLegacyModuleStack(registries, oldInventoryTag, 4);
+            if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
+        }
+
         if (tag.contains("inputA")) INPUT_A_TANK.readFromNBT(registries, tag.getCompound("inputA"));
         if (tag.contains("inputB")) INPUT_B_TANK.readFromNBT(registries, tag.getCompound("inputB"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));
@@ -690,10 +719,6 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
             protected void onContentsChanged(int slot) {
                 if (level == null || level.isClientSide()) return;
 
-                if (slot == MODULE) {
-                    onModuleChanged();
-                }
-
                 if (isTransferringFluids) return;
 
                 biDirectionalFluidTransfer(FUEL_TANK, FUEL_TANK.SLOT);
@@ -705,18 +730,6 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
 
                 setChanged();
                 updateBlock();
-            }
-
-            @Override
-            public int getSlotLimit(int slot) {
-                return slot == MODULE ? 1 : super.getSlotLimit(slot);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                // Same tag every other Module slot filters to -- INPUT/OUTPUT/FUEL stay unrestricted,
-                // matching every other machine's own fluid-container-only-in-practice slots.
-                return slot != MODULE || stack.is(ModTags.Items.MODULES);
             }
 
             private void biDirectionalFluidTransfer(ModFluidTank tank, int slot) {

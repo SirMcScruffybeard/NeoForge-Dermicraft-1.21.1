@@ -24,6 +24,7 @@ public class CharredEffluentcerMenu extends AbstractModMenu {
 
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
+    public static final int MODULE_SLOT_SPACING = 20;
 
     public final CharredEffluentcerBlockEntity BE;
     private Level level;
@@ -33,9 +34,10 @@ public class CharredEffluentcerMenu extends AbstractModMenu {
     }
 
     public CharredEffluentcerMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.CHARRED_EFFLUENTCER_MENU.get(), containerId, 5);
-        checkContainerSize(inv, 2);
+        super(ModMenuTypes.CHARRED_EFFLUENTCER_MENU.get(), containerId,
+                EffluentcerBlockEntity.INVENTORY_SIZE + ((CharredEffluentcerBlockEntity) blockEntity).moduleSlotCount());
         this.BE = ((CharredEffluentcerBlockEntity) blockEntity);
+        checkContainerSize(inv, 2);
         this.level = inv.player.level();
 
         this.BE.setInteractingPlayer(inv.player);
@@ -67,12 +69,15 @@ public class CharredEffluentcerMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), EffluentcerBlockEntity.MODULE, MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MODULE_TAB;
-            }
-        });
+        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+            this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
+                    MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
+                @Override
+                public boolean isActive() {
+                    return getActiveTab() == MODULE_TAB;
+                }
+            });
+        }
 
         setQuickMoveInputSlots(0, 0);
 
