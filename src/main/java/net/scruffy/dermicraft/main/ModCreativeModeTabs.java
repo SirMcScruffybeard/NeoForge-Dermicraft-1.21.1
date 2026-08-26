@@ -120,6 +120,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.GOLD_SHATTER_HEAD);
                         output.accept(ModItems.IRON_SHATTER_HEAD);
                         output.accept(ModItems.DIAMOND_SHATTER_HEAD);
+                        output.accept(ModItems.NETHERITE_SHATTER_HEAD);
                         output.accept(ModItems.BLADDER);
                         output.accept(ModItems.CHARRED_BLADDER);
                         output.accept(ModItems.FUEL_BLADDER);
@@ -131,6 +132,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.GOLD_SUNDER_CHAIN);
                         output.accept(ModItems.DIAMOND_SUNDER_CHAIN);
                         output.accept(ModItems.BONE_SUNDER_CHAIN);
+                        output.accept(ModItems.NETHERITE_SUNDER_CHAIN);
 
                         ////////////////////Gadget Modules\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModItems.AGGREGATE_MODULE);

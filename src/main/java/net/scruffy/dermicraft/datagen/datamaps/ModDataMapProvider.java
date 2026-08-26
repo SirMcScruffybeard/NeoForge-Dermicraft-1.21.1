@@ -113,6 +113,13 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModItems.BONE_SUNDER_CHAIN),
                         new ChainProperties(0.75f, 0.75f, 0.10f, 0.0f, 75,
                                 TextColor.fromRgb(0xE3DAC9), Optional.empty()), false)
+                // Netherite -- the capstone above Diamond: a clear step up on all four base stats
+                // over Diamond, same pattern Diamond itself used over Iron. No loot-bonus (that
+                // stays Gold's signature); tint 0x4A3F4A (dark purplish gray) matches the tint
+                // baked into netherite_sunder_chain.png's own icon.
+                .add(getResourceLocation(ModItems.NETHERITE_SUNDER_CHAIN),
+                        new ChainProperties(1.40f, 0.70f, 0.35f, 0.0f, 520,
+                                TextColor.fromRgb(0x4A3F4A), Optional.empty()), false)
 
                 ;
 
@@ -154,7 +161,13 @@ public class ModDataMapProvider extends DataMapProvider {
                 // Also hand-painted, untinted -- same reasoning as Bone. Diamond Pickaxe totals 5
                 // damage -- shift (+1.0f) brings Shatter to 7, the same +2 margin.
                 .add(getResourceLocation(ModItems.DIAMOND_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 3, 1.0f), false);
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 3, 1.0f), false)
+                // Netherite -- treated as a metal (tinted shared texture, not its own hand-painted
+                // one like Bone/Diamond), same tint as the Sunder chain's icon for cross-weapon
+                // consistency. Mining tier 4 (above Diamond's 3). Netherite Pickaxe totals 6 damage
+                // -- shift (+2.0f) brings Shatter to 8, the same +2 margin every material keeps.
+                .add(getResourceLocation(ModItems.NETHERITE_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0x4A3F4A), 4, 2.0f), false);
 
         // Thermal Safety Module grants exactly THERMAL (lava) -- the tag-vs-data split means
         // adding a Radiation/Biohazard Safety Module later is just another entry here, no new tag.

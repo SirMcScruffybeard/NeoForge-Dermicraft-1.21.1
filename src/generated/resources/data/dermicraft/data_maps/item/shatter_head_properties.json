@@ -22,6 +22,11 @@
     "dermicraft:iron_shatter_head": {
       "mining_tier": 2,
       "tint": "#FFFFFF"
+    },
+    "dermicraft:netherite_shatter_head": {
+      "damage_shift": 2.0,
+      "mining_tier": 4,
+      "tint": "#4A3F4A"
     }
   }
 }

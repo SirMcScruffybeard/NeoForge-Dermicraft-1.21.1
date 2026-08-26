@@ -35,6 +35,13 @@
       "decap_chance": 0.2,
       "durability": 250,
       "tint": "#D8D8D8"
+    },
+    "dermicraft:netherite_sunder_chain": {
+      "bleed_chance": 0.7,
+      "damage_multiplier": 1.4,
+      "decap_chance": 0.35,
+      "durability": 520,
+      "tint": "#4A3F4A"
     }
   }
 }

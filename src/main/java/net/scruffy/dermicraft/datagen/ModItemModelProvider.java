@@ -87,6 +87,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         singleTextureItem(ModItems.GOLD_SUNDER_CHAIN.get(), "item/sunder_chains/gold_sunder_chain");
         singleTextureItem(ModItems.DIAMOND_SUNDER_CHAIN.get(), "item/sunder_chains/diamond_sunder_chain");
         singleTextureItem(ModItems.BONE_SUNDER_CHAIN.get(), "item/sunder_chains/bone_sunder_chain");
+        singleTextureItem(ModItems.NETHERITE_SUNDER_CHAIN.get(), "item/sunder_chains/netherite_sunder_chain");
 
         ////////////////////Shatter Heads\\\\\\\\\\\\\\\\\\\\
         shatterHeadItem(ModItems.IRON_SHATTER_HEAD.get());
@@ -94,6 +95,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         shatterHeadItem(ModItems.GOLD_SHATTER_HEAD.get());
         paintedShatterHeadItem(ModItems.DIAMOND_SHATTER_HEAD.get(), "item/shatter/diamond_face_tail");
         shatterHeadItem(ModItems.COPPER_SHATTER_HEAD.get());
+        shatterHeadItem(ModItems.NETHERITE_SHATTER_HEAD.get());
 
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\

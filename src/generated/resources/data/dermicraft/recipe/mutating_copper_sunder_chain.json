@@ -3,7 +3,7 @@
   "fluid": "dermicraft:source_cuprous_blend",
   "fluid_amount": 3000,
   "ingredient": {
-    "item": "dermicraft:iron_sunder_chain"
+    "item": "dermicraft:bone_sunder_chain"
   },
   "result": {
     "count": 1,

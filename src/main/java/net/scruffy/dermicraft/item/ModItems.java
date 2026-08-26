@@ -67,6 +67,16 @@ public class ModItems {
     public static final DeferredItem<Item> BONE_SUNDER_CHAIN = ITEMS.register("bone_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(75)));
 
+    // Netherite -- the capstone material above Diamond. Durability 520: vanilla's own
+    // Netherite:Diamond tool-durability ratio (2031/1561 =~ 1.301) applied to Diamond's own 400
+    // here, since (unlike Shatter's heads) chain durability was never derived from vanilla tool
+    // numbers to begin with, so there's no existing 1:1/2x rule to extend directly.
+    // .fireResistant() -- real vanilla Netherite parity: a dropped item survives lava/fire.
+    // Durability is NOT vanilla-parity (vanilla Netherite tools still take normal wear, just with
+    // a bigger number) -- deliberately not made unbreakable, see the design discussion.
+    public static final DeferredItem<Item> NETHERITE_SUNDER_CHAIN = ITEMS.register("netherite_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(520).fireResistant()));
+
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
     public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().durability(SippingItem.MAX_HP)));
 
@@ -122,6 +132,14 @@ public class ModItems {
     // 1561).
     public static final DeferredItem<Item> DIAMOND_SHATTER_HEAD = ITEMS.register("diamond_shatter_head",
             () -> new ShatterHeadItem(new Item.Properties().durability(3122)));
+
+    // Netherite -- the capstone material above Diamond, treated as a metal (shared grayscale
+    // texture, tinted at runtime same as Iron/Copper/Gold) rather than getting its own hand-painted
+    // texture like Bone/Diamond. Durability 4062 (2x Netherite Pickaxe's 2031), continuing the same
+    // 2x-vanilla-pickaxe rule every other material already follows exactly.
+    // .fireResistant() -- real vanilla Netherite parity: a dropped item survives lava/fire.
+    public static final DeferredItem<Item> NETHERITE_SHATTER_HEAD = ITEMS.register("netherite_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(4062).fireResistant()));
 
     ////////////////////Parts\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> EYE = ITEMS.register("eye",

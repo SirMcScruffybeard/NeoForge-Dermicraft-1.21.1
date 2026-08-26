@@ -3,11 +3,11 @@
   "fluid": "dermicraft:source_aurous_blend",
   "fluid_amount": 3000,
   "ingredient": {
-    "item": "dermicraft:bone_sunder_chain"
+    "item": "dermicraft:bone_shatter_head"
   },
   "result": {
     "count": 1,
-    "id": "dermicraft:gold_sunder_chain"
+    "id": "dermicraft:gold_shatter_head"
   },
   "ticks": 200
 }

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_molten_diamond",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:copper_shatter_head"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:diamond_shatter_head"
+  },
+  "ticks": 200
+}

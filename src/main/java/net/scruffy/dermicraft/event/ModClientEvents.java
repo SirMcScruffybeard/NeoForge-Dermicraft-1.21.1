@@ -76,6 +76,7 @@ public class ModClientEvents {
         registerShatterHeadTint(event, ModItems.IRON_SHATTER_HEAD.get());
         registerShatterHeadTint(event, ModItems.GOLD_SHATTER_HEAD.get());
         registerShatterHeadTint(event, ModItems.COPPER_SHATTER_HEAD.get());
+        registerShatterHeadTint(event, ModItems.NETHERITE_SHATTER_HEAD.get());
     }
 
     //////////////HelperMethods\\\\\\\\\\\\\\

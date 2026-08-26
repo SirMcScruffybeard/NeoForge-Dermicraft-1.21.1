@@ -136,6 +136,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.SILICA_BLEND_RECYCLING)
                 .add(Items.GLASS)
+                .add(Items.GLASS_PANE)
         ;
 
         // Brick, Bricks, and Flower Pot deliberately excluded -- unlike the rest of this tag (flat

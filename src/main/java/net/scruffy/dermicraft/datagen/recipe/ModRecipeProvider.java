@@ -585,6 +585,36 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating", ModTags.Items.STONE_BLEND_ROSTER, 1000,
                 ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
+        // Slabs of roster blocks -- half value/time each, matching the real 2-slabs-per-block
+        // crafting ratio (same precedent as Cut Copper -> Cut Copper Slab: 9000 -> 4500 mB).
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_stone_slab", Items.STONE_SLAB, 500,
+                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobblestone_slab", Items.COBBLESTONE_SLAB, 500,
+                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_andesite_slab", Items.ANDESITE_SLAB, 500,
+                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_diorite_slab", Items.DIORITE_SLAB, 500,
+                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_granite_slab", Items.GRANITE_SLAB, 500,
+                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, 500,
+                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+
+        // Stairs of roster blocks -- same 0.375x ratio Pulp Blend uses for wood stairs (375 mB from
+        // a 1000 mB full-block base), applied to both amount and time here.
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_stone_stairs", Items.STONE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobblestone_stairs", Items.COBBLESTONE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_andesite_stairs", Items.ANDESITE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_diorite_stairs", Items.DIORITE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_granite_stairs", Items.GRANITE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+
         RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_masticating", ModTags.Items.SILICA_BLEND_ROSTER, 1000,
                 ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(60));
 
@@ -1139,23 +1169,56 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_gilded_blackstone", Items.BLACKSTONE,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 550, Items.GILDED_BLACKSTONE, solidTicks);
 
-        // Sunder Chains (Mutator) - a re-materialing chain, not four independent recipes: Bone
-        // (crafting-table only, no Mutator recipe of its own -- it's the entry point) mutates into
-        // Iron via Ferrous Blend, and Iron in turn mutates into Copper/Gold/Diamond via each target
-        // material's own equivalent fluid. No independent per-material cost derivation needed for
-        // the upgrades -- Bone/Iron's own crafting cost is the shared base every step builds on.
+        // Sunder Chains (Mutator) - hub-and-spoke, not a linear chain: Bone (crafting-table only,
+        // no Mutator recipe of its own -- it's the universal entry point/"Calcium" hub) mutates
+        // directly into EACH of Iron/Copper/Gold via that metal's own fluid, rather than funneling
+        // through Iron first. Any of Iron/Copper/Gold can then separately advance on to Diamond via
+        // Molten Diamond, all at the same flat 3000 mB regardless of source material -- Bone itself
+        // never mutates directly into Diamond, it has to pass through a metal tier first.
         RecipeBuilders.mutate(recipeOutput, "mutating_iron_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModItems.IRON_SUNDER_CHAIN.get(), solidTicks);
-        RecipeBuilders.mutate(recipeOutput, "mutating_copper_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+        RecipeBuilders.mutate(recipeOutput, "mutating_copper_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 3000, ModItems.COPPER_SUNDER_CHAIN.get(), solidTicks);
-        RecipeBuilders.mutate(recipeOutput, "mutating_gold_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+        RecipeBuilders.mutate(recipeOutput, "mutating_gold_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 3000, ModItems.GOLD_SUNDER_CHAIN.get(), solidTicks);
         // Diamond's fluid (Molten Diamond) has no production recipe of its own yet (see the crafting
         // notes) -- built anyway, matching the rest of the Molten family's current state (registered,
         // no recipe yet) rather than introducing a one-off special case; unreachable in survival
         // until Molten Diamond gets a real recipe.
-        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain_from_iron", ModItems.IRON_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain_from_copper", ModItems.COPPER_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain_from_gold", ModItems.GOLD_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
+
+        // Netherite -- the capstone above Diamond, ONLY reachable this way (no crafting-table
+        // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB
+        // Molten Netherite, same flat cost every other Diamond-tier transition in this chain uses.
+        RecipeBuilders.mutate(recipeOutput, "mutating_netherite_sunder_chain", ModItems.DIAMOND_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 3000, ModItems.NETHERITE_SUNDER_CHAIN.get(), solidTicks);
+
+        // Shatter Heads (Mutator) -- identical hub-and-spoke shape as the Sunder Chains above,
+        // newly built (Shatter previously had no Mutator recipes at all, only independent
+        // crafting-table recipes for each material, which are untouched).
+        RecipeBuilders.mutate(recipeOutput, "mutating_iron_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModItems.IRON_SHATTER_HEAD.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_copper_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_CUPROUS_BLEND.get(), 3000, ModItems.COPPER_SHATTER_HEAD.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_gold_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 3000, ModItems.GOLD_SHATTER_HEAD.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_iron", ModItems.IRON_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_copper", ModItems.COPPER_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_gold", ModItems.GOLD_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
+
+        // Netherite -- the capstone above Diamond, ONLY reachable this way (no crafting-table
+        // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB
+        // Molten Netherite, matching the Sunder chain's own identical treatment above.
+        RecipeBuilders.mutate(recipeOutput, "mutating_netherite_shatter_head", ModItems.DIAMOND_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 3000, ModItems.NETHERITE_SHATTER_HEAD.get(), solidTicks);
 
         // Spider Eye - species rewrite via Primitive Catalyst (identity-change, not material-addition
         // -- see the reagent doctrine in the machine notes), the roster's first de-escalating recipe.
