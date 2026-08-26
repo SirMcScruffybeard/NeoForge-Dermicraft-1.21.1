@@ -134,10 +134,11 @@ public class ModDataMapProvider extends DataMapProvider {
                 // plus 4s after"). smeltsLogs is this material's other trait -- SAWING's tree-felling
                 // drops Charcoal (real SmeltingRecipe lookup, XP included) instead of raw Logs.
                 // Baseline stats match Iron exactly -- mid-tier flavor material, not a power tier.
-                // Tint 0xFFB13D matches the Blaze Essence fluid's own tint color.
+                // Tint 0xFFCC55 -- brightened from the Blaze Essence fluid's own 0xFFB13D, which
+                // read too dark on the chain/head.
                 .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SUNDER_CHAIN),
                         new ChainProperties(1.0f, 0.50f, 0.20f, 0.0f, 250,
-                                TextColor.fromRgb(0xFFB13D), Optional.empty(), 0.5f, 4, true), false)
+                                TextColor.fromRgb(0xFFCC55), Optional.empty(), 0.5f, 4, true), false)
 
                 ;
 
@@ -198,9 +199,10 @@ public class ModDataMapProvider extends DataMapProvider {
                 // block with a real SmeltingRecipe drops its smelted result instead, with matching
                 // XP) -- treated as a mid-tier flavor material, not a power tier: baseline stats
                 // match Iron exactly (tier 2, shift 0.0f), the value is entirely in the two special
-                // traits. Tint 0xFFB13D matches the Blaze Essence fluid's own tint color.
+                // traits. Tint 0xFFCC55 -- brightened from the Blaze Essence fluid's own 0xFFB13D,
+                // which read too dark on the chain/head.
                 .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0xFFB13D), 2, 0.0f, 0.0f, 0.5f, 4, true), false);
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFCC55), 2, 0.0f, 0.0f, 0.5f, 4, true), false);
 
         // Thermal Safety Module grants exactly THERMAL (lava) -- the tag-vs-data split means
         // adding a Radiation/Biohazard Safety Module later is just another entry here, no new tag.

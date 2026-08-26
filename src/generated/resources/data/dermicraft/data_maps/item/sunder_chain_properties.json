@@ -8,7 +8,7 @@
       "ignite_chance": 0.5,
       "ignite_fire_seconds": 4,
       "smelts_logs": true,
-      "tint": "#FFB13D"
+      "tint": "#FFCC55"
     },
     "dermicraft:bone_sunder_chain": {
       "bleed_chance": 0.75,

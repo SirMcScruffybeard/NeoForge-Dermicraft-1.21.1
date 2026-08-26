@@ -5,7 +5,7 @@
       "ignite_chance": 0.5,
       "ignite_fire_seconds": 4,
       "mining_tier": 2,
-      "tint": "#FFB13D"
+      "tint": "#FFCC55"
     },
     "dermicraft:bone_shatter_head": {
       "damage_shift": -1.0,
