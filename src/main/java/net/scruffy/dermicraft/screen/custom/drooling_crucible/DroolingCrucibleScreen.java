@@ -141,8 +141,11 @@ public class DroolingCrucibleScreen extends AbstractModScreen<DroolingCrucibleMe
     /** One yellow Module slot -- nothing else on this tab, matching Eater's/Drinker's/Skin Tank's
      * own bare Module-slot-only look. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + DroolingCrucibleMenu.MODULE_SLOT_X, y + DroolingCrucibleMenu.MODULE_SLOT_Y, 0, 0,
-                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        for (int i = 0; i < menu.BE.moduleSlotCount(); i++) {
+            guiGraphics.blit(MODULE_SLOT_TEXTURE,
+                    x + DroolingCrucibleMenu.MODULE_SLOT_X + i * DroolingCrucibleMenu.MODULE_SLOT_SPACING,
+                    y + DroolingCrucibleMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        }
     }
 
     @Override

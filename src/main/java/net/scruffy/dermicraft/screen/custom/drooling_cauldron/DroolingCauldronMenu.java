@@ -23,6 +23,7 @@ public class DroolingCauldronMenu extends AbstractModMenu {
     // same convention as every other machine's screen/menu coordinate split.
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
+    public static final int MODULE_SLOT_SPACING = 20;
 
     public final DroolingCauldronBlockEntity BE;
     private final Level level;
@@ -32,9 +33,10 @@ public class DroolingCauldronMenu extends AbstractModMenu {
     }
 
     public DroolingCauldronMenu(int pContainerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), pContainerId, DroolingMachineBlockEntity.INVENTORY_SIZE);
-        checkContainerSize(inv, DroolingMachineBlockEntity.INVENTORY_SIZE);
+        super(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), pContainerId,
+                DroolingMachineBlockEntity.INVENTORY_SIZE + ((DroolingCauldronBlockEntity) blockEntity).moduleSlotCount());
         this.BE = ((DroolingCauldronBlockEntity) blockEntity);
+        checkContainerSize(inv, DroolingMachineBlockEntity.INVENTORY_SIZE);
         this.level = inv.player.level();
 
         super.addPlayerInventory(inv);
@@ -57,13 +59,15 @@ public class DroolingCauldronMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(this.BE.INVENTORY, DroolingMachineBlockEntity.MODULE,
-                MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MODULE_TAB;
-            }
-        });
+        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+            this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
+                    MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
+                @Override
+                public boolean isActive() {
+                    return getActiveTab() == MODULE_TAB;
+                }
+            });
+        }
 
         setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT and the Module slot
 

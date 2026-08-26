@@ -25,7 +25,6 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
@@ -61,17 +60,22 @@ import java.util.Optional;
  * straight into the new instance without a subclass-specific key mapping layer.
  */
 public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeInput> & IVagueRecipe>
-        extends MachineBaseBlockEntity implements IHaveInventory, IHasChannels {
+        extends MachineBaseBlockEntity implements IHaveInventory, IHasChannels, net.scruffy.dermicraft.interfaces.IHaveModules {
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
-    public static final int MODULE = 2;
     /** Single source of truth for the handler's slot count -- also re-asserted after
      * {@code deserializeNBT}, see {@link #loadAdditional} for why that's load-bearing (a Cauldron/
-     * Crucible saved before this slot existed carries Size=2). */
-    public static final int INVENTORY_SIZE = 3;
+     * Crucible saved before OUTPUT existed carries Size=1). Module no longer counts toward this --
+     * see {@link #MODULE_INVENTORY}, its own dedicated handler. */
+    public static final int INVENTORY_SIZE = 2;
 
     public final ItemStackHandler INVENTORY = createInventory();
+
+    /** Dedicated Module-only handler, not part of INVENTORY above -- see
+     * {@code MachineBaseBlockEntity#createModuleInventory}. */
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
+
     protected final DroolingTank TANK;
 
     private RecipeHolder<R> activeRecipe = null;
@@ -143,11 +147,39 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     protected void onPassiveFillResult(int filledAmount) {
     }
 
-    /** Called whenever the Module slot's contents change at all (installed, removed, or swapped for
-     * a different item) -- after the new contents are already visible via {@code INVENTORY}. No-op
-     * by default; Drooling Cauldron overrides this to reset evolution progress, matching the
-     * "removing/changing the Module wipes all progress" rule. */
-    protected void onModuleChanged() {
+    /** Work Speed Module bonus in this machine's Module slot(s) -- see
+     * IHaveModules#workSpeedMultiplier for the diminishing-return stacking rule. Applies ONLY to
+     * the food-boost craft cycle (see {@link #incrementProgress}), deliberately not passive
+     * generation -- see the design discussion for why passive yield stays module-independent. */
+    protected float workSpeedMultiplier() {
+        List<ItemStack> modules = new ArrayList<>();
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            modules.add(MODULE_INVENTORY.getStackInSlot(i));
+        }
+        return net.scruffy.dermicraft.interfaces.IHaveModules.workSpeedMultiplier(modules);
+    }
+
+    /** Capacity Module bonus, summed over every installed Module. */
+    @Override
+    protected int capacityBonus() {
+        int total = 0;
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
+        }
+        return total;
+    }
+
+    @Override
+    protected void applyCapacityBonus() {
+        TANK.setCapacity(tankCapacity() + capacityBonus());
+    }
+
+    @Override
+    protected boolean canRemoveModule(int slot) {
+        int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
+        if (thisBonus == 0) return true;
+        int newCapacity = tankCapacity() + (capacityBonus() - thisBonus);
+        return TANK.getFluid().getAmount() <= newCapacity;
     }
 
     /**
@@ -258,6 +290,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     @Override
     public void drops() {
         dropItems(level, INVENTORY, worldPosition);
+        dropItems(level, MODULE_INVENTORY, worldPosition);
     }
 
     public ItemStack insertItemStack(ItemStack stack) {
@@ -379,12 +412,13 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     }
 
     private void incrementProgress() {
-        progress += CRAFT_TICKS;
+        progress += Math.max(1, Math.round(CRAFT_TICKS * workSpeedMultiplier()));
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.put("drooling_items", INVENTORY.serializeNBT(registries));
+        tag.put("drooling_module_inv", MODULE_INVENTORY.serializeNBT(registries));
         tag.put("drooling_tank", TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("drooling_progress", progress);
         tag.putInt("drooling_max", maxProgress);
@@ -399,11 +433,24 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        // NOT a plain INVENTORY.deserializeNBT -- a Cauldron/Crucible saved before the Module slot
-        // existed carries Size=2 and would shrink this handler back down, crashing on world load
-        // when the menu adds its Module slot at index 2 (same bug MachineBaseBlockEntity#loadItemHandler
-        // was generalized to fix, see SkinTankBlockEntity's own identical note).
-        if (tag.contains("drooling_items")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("drooling_items"));
+        // NOT a plain INVENTORY.deserializeNBT -- a Cauldron/Crucible saved before OUTPUT existed
+        // carries Size=1 and would shrink this handler back down, crashing on world load when the
+        // menu adds its OUTPUT slot at index 1 (same bug MachineBaseBlockEntity#loadItemHandler was
+        // generalized to fix, see SkinTankBlockEntity's own identical note).
+        CompoundTag oldInventoryTag = tag.getCompound("drooling_items");
+        if (tag.contains("drooling_items")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
+
+        if (tag.contains("drooling_module_inv")) {
+            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("drooling_module_inv"));
+        } else {
+            // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
+            // (index 2, back when INVENTORY_SIZE was 3) -- see
+            // MachineBaseBlockEntity#extractLegacyModuleStack.
+            ItemStack legacyModule = extractLegacyModuleStack(registries, oldInventoryTag, 2);
+            if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
+        }
+
+        applyCapacityBonus();
         if (tag.contains("drooling_tank")) TANK.readFromNBT(registries, tag.getCompound("drooling_tank"));
         this.progress = tag.getInt("drooling_progress");
         this.maxProgress = tag.getInt("drooling_max");
@@ -417,14 +464,6 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     private ItemStackHandler createInventory() {
         return new ItemStackHandler(INVENTORY_SIZE) {
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                // Same tag every gadget's Module slot filters to -- a machine's Module slot is the
-                // same "scarce, tag-identified" convention, not a bespoke allowlist. INPUT/OUTPUT
-                // stay unrestricted, matching this class's own existing behavior.
-                return slot != MODULE || stack.is(ModTags.Items.MODULES);
-            }
-
             @Override
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide()) {
@@ -466,10 +505,6 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
                         }
                     }
 
-                    if (slot == MODULE) {
-                        onModuleChanged();
-                    }
-
                     setChanged();
                     updateBlock();
                 }
@@ -477,7 +512,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
             @Override
             public int getSlotLimit(int slot) {
-                return (slot == OUTPUT || slot == MODULE) ? 1 : super.getSlotLimit(slot);
+                return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
             }
         };
     }

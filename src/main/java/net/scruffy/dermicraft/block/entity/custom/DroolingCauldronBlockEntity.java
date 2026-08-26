@@ -118,14 +118,18 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
      * left in this slot) is inert here, same as it would be doing nothing useful in any other
      * machine's Module slot it doesn't apply to. */
     private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        if (module.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(
-                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(i);
+            if (module.isEmpty()) continue;
+            EvolutionModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+            if (props != null) return Optional.of(props);
+        }
+        return Optional.empty();
     }
 
     @Override
-    protected void onModuleChanged() {
+    protected void onModuleSlotChanged(int slot) {
         // Full reset on ANY change to the slot -- installed, removed, or swapped for a different
         // Module -- matching "pulling the Module wipes all progress" from the design doc, extended
         // to swaps for the same reason (a fresh commitment, not a continuation).
@@ -228,7 +232,9 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
         // duplicate everything captured above once it's handed to the new Crucible instance.
         INVENTORY.setStackInSlot(INPUT, ItemStack.EMPTY);
         INVENTORY.setStackInSlot(OUTPUT, ItemStack.EMPTY);
-        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            MODULE_INVENTORY.setStackInSlot(i, ItemStack.EMPTY);
+        }
         if (!tankContents.isEmpty()) {
             TANK.drain(tankContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
         }
