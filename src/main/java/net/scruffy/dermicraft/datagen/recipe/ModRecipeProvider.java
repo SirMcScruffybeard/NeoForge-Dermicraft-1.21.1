@@ -448,6 +448,26 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModItems.NERVE_CLUSTER.get(), 10, ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 100,
                 ModItems.PROTO_BRAIN.get(), 1);
 
+        // Decapitation head alt routes -- Zombie/Piglin Head standing in for the full 10 Nerve
+        // Cluster requirement above. Deliberately Primitive Catalyst here, not Synapse Catalyst:
+        // reads as the crude/salvaged route (a scavenged head) against the engineered route's
+        // calibrated Nerve Cluster + Synapse Catalyst pairing. Fluid amount is fixed at 100 mB
+        // regardless (Syringe's physical CAPACITY, not a cost lever -- see SyringeItem).
+        RecipeBuilders.buildEarlyIncubating(recipeOutput, "proto_brain_incubating_zombie_head", ModBlocks.CRAW.get(),
+                Items.ZOMBIE_HEAD, 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModItems.PROTO_BRAIN.get(), 1);
+        RecipeBuilders.buildEarlyIncubating(recipeOutput, "proto_brain_incubating_piglin_head", ModBlocks.CRAW.get(),
+                Items.PIGLIN_HEAD, 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModItems.PROTO_BRAIN.get(), 1);
+
+        // Creeper Head -> Gunpowder -- Masticator only produces fluids, so this goes through the
+        // Craw instead. 5 Gunpowder is exactly one TNT block's worth (5 Gunpowder + 4 Sand,
+        // vanilla recipe), a real payoff for a decapitation-chance drop that's genuinely hard to
+        // get even with Sunder's own ability.
+        RecipeBuilders.buildEarlyIncubating(recipeOutput, "gunpowder_incubating_creeper_head", ModBlocks.CRAW.get(),
+                Items.CREEPER_HEAD, 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                Items.GUNPOWDER, 5);
+
         // Pricier than the other implants (8 items) to reflect its powerful duplication ability;
         // the Eye fits the "3D printer" framing as the scanner that reads the pattern.
         RecipeBuilders.buildEarlyImplant(recipeOutput, "metastasizer_implant",
@@ -501,6 +521,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
+        // Zombie/Piglin Head -> Synapse Catalyst -- rarity-gated 1:1 substitute for one full batch
+        // of the recipe above (same 750 mB output, same 45s), not a cheaper bypass: the head pays
+        // for the whole Cuprous Blend + Primitive Catalyst cost by being scarce (decapitation
+        // chance only), not by being efficient. Zombie/Piglin deliberately identical -- both read
+        // as "a head's worth of neural material," same framing as their shared Proto Brain alt
+        // route above.
+        RecipeBuilders.masticateWithWater(recipeOutput, "synapse_catalyst_masticating_zombie_head", Items.ZOMBIE_HEAD, 750,
+                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.masticateWithWater(recipeOutput, "synapse_catalyst_masticating_piglin_head", Items.PIGLIN_HEAD, 750,
+                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
+
         // Molten Netherite: mirrors the real 4 Scrap + 4 Gold Ingot -> 1 Netherite Ingot vanilla
         // smithing ratio (each fluid is 1000 mB per item). 60s matches the mod's other 4:1-ratio
         // recipes (Quartz Block/Glowstone/Amethyst Block). Requires the Charred Effluentcer --
@@ -522,6 +553,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL), 1,
                 Fluids.WATER, 334, ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, -1,
                 ModMath.Time.getSecondsToTicks(15));
+
+        // Skeleton Skull -- 3x Bone's rate (1000 -> 3000 mB, time scaled proportionally), a real
+        // payoff for a decapitation-chance drop rather than parity with grinding plain Bone.
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_skeleton_skull_masticating", Ingredient.of(Items.SKELETON_SKULL), 1,
+                Fluids.WATER, 3000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 3000, -1,
+                ModMath.Time.getSecondsToTicks(135));
 
 
         RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 9000,

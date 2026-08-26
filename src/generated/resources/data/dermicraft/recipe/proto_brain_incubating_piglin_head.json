@@ -1,0 +1,16 @@
+{
+  "type": "dermicraft:early_incubating",
+  "fluid_ingredient": {
+    "amount": 100,
+    "id": "dermicraft:source_primitive_catalyst"
+  },
+  "ingredient": {
+    "count": 1,
+    "id": "minecraft:piglin_head"
+  },
+  "required_block": "dermicraft:craw",
+  "result": {
+    "count": 1,
+    "id": "dermicraft:proto_brain"
+  }
+}
