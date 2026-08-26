@@ -32,6 +32,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -111,6 +112,23 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
     public static int effectiveCapacity(ItemStack sunderStack) {
         return FUEL_CAPACITY + IHaveModules.capacityBonus(sunderStack, ModDataComponentTypes.SUNDER_MODULE_DATA.get(), MODULE_SLOT_COUNT);
     }
+
+    /** Vanilla Tool data component -- makes Sunder mine {@code minecraft:mineable/axe} blocks (logs,
+     * planks, pumpkins, etc.) and {@code minecraft:sword_efficient} blocks (cobwebs, bamboo, vines)
+     * at their proper speed with correct-tool-for-drops, on top of vanilla {@code minecraft:swords}/
+     * {@code minecraft:axes} item-tag membership (see {@code ModItemTagProvider}) covering
+     * enchantment/AI checks that key off the tag rather than this component. Speeds match a plain
+     * Iron Axe/Sword (6.0F/1.5F) since Sunder's base combat stats are already pinned to Iron (see
+     * {@link #BASE_ATTACK_DAMAGE}) -- this is the axe/sword-hand analog of that same baseline, not a
+     * new balance number. */
+    public static final Tool TOOL_BEHAVIOR = new Tool(
+            List.of(
+                    Tool.Rule.minesAndDrops(BlockTags.MINEABLE_WITH_AXE, 6.0F),
+                    Tool.Rule.minesAndDrops(BlockTags.SWORD_EFFICIENT, 1.5F)
+            ),
+            1.0F,
+            1
+    );
 
     /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
      * {@code Item.Properties#durability}, which is the single source of truth for max HP. Purely

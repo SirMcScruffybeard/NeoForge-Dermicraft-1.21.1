@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.datagen.tag;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
@@ -42,6 +43,12 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.SUTURE_TOOLS)
                 .add(ModItems.SUTURE_KIT.get())
                 .add(ModItems.PRIMITIVE_SUTURE_KIT.get());
+
+        // Sunder is a chainsaw-style sword/axe hybrid -- vanilla's own is-this-a-sword/is-this-an-axe
+        // tags, not just the Tool component below, so enchantment compatibility, mob AI checks, etc.
+        // treat it the same as a real sword and a real axe.
+        tag(ItemTags.SWORDS).add(ModItems.SUNDER.get());
+        tag(ItemTags.AXES).add(ModItems.SUNDER.get());
 
 
         tag(ModTags.Items.ANIMAL_MEATS)

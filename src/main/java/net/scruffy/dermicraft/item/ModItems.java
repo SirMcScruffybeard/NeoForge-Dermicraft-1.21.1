@@ -1,5 +1,6 @@
 package net.scruffy.dermicraft.item;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -105,7 +106,8 @@ public class ModItems {
     // shadow that override entirely (see the method's javadoc). durability(MAX_HP) is unrelated to
     // that concern (a different data component, DataComponents.MAX_DAMAGE) -- see IGadget.
     public static final DeferredItem<Item> SUNDER = ITEMS.register("sunder",
-            () -> new SunderItem(new Item.Properties().stacksTo(1).durability(SunderItem.MAX_HP)));
+            () -> new SunderItem(new Item.Properties().stacksTo(1).durability(SunderItem.MAX_HP)
+                    .component(DataComponents.TOOL, SunderItem.TOOL_BEHAVIOR)));
 
     // Registration/visibility pass only -- see ShatterItem's class javadoc.
     public static final DeferredItem<Item> SHATTER = ITEMS.register("shatter",
