@@ -218,6 +218,15 @@ public class ModBlocks {
     public static final DeferredBlock<Block> GRAFTING_TABLE = registerBlock("grafting_table",
             () -> new GraftingTableBlock(machineProperties()));
 
+    // Charred Grafting Table -- pure stat upgrade (double fuel capacity, 1.25x speed via
+    // MachineTier.CHARRED_NO_HEALTH), no hazard tank to widen and no Module slot at all -- reuses
+    // GraftingTableBlock/GraftingTableBlockEntity/GraftingTableMenu/GraftingTableScreen completely
+    // unchanged (see GraftingTableBlock's own tier-constructor and ModBlockEntities#GRAFTING_TABLE_BE),
+    // same "one block-entity class serves every stat-only tier" shape TieredMachine's javadoc
+    // describes. Reached via Mutator (Grafting Table + Lava), not an in-place Evolution Module.
+    public static final DeferredBlock<Block> CHARRED_GRAFTING_TABLE = registerBlock("charred_grafting_table",
+            () -> new GraftingTableBlock(machineProperties(), net.scruffy.dermicraft.machine.MachineTier.CHARRED_NO_HEALTH));
+
     public static final DeferredBlock<Block> RENDER_KILN = registerBlock("render_kiln",
             () -> new RenderKilnBlock(machineProperties()));
 

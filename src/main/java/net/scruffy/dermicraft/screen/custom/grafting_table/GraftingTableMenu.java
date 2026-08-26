@@ -8,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.GraftingTableBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
@@ -100,9 +99,16 @@ public class GraftingTableMenu extends AbstractModMenu {
         super.clicked(slotId, button, clickType, player);
     }
 
+    // NOT super.stillValid(level, player, ModBlocks.GRAFTING_TABLE, BE) -- Charred Grafting Table
+    // shares this exact Menu (see ModBlockEntities#GRAFTING_TABLE_BE), so validity has to accept
+    // either block instead of one exact Block identity. Mirrors vanilla's own
+    // AbstractContainerMenu#stillValid(ContainerLevelAccess, Player, Block) implementation, just
+    // with an instanceof check in place of the exact-block check.
     @Override
     public boolean stillValid(Player player) {
-        return super.stillValid(level, player, ModBlocks.GRAFTING_TABLE, BE);
+        return net.minecraft.world.inventory.ContainerLevelAccess.create(level, BE.getBlockPos())
+                .evaluate((lvl, pos) -> lvl.getBlockState(pos).getBlock() instanceof net.scruffy.dermicraft.block.custom.GraftingTableBlock
+                        && player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
     }
 
     public boolean isCrafting() {

@@ -256,6 +256,7 @@
   "blockEntity.dermicraft.charred_render_furnace_be": "Charred Render Furnace",
 
   "block.dermicraft.grafting_table": "Grafting Table",
+  "block.dermicraft.charred_grafting_table": "Charred Grafting Table",
   "blockEntity.dermicraft.grafting_table_be": "Grafting Table",
 
   "block.dermicraft.render_kiln": "Render Kiln",

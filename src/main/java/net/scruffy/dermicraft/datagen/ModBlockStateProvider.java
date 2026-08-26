@@ -164,6 +164,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc(skinTankEnd),
                 modLoc("block/grafting_table_top")));
 
+        // Charred Grafting Table -- same placeholder sides/bottom as the base, only the top texture
+        // differs (real "charred" identity, matching the base's own "only a top texture exists so
+        // far" convention rather than inventing new side art it wasn't given).
+        simpleBlockWithItem(ModBlocks.CHARRED_GRAFTING_TABLE.get(), models().cubeBottomTop(
+                ModBlocks.CHARRED_GRAFTING_TABLE.getId().getPath(),
+                modLoc(skinTankEnd),
+                modLoc(skinTankEnd),
+                modLoc("block/charred_grafting_table_top")));
+
         simpleBlockWithItem(ModBlocks.CRAW.get(), models().cubeBottomTop(
                 ModBlocks.CRAW.getId().getPath(),
                 modLoc("block/craw_side"),

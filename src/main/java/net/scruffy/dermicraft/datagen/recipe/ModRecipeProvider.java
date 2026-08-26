@@ -935,6 +935,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMutating(recipeOutput, "mutating_magma_block", Ingredient.of(Tags.Items.STONES),
                 Fluids.LAVA, 1000, new ItemStack(Items.MAGMA_BLOCK), solidTicks);
 
+        // Charred Grafting Table: pure stat-tier bump (see ModBlocks#CHARRED_GRAFTING_TABLE), same
+        // "whole block baked in Lava" shape as Magma Block above -- not an in-place Evolution
+        // Module transform like every other Charred machine, since this one has no Module slot at all.
+        RecipeBuilders.buildMutating(recipeOutput, "mutating_charred_grafting_table",
+                Ingredient.of(ModBlocks.GRAFTING_TABLE.get()),
+                Fluids.LAVA, 1000, new ItemStack(ModBlocks.CHARRED_GRAFTING_TABLE.get()), solidTicks);
+
         RecipeBuilders.PuddleCraft.MakeFluids.makeFromTag(recipeOutput, "crude_slurry_puddle", ModTags.Items.PLANT_FOOD, 4, Fluids.WATER,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10));
 

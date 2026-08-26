@@ -86,9 +86,12 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("charred_render_furnace_be", () -> BlockEntityType.Builder.of(
                     CharredRenderFurnaceBlockEntity::new, ModBlocks.CHARRED_RENDER_FURNACE.get()).build(null));
 
+    // Charred Grafting Table shares this same BlockEntityType (valid-block list, not a new type) --
+    // it's a pure stat-tier bump with no new behavior/UI at all, so there's nothing a separate
+    // BlockEntityType/BlockEntity subclass would add. See ModBlocks#CHARRED_GRAFTING_TABLE.
     public static final Supplier<BlockEntityType<GraftingTableBlockEntity>> GRAFTING_TABLE_BE =
             BLOCK_ENTITIES.register("grafting_table_be", () -> BlockEntityType.Builder.of(
-                    GraftingTableBlockEntity::new, ModBlocks.GRAFTING_TABLE.get()).build(null));
+                    GraftingTableBlockEntity::new, ModBlocks.GRAFTING_TABLE.get(), ModBlocks.CHARRED_GRAFTING_TABLE.get()).build(null));
 
     public static final Supplier<BlockEntityType<RenderKilnBlockEntity>> RENDER_KILN_BE =
             BLOCK_ENTITIES.register("render_kiln_be", () -> BlockEntityType.Builder.of(
