@@ -456,32 +456,27 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("work_speed_module_crafting_table"));
 
-        // Salvage Module -- cheap, consumed-on-trigger tier (Totem of Undying shape). Deliberately
-        // NOT the Safety Modules' 6-Iron-casing weight -- 4 String (a fragile, one-time tether) is
-        // the whole cost beyond the frame, matching "fairly cheap" against Anchor's own real
-        // expense below.
+        // Salvage Module -- cheap, consumed-on-trigger tier. Nerve Cluster casing (the nervous
+        // system's "signal survives" theme, matching the module tethering the gadget back to you
+        // through death) around an Ender Pearl core (a life-cheating teleport item, on-theme for
+        // cheating death once).
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SALVAGE_MODULE.get())
-                .pattern(" S ")
-                .pattern("SFS")
-                .pattern(" S ")
-                .define('S', Items.STRING)
+                .pattern("NNN")
+                .pattern("NEN")
+                .pattern("NFN")
+                .define('N', ModItems.NERVE_CLUSTER.get())
+                .define('E', Items.ENDER_PEARL)
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("salvage_module_crafting_table"));
 
-        // Anchor Module -- expensive, permanent tier. 4 Netherite Ingot casing (genuinely costly,
-        // the actual balance lever for standing invulnerability on one gadget) + Chain for the
-        // "tethered/anchored" identity, mirroring Salvage's String in spirit but at the opposite
-        // cost extreme.
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.ANCHOR_MODULE.get())
-                .pattern("NCN")
-                .pattern("CFC")
-                .pattern("NCN")
-                .define('N', Items.NETHERITE_INGOT)
-                .define('C', Items.CHAIN)
-                .define('F', ModItems.MODULE_FRAME.get())
-                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
-                .save(recipeOutput, RecipeBuilders.getResourceLocation("anchor_module_crafting_table"));
+        // Anchor Module -- direct upgrade from Salvage Module, not a separate crafting-table
+        // recipe: a full bucket (1000 mB) of Evolution Catalyst in the Mutator mutates the
+        // already-tethered Salvage Module into the permanent, never-consumed Anchor tier.
+        RecipeBuilders.buildMutating(recipeOutput, "mutating_anchor_module",
+                Ingredient.of(ModItems.SALVAGE_MODULE.get()),
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, new ItemStack(ModItems.ANCHOR_MODULE.get()),
+                ModMath.Time.getSecondsToTicks(10));
 
         // Capacity Module -- same 6-Iron-casing weight as the Safety Modules, Bucket as the
         // identity item (matches the icon, "holds more" made literal).
@@ -494,6 +489,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("capacity_module_crafting_table"));
+
+        // Capacity Module -- alternate recipe, Beaker in place of Bucket as the identity item.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.CAPACITY_MODULE.get())
+                .pattern("III")
+                .pattern("IBI")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('B', ModBlocks.BEAKER_ITEM.get())
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("capacity_module_beaker_crafting_table"));
 
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse

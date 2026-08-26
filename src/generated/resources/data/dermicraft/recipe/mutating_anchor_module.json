@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_evolution_catalyst",
+  "fluid_amount": 1000,
+  "ingredient": {
+    "item": "dermicraft:salvage_module"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:anchor_module"
+  },
+  "ticks": 200
+}

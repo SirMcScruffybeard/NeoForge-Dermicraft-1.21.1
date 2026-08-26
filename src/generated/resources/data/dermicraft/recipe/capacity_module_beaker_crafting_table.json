@@ -2,23 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "C": {
-      "item": "minecraft:chain"
+    "B": {
+      "item": "dermicraft:beaker"
     },
     "F": {
       "item": "dermicraft:module_frame"
     },
-    "N": {
-      "item": "minecraft:netherite_ingot"
+    "I": {
+      "item": "minecraft:iron_ingot"
     }
   },
   "pattern": [
-    "NCN",
-    "CFC",
-    "NCN"
+    "III",
+    "IBI",
+    "IFI"
   ],
   "result": {
     "count": 1,
-    "id": "dermicraft:anchor_module"
+    "id": "dermicraft:capacity_module"
   }
 }
