@@ -43,6 +43,14 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
         return createVulnerableTank(CAPACITY, -1, () -> HazardProfile.TIER_2);
     }
 
+    // Matches createTank() above -- without this override, a future tooltip/screen reading the
+    // inherited SkinTankBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety
+    // Module) instead of this class's real, unconditional TIER_2 tolerance.
+    @Override
+    public HazardProfile installedHazardProfile() {
+        return HazardProfile.TIER_2;
+    }
+
     @NotNull
     @Override
     public Component getDisplayName() {
