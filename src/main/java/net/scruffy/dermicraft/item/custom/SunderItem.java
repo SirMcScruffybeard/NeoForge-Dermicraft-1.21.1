@@ -1091,6 +1091,19 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
                     || mode.stateEnum() == SunderModeData.State.SAWING
                     || mode.stateEnum() == SunderModeData.State.RELEASE_DELAY;
 
+            // Bug fix: a Sunder dropped mid-SAWING (see SunderEvents#onSunderTossed, which resets
+            // the mode data to IDLE the instant it's tossed) could still be mid-way through the
+            // one-shot "saw" hit-reaction trigger below. GeckoLib holds a controller on its
+            // triggered animation until that animation finishes, REGARDLESS of what this predicate
+            // returns -- so without this, the pose visibly hung in the SAWING/running look for
+            // however long that trigger had left to play, then self-corrected once it finally
+            // finished (exactly the "stuck, then eventually returned to normal" symptom). Once the
+            // real state is already known to be non-revved, there's nothing worth letting the
+            // trigger finish for -- force it off immediately instead of waiting it out.
+            if (!revvedLook && state.getController().isPlayingTriggeredAnimation()) {
+                state.getController().stop();
+            }
+
             return state.setAndContinue(revvedLook
                     ? RawAnimation.begin().thenPlay("rev_up_down").thenLoop("running")
                     : RawAnimation.begin().thenLoop("idle"));
