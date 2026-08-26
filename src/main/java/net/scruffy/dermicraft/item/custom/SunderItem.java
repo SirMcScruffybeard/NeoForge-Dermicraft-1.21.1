@@ -56,6 +56,8 @@ import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
+import net.scruffy.dermicraft.util.AutoSmeltUtil;
+import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
@@ -277,6 +279,13 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
             target.addEffect(new MobEffectInstance(ModEffects.BLEED, BLEED_DURATION_TICKS));
         }
 
+        // Blaze Essence's ignite-on-hit trait -- standard-hit roll only; SAWING's own guaranteed
+        // version lives in tickSawing instead, see ChainProperties' own javadoc for why.
+        if (chain != null && chain.igniteChance() > 0.0f
+                && attacker.getRandom().nextFloat() < chain.igniteChance()) {
+            target.igniteForSeconds(chain.igniteFireSeconds());
+        }
+
         return super.hurtEnemy(stack, target, attacker);
     }
 
@@ -465,6 +474,14 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         }
 
         target.hurt(player.damageSources().playerAttack(player), SAW_PULSE_DAMAGE);
+        // Blaze Essence's ignite-on-hit trait -- guaranteed every pulse while sawing (not a chance
+        // roll like the standard-hit version in hurtEnemy), which is also what gives "burns through
+        // the whole attack plus igniteFireSeconds after it ends" for free -- see ChainProperties'
+        // own javadoc for why no separate duration tracking is needed.
+        ChainProperties sawChain = chainProperties(stack);
+        if (sawChain != null && sawChain.igniteChance() > 0.0f) {
+            target.igniteForSeconds(sawChain.igniteFireSeconds());
+        }
         // LivingEntity#hurt applies a fixed 0.4-strength knockback itself for any damage source with
         // a position, entirely independent of Player#attack's own knockback logic -- since this
         // calls hurt() directly rather than going through the normal attack path, that vanilla
@@ -614,7 +631,22 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         if (pulsesLanded % TREE_PULSES_PER_LOG != 0) return; // still cutting through the current log
 
         BlockPos cutPos = logs.get(0);
-        ItemStack drop = new ItemStack(level.getBlockState(cutPos).getBlock());
+        ItemStack rawDrop = new ItemStack(level.getBlockState(cutPos).getBlock());
+
+        // Blaze Essence's other trait -- SAWING felling drops Charcoal (via a real SmeltingRecipe
+        // lookup, same as Shatter's auto-smelt) instead of the raw Log, with the recipe's own XP
+        // awarded too. Falls back to the raw log if no smelting recipe matches (shouldn't happen
+        // for a real log, but safe regardless).
+        ItemStack drop = rawDrop;
+        ChainProperties fellingChain = chainProperties(stack);
+        if (fellingChain != null && fellingChain.smeltsLogs()) {
+            Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, rawDrop);
+            if (smelted.isPresent()) {
+                drop = smelted.get().result();
+                AutoSmeltUtil.awardExperience(level, player.position(), smelted.get().experience());
+            }
+        }
+
         level.destroyBlock(cutPos, false, player);
         level.addFreshEntity(new ItemEntity(level, player.getX(), player.getY(), player.getZ(), drop));
         // If that was the last log, next tick's flood-fill from the (now-gone) origin comes back

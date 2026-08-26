@@ -14,16 +14,21 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.property.ShatterHeadProperties;
+import net.scruffy.dermicraft.util.AutoSmeltUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Shatter's left-click mining AoE -- flat 3x3 face, 1 block deep, oriented to whichever axis the
@@ -192,5 +197,90 @@ public class ShatterEvents {
             }
         }
         return positions;
+    }
+
+    /**
+     * Gold's signature trait -- a mining-side "weak Fortune/Looting" bonus, mirroring
+     * {@code SunderEvents#onLivingDropsLootBonus}'s exact mechanic (a per-drop chance to duplicate
+     * each item), but restricted to {@code Tags.Blocks.ORES} -- see {@link ShatterHeadProperties}'
+     * own javadoc for why. Fires for both the origin block (normal vanilla mining) and the AoE's
+     * surrounding blocks ({@code level.destroyBlock} in {@link #onBlockBroken} still routes through
+     * this same NeoForge-patched drops event either way). Rolls against a snapshot of the drops
+     * list (via {@code List.copyOf}), same reason as Sunder's version: adding to a collection while
+     * iterating it throws {@code ConcurrentModificationException}.
+     */
+    @SubscribeEvent
+    public static void onBlockDropsLootBonus(net.neoforged.neoforge.event.level.BlockDropsEvent event) {
+        ItemStack tool = event.getTool();
+        if (!(tool.getItem() instanceof ShatterItem)) return;
+
+        if (!event.getState().is(net.neoforged.neoforge.common.Tags.Blocks.ORES)) return;
+
+        net.scruffy.dermicraft.property.ShatterHeadProperties head = ShatterItem.headProperties(tool);
+        if (head == null || head.lootBonusChance() <= 0.0f) return;
+
+        var random = event.getLevel().getRandom();
+        for (var drop : List.copyOf(event.getDrops())) {
+            if (random.nextFloat() < head.lootBonusChance()) {
+                event.getDrops().add(new net.minecraft.world.entity.item.ItemEntity(
+                        event.getLevel(), drop.getX(), drop.getY(), drop.getZ(), drop.getItem().copy()));
+            }
+        }
+    }
+
+    /**
+     * Blaze Essence's ignite-on-hit trait -- fires on {@code LivingDamageEvent.Post} (a hit that
+     * actually landed), same shape as {@link #onArmorBonusWear}. Shatter has no sustained-attack
+     * mode the way Sunder's SAWING does, so this always just rolls the plain chance -- see
+     * {@link ShatterHeadProperties}'s own javadoc.
+     */
+    @SubscribeEvent
+    public static void onIgniteOnHit(LivingDamageEvent.Post event) {
+        ItemStack weapon = event.getSource().getWeaponItem();
+        if (weapon == null || !(weapon.getItem() instanceof ShatterItem)) return;
+        if (event.getNewDamage() <= 0) return;
+
+        ShatterHeadProperties head = ShatterItem.headProperties(weapon);
+        if (head == null || head.igniteChance() <= 0.0f) return;
+
+        LivingEntity target = event.getEntity();
+        if (target.getRandom().nextFloat() < head.igniteChance()) {
+            target.igniteForSeconds(head.igniteFireSeconds());
+        }
+    }
+
+    /**
+     * Blaze Essence's other trait -- universal auto-smelt, a built-in "furnace enchantment": every
+     * drop from a block this head mines gets substituted for its real {@link
+     * net.minecraft.world.item.crafting.SmeltingRecipe} result (if one exists at all -- a block
+     * with no smelting recipe just drops normally), with the recipe's own XP awarded too, same as
+     * smelting it in a real Furnace. Deliberately NOT restricted to {@code Tags.Blocks.ORES} the
+     * way Gold's loot bonus is -- see {@link ShatterHeadProperties}'s own javadoc for why this one
+     * is meant to be universal. Same origin-block-and-AoE coverage as {@link #onBlockDropsLootBonus}
+     * (both fire from the same {@link BlockDropsEvent}).
+     */
+    @SubscribeEvent
+    public static void onBlockDropsAutoSmelt(BlockDropsEvent event) {
+        ItemStack tool = event.getTool();
+        if (!(tool.getItem() instanceof ShatterItem)) return;
+
+        ShatterHeadProperties head = ShatterItem.headProperties(tool);
+        if (head == null || !head.autoSmelt()) return;
+
+        ServerLevel level = event.getLevel();
+        float totalXp = 0f;
+        for (ItemEntity drop : event.getDrops()) {
+            ItemStack original = drop.getItem();
+            Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, original);
+            if (smelted.isEmpty()) continue;
+
+            AutoSmeltUtil.SmeltResult result = smelted.get();
+            drop.setItem(result.result().copyWithCount(result.result().getCount() * original.getCount()));
+            totalXp += result.experience() * original.getCount();
+        }
+
+        if (totalXp > 0) {
+            AutoSmeltUtil.awardExperience(level, event.getPos(), totalXp);
+        }
     }
 }

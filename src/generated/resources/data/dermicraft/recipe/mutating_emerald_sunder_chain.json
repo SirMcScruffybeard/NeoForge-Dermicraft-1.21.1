@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_molten_emerald",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:gold_sunder_chain"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:emerald_sunder_chain"
+  },
+  "ticks": 200
+}

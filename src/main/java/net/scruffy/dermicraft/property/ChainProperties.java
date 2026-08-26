@@ -24,10 +24,24 @@ import java.util.Optional;
  * vanilla's actual enchantment mechanic. {@code statusEffect} is deliberately optional, not a slot
  * every material fills -- reserved for a small number of special-case materials as a signature
  * trait.
+ *
+ * <p>{@code igniteChance}/{@code igniteFireSeconds} are Blaze Essence's own signature trait -- a
+ * per-hit chance to set the target on fire, 0/0 for every material without it. Standard hits roll
+ * against {@code igniteChance} directly (see {@code SunderItem#hurtEnemy}); SAWING's continuous
+ * pulses instead treat any nonzero {@code igniteChance} as a guaranteed ignite every pulse (see
+ * {@code SunderItem#tickSawing}) -- {@code Entity#igniteForSeconds} only ever RAISES the remaining
+ * fire duration, never lowers it, so re-applying the same {@code igniteFireSeconds} on every ~15-tick
+ * pulse (well under a 4s/80-tick duration) keeps the target continuously refreshed through the whole
+ * attack and lets it naturally burn out {@code igniteFireSeconds} after the last pulse, with no
+ * separate "attack length" tracking needed. {@code smeltsLogs} is Blaze Essence's other trait --
+ * SAWING's tree-felling drops Charcoal (via a real {@code SmeltingRecipe} lookup, granting its XP
+ * too) instead of the raw Log, see {@code SunderItem#tickFelling}/{@code AutoSmeltUtil}. False for
+ * every material without it.
  */
 public record ChainProperties(float damageMultiplier, float bleedChance, float decapChance,
                                float lootBonusChance, int durability, TextColor tint,
-                               Optional<MobEffect> statusEffect) {
+                               Optional<MobEffect> statusEffect, float igniteChance,
+                               int igniteFireSeconds, boolean smeltsLogs) {
 
     public static final Codec<ChainProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     Codec.FLOAT.fieldOf("damage_multiplier").forGetter(ChainProperties::damageMultiplier),
@@ -36,6 +50,9 @@ public record ChainProperties(float damageMultiplier, float bleedChance, float d
                     Codec.FLOAT.optionalFieldOf("loot_bonus_chance", 0.0f).forGetter(ChainProperties::lootBonusChance),
                     Codec.INT.fieldOf("durability").forGetter(ChainProperties::durability),
                     TextColor.CODEC.fieldOf("tint").forGetter(ChainProperties::tint),
-                    BuiltInRegistries.MOB_EFFECT.byNameCodec().optionalFieldOf("status_effect").forGetter(ChainProperties::statusEffect))
+                    BuiltInRegistries.MOB_EFFECT.byNameCodec().optionalFieldOf("status_effect").forGetter(ChainProperties::statusEffect),
+                    Codec.FLOAT.optionalFieldOf("ignite_chance", 0.0f).forGetter(ChainProperties::igniteChance),
+                    Codec.INT.optionalFieldOf("ignite_fire_seconds", 0).forGetter(ChainProperties::igniteFireSeconds),
+                    Codec.BOOL.optionalFieldOf("smelts_logs", false).forGetter(ChainProperties::smeltsLogs))
             .apply(instance, ChainProperties::new));
 }

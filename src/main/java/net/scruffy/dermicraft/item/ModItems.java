@@ -77,6 +77,19 @@ public class ModItems {
     public static final DeferredItem<Item> NETHERITE_SUNDER_CHAIN = ITEMS.register("netherite_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(520).fireResistant()));
 
+    // Emerald -- a toned-down Diamond, not a capstone: durability 300 sits between Iron's 250 and
+    // Diamond's 400, matching every other stat's own partial step toward Diamond (see
+    // ModDataMapProvider). Only reachable by mutating from the Gold chain (a direct upgrade), no
+    // crafting-table recipe of its own.
+    public static final DeferredItem<Item> EMERALD_SUNDER_CHAIN = ITEMS.register("emerald_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(300)));
+
+    // Blaze Essence -- a mid-tier flavor material (baseline stats match Iron exactly), not a power
+    // tier: the value is entirely in its two signature traits (ignite on hit, log->charcoal while
+    // sawing -- see ChainProperties' own javadoc). Only reachable by mutating from the Iron chain.
+    public static final DeferredItem<Item> BLAZE_ESSENCE_SUNDER_CHAIN = ITEMS.register("blaze_essence_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(250)));
+
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
     public static final DeferredItem<Item> SIPPING = ITEMS.register("sipping", () -> new SippingItem(new Item.Properties().durability(SippingItem.MAX_HP)));
 
@@ -132,6 +145,21 @@ public class ModItems {
     // 1561).
     public static final DeferredItem<Item> DIAMOND_SHATTER_HEAD = ITEMS.register("diamond_shatter_head",
             () -> new ShatterHeadItem(new Item.Properties().durability(3122)));
+
+    // Emerald -- a toned-down Diamond, not a capstone: shares Diamond's mining tier (3) but weaker
+    // combat stats, durability 1800 (a felt number, no vanilla Emerald Pickaxe exists to derive a
+    // ratio from the way Netherite's did). Treated as a metal (tinted shared texture), same as
+    // Iron/Copper/Gold/Netherite. Only reachable by mutating from the Gold head (a direct upgrade),
+    // no crafting-table recipe of its own.
+    public static final DeferredItem<Item> EMERALD_SHATTER_HEAD = ITEMS.register("emerald_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(1800)));
+
+    // Blaze Essence -- a mid-tier flavor material (baseline stats match Iron exactly, durability
+    // 500 = 2x Iron Pickaxe's 250, same rule every non-capstone material follows), not a power
+    // tier: the value is entirely in its two signature traits (ignite on hit, universal auto-smelt
+    // -- see ShatterHeadProperties' own javadoc). Only reachable by mutating from the Iron head.
+    public static final DeferredItem<Item> BLAZE_ESSENCE_SHATTER_HEAD = ITEMS.register("blaze_essence_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(500)));
 
     // Netherite -- the capstone material above Diamond, treated as a metal (shared grayscale
     // texture, tinted at runtime same as Iron/Copper/Gold) rather than getting its own hand-painted

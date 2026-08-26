@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_blaze_essence",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:iron_shatter_head"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:blaze_essence_shatter_head"
+  },
+  "ticks": 200
+}

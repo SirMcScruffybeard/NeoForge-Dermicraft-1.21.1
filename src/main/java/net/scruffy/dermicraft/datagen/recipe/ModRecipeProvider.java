@@ -1177,10 +1177,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // never mutates directly into Diamond, it has to pass through a metal tier first.
         RecipeBuilders.mutate(recipeOutput, "mutating_iron_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModItems.IRON_SUNDER_CHAIN.get(), solidTicks);
+
+        // Blaze Essence -- a direct upgrade from Iron specifically (thematically the best base for
+        // the heat, and closest in stats), ONLY reachable this way -- no crafting-table recipe of
+        // its own.
+        RecipeBuilders.mutate(recipeOutput, "mutating_blaze_essence_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 3000, ModItems.BLAZE_ESSENCE_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_copper_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 3000, ModItems.COPPER_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gold_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 3000, ModItems.GOLD_SUNDER_CHAIN.get(), solidTicks);
+
+        // Emerald -- a direct upgrade from Gold specifically (not a Bone-hub spoke like the other
+        // metals), ONLY reachable this way -- no crafting-table recipe of its own.
+        RecipeBuilders.mutate(recipeOutput, "mutating_emerald_sunder_chain", ModItems.GOLD_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 3000, ModItems.EMERALD_SUNDER_CHAIN.get(), solidTicks);
         // Diamond's fluid (Molten Diamond) has no production recipe of its own yet (see the crafting
         // notes) -- built anyway, matching the rest of the Molten family's current state (registered,
         // no recipe yet) rather than introducing a one-off special case; unreachable in survival
@@ -1203,10 +1214,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // crafting-table recipes for each material, which are untouched).
         RecipeBuilders.mutate(recipeOutput, "mutating_iron_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModItems.IRON_SHATTER_HEAD.get(), solidTicks);
+
+        // Blaze Essence -- a direct upgrade from Iron specifically (thematically the best base for
+        // the heat, and closest in stats), ONLY reachable this way -- no crafting-table recipe of
+        // its own.
+        RecipeBuilders.mutate(recipeOutput, "mutating_blaze_essence_shatter_head", ModItems.IRON_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 3000, ModItems.BLAZE_ESSENCE_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_copper_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
                 ModFluids.SOURCE_CUPROUS_BLEND.get(), 3000, ModItems.COPPER_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gold_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 3000, ModItems.GOLD_SHATTER_HEAD.get(), solidTicks);
+
+        // Emerald -- a direct upgrade from Gold specifically (not a Bone-hub spoke like the other
+        // metals), ONLY reachable this way -- no crafting-table recipe of its own.
+        RecipeBuilders.mutate(recipeOutput, "mutating_emerald_shatter_head", ModItems.GOLD_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 3000, ModItems.EMERALD_SHATTER_HEAD.get(), solidTicks);
+
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_iron", ModItems.IRON_SHATTER_HEAD.get(),
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_copper", ModItems.COPPER_SHATTER_HEAD.get(),

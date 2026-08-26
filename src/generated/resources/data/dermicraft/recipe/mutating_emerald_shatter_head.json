@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_molten_emerald",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:gold_shatter_head"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:emerald_shatter_head"
+  },
+  "ticks": 200
+}

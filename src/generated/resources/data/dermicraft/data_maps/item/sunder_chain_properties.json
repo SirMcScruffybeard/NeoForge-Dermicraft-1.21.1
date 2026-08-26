@@ -1,5 +1,15 @@
 {
   "values": {
+    "dermicraft:blaze_essence_sunder_chain": {
+      "bleed_chance": 0.5,
+      "damage_multiplier": 1.0,
+      "decap_chance": 0.2,
+      "durability": 250,
+      "ignite_chance": 0.5,
+      "ignite_fire_seconds": 4,
+      "smelts_logs": true,
+      "tint": "#FFB13D"
+    },
     "dermicraft:bone_sunder_chain": {
       "bleed_chance": 0.75,
       "damage_multiplier": 0.75,
@@ -20,6 +30,14 @@
       "decap_chance": 0.3,
       "durability": 400,
       "tint": "#6FCFC4"
+    },
+    "dermicraft:emerald_sunder_chain": {
+      "bleed_chance": 0.55,
+      "damage_multiplier": 1.1,
+      "decap_chance": 0.22,
+      "durability": 300,
+      "loot_bonus_chance": 0.25,
+      "tint": "#50C878"
     },
     "dermicraft:gold_sunder_chain": {
       "bleed_chance": 0.45,

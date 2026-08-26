@@ -24,13 +24,38 @@ import net.minecraft.network.chat.TextColor;
  * beats its real vanilla pickaxe equivalent's own total damage (see {@code ShatterItem}'s
  * {@code BASE_ATTACK_DAMAGE} javadoc for the actual target numbers and the margin used to derive
  * them). The per-head *special* (the non-linear combat identity distinct from either of these
- * numbers) is still an open design question.
+ * numbers) is still an open design question -- {@code lootBonusChance} below is the first entry
+ * in it, for Gold.
+ *
+ * <p>{@code lootBonusChance} is Gold's own signature trait (reversing an earlier "no dedicated
+ * special" call for Gold) -- a mining-side counterpart to Sunder's identical Gold chain trait (see
+ * {@code ChainProperties#lootBonusChance}'s own javadoc), but deliberately restricted to
+ * {@code Tags.Blocks.ORES} rather than every block drop the way Sunder's combat version applies to
+ * every mob drop -- "every block" would also catch things like Stone -> Cobblestone, which isn't
+ * the intended "ore luck" identity. See {@code ShatterEvents#onBlockDropsLootBonus}. 0 for every
+ * material without the trait.
+ *
+ * <p>{@code igniteChance}/{@code igniteFireSeconds} are Blaze Essence's own signature trait -- a
+ * per-hit chance to set the target on fire, mirroring {@code ChainProperties}' identical fields
+ * exactly (see that javadoc); Shatter has no sustained-attack mode the way Sunder's SAWING does, so
+ * this always rolls the plain chance, no guaranteed-pulse override needed. See
+ * {@code ShatterEvents#onIgniteOnHit}. {@code autoSmelt} is Blaze Essence's other trait -- every
+ * block it mines drops its smelted result (via a real {@code SmeltingRecipe} lookup, granting XP
+ * too) instead of the raw drop, universal (not ore-restricted the way Gold's loot bonus is) -- a
+ * block with no smelting recipe just drops normally. See
+ * {@code ShatterEvents#onBlockDropsAutoSmelt}/{@code AutoSmeltUtil}. False for every material
+ * without the trait.
  */
-public record ShatterHeadProperties(TextColor tint, int miningTier, float damageShift) {
+public record ShatterHeadProperties(TextColor tint, int miningTier, float damageShift, float lootBonusChance,
+                                     float igniteChance, int igniteFireSeconds, boolean autoSmelt) {
 
     public static final Codec<ShatterHeadProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     TextColor.CODEC.fieldOf("tint").forGetter(ShatterHeadProperties::tint),
                     Codec.INT.fieldOf("mining_tier").forGetter(ShatterHeadProperties::miningTier),
-                    Codec.FLOAT.optionalFieldOf("damage_shift", 0.0f).forGetter(ShatterHeadProperties::damageShift))
+                    Codec.FLOAT.optionalFieldOf("damage_shift", 0.0f).forGetter(ShatterHeadProperties::damageShift),
+                    Codec.FLOAT.optionalFieldOf("loot_bonus_chance", 0.0f).forGetter(ShatterHeadProperties::lootBonusChance),
+                    Codec.FLOAT.optionalFieldOf("ignite_chance", 0.0f).forGetter(ShatterHeadProperties::igniteChance),
+                    Codec.INT.optionalFieldOf("ignite_fire_seconds", 0).forGetter(ShatterHeadProperties::igniteFireSeconds),
+                    Codec.BOOL.optionalFieldOf("auto_smelt", false).forGetter(ShatterHeadProperties::autoSmelt))
             .apply(instance, ShatterHeadProperties::new));
 }

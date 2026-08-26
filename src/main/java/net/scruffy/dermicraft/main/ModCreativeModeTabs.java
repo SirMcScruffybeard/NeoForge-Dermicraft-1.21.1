@@ -118,7 +118,9 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.BONE_SHATTER_HEAD);
                         output.accept(ModItems.COPPER_SHATTER_HEAD);
                         output.accept(ModItems.GOLD_SHATTER_HEAD);
+                        output.accept(ModItems.EMERALD_SHATTER_HEAD);
                         output.accept(ModItems.IRON_SHATTER_HEAD);
+                        output.accept(ModItems.BLAZE_ESSENCE_SHATTER_HEAD);
                         output.accept(ModItems.DIAMOND_SHATTER_HEAD);
                         output.accept(ModItems.NETHERITE_SHATTER_HEAD);
                         output.accept(ModItems.BLADDER);
@@ -128,8 +130,10 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.FEEDER_BLADDER);
                         output.accept(ModItems.CHARRED_FEEDER_BLADDER);
                         output.accept(ModItems.IRON_SUNDER_CHAIN);
+                        output.accept(ModItems.BLAZE_ESSENCE_SUNDER_CHAIN);
                         output.accept(ModItems.COPPER_SUNDER_CHAIN);
                         output.accept(ModItems.GOLD_SUNDER_CHAIN);
+                        output.accept(ModItems.EMERALD_SUNDER_CHAIN);
                         output.accept(ModItems.DIAMOND_SUNDER_CHAIN);
                         output.accept(ModItems.BONE_SUNDER_CHAIN);
                         output.accept(ModItems.NETHERITE_SUNDER_CHAIN);

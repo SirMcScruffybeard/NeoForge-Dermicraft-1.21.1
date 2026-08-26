@@ -1,5 +1,12 @@
 {
   "values": {
+    "dermicraft:blaze_essence_shatter_head": {
+      "auto_smelt": true,
+      "ignite_chance": 0.5,
+      "ignite_fire_seconds": 4,
+      "mining_tier": 2,
+      "tint": "#FFB13D"
+    },
     "dermicraft:bone_shatter_head": {
       "damage_shift": -1.0,
       "mining_tier": 1,
@@ -14,8 +21,15 @@
       "mining_tier": 3,
       "tint": "#FFFFFF"
     },
+    "dermicraft:emerald_shatter_head": {
+      "damage_shift": 0.5,
+      "loot_bonus_chance": 0.25,
+      "mining_tier": 3,
+      "tint": "#50C878"
+    },
     "dermicraft:gold_shatter_head": {
       "damage_shift": -2.0,
+      "loot_bonus_chance": 0.2,
       "mining_tier": 0,
       "tint": "#D4AF37"
     },

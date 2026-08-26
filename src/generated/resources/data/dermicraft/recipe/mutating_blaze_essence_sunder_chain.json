@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_blaze_essence",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:iron_sunder_chain"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:blaze_essence_sunder_chain"
+  },
+  "ticks": 200
+}

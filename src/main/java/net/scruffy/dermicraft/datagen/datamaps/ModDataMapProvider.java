@@ -91,16 +91,16 @@ public class ModDataMapProvider extends DataMapProvider {
         this.builder(ModDataMaps.SUNDER_CHAIN_PROPERTIES)
                 .add(getResourceLocation(ModItems.IRON_SUNDER_CHAIN),
                         new ChainProperties(1.0f, 0.50f, 0.20f, 0.0f, 250,
-                                TextColor.fromRgb(0xD8D8D8), Optional.empty()), false)
+                                TextColor.fromRgb(0xD8D8D8), Optional.empty(), 0.0f, 0, false), false)
                 .add(getResourceLocation(ModItems.COPPER_SUNDER_CHAIN),
                         new ChainProperties(0.85f, 0.60f, 0.15f, 0.0f, 150,
-                                TextColor.fromRgb(0xB87333), Optional.empty()), false)
+                                TextColor.fromRgb(0xB87333), Optional.empty(), 0.0f, 0, false), false)
                 .add(getResourceLocation(ModItems.GOLD_SUNDER_CHAIN),
                         new ChainProperties(0.90f, 0.45f, 0.30f, 0.20f, 100,
-                                TextColor.fromRgb(0xD4AF37), Optional.empty()), false)
+                                TextColor.fromRgb(0xD4AF37), Optional.empty(), 0.0f, 0, false), false)
                 .add(getResourceLocation(ModItems.DIAMOND_SUNDER_CHAIN),
                         new ChainProperties(1.25f, 0.65f, 0.30f, 0.0f, 400,
-                                TextColor.fromRgb(0x6FCFC4), Optional.empty()), false)
+                                TextColor.fromRgb(0x6FCFC4), Optional.empty(), 0.0f, 0, false), false)
                 // Bone (2026-08-03) -- the renewable budget option (mob drops, no mining required),
                 // distinct from Copper's own budget niche rather than a duplicate of it: lowest
                 // damage and durability in the roster (brittle), but the highest Bleed chance of any
@@ -112,14 +112,32 @@ public class ModDataMapProvider extends DataMapProvider {
                 // bone-ivory pick instead.
                 .add(getResourceLocation(ModItems.BONE_SUNDER_CHAIN),
                         new ChainProperties(0.75f, 0.75f, 0.10f, 0.0f, 75,
-                                TextColor.fromRgb(0xE3DAC9), Optional.empty()), false)
+                                TextColor.fromRgb(0xE3DAC9), Optional.empty(), 0.0f, 0, false), false)
                 // Netherite -- the capstone above Diamond: a clear step up on all four base stats
                 // over Diamond, same pattern Diamond itself used over Iron. No loot-bonus (that
                 // stays Gold's signature); tint 0x4A3F4A (dark purplish gray) matches the tint
                 // baked into netherite_sunder_chain.png's own icon.
                 .add(getResourceLocation(ModItems.NETHERITE_SUNDER_CHAIN),
                         new ChainProperties(1.40f, 0.70f, 0.35f, 0.0f, 520,
-                                TextColor.fromRgb(0x4A3F4A), Optional.empty()), false)
+                                TextColor.fromRgb(0x4A3F4A), Optional.empty(), 0.0f, 0, false), false)
+                // Emerald -- a toned-down Diamond (all four base stats partway between Iron's and
+                // Diamond's own), but with a stronger loot-bonus than Gold's 0.20 -- "valuable"
+                // fits Emerald's identity too, deliberately sharing Gold's signature axis rather
+                // than inventing a separate one. Tint 0x50C878 (real-world emerald green) matches
+                // the tint baked into emerald_sunder_chain.png's own icon.
+                .add(getResourceLocation(ModItems.EMERALD_SUNDER_CHAIN),
+                        new ChainProperties(1.10f, 0.55f, 0.22f, 0.25f, 300,
+                                TextColor.fromRgb(0x50C878), Optional.empty(), 0.0f, 0, false), false)
+                // Blaze Essence -- ignite on hit, same 50%/4s as Shatter's identical trait on
+                // standard hits; SAWING's pulses instead guarantee it every ~15-tick pulse (see
+                // ChainProperties' own javadoc for why that alone gives "burns through the attack
+                // plus 4s after"). smeltsLogs is this material's other trait -- SAWING's tree-felling
+                // drops Charcoal (real SmeltingRecipe lookup, XP included) instead of raw Logs.
+                // Baseline stats match Iron exactly -- mid-tier flavor material, not a power tier.
+                // Tint 0xFFB13D matches the Blaze Essence fluid's own tint color.
+                .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SUNDER_CHAIN),
+                        new ChainProperties(1.0f, 0.50f, 0.20f, 0.0f, 250,
+                                TextColor.fromRgb(0xFFB13D), Optional.empty(), 0.5f, 4, true), false)
 
                 ;
 
@@ -141,33 +159,48 @@ public class ModDataMapProvider extends DataMapProvider {
         // (the baseline, no modifier emitted -- see ShatterItem's own "skip the no-op" comment there).
         this.builder(ModDataMaps.SHATTER_HEAD_PROPERTIES)
                 .add(getResourceLocation(ModItems.IRON_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 2, 0.0f), false)
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 2, 0.0f, 0.0f, 0.0f, 0, false), false)
                 // Copper -- same tint as Sunder's own Copper chain, for visual consistency across the
                 // two weapons' copper materials. Mining tier 2 and damage shift 0.0f both match Iron
                 // exactly (2026-08-17, decided) -- Copper's only distinction from Iron is durability
                 // (see ModItems.COPPER_SHATTER_HEAD), not tier or damage.
                 .add(getResourceLocation(ModItems.COPPER_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0xB87333), 2, 0.0f), false)
+                        new ShatterHeadProperties(TextColor.fromRgb(0xB87333), 2, 0.0f, 0.0f, 0.0f, 0, false), false)
                 // Stone Pickaxe totals 3 damage -- Bone's shift (-1.0f) brings Shatter to 5, a +2
                 // margin, same margin every material keeps.
                 .add(getResourceLocation(ModItems.BONE_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 1, -1.0f), false)
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 1, -1.0f, 0.0f, 0.0f, 0, false), false)
                 // Same gold tint Sunder's own Gold chain uses, for visual consistency across the two
                 // weapons' gold materials. Mining tier 0, same as vanilla's Gold Pickaxe (gold is a
                 // soft metal -- fast digging, but no better than bare hands against tool-gated blocks).
                 // Gold Pickaxe totals 2 damage -- shift (-2.0f) brings Shatter to 4, the same +2 margin.
+                // lootBonusChance 0.20f -- Gold's signature trait, matching Sunder's own Gold chain
+                // value exactly; see ShatterHeadProperties' own javadoc for why it's ore-restricted.
                 .add(getResourceLocation(ModItems.GOLD_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0xD4AF37), 0, -2.0f), false)
+                        new ShatterHeadProperties(TextColor.fromRgb(0xD4AF37), 0, -2.0f, 0.20f, 0.0f, 0, false), false)
                 // Also hand-painted, untinted -- same reasoning as Bone. Diamond Pickaxe totals 5
                 // damage -- shift (+1.0f) brings Shatter to 7, the same +2 margin.
                 .add(getResourceLocation(ModItems.DIAMOND_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 3, 1.0f), false)
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFFFFF), 3, 1.0f, 0.0f, 0.0f, 0, false), false)
                 // Netherite -- treated as a metal (tinted shared texture, not its own hand-painted
                 // one like Bone/Diamond), same tint as the Sunder chain's icon for cross-weapon
                 // consistency. Mining tier 4 (above Diamond's 3). Netherite Pickaxe totals 6 damage
                 // -- shift (+2.0f) brings Shatter to 8, the same +2 margin every material keeps.
                 .add(getResourceLocation(ModItems.NETHERITE_SHATTER_HEAD),
-                        new ShatterHeadProperties(TextColor.fromRgb(0x4A3F4A), 4, 2.0f), false);
+                        new ShatterHeadProperties(TextColor.fromRgb(0x4A3F4A), 4, 2.0f, 0.0f, 0.0f, 0, false), false)
+                // Emerald -- shares Diamond's own mining tier (3, per the design call) despite being
+                // a toned-down Diamond otherwise. Shift +0.5f lands between Iron's 6 total and
+                // Diamond's 7 total (6.5). Loot bonus 0.25, matching the chain's own value -- a
+                // stronger version of Gold's identical 0.20 trait, not a separate specialty.
+                .add(getResourceLocation(ModItems.EMERALD_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0x50C878), 3, 0.5f, 0.25f, 0.0f, 0, false), false)
+                // Blaze Essence -- ignite on hit (50% chance, 4s burn) plus universal auto-smelt (any
+                // block with a real SmeltingRecipe drops its smelted result instead, with matching
+                // XP) -- treated as a mid-tier flavor material, not a power tier: baseline stats
+                // match Iron exactly (tier 2, shift 0.0f), the value is entirely in the two special
+                // traits. Tint 0xFFB13D matches the Blaze Essence fluid's own tint color.
+                .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SHATTER_HEAD),
+                        new ShatterHeadProperties(TextColor.fromRgb(0xFFB13D), 2, 0.0f, 0.0f, 0.5f, 4, true), false);
 
         // Thermal Safety Module grants exactly THERMAL (lava) -- the tag-vs-data split means
         // adding a Radiation/Biohazard Safety Module later is just another entry here, no new tag.
