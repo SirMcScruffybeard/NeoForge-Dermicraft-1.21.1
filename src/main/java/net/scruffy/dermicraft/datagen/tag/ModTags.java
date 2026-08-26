@@ -133,6 +133,11 @@ public class ModTags {
         // is lives in ModDataMaps.KEEP_ON_DEATH_MODULE_PROPERTIES.
         public static final TagKey<Item> MODULE_KEEP_ON_DEATH = createTag("module/keep_on_death");
 
+        // "Capacity" family -- generic membership only, WHICH mB bonus a specific one grants lives
+        // in ModDataMaps.CAPACITY_MODULE_PROPERTIES. Fluid-only for now; item-capacity is an
+        // explicitly deferred future extension.
+        public static final TagKey<Item> MODULE_CAPACITY = createTag("module/capacity");
+
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

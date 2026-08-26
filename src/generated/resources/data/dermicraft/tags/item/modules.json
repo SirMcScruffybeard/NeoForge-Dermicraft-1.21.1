@@ -8,6 +8,7 @@
     "dermicraft:heat_evolution_module",
     "dermicraft:work_speed_module",
     "dermicraft:salvage_module",
-    "dermicraft:anchor_module"
+    "dermicraft:anchor_module",
+    "dermicraft:capacity_module"
   ]
 }

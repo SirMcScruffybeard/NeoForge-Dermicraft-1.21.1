@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "dermicraft:item/module/module_frame",
+    "layer1": "minecraft:item/bucket"
+  }
+}

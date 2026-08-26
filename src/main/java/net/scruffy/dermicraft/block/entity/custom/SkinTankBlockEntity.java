@@ -82,6 +82,38 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         return createVulnerableTank(CAPACITY, -1, this::installedHazardProfile);
     }
 
+    /** The un-bonused capacity this instance would use with no Capacity Module installed -- a
+     * virtual wrapper around {@link #CAPACITY} so {@link #applyCapacityBonus()}/
+     * {@link #canRemoveModule(int)} below resolve the RIGHT constant at runtime even though the
+     * real field is static and shadowed (not overridden) by {@link CharredTankBlockEntity#CAPACITY}. */
+    protected int baseCapacity() {
+        return CAPACITY;
+    }
+
+    /** Capacity Module bonus, summed over every installed Module -- see
+     * {@code MachineBaseBlockEntity#capacityModuleBonus}. */
+    @Override
+    protected int capacityBonus() {
+        int total = 0;
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
+        }
+        return total;
+    }
+
+    @Override
+    protected void applyCapacityBonus() {
+        TANK.setCapacity(baseCapacity() + capacityBonus());
+    }
+
+    @Override
+    protected boolean canRemoveModule(int slot) {
+        int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
+        if (thisBonus == 0) return true;
+        int newCapacity = baseCapacity() + (capacityBonus() - thisBonus);
+        return TANK.getFluid().getAmount() <= newCapacity;
+    }
+
     /** Tier 1 base, plus whatever the Module slot's currently-installed Safety Module grants, or (if
      * this instance {@link #canEvolve()}) an Evolution Module's own hazards -- same "union, never
      * reset" rule as every gadget's identical method (DrinkerItem, SippingItem), extended with the
@@ -376,6 +408,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
             if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
         }
 
+        applyCapacityBonus();
         TANK.readFromNBT(registries, tag);
         moduleTabActive = tag.getBoolean("module_tab_active");
         flourishTicksRemaining = tag.contains("evolution_flourish_ticks")

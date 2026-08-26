@@ -320,6 +320,36 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         return IHaveModules.workSpeedMultiplier(modules);
     }
 
+    /** Capacity Module bonus, summed over every installed Module. */
+    @Override
+    protected int capacityBonus() {
+        int total = 0;
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
+        }
+        return total;
+    }
+
+    @Override
+    protected void applyCapacityBonus() {
+        int capacity = getTier().tankCapacity() + capacityBonus();
+        FUEL_TANK.setCapacity(capacity);
+        INPUT_A_TANK.setCapacity(capacity);
+        INPUT_B_TANK.setCapacity(capacity);
+        RESULT_TANK.setCapacity(capacity);
+    }
+
+    @Override
+    protected boolean canRemoveModule(int slot) {
+        int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
+        if (thisBonus == 0) return true;
+        int newCapacity = getTier().tankCapacity() + (capacityBonus() - thisBonus);
+        return FUEL_TANK.getFluid().getAmount() <= newCapacity
+                && INPUT_A_TANK.getFluid().getAmount() <= newCapacity
+                && INPUT_B_TANK.getFluid().getAmount() <= newCapacity
+                && RESULT_TANK.getFluid().getAmount() <= newCapacity;
+    }
+
     /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
      * Charred Effluentcer); otherwise how far {@link #evolutionProgress} is toward
      * {@code evolutionThreshold}, 0-1. Public purely for {@code EvolutionOverlayBlockEntityRenderer}'s
@@ -689,6 +719,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
             if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
         }
 
+        applyCapacityBonus();
         if (tag.contains("inputA")) INPUT_A_TANK.readFromNBT(registries, tag.getCompound("inputA"));
         if (tag.contains("inputB")) INPUT_B_TANK.readFromNBT(registries, tag.getCompound("inputB"));
         if (tag.contains("output")) RESULT_TANK.readFromNBT(registries, tag.getCompound("output"));

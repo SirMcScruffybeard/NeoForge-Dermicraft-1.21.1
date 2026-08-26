@@ -595,6 +595,32 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
         return IHaveModules.workSpeedMultiplier(modules);
     }
 
+    /** Capacity Module bonus, summed over every installed Module. */
+    @Override
+    protected int capacityBonus() {
+        int total = 0;
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
+        }
+        return total;
+    }
+
+    @Override
+    protected void applyCapacityBonus() {
+        int capacity = getTier().tankCapacity() + capacityBonus();
+        FUEL_TANK.setCapacity(capacity);
+        REAGENT_TANK.setCapacity(capacity);
+    }
+
+    @Override
+    protected boolean canRemoveModule(int slot) {
+        int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
+        if (thisBonus == 0) return true;
+        int newCapacity = getTier().tankCapacity() + (capacityBonus() - thisBonus);
+        return FUEL_TANK.getFluid().getAmount() <= newCapacity
+                && REAGENT_TANK.getFluid().getAmount() <= newCapacity;
+    }
+
     /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
      * Charred Mutator); otherwise how far {@link #evolutionProgress} is toward
      * {@code evolutionThreshold}, 0-1. Public purely for {@code EvolutionOverlayBlockEntityRenderer}'s
@@ -853,6 +879,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
             if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
         }
 
+        applyCapacityBonus();
         if (tag.contains("reagent")) REAGENT_TANK.readFromNBT(registries, tag.getCompound("reagent"));
         requiredFluid = tag.getInt("requiredFluid");
         mode = tag.getInt("mode") == Mode.FILL.ordinal() ? Mode.FILL : Mode.MUTATE;

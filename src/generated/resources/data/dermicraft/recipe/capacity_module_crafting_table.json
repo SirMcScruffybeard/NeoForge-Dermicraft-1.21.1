@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:bucket"
+    },
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "III",
+    "IBI",
+    "IFI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:capacity_module"
+  }
+}

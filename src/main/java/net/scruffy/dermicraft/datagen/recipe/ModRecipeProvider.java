@@ -483,6 +483,18 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("anchor_module_crafting_table"));
 
+        // Capacity Module -- same 6-Iron-casing weight as the Safety Modules, Bucket as the
+        // identity item (matches the icon, "holds more" made literal).
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.CAPACITY_MODULE.get())
+                .pattern("III")
+                .pattern("IBI")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('B', Items.BUCKET)
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("capacity_module_crafting_table"));
+
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse
         // Catalyst injection (100 mB is the syringe's fixed physical volume, not a cost lever).

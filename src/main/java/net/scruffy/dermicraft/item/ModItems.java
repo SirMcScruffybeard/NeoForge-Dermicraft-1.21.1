@@ -241,6 +241,11 @@ public class ModItems {
     public static final DeferredItem<Item> ANCHOR_MODULE = ITEMS.register("anchor_module",
             () -> new Item(new Item.Properties()));
 
+    // Capacity Module -- tagged MODULE_CAPACITY. Fluid-only for now (see CapacityModuleProperties);
+    // machines first, gadget fluid tanks (Drinker/Sipping/Sunder/Shatter) a deliberate follow-up.
+    public static final DeferredItem<Item> CAPACITY_MODULE = ITEMS.register("capacity_module",
+            () -> new Item(new Item.Properties()));
+
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> MRE = ITEMS.register("mre",
             () -> new Item(new Item.Properties().food(ModFoodProperties.MRE)));

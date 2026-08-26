@@ -97,15 +97,60 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
                 return stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES);
             }
 
+            // Locks a Capacity Module in place while removing it would leave a tank over its
+            // would-be-smaller capacity -- see #canRemoveModule. Blocked for simulate too, so a
+            // shift-click preview correctly refuses rather than silently no-oping.
+            @Override
+            public net.minecraft.world.item.ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (!canRemoveModule(slot)) return net.minecraft.world.item.ItemStack.EMPTY;
+                return super.extractItem(slot, amount, simulate);
+            }
+
             @Override
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide) {
                     onModuleSlotChanged(slot);
+                    applyCapacityBonus();
                     setChanged();
                     updateBlock();
                 }
             }
         };
+    }
+
+    /** Whether the Module currently in {@code slot} may be removed right now -- true by default
+     * (every non-capacity Module, and any slot on a consumer with no fluid tanks at all). A
+     * consumer with fluid tanks overrides this to refuse removing a Capacity Module while any tank
+     * is still holding more than the capacity that would result once this specific Module's own
+     * bonus is subtracted -- see {@link #capacityModuleBonus}/{@link #capacityBonus}. */
+    protected boolean canRemoveModule(int slot) {
+        return true;
+    }
+
+    /** Re-applies {@link #capacityBonus} to every tank a Capacity-Module-bearing consumer has --
+     * no-op by default. Called whenever a Module slot's contents change and once after NBT load
+     * (a saved consumer's tanks are freshly constructed at base capacity before load, so an
+     * already-installed Capacity Module needs re-applying). */
+    protected void applyCapacityBonus() {
+    }
+
+    /** Total mB every currently-installed Capacity Module grants, summed linearly (no diminishing
+     * returns -- see the design discussion for why Capacity doesn't need Work Speed's curve) -- 0
+     * by default. A consumer with fluid tanks and a Module slot overrides this to sum over its own
+     * {@code MODULE_INVENTORY}. */
+    protected int capacityBonus() {
+        return 0;
+    }
+
+    /** Reads {@code ModDataMaps.CAPACITY_MODULE_PROPERTIES} off a single Module stack -- 0 if
+     * empty or not a Capacity Module. Shared by every {@link #capacityBonus}/
+     * {@link #canRemoveModule} override so the data-map lookup lives in exactly one place. */
+    protected static int capacityModuleBonus(net.minecraft.world.item.ItemStack module) {
+        if (module.isEmpty()) return 0;
+        net.scruffy.dermicraft.property.CapacityModuleProperties props =
+                net.minecraft.core.registries.BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                        .getData(net.scruffy.dermicraft.datagen.datamaps.ModDataMaps.CAPACITY_MODULE_PROPERTIES);
+        return props == null ? 0 : props.bonusAmount();
     }
 
     /** One-time migration helper for a machine moving its Module slot out of a combined INVENTORY

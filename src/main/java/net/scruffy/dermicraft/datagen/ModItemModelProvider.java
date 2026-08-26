@@ -95,6 +95,11 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.ANCHOR_MODULE.get(), "item/module/module_frame",
                 ResourceLocation.withDefaultNamespace("item/chain"));
 
+        // Capacity Module -- plain module_frame background, vanilla empty bucket icon (per explicit
+        // instruction) standing in for "holds more."
+        moduleItem(ModItems.CAPACITY_MODULE.get(), "item/module/module_frame",
+                ResourceLocation.withDefaultNamespace("item/bucket"));
+
         // Non-standard texture folder (item/sunder_chains/, not item/) -- basicItem()'s default
         // texture-path-matches-item-id assumption doesn't reach it, hence the explicit path.
         singleTextureItem(ModItems.IRON_SUNDER_CHAIN.get(), "item/sunder_chains/iron_sunder_chain");

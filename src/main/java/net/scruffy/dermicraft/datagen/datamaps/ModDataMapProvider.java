@@ -17,6 +17,7 @@ import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
+import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.KeepOnDeathModuleProperties;
 import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
@@ -254,6 +255,12 @@ public class ModDataMapProvider extends DataMapProvider {
         this.builder(ModDataMaps.KEEP_ON_DEATH_MODULE_PROPERTIES)
                 .add(getResourceLocation(ModItems.SALVAGE_MODULE), new KeepOnDeathModuleProperties(true), false)
                 .add(getResourceLocation(ModItems.ANCHOR_MODULE), new KeepOnDeathModuleProperties(false), false)
+                ;
+
+        // 1000 mB per module -- one Tier 1 tank's worth, per the design discussion. Tune later if
+        // needed, not locked as final.
+        this.builder(ModDataMaps.CAPACITY_MODULE_PROPERTIES)
+                .add(getResourceLocation(ModItems.CAPACITY_MODULE), new CapacityModuleProperties(1000), false)
                 ;
 
     }

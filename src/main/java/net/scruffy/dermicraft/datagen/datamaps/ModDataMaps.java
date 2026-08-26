@@ -17,6 +17,7 @@ import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
+import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.KeepOnDeathModuleProperties;
 import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
@@ -113,6 +114,16 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** How much mB a Capacity Module adds -- see {@link CapacityModuleProperties}. Kind lives on
+     * {@code ModTags.Items.MODULE_CAPACITY}. */
+    public static final DataMapType<Item, CapacityModuleProperties> CAPACITY_MODULE_PROPERTIES =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "capacity_module_properties"),
+                            Registries.ITEM,
+                            CapacityModuleProperties.CODEC
+                    )
+                    .build();
+
     @SubscribeEvent
     public static void register(RegisterDataMapTypesEvent event) {
         event.register(BIOFUELS);
@@ -124,5 +135,6 @@ public class ModDataMaps {
         event.register(SHATTER_HEAD_PROPERTIES);
         event.register(WORK_SPEED_MODULE_PROPERTIES);
         event.register(KEEP_ON_DEATH_MODULE_PROPERTIES);
+        event.register(CAPACITY_MODULE_PROPERTIES);
     }
 }

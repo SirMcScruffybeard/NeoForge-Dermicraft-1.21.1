@@ -43,6 +43,14 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
         return createVulnerableTank(CAPACITY, -1, () -> HazardProfile.TIER_2);
     }
 
+    // Matches createTank() above -- SkinTankBlockEntity#applyCapacityBonus()/canRemoveModule() call
+    // baseCapacity() (virtual) rather than referencing CAPACITY directly, specifically so this
+    // override makes them resolve to Charred Tank's own doubled capacity, not Skin Tank's.
+    @Override
+    protected int baseCapacity() {
+        return CAPACITY;
+    }
+
     // Matches createTank() above -- without this override, a future tooltip/screen reading the
     // inherited SkinTankBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety
     // Module) instead of this class's real, unconditional TIER_2 tolerance.
