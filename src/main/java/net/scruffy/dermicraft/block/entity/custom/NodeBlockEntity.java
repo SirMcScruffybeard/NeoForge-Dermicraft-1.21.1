@@ -182,6 +182,29 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     }
 
     /**
+     * The "before" half of a tier swap (see {@code AbstractNodeBlock#useItemOn}) -- snapshots this
+     * Node's full persisted state (inventory, tank, per-leg toggles, distribution mode) via the same
+     * NBT this class already round-trips through {@link #saveAdditional}/{@link #loadAdditional},
+     * then clears this instance's own item inventory. The clear matters: the block swap that follows
+     * changes the actual Block, which fires {@code AbstractNodeBlock#onRemove} -> {@link #drops()} on
+     * THIS (about-to-be-discarded) instance -- without emptying it first, the buffered items would
+     * spill on the ground on top of the copy already captured here, duplicating them.
+     */
+    public CompoundTag exportStateForSwap(HolderLookup.Provider registries) {
+        CompoundTag tag = new CompoundTag();
+        saveAdditional(tag, registries);
+        INVENTORY.setStackInSlot(BUFFER_SLOT, ItemStack.EMPTY);
+        INVENTORY.setStackInSlot(FLUID_ITEM_SLOT, ItemStack.EMPTY);
+        return tag;
+    }
+
+    /** The "after" half of a tier swap -- applies a snapshot from {@link #exportStateForSwap} to
+     * this (freshly constructed) instance. */
+    public void importState(CompoundTag tag, HolderLookup.Provider registries) {
+        loadAdditional(tag, registries);
+    }
+
+    /**
      * Whether {@code dir} is a valid leg for this Node — either a duct run (reads the neighbouring
      * duct's own connection state facing back toward us, rather than deciding independently, since
      * the duct already applied its 2-connection cap and is the single source of truth for that), or

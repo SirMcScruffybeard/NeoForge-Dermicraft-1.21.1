@@ -2,6 +2,11 @@ package net.scruffy.dermicraft.block.custom.duct;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -11,10 +16,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -104,6 +111,41 @@ public abstract class AbstractInnardsDuctBlock extends Block {
         DuctConnection current = state.getValue(property);
         DuctConnection reconciled = reconcileFace(state, direction, neighborState, level, neighborPos, current);
         return reconciled == current ? state : state.setValue(property, reconciled);
+    }
+
+    /**
+     * Tier swap: right-clicking a placed duct with a DIFFERENT-tier duct item in hand swaps the
+     * block in place, carrying over every connection face as-is (there's no block entity to worry
+     * about -- all state here is BlockState properties) -- no cost beyond the swap itself, the
+     * player gets the old tier's block back. Both directions work identically.
+     */
+    @NotNull
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+                                               Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+
+        if (!(stack.getItem() instanceof BlockItem blockItem) || !(blockItem.getBlock() instanceof AbstractInnardsDuctBlock newBlock)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        Block oldBlock = state.getBlock();
+        if (newBlock == oldBlock) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+
+        BlockState newState = newBlock.defaultBlockState();
+        for (EnumProperty<DuctConnection> property : PROPERTY_BY_DIRECTION.values()) {
+            newState = newState.setValue(property, state.getValue(property));
+        }
+        level.setBlock(pos, newState, Block.UPDATE_ALL);
+
+        if (!player.getAbilities().instabuild) {
+            stack.shrink(1);
+        }
+        ItemStack oldItem = new ItemStack(oldBlock.asItem());
+        if (!player.getInventory().add(oldItem)) {
+            player.drop(oldItem, false);
+        }
+
+        return ItemInteractionResult.SUCCESS;
     }
 
     /** Ducts are non-branching: exactly two ends. Overridable in case a tier ever needs otherwise. */
