@@ -39,6 +39,14 @@ public class CharredEffluentcerBlockEntity extends EffluentcerBlockEntity {
         return false;
     }
 
+    // Matches createInputTank()/createResultTank() below -- without this override, the inherited
+    // EffluentcerBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety Module)
+    // instead of this class's real, unconditional TIER_2 tolerance.
+    @Override
+    protected HazardProfile installedHazardProfile() {
+        return HazardProfile.TIER_2;
+    }
+
     @Override
     protected VulnerableTank createInputTank(int slot) {
         return new VulnerableTank(getTier().tankCapacity(), slot, () -> HazardProfile.TIER_2) {

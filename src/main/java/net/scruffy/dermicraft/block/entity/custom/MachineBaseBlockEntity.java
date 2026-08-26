@@ -71,6 +71,61 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         autoDrainEnabled = !tag.contains("auto_drain_enabled") || tag.getBoolean("auto_drain_enabled");
     }
 
+    /** How many Module slots this machine instance has -- 1 by default. A Charred/evolved variant
+     * overrides this to grant more (the "Charred machines get extra Module slots" upgrade) --
+     * public so a menu can read it too, since the slot count varies per instance, not per class. */
+    public int moduleSlotCount() {
+        return 1;
+    }
+
+    /** Called whenever any Module slot's contents change at all -- no-op by default, mirrors
+     * {@link #onTankContentsChanged()}'s "generic hook, opt-in override" shape. {@code slot} is
+     * relative to the Module handler itself (0-based), not the machine's other slots. */
+    protected void onModuleSlotChanged(int slot) {
+    }
+
+    /** Dedicated Module-only inventory, deliberately separate from a machine's own general
+     * INVENTORY (input/output/fuel-passthrough slots) -- one handler, sized per
+     * {@link #moduleSlotCount()}, shared by every Module-slot-bearing machine (Skin Tank today;
+     * the fueled machines still keep their Module slot inside their own combined INVENTORY as of
+     * this writing, not yet migrated). Validated to {@code ModTags.Items.MODULES} same as every
+     * other Module slot in the mod. */
+    protected ItemStackHandler createModuleInventory(int size) {
+        return new ItemStackHandler(size) {
+            @Override
+            public boolean isItemValid(int slot, net.minecraft.world.item.ItemStack stack) {
+                return stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES);
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (level != null && !level.isClientSide) {
+                    onModuleSlotChanged(slot);
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
+    /** One-time migration helper for a machine moving its Module slot out of a combined INVENTORY
+     * (where it used to be the trailing slot) into {@link #createModuleInventory}'s own dedicated
+     * handler -- otherwise a world saved before the split silently loses whatever was in that slot
+     * the moment the old combined handler shrinks (see {@link #loadItemHandler}'s own shrink
+     * behavior, which only preserves slots that still fit in the new, smaller size). Deserializes
+     * the OLD tag into a throwaway scratch handler (sized off its own saved Size, never the live
+     * INVENTORY) purely to read back whatever sat at {@code legacySlot}, so this never disturbs
+     * whichever handler is actually being loaded elsewhere in the same {@code loadAdditional} call. */
+    protected static net.minecraft.world.item.ItemStack extractLegacyModuleStack(
+            HolderLookup.Provider registries, CompoundTag oldInventoryTag, int legacySlot) {
+        if (oldInventoryTag == null || oldInventoryTag.isEmpty()) return net.minecraft.world.item.ItemStack.EMPTY;
+
+        ItemStackHandler scratch = new ItemStackHandler();
+        scratch.deserializeNBT(registries, oldInventoryTag);
+        if (legacySlot < 0 || legacySlot >= scratch.getSlots()) return net.minecraft.world.item.ItemStack.EMPTY;
+        return scratch.getStackInSlot(legacySlot);
+    }
+
     public boolean hasTank() {
         return false;
     }

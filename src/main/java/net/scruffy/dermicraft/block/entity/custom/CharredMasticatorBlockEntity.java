@@ -42,6 +42,14 @@ public class CharredMasticatorBlockEntity extends MasticatorBlockEntity {
         return false;
     }
 
+    // Matches createIngredientTank()/createResultTank() below -- without this override, the
+    // inherited MasticatorBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety
+    // Module) instead of this class's real, unconditional TIER_2 tolerance.
+    @Override
+    protected HazardProfile installedHazardProfile() {
+        return HazardProfile.TIER_2;
+    }
+
     @Override
     protected VulnerableTank createIngredientTank() {
         return new VulnerableTank(getTier().tankCapacity(), 1, () -> HazardProfile.TIER_2) {

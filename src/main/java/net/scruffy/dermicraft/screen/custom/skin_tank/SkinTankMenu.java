@@ -28,6 +28,10 @@ public class SkinTankMenu extends AbstractModMenu {
     public static final int MODULE_SLOT_X = 79;
     public static final int MODULE_SLOT_Y = 34;
 
+    // Horizontal gap between Module slots when a machine has more than one (Charred Tank) --
+    // standard adjacent-slot spacing, matches vanilla's own 18px slot width.
+    public static final int MODULE_SLOT_SPACING = 20;
+
     public final SkinTankBlockEntity be;
     private Level level;
 
@@ -36,10 +40,11 @@ public class SkinTankMenu extends AbstractModMenu {
     }
 
     public SkinTankMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
-        super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId, SkinTankBlockEntity.INVENTORY_SIZE);
+        super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId,
+                SkinTankBlockEntity.INVENTORY_SIZE + ((SkinTankBlockEntity) blockEntity).moduleSlotCount());
 
-        checkContainerSize(inventory, SkinTankBlockEntity.INVENTORY_SIZE);
         this.be = (SkinTankBlockEntity) blockEntity;
+        checkContainerSize(inventory, SkinTankBlockEntity.INVENTORY_SIZE + be.moduleSlotCount());
         this.level = inventory.player.level();
 
         addPlayerInventory(inventory);
@@ -62,15 +67,17 @@ public class SkinTankMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        this.addSlot(new SlotItemHandler(be.INVENTORY, SkinTankBlockEntity.MODULE,
-                MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MODULE_TAB;
-            }
-        });
+        for (int i = 0; i < be.moduleSlotCount(); i++) {
+            this.addSlot(new SlotItemHandler(be.MODULE_INVENTORY, i,
+                    MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
+                @Override
+                public boolean isActive() {
+                    return getActiveTab() == MODULE_TAB;
+                }
+            });
+        }
 
-        setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT and the Module slot
+        setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT and the Module slot(s)
 
         // Restores whichever tab was open last, same reasoning as
         // WorkbenchScreen#currentPage/WorkbenchBlockEntity#isFabricationPageActive -- correct from

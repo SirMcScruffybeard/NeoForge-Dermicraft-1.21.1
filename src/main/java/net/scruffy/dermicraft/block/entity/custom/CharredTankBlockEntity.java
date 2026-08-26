@@ -51,6 +51,14 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
         return HazardProfile.TIER_2;
     }
 
+    // The "Charred machines get an extra Module slot" upgrade -- this class's own hazard tolerance
+    // stays fixed at TIER_2 regardless (see installedHazardProfile() above), so the second slot's
+    // value here is future module kinds beyond hazard tolerance, not a bigger hazard union.
+    @Override
+    public int moduleSlotCount() {
+        return 2;
+    }
+
     @NotNull
     @Override
     public Component getDisplayName() {

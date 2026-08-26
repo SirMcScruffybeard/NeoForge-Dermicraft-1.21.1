@@ -135,8 +135,11 @@ public class CharredTankScreen extends AbstractModScreen<CharredTankMenu> {
     }
 
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + CharredTankMenu.MODULE_SLOT_X, y + CharredTankMenu.MODULE_SLOT_Y, 0, 0,
-                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        for (int i = 0; i < menu.be.moduleSlotCount(); i++) {
+            guiGraphics.blit(MODULE_SLOT_TEXTURE,
+                    x + CharredTankMenu.MODULE_SLOT_X + i * CharredTankMenu.MODULE_SLOT_SPACING,
+                    y + CharredTankMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        }
     }
 
     @Override

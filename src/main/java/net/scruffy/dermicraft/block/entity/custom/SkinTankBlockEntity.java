@@ -27,7 +27,6 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -49,10 +48,11 @@ import java.util.List;
 /**
  * Pilot for machine Module slots (dermicraft-progression-notes.md, Decision Point #2 -> sequencing
  * step 4) -- chosen as the simplest case: one plain tank, no crafting, nothing else competing for
- * screen space. The Module slot lives as an ordinary slot in the existing INVENTORY handler rather
- * than a separate gadget-style {@code BulkItemData} component (there's no {@link ItemStack} for a
- * machine to carry one on) -- see {@link IHaveModules#installedHazardProfile(HazardProfile, ItemStack)},
- * the single-slot overload added specifically for this case.
+ * screen space. Module slot(s) live in their own dedicated {@link #MODULE_INVENTORY} handler
+ * (see {@code MachineBaseBlockEntity#createModuleInventory}), not the general item-container
+ * {@code BulkItemData} component gadgets use (there's no {@link ItemStack} for a machine to carry
+ * one on) -- see {@link IHaveModules#installedHazardProfile(HazardProfile, ItemStack)}, the
+ * single-slot overload this reads from in a loop to support more than one slot.
  */
 public class SkinTankBlockEntity extends MachineBaseBlockEntity
         implements MenuProvider, IHaveInventory, IHasChannels, IPreserveContentsOnPickup {
@@ -61,13 +61,17 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
-    public static final int MODULE = 2;
 
     /** Single source of truth for the handler's slot count -- also re-asserted after
-     * {@code deserializeNBT}, see {@link #loadAdditional} for why that's load-bearing. */
-    public static final int INVENTORY_SIZE = 3;
+     * {@code deserializeNBT}, see {@link #loadAdditional} for why that's load-bearing. Module no
+     * longer counts toward this -- see {@link #MODULE_INVENTORY}, its own dedicated handler. */
+    public static final int INVENTORY_SIZE = 2;
 
     public final ItemStackHandler INVENTORY = createInventory();
+
+    /** Dedicated Module-only handler, sized per {@link #moduleSlotCount()} (1 for base Skin Tank, 2
+     * for Charred Tank) -- see {@code MachineBaseBlockEntity#createModuleInventory}. */
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
 
     private final VulnerableTank TANK = createTank();
 
@@ -85,15 +89,18 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * uses ({@link IHaveModules} only knows about Safety Modules). Public so a future screen/tooltip
      * can read it without duplicating the union logic. */
     public HazardProfile installedHazardProfile() {
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        HazardProfile profile = IHaveModules.installedHazardProfile(HazardProfile.TIER_1, module);
+        HazardProfile profile = HazardProfile.TIER_1;
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            profile = IHaveModules.installedHazardProfile(profile, module);
 
-        if (canEvolve() && !module.isEmpty()) {
-            EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-            if (evoProps != null) {
-                for (var hazard : evoProps.hazards()) {
-                    profile = profile.plus(hazard);
+            if (canEvolve() && !module.isEmpty()) {
+                EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                        .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+                if (evoProps != null) {
+                    for (var hazard : evoProps.hazards()) {
+                        profile = profile.plus(hazard);
+                    }
                 }
             }
         }
@@ -123,17 +130,22 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * Module at all once this is already a Charred Tank) is inert here. */
     private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
         if (!canEvolve()) return Optional.empty();
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        if (module.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(
-                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
+            if (module.isEmpty()) continue;
+            EvolutionModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
+            if (props != null) return Optional.of(props);
+        }
+        return Optional.empty();
     }
 
-    /** Called whenever the Module slot's contents change at all -- cancels any countdown already
-     * running (covers the Module being pulled back out mid-countdown), then starts a fresh one if
-     * the slot now holds a real Evolution Module. Insert, remove, and swap-for-a-different-item all
+    /** Called whenever any Module slot's contents change at all -- cancels any countdown already
+     * running (covers a Module being pulled back out mid-countdown), then starts a fresh one if any
+     * slot now holds a real Evolution Module. Insert, remove, and swap-for-a-different-item all
      * fall out of this same rule. */
-    private void onModuleChanged() {
+    @Override
+    protected void onModuleSlotChanged(int slot) {
         flourishTicksRemaining = -1;
         installedEvolutionProperties().ifPresent(props -> startEvolutionFlourish());
     }
@@ -213,7 +225,9 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         // duplicate everything captured above once it's handed to the new instance.
         INVENTORY.setStackInSlot(INPUT, ItemStack.EMPTY);
         INVENTORY.setStackInSlot(OUTPUT, ItemStack.EMPTY);
-        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            MODULE_INVENTORY.setStackInSlot(slot, ItemStack.EMPTY);
+        }
         if (!tankContents.isEmpty()) TANK.drain(tankContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
 
         level.setBlock(worldPosition, ModBlocks.CHARRED_TANK.get().defaultBlockState(), Block.UPDATE_ALL);
@@ -306,6 +320,9 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     public void drops(){
         dropItems(level, INVENTORY, worldPosition);
+        // Module(s) moved out of INVENTORY into their own handler -- without this, a normal (non-
+        // Forceps) break would silently delete whatever Module was installed instead of dropping it.
+        dropItems(level, MODULE_INVENTORY, worldPosition);
     }
 
     public void tick(Level sLevel) {
@@ -333,6 +350,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.put("skin_tank_inv", INVENTORY.serializeNBT(registries));
+        tag.put("skin_tank_module_inv", MODULE_INVENTORY.serializeNBT(registries));
         tag = TANK.writeToNBT(registries, tag);
         tag.putBoolean("module_tab_active", moduleTabActive);
         tag.putInt("evolution_flourish_ticks", flourishTicksRemaining);
@@ -345,7 +363,19 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         // NOT a plain INVENTORY.deserializeNBT -- a Skin Tank saved before the Module slot existed
         // carries Size=2 and would shrink this handler back to 2 slots, crashing on world load when
         // the menu adds its Module slot at index 2. See MachineBaseBlockEntity#loadItemHandler.
-        loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("skin_tank_inv"));
+        CompoundTag oldInventoryTag = tag.getCompound("skin_tank_inv");
+        loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
+
+        if (tag.contains("skin_tank_module_inv")) {
+            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("skin_tank_module_inv"));
+        } else {
+            // Pre-split save: the Module item was the old combined handler's trailing slot (index
+            // 2). Recover it from the same tag loadItemHandler just read above, before that data
+            // is gone for good -- see MachineBaseBlockEntity#extractLegacyModuleStack.
+            ItemStack legacyModule = extractLegacyModuleStack(registries, oldInventoryTag, 2);
+            if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
+        }
+
         TANK.readFromNBT(registries, tag);
         moduleTabActive = tag.getBoolean("module_tab_active");
         flourishTicksRemaining = tag.contains("evolution_flourish_ticks")
@@ -357,10 +387,6 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
            @Override
            protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide) {
-
-                    if (slot == MODULE) {
-                        onModuleChanged();
-                    }
 
                     if (TANK.hasFluidHandlerInSlot(this, INPUT)) {
                         TANK.transferFluidToTank(this, INPUT);
@@ -377,16 +403,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
             @Override
             public int getSlotLimit(int slot) {
-                return (slot == OUTPUT || slot == MODULE) ? 1 : super.getSlotLimit(slot);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                // Same tag every gadget's Module slot filters to (ModTags.Items.MODULES) -- a
-                // machine's Module slot is exactly the same "scarce, tag-identified" convention,
-                // not a bespoke allowlist. INPUT/OUTPUT stay unrestricted, matching every other
-                // machine's own fluid-container-only-in-practice slots.
-                return slot != MODULE || stack.is(ModTags.Items.MODULES);
+                return slot == OUTPUT ? 1 : super.getSlotLimit(slot);
             }
         };
     }

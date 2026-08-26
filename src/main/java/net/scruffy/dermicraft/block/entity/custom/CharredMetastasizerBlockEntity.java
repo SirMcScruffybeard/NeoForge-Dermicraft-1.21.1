@@ -36,6 +36,14 @@ public class CharredMetastasizerBlockEntity extends MetastasizerBlockEntity {
         return false;
     }
 
+    // Matches createReagentTank() below -- without this override, the inherited
+    // MetastasizerBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety Module)
+    // instead of this class's real, unconditional TIER_2 tolerance.
+    @Override
+    protected HazardProfile installedHazardProfile() {
+        return HazardProfile.TIER_2;
+    }
+
     @Override
     protected VulnerableTank createReagentTank() {
         return new VulnerableTank(getTier().tankCapacity(), 1, () -> HazardProfile.TIER_2) {
