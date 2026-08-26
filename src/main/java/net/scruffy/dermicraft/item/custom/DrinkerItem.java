@@ -83,6 +83,14 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
     /** One fluid source block's worth -- the buffer holds exactly one atomic pickup. */
     public static final int CAPACITY = 1000;
 
+    /** Real, current capacity: {@link #CAPACITY} plus whatever Capacity Module(s) are installed --
+     * see {@code IHaveModules#capacityBonus}. Every fill/drain/siphon check reads this, never the
+     * bare constant, so an installed Capacity Module actually widens what a single siphon gulp can
+     * hold, not just the buffer's nominal size. */
+    public static int effectiveCapacity(ItemStack drinkerStack) {
+        return CAPACITY + IHaveModules.capacityBonus(drinkerStack, ModDataComponentTypes.DRINKER_MODULE_DATA.get(), MODULE_SLOT_COUNT);
+    }
+
     /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
      * {@code Item.Properties#durability}, which is the single source of truth for max HP. */
     public static final int MAX_HP = 10;
@@ -825,7 +833,9 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
         @Override
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
             List<Slot> slots = new ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
-                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true,
+                    slot -> IHaveModules.mayRemoveCapacityModule(gadgetStackSupplier.get(), ModDataComponentTypes.DRINKER_MODULE_DATA.get(),
+                            MODULE_SLOT_COUNT, slot, CAPACITY, bufferContents(gadgetStackSupplier.get()).getAmount())));
             slots.add(new DrainSlot(panelX + DRAIN_SLOT_X + 1, panelY + DRAIN_SLOT_Y + 1, active));
             return slots;
         }
@@ -917,7 +927,7 @@ public class DrinkerItem extends Item implements GeoItem, IHaveFluidData, IGadge
                 ? Component.translatable("tooltip.dermicraft.drinker.tooltip_empty").withStyle(ChatFormatting.DARK_GRAY)
                 : Component.translatable("tooltip.dermicraft.drinker.tooltip_holding",
                                 Component.translatable(held.getFluid().getFluidType().getDescriptionId()),
-                                held.getAmount(), CAPACITY)
+                                held.getAmount(), effectiveCapacity(stack))
                         .withStyle(ChatFormatting.GRAY));
     }
 

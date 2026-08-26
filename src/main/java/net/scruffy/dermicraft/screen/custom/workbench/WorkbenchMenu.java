@@ -444,7 +444,7 @@ public class WorkbenchMenu extends AbstractModMenu {
     }
 
     public int getSunderFuelCapacity() {
-        return SunderItem.FUEL_CAPACITY;
+        return SunderItem.effectiveCapacity(getWorkItemStack());
     }
 
     public boolean isWorkItemShatter() {
@@ -457,6 +457,6 @@ public class WorkbenchMenu extends AbstractModMenu {
     }
 
     public int getShatterFuelCapacity() {
-        return ShatterItem.FUEL_CAPACITY;
+        return ShatterItem.effectiveCapacity(getWorkItemStack());
     }
 }

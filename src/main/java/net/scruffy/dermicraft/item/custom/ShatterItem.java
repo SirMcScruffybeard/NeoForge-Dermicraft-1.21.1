@@ -77,6 +77,12 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
      * maintenance GUI's fuel gauge/fill slot has a real tank to display and fill. */
     public static final int FUEL_CAPACITY = 1000;
 
+    /** Real, current fuel capacity: {@link #FUEL_CAPACITY} plus whatever Capacity Module(s) are
+     * installed -- see {@code IHaveModules#capacityBonus}. */
+    public static int effectiveCapacity(ItemStack shatterStack) {
+        return FUEL_CAPACITY + IHaveModules.capacityBonus(shatterStack, ModDataComponentTypes.SHATTER_MODULE_DATA.get(), MODULE_SLOT_COUNT);
+    }
+
     /** Ticks to reach full charge -- matches {@code build_charge}'s own authored length (1 second)
      * in the animation file, so the mechanical charge time and the animation stay in lockstep
      * without a second number to keep in sync. */
@@ -829,7 +835,10 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
         @Override
         public List<Slot> slots(int panelX, int panelY, BooleanSupplier active) {
             List<Slot> slots = new java.util.ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
-                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true,
+                    slot -> IHaveModules.mayRemoveCapacityModule(gadgetStackSupplier.get(), ModDataComponentTypes.SHATTER_MODULE_DATA.get(),
+                            MODULE_SLOT_COUNT, slot, FUEL_CAPACITY,
+                            gadgetStackSupplier.get().getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidAmount())));
             slots.add(new HeadSlot(panelX + HEAD_SLOT_X + 1, panelY + HEAD_SLOT_Y + 1, active));
             slots.add(new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
             return slots;
@@ -968,7 +977,7 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
         if (!data.isFluidEmpty()) {
             tooltip.add(data.getFluidComponent());
             tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity",
-                    data.getFluidAmount(), FUEL_CAPACITY).withStyle(net.minecraft.ChatFormatting.GRAY));
+                    data.getFluidAmount(), effectiveCapacity(stack)).withStyle(net.minecraft.ChatFormatting.GRAY));
         }
 
         ItemStack headStack = mountedHead(stack).itemStack();

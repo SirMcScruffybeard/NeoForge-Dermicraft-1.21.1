@@ -13,6 +13,7 @@ import net.scruffy.dermicraft.component.BulkItemData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
+import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
@@ -163,6 +164,51 @@ public interface IHaveModules {
     }
 
     /**
+     * Total mB every currently-installed Capacity Module grants on {@code gadgetStack}, summed
+     * linearly (no diminishing returns -- see the design discussion for why capacity doesn't need
+     * Work Speed's curve). Gadget-side counterpart of
+     * {@code MachineBaseBlockEntity#capacityBonus()}/{@code #capacityModuleBonus} -- same data map,
+     * different storage shape (a {@link BulkItemData} component on the stack, not a live
+     * {@code ItemStackHandler}).
+     */
+    static int capacityBonus(ItemStack gadgetStack, DataComponentType<BulkItemData> moduleDataType, int moduleSlotCount) {
+        BulkItemData data = gadgetStack.getOrDefault(moduleDataType, BulkItemData.empty(moduleSlotCount));
+        int total = 0;
+        for (int i = 0; i < moduleSlotCount; i++) {
+            total += capacityModuleBonus(data.slot(i).asDisplayStack());
+        }
+        return total;
+    }
+
+    /** Reads {@code ModDataMaps.CAPACITY_MODULE_PROPERTIES} off a single Module stack -- 0 if empty
+     * or not a Capacity Module. Same data map {@code MachineBaseBlockEntity#capacityModuleBonus}
+     * reads, kept as its own copy here since machines and gadgets have no shared base class to hang
+     * one implementation off of. */
+    static int capacityModuleBonus(ItemStack module) {
+        if (module.isEmpty()) return 0;
+        CapacityModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                .getData(ModDataMaps.CAPACITY_MODULE_PROPERTIES);
+        return props == null ? 0 : props.bonusAmount();
+    }
+
+    /**
+     * Whether the Module in {@code slot} may be removed right now -- false only if it's a Capacity
+     * Module AND doing so would leave {@code currentAmount} over the capacity that would result
+     * once that Module's own bonus is subtracted. Every other case (empty slot, non-Capacity
+     * Module, or plenty of room) returns true. {@code baseCapacity} is the consumer's own
+     * un-bonused constant (e.g. {@code DrinkerItem.CAPACITY}); pass whatever's currently held
+     * (buffer contents, tank fluid, etc.) as {@code currentAmount}.
+     */
+    static boolean mayRemoveCapacityModule(ItemStack gadgetStack, DataComponentType<BulkItemData> moduleDataType,
+                                            int moduleSlotCount, int slot, int baseCapacity, int currentAmount) {
+        BulkItemData data = gadgetStack.getOrDefault(moduleDataType, BulkItemData.empty(moduleSlotCount));
+        int thisBonus = capacityModuleBonus(data.slot(slot).asDisplayStack());
+        if (thisBonus == 0) return true;
+        int newCapacity = baseCapacity + (capacityBonus(gadgetStack, moduleDataType, moduleSlotCount) - thisBonus);
+        return currentAmount <= newCapacity;
+    }
+
+    /**
      * Builds a Module-slot row for a gadget's {@link IWorkbenchSwappable.SwapPanel}: one
      * {@link Slot} per Module slot, left-to-right from {@code (x, y)} at {@code spacing} pixels
      * apart, backed by the already-constructed {@code moduleHandler} (typically an
@@ -174,13 +220,33 @@ public interface IHaveModules {
      */
     static List<Slot> buildModuleSlots(IItemHandlerModifiable moduleHandler, int moduleSlotCount,
                                         int x, int y, int spacing, BooleanSupplier active, Runnable onSlotChanged) {
+        return buildModuleSlots(moduleHandler, moduleSlotCount, x, y, spacing, active, onSlotChanged, slot -> true);
+    }
+
+    /**
+     * Same as the 7-arg overload above, plus {@code mayPickup} -- a per-slot-index gate a caller
+     * uses to lock a Capacity Module in place while removing it would leave the gadget's fluid
+     * data over the capacity that would result once that Module's own bonus is subtracted (the
+     * gadget-side counterpart of the machine Module slot's {@code extractItem} lock -- a GUI-level
+     * {@code mayPickup} is sufficient here since a gadget's Module slot has no automation path at
+     * all, unlike a machine's).
+     */
+    static List<Slot> buildModuleSlots(IItemHandlerModifiable moduleHandler, int moduleSlotCount,
+                                        int x, int y, int spacing, BooleanSupplier active, Runnable onSlotChanged,
+                                        java.util.function.IntPredicate mayPickup) {
         List<Slot> slots = new ArrayList<>();
         for (int i = 0; i < moduleSlotCount; i++) {
             int slotX = x + i * spacing;
+            int slotIndex = i;
             slots.add(new SlotItemHandler(moduleHandler, i, slotX, y) {
                 @Override
                 public boolean isActive() {
                     return active.getAsBoolean();
+                }
+
+                @Override
+                public boolean mayPickup(net.minecraft.world.entity.player.Player player) {
+                    return mayPickup.test(slotIndex) && super.mayPickup(player);
                 }
 
                 @Override

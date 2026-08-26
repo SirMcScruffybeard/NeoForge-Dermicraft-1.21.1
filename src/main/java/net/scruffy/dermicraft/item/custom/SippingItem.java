@@ -86,6 +86,19 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData, IGadge
                 MODULE_SLOT_COUNT, HazardProfile.TIER_1);
     }
 
+    /** Real, current Storage-mode buffer capacity: {@link #CAPACITY} plus whatever Capacity
+     * Module(s) are installed -- see {@code IHaveModules#capacityBonus}. */
+    public static int effectiveCapacity(ItemStack sippingStack) {
+        return CAPACITY + IHaveModules.capacityBonus(sippingStack, ModDataComponentTypes.SIPPING_MODULE_DATA.get(), MODULE_SLOT_COUNT);
+    }
+
+    /** Current buffer contents, read via the registered fluid capability -- Storage mode only has a
+     * real buffer to read; Disposal mode's handler is a bottomless void with nothing to report. */
+    public static FluidStack bufferContents(ItemStack sippingStack) {
+        IFluidHandlerItem buffer = sippingStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        return buffer == null ? FluidStack.EMPTY : buffer.getFluidInTank(0);
+    }
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public SippingItem(Properties properties) {
@@ -291,7 +304,9 @@ public class SippingItem extends Item implements GeoItem, IHaveFluidData, IGadge
         @Override
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
             List<Slot> slots = new java.util.ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
-                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true,
+                    slot -> IHaveModules.mayRemoveCapacityModule(gadgetStackSupplier.get(), ModDataComponentTypes.SIPPING_MODULE_DATA.get(),
+                            MODULE_SLOT_COUNT, slot, CAPACITY, bufferContents(gadgetStackSupplier.get()).getAmount())));
             slots.add(new FillDrainSlot(panelX + FILL_DRAIN_SLOT_X + 1, panelY + FILL_DRAIN_SLOT_Y + 1, active));
             return slots;
         }

@@ -215,7 +215,7 @@ public class ModBusEvents {
         // unions the Module in and would let a hazardous fluid through, but this handler's fill()
         // still refused it underneath, so the siphon read that refusal back as "buffer too full."
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) ->
-                        new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, DrinkerItem.CAPACITY,
+                        new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, DrinkerItem.effectiveCapacity(stack),
                                 DrinkerItem.installedHazardProfile(stack)),
                 ModItems.DRINKER.get());
 
@@ -232,7 +232,7 @@ public class ModBusEvents {
             HazardProfile profile = SippingItem.installedHazardProfile(stack);
             return mode.disposalMode()
                     ? new IHaveFluidData.DisposalFluidHandler(stack, profile)
-                    : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.CAPACITY, profile);
+                    : new IHaveFluidData.HazardGatedFluidDataFluidHandler(stack, SippingItem.effectiveCapacity(stack), profile);
         }, ModItems.SIPPING.get());
 
         // E.A.T.E.R.: 4-slot bulk item buffer, no filter -- base tier accepts anything it vacuums.
@@ -246,7 +246,7 @@ public class ModBusEvents {
         // yet (see SunderItem's class javadoc), but the capability exists so the Scrench maintenance
         // GUI's fuel gauge/fill slot has a real tank to display and fill.
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
-                stack, net.scruffy.dermicraft.item.custom.SunderItem.FUEL_CAPACITY, HazardProfile.TIER_1,
+                stack, net.scruffy.dermicraft.item.custom.SunderItem.effectiveCapacity(stack), HazardProfile.TIER_1,
                 fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.SUNDER.get());
 
@@ -254,7 +254,7 @@ public class ModBusEvents {
         // yet (see ShatterItem's class javadoc), but the capability exists so the Scrench maintenance
         // GUI's fuel gauge/fill slot has a real tank to display and fill.
         event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
-                stack, net.scruffy.dermicraft.item.custom.ShatterItem.FUEL_CAPACITY, HazardProfile.TIER_1,
+                stack, net.scruffy.dermicraft.item.custom.ShatterItem.effectiveCapacity(stack), HazardProfile.TIER_1,
                 fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.SHATTER.get());
     }

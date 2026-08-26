@@ -38,10 +38,16 @@ public class DrinkerGaugeGlowLayer extends AutoGlowingGeoLayer<DrinkerItem> {
     @Override
     protected RenderType getRenderType(DrinkerItem animatable, MultiBufferSource bufferSource) {
         int amount = bufferedAmount();
-        ResourceLocation gauge = amount >= DrinkerItem.CAPACITY ? GAUGE_3
-                : amount >= DrinkerItem.CAPACITY / 2 ? GAUGE_2
+        int capacity = currentStack() == null ? DrinkerItem.CAPACITY : DrinkerItem.effectiveCapacity(currentStack());
+        ResourceLocation gauge = amount >= capacity ? GAUGE_3
+                : amount >= capacity / 2 ? GAUGE_2
                 : GAUGE_1;
         return RenderType.entityTranslucentEmissive(gauge);
+    }
+
+    private ItemStack currentStack() {
+        if (!(getRenderer() instanceof GeoItemRenderer<?> itemRenderer)) return null;
+        return itemRenderer.getCurrentItemStack();
     }
 
     @Override

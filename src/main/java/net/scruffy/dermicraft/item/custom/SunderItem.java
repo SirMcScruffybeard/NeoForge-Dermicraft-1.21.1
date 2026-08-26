@@ -106,6 +106,12 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
      * not a tuned value. Matches Drinker/Sipping's own 1000mB default for consistency. */
     public static final int FUEL_CAPACITY = 1000;
 
+    /** Real, current fuel capacity: {@link #FUEL_CAPACITY} plus whatever Capacity Module(s) are
+     * installed -- see {@code IHaveModules#capacityBonus}. */
+    public static int effectiveCapacity(ItemStack sunderStack) {
+        return FUEL_CAPACITY + IHaveModules.capacityBonus(sunderStack, ModDataComponentTypes.SUNDER_MODULE_DATA.get(), MODULE_SLOT_COUNT);
+    }
+
     /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
      * {@code Item.Properties#durability}, which is the single source of truth for max HP. Purely
      * drop-damage-based, same as every other gadget -- entirely independent of chain durability
@@ -869,7 +875,10 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         @Override
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
             List<Slot> slots = new ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
-                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true,
+                    slot -> IHaveModules.mayRemoveCapacityModule(gadgetStackSupplier.get(), ModDataComponentTypes.SUNDER_MODULE_DATA.get(),
+                            MODULE_SLOT_COUNT, slot, FUEL_CAPACITY,
+                            gadgetStackSupplier.get().getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidAmount())));
             slots.add(new ChainSlot(panelX + CHAIN_SLOT_X + 1, panelY + CHAIN_SLOT_Y + 1, active));
             slots.add(new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
             return slots;
@@ -1032,7 +1041,7 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         if (!data.isFluidEmpty()) {
             tooltip.add(data.getFluidComponent());
             tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity",
-                    data.getFluidAmount(), FUEL_CAPACITY).withStyle(ChatFormatting.GRAY));
+                    data.getFluidAmount(), effectiveCapacity(stack)).withStyle(ChatFormatting.GRAY));
         }
 
         ItemStack chainStack = mountedChain(stack).itemStack();

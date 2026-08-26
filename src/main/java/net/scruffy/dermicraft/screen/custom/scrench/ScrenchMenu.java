@@ -116,7 +116,7 @@ public class ScrenchMenu extends AbstractModMenu {
     }
 
     public int getSunderFuelCapacity() {
-        return SunderItem.FUEL_CAPACITY;
+        return SunderItem.effectiveCapacity(player.getItemInHand(gadgetHand));
     }
 
     /** Shatter-only convenience accessors, same shape as the Sunder ones above. */
@@ -125,7 +125,7 @@ public class ScrenchMenu extends AbstractModMenu {
     }
 
     public int getShatterFuelCapacity() {
-        return ShatterItem.FUEL_CAPACITY;
+        return ShatterItem.effectiveCapacity(player.getItemInHand(gadgetHand));
     }
 
     /** Drinker-only convenience accessors, same shape as the Sunder/Shatter fluid ones above --
@@ -136,7 +136,7 @@ public class ScrenchMenu extends AbstractModMenu {
     }
 
     public int getDrinkerCapacity() {
-        return DrinkerItem.CAPACITY;
+        return DrinkerItem.effectiveCapacity(player.getItemInHand(gadgetHand));
     }
 
     /** Sipping-only convenience accessors, same shape as Sunder's/Shatter's -- Sipping's buffer is
@@ -147,7 +147,7 @@ public class ScrenchMenu extends AbstractModMenu {
     }
 
     public int getSippingCapacity() {
-        return SippingItem.CAPACITY;
+        return SippingItem.effectiveCapacity(player.getItemInHand(gadgetHand));
     }
 
     /**
