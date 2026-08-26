@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:smooth_stone_slab"
+  },
+  "ingredient_fluid": "minecraft:water",
+  "ingredient_fluid_amount": 500,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_stone_blend",
+  "result_fluid_amount": 500,
+  "ticks": 300
+}

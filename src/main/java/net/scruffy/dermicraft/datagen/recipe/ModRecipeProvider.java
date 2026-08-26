@@ -704,6 +704,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
         RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, 500,
                 ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, 500,
+                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
 
         // Stairs of roster blocks -- same 0.375x ratio Pulp Blend uses for wood stairs (375 mB from
         // a 1000 mB full-block base), applied to both amount and time here.
@@ -784,6 +786,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone", Items.COBBLESTONE, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate", Items.COBBLED_DEEPSLATE, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone", Items.STONE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone", Items.SMOOTH_STONE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite", Items.ANDESITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite", Items.DIORITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite", Items.GRANITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
@@ -792,6 +795,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_tuff", Items.TUFF, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_dripstone_block", Items.DRIPSTONE_BLOCK, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_pointed_dripstone", Items.POINTED_DRIPSTONE, ModFluids.SOURCE_STONE_BLEND.get(), 250, lightTicks);
+
+        // Slabs of roster blocks -- reverse of the masticating slab recipes above, same half
+        // value/time convention (500 mB / half of solidTicks).
+        int slabTicks = ModMath.Time.getSecondsToTicks(5);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone_slab", Items.STONE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_slab", Items.COBBLESTONE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_slab", Items.ANDESITE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_slab", Items.DIORITE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_slab", Items.GRANITE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
 
         // Silica Blend roster
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_BLEND.get(), 750, aggregateTicks);

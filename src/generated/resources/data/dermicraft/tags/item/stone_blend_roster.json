@@ -1,6 +1,7 @@
 {
   "values": [
     "minecraft:stone",
+    "minecraft:smooth_stone",
     "minecraft:cobblestone",
     "minecraft:andesite",
     "minecraft:diorite",

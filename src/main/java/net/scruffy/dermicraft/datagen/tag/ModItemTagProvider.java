@@ -134,6 +134,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.STONE_BLEND_ROSTER)
                 .add(Items.STONE)
+                .add(Items.SMOOTH_STONE)
                 .add(Items.COBBLESTONE)
                 .add(Items.ANDESITE)
                 .add(Items.DIORITE)
