@@ -577,6 +577,13 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
         return profile;
     }
 
+    /** Work Speed Module bonus in this machine's Module slot -- see
+     * IHaveModules#workSpeedMultiplier for the diminishing-return stacking rule. */
+    @Override
+    protected float workSpeedMultiplier() {
+        return IHaveModules.workSpeedMultiplier(List.of(INVENTORY.getStackInSlot(MODULE)));
+    }
+
     /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
      * Charred Mutator); otherwise how far {@link #evolutionProgress} is toward
      * {@code evolutionThreshold}, 0-1. Public purely for {@code EvolutionOverlayBlockEntityRenderer}'s

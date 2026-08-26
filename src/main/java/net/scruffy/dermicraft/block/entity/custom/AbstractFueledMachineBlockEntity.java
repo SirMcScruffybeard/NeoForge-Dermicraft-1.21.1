@@ -159,10 +159,17 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     }
 
     protected void setSpeed() {
-        // `speed` is the fuel's raw multiplier (~1.0 for base Crude Slurry), scaled by the tier.
-        // Progress advances CRAFT_TICKS per cycle at speed 1.0, so a recipe's `ticks` maps 1:1 to
-        // real wall-clock ticks.
-        speed = FUEL_TANK.getSpeed() * getTier().speedMultiplier();
+        // `speed` is the fuel's raw multiplier (~1.0 for base Crude Slurry), scaled by the tier and
+        // by any installed Work Speed Module(s). Progress advances CRAFT_TICKS per cycle at speed
+        // 1.0, so a recipe's `ticks` maps 1:1 to real wall-clock ticks.
+        speed = FUEL_TANK.getSpeed() * getTier().speedMultiplier() * workSpeedMultiplier();
+    }
+
+    /** 1.0 (no bonus) by default -- overridden by a subclass with a real Module slot, mirroring
+     * installedHazardProfile()'s own per-subclass pattern. See IHaveModules#workSpeedMultiplier
+     * for the diminishing-return stacking rule this feeds into. */
+    protected float workSpeedMultiplier() {
+        return 1.0f;
     }
 
     protected void setUseRate() {

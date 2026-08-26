@@ -14,8 +14,10 @@ import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
+import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
@@ -102,6 +104,39 @@ public interface IHaveModules {
             profile = profile.plus(hazard);
         }
         return profile;
+    }
+
+    /**
+     * Combined multiplier from every Work Speed Module currently present in {@code modules} (any
+     * slot count -- deliberately list-based so this needs no changes when a machine gets more
+     * Module slots later, e.g. a Charred machine's planned second slot). Diminishing-return
+     * stacking: ranked strongest-to-weakest by each module's own bonus, the strongest contributes
+     * its full value, and each next-strongest contributes at HALF the weight of the rank before it
+     * (1, 1/2, 1/4, ...) -- half of its own POSITIONAL weight, not half of the previous module's
+     * raw value, so the same formula produces the right answer for any mix of current or future
+     * module tiers without special-casing. Returns 1.0f (no bonus at all) if none of the given
+     * stacks are a real Work Speed Module.
+     */
+    static float workSpeedMultiplier(List<ItemStack> modules) {
+        List<Float> bonuses = new ArrayList<>();
+        for (ItemStack module : modules) {
+            if (module.isEmpty() || !module.is(ModTags.Items.MODULE_WORK_SPEED)) continue;
+
+            WorkSpeedModuleProperties properties = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
+                    .getData(ModDataMaps.WORK_SPEED_MODULE_PROPERTIES);
+            if (properties == null) continue;
+
+            bonuses.add(properties.speedMultiplier() - 1f);
+        }
+        bonuses.sort(Collections.reverseOrder());
+
+        float totalBonus = 0f;
+        float weight = 1f;
+        for (float bonus : bonuses) {
+            totalBonus += bonus * weight;
+            weight /= 2f;
+        }
+        return 1f + totalBonus;
     }
 
     /**
