@@ -17,6 +17,7 @@ import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
+import net.scruffy.dermicraft.property.KeepOnDeathModuleProperties;
 import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
 @EventBusSubscriber(modid = Dermicraft.MOD_ID)
@@ -102,6 +103,16 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** Which tier a Keep-on-Death Module is -- see {@link KeepOnDeathModuleProperties}. Kind (is
+     * this a Keep-on-Death Module at all) lives on {@code ModTags.Items.MODULE_KEEP_ON_DEATH}. */
+    public static final DataMapType<Item, KeepOnDeathModuleProperties> KEEP_ON_DEATH_MODULE_PROPERTIES =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "keep_on_death_module_properties"),
+                            Registries.ITEM,
+                            KeepOnDeathModuleProperties.CODEC
+                    )
+                    .build();
+
     @SubscribeEvent
     public static void register(RegisterDataMapTypesEvent event) {
         event.register(BIOFUELS);
@@ -112,5 +123,6 @@ public class ModDataMaps {
         event.register(DECAPITATION_HEADS);
         event.register(SHATTER_HEAD_PROPERTIES);
         event.register(WORK_SPEED_MODULE_PROPERTIES);
+        event.register(KEEP_ON_DEATH_MODULE_PROPERTIES);
     }
 }

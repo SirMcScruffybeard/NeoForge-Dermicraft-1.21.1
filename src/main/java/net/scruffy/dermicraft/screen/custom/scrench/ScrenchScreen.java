@@ -176,6 +176,9 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
     /** Head slot plus fuel tank/slot pairing -- same layout as Sunder's own background above,
      * head slot standing in for Sunder's chain slot. */
     private void renderShatterBg(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + ShatterItem.MODULE_SLOT_X, y + ShatterItem.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+
         guiGraphics.blit(ITEM_SLOT_TEXTURE, x + ScrenchMenu.shatterHeadSlotX(), y + ScrenchMenu.shatterHeadSlotY(), 0, 0,
                 SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
 
@@ -188,6 +191,9 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
     }
 
     private void renderSunderBg(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.blit(MODULE_SLOT_TEXTURE, x + SunderItem.MODULE_SLOT_X, y + SunderItem.MODULE_SLOT_Y, 0, 0,
+                SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+
         guiGraphics.blit(ITEM_SLOT_TEXTURE, x + ScrenchMenu.chainSlotX(), y + ScrenchMenu.chainSlotY(), 0, 0,
                 SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
 

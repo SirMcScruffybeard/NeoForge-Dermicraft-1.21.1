@@ -233,6 +233,14 @@ public class ModItems {
     public static final DeferredItem<Item> WORK_SPEED_MODULE = ITEMS.register("work_speed_module",
             () -> new Item(new Item.Properties()));
 
+    // Keep-on-Death family -- tagged MODULE_KEEP_ON_DEATH, not MODULE_SAFETY/MODULE_WORK_SPEED.
+    // Salvage: cheap, consumed on trigger (Totem of Undying shape). Anchor: expensive, never
+    // consumed, gated only by Config#ANCHOR_MODULE_COOLDOWN_SECONDS (0 = no cooldown).
+    public static final DeferredItem<Item> SALVAGE_MODULE = ITEMS.register("salvage_module",
+            () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> ANCHOR_MODULE = ITEMS.register("anchor_module",
+            () -> new Item(new Item.Properties()));
+
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> MRE = ITEMS.register("mre",
             () -> new Item(new Item.Properties().food(ModFoodProperties.MRE)));

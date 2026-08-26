@@ -28,6 +28,13 @@ public class Config {
             .comment("A list of items to log on common setup.")
             .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "", Config::validateItemName);
 
+    // Anchor Module (permanent Keep-on-Death gadget module) -- cooldown before it can save a gadget
+    // from death again. 0 = no cooldown (default), can be raised in seconds by a server operator
+    // who wants the permanent tier less than fully unconditional.
+    public static final ModConfigSpec.IntValue ANCHOR_MODULE_COOLDOWN_SECONDS = BUILDER
+            .comment("Cooldown, in seconds, before an Anchor Module can save a gadget from death again. 0 = no cooldown.")
+            .defineInRange("anchorModuleCooldownSeconds", 0, 0, Integer.MAX_VALUE);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static boolean validateItemName(final Object obj) {

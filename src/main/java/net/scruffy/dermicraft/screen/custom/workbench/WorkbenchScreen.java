@@ -358,6 +358,9 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             // the button restocks it from the shared pool); Eater doesn't -- Modules aren't
             // fluid-fillable and the buffer holds arbitrary harvested items, not fuel.
             if (menu.isWorkItemSunder()) {
+                guiGraphics.blit(MODULE_SLOT_TEXTURE, x + SunderItem.MODULE_SLOT_X, y + SunderItem.MODULE_SLOT_Y, 0, 0,
+                        ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+
                 guiGraphics.blit(ITEM_SLOT_TEXTURE, x + SunderItem.CHAIN_SLOT_X, y + SunderItem.CHAIN_SLOT_Y, 0, 0,
                         ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
 
@@ -373,6 +376,9 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
                 // slot, same fuel tank/slot coordinates (ShatterItem.FUEL_TANK_X/Y equal Sunder's own,
                 // see ShatterItem's own field javadoc), same Fill-from-pool button (Shatter's fuel is
                 // just as much a consumable resource as Sunder's).
+                guiGraphics.blit(MODULE_SLOT_TEXTURE, x + ShatterItem.MODULE_SLOT_X, y + ShatterItem.MODULE_SLOT_Y, 0, 0,
+                        ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+
                 guiGraphics.blit(ITEM_SLOT_TEXTURE, x + ShatterItem.HEAD_SLOT_X, y + ShatterItem.HEAD_SLOT_Y, 0, 0,
                         ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
 

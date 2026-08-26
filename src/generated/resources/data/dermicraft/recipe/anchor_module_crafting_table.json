@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "minecraft:chain"
+    },
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    }
+  },
+  "pattern": [
+    "NCN",
+    "CFC",
+    "NCN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:anchor_module"
+  }
+}

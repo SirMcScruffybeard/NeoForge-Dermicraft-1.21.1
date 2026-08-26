@@ -26,6 +26,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -53,7 +54,10 @@ import net.scruffy.dermicraft.component.SunderModeData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
+import net.scruffy.dermicraft.interfaces.IHaveItemData;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import net.scruffy.dermicraft.util.AutoSmeltUtil;
@@ -95,7 +99,7 @@ import java.util.UUID;
  * bones back down, which reads the same as a reverse for a simple flex/extend clip like
  * {@code rev_up_down}.
  */
-public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget, IWorkbenchSwappable {
+public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget, IWorkbenchSwappable, IHaveModules {
 
     /** Placeholder capacity -- fuel-drain-rate-per-pulse and every other fuel-economy number are
      * still open design questions (see the notes), so this is a round default to build against,
@@ -793,6 +797,13 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         sunderStack.set(ModDataComponentTypes.SUNDER_MOUNTED_CHAIN.get(), HeldItemData.EMPTY);
     }
 
+    /** Whether {@code sunderStack} currently has a Module tagged {@code moduleTag} installed --
+     * generic capability-query dispatch, same shape as EaterItem's own {@code hasModule}. Reads
+     * {@link ModDataComponentTypes#SUNDER_MODULE_DATA} directly. */
+    public static boolean hasModule(ItemStack sunderStack, TagKey<Item> moduleTag) {
+        return IHaveModules.hasModule(sunderStack, ModDataComponentTypes.SUNDER_MODULE_DATA.get(), MODULE_SLOT_COUNT, moduleTag);
+    }
+
     ////////////////////IWorkbenchSwappable (Scrench field / Workbench station swap panel)\\\\\\\\\\\\\\\\\\\\
 
     // Panel layout -- public so ScrenchScreen/WorkbenchScreen can draw matching backgrounds under
@@ -804,6 +815,16 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
     public static final int FUEL_SLOT_Y = 60;
     public static final int FUEL_TANK_X = FUEL_SLOT_X;
     public static final int FUEL_TANK_Y = FUEL_SLOT_Y - 48; // tank asset's own top, 48px above its bottom-anchored fill slot
+
+    /** Sunder's Gadget Module loadout -- first Weapons-subsection gadget to get one, same shared
+     * Module system as Eater/Drinker/Sipping (see {@link ModDataComponentTypes#SUNDER_MODULE_DATA}).
+     * 1 general-purpose slot, same size as Drinker's own -- Sunder's Module catalog starts empty
+     * (Safety Modules already apply generically; the Salvage/Anchor keep-on-death Modules are this
+     * slot's actual motivating use case). */
+    public static final int MODULE_SLOT_COUNT = 1;
+    public static final int MODULE_SLOT_CAPACITY = IHaveModules.DEFAULT_MODULE_SLOT_CAPACITY;
+    public static final int MODULE_SLOT_X = 8;
+    public static final int MODULE_SLOT_Y = 27;
 
     @Override
     public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
@@ -834,17 +855,24 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
 
         private final java.util.function.Supplier<ItemStack> gadgetStackSupplier;
         private final boolean fieldHosted;
+        private final IItemHandlerModifiable moduleHandler;
+        private boolean moduleSlotChanged = false;
 
         private SunderSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
             this.gadgetStackSupplier = gadgetStackSupplier;
             this.fieldHosted = fieldHosted;
+            this.moduleHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
+                    ModDataComponentTypes.SUNDER_MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
+                    candidate -> candidate.is(ModTags.Items.MODULES)));
         }
 
         @Override
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
-            return List.of(
-                    new ChainSlot(panelX + CHAIN_SLOT_X + 1, panelY + CHAIN_SLOT_Y + 1, active),
-                    new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
+            List<Slot> slots = new ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+            slots.add(new ChainSlot(panelX + CHAIN_SLOT_X + 1, panelY + CHAIN_SLOT_Y + 1, active));
+            slots.add(new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
+            return slots;
         }
 
         /**
@@ -858,7 +886,7 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
          */
         @Override
         public void onClosed(Player player) {
-            if (fieldHosted && hasMountedChain(gadgetStackSupplier.get())) {
+            if (fieldHosted && (hasMountedChain(gadgetStackSupplier.get()) || moduleSlotChanged)) {
                 applyCompletedSwapCosts(player);
             }
         }

@@ -6,6 +6,8 @@
     "dermicraft:heat_safety_module",
     "dermicraft:metaphysical_safety_module",
     "dermicraft:heat_evolution_module",
-    "dermicraft:work_speed_module"
+    "dermicraft:work_speed_module",
+    "dermicraft:salvage_module",
+    "dermicraft:anchor_module"
   ]
 }

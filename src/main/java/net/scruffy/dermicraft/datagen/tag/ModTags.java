@@ -128,6 +128,11 @@ public class ModTags {
         // ModDataMaps.WORK_SPEED_MODULE_PROPERTIES.
         public static final TagKey<Item> MODULE_WORK_SPEED = createTag("module/work_speed");
 
+        // "Keep on Death" family -- same kind-vs-data split as Safety/Work Speed Modules: generic
+        // membership only here, WHICH tier (consumed Salvage vs. permanent Anchor) a specific one
+        // is lives in ModDataMaps.KEEP_ON_DEATH_MODULE_PROPERTIES.
+        public static final TagKey<Item> MODULE_KEEP_ON_DEATH = createTag("module/keep_on_death");
+
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

@@ -90,6 +90,22 @@ public class ModDataComponentTypes {
                     .persistent(BulkItemData.CODEC)
                     .networkSynchronized(BulkItemData.STREAM_CODEC));
 
+    /** Sunder's Gadget Module loadout -- fourth consumer of the shared Module system, same
+     * "separate registration per consumer" rule as every other one above. First Weapons-subsection
+     * gadget to get a Module slot -- see the Modules direction note's step-1 goal of eventually
+     * covering every gadget, not just the harvesting/utility ones. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulkItemData>> SUNDER_MODULE_DATA =
+            register("sunder_module_data", builder -> builder
+                    .persistent(BulkItemData.CODEC)
+                    .networkSynchronized(BulkItemData.STREAM_CODEC));
+
+    /** Shatter's Gadget Module loadout -- fifth consumer of the shared Module system, same
+     * "separate registration per consumer" rule as every other one above. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulkItemData>> SHATTER_MODULE_DATA =
+            register("shatter_module_data", builder -> builder
+                    .persistent(BulkItemData.CODEC)
+                    .networkSynchronized(BulkItemData.STREAM_CODEC));
+
     /** Eater's mode state -- same shape as D.R.I.N.K.E.R.'s, registered separately so a mode set on
      * one item is never confused with the other's. Reuses {@link DrinkerModeData}'s codecs rather
      * than a duplicate record; the Storage/Transfer/Disposal cycle-step shape is identical. */

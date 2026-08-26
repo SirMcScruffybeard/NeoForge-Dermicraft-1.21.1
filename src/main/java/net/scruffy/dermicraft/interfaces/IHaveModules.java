@@ -140,6 +140,29 @@ public interface IHaveModules {
     }
 
     /**
+     * Index of the first slot in {@code gadgetStack}'s Module loadout holding an item tagged
+     * {@code moduleTag}, or -1 if none. Generic capability-query dispatch for a consumer that needs
+     * to know WHICH slot, not just whether one exists (e.g. to consume it afterward) -- see
+     * {@link #clearModuleSlot}.
+     */
+    static int findModuleSlot(ItemStack gadgetStack, DataComponentType<BulkItemData> moduleDataType,
+                               int moduleSlotCount, TagKey<Item> moduleTag) {
+        BulkItemData data = gadgetStack.getOrDefault(moduleDataType, BulkItemData.empty(moduleSlotCount));
+        for (int i = 0; i < moduleSlotCount; i++) {
+            if (data.slot(i).asDisplayStack().is(moduleTag)) return i;
+        }
+        return -1;
+    }
+
+    /** Empties one Module slot on {@code gadgetStack} in place -- the consumed-on-trigger half of
+     * a Keep-on-Death Module (Salvage), found via {@link #findModuleSlot} first. */
+    static void clearModuleSlot(ItemStack gadgetStack, DataComponentType<BulkItemData> moduleDataType,
+                                 int moduleSlotCount, int slotIndex) {
+        BulkItemData data = gadgetStack.getOrDefault(moduleDataType, BulkItemData.empty(moduleSlotCount));
+        gadgetStack.set(moduleDataType, data.withSlot(slotIndex, net.scruffy.dermicraft.component.BulkSlot.EMPTY));
+    }
+
+    /**
      * Builds a Module-slot row for a gadget's {@link IWorkbenchSwappable.SwapPanel}: one
      * {@link Slot} per Module slot, left-to-right from {@code (x, y)} at {@code spacing} pixels
      * apart, backed by the already-constructed {@code moduleHandler} (typically an

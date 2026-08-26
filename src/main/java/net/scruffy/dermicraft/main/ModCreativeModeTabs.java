@@ -154,6 +154,10 @@ public class ModCreativeModeTabs {
                         // Work Speed Modules
                         output.accept(ModItems.WORK_SPEED_MODULE);
 
+                        // Keep-on-Death Modules
+                        output.accept(ModItems.SALVAGE_MODULE);
+                        output.accept(ModItems.ANCHOR_MODULE);
+
                         buildFlaskContents(output);
                         buildSyringeContents(output);
 

@@ -1,0 +1,10 @@
+{
+  "values": {
+    "dermicraft:anchor_module": {
+      "consumed": false
+    },
+    "dermicraft:salvage_module": {
+      "consumed": true
+    }
+  }
+}

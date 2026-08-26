@@ -456,6 +456,33 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("work_speed_module_crafting_table"));
 
+        // Salvage Module -- cheap, consumed-on-trigger tier (Totem of Undying shape). Deliberately
+        // NOT the Safety Modules' 6-Iron-casing weight -- 4 String (a fragile, one-time tether) is
+        // the whole cost beyond the frame, matching "fairly cheap" against Anchor's own real
+        // expense below.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SALVAGE_MODULE.get())
+                .pattern(" S ")
+                .pattern("SFS")
+                .pattern(" S ")
+                .define('S', Items.STRING)
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("salvage_module_crafting_table"));
+
+        // Anchor Module -- expensive, permanent tier. 4 Netherite Ingot casing (genuinely costly,
+        // the actual balance lever for standing invulnerability on one gadget) + Chain for the
+        // "tethered/anchored" identity, mirroring Salvage's String in spirit but at the opposite
+        // cost extreme.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.ANCHOR_MODULE.get())
+                .pattern("NCN")
+                .pattern("CFC")
+                .pattern("NCN")
+                .define('N', Items.NETHERITE_INGOT)
+                .define('C', Items.CHAIN)
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("anchor_module_crafting_table"));
+
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse
         // Catalyst injection (100 mB is the syringe's fixed physical volume, not a cost lever).

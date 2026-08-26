@@ -85,6 +85,16 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.WORK_SPEED_MODULE.get(), "item/module/module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/speed_1_icon"));
 
+        // Keep-on-Death family -- plain module_frame background, vanilla icons reused directly
+        // (same "borrow an existing item's own texture when it already fits" convention Aggregate
+        // Module's Iron Shovel icon uses) rather than new painted assets. Totem of Undying reads as
+        // "one-time save" for the consumed Salvage tier; Chain reads as "tethered/anchored" for the
+        // permanent Anchor tier.
+        moduleItem(ModItems.SALVAGE_MODULE.get(), "item/module/module_frame",
+                ResourceLocation.withDefaultNamespace("item/totem_of_undying"));
+        moduleItem(ModItems.ANCHOR_MODULE.get(), "item/module/module_frame",
+                ResourceLocation.withDefaultNamespace("item/chain"));
+
         // Non-standard texture folder (item/sunder_chains/, not item/) -- basicItem()'s default
         // texture-path-matches-item-id assumption doesn't reach it, hence the explicit path.
         singleTextureItem(ModItems.IRON_SUNDER_CHAIN.get(), "item/sunder_chains/iron_sunder_chain");

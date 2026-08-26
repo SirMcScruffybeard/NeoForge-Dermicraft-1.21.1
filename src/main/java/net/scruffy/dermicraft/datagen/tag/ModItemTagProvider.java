@@ -90,6 +90,8 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.METAPHYSICAL_SAFETY_MODULE.get())
                 .add(ModItems.HEAT_EVOLUTION_MODULE.get())
                 .add(ModItems.WORK_SPEED_MODULE.get())
+                .add(ModItems.SALVAGE_MODULE.get())
+                .add(ModItems.ANCHOR_MODULE.get())
         ;
 
         tag(ModTags.Items.MODULE_AGGREGATE)
@@ -111,6 +113,11 @@ public class ModItemTagProvider extends ItemTagsProvider {
 
         tag(ModTags.Items.MODULE_WORK_SPEED)
                 .add(ModItems.WORK_SPEED_MODULE.get())
+        ;
+
+        tag(ModTags.Items.MODULE_KEEP_ON_DEATH)
+                .add(ModItems.SALVAGE_MODULE.get())
+                .add(ModItems.ANCHOR_MODULE.get())
         ;
 
         tag(ModTags.Items.STONE_BLEND_ROSTER)

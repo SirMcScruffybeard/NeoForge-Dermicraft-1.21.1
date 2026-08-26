@@ -25,7 +25,10 @@ import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.effect.ModEffects;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
+import net.scruffy.dermicraft.interfaces.IHaveItemData;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -63,7 +66,7 @@ import java.util.function.Supplier;
  * of release rather than continuously while holding. See {@code ShatterModeData} for the smaller
  * three-state machine this needs as a result.
  */
-public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwappable, IHaveFluidData {
+public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwappable, IHaveFluidData, IHaveModules {
 
     /** Placeholder, same as every other gadget's starting point -- see {@link IGadget}. Not tuned. */
     public static final int MAX_HP = 10;
@@ -779,6 +782,20 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
     public static final int FUEL_TANK_X = FUEL_SLOT_X;
     public static final int FUEL_TANK_Y = FUEL_SLOT_Y - 48; // tank asset's own top, 48px above its bottom-anchored fill slot
 
+    /** Shatter's Gadget Module loadout -- same shared Module system as Eater/Drinker/Sipping/Sunder
+     * (see {@link ModDataComponentTypes#SHATTER_MODULE_DATA}). 1 general-purpose slot, same size as
+     * Sunder's own. */
+    public static final int MODULE_SLOT_COUNT = 1;
+    public static final int MODULE_SLOT_CAPACITY = IHaveModules.DEFAULT_MODULE_SLOT_CAPACITY;
+    public static final int MODULE_SLOT_X = SunderItem.MODULE_SLOT_X;
+    public static final int MODULE_SLOT_Y = SunderItem.MODULE_SLOT_Y;
+
+    /** Whether {@code shatterStack} currently has a Module tagged {@code moduleTag} installed --
+     * same shape as SunderItem's own {@code hasModule}. */
+    public static boolean hasModule(ItemStack shatterStack, net.minecraft.tags.TagKey<net.minecraft.world.item.Item> moduleTag) {
+        return IHaveModules.hasModule(shatterStack, ModDataComponentTypes.SHATTER_MODULE_DATA.get(), MODULE_SLOT_COUNT, moduleTag);
+    }
+
     @Override
     public SwapPanel openSwapPanel(Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
         return new ShatterSwapPanel(gadgetStackSupplier, fieldHosted);
@@ -798,24 +815,31 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
 
         private final Supplier<ItemStack> gadgetStackSupplier;
         private final boolean fieldHosted;
+        private final IItemHandlerModifiable moduleHandler;
+        private boolean moduleSlotChanged = false;
 
         private ShatterSwapPanel(Supplier<ItemStack> gadgetStackSupplier, boolean fieldHosted) {
             this.gadgetStackSupplier = gadgetStackSupplier;
             this.fieldHosted = fieldHosted;
+            this.moduleHandler = IHaveItemData.liveHandler(() -> new IHaveItemData.BulkItemHandler(gadgetStackSupplier.get(),
+                    ModDataComponentTypes.SHATTER_MODULE_DATA.get(), MODULE_SLOT_COUNT, MODULE_SLOT_CAPACITY,
+                    candidate -> candidate.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES)));
         }
 
         @Override
         public List<Slot> slots(int panelX, int panelY, BooleanSupplier active) {
-            return List.of(
-                    new HeadSlot(panelX + HEAD_SLOT_X + 1, panelY + HEAD_SLOT_Y + 1, active),
-                    new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
+            List<Slot> slots = new java.util.ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
+                    panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, 0, active, () -> moduleSlotChanged = true));
+            slots.add(new HeadSlot(panelX + HEAD_SLOT_X + 1, panelY + HEAD_SLOT_Y + 1, active));
+            slots.add(new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
+            return slots;
         }
 
         /** Same "a mounted part present at close counts as a completed swap" detection as Sunder's
          * own panel -- see that class's javadoc. */
         @Override
         public void onClosed(Player player) {
-            if (fieldHosted && hasMountedHead(gadgetStackSupplier.get())) {
+            if (fieldHosted && (hasMountedHead(gadgetStackSupplier.get()) || moduleSlotChanged)) {
                 applyCompletedSwapCosts(player);
             }
         }
