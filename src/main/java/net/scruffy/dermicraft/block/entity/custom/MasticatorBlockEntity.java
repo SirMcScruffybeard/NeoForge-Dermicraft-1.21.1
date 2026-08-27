@@ -558,9 +558,17 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         RecipeManager recipeManager = level.getRecipeManager();
         ItemStack stack = INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT);
         FluidStack fluid = INGREDIENT_TANK.getFluid();
+        OneFluidOneItemRecipeInput input = new OneFluidOneItemRecipeInput(stack, fluid);
 
-        return recipeManager.getRecipeFor(ModRecipes.MASTICATING_TYPE.get(),
-                new OneFluidOneItemRecipeInput(stack, fluid), this.level);
+        // Not a plain getRecipeFor -- two recipes can share the same ingredient tag at different
+        // itemAmount thresholds (e.g. Fence's batch-of-3 vs its single-item alternate), and
+        // MasticatingRecipe#matches is a >= check, so a stack of 3+ satisfies BOTH. Picking vanilla's
+        // arbitrary "first match" would risk silently starving the bulkier recipe. Explicitly scan
+        // every match and take the highest itemAmount the stack actually satisfies, so batching is
+        // always preferred over singles whenever the stack is large enough for it.
+        return recipeManager.getAllRecipesFor(ModRecipes.MASTICATING_TYPE.get()).stream()
+                .filter(holder -> holder.value().matches(input, level))
+                .max(java.util.Comparator.comparingInt(holder -> holder.value().itemAmount()));
     }
 
     protected void setActiveRecipe(Optional<RecipeHolder<MasticatingRecipe>> opt) {

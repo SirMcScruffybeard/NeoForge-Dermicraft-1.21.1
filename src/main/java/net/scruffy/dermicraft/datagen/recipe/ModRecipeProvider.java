@@ -631,9 +631,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,
                 ModMath.Time.getSecondsToTicks(45));
 
+        // 330 mB, not 334 -- lowered (2026-08-27) so 3 singles (990 mB) stay strictly under the new
+        // batch-of-3 recipe's clean 1000 mB (Bone's own value); 334x3=1002 would have made batching
+        // a downgrade, backwards from the whole point of adding it.
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL), 1,
-                Fluids.WATER, 334, ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, -1,
+                Fluids.WATER, 330, ModFluids.SOURCE_CALCIUM_BLEND.get(), 330, -1,
                 ModMath.Time.getSecondsToTicks(15));
+        // Batch-of-3 alternate -- real vanilla 3-Bone-Meal-per-Bone ratio, priced at Bone's own clean
+        // 1000 mB. Masticating-only, same convention as the Nugget batches above.
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating_batch",
+                Ingredient.of(Items.BONE_MEAL), 3, Fluids.WATER, 1000,
+                ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Skeleton Skull -- 3x Bone's rate (1000 -> 3000 mB, time scaled proportionally), a real
         // payoff for a decapitation-chance drop rather than parity with grinding plain Bone.
@@ -719,6 +727,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
         RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, 500,
                 ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+
+        // Walls of roster blocks -- full value/time each (not halved like slabs above), matching the
+        // real 6-blocks-in/6-walls-out vanilla crafting ratio (1:1, unlike slabs' 1:2). Only the 5
+        // roster members with a real vanilla wall get one -- no Stone/Deepslate/Calcite/Tuff Wall
+        // exists. Cost/time mirrors each material's own full-block rate above (Cobblestone/Cobbled
+        // Deepslate at 900 mB/cobbleTicks, Andesite/Diorite/Granite at 1000 mB/solidTicks).
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobblestone_wall", Items.COBBLESTONE_WALL, 900,
+                ModFluids.SOURCE_STONE_BLEND.get(), 900, ModMath.Time.getSecondsToTicks(8));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_andesite_wall", Items.ANDESITE_WALL, 1000,
+                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_diorite_wall", Items.DIORITE_WALL, 1000,
+                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_granite_wall", Items.GRANITE_WALL, 1000,
+                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, 900,
+                ModFluids.SOURCE_STONE_BLEND.get(), 900, ModMath.Time.getSecondsToTicks(8));
 
         // Stairs of roster blocks -- same 0.375x ratio Pulp Blend uses for wood stairs (375 mB from
         // a 1000 mB full-block base), applied to both amount and time here.
@@ -820,6 +844,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
 
+        // Walls of roster blocks -- reverse of the masticating wall recipes above, full value/time
+        // each (1:1 vanilla ratio, not halved like slabs).
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_wall", Items.COBBLESTONE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_wall", Items.ANDESITE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_wall", Items.DIORITE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_wall", Items.GRANITE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
+
         // Silica Blend roster
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_BLEND.get(), 750, aggregateTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sand", Items.RED_SAND, ModFluids.SOURCE_SILICA_BLEND.get(), 750, aggregateTicks);
@@ -856,6 +888,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_nugget", Items.IRON_NUGGET, 110,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+        // Batch-of-9 alternate -- real vanilla 9-Nugget-per-Ingot ratio, priced at the clean
+        // Ingot-equivalent 1000 mB rather than 9x110=990, so it's a genuine (if small) bulk reward
+        // over feeding Nuggets one at a time. Masticating-only, deliberately no metastasizing
+        // counterpart -- the Metastasizer stays single-item-output only. Uses getRecipeOptional's
+        // highest-itemAmount tie-break (see MasticatorBlockEntity) same as Fence's own pair.
+        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_nugget_batch",
+                Ingredient.of(Items.IRON_NUGGET), 9, Fluids.WATER, 1000,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
@@ -921,6 +961,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_nugget", Items.GOLD_NUGGET, 110,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+        // Batch-of-9 alternate -- same reasoning as Iron Nugget's own batch above (clean
+        // Ingot-equivalent 1000 mB vs 9x110=990, masticating-only).
+        RecipeBuilders.buildMasticating(recipeOutput, "aurous_blend_masticating_nugget_batch",
+                Ingredient.of(Items.GOLD_NUGGET), 9, Fluids.WATER, 1000,
+                ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.buildMasticating(recipeOutput, "aurous_blend_masticating_raw",
                 Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
                 ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
@@ -1483,6 +1528,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "pulp_blend_recycling_fence",
                 Ingredient.of(ItemTags.WOODEN_FENCES), 3, Fluids.WATER, 1250,
                 ModFluids.SOURCE_PULP_BLEND.get(), 1250, -1, fenceTicks);
+
+        // Single-fence convenience alternate -- deliberately under a clean 1/3 split of the batch-3
+        // recipe above (400/1250 = 32%, vs. an even 416.67 mB third) so processing one at a time is
+        // never as efficient as batching 3, same anti-cheese shape as the mod's other bulk discounts.
+        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_fence_single", ItemTags.WOODEN_FENCES, 400,
+                ModFluids.SOURCE_PULP_BLEND.get(), 400, ModMath.Time.getSecondsToTicks(4));
 
         // Species covered so far -- Nether Stems/Hyphae and Bamboo deferred, same "not yet
         // designed" status as the Sediment Blends' own deferred materials.
