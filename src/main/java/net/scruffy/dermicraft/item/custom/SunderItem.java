@@ -317,6 +317,10 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
             target.igniteForSeconds(chain.igniteFireSeconds());
         }
 
+        // Standard hits wear the chain too -- one point per hit, same flat CHAIN_WEAR_PER_PULSE rate
+        // SAWING's own pulses use, just once per swing here rather than once per tick.
+        wearChain(stack);
+
         return super.hurtEnemy(stack, target, attacker);
     }
 

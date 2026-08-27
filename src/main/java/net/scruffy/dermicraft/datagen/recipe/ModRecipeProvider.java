@@ -281,6 +281,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.FLINT), Ingredient.of(ItemTags.WOOL),
                 new ItemStack(Items.STRING, 4), 0, true);
 
+        // Carved Pumpkin -- same 3-tool roster as Wool->String above, Shears matching its real
+        // vanilla carving-tool role (1 durability, same as vanilla's own shears-on-pumpkin
+        // interaction) alongside the surgical-toolkit alternates.
+        RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_shears",
+                Ingredient.of(Items.SHEARS), Ingredient.of(Items.PUMPKIN),
+                new ItemStack(Items.CARVED_PUMPKIN), 1, false);
+        RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_scalpel",
+                Ingredient.of(ModItems.SCALPEL.get()), Ingredient.of(Items.PUMPKIN),
+                new ItemStack(Items.CARVED_PUMPKIN), 0, false);
+        RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_primitive_scalpel",
+                Ingredient.of(ModItems.PRIMITIVE_SCALPEL.get()), Ingredient.of(Items.PUMPKIN),
+                new ItemStack(Items.CARVED_PUMPKIN), 1, false);
+
         RecipeBuilders.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem());
 
         RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem());
