@@ -131,6 +131,7 @@ public class ShatterEvents {
             BlockState state = level.getBlockState(pos);
             if (state.isAir()) continue;
             if (state.getDestroySpeed(level, pos) < 0) continue; // unbreakable (bedrock, etc.)
+            if (!state.getFluidState().isEmpty()) continue; // leave fluid blocks (source or flowing) alone
 
             // Below the mounted head's tier -- left completely untouched, not swept into the AoE at
             // all (see the class javadoc). Only the struck block itself ever gets vanilla's own

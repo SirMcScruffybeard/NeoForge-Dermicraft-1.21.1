@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid_amount": 5000,
+  "ingredient": {
+    "item": "minecraft:chest"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:hopper"
+  },
+  "ticks": 200
+}

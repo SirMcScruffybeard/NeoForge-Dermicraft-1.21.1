@@ -928,6 +928,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_BLEND.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_bucket", Items.BUCKET, ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_block", Items.IRON_BLOCK, ModFluids.SOURCE_FERROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_hopper", Items.HOPPER, ModFluids.SOURCE_FERROUS_BLEND.get(), 5000, ModMath.Time.getSecondsToTicks(50));
 
         // Blood Nugget -- alternate trace-iron route from Protein Blend. Iron Nugget is a
         // non-consumed pattern (same as every other Metastasizer recipe here); Protein Blend is the
@@ -1232,6 +1233,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Floors' flat 2000 mB since the Craw is a functional machine, not a floor tile.
         RecipeBuilders.mutate(recipeOutput, "mutating_craw", Items.CHEST,
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.CRAW.asItem(), solidTicks);
+
+        // Hopper - Chest + Ferrous Blend, same "structural item + Mutator reagent" shape as Craw
+        // above. 5000 mB matches vanilla's own 5 Iron Ingot cost exactly (1000 mB per ingot, the
+        // mod's standard rate -- see metastasizing_ferrous_ingot), and mirrors metastasizing_hopper's
+        // own 5000 mB duplication cost below.
+        RecipeBuilders.mutate(recipeOutput, "mutating_hopper", Items.CHEST,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 5000, Items.HOPPER, solidTicks);
 
         // Skin Tank - same reasoning and price as the Craw's Mutator route above: simple enough
         // (one structural item, Beaker, no second reagent needed) to fit the Mutator, parallel to

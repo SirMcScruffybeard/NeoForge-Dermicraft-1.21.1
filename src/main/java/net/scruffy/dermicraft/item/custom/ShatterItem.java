@@ -655,6 +655,7 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
             net.minecraft.world.level.block.state.BlockState state = level.getBlockState(pos);
             if (state.isAir()) continue;
             if (state.getDestroySpeed(level, pos) < 0) continue; // unbreakable (bedrock, etc.)
+            if (!state.getFluidState().isEmpty()) continue; // leave fluid blocks (source or flowing) alone
 
             if (!meetsMiningTier(stack, state)) overTier = true;
 
