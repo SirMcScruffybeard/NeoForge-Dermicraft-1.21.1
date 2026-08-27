@@ -120,14 +120,17 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
      * enchantment/AI checks that key off the tag rather than this component. Speeds match a plain
      * Iron Axe/Sword (6.0F/1.5F) since Sunder's base combat stats are already pinned to Iron (see
      * {@link #BASE_ATTACK_DAMAGE}) -- this is the axe/sword-hand analog of that same baseline, not a
-     * new balance number. */
+     * new balance number. damagePerBlock is 0, deliberately NOT vanilla's usual 1 -- Sunder's
+     * durability represents gadget HP (see {@link IGadget}, drop-damage-based only), a completely
+     * separate mechanic from block-mining wear, so this component existing purely for tag/speed/
+     * drops recognition must not also wire up vanilla's per-block durability hit. */
     public static final Tool TOOL_BEHAVIOR = new Tool(
             List.of(
                     Tool.Rule.minesAndDrops(BlockTags.MINEABLE_WITH_AXE, 6.0F),
                     Tool.Rule.minesAndDrops(BlockTags.SWORD_EFFICIENT, 1.5F)
             ),
             1.0F,
-            1
+            0
     );
 
     /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
