@@ -312,6 +312,18 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
         resolvePendingRecipe(level);
 
+        //////////Every 5 Seconds\\\\\\\\\\
+        // Unconditional retry, independent of whether TANK's contents actually changed this tick --
+        // DroolingTank's own onContentsChanged-driven push (see MachineBaseBlockEntity#createDroolingTank)
+        // only fires reactively when a fill/drain succeeds. A tank that's full with no valid receiver
+        // stops changing contents at all, so that reactive push goes silent and never retries even
+        // once a receiver (e.g. a duct) becomes available later -- this periodic sweep, matching
+        // AbstractFueledMachineBlockEntity#drainOutputs's own cadence, is what actually recovers it
+        // instead of requiring a manual drain to nudge onContentsChanged.
+        if (autoDrainEnabled && ModMath.Time.hasSecondsPassed(level, 5) && !TANK.isEmpty()) {
+            TANK.pushFluidToBelowNeighbour(level, worldPosition);
+        }
+
         //////////Every Second (20 ticks)\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(1))) {
             FluidStack offer = new FluidStack(currentTargetFluid(), passiveYieldAmount());

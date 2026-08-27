@@ -1,8 +1,8 @@
 {
   "parent": "minecraft:block/cube_bottom_top",
   "textures": {
-    "bottom": "dermicraft:block/skin_tank_end",
-    "side": "dermicraft:block/skin_tank_end",
+    "bottom": "dermicraft:block/charred_machine_port",
+    "side": "dermicraft:block/charred_machine_port",
     "top": "dermicraft:block/charred_grafting_table_top"
   }
 }
