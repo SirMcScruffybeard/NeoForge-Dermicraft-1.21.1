@@ -24,8 +24,12 @@ import net.scruffy.dermicraft.hazard.HazardProfile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Shared base for the Innards Duct family (the dumb transport segment).
@@ -241,6 +245,99 @@ public abstract class AbstractInnardsDuctBlock extends Block {
     private boolean exposesCapability(Level level, BlockPos pos, Direction face) {
         return level.getCapability(Capabilities.ItemHandler.BLOCK, pos, face) != null
                 || level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face) != null;
+    }
+
+    /**
+     * Scalpel gesture (see {@code ScalpelItem#useOn}) -- cycles to the next possible
+     * {@code maxConnections()}-sized combination of currently-eligible neighbour faces, for tight
+     * spots where more neighbours are individually valid than the duct has slots for, and the
+     * placement-time greedy commit (see {@link #getStateForPlacement}) picked the wrong ones. The
+     * eligible set is recomputed fresh here (not read off any stale placement-time data), so a
+     * neighbour placed or removed since then is picked up correctly.
+     *
+     * <p>No-op (returns false, no state change) when there's no real ambiguity -- at most
+     * {@code maxConnections()} neighbours are eligible at all, which the passive auto-commit/
+     * reconcile logic already resolves correctly on its own; there is nothing else to pick.
+     *
+     * <p>Applying the new state through {@code level.setBlock} (rather than touching neighbours
+     * directly) is what makes a duct/Node losing its connection here correctly free its own slot on
+     * the other end too -- that's the normal neighbour-change notification path {@link #updateShape}
+     * already handles, triggered the same way any other block change would.
+     *
+     * @return true if a real cycle happened (a different combination was applied).
+     */
+    public boolean cycleConnections(Level level, BlockPos pos, BlockState state) {
+        List<Direction> candidates = new ArrayList<>();
+        for (Direction dir : Direction.values()) {
+            if (connectionTypeFor(level, pos, dir) != null) candidates.add(dir);
+        }
+        if (candidates.size() <= maxConnections()) return false;
+
+        List<Set<Direction>> combinations = combinationsOf(candidates, maxConnections());
+
+        Set<Direction> current = EnumSet.noneOf(Direction.class);
+        for (Direction dir : Direction.values()) {
+            if (state.getValue(PROPERTY_BY_DIRECTION.get(dir)) != DuctConnection.NONE) current.add(dir);
+        }
+
+        int currentIndex = combinations.indexOf(current);
+        Set<Direction> next = combinations.get((currentIndex + 1) % combinations.size());
+
+        BlockState newState = state;
+        for (Direction dir : candidates) {
+            DuctConnection type = next.contains(dir) ? connectionTypeFor(level, pos, dir) : DuctConnection.NONE;
+            newState = newState.setValue(PROPERTY_BY_DIRECTION.get(dir), type);
+        }
+        level.setBlock(pos, newState, Block.UPDATE_ALL);
+        return true;
+    }
+
+    /**
+     * The connection type {@code dir} would resolve to if committed -- Node/machine always eligible,
+     * duct eligible only if it already points back at us OR still has a free slot to spare (a duct
+     * slot already occupied by some OTHER neighbour of ITS own isn't up for grabs here). Null means
+     * not eligible at all. Shares the same classification rules {@link #placementConnection} and
+     * {@link #reconcileFace} use, just without their slot-budget gating on OUR OWN side -- this is
+     * asking "could this face ever be part of a valid combination," not "is there room right now."
+     */
+    @Nullable
+    private DuctConnection connectionTypeFor(Level level, BlockPos pos, Direction dir) {
+        BlockPos neighborPos = pos.relative(dir);
+        BlockState neighbor = level.getBlockState(neighborPos);
+
+        if (neighbor.getBlock() instanceof AbstractNodeBlock) {
+            return DuctConnection.PIPE;
+        }
+        if (neighbor.getBlock() instanceof AbstractInnardsDuctBlock) {
+            boolean pointsBack = neighbor.getValue(PROPERTY_BY_DIRECTION.get(dir.getOpposite())) == DuctConnection.PIPE;
+            return (pointsBack || hasFreeSlot(neighbor)) ? DuctConnection.PIPE : null;
+        }
+        if (exposesCapability(level, neighborPos, dir.getOpposite())) {
+            return DuctConnection.END;
+        }
+        return null;
+    }
+
+    /** Every {@code k}-sized subset of {@code items}, in a fixed order derived from {@code items}'
+     * own order (itself {@link Direction#values()} order, from the caller) -- deterministic and
+     * reproducible from one right-click to the next without needing any persisted cycle index. */
+    private static List<Set<Direction>> combinationsOf(List<Direction> items, int k) {
+        List<Set<Direction>> result = new ArrayList<>();
+        combinationsOf(items, k, 0, EnumSet.noneOf(Direction.class), result);
+        return result;
+    }
+
+    private static void combinationsOf(List<Direction> items, int k, int start,
+                                        Set<Direction> current, List<Set<Direction>> result) {
+        if (current.size() == k) {
+            result.add(EnumSet.copyOf(current));
+            return;
+        }
+        for (int i = start; i < items.size(); i++) {
+            current.add(items.get(i));
+            combinationsOf(items, k, i + 1, current, result);
+            current.remove(items.get(i));
+        }
     }
 
     @Override

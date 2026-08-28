@@ -10,6 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.scruffy.dermicraft.block.custom.duct.AbstractInnardsDuctBlock;
 import net.scruffy.dermicraft.interfaces.IBloodLet;
 import net.scruffy.dermicraft.interfaces.IHarvestParts;
 import net.scruffy.dermicraft.item.custom.base.ToolItem;
@@ -73,10 +75,21 @@ public class ScalpelItem extends ToolItem implements IHarvestParts, IBloodLet {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         if (context.getLevel().isClientSide) return InteractionResult.SUCCESS;
+        Level level = context.getLevel();
         Player player = context.getPlayer();
 
-        if (isHarvestable(context.getLevel(), context.getClickedPos())) {
+        if (isHarvestable(level, context.getClickedPos())) {
             damageTool(player, context.getItemInHand(), USE_WEAR, context.getHand());
+            return InteractionResult.SUCCESS;
+        }
+
+        // Innards Duct connection cycling -- see AbstractInnardsDuctBlock#cycleConnections for the
+        // actual mechanic. No durability cost, same "free adjustment" precedent as the Duct/Node
+        // tier-swap (a plumbing fixup, not a surgical action). A no-op cycle (nothing actually
+        // ambiguous to pick between) falls through to PASS rather than eating the click.
+        BlockState state = level.getBlockState(context.getClickedPos());
+        if (state.getBlock() instanceof AbstractInnardsDuctBlock duct
+                && duct.cycleConnections(level, context.getClickedPos(), state)) {
             return InteractionResult.SUCCESS;
         }
 
