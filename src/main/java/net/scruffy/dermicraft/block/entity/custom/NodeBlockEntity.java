@@ -87,9 +87,16 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         }
     };
 
-    // Per-face routing state -- only meaningful on a face that's actually connected (see
-    // isConnected()); an unconnected face just isn't shown/clickable in the GUI.
-    private final Map<Direction, NodeDirectionMode> directionModes = new EnumMap<>(Direction.class);
+    // Per-face, per-type routing state -- only meaningful on a face that's actually connected (see
+    // isConnected()); an unconnected face just isn't shown/clickable in the GUI. Item and fluid
+    // direction are fully independent (2026-08-27 rework) -- a leg can pull items in while pushing
+    // fluid out, or any other combination, since each type already moves through its own separate
+    // capability (item slot vs tank) with no shared resource to conflict over. Both act on the same
+    // tick cadence -- no alternation between types, since that would only spread the same total
+    // work across more ticks (halving throughput) rather than actually reducing server cost; a
+    // Node's per-cycle work is already bounded/cheap regardless of how many legs are active.
+    private final Map<Direction, NodeDirectionMode> itemDirectionModes = new EnumMap<>(Direction.class);
+    private final Map<Direction, NodeDirectionMode> fluidDirectionModes = new EnumMap<>(Direction.class);
     private NodeDistributionMode distributionMode = NodeDistributionMode.ROUND_ROBIN;
 
     // Per-leg item/fluid toggles -- replaces the earlier planned per-run ITEM/FLUID mode-lock with
@@ -97,13 +104,16 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     // explicitly enables a type, rather than immediately carrying both. Fully independent of
     // direction mode and of each other -- a leg can carry both, either, or neither. Both types are
     // already rate-capped per leg per cycle (see itemTransferPerCycle()/fluidTransferPerCycle()),
-    // so running both simultaneously on a leg is not a server-load concern.
+    // so running both simultaneously on a leg is not a server-load concern. This is now the SOLE
+    // on/off switch per type (see NodeDirectionMode's own javadoc for why OFF was retired from
+    // direction itself).
     private final Map<Direction, Boolean> itemsEnabled = new EnumMap<>(Direction.class);
     private final Map<Direction, Boolean> fluidsEnabled = new EnumMap<>(Direction.class);
 
     {
         for (Direction dir : Direction.values()) {
-            directionModes.put(dir, NodeDirectionMode.OFF);
+            itemDirectionModes.put(dir, NodeDirectionMode.IN);
+            fluidDirectionModes.put(dir, NodeDirectionMode.IN);
             itemsEnabled.put(dir, false);
             fluidsEnabled.put(dir, false);
         }
@@ -229,18 +239,32 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
                 || level.getCapability(Capabilities.FluidHandler.BLOCK, neighborPos, opposite) != null;
     }
 
-    public NodeDirectionMode getDirectionMode(Direction dir) {
-        return directionModes.get(dir);
+    public NodeDirectionMode getItemDirectionMode(Direction dir) {
+        return itemDirectionModes.get(dir);
+    }
+
+    public NodeDirectionMode getFluidDirectionMode(Direction dir) {
+        return fluidDirectionModes.get(dir);
     }
 
     public NodeDistributionMode getDistributionMode() {
         return distributionMode;
     }
 
-    /** Cycles a connected leg's mode In -> Out -> Off. No-ops on an unconnected face (server-side guard). */
-    public void cycleDirection(Direction dir) {
+    /** Cycles a connected leg's item direction In <-> Out. No-ops on an unconnected face
+     * (server-side guard). Fully independent of {@link #cycleFluidDirection}. */
+    public void cycleItemDirection(Direction dir) {
         if (!isConnected(dir)) return;
-        directionModes.put(dir, directionModes.get(dir).next());
+        itemDirectionModes.put(dir, itemDirectionModes.get(dir).next());
+        setChanged();
+        updateBlock();
+    }
+
+    /** Cycles a connected leg's fluid direction In <-> Out. No-ops on an unconnected face
+     * (server-side guard). Fully independent of {@link #cycleItemDirection}. */
+    public void cycleFluidDirection(Direction dir) {
+        if (!isConnected(dir)) return;
+        fluidDirectionModes.put(dir, fluidDirectionModes.get(dir).next());
         setChanged();
         updateBlock();
     }
@@ -310,9 +334,9 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
     private void pullPhase(Level level) {
         for (Direction dir : Direction.values()) {
-            if (!isConnected(dir) || directionModes.get(dir) != NodeDirectionMode.IN) continue;
-            boolean wantsFluid = fluidsEnabled.get(dir);
-            boolean wantsItems = itemsEnabled.get(dir);
+            if (!isConnected(dir)) continue;
+            boolean wantsFluid = fluidsEnabled.get(dir) && fluidDirectionModes.get(dir) == NodeDirectionMode.IN;
+            boolean wantsItems = itemsEnabled.get(dir) && itemDirectionModes.get(dir) == NodeDirectionMode.IN;
             if (!wantsFluid && !wantsItems) continue;
 
             Optional<DuctRunResolver.Endpoint> endpoint = DuctRunResolver.resolve(level, worldPosition, dir);
@@ -326,9 +350,9 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         List<Direction> fluidOutLegs = new ArrayList<>();
         List<Direction> itemOutLegs = new ArrayList<>();
         for (Direction dir : Direction.values()) {
-            if (directionModes.get(dir) != NodeDirectionMode.OUT || !isConnected(dir)) continue;
-            if (fluidsEnabled.get(dir)) fluidOutLegs.add(dir);
-            if (itemsEnabled.get(dir)) itemOutLegs.add(dir);
+            if (!isConnected(dir)) continue;
+            if (fluidsEnabled.get(dir) && fluidDirectionModes.get(dir) == NodeDirectionMode.OUT) fluidOutLegs.add(dir);
+            if (itemsEnabled.get(dir) && itemDirectionModes.get(dir) == NodeDirectionMode.OUT) itemOutLegs.add(dir);
         }
 
         if (distributionMode == NodeDistributionMode.EQUAL_SPREAD) {
@@ -360,16 +384,20 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
      * A Node endpoint only accepts a push if its matching leg is {@code IN}, and only allows a
      * pull (i.e. it's actively supplying) if its matching leg is {@code OUT} -- this is what makes
      * the documented "two Nodes disagreeing on a shared leg = inert" rule actually enforced now
-     * that Node-to-Node runs resolve instead of being rejected outright.
+     * that Node-to-Node runs resolve instead of being rejected outright. Checks the TARGET's
+     * direction for the SAME type being moved ({@code fluid}) -- independent per type, same as
+     * this Node's own legs.
      */
-    private boolean targetNodeAccepts(Level level, DuctRunResolver.Endpoint endpoint, NodeDirectionMode requiredMode) {
+    private boolean targetNodeAccepts(Level level, DuctRunResolver.Endpoint endpoint, NodeDirectionMode requiredMode, boolean fluid) {
         if (!(level.getBlockEntity(endpoint.pos()) instanceof NodeBlockEntity targetNode)) return true;
-        return targetNode.getDirectionMode(endpoint.accessDirection()) == requiredMode;
+        NodeDirectionMode targetMode = fluid ? targetNode.getFluidDirectionMode(endpoint.accessDirection())
+                : targetNode.getItemDirectionMode(endpoint.accessDirection());
+        return targetMode == requiredMode;
     }
 
     private void pullFluidFrom(Level level, DuctRunResolver.Endpoint endpoint) {
         if (!TANK.hasRoom(1)) return;
-        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.OUT)) return;
+        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.OUT, true)) return;
         IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
         if (handler == null) return;
 
@@ -390,7 +418,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
     private void pullItemFrom(Level level, DuctRunResolver.Endpoint endpoint) {
         if (!INVENTORY.getStackInSlot(BUFFER_SLOT).isEmpty()) return;
-        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.OUT)) return;
+        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.OUT, false)) return;
         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
         if (handler == null) return;
 
@@ -408,7 +436,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         Optional<DuctRunResolver.Endpoint> endpointOpt = DuctRunResolver.resolve(level, worldPosition, dir);
         if (endpointOpt.isEmpty()) return;
         DuctRunResolver.Endpoint endpoint = endpointOpt.get();
-        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.IN)) return;
+        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.IN, true)) return;
 
         IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
         if (handler == null) return;
@@ -432,7 +460,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         Optional<DuctRunResolver.Endpoint> endpointOpt = DuctRunResolver.resolve(level, worldPosition, dir);
         if (endpointOpt.isEmpty()) return;
         DuctRunResolver.Endpoint endpoint = endpointOpt.get();
-        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.IN)) return;
+        if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.IN, false)) return;
 
         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
         if (handler == null) return;
@@ -447,13 +475,23 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         }
     }
 
+    /** Parses a serialized NodeDirectionMode name, tolerating an unrecognized value (e.g. the
+     * retired legacy "off") by returning empty rather than throwing. */
+    private static Optional<NodeDirectionMode> readDirectionMode(String serialized) {
+        for (NodeDirectionMode mode : NodeDirectionMode.values()) {
+            if (mode.getSerializedName().equals(serialized)) return Optional.of(mode);
+        }
+        return Optional.empty();
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
         tag.put("tank", TANK.writeToNBT(registries, new CompoundTag()));
         for (Direction dir : Direction.values()) {
-            tag.putString("mode_" + dir.getSerializedName(), directionModes.get(dir).getSerializedName());
+            tag.putString("item_mode_" + dir.getSerializedName(), itemDirectionModes.get(dir).getSerializedName());
+            tag.putString("fluid_mode_" + dir.getSerializedName(), fluidDirectionModes.get(dir).getSerializedName());
             tag.putBoolean("items_" + dir.getSerializedName(), itemsEnabled.get(dir));
             tag.putBoolean("fluids_" + dir.getSerializedName(), fluidsEnabled.get(dir));
         }
@@ -468,15 +506,29 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
         if (tag.contains("tank")) TANK.readFromNBT(registries, tag.getCompound("tank"));
         for (Direction dir : Direction.values()) {
-            String key = "mode_" + dir.getSerializedName();
-            if (tag.contains(key)) {
-                for (NodeDirectionMode mode : NodeDirectionMode.values()) {
-                    if (mode.getSerializedName().equals(tag.getString(key))) {
-                        directionModes.put(dir, mode);
-                        break;
-                    }
-                }
+            // Legacy migration (pre-2026-08-27 saves): a single shared "mode_<dir>" key covered
+            // both types. Read it as a fallback ONLY when the new per-type keys aren't present yet,
+            // so a legacy save's existing In/Out choice carries over to both types on first load
+            // rather than silently resetting. Legacy "off" has no modern equivalent (see
+            // NodeDirectionMode's own javadoc) -- the per-type keys just default to IN in that case,
+            // harmless since the legacy leg's itemsEnabled/fluidsEnabled were already false.
+            String legacyKey = "mode_" + dir.getSerializedName();
+            String legacyValue = tag.contains(legacyKey) ? tag.getString(legacyKey) : null;
+
+            String itemKey = "item_mode_" + dir.getSerializedName();
+            if (tag.contains(itemKey)) {
+                readDirectionMode(tag.getString(itemKey)).ifPresent(mode -> itemDirectionModes.put(dir, mode));
+            } else if (legacyValue != null) {
+                readDirectionMode(legacyValue).ifPresent(mode -> itemDirectionModes.put(dir, mode));
             }
+
+            String fluidKey = "fluid_mode_" + dir.getSerializedName();
+            if (tag.contains(fluidKey)) {
+                readDirectionMode(tag.getString(fluidKey)).ifPresent(mode -> fluidDirectionModes.put(dir, mode));
+            } else if (legacyValue != null) {
+                readDirectionMode(legacyValue).ifPresent(mode -> fluidDirectionModes.put(dir, mode));
+            }
+
             String itemsKey = "items_" + dir.getSerializedName();
             if (tag.contains(itemsKey)) itemsEnabled.put(dir, tag.getBoolean(itemsKey));
             String fluidsKey = "fluids_" + dir.getSerializedName();

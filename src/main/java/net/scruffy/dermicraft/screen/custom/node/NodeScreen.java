@@ -25,12 +25,13 @@ import java.util.Map;
 
 /**
  * Node GUI. Interaction model: click a connected compass direction to select it (highlighted),
- * then click the shared In/Out button to cycle that leg's mode (In -> Out -> Off) -- the shared
- * button's own texture reflects the selected leg's current mode. The Item/Fluid toggle buttons act
- * on the same selected leg independently of direction mode and of each other (both default off).
- * Round-Robin/Spread is a separate global toggle, no selection needed. Unconnected directions simply
- * don't render a button. The greyed "mode-locked" state was superseded by the Item/Fluid toggles
- * and is not needed.
+ * then click either the Item or the Fluid direction button to cycle THAT type's mode on the
+ * selected leg (In <-> Out) independently of the other -- e.g. items In while fluid is Out on the
+ * same face. Each direction button's own texture reflects the selected leg's current mode for that
+ * type. The Item/Fluid enable toggle buttons act on the same selected leg, independently of
+ * direction and of each other (both default off) -- direction is meaningless for a type until it's
+ * enabled. Round-Robin/Spread is a separate global toggle, no selection needed, positioned beside
+ * East. Unconnected directions simply don't render a button.
  */
 public class NodeScreen extends AbstractModScreen<NodeMenu> {
 
@@ -86,8 +87,6 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "input_button.png");
     private static final ResourceLocation OUTPUT_BUTTON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
-    private static final ResourceLocation NO_USE_BUTTON_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final ResourceLocation ROUND_ROBIN_BUTTON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "round_robin_button.png");
     private static final ResourceLocation SPREAD_BUTTON_TEXTURE =
@@ -133,14 +132,17 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
     private static final int DIRECTION_ROW_TOP_Y = DIRECTION_ROW_MID_Y - DIRECTION_COL_STEP;    // up/north
     private static final int DIRECTION_ROW_BOTTOM_Y = DIRECTION_ROW_MID_Y + DIRECTION_COL_STEP; // down/south
 
-    // Mode-toggle buttons: mirrored across the cross's center column (DIRECTION_COL2_X) from the
-    // up/down column, landing one grid step past East. Same rows as Up/Down, so In/Out mirrors Up
-    // and Round-Robin/Spread mirrors Down.
+    // Mode-toggle column: one grid step past East, using all three rows now (2026-08-27 rework,
+    // item/fluid-independent direction) -- Item direction (top, mirrors Up/North's row), Round-Robin
+    // (middle, directly beside East -- moved here from the old bottom slot to make room), Fluid
+    // direction (bottom, the slot Round-Robin vacated, mirrors Down/South's row).
     private static final int MODE_TOGGLE_X = DIRECTION_COL3_X + DIRECTION_COL_STEP;
-    private static final int INPUT_OUTPUT_BUTTON_X = MODE_TOGGLE_X;
-    private static final int INPUT_OUTPUT_BUTTON_Y = DIRECTION_ROW_TOP_Y; // mirrors Up
+    private static final int ITEM_DIRECTION_BUTTON_X = MODE_TOGGLE_X;
+    private static final int ITEM_DIRECTION_BUTTON_Y = DIRECTION_ROW_TOP_Y; // mirrors Up
     private static final int ROUND_ROBIN_BUTTON_X = MODE_TOGGLE_X;
-    private static final int ROUND_ROBIN_BUTTON_Y = DIRECTION_ROW_BOTTOM_Y; // mirrors Down
+    private static final int ROUND_ROBIN_BUTTON_Y = DIRECTION_ROW_MID_Y; // beside East
+    private static final int FLUID_DIRECTION_BUTTON_X = MODE_TOGGLE_X;
+    private static final int FLUID_DIRECTION_BUTTON_Y = DIRECTION_ROW_BOTTOM_Y; // mirrors Down
 
     // Item/Fluid toggle column: one more grid step past the In/Out/Round-Robin column, same
     // spacing pattern. Item lines up with North's row (top row), Fluid with South's row (bottom row).
@@ -208,9 +210,16 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
         }
 
         if (selectedDirection != null && menu.BE.isConnected(selectedDirection)
-                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + INPUT_OUTPUT_BUTTON_X, y + INPUT_OUTPUT_BUTTON_Y,
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + ITEM_DIRECTION_BUTTON_X, y + ITEM_DIRECTION_BUTTON_Y,
                 DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE)) {
-            PacketDistributor.sendToServer(new NodeDirectionClickPayload(menu.BE.getBlockPos(), selectedDirection));
+            PacketDistributor.sendToServer(new NodeDirectionClickPayload(menu.BE.getBlockPos(), selectedDirection, false));
+            return true;
+        }
+
+        if (selectedDirection != null && menu.BE.isConnected(selectedDirection)
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + FLUID_DIRECTION_BUTTON_X, y + FLUID_DIRECTION_BUTTON_Y,
+                DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE)) {
+            PacketDistributor.sendToServer(new NodeDirectionClickPayload(menu.BE.getBlockPos(), selectedDirection, true));
             return true;
         }
 
@@ -268,7 +277,10 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
                     DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE);
         }
 
-        guiGraphics.blit(getInputOutputTexture(), x + INPUT_OUTPUT_BUTTON_X, y + INPUT_OUTPUT_BUTTON_Y, 0, 0,
+        guiGraphics.blit(getItemDirectionTexture(), x + ITEM_DIRECTION_BUTTON_X, y + ITEM_DIRECTION_BUTTON_Y, 0, 0,
+                DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE);
+
+        guiGraphics.blit(getFluidDirectionTexture(), x + FLUID_DIRECTION_BUTTON_X, y + FLUID_DIRECTION_BUTTON_Y, 0, 0,
                 DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE);
 
         guiGraphics.blit(getDistributionTexture(), x + ROUND_ROBIN_BUTTON_X, y + ROUND_ROBIN_BUTTON_Y, 0, 0,
@@ -281,18 +293,24 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
                 DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE, DIRECTION_BUTTON_SIZE);
     }
 
-    private ResourceLocation getInputOutputTexture() {
+    private ResourceLocation getItemDirectionTexture() {
         if (selectedDirection == null || !menu.BE.isConnected(selectedDirection)) {
             return NULL_BUTTON_TEXTURE; // nothing selected -- same null state the direction grid uses
         }
-        return getModeTexture(menu.BE.getDirectionMode(selectedDirection));
+        return getModeTexture(menu.BE.getItemDirectionMode(selectedDirection));
+    }
+
+    private ResourceLocation getFluidDirectionTexture() {
+        if (selectedDirection == null || !menu.BE.isConnected(selectedDirection)) {
+            return NULL_BUTTON_TEXTURE;
+        }
+        return getModeTexture(menu.BE.getFluidDirectionMode(selectedDirection));
     }
 
     private ResourceLocation getModeTexture(NodeDirectionMode mode) {
         return switch (mode) {
             case IN -> INPUT_BUTTON_TEXTURE;
             case OUT -> OUTPUT_BUTTON_TEXTURE;
-            case OFF -> NO_USE_BUTTON_TEXTURE;
         };
     }
 

@@ -23,7 +23,8 @@ public class ModNetworking {
                 (payload, context) -> context.enqueueWork(() -> {
                     BlockEntity be = context.player().level().getBlockEntity(payload.pos());
                     if (be instanceof NodeBlockEntity node) {
-                        node.cycleDirection(payload.direction());
+                        if (payload.fluid()) node.cycleFluidDirection(payload.direction());
+                        else node.cycleItemDirection(payload.direction());
                     }
                 }));
 
