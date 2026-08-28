@@ -2,7 +2,6 @@ package net.scruffy.dermicraft.block.custom;
 
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -65,12 +64,24 @@ public class CrawBlock extends ModBaseEntityBlock {
             ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
-        // Empty hand -> fall through to useWithoutItem for withdrawal/GUI.
-        if (stack.isEmpty()) {
+        if (!(level.getBlockEntity(pos) instanceof CrawBlockEntity craw)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        if (!(level.getBlockEntity(pos) instanceof CrawBlockEntity craw)) {
+        // Double-click vacuum -- checked here, unconditionally, BEFORE the empty-hand branch below,
+        // because useItemOn always runs first for every click (including an empty hand -- see that
+        // branch's own comment). Registering/checking this only once per physical click is why
+        // useWithoutItem does NOT also call isDoubleClick: this method's own PASS_TO_DEFAULT_BLOCK_
+        // INTERACTION fallthroughs (empty hand, or a held item that doesn't deposit) reach
+        // useWithoutItem in the SAME click, so a second check there would register twice per click
+        // and false-trigger the vacuum on the very first real click.
+        if (craw.isDoubleClick(player)) {
+            craw.vacuumFromInventory(player);
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        // Empty hand -> fall through to useWithoutItem for withdrawal/GUI.
+        if (stack.isEmpty()) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
@@ -123,16 +134,24 @@ public class CrawBlock extends ModBaseEntityBlock {
     // (or a held item useItemOn didn't claim) opens the GUI" convention. Also reached whenever
     // useItemOn falls through with a non-empty invalid item (wrong type, or Craw locked to a
     // different item), same as Masticator/Effluentcer/Mutator's identical fall-through shape.
+    // Double-click vacuum is NOT checked here -- useItemOn already checked it once for this same
+    // click before falling through (see that method's own comment); checking it again here would
+    // register the same physical click twice and false-trigger on the very first click.
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof CrawBlockEntity craw) {
             if (player.isShiftKeyDown()) {
+                // No GUI involved, so no double-click-reachability problem -- withdraws immediately,
+                // same as always.
                 ItemStack withdrawn = craw.withdraw(true);
                 if (!withdrawn.isEmpty()) {
                     player.getInventory().placeItemBackInInventory(withdrawn);
                 }
-            } else if (player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.openMenu(craw, buf -> buf.writeBlockPos(pos));
+            } else {
+                // Delayed, not immediate -- see CrawBlockEntity#schedulePendingMenuOpen's own
+                // javadoc for why opening right here would make the empty-hand double-click
+                // unreachable (an open container screen swallows the second click).
+                craw.schedulePendingMenuOpen(player);
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

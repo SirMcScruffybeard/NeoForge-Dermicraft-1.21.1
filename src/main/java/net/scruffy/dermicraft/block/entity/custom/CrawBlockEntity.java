@@ -43,7 +43,10 @@ import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class CrawBlockEntity extends MachineBaseBlockEntity
         implements MenuProvider, IHaveInventory, IPreserveContentsOnPickup, IHasChannels {
@@ -246,6 +249,8 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
 
     public void tick(Level level) {
         if (!level.isClientSide) {
+            processPendingMenuOpens(level);
+
             // Early-return on a completed swap -- same as SkinTankBlockEntity#tick -- this instance
             // is now stale, its own storage already cleared by completeEvolution.
             if (tickEvolutionFlourish()) return;
@@ -412,6 +417,85 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
      * stack is the better default -- a player wanting to deposit less splits the stack first.
      * Withdrawal is unaffected and still uses crouch, since an empty hand does reach the block.
      */
+    /** Window for the "quickly double click to vacuum" gesture -- see {@link #isDoubleClick} --
+     * 6 ticks (~300ms), a standard double-click threshold. */
+    private static final int DOUBLE_CLICK_WINDOW_TICKS = 6;
+
+    /** Per-player last-interaction game time, tracked here rather than per-hand-state, so the
+     * gesture works across a mixed sequence too (e.g. a held-item click that empties the hand,
+     * immediately followed by an empty-hand click) -- see {@code CrawBlock#useItemOn}/
+     * {@code #useWithoutItem}, both of which call this before deciding their own normal action, and
+     * both suppress that normal action entirely (regardless of what {@link #vacuumFromInventory}
+     * actually finds to do) whenever this returns true. Not persisted -- a fresh map on reload is
+     * fine, it only ever needs to remember the last few hundred milliseconds. */
+    private final Map<UUID, Long> lastInteractGameTime = new HashMap<>();
+
+    public boolean isDoubleClick(Player player) {
+        if (level == null) return false;
+        long now = level.getGameTime();
+        Long last = lastInteractGameTime.put(player.getUUID(), now);
+        return last != null && now - last <= DOUBLE_CLICK_WINDOW_TICKS;
+    }
+
+    /** Player UUID -> game tick a delayed GUI-open should actually fire. A plain empty-hand click
+     * can't just open the menu immediately, or the double-click gesture becomes unreachable: once a
+     * container screen is open, the client stops sending world right-click packets at all, so a
+     * genuine second click never arrives. {@code CrawBlock#useWithoutItem} schedules this instead of
+     * opening the menu directly; {@link #vacuumFromInventory} cancels it (a real double-click means
+     * the click that would have opened it got reinterpreted as the vacuum's second click instead). */
+    private final Map<UUID, Long> pendingMenuOpenTick = new HashMap<>();
+
+    public void schedulePendingMenuOpen(Player player) {
+        if (level == null) return;
+        pendingMenuOpenTick.put(player.getUUID(), level.getGameTime() + DOUBLE_CLICK_WINDOW_TICKS);
+    }
+
+    /** Opens any pending menu whose delay has elapsed -- called once per tick from {@link #tick}.
+     * Silently drops a pending open if the player logged off or left the level; doesn't bother
+     * re-checking range, since walking away from an open GUI is harmless. */
+    private void processPendingMenuOpens(Level level) {
+        if (pendingMenuOpenTick.isEmpty()) return;
+
+        java.util.Iterator<Map.Entry<UUID, Long>> it = pendingMenuOpenTick.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, Long> entry = it.next();
+            if (level.getGameTime() < entry.getValue()) continue;
+            it.remove();
+
+            if (level.getPlayerByUUID(entry.getKey()) instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                serverPlayer.openMenu(this, buf -> buf.writeBlockPos(worldPosition));
+            }
+        }
+    }
+
+    /**
+     * Double-click vacuum -- pulls every stack matching the Craw's currently-stored item type out
+     * of the player's main inventory (36 slots; armor/offhand not scanned) and deposits as much as
+     * fits. {@code INVENTORY.insertItem}'s existing slot-limit override (see {@link #capacity()})
+     * already caps each insertion at the Craw's remaining room, so this needs no separate capacity
+     * bookkeeping -- whichever runs out first (the player's matching stock or the Craw's remaining
+     * capacity) naturally stops it. No-op if the Craw isn't holding anything yet (nothing to match
+     * against, per the gesture's own precondition) or the player has none of it.
+     */
+    public void vacuumFromInventory(Player player) {
+        pendingMenuOpenTick.remove(player.getUUID());
+        if (level == null || level.isClientSide) return;
+        ItemStack stored = getStoredStack();
+        if (stored.isEmpty()) return;
+
+        Inventory inv = player.getInventory();
+        for (int i = 0; i < inv.items.size(); i++) {
+            ItemStack slotStack = inv.items.get(i);
+            if (slotStack.isEmpty() || !ItemStack.isSameItemSameComponents(slotStack, stored)) continue;
+
+            ItemStack remainder = INVENTORY.insertItem(STORAGE_SLOT, slotStack.copy(), false);
+            int inserted = slotStack.getCount() - remainder.getCount();
+            if (inserted <= 0) continue;
+            slotStack.shrink(inserted);
+        }
+        inv.setChanged();
+    }
+
     public ItemStack deposit(ItemStack held) {
         if (held.isEmpty()) {
             return held;

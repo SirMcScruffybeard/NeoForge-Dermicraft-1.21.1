@@ -293,6 +293,14 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         if (level.isClientSide) return;
         if (!ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) return;
 
+        // Redstone signal fully halts relay (same "powered = off" convention as a vanilla Hopper)
+        // -- deliberately just a live check, not a persisted flag, so every leg's IN/OUT/item/fluid
+        // toggle and the distribution mode stay exactly as configured; power removal resumes with
+        // no reconfiguration needed. Doesn't touch capability exposure -- a duct or another block
+        // that actively pushes into this Node's own buffer isn't blocked by this, only the Node's
+        // own pull/push cycle is (matches vanilla Hopper's own scope).
+        if (level.hasNeighborSignal(worldPosition)) return;
+
         pullPhase(level);
         pushPhase(level);
 
