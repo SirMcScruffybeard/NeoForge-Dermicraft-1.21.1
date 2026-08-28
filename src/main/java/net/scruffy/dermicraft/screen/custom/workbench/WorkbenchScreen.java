@@ -11,8 +11,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
+import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.item.custom.EaterItem;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
+import net.scruffy.dermicraft.item.custom.SippingItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
@@ -213,9 +215,20 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     @Override
     protected void init() {
         super.init();
-        // Both currently 1000mB, but read whichever gadget is actually present rather than assuming
-        // they always match -- same reasoning as every other per-gadget branch on this screen.
-        int fuelCapacity = menu.isWorkItemShatter() ? menu.getShatterFuelCapacity() : menu.getSunderFuelCapacity();
+        // Read whichever gadget is actually present rather than assuming a fixed capacity -- same
+        // reasoning as every other per-gadget branch on this screen. Eater has no fluid tank at all,
+        // so it falls through to the Sunder branch's capacity harmlessly (fuelRenderer just goes
+        // unused on that page).
+        int fuelCapacity;
+        if (menu.isWorkItemShatter()) {
+            fuelCapacity = menu.getShatterFuelCapacity();
+        } else if (menu.isWorkItemDrinker()) {
+            fuelCapacity = menu.getDrinkerCapacity();
+        } else if (menu.isWorkItemSipping()) {
+            fuelCapacity = menu.getSippingCapacity();
+        } else {
+            fuelCapacity = menu.getSunderFuelCapacity();
+        }
         fuelRenderer = createFluidRenderer16x40(fuelCapacity);
         setPage(currentPage);
 
@@ -264,6 +277,14 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
                 renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
                         ShatterItem.HEAD_SLOT_X + 1, ShatterItem.HEAD_SLOT_Y + 1,
                         menu.getSlot(WorkbenchMenu.HEAD_SLOT_INDEX).getItem(), Component.translatable("tooltip.dermicraft.slot.shatter_head"));
+            } else if (menu.isWorkItemDrinker()) {
+                renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.getDrinkerFluid(),
+                        DrinkerItem.TANK_X + 1, DrinkerItem.TANK_Y + 1, fuelRenderer,
+                        Component.translatable("tooltip.dermicraft.gauge.fuel"));
+            } else if (menu.isWorkItemSipping()) {
+                renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.getSippingFluid(),
+                        SippingItem.TANK_X + 1, SippingItem.TANK_Y + 1, fuelRenderer,
+                        Component.translatable("tooltip.dermicraft.gauge.fuel"));
             }
 
             renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
@@ -389,6 +410,27 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
                 ResourceLocation shatterFillTexture = fillButtonPressedFlash ? FILL_BUTTON_PRESSED_TEXTURE : FILL_BUTTON_TEXTURE;
                 guiGraphics.blit(shatterFillTexture, x + FILL_BUTTON_X, y + FILL_BUTTON_Y, 0, 0,
                         FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE);
+            } else if (menu.isWorkItemDrinker()) {
+                // Module slot + buffer-gauge/drain-slot pairing, same layout ScrenchScreen's own
+                // renderDrinkerBg uses -- this page was simply missing a Drinker branch entirely
+                // (only Sunder/Shatter/Eater were dispatched), so Drinker's real, functional slots
+                // (built generically via IWorkbenchSwappable, same as every other gadget) had no
+                // background art drawn under them at all.
+                guiGraphics.blit(MODULE_SLOT_TEXTURE, x + DrinkerItem.MODULE_SLOT_X, y + DrinkerItem.MODULE_SLOT_Y, 0, 0,
+                        ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+
+                guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + DrinkerItem.TANK_X, y + DrinkerItem.TANK_Y, 0, 0,
+                        TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT, TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT);
+                fuelRenderer.render(guiGraphics, x + DrinkerItem.TANK_X + 1, y + DrinkerItem.TANK_Y + 1, menu.getDrinkerFluid());
+            } else if (menu.isWorkItemSipping()) {
+                // Same layout as Drinker's own branch above -- Sipping's Module slot/tank coordinates
+                // are identical (SippingItem.MODULE_SLOT_X/Y and TANK_X/Y equal Drinker's own).
+                guiGraphics.blit(MODULE_SLOT_TEXTURE, x + SippingItem.MODULE_SLOT_X, y + SippingItem.MODULE_SLOT_Y, 0, 0,
+                        ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+
+                guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + SippingItem.TANK_X, y + SippingItem.TANK_Y, 0, 0,
+                        TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT, TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT);
+                fuelRenderer.render(guiGraphics, x + SippingItem.TANK_X + 1, y + SippingItem.TANK_Y + 1, menu.getSippingFluid());
             } else if (menu.isWorkItemEater()) {
                 renderSlotBackgrounds(guiGraphics, MODULE_SLOT_TEXTURE, x, y,
                         EaterItem.MODULE_SLOT_X, EaterItem.MODULE_SLOT_Y,

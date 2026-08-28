@@ -20,7 +20,9 @@ import net.scruffy.dermicraft.block.entity.custom.WorkbenchBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
+import net.scruffy.dermicraft.item.custom.DrinkerItem;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
+import net.scruffy.dermicraft.item.custom.SippingItem;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
@@ -458,5 +460,34 @@ public class WorkbenchMenu extends AbstractModMenu {
 
     public int getShatterFuelCapacity() {
         return ShatterItem.effectiveCapacity(getWorkItemStack());
+    }
+
+    public boolean isWorkItemDrinker() {
+        return getWorkItemStack().getItem() instanceof DrinkerItem;
+    }
+
+    /** Drinker's buffer isn't the standard FLUID_DATA component -- see
+     * {@code DrinkerItem#bufferContents} -- same accessor shape ScrenchMenu's own
+     * getDrinkerFluid/getDrinkerCapacity already use. */
+    public FluidStack getDrinkerFluid() {
+        return DrinkerItem.bufferContents(getWorkItemStack());
+    }
+
+    public int getDrinkerCapacity() {
+        return DrinkerItem.effectiveCapacity(getWorkItemStack());
+    }
+
+    public boolean isWorkItemSipping() {
+        return getWorkItemStack().getItem() instanceof SippingItem;
+    }
+
+    /** Sipping's buffer is the standard FLUID_DATA component (unlike Drinker's own separate buffer
+     * capability) -- same shape as Sunder's/Shatter's fuel getters above. */
+    public FluidStack getSippingFluid() {
+        return getWorkItemStack().getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidStack();
+    }
+
+    public int getSippingCapacity() {
+        return SippingItem.effectiveCapacity(getWorkItemStack());
     }
 }
