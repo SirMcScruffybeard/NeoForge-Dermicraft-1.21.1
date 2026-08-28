@@ -33,6 +33,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -132,6 +133,20 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
             1.0F,
             0
     );
+
+    /** Real per-material axe speed, mirroring {@link ShatterItem#getDestroySpeed}'s own shape --
+     * the mounted chain's {@code miningSpeed} only overrides {@link #TOOL_BEHAVIOR}'s flat 6.0F for
+     * axe-mineable blocks specifically; sword_efficient blocks (cobwebs, bamboo, vines) keep the
+     * Tool component's flat 1.5F regardless of chain, and a missing/broken chain falls back to that
+     * same flat 6.0F rather than digging fast with nothing mounted. Axe-mineable blocks have no real
+     * tier gate to mirror (unlike Shatter's pickaxe ores), so this is speed-only. */
+    @Override
+    public float getDestroySpeed(ItemStack stack, BlockState state) {
+        if (!state.is(BlockTags.MINEABLE_WITH_AXE)) return super.getDestroySpeed(stack, state);
+
+        ChainProperties chain = chainProperties(stack);
+        return chain != null ? chain.miningSpeed() : super.getDestroySpeed(stack, state);
+    }
 
     /** Gadget health, expressed as vanilla durability -- see {@link IGadget}. Registered via
      * {@code Item.Properties#durability}, which is the single source of truth for max HP. Purely

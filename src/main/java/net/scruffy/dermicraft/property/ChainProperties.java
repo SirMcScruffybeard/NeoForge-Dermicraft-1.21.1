@@ -37,11 +37,22 @@ import java.util.Optional;
  * SAWING's tree-felling drops Charcoal (via a real {@code SmeltingRecipe} lookup, granting its XP
  * too) instead of the raw Log, see {@code SunderItem#tickFelling}/{@code AutoSmeltUtil}. False for
  * every material without it.
+ *
+ * <p>{@code miningSpeed} (2026-08-27, added) mirrors the mounted chain's real vanilla Axe
+ * equivalent's own destroy speed exactly -- vanilla tool speed is a per-Tier constant shared across
+ * every tool type (Stone 4.0, Iron/Copper 6.0, Diamond 8.0, Netherite 9.0, Gold 12.0 -- fastest of
+ * all despite the weakest combat/durability stats), same table {@code ShatterHeadProperties} uses
+ * for its own Pickaxe equivalents. Materials with no real vanilla axe (Emerald, Blaze Essence) use
+ * the same values their Shatter counterparts already settled on: Emerald at the Iron/Diamond
+ * midpoint (7.0), Blaze Essence matching Iron (6.0). Unlike Shatter, axe-mineable blocks have no
+ * real tier gate to mirror (logs/planks/pumpkins all drop regardless of tool), so this is speed-only
+ * -- see {@code SunderItem#getDestroySpeed}. Swing (attack) speed is untouched by this -- a
+ * completely separate {@code Attributes.ATTACK_SPEED} axis, not this field.
  */
 public record ChainProperties(float damageMultiplier, float bleedChance, float decapChance,
                                float lootBonusChance, int durability, TextColor tint,
                                Optional<MobEffect> statusEffect, float igniteChance,
-                               int igniteFireSeconds, boolean smeltsLogs) {
+                               int igniteFireSeconds, boolean smeltsLogs, float miningSpeed) {
 
     public static final Codec<ChainProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     Codec.FLOAT.fieldOf("damage_multiplier").forGetter(ChainProperties::damageMultiplier),
@@ -53,6 +64,7 @@ public record ChainProperties(float damageMultiplier, float bleedChance, float d
                     BuiltInRegistries.MOB_EFFECT.byNameCodec().optionalFieldOf("status_effect").forGetter(ChainProperties::statusEffect),
                     Codec.FLOAT.optionalFieldOf("ignite_chance", 0.0f).forGetter(ChainProperties::igniteChance),
                     Codec.INT.optionalFieldOf("ignite_fire_seconds", 0).forGetter(ChainProperties::igniteFireSeconds),
-                    Codec.BOOL.optionalFieldOf("smelts_logs", false).forGetter(ChainProperties::smeltsLogs))
+                    Codec.BOOL.optionalFieldOf("smelts_logs", false).forGetter(ChainProperties::smeltsLogs),
+                    Codec.FLOAT.optionalFieldOf("mining_speed", 1.0f).forGetter(ChainProperties::miningSpeed))
             .apply(instance, ChainProperties::new));
 }

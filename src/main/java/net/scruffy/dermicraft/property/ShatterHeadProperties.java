@@ -45,9 +45,19 @@ import net.minecraft.network.chat.TextColor;
  * block with no smelting recipe just drops normally. See
  * {@code ShatterEvents#onBlockDropsAutoSmelt}/{@code AutoSmeltUtil}. False for every material
  * without the trait.
+ *
+ * <p>{@code miningSpeed} (2026-08-27, added) mirrors the mounted head's real vanilla pickaxe
+ * equivalent's own destroy speed exactly (Stone 4.0, Iron/Copper 6.0, Diamond 8.0, Netherite 9.0,
+ * Gold 12.0 -- fastest of all despite the lowest mining tier, the same "fast digging, no
+ * effectiveness" flavor {@code miningTier} already captures for Gold). Materials with no real
+ * vanilla pickaxe (Emerald, Blaze Essence) borrow the nearest equivalent already established
+ * elsewhere in this data map: Emerald sits at the same Iron/Diamond midpoint (7.0) its
+ * {@code damageShift} uses, Blaze Essence matches Iron (6.0) since its baseline stats are Iron's
+ * throughout, the value being entirely in its ignite/auto-smelt traits. See
+ * {@code ShatterItem#getDestroySpeed} for how this is actually consulted.
  */
 public record ShatterHeadProperties(TextColor tint, int miningTier, float damageShift, float lootBonusChance,
-                                     float igniteChance, int igniteFireSeconds, boolean autoSmelt) {
+                                     float igniteChance, int igniteFireSeconds, boolean autoSmelt, float miningSpeed) {
 
     public static final Codec<ShatterHeadProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     TextColor.CODEC.fieldOf("tint").forGetter(ShatterHeadProperties::tint),
@@ -56,6 +66,7 @@ public record ShatterHeadProperties(TextColor tint, int miningTier, float damage
                     Codec.FLOAT.optionalFieldOf("loot_bonus_chance", 0.0f).forGetter(ShatterHeadProperties::lootBonusChance),
                     Codec.FLOAT.optionalFieldOf("ignite_chance", 0.0f).forGetter(ShatterHeadProperties::igniteChance),
                     Codec.INT.optionalFieldOf("ignite_fire_seconds", 0).forGetter(ShatterHeadProperties::igniteFireSeconds),
-                    Codec.BOOL.optionalFieldOf("auto_smelt", false).forGetter(ShatterHeadProperties::autoSmelt))
+                    Codec.BOOL.optionalFieldOf("auto_smelt", false).forGetter(ShatterHeadProperties::autoSmelt),
+                    Codec.FLOAT.optionalFieldOf("mining_speed", 1.0f).forGetter(ShatterHeadProperties::miningSpeed))
             .apply(instance, ShatterHeadProperties::new));
 }

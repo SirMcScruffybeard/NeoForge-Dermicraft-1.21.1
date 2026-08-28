@@ -572,6 +572,20 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
         return meetsMiningTier(stack, state);
     }
 
+    /** Real per-material speed, mirroring {@code DiggerItem}'s own shape: the mounted head's
+     * {@code miningSpeed} only applies against pickaxe-appropriate blocks the head can actually
+     * harvest ({@link #meetsMiningTier}) -- same scoping {@code isCorrectToolForDrops} uses, so a
+     * too-low-tier head (or no head at all) falls back to vanilla's own default (bare-hand) speed
+     * rather than digging fast with nothing to show for it. */
+    @Override
+    public float getDestroySpeed(ItemStack stack, net.minecraft.world.level.block.state.BlockState state) {
+        if (!state.is(net.minecraft.tags.BlockTags.MINEABLE_WITH_PICKAXE)) return super.getDestroySpeed(stack, state);
+        if (!meetsMiningTier(stack, state)) return super.getDestroySpeed(stack, state);
+
+        ShatterHeadProperties head = headProperties(stack);
+        return head != null ? head.miningSpeed() : super.getDestroySpeed(stack, state);
+    }
+
     ////////////////////Special: block crater\\\\\\\\\\\\\\\\\\\\
 
     /** Base wave count at Crude (worst grade) -- see the design notes' crater section. */

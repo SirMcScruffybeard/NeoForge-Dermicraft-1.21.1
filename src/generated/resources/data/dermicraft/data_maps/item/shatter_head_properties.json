@@ -4,41 +4,49 @@
       "auto_smelt": true,
       "ignite_chance": 0.5,
       "ignite_fire_seconds": 4,
+      "mining_speed": 6.0,
       "mining_tier": 2,
       "tint": "#FFCC55"
     },
     "dermicraft:bone_shatter_head": {
       "damage_shift": -1.0,
+      "mining_speed": 4.0,
       "mining_tier": 1,
       "tint": "#FFFFFF"
     },
     "dermicraft:copper_shatter_head": {
+      "mining_speed": 6.0,
       "mining_tier": 2,
       "tint": "#B87333"
     },
     "dermicraft:diamond_shatter_head": {
       "damage_shift": 1.0,
+      "mining_speed": 8.0,
       "mining_tier": 3,
       "tint": "#FFFFFF"
     },
     "dermicraft:emerald_shatter_head": {
       "damage_shift": 0.5,
       "loot_bonus_chance": 0.25,
+      "mining_speed": 7.0,
       "mining_tier": 3,
       "tint": "#50C878"
     },
     "dermicraft:gold_shatter_head": {
       "damage_shift": -2.0,
       "loot_bonus_chance": 0.2,
+      "mining_speed": 12.0,
       "mining_tier": 0,
       "tint": "#D4AF37"
     },
     "dermicraft:iron_shatter_head": {
+      "mining_speed": 6.0,
       "mining_tier": 2,
       "tint": "#FFFFFF"
     },
     "dermicraft:netherite_shatter_head": {
       "damage_shift": 2.0,
+      "mining_speed": 9.0,
       "mining_tier": 4,
       "tint": "#4A3F4A"
     }

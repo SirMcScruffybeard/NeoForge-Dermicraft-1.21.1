@@ -7,6 +7,7 @@
       "durability": 250,
       "ignite_chance": 0.5,
       "ignite_fire_seconds": 4,
+      "mining_speed": 6.0,
       "smelts_logs": true,
       "tint": "#FFCC55"
     },
@@ -15,6 +16,7 @@
       "damage_multiplier": 0.75,
       "decap_chance": 0.1,
       "durability": 75,
+      "mining_speed": 4.0,
       "tint": "#E3DAC9"
     },
     "dermicraft:copper_sunder_chain": {
@@ -22,6 +24,7 @@
       "damage_multiplier": 0.85,
       "decap_chance": 0.15,
       "durability": 150,
+      "mining_speed": 6.0,
       "tint": "#B87333"
     },
     "dermicraft:diamond_sunder_chain": {
@@ -29,6 +32,7 @@
       "damage_multiplier": 1.25,
       "decap_chance": 0.3,
       "durability": 400,
+      "mining_speed": 8.0,
       "tint": "#6FCFC4"
     },
     "dermicraft:emerald_sunder_chain": {
@@ -37,6 +41,7 @@
       "decap_chance": 0.22,
       "durability": 300,
       "loot_bonus_chance": 0.25,
+      "mining_speed": 7.0,
       "tint": "#50C878"
     },
     "dermicraft:gold_sunder_chain": {
@@ -45,6 +50,7 @@
       "decap_chance": 0.3,
       "durability": 100,
       "loot_bonus_chance": 0.2,
+      "mining_speed": 12.0,
       "tint": "#D4AF37"
     },
     "dermicraft:iron_sunder_chain": {
@@ -52,6 +58,7 @@
       "damage_multiplier": 1.0,
       "decap_chance": 0.2,
       "durability": 250,
+      "mining_speed": 6.0,
       "tint": "#D8D8D8"
     },
     "dermicraft:netherite_sunder_chain": {
@@ -59,6 +66,7 @@
       "damage_multiplier": 1.4,
       "decap_chance": 0.35,
       "durability": 520,
+      "mining_speed": 9.0,
       "tint": "#4A3F4A"
     }
   }
