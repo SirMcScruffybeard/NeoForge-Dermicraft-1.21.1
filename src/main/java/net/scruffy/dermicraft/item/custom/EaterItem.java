@@ -605,7 +605,9 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         List<ItemStack> drops = Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos), player, minimumTool);
         // destroyBlock (not removeBlock) so this plays the same break particle burst + sound vanilla
         // mining always does -- that event fires independently of the drop flag, which stays false
-        // since drops are already computed and routed through the buffer ourselves below.
+        // since drops are already computed and routed through the buffer ourselves below. Grass
+        // Block behaves the same as every other Aggregate target here -- fully mined to air, with
+        // vanilla's own Dirt drop (its real loot table result) routed through the buffer below.
         level.destroyBlock(pos, false);
 
         for (ItemStack drop : drops) {

@@ -77,6 +77,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         ;
 
         tag(ModTags.Blocks.AGGREGATE)
+                .add(Blocks.GRASS_BLOCK)
                 .add(Blocks.DIRT)
                 .add(Blocks.COARSE_DIRT)
                 .add(Blocks.PODZOL)
