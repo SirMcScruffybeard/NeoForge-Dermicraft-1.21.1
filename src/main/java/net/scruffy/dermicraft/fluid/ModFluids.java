@@ -15,6 +15,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.ModLiquidBlock;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -32,7 +33,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.CALCIUM_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> CALCIUM_BLEND_BLOCK = ModBlocks.BLOCKS.register("calcium_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_CALCIUM_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_CALCIUM_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> CALCIUM_BLEND_BUCKET = getBucket("calcium_blend_bucket", ModFluids.SOURCE_CALCIUM_BLEND);
 
@@ -50,7 +51,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.CARBON_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> CARBON_BLEND_BLOCK = ModBlocks.BLOCKS.register("carbon_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_CARBON_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_CARBON_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> CARBON_BLEND_BUCKET = getBucket("carbon_blend_bucket", ModFluids.SOURCE_CARBON_BLEND);
 
@@ -68,7 +69,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.PROTEIN_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> PROTEIN_BLEND_BLOCK = ModBlocks.BLOCKS.register("protein_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_PROTEIN_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_PROTEIN_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> PROTEIN_BLEND_BUCKET = getBucket("protein_blend_bucket", ModFluids.SOURCE_PROTEIN_BLEND);
 
@@ -86,7 +87,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.PRIMITIVE_CATALYST_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> PRIMITIVE_CATALYST_BLOCK = ModBlocks.BLOCKS.register("primitive_catalyst_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> PRIMITIVE_CATALYST_BUCKET = ModItems.ITEMS.registerItem("primitive_catalyst_bucket",
             properties -> new BucketItem(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), properties
@@ -107,7 +108,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.REINFORCING_CATALYST_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> REINFORCING_CATALYST_BLOCK = ModBlocks.BLOCKS.register("reinforcing_catalyst_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_REINFORCING_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_REINFORCING_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> REINFORCING_CATALYST_BUCKET = getBucket("reinforcing_catalyst_bucket", ModFluids.SOURCE_REINFORCING_CATALYST);
 
@@ -125,7 +126,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.SYNAPSE_CATALYST_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> SYNAPSE_CATALYST_BLOCK = ModBlocks.BLOCKS.register("synapse_catalyst_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_SYNAPSE_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_SYNAPSE_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> SYNAPSE_CATALYST_BUCKET = getBucket("synapse_catalyst_bucket", ModFluids.SOURCE_SYNAPSE_CATALYST);
 
@@ -143,7 +144,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.KINETIC_CATALYST_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> KINETIC_CATALYST_BLOCK = ModBlocks.BLOCKS.register("kinetic_catalyst_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_KINETIC_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_KINETIC_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> KINETIC_CATALYST_BUCKET = getBucket("kinetic_catalyst_bucket", ModFluids.SOURCE_KINETIC_CATALYST);
 
@@ -161,7 +162,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.EVOLUTION_CATALYST_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> EVOLUTION_CATALYST_BLOCK = ModBlocks.BLOCKS.register("evolution_catalyst_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_EVOLUTION_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+            () -> new ModLiquidBlock(ModFluids.SOURCE_EVOLUTION_CATALYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
                     .lightLevel(state -> 7).noLootTable()));
 
     public static final DeferredItem<Item> EVOLUTION_CATALYST_BUCKET = getBucket("evolution_catalyst_bucket", ModFluids.SOURCE_EVOLUTION_CATALYST);
@@ -180,7 +181,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.CRUDE_SLURRY_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> CRUDE_SLURRY_BLOCK = ModBlocks.BLOCKS.register("crude_slurry_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_CRUDE_SLURRY.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_CRUDE_SLURRY.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> CRUDE_SLURRY_BUCKET = getBucket("crude_slurry_bucket", ModFluids.SOURCE_CRUDE_SLURRY);
 
@@ -198,7 +199,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.CONCENTRATED_SLURRY_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> CONCENTRATED_SLURRY_BLOCK = ModBlocks.BLOCKS.register("concentrated_slurry_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> CONCENTRATED_SLURRY_BUCKET = getBucket("concentrated_slurry_bucket", ModFluids.SOURCE_CONCENTRATED_SLURRY);
 
@@ -216,7 +217,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.STONE_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> STONE_BLEND_BLOCK = ModBlocks.BLOCKS.register("stone_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_STONE_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_STONE_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> STONE_BLEND_BUCKET = getBucket("stone_blend_bucket", ModFluids.SOURCE_STONE_BLEND);
 
@@ -234,7 +235,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.SILICA_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> SILICA_BLEND_BLOCK = ModBlocks.BLOCKS.register("silica_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_SILICA_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_SILICA_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> SILICA_BLEND_BUCKET = getBucket("silica_blend_bucket", ModFluids.SOURCE_SILICA_BLEND);
 
@@ -252,7 +253,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.CLAY_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> CLAY_BLEND_BLOCK = ModBlocks.BLOCKS.register("clay_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_CLAY_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_CLAY_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> CLAY_BLEND_BUCKET = getBucket("clay_blend_bucket", ModFluids.SOURCE_CLAY_BLEND);
 
@@ -271,7 +272,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.FERROUS_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> FERROUS_BLEND_BLOCK = ModBlocks.BLOCKS.register("ferrous_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_FERROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_FERROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> FERROUS_BLEND_BUCKET = getBucket("ferrous_blend_bucket", ModFluids.SOURCE_FERROUS_BLEND);
 
@@ -290,7 +291,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.CUPROUS_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> CUPROUS_BLEND_BLOCK = ModBlocks.BLOCKS.register("cuprous_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_CUPROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_CUPROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> CUPROUS_BLEND_BUCKET = getBucket("cuprous_blend_bucket", ModFluids.SOURCE_CUPROUS_BLEND);
 
@@ -309,7 +310,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.AUROUS_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> AUROUS_BLEND_BLOCK = ModBlocks.BLOCKS.register("aurous_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_AUROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_AUROUS_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> AUROUS_BLEND_BUCKET = getBucket("aurous_blend_bucket", ModFluids.SOURCE_AUROUS_BLEND);
 
@@ -327,7 +328,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.F_STUFF_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> F_STUFF_BLOCK = ModBlocks.BLOCKS.register("f_stuff_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_F_STUFF.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_F_STUFF.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> F_STUFF_BUCKET = getBucket("f_stuff_bucket", ModFluids.SOURCE_F_STUFF);
 
@@ -345,7 +346,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.C_STUFF_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> C_STUFF_BLOCK = ModBlocks.BLOCKS.register("c_stuff_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_C_STUFF.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_C_STUFF.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> C_STUFF_BUCKET = getBucket("c_stuff_bucket", ModFluids.SOURCE_C_STUFF);
 
@@ -363,7 +364,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.PULP_BLEND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> PULP_BLEND_BLOCK = ModBlocks.BLOCKS.register("pulp_blend_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_PULP_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_PULP_BLEND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> PULP_BLEND_BUCKET = getBucket("pulp_blend_bucket", ModFluids.SOURCE_PULP_BLEND);
 
@@ -381,7 +382,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_REDSTONE_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_REDSTONE_BLOCK = ModBlocks.BLOCKS.register("molten_redstone_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_REDSTONE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_REDSTONE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
                     .lightLevel(state -> 8).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_REDSTONE_BUCKET = getBucket("molten_redstone_bucket", ModFluids.SOURCE_MOLTEN_REDSTONE);
@@ -400,7 +401,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_QUARTZ_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_QUARTZ_BLOCK = ModBlocks.BLOCKS.register("molten_quartz_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_QUARTZ.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_QUARTZ.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_QUARTZ_BUCKET = getBucket("molten_quartz_bucket", ModFluids.SOURCE_MOLTEN_QUARTZ);
 
@@ -418,7 +419,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_GLOWSTONE_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_GLOWSTONE_BLOCK = ModBlocks.BLOCKS.register("molten_glowstone_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
                     .lightLevel(state -> 10).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_GLOWSTONE_BUCKET = getBucket("molten_glowstone_bucket", ModFluids.SOURCE_MOLTEN_GLOWSTONE);
@@ -437,7 +438,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_AMETHYST_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_AMETHYST_BLOCK = ModBlocks.BLOCKS.register("molten_amethyst_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_AMETHYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_AMETHYST.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_AMETHYST_BUCKET = getBucket("molten_amethyst_bucket", ModFluids.SOURCE_MOLTEN_AMETHYST);
 
@@ -455,7 +456,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_DIAMOND_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_DIAMOND_BLOCK = ModBlocks.BLOCKS.register("molten_diamond_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_DIAMOND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_DIAMOND.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_DIAMOND_BUCKET = getBucket("molten_diamond_bucket", ModFluids.SOURCE_MOLTEN_DIAMOND);
 
@@ -473,7 +474,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_EMERALD_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_EMERALD_BLOCK = ModBlocks.BLOCKS.register("molten_emerald_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_EMERALD.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_EMERALD.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_EMERALD_BUCKET = getBucket("molten_emerald_bucket", ModFluids.SOURCE_MOLTEN_EMERALD);
 
@@ -491,7 +492,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_LAPIS_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_LAPIS_BLOCK = ModBlocks.BLOCKS.register("molten_lapis_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_LAPIS.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_LAPIS.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_LAPIS_BUCKET = getBucket("molten_lapis_bucket", ModFluids.SOURCE_MOLTEN_LAPIS);
 
@@ -509,7 +510,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_RAW_NETHERITE_SCRAP_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_RAW_NETHERITE_SCRAP_BLOCK = ModBlocks.BLOCKS.register("molten_raw_netherite_scrap_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_RAW_NETHERITE_SCRAP_BUCKET = getBucket("molten_raw_netherite_scrap_bucket", ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP);
 
@@ -527,7 +528,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_NETHERITE_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_NETHERITE_BLOCK = ModBlocks.BLOCKS.register("molten_netherite_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_NETHERITE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_NETHERITE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_NETHERITE_BUCKET = getBucket("molten_netherite_bucket", ModFluids.SOURCE_MOLTEN_NETHERITE);
 
@@ -545,7 +546,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.BLAZE_ESSENCE_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> BLAZE_ESSENCE_BLOCK = ModBlocks.BLOCKS.register("blaze_essence_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_BLAZE_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+            () -> new ModLiquidBlock(ModFluids.SOURCE_BLAZE_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
                     .lightLevel(state -> 9).noLootTable()));
 
     public static final DeferredItem<Item> BLAZE_ESSENCE_BUCKET = getBucket("blaze_essence_bucket", ModFluids.SOURCE_BLAZE_ESSENCE);
@@ -564,7 +565,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.GHAST_ESSENCE_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> GHAST_ESSENCE_BLOCK = ModBlocks.BLOCKS.register("ghast_essence_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_GHAST_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_GHAST_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> GHAST_ESSENCE_BUCKET = getBucket("ghast_essence_bucket", ModFluids.SOURCE_GHAST_ESSENCE);
 
@@ -582,7 +583,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.WITHER_ESSENCE_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> WITHER_ESSENCE_BLOCK = ModBlocks.BLOCKS.register("wither_essence_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_WITHER_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_WITHER_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> WITHER_ESSENCE_BUCKET = getBucket("wither_essence_bucket", ModFluids.SOURCE_WITHER_ESSENCE);
 
@@ -600,7 +601,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.ENDER_ESSENCE_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> ENDER_ESSENCE_BLOCK = ModBlocks.BLOCKS.register("ender_essence_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_ENDER_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+            () -> new ModLiquidBlock(ModFluids.SOURCE_ENDER_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
                     .lightLevel(state -> 4).noLootTable()));
 
     public static final DeferredItem<Item> ENDER_ESSENCE_BUCKET = getBucket("ender_essence_bucket", ModFluids.SOURCE_ENDER_ESSENCE);
@@ -619,7 +620,7 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.MOLTEN_SOUL_SILICA_PROPERTIES));
 
     public static final DeferredBlock<LiquidBlock> MOLTEN_SOUL_SILICA_BLOCK = ModBlocks.BLOCKS.register("molten_soul_silica_block",
-            () -> new LiquidBlock(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
+            () -> new ModLiquidBlock(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER).noLootTable()));
 
     public static final DeferredItem<Item> MOLTEN_SOUL_SILICA_BUCKET = getBucket("molten_soul_silica_bucket", ModFluids.SOURCE_MOLTEN_SOUL_SILICA);
 
