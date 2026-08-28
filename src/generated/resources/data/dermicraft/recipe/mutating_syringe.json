@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid_amount": 250,
+  "ingredient": {
+    "item": "dermicraft:primitive_syringe"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:syringe"
+  },
+  "ticks": 50
+}

@@ -1305,6 +1305,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_skin_tank", ModBlocks.BEAKER_ITEM.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.SKIN_TANK.asItem(), solidTicks);
 
+        // Primitive surgical toolkit -> real Iron tier, Mutator route. Not a progression gate (the
+        // Iron tools are already plain crafting-table recipes) -- purely a recycling convenience so a
+        // worn Primitive tool doesn't have to be thrown away once Iron access exists. Flat 250 mB
+        // Ferrous Blend across all 4, cheap and fast (quickTicks) to match that "convenience, not a
+        // real cost" framing.
+        RecipeBuilders.mutate(recipeOutput, "mutating_forceps", ModItems.PRIMITIVE_FORCEPS.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.FORCEPS.get(), quickTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_scalpel", ModItems.PRIMITIVE_SCALPEL.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.SCALPEL.get(), quickTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_suture_kit", ModItems.PRIMITIVE_SUTURE_KIT.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.SUTURE_KIT.get(), quickTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_syringe", ModItems.PRIMITIVE_SYRINGE.get(),
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.SYRINGE.get(), quickTicks);
+
         // Brain Block - FL Tier 1 build (see dermicraft-machine-notes.md, Core -- Tier 1 build).
         // Same price/timing as the Craw/Skin Tank Mutator routes -- the Brain is the FL's control
         // block, at least as significant as either.

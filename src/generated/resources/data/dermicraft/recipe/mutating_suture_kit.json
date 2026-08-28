@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid_amount": 250,
+  "ingredient": {
+    "item": "dermicraft:primitive_suture_kit"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:suture_kit"
+  },
+  "ticks": 50
+}
