@@ -257,6 +257,13 @@ public class ModBusEvents {
                 stack, net.scruffy.dermicraft.item.custom.ShatterItem.effectiveCapacity(stack), HazardProfile.TIER_1,
                 fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.SHATTER.get());
+
+        // Eater: same biofuel-only fuel tank shape as Sunder/Shatter -- Aggregate/Beam Module mining
+        // reads/gates on this one (see EaterItem#aggregateTick), unlike Sunder/Shatter's own tanks.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) -> new IHaveFluidData.HazardGatedFluidDataFluidHandler(
+                stack, net.scruffy.dermicraft.item.custom.EaterItem.effectiveCapacity(stack), HazardProfile.TIER_1,
+                fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
+                ModItems.EATER.get());
     }
 
     /** All Gate Buffers directly touching {@code portPos}, in {@link Direction#values()} order. */

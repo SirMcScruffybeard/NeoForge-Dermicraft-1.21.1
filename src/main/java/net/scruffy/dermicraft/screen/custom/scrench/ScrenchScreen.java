@@ -58,6 +58,8 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             fuelRenderer = createFluidRenderer16x40(menu.getDrinkerCapacity());
         } else if (isSipping()) {
             fuelRenderer = createFluidRenderer16x40(menu.getSippingCapacity());
+        } else if (isEater()) {
+            fuelRenderer = createFluidRenderer16x40(menu.getEaterFuelCapacity());
         }
     }
 
@@ -118,6 +120,12 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
             renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.getSippingFluid(),
                     SippingItem.TANK_X + 1, SippingItem.TANK_Y + 1, fuelRenderer,
                     Component.translatable("tooltip.dermicraft.gauge.buffer"));
+        }
+
+        if (isEater() && fuelRenderer != null) {
+            renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, menu.getEaterFluid(),
+                    EaterItem.FUEL_TANK_X + 1, EaterItem.FUEL_TANK_Y + 1, fuelRenderer,
+                    Component.translatable("tooltip.dermicraft.gauge.fuel"));
         }
     }
 
@@ -217,8 +225,14 @@ public class ScrenchScreen extends AbstractModScreen<ScrenchMenu> {
                 EaterItem.BUFFER_SLOT_X, EaterItem.BUFFER_SLOT_Y,
                 EaterItem.SLOT_COUNT, EaterItem.BUFFER_SLOT_SPACING, 0);
 
-        // Separates the buffer row from the player's own inventory grid just below it -- spans the
-        // same width as that grid (PLAYER_INVENTORY_X/WIDTH) so it reads as one continuous rule.
-        renderDivider(guiGraphics, x, y, 7, EaterItem.BUFFER_SLOT_Y + SLOT_SIZE + 2, 162);
+        // Fuel tank + fill slot (2026-08-27) -- Aggregate/Beam Module mining now actually costs
+        // fuel, see EaterItem#aggregateTick. No Fill-from-pool button here -- that's Workbench-only
+        // (see WorkbenchMenu.BUTTON_FILL_FROM_POOL's own javadoc), the field Scrench only ever had
+        // the manual fill slot for Sunder/Shatter too.
+        guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + EaterItem.FUEL_TANK_X, y + EaterItem.FUEL_TANK_Y, 0, 0,
+                TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT, TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
+        if (fuelRenderer != null) {
+            fuelRenderer.render(guiGraphics, x + EaterItem.FUEL_TANK_X + 1, y + EaterItem.FUEL_TANK_Y + 1, menu.getEaterFluid());
+        }
     }
 }

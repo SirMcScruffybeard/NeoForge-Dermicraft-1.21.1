@@ -154,6 +154,11 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     // Whatever's in that inventory slot draws its icon on top afterward, hiding the button.
     private static final int FILL_BUTTON_X = SunderItem.FUEL_TANK_X + TANK_AND_SLOT_WIDTH + 6;
     private static final int FILL_BUTTON_Y = WorkbenchMenu.FUEL_FILL_SLOT_Y;
+    // Eater's own tank sits at a different X than Sunder/Shatter's shared position (see
+    // EaterItem.FUEL_TANK_X's own placeholder-layout note), so its Fill button gets its own position
+    // rather than reusing the Sunder/Shatter one above.
+    private static final int EATER_FILL_BUTTON_X = EaterItem.FUEL_TANK_X + TANK_AND_SLOT_WIDTH + 6;
+    private static final int EATER_FILL_BUTTON_Y = EaterItem.FUEL_SLOT_Y;
 
     private static final ResourceLocation STRIP_BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "single_bar_background.png");
@@ -216,9 +221,7 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     protected void init() {
         super.init();
         // Read whichever gadget is actually present rather than assuming a fixed capacity -- same
-        // reasoning as every other per-gadget branch on this screen. Eater has no fluid tank at all,
-        // so it falls through to the Sunder branch's capacity harmlessly (fuelRenderer just goes
-        // unused on that page).
+        // reasoning as every other per-gadget branch on this screen.
         int fuelCapacity;
         if (menu.isWorkItemShatter()) {
             fuelCapacity = menu.getShatterFuelCapacity();
@@ -226,6 +229,8 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             fuelCapacity = menu.getDrinkerCapacity();
         } else if (menu.isWorkItemSipping()) {
             fuelCapacity = menu.getSippingCapacity();
+        } else if (menu.isWorkItemEater()) {
+            fuelCapacity = menu.getEaterFuelCapacity();
         } else {
             fuelCapacity = menu.getSunderFuelCapacity();
         }
@@ -284,6 +289,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             } else if (menu.isWorkItemSipping()) {
                 renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.getSippingFluid(),
                         SippingItem.TANK_X + 1, SippingItem.TANK_Y + 1, fuelRenderer,
+                        Component.translatable("tooltip.dermicraft.gauge.fuel"));
+            } else if (menu.isWorkItemEater()) {
+                renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.getEaterFluid(),
+                        EaterItem.FUEL_TANK_X + 1, EaterItem.FUEL_TANK_Y + 1, fuelRenderer,
                         Component.translatable("tooltip.dermicraft.gauge.fuel"));
             }
 
@@ -440,7 +449,15 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
                         EaterItem.BUFFER_SLOT_X, EaterItem.BUFFER_SLOT_Y,
                         EaterItem.SLOT_COUNT, EaterItem.BUFFER_SLOT_SPACING, 0);
 
-                renderDivider(guiGraphics, x, y, 7, EaterItem.BUFFER_SLOT_Y + SLOT_SIZE + 2, 162);
+                // Fuel tank + fill slot + Fill-from-pool button (2026-08-27) -- Aggregate/Beam Module
+                // mining now actually costs fuel, see EaterItem#aggregateTick.
+                guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + EaterItem.FUEL_TANK_X, y + EaterItem.FUEL_TANK_Y, 0, 0,
+                        TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT, TANK_AND_SLOT_WIDTH, WorkbenchMenu.FUEL_TANK_HEIGHT);
+                fuelRenderer.render(guiGraphics, x + EaterItem.FUEL_TANK_X + 1, y + EaterItem.FUEL_TANK_Y + 1, menu.getEaterFluid());
+
+                ResourceLocation eaterFillTexture = fillButtonPressedFlash ? FILL_BUTTON_PRESSED_TEXTURE : FILL_BUTTON_TEXTURE;
+                guiGraphics.blit(eaterFillTexture, x + EATER_FILL_BUTTON_X, y + EATER_FILL_BUTTON_Y, 0, 0,
+                        FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE, FILL_BUTTON_SIZE);
             }
         } else {
             guiGraphics.blit(ITEM_SLOT_TEXTURE, x + WorkbenchMenu.OUTPUT_SLOT_X, y + WorkbenchMenu.OUTPUT_SLOT_Y, 0, 0,
@@ -736,6 +753,15 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
         if ((menu.isWorkItemSunder() || menu.isWorkItemShatter())
                 && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + FILL_BUTTON_X, y + FILL_BUTTON_Y,
+                FILL_BUTTON_SIZE, FILL_BUTTON_SIZE)) {
+            minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.BUTTON_FILL_FROM_POOL);
+            fillButtonPressedFlash = true;
+            fillPressTicks = FILL_PRESS_FLASH_TICKS;
+            return true;
+        }
+
+        if (menu.isWorkItemEater()
+                && MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + EATER_FILL_BUTTON_X, y + EATER_FILL_BUTTON_Y,
                 FILL_BUTTON_SIZE, FILL_BUTTON_SIZE)) {
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.BUTTON_FILL_FROM_POOL);
             fillButtonPressedFlash = true;

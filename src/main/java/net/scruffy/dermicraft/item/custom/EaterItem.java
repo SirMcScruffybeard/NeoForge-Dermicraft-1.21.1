@@ -29,14 +29,19 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.component.DrinkerModeData;
+import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IGadget;
+import net.scruffy.dermicraft.interfaces.IHaveFluidData;
 import net.scruffy.dermicraft.interfaces.IHaveItemData;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
@@ -66,7 +71,19 @@ import java.util.UUID;
  * its destination. That's the whole reason this item's tick loop is simpler than DRINKER's
  * despite sharing the same held-trigger identity and mode cycle.
  */
-public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, IHaveModules, IWorkbenchSwappable {
+public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData, IHaveItemData, IHaveModules, IWorkbenchSwappable {
+
+    /** Aggregate/Beam fuel tank -- 2026-08-27, closing a real balance gap: mining via either Module
+     * previously cost nothing at all. Same 1000 mB base as Sunder/Shatter/Drinker, Capacity Module
+     * compatible via the same {@link IHaveModules#capacityBonus} mechanism. Biofuel-only, same
+     * gating as Sunder's/Shatter's own tanks (see {@code ModBusEvents}). Unlike Sunder's fuel-then-
+     * hunger fallback, insufficient fuel here is a hard block -- see {@link #aggregateTick}'s own
+     * javadoc for why hunger isn't a fallback resource for this Module. */
+    public static final int FUEL_CAPACITY = 1000;
+
+    public static int effectiveCapacity(ItemStack eaterStack) {
+        return FUEL_CAPACITY + IHaveModules.capacityBonus(eaterStack, ModDataComponentTypes.MODULE_DATA.get(), MODULE_SLOT_COUNT);
+    }
 
     /** Gadget Module loadout size -- see dermicraft-gadget-notes.md -> Gadget upgrade points ->
      * Modules direction note's worked Eater example ("3 general-purpose slots, no type
@@ -514,6 +531,13 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * "hit" lands once per this many ticks, not every tick. */
     private static final int AGGREGATE_STEP_TICKS = 5;
 
+    /** Fuel cost per mining step (2026-08-27) -- Beam costs double Aggregate's, reflecting it being
+     * the stronger of the two (ranged ore access vs. Aggregate's adjacent-terrain roster). Charged
+     * every step while actively progressing a target, same "continuous cost while in use" shape as
+     * Sunder's own per-pulse fuel draw -- see {@link #aggregateTick}. */
+    private static final int AGGREGATE_FUEL_PER_STEP = 5;
+    private static final int BEAM_FUEL_PER_STEP = 10;
+
     /** What each Module simulates holding for break SPEED purposes -- fixed per Module regardless of
      * the specific target block (unlike {@link #minimumToolFor}, which varies per Beam target for
      * drop-gating purposes; Aggregate targets never gate drops on a tool at all, so Aggregate only
@@ -566,6 +590,15 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
      * on the ground at the mined position, same as a buffer-full loose item is simply left
      * uncollected rather than lost. Beam targets pass {@link #minimumToolFor} as the drop-loot tool
      * instead of {@link ItemStack#EMPTY}, so ore loot tables gate on it same as a real pickaxe would.
+     *
+     * <p><b>Fuel (2026-08-27):</b> each step costs {@link #AGGREGATE_FUEL_PER_STEP}/
+     * {@link #BEAM_FUEL_PER_STEP} mB, drained from Eater's own tank. Unlike Sunder's fuel-then-
+     * hunger fallback, there is NO hunger fallback here -- insufficient fuel is a hard block on the
+     * whole Module, not just a resource-cost switch. This is deliberate: Sunder's hunger fallback
+     * exists because a weapon going dead mid-combat is a real problem worth softening; Eater mining
+     * terrain/ore has no equivalent urgency, and "regular loose-item pickup costs nothing" (see
+     * {@link #vacuumTick}) is the actual free baseline this Module sits on top of, not a floor to
+     * preserve via hunger. No fuel simply means the Module can't be used right now.
      */
     private void aggregateTick(Level level, Player player, ItemStack stack) {
         if (!hasModule(stack, ModTags.Items.MODULE_AGGREGATE) && !hasModule(stack, ModTags.Items.MODULE_BEAM)) return;
@@ -585,6 +618,16 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         // -- special-cased to the Beam pickaxe stand-in for both speed and drops rather than the
         // shared Aggregate shovel stand-in, so it mines as if the correct tool were actually used.
         boolean netherrackTarget = !beamTarget && state.is(net.minecraft.world.level.block.Blocks.NETHERRACK);
+
+        int fuelCost = beamTarget ? BEAM_FUEL_PER_STEP : AGGREGATE_FUEL_PER_STEP;
+        IFluidHandlerItem fuelHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
+        FluidStack simulatedFuel = fuelHandler != null
+                ? fuelHandler.drain(fuelCost, IFluidHandler.FluidAction.SIMULATE) : FluidStack.EMPTY;
+        if (simulatedFuel.getAmount() < fuelCost) {
+            clearAggregateProgress(player);
+            return;
+        }
+        fuelHandler.drain(fuelCost, IFluidHandler.FluidAction.EXECUTE);
 
         ItemStack minimumTool = beamTarget ? minimumToolFor(state)
                 : netherrackTarget ? BEAM_SPEED_TOOL_STAND_IN : ItemStack.EMPTY;
@@ -752,17 +795,23 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
     public static final int MODULE_SLOT_Y = 27;
     public static final int MODULE_SLOT_SPACING = 20;
 
-    // A horizontal row directly above the player's own inventory grid (which starts at y=83, see
-    // AbstractModScreen#PLAYER_INVENTORY_Y), not a vertical column -- a column of 4 starting at
-    // y=20 was bleeding into the inventory art by the last slot (20+3*20=80, right against 83).
-    // X is anchored so the row's LAST slot lines up with the inventory's own last (9th) column, and
-    // the pitch matches the inventory's own 18px column spacing -- reads as a continuation of the
-    // same grid rather than an unrelated strip. A dividing line renders just below this row and
-    // above the inventory (see ScrenchScreen/WorkbenchScreen) to keep the two visually separate
-    // despite sharing a column rhythm.
-    public static final int BUFFER_SLOT_Y = 60;
+    // Same row as the Workbench's own gadget/work slot (WorkbenchMenu.WORK_SLOT_Y = 8) -- moved
+    // here 2026-08-27 from its original position directly above the player's inventory grid. Shared
+    // by both hosts (Scrench has no visible work slot of its own, but uses the same Y for layout
+    // consistency). X is anchored so the row's LAST slot lines up with the inventory's own last
+    // (9th) column, and the pitch matches the inventory's own 18px column spacing.
+    public static final int BUFFER_SLOT_Y = 8;
     public static final int BUFFER_SLOT_SPACING = 18;
     public static final int BUFFER_SLOT_X = 151 - (SLOT_COUNT - 1) * BUFFER_SLOT_SPACING;
+
+    // Fuel tank + fill slot (2026-08-27) -- slotted into the gap between the Module row (ends at
+    // x=66) and the buffer row (starts at x=97), same tank_and_slot combo asset every other fueled
+    // gadget uses (66px tall total: 48px tank + 18px slot at the bottom). Placeholder position, same
+    // "finalized once the real art exists" caveat as every other coordinate on this panel.
+    public static final int FUEL_TANK_X = 72;
+    public static final int FUEL_TANK_Y = 8;
+    public static final int FUEL_SLOT_X = FUEL_TANK_X;
+    public static final int FUEL_SLOT_Y = FUEL_TANK_Y + 48;
 
     @Override
     public SwapPanel openSwapPanel(java.util.function.Supplier<ItemStack> gadgetStackSupplier, Player player, boolean fieldHosted) {
@@ -811,7 +860,10 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         public List<Slot> slots(int panelX, int panelY, java.util.function.BooleanSupplier active) {
             List<Slot> slots = new java.util.ArrayList<>(IHaveModules.buildModuleSlots(moduleHandler, MODULE_SLOT_COUNT,
                     panelX + MODULE_SLOT_X + 1, panelY + MODULE_SLOT_Y + 1, MODULE_SLOT_SPACING,
-                    active, () -> moduleSlotChanged = true));
+                    active, () -> moduleSlotChanged = true,
+                    slot -> IHaveModules.mayRemoveCapacityModule(gadgetStackSupplier.get(), ModDataComponentTypes.MODULE_DATA.get(),
+                            MODULE_SLOT_COUNT, slot, FUEL_CAPACITY,
+                            gadgetStackSupplier.get().getOrDefault(getDataType(), FluidData.EMPTY).getFluidAmount())));
 
             for (int i = 0; i < SLOT_COUNT; i++) {
                 int x = panelX + BUFFER_SLOT_X + 1 + i * BUFFER_SLOT_SPACING;
@@ -824,6 +876,8 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
                 });
             }
 
+            slots.add(new FuelFillSlot(panelX + FUEL_SLOT_X + 1, panelY + FUEL_SLOT_Y + 1, active));
+
             return slots;
         }
 
@@ -831,6 +885,43 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         public void onClosed(Player player) {
             if (fieldHosted && moduleSlotChanged) {
                 player.getCooldowns().addCooldown(EaterItem.this, SWAP_RECALIBRATION_COOLDOWN_TICKS);
+            }
+        }
+
+        /** Drains a filled fluid container immediately into Eater's own fuel tank on contact -- same
+         * "immediate, like everything else" rule as every other fluid transfer in the mod. Mirrors
+         * {@code SunderItem}'s identical inner class exactly. */
+        private final class FuelFillSlot extends Slot {
+            private final java.util.function.BooleanSupplier active;
+
+            FuelFillSlot(int x, int y, java.util.function.BooleanSupplier active) {
+                super(new net.minecraft.world.SimpleContainer(1), 0, x, y);
+                this.active = active;
+            }
+
+            @Override
+            public boolean isActive() {
+                return active.getAsBoolean();
+            }
+
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getCapability(Capabilities.FluidHandler.ITEM, null) != null;
+            }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                ItemStack held = getItem();
+                if (held.isEmpty()) return;
+
+                ItemStack eaterStack = gadgetStackSupplier.get();
+                IFluidHandlerItem eaterTank = eaterStack.getCapability(Capabilities.FluidHandler.ITEM, null);
+                IFluidHandlerItem containerHandler = held.getCapability(Capabilities.FluidHandler.ITEM, null);
+                if (eaterTank == null || containerHandler == null) return;
+
+                if (net.neoforged.neoforge.fluids.FluidUtil.tryFluidTransfer(eaterTank, containerHandler, Integer.MAX_VALUE, true).isEmpty()) return;
+                set(containerHandler.getContainer());
             }
         }
     }
@@ -850,6 +941,15 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveItemData, 
         tooltip.add(Component.translatable("tooltip.dermicraft.eater.mode",
                         Component.translatable(modeKey(modeData(stack).mode())))
                 .withStyle(ChatFormatting.GRAY));
+
+        // Fuel always shows (no shift-gate) -- same "can I keep using this right now" reasoning
+        // Sunder's own fuel line uses (see that class's appendHoverText javadoc).
+        FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+        if (!data.isFluidEmpty()) {
+            tooltip.add(data.getFluidComponent());
+            tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity",
+                    data.getFluidAmount(), effectiveCapacity(stack)).withStyle(ChatFormatting.GRAY));
+        }
     }
 
     ////////////////////Helpers\\\\\\\\\\\\\\\\\\\\

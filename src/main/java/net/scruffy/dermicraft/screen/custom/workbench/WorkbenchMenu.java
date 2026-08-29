@@ -490,4 +490,14 @@ public class WorkbenchMenu extends AbstractModMenu {
     public int getSippingCapacity() {
         return SippingItem.effectiveCapacity(getWorkItemStack());
     }
+
+    /** Eater-only convenience accessors, same shape as Sunder's/Shatter's -- Eater's fuel tank is
+     * the standard FLUID_DATA component. */
+    public FluidStack getEaterFluid() {
+        return getWorkItemStack().getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidStack();
+    }
+
+    public int getEaterFuelCapacity() {
+        return net.scruffy.dermicraft.item.custom.EaterItem.effectiveCapacity(getWorkItemStack());
+    }
 }

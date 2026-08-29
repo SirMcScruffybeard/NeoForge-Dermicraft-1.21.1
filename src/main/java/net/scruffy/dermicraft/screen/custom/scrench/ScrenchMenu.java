@@ -150,6 +150,16 @@ public class ScrenchMenu extends AbstractModMenu {
         return SippingItem.effectiveCapacity(player.getItemInHand(gadgetHand));
     }
 
+    /** Eater-only convenience accessors, same shape as Sunder's/Shatter's -- Eater's fuel tank is
+     * the standard {@code FLUID_DATA} component. */
+    public FluidStack getEaterFluid() {
+        return player.getItemInHand(gadgetHand).getOrDefault(ModDataComponentTypes.FLUID_DATA.get(), FluidData.EMPTY).getFluidStack();
+    }
+
+    public int getEaterFuelCapacity() {
+        return net.scruffy.dermicraft.item.custom.EaterItem.effectiveCapacity(player.getItemInHand(gadgetHand));
+    }
+
     /**
      * Shift-click transfer across the WHOLE panel, however many slots the held gadget's panel
      * actually built -- {@link AbstractModMenu}'s generic version can't do this, since it's built
