@@ -206,6 +206,7 @@ public class DermicraftClient {
         event.registerBlockEntityRenderer(ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), DroolingCauldronBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_GEODE_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.WORKBENCH_TOP_BE.get(),
                 net.scruffy.dermicraft.renderer.WorkbenchTopBlockEntityRenderer::new);
@@ -233,6 +234,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.CHARRED_TANK_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankScreen::new);
         event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
         event.register(ModMenuTypes.DROOLING_CRUCIBLE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleScreen::new);
+        event.register(ModMenuTypes.DROOLING_GEODE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_geode.DroolingGeodeScreen::new);
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
         event.register(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), CharredMasticatorScreen::new);
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);

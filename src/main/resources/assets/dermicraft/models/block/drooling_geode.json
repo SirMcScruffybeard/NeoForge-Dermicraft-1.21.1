@@ -1,0 +1,7 @@
+{
+	"parent": "dermicraft:block/drooling_cauldron",
+	"textures": {
+		"0": "dermicraft:block/drooling_geode",
+		"particle": "dermicraft:block/drooling_geode"
+	}
+}

@@ -9,6 +9,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingGeodeRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
@@ -48,6 +49,18 @@ public class ModRecipes {
                 @Override
                 public String toString() {
                     return "vague_drooling_crucible";
+                }
+            });
+
+    // Drooling Geode's own food-boost recipe type -- same reasoning as Crucible's above, kept
+    // separate from both VAGUE_DROOLING_TYPE and VAGUE_DROOLING_CRUCIBLE_TYPE.
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<VagueDroolingGeodeRecipe>> VAGUE_DROOLING_GEODE_SERIALIZER =
+            SERIALIZERS.register("vague_drooling_geode", VagueDroolingGeodeRecipe.Serializer::new);
+    public static final DeferredHolder<RecipeType<?>, RecipeType<VagueDroolingGeodeRecipe>> VAGUE_DROOLING_GEODE_TYPE =
+            TYPES.register("vague_drooling_geode", () -> new RecipeType<VagueDroolingGeodeRecipe>() {
+                @Override
+                public String toString() {
+                    return "vague_drooling_geode";
                 }
             });
 

@@ -28,6 +28,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)
                 .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.DROOLING_GEODE.get())
                 .add(ModBlocks.OUTERFACE.get())
                 .add(ModBlocks.SKIN_TANK.get())
                 .add(ModBlocks.CHARRED_TANK.get())
@@ -131,6 +132,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         tag(ModTags.Blocks.HAS_SCREEN)
                 .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.DROOLING_GEODE.get())
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.CHARRED_MASTICATOR.get())
                 .add(ModBlocks.SKIN_TANK.get())
@@ -164,6 +166,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         tag(ModTags.Blocks.DIPPING_TANKS)
                 .add(ModBlocks.BEAKER.get())
                 .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.DROOLING_GEODE.get())
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.CHARRED_MASTICATOR.get())
                 .add(ModBlocks.SKIN_TANK.get())

@@ -34,6 +34,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("drooling_crucible_be", () -> BlockEntityType.Builder.of(
                     DroolingCrucibleBlockEntity::new, ModBlocks.DROOLING_CRUCIBLE.get()).build(null));
 
+    public static final Supplier<BlockEntityType<DroolingGeodeBlockEntity>> DROOLING_GEODE_BE =
+            BLOCK_ENTITIES.register("drooling_geode_be", () -> BlockEntityType.Builder.of(
+                    DroolingGeodeBlockEntity::new, ModBlocks.DROOLING_GEODE.get()).build(null));
+
     public static final Supplier<BlockEntityType<MasticatorBlockEntity>> MASTICATOR_BE =
             BLOCK_ENTITIES.register("masticator_be", () -> BlockEntityType.Builder.of(
                     MasticatorBlockEntity::new, ModBlocks.MASTICATOR.get()).build(null));

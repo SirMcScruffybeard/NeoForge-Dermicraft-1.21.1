@@ -115,6 +115,14 @@ public class ModBlocks {
                     .requiresCorrectToolForDrops()
                     .noOcclusion())); // same cauldron-shaped-model reasoning as Drooling Cauldron above
 
+    // Same tier/strength as Drooling Cauldron (no evolution mechanic, standalone Stage 1 machine --
+    // see DroolingGeodeBlockEntity's own class javadoc).
+    public static final DeferredBlock<Block> DROOLING_GEODE = registerBlock("drooling_geode",
+            () -> new DroolingGeodeBlock(BlockBehaviour.Properties.of()
+                    .strength(2.0f)
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion())); // same cauldron-shaped-model reasoning as Drooling Cauldron above
+
     // Workbench bottom half -- keeps the registry id "workbench" (established before the top half
     // existed) and hosts the real Storage/Mod/Fabrication GUI (see WorkbenchBlock's own javadoc).
     // noOcclusion -- GeckoLib-rendered, doesn't fill the full cube, so a neighbor's face shouldn't

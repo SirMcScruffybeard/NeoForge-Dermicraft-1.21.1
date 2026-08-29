@@ -47,6 +47,7 @@ public class ModCreativeModeTabs {
                         // No craft recipe yet -- standalone-reachable Evolution/Catalyst path isn't
                         // built (dermicraft-machine-notes.md). Visible in creative for testing only.
                         output.accept(ModBlocks.DROOLING_CRUCIBLE);
+                        output.accept(ModBlocks.DROOLING_GEODE);
                         output.accept(ModBlocks.MASTICATOR);
                         output.accept(ModBlocks.CHARRED_MASTICATOR); // no craft recipe yet
                         output.accept(ModBlocks.SKIN_TANK);

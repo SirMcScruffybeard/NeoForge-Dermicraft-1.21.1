@@ -222,6 +222,8 @@
   "blockEntity.dermicraft.drooling_cauldron_be": "Drooling Cauldron",
   "block.dermicraft.drooling_crucible": "Drooling Crucible",
   "blockEntity.dermicraft.drooling_crucible_be": "Drooling Crucible",
+  "block.dermicraft.drooling_geode": "Drooling Geode",
+  "blockEntity.dermicraft.drooling_geode_be": "Drooling Geode",
 
   "block.dermicraft.masticator": "Masticator",
   "blockEntity.dermicraft.masticator_be": "Masticator",
@@ -448,6 +450,8 @@
   "screen.dermicraft.charred_metastasizer.module_tab": "Mod",
   "screen.dermicraft.drooling_crucible.main_tab": "Main",
   "screen.dermicraft.drooling_crucible.module_tab": "Mod",
+  "screen.dermicraft.drooling_geode.main_tab": "Main",
+  "screen.dermicraft.drooling_geode.module_tab": "Mod",
   "screen.dermicraft.workbench.craft": "Craft",
   "screen.dermicraft.scrench": "Sunder Maintenance",
   "tooltip.dermicraft.slot.reagent_container": "Reagent Container",

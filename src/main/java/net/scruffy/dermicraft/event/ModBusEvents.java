@@ -61,6 +61,12 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingCrucibleBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingCrucibleBlockEntity::getTank);
 
+        // Drooling Geode -- its own BlockEntityType, so it needs its own capability entries too
+        // (see CLAUDE.md's "variant with its own BlockEntityType" checklist -- caught proactively
+        // this time, not after the fact like Crucible's own gap above).
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.DROOLING_GEODE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingGeodeBlockEntity::getItemHandler);
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.DROOLING_GEODE_BE.get(), net.scruffy.dermicraft.block.entity.custom.DroolingGeodeBlockEntity::getTank);
+
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
 

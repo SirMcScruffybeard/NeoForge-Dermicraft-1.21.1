@@ -18,6 +18,7 @@ import net.scruffy.dermicraft.screen.custom.charred_craw.CharredCrawMenu;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
 import net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleMenu;
+import net.scruffy.dermicraft.screen.custom.drooling_geode.DroolingGeodeMenu;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
 import net.scruffy.dermicraft.screen.custom.charred_metastasizer.CharredMetastasizerMenu;
@@ -48,6 +49,9 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<DroolingCrucibleMenu>> DROOLING_CRUCIBLE_MENU =
             registerMenuType("drooling_crucible_menu", DroolingCrucibleMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<DroolingGeodeMenu>> DROOLING_GEODE_MENU =
+            registerMenuType("drooling_geode_menu", DroolingGeodeMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<MasticatorMenu>> MASTICATOR_MENU =
             registerMenuType("masticator_menu", MasticatorMenu::new);

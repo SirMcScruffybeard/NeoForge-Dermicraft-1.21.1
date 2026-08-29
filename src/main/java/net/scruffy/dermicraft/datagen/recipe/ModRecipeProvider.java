@@ -309,6 +309,18 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.DROOLING_CAULDRON.asItem());
 
+        // Drooling Geode -- same recipe shape as Drooling Cauldron above (same tier, no evolution
+        // mechanic), plus a seed Stone block for the mineral identity.
+        RecipeBuilders.buildEarlyImplant(recipeOutput,"drooling_geode_implant",
+                List.of(Ingredient.of(Blocks.CAULDRON),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(Blocks.STONE)),
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.DROOLING_GEODE.asItem());
+
         RecipeBuilders.buildEarlyImplant(recipeOutput, "masticator_implant",
                 List.of(
                         Ingredient.of(Items.BONE),
