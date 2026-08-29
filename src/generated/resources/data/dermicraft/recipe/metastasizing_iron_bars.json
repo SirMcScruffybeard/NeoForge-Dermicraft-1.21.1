@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid_amount": 375,
+  "pattern": {
+    "item": "minecraft:iron_bars"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:iron_bars"
+  },
+  "ticks": 340
+}

@@ -888,6 +888,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_nugget", Items.IRON_NUGGET, 110,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+        // Iron Bars -- real vanilla 6-Ingot/16-Bar ratio, a clean 375 mB/bar at our standard 1000
+        // mB/Ingot rate (6000/16, no fractional remainder, unlike Nugget/Bone Meal's own ratios).
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_iron_bars", Items.IRON_BARS, 375,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(17));
         // Batch-of-9 alternate -- real vanilla 9-Nugget-per-Ingot ratio, priced at the clean
         // Ingot-equivalent 1000 mB rather than 9x110=990, so it's a genuine (if small) bulk reward
         // over feeding Nuggets one at a time. Masticating-only, deliberately no metastasizing
@@ -984,6 +988,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Ingot/Nugget fluid amounts above 1:1. No Cuprous Nugget, same reason as the Masticator side.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_BLEND.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_bars", Items.IRON_BARS, ModFluids.SOURCE_FERROUS_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(17));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_bucket", Items.BUCKET, ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_block", Items.IRON_BLOCK, ModFluids.SOURCE_FERROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_hopper", Items.HOPPER, ModFluids.SOURCE_FERROUS_BLEND.get(), 5000, ModMath.Time.getSecondsToTicks(50));
