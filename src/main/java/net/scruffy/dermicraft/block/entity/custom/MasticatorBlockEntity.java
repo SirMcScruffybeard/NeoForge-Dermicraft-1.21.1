@@ -497,14 +497,16 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
 
     @Override
     protected boolean hasCraftingOutputRoom() {
-        // hasRoom() alone only checks capacity, not fluid type -- if RESULT_TANK already holds a
-        // DIFFERENT fluid (e.g. left over from a previous recipe), there can still be "room" by
-        // amount, but RESULT_TANK.fill() would silently refuse it in onCraftComplete() (vanilla
-        // FluidTank.fill() rejects a mismatched fluid), consuming the item/reagent for nothing.
+        // Checked via a SIMULATE fill rather than hasRoom()+manual type comparison, so this also
+        // catches a RESULT_TANK that can't accept the result's HAZARD kind (e.g. a Charred
+        // Masticator, hazard-gated to TIER_2, asked to produce a RADIATION_MILD fluid like Molten
+        // Glowstone without a Radiation Safety Module installed) -- not just amount/fluid-type
+        // mismatches. Without this, onCraftComplete() still consumed the ingredient/reagent and
+        // RESULT_TANK.fill() silently discarded the hazardous result (vanilla FluidTank.fill()
+        // rejects anything its validator refuses), i.e. the craft appeared to eat the input and
+        // produce nothing.
         FluidStack pendingResult = craftResult(resultAmount);
-        FluidStack current = RESULT_TANK.getFluid();
-        if (!current.isEmpty() && !current.getFluid().isSame(pendingResult.getFluid())) return false;
-        return RESULT_TANK.hasRoom(resultAmount);
+        return RESULT_TANK.fill(pendingResult, IFluidHandler.FluidAction.SIMULATE) >= pendingResult.getAmount();
     }
 
     @Override
