@@ -6,7 +6,7 @@ Running log of decided design choices for the liquid-foods system — edible flu
 
 ## Liquid foods — overview
 
-**Status:** System model and the first three edible fluids decided. Per-fluid secondary effects deferred (hook exists, unapplied). Suit-integrated Feeder Bladder add-on and grade/Heal scaling explicitly out of scope for v1.
+**Status:** System model and the first three edible fluids decided. Per-fluid secondary effects deferred (hook exists, unapplied). Suit-integrated Feeder Bladder module and grade/Heal scaling explicitly out of scope for v1.
 
 **What it is:** A system for treating certain fluids as drinkable food. The player drinks an edible fluid out of the **Feeder Bladder** (a `BladderItem` variant, already registered as `FEEDER_BLADDER`); each drink drains a fixed amount of fluid and restores hunger + saturation, like vanilla food.
 
@@ -43,12 +43,12 @@ dermicraft:edible_fluid  ->  {
 
 - **Per-fluid secondary effects** — hook exists in the data map, unapplied. "Treating these fluids like basic food for now."
 - **Healing** — not a property; these are food, not medicine.
-- **Suit-integrated Feeder Bladder add-on** (the Chest-slot version in `dermicraft-suit-notes.md` that auto-feeds from suit fuel) — this covers the *handheld* item only; the suit add-on can reuse the same data map later.
+- **Suit-integrated Feeder Bladder module** (the Chest-slot version in `dermicraft-suit-notes.md` that auto-feeds from suit fuel) — this covers the *handheld* item only; the suit module can reuse the same data map later.
 - **Grade / Heal-modifier scaling** (the mB-per-hunger table in `dermicraft-slurry-notes.md`) — the flat per-fluid map is v1; grade scaling could layer on later without restructuring.
 
 **Open questions:**
 - Which fluids beyond the first three become edible? (All food-derived Slurries/Blends, or a curated subset?)
-- Does the handheld Feeder Bladder and the suit add-on share one data map cleanly, or does the suit version need its own cost model?
+- Does the handheld Feeder Bladder and the suit module share one data map cleanly, or does the suit version need its own cost model?
 - Should `mbPerDrink` ever vary per fluid, or stay uniform? (Uniform 250 for now — see below.)
 
 ---

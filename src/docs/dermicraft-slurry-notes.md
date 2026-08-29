@@ -49,7 +49,7 @@ Every other Main Line slurry is derived relative to this baseline — not picked
 | Enriched | 2.50 | 20.0 |
 | Superior | 3.50 | ~14.3 |
 
-**Excluded:** the **Feeder Craw Add-on** does not use this formula — it feeds the player from **stored food items directly**, not fluid, so there's no conversion rate to apply.
+**Excluded:** the **Feeder Craw Module** does not use this formula — it feeds the player from **stored food items directly**, not fluid, so there's no conversion rate to apply.
 
 ---
 
