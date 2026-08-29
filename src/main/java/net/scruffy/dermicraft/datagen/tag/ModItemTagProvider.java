@@ -87,6 +87,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.FUEL_CONSUMING_GADGETS)
                 .add(ModItems.SUNDER.get())
                 .add(ModItems.SHATTER.get())
+                .add(ModItems.EATER.get())
         ;
 
         tag(ModTags.Items.MODULES)
