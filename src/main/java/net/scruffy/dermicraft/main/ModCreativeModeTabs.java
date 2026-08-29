@@ -148,6 +148,7 @@ public class ModCreativeModeTabs {
                         // Safety Modules
                         output.accept(ModItems.HEAT_SAFETY_MODULE);
                         output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
+                        output.accept(ModItems.RADIATION_SAFETY_MODULE);
 
                         // Evolution Modules
                         output.accept(ModItems.HEAT_EVOLUTION_MODULE); // no mechanics yet, item only

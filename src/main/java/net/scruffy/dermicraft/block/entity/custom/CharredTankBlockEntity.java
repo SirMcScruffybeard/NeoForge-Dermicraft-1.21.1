@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.NotNull;
@@ -30,9 +31,10 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
         super(ModBlockEntities.CHARRED_TANK_BE.get(), pos, blockState);
     }
 
-    // Already evolved -- installing an Evolution Module here does nothing: this class's own tank is
-    // unconditionally TIER_2 regardless of any Module (see createTank() below), and there's no
-    // further Tier for it to accumulate progress toward.
+    // Already evolved -- installing an Evolution Module here does nothing: this class's tank is
+    // permanently at least TIER_2 regardless of any Module (see installedHazardProfile() below), and
+    // there's no further Tier for it to accumulate progress toward. A Safety Module still layers
+    // extra hazard tolerance on top, same as it would for the base Skin Tank.
     @Override
     protected boolean canEvolve() {
         return false;
@@ -40,7 +42,7 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
 
     @Override
     protected VulnerableTank createTank() {
-        return createVulnerableTank(CAPACITY, -1, () -> HazardProfile.TIER_2);
+        return createVulnerableTank(CAPACITY, -1, this::installedHazardProfile);
     }
 
     // Matches createTank() above -- SkinTankBlockEntity#applyCapacityBonus()/canRemoveModule() call
@@ -51,17 +53,22 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
         return CAPACITY;
     }
 
-    // Matches createTank() above -- without this override, a future tooltip/screen reading the
-    // inherited SkinTankBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety
-    // Module) instead of this class's real, unconditional TIER_2 tolerance.
+    // Union of this class's permanent TIER_2 floor with whatever Safety Module(s) sit in its 2
+    // Module slots -- same rule the base SkinTankBlockEntity#installedHazardProfile() applies from
+    // TIER_1, just starting one rung higher since Charred's TIER_2 is unconditional (never drops
+    // below it, only adds on top). Previously hardcoded to a flat TIER_2 that ignored the Module
+    // slots entirely, stranding e.g. a Radiation Safety Module dropped in here.
     @Override
     public HazardProfile installedHazardProfile() {
-        return HazardProfile.TIER_2;
+        HazardProfile profile = HazardProfile.TIER_2;
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            profile = IHaveModules.installedHazardProfile(profile, MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return profile;
     }
 
-    // The "Charred machines get an extra Module slot" upgrade -- this class's own hazard tolerance
-    // stays fixed at TIER_2 regardless (see installedHazardProfile() above), so the second slot's
-    // value here is future module kinds beyond hazard tolerance, not a bigger hazard union.
+    // The "Charred machines get an extra Module slot" upgrade -- both slots now count toward
+    // installedHazardProfile()'s union above.
     @Override
     public int moduleSlotCount() {
         return 2;

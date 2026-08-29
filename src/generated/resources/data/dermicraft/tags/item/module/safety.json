@@ -1,6 +1,7 @@
 {
   "values": [
     "dermicraft:heat_safety_module",
-    "dermicraft:metaphysical_safety_module"
+    "dermicraft:metaphysical_safety_module",
+    "dermicraft:radiation_safety_module"
   ]
 }

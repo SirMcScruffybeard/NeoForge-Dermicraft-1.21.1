@@ -214,6 +214,8 @@ public class ModDataMapProvider extends DataMapProvider {
                         new SafetyModuleProperties(List.of(ModTags.Fluids.THERMAL)), false)
                 .add(getResourceLocation(ModItems.METAPHYSICAL_SAFETY_MODULE),
                         new SafetyModuleProperties(List.of(ModTags.Fluids.METAPHYSICAL_MILD, ModTags.Fluids.METAPHYSICAL_SEVERE)), false)
+                .add(getResourceLocation(ModItems.RADIATION_SAFETY_MODULE),
+                        new SafetyModuleProperties(List.of(ModTags.Fluids.RADIATION_MILD)), false)
 
                 ;
 

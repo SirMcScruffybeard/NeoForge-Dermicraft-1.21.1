@@ -465,6 +465,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_crafting_table"));
 
+        // Radiation Safety Module: exact same shape as Thermal Safety Module -- Glowstone Block
+        // (radiant identity, playing Magma Block's role) over a Molten Redstone Bucket (the hazard
+        // content -- shares Thermal's own THERMAL-tagged fluid rather than reaching for a
+        // RADIATION_MILD one, mirroring Thermal Safety's Lava Bucket 1:1) over the Module Frame,
+        // cased in 6 Iron Ingots.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.RADIATION_SAFETY_MODULE.get())
+                .pattern("IGI")
+                .pattern("ILI")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('G', Items.GLOWSTONE)
+                .define('L', ModFluids.MOLTEN_REDSTONE_BUCKET.get())
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("radiation_safety_module_crafting_table"));
+
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
         // an identity item + the fluid's own bucket + Module Frame). Sugar stands in for the
         // "speed" identity, mirroring Ender Pearl/Magma Block's role -- real vanilla precedent

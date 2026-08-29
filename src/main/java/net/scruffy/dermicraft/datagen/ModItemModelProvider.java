@@ -73,6 +73,8 @@ public class ModItemModelProvider extends ItemModelProvider {
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/lava_bucket_icon"));
         moduleItem(ModItems.METAPHYSICAL_SAFETY_MODULE.get(), "item/module/hazard_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/ender_pearl_icon"));
+        moduleItem(ModItems.RADIATION_SAFETY_MODULE.get(), "item/module/hazard_module_frame",
+                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/radiation_icon"));
 
         // Evolution Module family -- same lava bucket icon Thermal Safety Module uses (this is its own
         // Thermal-flavored variant), on the new Evolution frame background rather than the hazard one,

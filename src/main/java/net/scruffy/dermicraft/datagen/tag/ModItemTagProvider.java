@@ -96,6 +96,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.FLUID_BYPASS_MODULE.get())
                 .add(ModItems.HEAT_SAFETY_MODULE.get())
                 .add(ModItems.METAPHYSICAL_SAFETY_MODULE.get())
+                .add(ModItems.RADIATION_SAFETY_MODULE.get())
                 .add(ModItems.HEAT_EVOLUTION_MODULE.get())
                 .add(ModItems.WORK_SPEED_MODULE.get())
                 .add(ModItems.SALVAGE_MODULE.get())
@@ -118,6 +119,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         tag(ModTags.Items.MODULE_SAFETY)
                 .add(ModItems.HEAT_SAFETY_MODULE.get())
                 .add(ModItems.METAPHYSICAL_SAFETY_MODULE.get())
+                .add(ModItems.RADIATION_SAFETY_MODULE.get())
         ;
 
         tag(ModTags.Items.MODULE_WORK_SPEED)

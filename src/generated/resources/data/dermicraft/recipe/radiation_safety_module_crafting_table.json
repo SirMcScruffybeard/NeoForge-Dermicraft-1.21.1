@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "G": {
+      "item": "minecraft:glowstone"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "dermicraft:molten_redstone_bucket"
+    }
+  },
+  "pattern": [
+    "IGI",
+    "ILI",
+    "IFI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:radiation_safety_module"
+  }
+}

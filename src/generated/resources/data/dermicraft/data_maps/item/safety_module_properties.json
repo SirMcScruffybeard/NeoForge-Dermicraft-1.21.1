@@ -10,6 +10,11 @@
         "#dermicraft:hazard/metaphysical_mild",
         "#dermicraft:hazard/metaphysical_severe"
       ]
+    },
+    "dermicraft:radiation_safety_module": {
+      "hazards": [
+        "#dermicraft:hazard/radiation_mild"
+      ]
     }
   }
 }

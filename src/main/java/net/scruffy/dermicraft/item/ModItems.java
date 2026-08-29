@@ -221,6 +221,8 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> METAPHYSICAL_SAFETY_MODULE = ITEMS.register("metaphysical_safety_module",
             () -> new Item(new Item.Properties()));
+    public static final DeferredItem<Item> RADIATION_SAFETY_MODULE = ITEMS.register("radiation_safety_module",
+            () -> new Item(new Item.Properties()));
 
     // Evolution Module family (dermicraft-progression-notes.md / dermicraft-machine-notes.md,
     // Drooling Cauldron entry "Evolution Module family") -- item only for now, no mechanics wired

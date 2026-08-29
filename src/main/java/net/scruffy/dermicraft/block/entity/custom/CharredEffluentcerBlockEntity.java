@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.NotNull;
@@ -31,32 +32,40 @@ public class CharredEffluentcerBlockEntity extends EffluentcerBlockEntity {
         super(ModBlockEntities.CHARRED_EFFLUENTCER_BE.get(), pos, blockState);
     }
 
-    // Already evolved -- installing an Evolution Module here does nothing: this class's own tanks
-    // are unconditionally TIER_2 regardless of any Module (see createInputTank/createResultTank
-    // below), and there's no further Tier for it to accumulate progress toward.
+    // Already evolved -- installing an Evolution Module here does nothing: this class's tanks are
+    // permanently at least TIER_2 regardless of any Module (see installedHazardProfile() below), and
+    // there's no further Tier for it to accumulate progress toward. A Safety Module still layers
+    // extra hazard tolerance on top, same as it would for the base Effluentcer.
     @Override
     protected boolean canEvolve() {
         return false;
     }
 
     // The "Charred machines get an extra Module slot" upgrade -- see CharredTankBlockEntity's
-    // identical override for the pilot.
+    // identical override for the pilot. Both slots count toward installedHazardProfile()'s union
+    // below.
     @Override
     public int moduleSlotCount() {
         return 2;
     }
 
-    // Matches createInputTank()/createResultTank() below -- without this override, the inherited
-    // EffluentcerBlockEntity#installedHazardProfile() would report TIER_1 (+ any Safety Module)
-    // instead of this class's real, unconditional TIER_2 tolerance.
+    // Union of this class's permanent TIER_2 floor with whatever Safety Module(s) sit in its 2
+    // Module slots -- same rule the base EffluentcerBlockEntity#installedHazardProfile() applies
+    // from TIER_1, just starting one rung higher since Charred's TIER_2 is unconditional (never
+    // drops below it, only adds on top). Previously hardcoded to a flat TIER_2 that ignored the
+    // Module slots entirely, stranding e.g. a Radiation Safety Module dropped in here.
     @Override
     protected HazardProfile installedHazardProfile() {
-        return HazardProfile.TIER_2;
+        HazardProfile profile = HazardProfile.TIER_2;
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            profile = IHaveModules.installedHazardProfile(profile, MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return profile;
     }
 
     @Override
     protected VulnerableTank createInputTank(int slot) {
-        return new VulnerableTank(getTier().tankCapacity(), slot, () -> HazardProfile.TIER_2) {
+        return new VulnerableTank(getTier().tankCapacity(), slot, this::installedHazardProfile) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {
@@ -69,7 +78,7 @@ public class CharredEffluentcerBlockEntity extends EffluentcerBlockEntity {
 
     @Override
     protected VulnerableTank createResultTank() {
-        return new VulnerableTank(getTier().tankCapacity(), 3, () -> HazardProfile.TIER_2) {
+        return new VulnerableTank(getTier().tankCapacity(), 3, this::installedHazardProfile) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {
