@@ -53,6 +53,32 @@ Running log of decided design choices for **Gear Worx Stations** — the set of 
 7. **Suit build (new — "build," not "craft," deliberately).** The Dock can now **construct the Tier 0 suit itself** (Exo-skeleton/Assault/Recon), previously FL-exclusive per `dermicraft-suit-notes.md` → Construction. **Naming note:** the mod treats suits as **living power armor**, so "build" (assembly/growth) was chosen over "craft" (a purely mechanical connotation) — consistent with the mod's living-matter construction philosophy.
 8. **Suit tier-up (new).** The Dock can now also run the **suit half** of Growth Chamber's tier-up process itself — same fluid-only, fluid-volume-driven timed mechanic (see Growth Chamber, below), just hosted at the Dock instead. **Not exclusive:** Growth Chamber keeps full suit tier-up capability too — the player can choose either station for a suit tier-up, same non-exclusive "specialist station, but nothing is removed elsewhere" pattern used for Workbench/Gadgets and FL/Gadgets. **Gadget tier-ups remain Growth-Chamber-only** — this change is scoped to suits specifically, not a general "Dock can do everything Growth Chamber does" rule. With this, Duties 7+8 plus everything above make the **Dock a fully self-contained suit path** — build, Graft/Amputate, refuel/repair, point-spend, respec, and now tier-up — mirroring Workbench's equivalent self-contained gadget path.
 
+### Menu/GUI plan (2026-08-29, planned, not built)
+
+**4 tabs, split 2-left/2-right (deliberate — first bilateral tab bar in the mod).** Workbench's own tab bar stacks every tab on one edge; Dock's splits across both, since 4 tabs is enough room to group by mechanism-shape rather than stacking them all on one side:
+
+- **Left — Fab, Grow.** Both drive one of the mod's **Tier ladder** mechanisms (per the taxonomy in `dermicraft-progression-notes.md`): Fab builds the Tier 0 suit, Grow advances it a tier. Both are fluid-cost, timed processes with no per-tab suit slot (see below) — the "big, infrequent commitment" pair.
+- **Right — Mod, Cal.** Mod is the **Modules** mechanism (Frame slotting); Cal is the **Points** mechanism (point-spend + respec). Both are direct interactions with the suit's *current* loadout, no fluid-timed process of their own (respec's channel aside) — the "frequent, day-to-day tuning" pair.
+
+This groups the four tabs by which of the mod's three progression shapes (Tier ladder / Points / Modules) each one drives, rather than by, say, how often a player is expected to open it — a grouping already established elsewhere in the doc corpus rather than invented fresh here.
+
+**Persistent suit slot + Graft/Amputate toggle — present on every tab except Fab.** The docked suit sits in a slot in the **same screen position Workbench's Swap page uses for its working-item slot** (top-left corner) — same convention, reused rather than invented. A **toggle button next to the slot** changes according to the suit's current equipped state:
+- **Suit in the slot (docked/Amputated):** button reads **Graft** — pressing it equips the suit onto the player, instant (Grafting itself has no cost, per Duty 1 above).
+- **Suit worn (Grafted):** button reads **Amputate** — pressing it starts Duty 1's **Assisted Amputation** timed channel (1 second per point of would-be damage, cancelable anytime for zero penalty via its existing keybind). The player remains in the Dock's GUI and damageable during the channel, per Duty 1's existing rule.
+- **Not shown on Fab:** building a new suit doesn't involve an already-existing docked/worn suit, so the slot+toggle has nothing to act on there — Fab gets a dedicated recipe-output slot instead (see below), matching Workbench's own Fabrication page convention.
+
+**Passive systems are tab-independent.** Refuel, repair (Duty 3), and the player-heal bonus (Duty 4) run continuously at all times regardless of which tab is open, or whether the player has the GUI open at all — same "no button needed to start it" rule already established for Duty 3, now explicitly not gated by tab selection either.
+
+**Tab contents (shape only, not yet built):**
+- **Fab** — Duty 7 (suit build). Mirrors Workbench's own Fabrication page: a recipe browser (Exo/Assault/Recon at Tier 0), ingredient availability shown against the shared pool, a Craft button, and a dedicated output slot the player manually takes the finished suit from — no auto-deposit into the suit slot on another tab, same "craft and store are two distinct actions" rule Workbench's Fabrication already follows.
+- **Grow** — Duty 8 (suit tier-up). Mirrors Growth Chamber's own screen: displays the tier-up's fluid requirement against what the shared pool currently holds, a button to begin once met, timed process with progress shown, fluids lost (station undamaged) if interrupted — same Gear Worx Station fuel-empty/interruption rule used everywhere else in this doc.
+- **Mod** — Duty 2 (Module/Frame slotting). Shows the suit's per-body-part Module Frame slots (Head/Chest/Arm×2/Leg×2 at Tier 0, growing with tier per the suit's own slot-growth schedule). Drag a Module in/out; near-instant, no fuel/material cost, per Duty 2's existing spec.
+- **Cal** — Duties 5+6 (point-spend menu + respec). The 13-category point-spend list (`dermicraft-suit-notes.md`) with per-category spend controls, plus a Respec button that opens the pre-commit time-cost warning (Confirm/Cancel) before starting Duty 6's time-locked channel.
+
+**Open questions:**
+- Whether Module (Frame) slotting (Mod tab) requires the suit to be sitting in the slot (docked/Amputated) or can also be done while the suit is worn on the player — Duty 2's own text doesn't specify, and this wasn't resolved when the tab layout was planned.
+- Left/right tab assignment above is a proposed grouping, not confirmed against an actual screen mockup — revisit once real screen dimensions/art are in play.
+
 ---
 
 ## Workbench
