@@ -1134,9 +1134,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(),
                 ModMath.Time.getSecondsToTicks(10));
 
+        // Base fluid updated (2026-08-29) from Synapse Catalyst to Knowledge Essence -- Knowledge is
+        // a more literal fit for "the reagent behind evolving a machine's capabilities" than a
+        // generic smart-component fluid is, now that it exists.
         RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "evolution_catalyst_puddle",
                 List.of(Ingredient.of(Items.PHANTOM_MEMBRANE), Ingredient.of(Items.QUARTZ), Ingredient.of(Items.GLOWSTONE_DUST)),
-                ModFluids.SOURCE_SYNAPSE_CATALYST.get(), ModFluids.SOURCE_EVOLUTION_CATALYST.get(),
+                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), ModFluids.SOURCE_EVOLUTION_CATALYST.get(),
                 ModMath.Time.getSecondsToTicks(10));
 
         RecipeBuilders.PuddleCraft.MakeItems.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
@@ -1782,6 +1785,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating_block",
                 Ingredient.of(Items.DIAMOND_BLOCK), 1, Fluids.LAVA, 9000,
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
+
+        // Evolution Catalyst -- second production route alongside evolution_catalyst_puddle
+        // (Knowledge Essence base). Kinetic Catalyst is THERMAL (see ModFluidTagProvider), so this
+        // only runs on a Charred Masticator -- Tier 1 genuinely can't reach it, same as Molten
+        // Glowstone needing both THERMAL and RADIATION_MILD. Phantom Membrane carries over from the
+        // puddle recipe's own ingredient list as the one item with no energy/mineral overlap with
+        // Kinetic Catalyst itself (Quartz and Glowstone are already baked into Kinetic's lineage).
+        RecipeBuilders.buildMasticating(recipeOutput, "evolution_catalyst_masticating",
+                Ingredient.of(Items.PHANTOM_MEMBRANE), 1, ModFluids.SOURCE_KINETIC_CATALYST.get(), 1000,
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_emerald_masticating",
                 Ingredient.of(Items.EMERALD), 1, Fluids.LAVA, 1000,

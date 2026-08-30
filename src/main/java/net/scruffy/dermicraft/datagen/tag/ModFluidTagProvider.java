@@ -50,6 +50,10 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_WITHER_ESSENCE.get())
                 .add(ModFluids.SOURCE_ENDER_ESSENCE.get())
                 .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
+                // Kinetic Catalyst -- only ever producible from Molten Redstone + Molten Quartz
+                // (both already THERMAL), so any machine capable of making it is already Tier 2;
+                // this just reflects that lineage rather than newly gating anything.
+                .add(ModFluids.SOURCE_KINETIC_CATALYST.get())
         ;
 
         tag(ModTags.Fluids.RADIATION_MILD)
