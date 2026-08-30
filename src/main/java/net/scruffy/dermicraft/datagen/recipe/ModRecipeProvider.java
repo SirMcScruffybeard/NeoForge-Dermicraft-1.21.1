@@ -658,6 +658,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 500,
                 ModFluids.SOURCE_KINETIC_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
+        // Evolution Catalyst -- second production route alongside evolution_catalyst_puddle (same
+        // Knowledge Essence, this time paired with Kinetic Catalyst instead of the puddle's solid
+        // items). Kinetic Catalyst is THERMAL (see ModFluidTagProvider), so this only runs on a
+        // Charred Effluentcer -- Tier 1 genuinely can't reach it, same as Molten Glowstone needing
+        // both THERMAL and RADIATION_MILD. Same even-parts 500+500->750/45s shape as every other
+        // two-fluid Effluencing recipe here.
+        RecipeBuilders.buildEffluencing(recipeOutput, "evolution_catalyst_effluencing",
+                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 500, ModFluids.SOURCE_KINETIC_CATALYST.get(), 500,
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
+
         // Zombie/Piglin Head -> Synapse Catalyst -- rarity-gated 1:1 substitute for one full batch
         // of the recipe above (same 750 mB output, same 45s), not a cheaper bypass: the head pays
         // for the whole Cuprous Blend + Primitive Catalyst cost by being scarce (decapitation
@@ -975,6 +985,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_blood_nugget",
                 Ingredient.of(ModItems.BLOOD_NUGGET.get()), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
                 ModFluids.SOURCE_FERROUS_BLEND.get(), 25, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Same trace-extraction identity, Effluentcer route -- skips the Blood Nugget middleman by
+        // going straight from its own raw material. Ratio derived from chaining the two existing
+        // recipes: a Blood Nugget itself costs 250 mB Protein Blend (render_kiln_blood_nugget), and
+        // the masticating recipe above spends 25 mB Primitive Catalyst per Blood Nugget, so the
+        // effective Protein Blend : Primitive Catalyst ratio is 250:25 (10:1) for the same 25 mB
+        // Ferrous Blend output -- an alternate path to the identical result, not a new price point.
+        RecipeBuilders.buildEffluencing(recipeOutput, "ferrous_blend_effluencing_blood_nugget",
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, ModMath.Time.getSecondsToTicks(30));
 
         // Heavy Weighted Pressure Plate -- 2 Iron Ingots' worth (real vanilla recipe cost), so 2000 mB.
         // Craft time stays at Ingot's own 60s rather than doubling -- same precedent as Raw (also
@@ -1785,16 +1805,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating_block",
                 Ingredient.of(Items.DIAMOND_BLOCK), 1, Fluids.LAVA, 9000,
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
-
-        // Evolution Catalyst -- second production route alongside evolution_catalyst_puddle
-        // (Knowledge Essence base). Kinetic Catalyst is THERMAL (see ModFluidTagProvider), so this
-        // only runs on a Charred Masticator -- Tier 1 genuinely can't reach it, same as Molten
-        // Glowstone needing both THERMAL and RADIATION_MILD. Phantom Membrane carries over from the
-        // puddle recipe's own ingredient list as the one item with no energy/mineral overlap with
-        // Kinetic Catalyst itself (Quartz and Glowstone are already baked into Kinetic's lineage).
-        RecipeBuilders.buildMasticating(recipeOutput, "evolution_catalyst_masticating",
-                Ingredient.of(Items.PHANTOM_MEMBRANE), 1, ModFluids.SOURCE_KINETIC_CATALYST.get(), 1000,
-                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_emerald_masticating",
                 Ingredient.of(Items.EMERALD), 1, Fluids.LAVA, 1000,
