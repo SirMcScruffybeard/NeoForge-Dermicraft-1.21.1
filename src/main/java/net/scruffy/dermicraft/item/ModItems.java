@@ -65,6 +65,12 @@ public class ModItems {
             () -> new SunderChainItem(new Item.Properties().durability(100)));
     public static final DeferredItem<Item> DIAMOND_SUNDER_CHAIN = ITEMS.register("diamond_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(400)));
+
+    // Knowledge -- a Diamond variant (durability matches Diamond's own 400), not a toned-down or
+    // capstone material -- see ChainProperties' own data map entry for the actual stat/trait split.
+    // Only reachable by mutating from the Diamond chain with Knowledge Essence.
+    public static final DeferredItem<Item> KNOWLEDGE_SUNDER_CHAIN = ITEMS.register("knowledge_sunder_chain",
+            () -> new SunderChainItem(new Item.Properties().durability(400)));
     public static final DeferredItem<Item> BONE_SUNDER_CHAIN = ITEMS.register("bone_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(75)));
 
@@ -146,6 +152,12 @@ public class ModItems {
     // Diamond -- hand-painted face/tail texture, same as Bone. Durability 3122 (2x Diamond Pickaxe's
     // 1561).
     public static final DeferredItem<Item> DIAMOND_SHATTER_HEAD = ITEMS.register("diamond_shatter_head",
+            () -> new ShatterHeadItem(new Item.Properties().durability(3122)));
+
+    // Knowledge -- a Diamond variant (durability matches Diamond's own 3122), not a toned-down or
+    // capstone material -- see ShatterHeadProperties' own data map entry for the actual stat/trait
+    // split. Only reachable by mutating from the Diamond head with Knowledge Essence.
+    public static final DeferredItem<Item> KNOWLEDGE_SHATTER_HEAD = ITEMS.register("knowledge_shatter_head",
             () -> new ShatterHeadItem(new Item.Properties().durability(3122)));
 
     // Emerald -- a toned-down Diamond, not a capstone: shares Diamond's mining tier (3) but weaker

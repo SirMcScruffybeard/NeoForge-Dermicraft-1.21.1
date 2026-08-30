@@ -48,11 +48,16 @@ import java.util.Optional;
  * real tier gate to mirror (logs/planks/pumpkins all drop regardless of tool), so this is speed-only
  * -- see {@code SunderItem#getDestroySpeed}. Swing (attack) speed is untouched by this -- a
  * completely separate {@code Attributes.ATTACK_SPEED} axis, not this field.
+ *
+ * <p>{@code xpBonusChance}/{@code xpBonusAmount} are Knowledge's own signature trait -- a per-kill
+ * chance to spawn a bonus XP orb at the target on top of whatever the kill already awards. See
+ * {@code SunderEvents#onLivingDropsXpBonus}. 0/0 for every material without the trait.
  */
 public record ChainProperties(float damageMultiplier, float bleedChance, float decapChance,
                                float lootBonusChance, int durability, TextColor tint,
                                Optional<MobEffect> statusEffect, float igniteChance,
-                               int igniteFireSeconds, boolean smeltsLogs, float miningSpeed) {
+                               int igniteFireSeconds, boolean smeltsLogs, float miningSpeed,
+                               float xpBonusChance, float xpBonusAmount) {
 
     public static final Codec<ChainProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     Codec.FLOAT.fieldOf("damage_multiplier").forGetter(ChainProperties::damageMultiplier),
@@ -65,6 +70,8 @@ public record ChainProperties(float damageMultiplier, float bleedChance, float d
                     Codec.FLOAT.optionalFieldOf("ignite_chance", 0.0f).forGetter(ChainProperties::igniteChance),
                     Codec.INT.optionalFieldOf("ignite_fire_seconds", 0).forGetter(ChainProperties::igniteFireSeconds),
                     Codec.BOOL.optionalFieldOf("smelts_logs", false).forGetter(ChainProperties::smeltsLogs),
-                    Codec.FLOAT.optionalFieldOf("mining_speed", 1.0f).forGetter(ChainProperties::miningSpeed))
+                    Codec.FLOAT.optionalFieldOf("mining_speed", 1.0f).forGetter(ChainProperties::miningSpeed),
+                    Codec.FLOAT.optionalFieldOf("xp_bonus_chance", 0.0f).forGetter(ChainProperties::xpBonusChance),
+                    Codec.FLOAT.optionalFieldOf("xp_bonus_amount", 0.0f).forGetter(ChainProperties::xpBonusAmount))
             .apply(instance, ChainProperties::new));
 }

@@ -29,6 +29,7 @@ public class ShatterItemRenderer extends GeoItemRenderer<ShatterItem> {
     public ShatterItemRenderer() {
         super(new ShatterItemModel());
         addRenderLayer(new ShatterHeadTextureLayer(this));
+        addRenderLayer(new KnowledgeHeadGlowLayer(this));
     }
 
     @Override

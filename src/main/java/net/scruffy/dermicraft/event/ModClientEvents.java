@@ -81,6 +81,15 @@ public class ModClientEvents {
         registerShatterHeadTint(event, ModItems.NETHERITE_SHATTER_HEAD.get());
         registerShatterHeadTint(event, ModItems.EMERALD_SHATTER_HEAD.get());
         registerShatterHeadTint(event, ModItems.BLAZE_ESSENCE_SHATTER_HEAD.get());
+        registerShatterHeadTint(event, ModItems.KNOWLEDGE_SHATTER_HEAD.get());
+
+        ////////////////////Sunder Chains\\\\\\\\\\\\\\\\\\\\
+        // Knowledge only -- every other chain has its own dedicated painted icon (see
+        // ModItemModelProvider's singleTextureItem calls), so no generic handler is registered for
+        // them; doing so would suddenly apply their own (currently icon-inert) ChainProperties tint
+        // on top of hand-painted art that was never designed to be multiplied. Knowledge instead
+        // reuses Iron's own texture file, so it needs this tint to read as its own material at all.
+        registerKnowledgeSunderChainTint(event, ModItems.KNOWLEDGE_SUNDER_CHAIN.get());
     }
 
     //////////////HelperMethods\\\\\\\\\\\\\\
@@ -123,6 +132,21 @@ public class ModClientEvents {
                             .getData(net.scruffy.dermicraft.datagen.datamaps.ModDataMaps.SHATTER_HEAD_PROPERTIES);
             return properties == null ? getDefaultTint() : (0xFF000000 | properties.tint().getValue());
         }, head);
+    }
+
+    // layer0 (the whole reused-Iron icon) tinted per-material via ModDataMaps.SUNDER_CHAIN_PROPERTIES
+    // -- mirrors registerShatterHeadTint's exact shape, just reading the chain data map instead.
+    // Scoped to a single explicit item (Knowledge) rather than a generic per-item helper every chain
+    // could opt into -- see the call site's own comment for why the others must NOT get this.
+    private static void registerKnowledgeSunderChainTint(RegisterColorHandlersEvent.Item event, Item chain) {
+        event.register((stack, tintIndex) -> {
+            if (tintIndex != 0) return -1;
+
+            net.scruffy.dermicraft.property.ChainProperties properties =
+                    net.minecraft.core.registries.BuiltInRegistries.ITEM.wrapAsHolder(stack.getItem())
+                            .getData(net.scruffy.dermicraft.datagen.datamaps.ModDataMaps.SUNDER_CHAIN_PROPERTIES);
+            return properties == null ? getDefaultTint() : (0xFF000000 | properties.tint().getValue());
+        }, chain);
     }
 
     private static DataComponentType<FluidData> getFluidDataType() {

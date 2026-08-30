@@ -100,6 +100,30 @@ public class SunderEvents {
     }
 
     /**
+     * Knowledge's signature trait -- a per-kill chance to spawn a bonus XP orb at the target, on top
+     * of whatever the kill already awards. Mirrors {@link #onLivingDropsLootBonus}'s exact shape
+     * (same event, same "roll once per kill" cadence) but grants XP instead of duplicating a drop --
+     * see {@link ChainProperties}' own javadoc. Reuses {@link AutoSmeltUtil#awardExperience} (Blaze
+     * Essence's own XP-granting helper) rather than a bespoke orb spawn, same fractional-remainder
+     * rounding.
+     */
+    @SubscribeEvent
+    public static void onLivingDropsXpBonus(LivingDropsEvent event) {
+        ItemStack weapon = event.getSource().getWeaponItem();
+        if (weapon == null || !(weapon.getItem() instanceof SunderItem)) return;
+
+        ChainProperties chain = SunderItem.chainProperties(weapon);
+        if (chain == null || chain.xpBonusChance() <= 0.0f) return;
+
+        LivingEntity target = event.getEntity();
+        if (!(target.level() instanceof ServerLevel serverLevel)) return;
+
+        if (target.getRandom().nextFloat() < chain.xpBonusChance()) {
+            net.scruffy.dermicraft.util.AutoSmeltUtil.awardExperience(serverLevel, target.position(), chain.xpBonusAmount());
+        }
+    }
+
+    /**
      * SAWING's interruption trigger -- knockback dealt TO THE PLAYER, not knockback dealt to the
      * target and not damage taken (a hit that doesn't impart knockback shouldn't cancel it). Checks
      * both hands since the player could be holding Sunder in either. Branches on which of {@code

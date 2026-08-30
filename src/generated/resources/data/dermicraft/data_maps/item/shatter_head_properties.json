@@ -44,6 +44,14 @@
       "mining_tier": 2,
       "tint": "#FFFFFF"
     },
+    "dermicraft:knowledge_shatter_head": {
+      "damage_shift": 1.0,
+      "mining_speed": 8.0,
+      "mining_tier": 3,
+      "tint": "#80FF20",
+      "xp_bonus_amount": 5.0,
+      "xp_bonus_chance": 1.0
+    },
     "dermicraft:netherite_shatter_head": {
       "damage_shift": 2.0,
       "mining_speed": 9.0,

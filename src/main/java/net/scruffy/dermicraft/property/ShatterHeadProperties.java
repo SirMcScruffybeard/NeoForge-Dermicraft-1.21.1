@@ -35,6 +35,12 @@ import net.minecraft.network.chat.TextColor;
  * the intended "ore luck" identity. See {@code ShatterEvents#onBlockDropsLootBonus}. 0 for every
  * material without the trait.
  *
+ * <p>{@code xpBonusChance}/{@code xpBonusAmount} are Knowledge's own signature trait -- a per-block
+ * chance to spawn a bonus XP orb on top of whatever the block already awards, universal (not
+ * ore-restricted the way Gold's loot bonus is, matching auto-smelt's own "every block" framing
+ * instead) since it's rewarding the act of mining itself, not any one drop category. See
+ * {@code ShatterEvents#onBlockDropsXpBonus}. 0/0 for every material without the trait.
+ *
  * <p>{@code igniteChance}/{@code igniteFireSeconds} are Blaze Essence's own signature trait -- a
  * per-hit chance to set the target on fire, mirroring {@code ChainProperties}' identical fields
  * exactly (see that javadoc); Shatter has no sustained-attack mode the way Sunder's SAWING does, so
@@ -57,7 +63,8 @@ import net.minecraft.network.chat.TextColor;
  * {@code ShatterItem#getDestroySpeed} for how this is actually consulted.
  */
 public record ShatterHeadProperties(TextColor tint, int miningTier, float damageShift, float lootBonusChance,
-                                     float igniteChance, int igniteFireSeconds, boolean autoSmelt, float miningSpeed) {
+                                     float igniteChance, int igniteFireSeconds, boolean autoSmelt, float miningSpeed,
+                                     float xpBonusChance, float xpBonusAmount) {
 
     public static final Codec<ShatterHeadProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     TextColor.CODEC.fieldOf("tint").forGetter(ShatterHeadProperties::tint),
@@ -67,6 +74,8 @@ public record ShatterHeadProperties(TextColor tint, int miningTier, float damage
                     Codec.FLOAT.optionalFieldOf("ignite_chance", 0.0f).forGetter(ShatterHeadProperties::igniteChance),
                     Codec.INT.optionalFieldOf("ignite_fire_seconds", 0).forGetter(ShatterHeadProperties::igniteFireSeconds),
                     Codec.BOOL.optionalFieldOf("auto_smelt", false).forGetter(ShatterHeadProperties::autoSmelt),
-                    Codec.FLOAT.optionalFieldOf("mining_speed", 1.0f).forGetter(ShatterHeadProperties::miningSpeed))
+                    Codec.FLOAT.optionalFieldOf("mining_speed", 1.0f).forGetter(ShatterHeadProperties::miningSpeed),
+                    Codec.FLOAT.optionalFieldOf("xp_bonus_chance", 0.0f).forGetter(ShatterHeadProperties::xpBonusChance),
+                    Codec.FLOAT.optionalFieldOf("xp_bonus_amount", 0.0f).forGetter(ShatterHeadProperties::xpBonusAmount))
             .apply(instance, ShatterHeadProperties::new));
 }

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_knowledge_essence",
+  "fluid_amount": 3000,
+  "ingredient": {
+    "item": "dermicraft:diamond_shatter_head"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:knowledge_shatter_head"
+  },
+  "ticks": 200
+}

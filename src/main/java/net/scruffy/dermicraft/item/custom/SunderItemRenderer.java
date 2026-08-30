@@ -19,6 +19,7 @@ public class SunderItemRenderer extends GeoItemRenderer<SunderItem> {
     public SunderItemRenderer() {
         super(new SunderItemModel());
         addRenderLayer(new SunderGlowLayer(this));
+        addRenderLayer(new KnowledgeChainGlowLayer(this));
     }
 
     /**

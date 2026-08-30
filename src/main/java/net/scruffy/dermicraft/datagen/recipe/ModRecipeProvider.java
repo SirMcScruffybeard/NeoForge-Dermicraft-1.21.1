@@ -1456,6 +1456,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain_from_gold", ModItems.GOLD_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
 
+        // Knowledge -- a direct upgrade from Diamond specifically (not a Bone-hub spoke), ONLY
+        // reachable this way -- no crafting-table recipe of its own, same shape Emerald/Blaze
+        // Essence's own specialty branches use.
+        RecipeBuilders.mutate(recipeOutput, "mutating_knowledge_sunder_chain", ModItems.DIAMOND_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 3000, ModItems.KNOWLEDGE_SUNDER_CHAIN.get(), solidTicks);
+
         // Netherite -- the capstone above Diamond, ONLY reachable this way (no crafting-table
         // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB
         // Molten Netherite, same flat cost every other Diamond-tier transition in this chain uses.
@@ -1489,6 +1495,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_gold", ModItems.GOLD_SHATTER_HEAD.get(),
                 ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
+
+        // Knowledge -- a direct upgrade from Diamond specifically (not a Bone-hub spoke), ONLY
+        // reachable this way -- no crafting-table recipe of its own, same shape Emerald/Blaze
+        // Essence's own specialty branches use.
+        RecipeBuilders.mutate(recipeOutput, "mutating_knowledge_shatter_head", ModItems.DIAMOND_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 3000, ModItems.KNOWLEDGE_SHATTER_HEAD.get(), solidTicks);
 
         // Netherite -- the capstone above Diamond, ONLY reachable this way (no crafting-table
         // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB

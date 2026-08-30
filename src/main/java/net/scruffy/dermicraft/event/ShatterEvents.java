@@ -230,6 +230,27 @@ public class ShatterEvents {
     }
 
     /**
+     * Knowledge's signature trait -- a per-block chance to spawn a bonus XP orb, on top of whatever
+     * the block already awards. Universal (not ore-restricted the way {@link #onBlockDropsLootBonus}
+     * is) -- see {@link ShatterHeadProperties}' own javadoc for why. Rolled once per block broken,
+     * not per drop; same origin-block-and-AoE coverage as every other {@link BlockDropsEvent} hook
+     * here, since {@code level.destroyBlock} routes the AoE's own blocks through this same event.
+     */
+    @SubscribeEvent
+    public static void onBlockDropsXpBonus(BlockDropsEvent event) {
+        ItemStack tool = event.getTool();
+        if (!(tool.getItem() instanceof ShatterItem)) return;
+
+        ShatterHeadProperties head = ShatterItem.headProperties(tool);
+        if (head == null || head.xpBonusChance() <= 0.0f) return;
+
+        ServerLevel level = event.getLevel();
+        if (level.getRandom().nextFloat() < head.xpBonusChance()) {
+            AutoSmeltUtil.awardExperience(level, event.getPos(), head.xpBonusAmount());
+        }
+    }
+
+    /**
      * Blaze Essence's ignite-on-hit trait -- fires on {@code LivingDamageEvent.Post} (a hit that
      * actually landed), same shape as {@link #onArmorBonusWear}. Shatter has no sustained-attack
      * mode the way Sunder's SAWING does, so this always just rolls the plain chance -- see

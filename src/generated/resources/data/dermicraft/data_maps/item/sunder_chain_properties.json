@@ -61,6 +61,16 @@
       "mining_speed": 6.0,
       "tint": "#D8D8D8"
     },
+    "dermicraft:knowledge_sunder_chain": {
+      "bleed_chance": 0.65,
+      "damage_multiplier": 1.25,
+      "decap_chance": 0.3,
+      "durability": 400,
+      "mining_speed": 8.0,
+      "tint": "#80FF20",
+      "xp_bonus_amount": 5.0,
+      "xp_bonus_chance": 1.0
+    },
     "dermicraft:netherite_sunder_chain": {
       "bleed_chance": 0.7,
       "damage_multiplier": 1.4,

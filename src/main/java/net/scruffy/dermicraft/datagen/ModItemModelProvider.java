@@ -108,6 +108,12 @@ public class ModItemModelProvider extends ItemModelProvider {
         singleTextureItem(ModItems.COPPER_SUNDER_CHAIN.get(), "item/sunder_chains/copper_sunder_chain");
         singleTextureItem(ModItems.GOLD_SUNDER_CHAIN.get(), "item/sunder_chains/gold_sunder_chain");
         singleTextureItem(ModItems.DIAMOND_SUNDER_CHAIN.get(), "item/sunder_chains/diamond_sunder_chain");
+        // Knowledge -- no dedicated icon yet, reuses Iron's own texture at runtime via
+        // registerKnowledgeSunderChainTint (ModClientEvents) instead of a new painted PNG. First
+        // Sunder chain to use a tinted-shared-texture icon (every other one gets its own dedicated
+        // art) -- item/generated already puts layer0 at tintindex 0 for free, so no model-level
+        // change was needed beyond pointing it at Iron's file.
+        singleTextureItem(ModItems.KNOWLEDGE_SUNDER_CHAIN.get(), "item/sunder_chains/iron_sunder_chain");
         singleTextureItem(ModItems.BONE_SUNDER_CHAIN.get(), "item/sunder_chains/bone_sunder_chain");
         singleTextureItem(ModItems.NETHERITE_SUNDER_CHAIN.get(), "item/sunder_chains/netherite_sunder_chain");
         singleTextureItem(ModItems.EMERALD_SUNDER_CHAIN.get(), "item/sunder_chains/emerald_sunder_chain");
@@ -122,6 +128,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         shatterHeadItem(ModItems.NETHERITE_SHATTER_HEAD.get());
         shatterHeadItem(ModItems.EMERALD_SHATTER_HEAD.get());
         shatterHeadItem(ModItems.BLAZE_ESSENCE_SHATTER_HEAD.get());
+        shatterHeadItem(ModItems.KNOWLEDGE_SHATTER_HEAD.get());
 
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
