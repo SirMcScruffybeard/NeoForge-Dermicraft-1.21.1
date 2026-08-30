@@ -1,0 +1,43 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#end"
+        },
+        "east": {
+          "texture": "#left_right"
+        },
+        "north": {
+          "texture": "#front_back"
+        },
+        "south": {
+          "texture": "#front_back"
+        },
+        "up": {
+          "texture": "#end"
+        },
+        "west": {
+          "texture": "#left_right"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    }
+  ],
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "end": "dermicraft:block/knowledge_vat/knowledge_vat_end",
+    "front_back": "dermicraft:block/knowledge_vat/knowledge_vat_front_back",
+    "left_right": "dermicraft:block/knowledge_vat/knowledge_vat_left_right",
+    "particle": "dermicraft:block/knowledge_vat/knowledge_vat_front_back"
+  }
+}

@@ -34,7 +34,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         String skinTankEnd = "block/skin_tank_end";
 
-        simpleBlockWithItem(ModBlocks.BRAIN.get(), models().getExistingFile(modLoc("block/brain")));
+        horizontalBlock(ModBlocks.BRAIN.get(), models().getExistingFile(modLoc("block/brain")));
+        itemModels().withExistingParent(ModBlocks.BRAIN.getId().getPath(),
+                modLoc("block/" + ModBlocks.BRAIN.getId().getPath()));
 
         // GeckoLib-rendered (RenderShape.ENTITYBLOCK_ANIMATED) -- no baked mesh of their own, the
         // block entity's own GeoBlockRenderer draws everything every frame. "builtin/entity" is
@@ -92,6 +94,27 @@ public class ModBlockStateProvider extends BlockStateProvider {
                         modLoc("block/charred_machine_port"),
                         modLoc("block/charred_machine_port"))
                 .renderType("translucent"));
+
+        // Knowledge Vat -- real dedicated art (2026-08-29): front/back share one texture,
+        // left/right another, top/bottom a third -- no tintindex any more (that was only ever
+        // there to recolor the borrowed Skin Tank placeholder; real per-face art renders as
+        // authored, not multiplied by Knowledge Essence's green).
+        simpleBlockWithItem(ModBlocks.KNOWLEDGE_VAT.get(),
+                models().getBuilder(ModBlocks.KNOWLEDGE_VAT.getId().getPath())
+                        .texture("front_back", modLoc("block/knowledge_vat/knowledge_vat_front_back"))
+                        .texture("left_right", modLoc("block/knowledge_vat/knowledge_vat_left_right"))
+                        .texture("end", modLoc("block/knowledge_vat/knowledge_vat_end"))
+                        .texture("particle", modLoc("block/knowledge_vat/knowledge_vat_front_back"))
+                        .element()
+                                .from(0, 0, 0).to(16, 16, 16)
+                                .face(Direction.DOWN).texture("#end").end()
+                                .face(Direction.UP).texture("#end").end()
+                                .face(Direction.NORTH).texture("#front_back").end()
+                                .face(Direction.SOUTH).texture("#front_back").end()
+                                .face(Direction.WEST).texture("#left_right").end()
+                                .face(Direction.EAST).texture("#left_right").end()
+                        .end()
+                        .renderType("translucent"));
 
         horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
         // New model carries its own display transforms (2026-08-20) -- item model now parents

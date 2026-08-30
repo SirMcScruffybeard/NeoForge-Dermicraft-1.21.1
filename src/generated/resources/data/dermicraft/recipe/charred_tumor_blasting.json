@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:blasting",
+  "category": "blocks",
+  "cookingtime": 100,
+  "experience": 0.0,
+  "ingredient": {
+    "item": "dermicraft:inert_tumor"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:charred_tumor"
+  }
+}

@@ -116,6 +116,28 @@ public class ModFluidTypes {
                             .canHydrate(false)
                             .canConvertToSource(false)));
 
+    // Knowledge Essence - drained straight from a player's own XP levels (Knowledge Vat, not a
+    // machine recipe -- there's no crafting chain that produces this, only the Vat's own deposit/
+    // withdraw interaction). Luminous XP-orb green, deliberately reads as "that's XP" at a glance;
+    // thin/water-like motion (matches the Catalyst family, not a chunky Blend) and glows softly
+    // (lightLevel 8, same tier as Molten Redstone) since it's meant to look like distilled thought,
+    // not an inert reagent.
+    public static final Supplier<FluidType> KNOWLEDGE_ESSENCE_FLUID_TYPE = registerFluidType("knowledge_essence_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF80FF20,
+                    setColorVector(128, 255, 32),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1500)
+                            .temperature(300)
+                            .motionScale(0.025)
+                            .lightLevel(8)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)));
+
     // Kinetic Catalyst - Molten Redstone + Molten Quartz, the Work Speed Module reagent. Hot-rod
     // red, deliberately more saturated/brighter than Molten Redstone (178,40,20) so the two read as
     // distinct at a glance rather than a diluted blend of both parents' colors. Motion scale set

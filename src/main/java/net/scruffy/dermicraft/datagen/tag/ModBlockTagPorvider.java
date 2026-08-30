@@ -32,6 +32,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.OUTERFACE.get())
                 .add(ModBlocks.SKIN_TANK.get())
                 .add(ModBlocks.CHARRED_TANK.get())
+                .add(ModBlocks.KNOWLEDGE_VAT.get())
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.CHARRED_MASTICATOR.get())
                 .add(ModBlocks.EFFLUENTCER.get())
@@ -173,6 +174,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.CHARRED_TANK.get())
                 .add(ModBlocks.EFFLUENTCER.get())
                 .add(ModBlocks.CHARRED_EFFLUENTCER.get())
+                .add(ModBlocks.KNOWLEDGE_VAT.get())
         ;
 
         tag(ModTags.Blocks.TUMORS)

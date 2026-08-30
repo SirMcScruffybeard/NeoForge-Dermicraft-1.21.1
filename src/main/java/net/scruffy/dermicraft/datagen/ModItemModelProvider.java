@@ -135,6 +135,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         thinBucketItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.REINFORCING_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.SYNAPSE_CATALYST_BUCKET.get());
+        thinBucketItem(ModFluids.KNOWLEDGE_ESSENCE_BUCKET.get());
         thinBucketItem(ModFluids.KINETIC_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.EVOLUTION_CATALYST_BUCKET.get());
 

@@ -37,7 +37,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.EYE_TUMOR);
                         output.accept(ModBlocks.MUSCLE_TUMOR);
                         output.accept(ModBlocks.NERVE_TUMOR);
-                        output.accept(ModBlocks.CHARRED_TUMOR); // no craft recipe yet
+                        output.accept(ModBlocks.CHARRED_TUMOR);
                         output.accept(ModBlocks.HOT_BONE); // no craft recipe yet
 
                         ////////////////////Machines and Tanks\\\\\\\\\\\\\\\\\\\\
@@ -52,6 +52,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.CHARRED_MASTICATOR); // no craft recipe yet
                         output.accept(ModBlocks.SKIN_TANK);
                         output.accept(ModBlocks.CHARRED_TANK); // no craft recipe yet
+                        output.accept(ModBlocks.KNOWLEDGE_VAT); // no craft recipe yet
                         output.accept(ModBlocks.EFFLUENTCER);
                         output.accept(ModBlocks.CHARRED_EFFLUENTCER); // no craft recipe yet
                         output.accept(ModBlocks.METASTASIZER);
@@ -195,6 +196,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.SYNAPSE_CATALYST_BUCKET);
                         output.accept(ModFluids.KINETIC_CATALYST_BUCKET);
                         output.accept(ModFluids.EVOLUTION_CATALYST_BUCKET);
+                        output.accept(ModFluids.KNOWLEDGE_ESSENCE_BUCKET);
 
                         output.accept(ModFluids.STONE_BLEND_BUCKET);
                         output.accept(ModFluids.SILICA_BLEND_BUCKET);

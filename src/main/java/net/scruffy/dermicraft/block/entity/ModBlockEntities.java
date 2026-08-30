@@ -54,6 +54,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("charred_tank_be", () -> BlockEntityType.Builder.of(
                     CharredTankBlockEntity::new, ModBlocks.CHARRED_TANK.get()).build(null));
 
+    public static final Supplier<BlockEntityType<KnowledgeVatBlockEntity>> KNOWLEDGE_VAT_BE =
+            BLOCK_ENTITIES.register("knowledge_vat_be", () -> BlockEntityType.Builder.of(
+                    KnowledgeVatBlockEntity::new, ModBlocks.KNOWLEDGE_VAT.get()).build(null));
+
     public static final Supplier<BlockEntityType<EffluentcerBlockEntity>> EFFLUENTCER_BE =
             BLOCK_ENTITIES.register("effluentcer_be", () -> BlockEntityType.Builder.of(
                     EffluentcerBlockEntity::new, ModBlocks.EFFLUENTCER.get()).build(null));

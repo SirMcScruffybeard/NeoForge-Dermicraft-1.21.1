@@ -183,6 +183,14 @@ public class ModBlocks {
     public static final DeferredItem<Item> SKIN_TANK_ITEM = ModItems.ITEMS.register("skin_tank",
             () -> new SkinTankBlockItem(SKIN_TANK.get(), new Item.Properties()));
 
+    // Knowledge Vat -- Flesh Lab control block, stores a player's own XP as Knowledge Essence
+    // fluid (KnowledgeVatBlockEntity#depositLevel/withdrawLevel). Preserves contents on Forceps
+    // pickup same as Skin Tank, so it reuses SkinTankBlockItem as-is (block-generic already).
+    public static final DeferredBlock<Block> KNOWLEDGE_VAT = BLOCKS.register("knowledge_vat",
+            () -> new KnowledgeVatBlock(machineProperties()));
+    public static final DeferredItem<Item> KNOWLEDGE_VAT_ITEM = ModItems.ITEMS.register("knowledge_vat",
+            () -> new SkinTankBlockItem(KNOWLEDGE_VAT.get(), new Item.Properties()));
+
     // Charred Tank -- Skin Tank's hazard-gated Tier 2 evolution, see CharredTankBlockEntity for the
     // actual capability leap (double capacity, thermal-tolerant tank). Reuses SkinTankBlockItem as-is
     // -- it's already block-generic, not tied to SkinTankBlock specifically.

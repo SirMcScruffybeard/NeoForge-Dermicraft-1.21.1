@@ -25,6 +25,7 @@ import net.scruffy.dermicraft.block.entity.custom.MetastasizerBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.GraftingTableBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.KnowledgeVatBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.RenderFurnaceBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.RenderKilnBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
@@ -84,6 +85,8 @@ public class ModBusEvents {
         // SKIN_TANK_BE's capability registration above -- same gap that's bitten every other Charred
         // variant so far (see CHARRED_MASTICATOR_BE's comment above).
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntity::getTank);
+
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.KNOWLEDGE_VAT_BE.get(), KnowledgeVatBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);

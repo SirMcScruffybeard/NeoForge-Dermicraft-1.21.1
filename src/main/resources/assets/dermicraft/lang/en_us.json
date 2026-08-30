@@ -139,6 +139,7 @@
   "item.dermicraft.primitive_catalyst_bucket": "Primitive Catalyst Bucket",
   "item.dermicraft.reinforcing_catalyst_bucket": "Reinforcing Catalyst Bucket",
   "item.dermicraft.synapse_catalyst_bucket": "Synapse Catalyst Bucket",
+  "item.dermicraft.knowledge_essence_bucket": "Knowledge Essence Bucket",
   "item.dermicraft.kinetic_catalyst_bucket": "Kinetic Catalyst Bucket",
   "item.dermicraft.evolution_catalyst_bucket": "Evolution Catalyst Bucket",
 
@@ -179,6 +180,7 @@
   "fluid_type.dermicraft.primitive_catalyst_fluid": "Primitive Catalyst",
   "fluid_type.dermicraft.reinforcing_catalyst_fluid": "Reinforcing Catalyst",
   "fluid_type.dermicraft.synapse_catalyst_fluid": "Synapse Catalyst",
+  "fluid_type.dermicraft.knowledge_essence_fluid": "Knowledge Essence",
   "fluid_type.dermicraft.kinetic_catalyst_fluid": "Kinetic Catalyst",
   "fluid_type.dermicraft.evolution_catalyst_fluid": "Evolution Catalyst",
 
@@ -236,6 +238,7 @@
   "block.dermicraft.outerface": "Outerface",
 
   "block.dermicraft.skin_tank": "Skin Tank",
+  "block.dermicraft.knowledge_vat": "Knowledge Vat",
   "blockEntity.dermicraft.skin_tank_be": "Skin Tank",
   "block.dermicraft.charred_tank": "Charred Tank",
   "blockEntity.dermicraft.charred_tank_be": "Charred Tank",
@@ -353,6 +356,7 @@
   "tooltip.dermicraft.idep.face.drooling_ingredient": "Ingredient slot (+ Result tank)",
 
   "tooltip.dermicraft.idep.face.skin_tank_storage": "Storage tank (+ fill/drain bucket slots)",
+  "tooltip.dermicraft.idep.face.knowledge_vat_storage": "Knowledge Essence storage tank",
 
   "tooltip.dermicraft.idep.face.craw_storage": "Bulk storage",
 

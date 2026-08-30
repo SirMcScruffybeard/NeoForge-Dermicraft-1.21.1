@@ -114,6 +114,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_PRIMITIVE_CATALYST.get())
                 .add(ModFluids.SOURCE_SYNAPSE_CATALYST.get())
                 .add(ModFluids.SOURCE_EVOLUTION_CATALYST.get())
+                .add(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get())
         ;
     }
 

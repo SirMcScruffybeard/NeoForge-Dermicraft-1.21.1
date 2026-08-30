@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_inert_tumor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "dermicraft:inert_tumor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "dermicraft:charred_tumor_smelting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_inert_tumor"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "dermicraft:charred_tumor_smelting"
+    ]
+  }
+}

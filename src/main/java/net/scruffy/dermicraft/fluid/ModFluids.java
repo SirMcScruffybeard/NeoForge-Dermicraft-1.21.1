@@ -136,6 +136,25 @@ public class ModFluids {
             .block(ModFluids.SYNAPSE_CATALYST_BLOCK)
             .bucket(ModFluids.SYNAPSE_CATALYST_BUCKET);
 
+    //////////////////////////////Knowledge Essence\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_KNOWLEDGE_ESSENCE = FLUIDS.register("source_knowledge_essence",
+            () -> new BaseFlowingFluid.Source(ModFluids.KNOWLEDGE_ESSENCE_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_KNOWLEDGE_ESSENCE = FLUIDS.register("flowing_knowledge_essence",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.KNOWLEDGE_ESSENCE_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> KNOWLEDGE_ESSENCE_BLOCK = ModBlocks.BLOCKS.register("knowledge_essence_block",
+            () -> new ModLiquidBlock(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .lightLevel(state -> 8).noLootTable()));
+
+    public static final DeferredItem<Item> KNOWLEDGE_ESSENCE_BUCKET = getBucket("knowledge_essence_bucket", ModFluids.SOURCE_KNOWLEDGE_ESSENCE);
+
+    public static final BaseFlowingFluid.Properties KNOWLEDGE_ESSENCE_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE, SOURCE_KNOWLEDGE_ESSENCE, FLOWING_KNOWLEDGE_ESSENCE)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.KNOWLEDGE_ESSENCE_BLOCK)
+            .bucket(ModFluids.KNOWLEDGE_ESSENCE_BUCKET);
+
     //////////////////////////////Kinetic Catalyst\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FlowingFluid> SOURCE_KINETIC_CATALYST = FLUIDS.register("source_kinetic_catalyst",
             () -> new BaseFlowingFluid.Source(ModFluids.KINETIC_CATALYST_PROPERTIES));

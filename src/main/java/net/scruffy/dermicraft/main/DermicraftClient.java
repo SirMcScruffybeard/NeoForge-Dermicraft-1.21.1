@@ -23,6 +23,7 @@ import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.property.ModItemProperties;
 import net.scruffy.dermicraft.renderer.BeakerBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.DroolingCauldronBlockEntityRenderer;
+import net.scruffy.dermicraft.renderer.KnowledgeVatBlockEntityRenderer;
 import net.scruffy.dermicraft.renderer.SkinTankBlockEntityRenderer;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 import net.scruffy.dermicraft.screen.custom.craw.CrawScreen;
@@ -72,6 +73,7 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.FLOWING_PRIMITIVE_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_REINFORCING_CATALYST.get(), ModFluids.FLOWING_REINFORCING_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_SYNAPSE_CATALYST.get(), ModFluids.FLOWING_SYNAPSE_CATALYST.get());
+            renderTranslucentFluid(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), ModFluids.FLOWING_KNOWLEDGE_ESSENCE.get());
             renderTranslucentFluid(ModFluids.SOURCE_KINETIC_CATALYST.get(), ModFluids.FLOWING_KINETIC_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_EVOLUTION_CATALYST.get(), ModFluids.FLOWING_EVOLUTION_CATALYST.get());
 
@@ -116,6 +118,7 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.REINFORCING_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.SYNAPSE_CATALYST_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.KINETIC_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.EVOLUTION_CATALYST_FLUID_TYPE.get());
 
@@ -204,6 +207,7 @@ public class DermicraftClient {
     public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.KNOWLEDGE_VAT_BE.get(), KnowledgeVatBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_GEODE_BE.get(), DroolingCauldronBlockEntityRenderer::new);

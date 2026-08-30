@@ -296,6 +296,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         RecipeBuilders.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem());
 
+        // Charred Tumor -- straight furnace/blast smelting of Inert Tumor, not a Mutator recipe.
+        // Cook times mirror vanilla stone/cobblestone smelting (200/100 ticks); no XP, matching
+        // Charred Grafting Table's own "pure stat bump" convention rather than treating this as a
+        // real ore-smelting payoff.
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModBlocks.INERT_TUMOR.get()), RecipeCategory.MISC,
+                        ModBlocks.CHARRED_TUMOR.get(), 0.0f, ModMath.Time.getSecondsToTicks(10))
+                .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("charred_tumor_smelting"));
+
+        SimpleCookingRecipeBuilder.blasting(Ingredient.of(ModBlocks.INERT_TUMOR.get()), RecipeCategory.MISC,
+                        ModBlocks.CHARRED_TUMOR.get(), 0.0f, ModMath.Time.getSecondsToTicks(5))
+                .unlockedBy("has_inert_tumor", has(ModBlocks.INERT_TUMOR))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("charred_tumor_blasting"));
+
         RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.DENSE_MUSCLE.get(), "muscle_tumor_from_implant", ModBlocks.MUSCLE_TUMOR.asItem());
         RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.EYE.get(), "eye_tumor_implant", ModBlocks.EYE_TUMOR.asItem());
         RecipeBuilders.simpleEarlyImplant(recipeOutput, ModItems.NERVE_CLUSTER.get(), "nerve_tumor_implant", ModBlocks.NERVE_TUMOR.asItem());
