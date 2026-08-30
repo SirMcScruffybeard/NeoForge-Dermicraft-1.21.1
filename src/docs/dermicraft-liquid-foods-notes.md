@@ -6,7 +6,7 @@ Running log of decided design choices for the liquid-foods system — edible flu
 
 ## Liquid foods — overview
 
-**Status:** System model and the first three edible fluids decided. Per-fluid secondary effects deferred (hook exists, unapplied). Suit-integrated Feeder Bladder module and grade/Heal scaling explicitly out of scope for v1.
+**Status:** System model and the first three edible fluids decided. Per-fluid secondary effects deferred (hook exists, unapplied). Grade/Heal scaling explicitly out of scope for v1; the suit-integrated Feeder Bladder module once flagged here as out-of-scope no longer exists at all (see Out of scope section below).
 
 **What it is:** A system for treating certain fluids as drinkable food. The player drinks an edible fluid out of the **Feeder Bladder** (a `BladderItem` variant, already registered as `FEEDER_BLADDER`); each drink drains a fixed amount of fluid and restores hunger + saturation, like vanilla food.
 
@@ -43,12 +43,12 @@ dermicraft:edible_fluid  ->  {
 
 - **Per-fluid secondary effects** — hook exists in the data map, unapplied. "Treating these fluids like basic food for now."
 - **Healing** — not a property; these are food, not medicine.
-- **Suit-integrated Feeder Bladder module** (the Chest-slot version in `dermicraft-suit-notes.md` that auto-feeds from suit fuel) — this covers the *handheld* item only; the suit module can reuse the same data map later.
+- ~~**Suit-integrated Feeder Bladder module**~~ — **moot (2026-08-29):** Feeder Bladder is no longer a module at all (`dermicraft-suit-notes.md` → Chest). Its replacement, the new **Feeder Module**, does reuse this exact data map when drawing from a carried Feeder Bladder — same `edible_fluid` mechanic, just triggered automatically/passively instead of by the player holding right-click.
 - **Grade / Heal-modifier scaling** (the mB-per-hunger table in `dermicraft-slurry-notes.md`) — the flat per-fluid map is v1; grade scaling could layer on later without restructuring.
 
 **Open questions:**
 - Which fluids beyond the first three become edible? (All food-derived Slurries/Blends, or a curated subset?)
-- Does the handheld Feeder Bladder and the suit module share one data map cleanly, or does the suit version need its own cost model?
+- ~~Does the handheld Feeder Bladder and the suit module share one data map cleanly, or does the suit version need its own cost model?~~ **Resolved by removal (2026-08-29):** there is no suit-integrated Feeder Bladder anymore. The new Feeder Module reuses this same data map directly for its Feeder-Bladder-sourced draw — no separate cost model needed.
 - Should `mbPerDrink` ever vary per fluid, or stay uniform? (Uniform 250 for now — see below.)
 
 ---

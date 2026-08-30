@@ -31,7 +31,9 @@ Every other Main Line slurry is derived relative to this baseline — not picked
 
 ## Fluid-to-Hunger Conversion (mod-wide standard)
 
-**Status:** Formula and baseline confirmed. Applies wherever a fluid restores player hunger — currently the **Fuel Bladder Module** and the **Dock's** player-heal bonus (see `dermicraft-suit-notes.md` and `dermicraft-gear-worx-notes.md`). One shared rate, not designed per-mechanic, per the mod's general "one derived formula, reused everywhere" convention.
+**Status:** Formula and baseline confirmed. Applies wherever a fluid restores player hunger — currently only the **Dock's** player-heal bonus (see `dermicraft-gear-worx-notes.md`). One shared rate, not designed per-mechanic, per the mod's general "one derived formula, reused everywhere" convention.
+
+**Naming correction (2026-08-29):** this used to also cite "Fuel Bladder Module" as a consumer — wrong on two counts. Fuel Bladder is the suit-*fuel* item, not the one that restores player hunger (that was always Feeder Bladder). And as of 2026-08-29, Feeder Bladder is no longer a module at all (see `dermicraft-suit-notes.md` → Chest) — its replacement, the new **Feeder Module**, deliberately does *not* use this rate either when drawing from a carried Feeder Bladder; it reuses the Bladder's own separate `edible_fluid` data map instead (see `dermicraft-liquid-foods-notes.md`). So this rate's only real consumer right now is the Dock's player-heal bonus.
 
 **Formula:** `mB per hunger point = Base(Crude) mB ÷ effective Heal modifier` — reuses the existing Heal modifier (see Slurry property model, above) as the basis, rather than introducing a new stat. Better fuel grades restore hunger more cheaply, same "better grade = more efficient" pattern as the FL's own heal→fuel-use-rate repurposing.
 

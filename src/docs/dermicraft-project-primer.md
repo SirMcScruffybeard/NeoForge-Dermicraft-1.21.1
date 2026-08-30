@@ -212,9 +212,9 @@ Sipper and Drinker are Tier 1. Sprayer's base version is also Tier 1, with a Tie
 
 ### Bladder
 
-**Status:** Implemented (`BladderItem.java`). A fourth fluid-holding Tool, and the standalone-equipment origin for two suit modules.
+**Status:** Implemented (`BladderItem.java`). A fourth fluid-holding Tool, and the standalone-equipment origin for one suit module (Fuel Bladder only, as of 2026-08-29 — see below).
 
-**What it is:** Mobile fluid storage, `2000 mB` capacity — the largest of the four fluid-holding Tools. Functions as ordinary bucket-style fluid pickup/place like the others. Its distinguishing role: it's the **base item the Mutator machine transforms** into two specialized variants (see Machines above) — Fluid Bladder + Cuprous Blend → **Fuel Bladder** (a portable fuel reserve suits draw from first, ahead of other fluid-handling inventory items) and Fluid Bladder + Protein Blend → **Feeder Bladder** (drinks an edible fluid for hunger/saturation — see Fluids → Liquid Foods below). Both variants also double as suit modules via the universal Equipment-origin/Module Frame pattern — full detail in `dermicraft-suit-notes.md`.
+**What it is:** Mobile fluid storage, `2000 mB` capacity — the largest of the four fluid-holding Tools. Functions as ordinary bucket-style fluid pickup/place like the others. Its distinguishing role: it's the **base item the Mutator machine transforms** into two specialized variants (see Machines above) — Fluid Bladder + Cuprous Blend → **Fuel Bladder** (a portable fuel reserve suits draw from first, ahead of other fluid-handling inventory items) and Fluid Bladder + Protein Blend → **Feeder Bladder** (drinks an edible fluid for hunger/saturation — see Fluids → Liquid Foods below). **Fuel Bladder still doubles as a suit module** via the universal Equipment-origin/Module Frame pattern; **Feeder Bladder no longer does (2026-08-29)** — it's a standalone item only now, superseded on the suit side by the new Feeder Module — full detail in `dermicraft-suit-notes.md`.
 
 ## Fluids
 
