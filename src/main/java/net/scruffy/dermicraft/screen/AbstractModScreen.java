@@ -284,11 +284,24 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
      * a dedicated rotated copy of the art. Rotates about the icon's own center, so its bounding box
      * is unchanged for a square texture. */
     protected void blitRotated90(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int size) {
+        blitRotated90(guiGraphics, texture, x, y, size, size);
+    }
+
+    /**
+     * Draws a texture rotated 90 degrees clockwise, for a non-square source -- same trick as the
+     * square overload above, generalized: after a 90-degree turn a {@code width x height} texture
+     * occupies a {@code height x width} footprint, so the rotation pivot sits at the center of THAT
+     * (swapped) footprint rather than the source's own center. {@code x}/{@code y} is the rotated
+     * result's own top-left corner, same as any other blit call -- callers never need to think in
+     * pre-rotation coordinates. Lets e.g. a horizontal strip panel be reused sideways instead of
+     * needing a dedicated rotated copy of the art.
+     */
+    protected void blitRotated90(GuiGraphics guiGraphics, ResourceLocation texture, int x, int y, int width, int height) {
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(x + size / 2.0, y + size / 2.0, 0);
+        guiGraphics.pose().translate(x + height / 2.0, y + width / 2.0, 0);
         guiGraphics.pose().mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90));
-        guiGraphics.pose().translate(-size / 2.0, -size / 2.0, 0);
-        guiGraphics.blit(texture, 0, 0, 0, 0, size, size, size, size);
+        guiGraphics.pose().translate(-width / 2.0, -height / 2.0, 0);
+        guiGraphics.blit(texture, 0, 0, 0, 0, width, height, width, height);
         guiGraphics.pose().popPose();
     }
 }

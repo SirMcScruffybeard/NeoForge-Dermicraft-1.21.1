@@ -984,7 +984,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Blend + 1000 mB Primitive Catalyst -- a genuine slow trickle, not a mining replacement.
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_blood_nugget",
                 Ingredient.of(ModItems.BLOOD_NUGGET.get()), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, -1, ModMath.Time.getSecondsToTicks(20));
 
         // Same trace-extraction identity, Effluentcer route -- skips the Blood Nugget middleman by
         // going straight from its own raw material. Ratio derived from chaining the two existing
@@ -994,7 +994,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Ferrous Blend output -- an alternate path to the identical result, not a new price point.
         RecipeBuilders.buildEffluencing(recipeOutput, "ferrous_blend_effluencing_blood_nugget",
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, ModMath.Time.getSecondsToTicks(15));
 
         // Heavy Weighted Pressure Plate -- 2 Iron Ingots' worth (real vanilla recipe cost), so 2000 mB.
         // Craft time stays at Ingot's own 60s rather than doubling -- same precedent as Raw (also

@@ -404,6 +404,7 @@
   "tooltip.dermicraft.shatter.mining_tier": "Mining Tier: %s",
 
   "tooltip.dermicraft.gauge.fuel": "Fuel",
+  "tooltip.dermicraft.gauge.xp": "Knowledge Essence",
   "tooltip.dermicraft.gauge.buffer": "Buffer",
   "tooltip.dermicraft.gauge.reagent": "Reagent",
   "tooltip.dermicraft.gauge.result": "Result",
@@ -412,6 +413,7 @@
   "tooltip.dermicraft.gauge.input": "Input",
 
   "tooltip.dermicraft.slot.fuel_container": "Fuel Container",
+  "tooltip.dermicraft.slot.xp_container": "Knowledge Essence Container",
   "tooltip.dermicraft.slot.chain": "Chain",
   "tooltip.dermicraft.slot.shatter_head": "Head",
   "tooltip.dermicraft.slot.workbench_work_item": "Gadget",

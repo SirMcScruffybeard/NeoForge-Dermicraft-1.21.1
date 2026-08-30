@@ -37,6 +37,34 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
     private static final int GAUGE_INTERIOR_WIDTH = GAUGE_FRAME_WIDTH - 2 * GAUGE_INTERIOR_INSET;
     private static final int GAUGE_INTERIOR_HEIGHT = GAUGE_FRAME_HEIGHT - 2 * GAUGE_INTERIOR_INSET;
 
+    // XP-gathering strip -- a dedicated vertical panel (side_column.png, already authored 31x166,
+    // flush with the main panel's own height), placed alongside it rather than below (screen grows
+    // wider, not taller -- same "grow imageWidth to fit an extra panel" trick WorkbenchScreen's own
+    // imageHeight override established, just the other axis).
+    private static final ResourceLocation XP_STRIP_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "side_column.png");
+    private static final int XP_STRIP_WIDTH = 31;
+    private static final int XP_STRIP_HEIGHT = 166;
+
+    private static final int MAIN_PANEL_WIDTH = 176;
+    private static final int MAIN_PANEL_HEIGHT = 166;
+    private static final int XP_STRIP_GAP = 4;
+    private static final int XP_STRIP_X = MAIN_PANEL_WIDTH + XP_STRIP_GAP;
+    private static final int XP_STRIP_Y = 0;
+
+    // XP tank+slot column -- reuses the same tank_and_slot art every single-tank machine screen
+    // uses (Masticator's ingredient/result columns, etc.), centered horizontally in the 31-wide
+    // strip ((31-18)/2 = 6). Positioned so the SLOT half (the bottom 18px of the 66-tall art, see
+    // SLOT_CROP_V_OFFSET) sits flush with the buffer row's own top -- the slot is the part that
+    // visually reads as "a row", so that's what should line up, not the tank half above it.
+    // Gauge/slot offsets mirror Masticator's own "+1 for the gauge" pattern.
+    private static final int XP_COLUMN_X = XP_STRIP_X + 6;
+    private static final int XP_COLUMN_Y = 64 - SLOT_CROP_V_OFFSET; // 64 == BUFFER_ROW_Y (declared below, can't forward-ref it)
+    private static final int XP_GAUGE_X = XP_COLUMN_X + 1;
+    private static final int XP_GAUGE_Y = XP_COLUMN_Y + 1;
+    private static final int XP_SLOT_BACKDROP_X = XP_COLUMN_X + 1;
+    private static final int XP_SLOT_BACKDROP_Y = XP_COLUMN_Y + SLOT_CROP_V_OFFSET;
+
     // Fuel slot + gauge sit on the same row as the 4-slot food row (y=44). Gauge butts up close
     // to the slot backdrop (which ends at x=25) and ends at x=92, just left of the food row.
     private static final int FUEL_SLOT_X = 7;
@@ -96,9 +124,12 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
     private int holdTicks = 0;
 
     private FluidTankRenderer fuelRenderer;
+    private FluidTankRenderer xpRenderer;
 
     public MrShepardScreen(MrShepardMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
+        this.imageWidth = XP_STRIP_X + XP_STRIP_WIDTH;
+        this.imageHeight = Math.max(MAIN_PANEL_HEIGHT, XP_STRIP_Y + XP_STRIP_HEIGHT);
     }
 
     @Override
@@ -106,6 +137,7 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
         super.init();
         fuelRenderer = new FluidTankRenderer(menu.BE.getFuelTank().getCapacity(), true,
                 GAUGE_INTERIOR_WIDTH, GAUGE_INTERIOR_HEIGHT, FluidTankRenderer.Orientation.HORIZONTAL);
+        xpRenderer = createFluidRenderer16x40(menu.BE.getXpTank().getCapacity());
     }
 
     /** Counts down the press flash, and runs the value while a stepper is held past the delay. */
@@ -174,12 +206,20 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
                 menu.BE.getFuelTank().getFluid(), GAUGE_INTERIOR_X, GAUGE_INTERIOR_Y, fuelRenderer,
                 Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
+        renderFluidTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
+                menu.BE.getXpTank().getFluid(), XP_GAUGE_X, XP_GAUGE_Y, xpRenderer,
+                Component.translatable("tooltip.dermicraft.gauge.xp"));
+
         // Slot role labels -- the feed row and the output row are visually identical, so without
         // these there's nothing telling the player which is which. Only shown while a slot is empty;
         // once it holds an item vanilla's own item tooltip covers it.
         renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_SLOT_X + 1, FUEL_SLOT_Y + 1,
                 menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),
                 Component.translatable("tooltip.dermicraft.slot.fuel_container"));
+
+        renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, XP_SLOT_BACKDROP_X, XP_SLOT_BACKDROP_Y,
+                menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getXpTank().SLOT),
+                Component.translatable("tooltip.dermicraft.slot.xp_container"));
 
         for (int i = 0; i < FOOD_SLOT_COUNT; i++) {
             renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y,
@@ -211,6 +251,12 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
+
+        guiGraphics.blit(XP_STRIP_TEXTURE, x + XP_STRIP_X, y + XP_STRIP_Y, 0, 0,
+                XP_STRIP_WIDTH, XP_STRIP_HEIGHT, XP_STRIP_WIDTH, XP_STRIP_HEIGHT);
+        guiGraphics.blit(TANK_AND_SLOT_TEXTURE, x + XP_COLUMN_X, y + XP_COLUMN_Y, 0, 0,
+                TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT, TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
+        xpRenderer.render(guiGraphics, x + XP_GAUGE_X, y + XP_GAUGE_Y, menu.BE.getXpTank().getFluid());
 
         renderSlotBackdrop(guiGraphics, x + FUEL_SLOT_X, y + FUEL_SLOT_Y);
         for (int i = 0; i < FOOD_SLOT_COUNT; i++) {

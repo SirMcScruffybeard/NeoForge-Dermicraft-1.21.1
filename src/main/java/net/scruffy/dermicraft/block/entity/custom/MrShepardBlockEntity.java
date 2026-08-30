@@ -14,6 +14,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Sheep;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -36,9 +38,12 @@ import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.util.SlotRangeItemHandler;
+import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.machine.MachineTier;
 import net.scruffy.dermicraft.screen.custom.mr_shepard.MrShepardMenu;
+import net.scruffy.dermicraft.tank.DroolingTank;
 import net.scruffy.dermicraft.tank.FuelTank;
+import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.util.ModFluidUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,9 +96,19 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     private static final int FOOD_SLOT_COUNT = 4;
     private static final int BUFFER_SLOT_COUNT = 9;
 
+    // XP-gathering tank -- locked to Knowledge Essence, same fixed-target-fluid lock the Knowledge
+    // Vat uses (DroolingTank with a constant supplier, since this tank's target never changes).
+    // 1000mB (10 levels at the Vat's own 100mB/level rate) -- a compact catch-tray, not a Vat-sized
+    // reservoir; this machine is meant to gather in passing, not act as long-term storage.
+    private static final int XP_TANK_CAPACITY = ModFluidTank.BUCKET_VOLUME;
+    private static final int XP_SLOT_INDEX = 1 + FOOD_SLOT_COUNT + BUFFER_SLOT_COUNT;
+    private static final int INVENTORY_SIZE = XP_SLOT_INDEX + 1;
+
     private final FuelTank FUEL_TANK = createFuelTank();
-    // slot 0 = fuel container, 1..FOOD_SLOT_COUNT = breeding food, rest = pickup/wool buffer
-    private final ItemStackHandler INVENTORY = createItemHandler(1 + FOOD_SLOT_COUNT + BUFFER_SLOT_COUNT);
+    private final DroolingTank XP_TANK = createDroolingTank(XP_TANK_CAPACITY, XP_SLOT_INDEX, ModFluids.SOURCE_KNOWLEDGE_ESSENCE::get);
+    // slot 0 = fuel container, 1..FOOD_SLOT_COUNT = breeding food, next BUFFER_SLOT_COUNT =
+    // pickup/wool buffer, last slot = XP tank's own fill/drain container.
+    private final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
 
     // Per-channel views for the Gate (see getChannels). Feed only accepts pushes, the buffer is
     // drain-only -- the fuel container slot is deliberately in neither, staying player-only.
@@ -126,6 +141,10 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
 
     public FuelTank getFuelTank() {
         return FUEL_TANK;
+    }
+
+    public DroolingTank getXpTank() {
+        return XP_TANK;
     }
 
     public int getPopulationCap() {
@@ -221,6 +240,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         AABB area = workArea();
         boolean didWork = false;
         didWork |= collectItems(serverLevel, pickupArea()); // wider than the rest -- see pickupArea()
+        didWork |= collectXp(serverLevel, pickupArea()); // same area, same cadence as item pickup
         didWork |= shearSheep(serverLevel, area);
         didWork |= growBabies(serverLevel, area);
         didWork |= breedAnimals(serverLevel, area);
@@ -319,6 +339,31 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
                 if (stack.isEmpty()) itemEntity.discard();
                 any = true;
             }
+        }
+        return any;
+    }
+
+    // ---- XP pickup ------------------------------------------------------------------------------
+    // Same pickup area and work cycle as collectItems() -- called right alongside it in tick(), so
+    // XP gathering happens exactly when/where item gathering does, not on its own separate timer.
+
+    private static final int MB_PER_XP_POINT = 10; // felt number -- see XP_TANK's own 100mB/level convention
+
+    private boolean collectXp(ServerLevel level, AABB area) {
+        boolean any = false;
+        for (ExperienceOrb orb : level.getEntitiesOfClass(ExperienceOrb.class, area, ExperienceOrb::isAlive)) {
+            int value = orb.getValue();
+            if (value <= 0) continue;
+
+            // All-or-nothing per orb, same as a real player pickup -- a nearly-full tank shouldn't
+            // split one orb's worth across two work cycles, so this simulates first and skips the
+            // orb entirely (leaving it for a later cycle, or a player, to take) if it doesn't fully fit.
+            FluidStack offer = new FluidStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), value * MB_PER_XP_POINT);
+            if (XP_TANK.fill(offer, IFluidHandler.FluidAction.SIMULATE) < offer.getAmount()) continue;
+
+            XP_TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE);
+            orb.discard();
+            any = true;
         }
         return any;
     }
@@ -606,6 +651,11 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
             channels.add(new Channel.ItemChannel("feed", Component.literal("Animal Feed"), Channel.IO.IN, FEED_CHANNEL));
             channels.add(new Channel.ItemChannel("output", Component.literal("Output Buffer"), Channel.IO.OUT, BUFFER_CHANNEL));
         }
+        if (!fluidServiced) {
+            // Last in priority order -- a passive gather buffer, nothing stalls without it, unlike
+            // fuel starving the whole machine.
+            channels.add(new Channel.FluidChannel("xp", Component.literal("Knowledge Essence"), Channel.IO.OUT, XP_TANK));
+        }
         return channels;
     }
 
@@ -633,7 +683,10 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
             protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide()) {
                     if (slot == FUEL_TANK.SLOT && !isTransferringFluids) {
-                        biDirectionalFluidTransfer();
+                        biDirectionalFluidTransfer(FUEL_TANK, FUEL_TANK.SLOT);
+                        isTransferringFluids = false;
+                    } else if (slot == XP_TANK.SLOT && !isTransferringFluids) {
+                        biDirectionalFluidTransfer(XP_TANK, XP_TANK.SLOT);
                         isTransferringFluids = false;
                     }
                     setChanged();
@@ -641,37 +694,39 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
                 }
             }
 
-            private void biDirectionalFluidTransfer() {
-                if (FUEL_TANK.hasFluidHandlerInSlot(this, FUEL_TANK.SLOT)) {
+            // Shared by both fuel and XP-tank slots -- same tank-agnostic ModFluidTank API either way.
+            private void biDirectionalFluidTransfer(ModFluidTank tank, int slot) {
+                if (tank.hasFluidHandlerInSlot(this, slot)) {
                     isTransferringFluids = true;
-                    FUEL_TANK.transferFluidToTank(this, FUEL_TANK.SLOT);
+                    tank.transferFluidToTank(this, slot);
                 } else {
-                    transferToHandler();
+                    transferToHandler(tank, slot);
                 }
             }
 
-            private void transferToHandler() {
-                if (FUEL_TANK.hasEmptyFluidHandlerInSlot(this, FUEL_TANK.SLOT)) {
+            private void transferToHandler(ModFluidTank tank, int slot) {
+                if (tank.hasEmptyFluidHandlerInSlot(this, slot)) {
                     isTransferringFluids = true;
-                    ItemStack stack = getStackInSlot(FUEL_TANK.SLOT);
+                    ItemStack stack = getStackInSlot(slot);
                     if (stack.isEmpty()) return;
-                    setStackInSlot(FUEL_TANK.SLOT, stack);
-                    FUEL_TANK.transferFluidFromTankToHandler(this, FUEL_TANK.SLOT);
+                    setStackInSlot(slot, stack);
+                    tank.transferFluidFromTankToHandler(this, slot);
                 }
             }
 
             @Override
             public int getSlotLimit(int slot) {
-                return slot == FUEL_TANK.SLOT ? 1 : super.getSlotLimit(slot);
+                return slot == FUEL_TANK.SLOT || slot == XP_TANK.SLOT ? 1 : super.getSlotLimit(slot);
             }
 
-            // The fuel slot only takes fluid containers. Without this, quickMoveStack walks the
-            // machine's slots in registration order -- fuel first -- so shift-clicking feed from the
-            // player's inventory would drop one wheat into the fuel slot before the rest reached the
-            // feed row. Slot.mayPlace() routes through here, so this fixes insertion and shift-click.
+            // The fuel and XP-tank slots only take fluid containers. Without this, quickMoveStack
+            // walks the machine's slots in registration order -- fuel first -- so shift-clicking feed
+            // from the player's inventory would drop one wheat into the fuel slot before the rest
+            // reached the feed row. Slot.mayPlace() routes through here, so this fixes insertion and
+            // shift-click.
             @Override
             public boolean isItemValid(int slot, ItemStack stack) {
-                if (slot == FUEL_TANK.SLOT) {
+                if (slot == FUEL_TANK.SLOT || slot == XP_TANK.SLOT) {
                     return stack.getCapability(Capabilities.FluidHandler.ITEM) != null;
                 }
                 return super.isItemValid(slot, stack);
@@ -684,6 +739,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
         tag.put("fuel", FUEL_TANK.writeToNBT(registries, new CompoundTag()));
+        tag.put("xp_tank", XP_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("populationCap", populationCap);
         // Persisted so an empty tank still remembers its last fuel's cap across a reload.
         tag.putFloat("rememberedHeal", rememberedHeal);
@@ -693,8 +749,13 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
+        // NOT a plain INVENTORY.deserializeNBT -- a Mr. Shepard saved before the XP tank's own slot
+        // existed carries Size=14 and would shrink this handler back down, crashing on world load
+        // (the Menu adds a slot at index 14 that would no longer exist). Same gotcha documented on
+        // SkinTankBlockEntity/DroolingMachineBlockEntity's own loadAdditional.
+        if (tag.contains("inventory")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
         if (tag.contains("fuel")) FUEL_TANK.readFromNBT(registries, tag.getCompound("fuel"));
+        if (tag.contains("xp_tank")) XP_TANK.readFromNBT(registries, tag.getCompound("xp_tank"));
         if (tag.contains("populationCap")) populationCap = tag.getInt("populationCap");
         if (tag.contains("rememberedHeal")) rememberedHeal = tag.getFloat("rememberedHeal");
         if (tag.contains("rememberedFuel")) {

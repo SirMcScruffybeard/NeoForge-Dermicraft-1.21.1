@@ -25,6 +25,14 @@ public class MrShepardMenu extends AbstractModMenu {
     private static final int FUEL_SLOT_X = 8;
     private static final int FUEL_SLOT_Y = 45;
 
+    // XP tank+slot column sits on the side strip, alongside the main panel -- see MrShepardScreen's
+    // own XP_STRIP_X/XP_COLUMN_X for how this position was derived (18-wide tank_and_slot column
+    // centered in the 31-wide strip, 1px inset matching the tank/slot art's own border). Y is flush
+    // with the buffer row's own top -- the slot half of the column is what should visually line up
+    // with it, not the tank half above it (see MrShepardScreen's XP_COLUMN_Y for the same call).
+    private static final int XP_SLOT_X = 187;
+    private static final int XP_SLOT_Y = BUFFER_ROW_Y;
+
     // clickMenuButton ids, mirrors vanilla's loom/enchant-table button convention.
     public static final int BUTTON_CAP_UP = 0;
     public static final int BUTTON_CAP_DOWN = 1;
@@ -34,7 +42,7 @@ public class MrShepardMenu extends AbstractModMenu {
     }
 
     public MrShepardMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.MR_SHEPARD_MENU.get(), containerId, 1 + FOOD_SLOT_COUNT + BUFFER_SLOT_COUNT);
+        super(ModMenuTypes.MR_SHEPARD_MENU.get(), containerId, 1 + FOOD_SLOT_COUNT + BUFFER_SLOT_COUNT + 1);
         this.BE = (MrShepardBlockEntity) blockEntity;
         this.level = inv.player.level();
 
@@ -51,6 +59,8 @@ public class MrShepardMenu extends AbstractModMenu {
             this.addSlot(new SlotItemHandler(BE.getItemHandler(null), 1 + FOOD_SLOT_COUNT + i,
                     BUFFER_ROW_X + i * 18, BUFFER_ROW_Y));
         }
+
+        this.addSlot(new SlotItemHandler(BE.getItemHandler(null), BE.getXpTank().SLOT, XP_SLOT_X, XP_SLOT_Y));
     }
 
     @Override
