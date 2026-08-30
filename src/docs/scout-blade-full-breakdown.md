@@ -30,7 +30,7 @@ Recon's Tier 1+ suit-integrated signature weapon. This doc supersedes/expands th
 ## Tier 1 Tuning
 
 - Available starting at Tier 1, but deliberately weak there — enough to demonstrate the concept and hint at its long-term potential without providing a maxed-out damage spike from the moment Recon's specialization begins.
-- Grows more dangerous over time not through any change to the Scout Blade itself, but because it directly benefits from Recon's own broader progression: Dash Speed, stacked Flight/Climbing add-ons, and any other mobility-boosting investment all raise the player's achievable peak speed, which raises the Scout Blade's damage multiplier in turn. Every mobility choice a Recon player makes indirectly becomes a damage choice as well.
+- Grows more dangerous over time not through any change to the Scout Blade itself, but because it directly benefits from Recon's own broader progression: Dash Speed, stacked Flight/Climbing modules, and any other mobility-boosting investment all raise the player's achievable peak speed, which raises the Scout Blade's damage multiplier in turn. Every mobility choice a Recon player makes indirectly becomes a damage choice as well.
 
 ---
 
