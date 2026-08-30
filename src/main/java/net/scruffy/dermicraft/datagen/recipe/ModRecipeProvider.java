@@ -355,6 +355,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.SKIN_TANK.asItem());
 
+        // Knowledge Vat -- Skin Tank's own implant, plus a Proto Brain (the "smart" identity, same
+        // component the Brain Block/Synapse Catalyst chain uses) since this tank stores something
+        // Skin Tank never touches: the player's own mind.
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "knowledge_vat_implant",
+                List.of(
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModBlocks.BEAKER_ITEM.get()),
+                        Ingredient.of(ModItems.PROTO_BRAIN.get())),
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.KNOWLEDGE_VAT.asItem());
+
         RecipeBuilders.buildEarlyImplant(recipeOutput, "effluentcer_implant",
                 List.of(
                         Ingredient.of(ModItems.GLASS_FLASK.get()),
@@ -1351,6 +1365,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // (not replacing) skin_tank_implant.
         RecipeBuilders.mutate(recipeOutput, "mutating_skin_tank", ModBlocks.BEAKER_ITEM.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.SKIN_TANK.asItem(), solidTicks);
+
+        // Knowledge Vat -- alternate route alongside knowledge_vat_implant: an already-built Skin
+        // Tank plus 500 mB Knowledge Essence, same "existing structural item + Mutator reagent"
+        // shape as mutating_skin_tank itself. Cheaper mB cost than the other Mutator recipes here
+        // since it's a small conversion, not a from-scratch build.
+        RecipeBuilders.mutate(recipeOutput, "mutating_knowledge_vat", ModBlocks.SKIN_TANK.asItem(),
+                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 500, ModBlocks.KNOWLEDGE_VAT.asItem(), solidTicks);
 
         // Primitive surgical toolkit -> real Iron tier, Mutator route. Not a progression gate (the
         // Iron tools are already plain crafting-table recipes) -- purely a recycling convenience so a

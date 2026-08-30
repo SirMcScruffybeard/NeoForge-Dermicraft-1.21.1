@@ -121,6 +121,11 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
                 new Lava().startUsing(player, usedHand);
                 return InteractionResultHolder.consume(stack);
             }
+
+            if (fluidStack.is(ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE.get())) {
+                new KnowledgeEssence().startUsing(player, usedHand);
+                return InteractionResultHolder.consume(stack);
+            }
         }
 
         return InteractionResultHolder.success(stack);
@@ -148,6 +153,11 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
 
                 if (fluidStack.is(Fluids.LAVA)) {
                     new Lava().finishUsing(level, player, stack);
+                    return stack;
+                }
+
+                if (fluidStack.is(ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE.get())) {
+                    new KnowledgeEssence().finishUsing(level, player, stack);
                     return stack;
                 }
             }
@@ -239,6 +249,45 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
                     ModMath.Time.getSecondsToTicks(SpicyRegretEffect.DURATION_IN_SECONDS), 0));
 
             consumeFlaskIfSurvival(player, stack);
+        }
+    }
+
+    /**
+     * Drinking a full Flask (250mB) of Knowledge Essence grants {@link #LEVELS_PER_FLASK} levels --
+     * 2.5, matching the same 100mB-per-level rate the Knowledge Vat itself uses (250mB / 100mB =
+     * 2.5), so a Flask reads as "a fifth of a Vat's own withdraw pulse cap" rather than an
+     * independently-tuned number.
+     */
+    protected class KnowledgeEssence {
+
+        private static final float LEVELS_PER_FLASK = 2.5f;
+
+        public void startUsing(Player player, InteractionHand usedHand) {
+            player.startUsingItem(usedHand);
+        }
+
+        private void finishUsing(Level level, Player player, ItemStack stack) {
+            if (level.isClientSide) return;
+
+            giveFractionalLevels(player, LEVELS_PER_FLASK);
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0F, 1.0F);
+
+            consumeFlaskIfSurvival(player, stack);
+        }
+
+        /** Vanilla's {@code giveExperienceLevels} only takes whole levels -- the fractional
+         * remainder is granted as raw XP points instead, sized against however many points the
+         * NEXT level costs (read after the whole levels are already applied, so it reflects the
+         * level the player is actually sitting at when the remainder lands). */
+        private void giveFractionalLevels(Player player, float levels) {
+            int wholeLevels = (int) levels;
+            float remainder = levels - wholeLevels;
+
+            if (wholeLevels > 0) player.giveExperienceLevels(wholeLevels);
+            if (remainder > 0) {
+                player.giveExperiencePoints(Math.round(player.getXpNeededForNextLevel() * remainder));
+            }
         }
     }
 

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_knowledge_essence",
+  "fluid_amount": 500,
+  "ingredient": {
+    "item": "dermicraft:skin_tank"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:knowledge_vat"
+  },
+  "ticks": 200
+}

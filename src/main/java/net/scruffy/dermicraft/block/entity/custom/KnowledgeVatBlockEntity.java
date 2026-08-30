@@ -23,14 +23,18 @@ import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Knowledge Vat -- Flesh Lab control block that stores the player's OWN experience as Knowledge
  * Essence fluid, at a fixed 100mB (Knowledge Vat's {@link #MB_PER_LEVEL}) per level. Right-click
- * (empty hand) deposits one level; crouch + right-click withdraws one level back -- see
- * {@code KnowledgeVatBlock#useWithoutItem}. A held fluid container instead gets the standard
- * fill/drain interaction ({@code KnowledgeVatBlock#useItemOn}), same as every other tank machine.
+ * (empty hand) deposits levels; crouch + right-click withdraws them back -- see
+ * {@code KnowledgeVatBlock#useItemOn}. Holding the click ramps the amount per pulse (see
+ * {@link #pulseLevels}) rather than always moving a flat one level. A held fluid container instead
+ * gets the standard fill/drain interaction, same as every other tank machine.
  * Locked to Knowledge Essence only (via {@link DroolingTank}'s fixed-target-fluid lock, reused here
  * with a constant supplier since this tank's target never changes), 10-bucket capacity (100 levels
  * at 100mB/level), and pushes to a neighbour below same as every other machine's output tank.
@@ -43,7 +47,23 @@ public class KnowledgeVatBlockEntity extends MachineBaseBlockEntity implements I
     public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 10;
     public static final int MB_PER_LEVEL = 100;
 
+    /** How many consecutive ticks may pass between two pulses from the same player before this
+     * treats it as a fresh press rather than a continued hold -- vanilla's own repeat-interaction
+     * interval is 4 ticks, so this leaves a little slack for network jitter. */
+    private static final int HOLD_RESET_TICKS = 6;
+    /** Ceiling on levels moved per pulse, however long the hold. */
+    private static final int RAMP_CAP_LEVELS = 5;
+    /** Consecutive pulses needed to climb one more level, so the ramp reaches {@link #RAMP_CAP_LEVELS}
+     * after roughly (RAMP_CAP_LEVELS - 1) * this many pulses -- 16 pulses at the ~4-tick vanilla
+     * repeat rate is ~3.2 real seconds. */
+    private static final int PULSES_PER_RAMP_STEP = 4;
+
     private final DroolingTank TANK = createDroolingTank(CAPACITY, -1, ModFluids.SOURCE_KNOWLEDGE_ESSENCE::get);
+
+    // Per-player hold tracking -- purely transient interaction state, deliberately not saved/loaded
+    // (a held-down click never survives a chunk unload anyway, and it's harmless to reset on reload).
+    private final Map<UUID, Long> lastPulseTick = new HashMap<>();
+    private final Map<UUID, Integer> pulseStreak = new HashMap<>();
 
     public KnowledgeVatBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.KNOWLEDGE_VAT_BE.get(), pos, blockState);
@@ -96,31 +116,56 @@ public class KnowledgeVatBlockEntity extends MachineBaseBlockEntity implements I
         );
     }
 
-    /** Right-click, empty hand, not sneaking -- pulls one level (100mB) out of the player and into
-     * the tank. No-op (returns false) if the player has no level to give, or the tank has no room
-     * for another 100mB of Knowledge Essence (full, or -- impossible in practice since nothing else
-     * can ever be in this tank -- holding a different fluid). */
+    /** Right-click, empty hand, not sneaking -- pulls 1-{@link #RAMP_CAP_LEVELS} levels (ramping
+     * with how long this player has been holding, see {@link #pulseLevels}) out of the player and
+     * into the tank, capped by however many levels they actually have and however much room the tank
+     * has left. No-op (returns false) if neither cap leaves anything to move. */
     public boolean depositLevel(ServerPlayer player) {
         if (level == null || player.experienceLevel <= 0) return false;
 
-        FluidStack offer = new FluidStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), MB_PER_LEVEL);
-        if (TANK.fill(offer, IFluidHandler.FluidAction.SIMULATE) < MB_PER_LEVEL) return false;
+        int wantLevels = pulseLevels(player);
+        int roomLevels = TANK.fill(new FluidStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), wantLevels * MB_PER_LEVEL),
+                IFluidHandler.FluidAction.SIMULATE) / MB_PER_LEVEL;
+        int levels = Math.min(wantLevels, Math.min(player.experienceLevel, roomLevels));
+        if (levels <= 0) return false;
 
-        TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE);
-        player.giveExperienceLevels(-1);
+        TANK.fill(new FluidStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), levels * MB_PER_LEVEL), IFluidHandler.FluidAction.EXECUTE);
+        player.giveExperienceLevels(-levels);
         level.playSound(null, worldPosition, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 1.0F, 0.7F);
         return true;
     }
 
-    /** Crouch + right-click, empty hand -- the reverse of {@link #depositLevel}. No-op if the tank
-     * holds less than one level's worth. */
+    /** Crouch + right-click, empty hand -- the reverse of {@link #depositLevel}, same ramp. No-op if
+     * the tank holds less than one level's worth. */
     public boolean withdrawLevel(ServerPlayer player) {
-        if (level == null || TANK.getFluid().getAmount() < MB_PER_LEVEL) return false;
+        if (level == null) return false;
 
-        TANK.drain(MB_PER_LEVEL, IFluidHandler.FluidAction.EXECUTE);
-        player.giveExperienceLevels(1);
+        int wantLevels = pulseLevels(player);
+        int levels = Math.min(wantLevels, TANK.getFluid().getAmount() / MB_PER_LEVEL);
+        if (levels <= 0) return false;
+
+        TANK.drain(levels * MB_PER_LEVEL, IFluidHandler.FluidAction.EXECUTE);
+        player.giveExperienceLevels(levels);
         level.playSound(null, worldPosition, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 1.0F, 1.3F);
         return true;
+    }
+
+    /** How many levels THIS pulse should move, ramping with how many consecutive pulses this same
+     * player has landed within {@link #HOLD_RESET_TICKS} of each other -- 1 on a fresh press, up to
+     * {@link #RAMP_CAP_LEVELS} after holding for a while, resetting to 1 the instant the gap between
+     * pulses exceeds the reset window (release, look away, or just the first click after being idle). */
+    private int pulseLevels(ServerPlayer player) {
+        if (level == null) return 1;
+
+        UUID id = player.getUUID();
+        long now = level.getGameTime();
+        Long last = lastPulseTick.get(id);
+        int streak = (last != null && now - last <= HOLD_RESET_TICKS) ? pulseStreak.getOrDefault(id, 0) + 1 : 0;
+
+        lastPulseTick.put(id, now);
+        pulseStreak.put(id, streak);
+
+        return Math.min(RAMP_CAP_LEVELS, 1 + streak / PULSES_PER_RAMP_STEP);
     }
 
     /** No item inventory to drop -- {@link IPreserveContentsOnPickup} carries the tank home via
