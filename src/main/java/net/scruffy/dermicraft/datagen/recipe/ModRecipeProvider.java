@@ -495,6 +495,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_crafting_table"));
 
+        // Metaphysical Safety Module -- alternate recipe, the original Molten Soul Silica Bucket
+        // version (see the Soul Sand recipe above's javadoc: that fluid is only producible in a
+        // Masticator's hazard-gated RESULT_TANK, which requires a Metaphysical Safety Module already
+        // installed to accept METAPHYSICAL_MILD fluid -- an unbootstrappable loop on its own). Kept
+        // as a second route once the player already has the tolerance to make the fluid some other
+        // way (e.g. a second module from the Soul Sand recipe, or trading/finding one).
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.METAPHYSICAL_SAFETY_MODULE.get())
+                .pattern("IPI")
+                .pattern("ISI")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('P', Items.ENDER_PEARL)
+                .define('S', ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get())
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_soul_silica_crafting_table"));
+
         // Radiation Safety Module: exact same shape as Thermal Safety Module -- Glowstone Block
         // (radiant identity, playing Magma Block's role) over a Molten Redstone Bucket (the hazard
         // content -- shares Thermal's own THERMAL-tagged fluid rather than reaching for a

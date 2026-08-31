@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "minecraft:ender_pearl"
+    },
+    "S": {
+      "item": "dermicraft:molten_soul_silica_bucket"
+    }
+  },
+  "pattern": [
+    "IPI",
+    "ISI",
+    "IFI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:metaphysical_safety_module"
+  }
+}
