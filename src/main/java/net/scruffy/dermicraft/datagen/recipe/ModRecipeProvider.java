@@ -478,17 +478,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("heat_safety_module_crafting_table"));
 
         // Metaphysical Safety Module: deliberately mirrors Thermal Safety Module's own shape/weight --
-        // an Ender Pearl (metaphysical identity, playing Magma Block's role) over a Molten Soul Silica
-        // Bucket (the hazard's real content -- the fluid actually tagged METAPHYSICAL_MILD, same
-        // "value the content, not the container" framing as every other bucket recipe here) over the
-        // Module Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Thermal.
+        // an Ender Pearl (metaphysical identity, playing Magma Block's role) over Soul Sand (the raw
+        // ingredient Molten Soul Silica is itself made from -- NOT the fluid, which is METAPHYSICAL_MILD-
+        // tagged and only ever producible in a Masticator's hazard-gated RESULT_TANK; that tank refuses
+        // to hold METAPHYSICAL_MILD fluid without a Metaphysical Safety Module already installed, which
+        // made the module's own recipe unbootstrappable -- 2026-08-31, found and fixed) over the Module
+        // Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Thermal.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.METAPHYSICAL_SAFETY_MODULE.get())
                 .pattern("IPI")
                 .pattern("ISI")
                 .pattern("IFI")
                 .define('I', Items.IRON_INGOT)
                 .define('P', Items.ENDER_PEARL)
-                .define('S', ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get())
+                .define('S', Blocks.SOUL_SAND)
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_crafting_table"));
