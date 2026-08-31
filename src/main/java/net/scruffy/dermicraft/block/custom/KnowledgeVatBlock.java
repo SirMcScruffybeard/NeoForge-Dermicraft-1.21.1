@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.KnowledgeVatBlockEntity;
@@ -75,10 +76,11 @@ public class KnowledgeVatBlock extends ModBaseEntityBlock {
         }
     }
 
-    // Standard fluid-container interaction (bucket, Syringe, etc.) takes priority; an empty hand
-    // then deposits (or, crouching, withdraws) a level. Deliberately handled here rather than in
-    // useWithoutItem -- mirrors MasticatorBlock/MutatorBlock's own "crouch + empty hand" shape,
-    // since a crouching player's empty-hand click doesn't reliably reach useWithoutItem at all.
+    // Standard fluid-container interaction (bucket, Syringe, etc.) takes priority; any OTHER held
+    // item -- empty hand included, but also a sword, a block, anything without a fluid handler
+    // capability -- deposits (or, crouching, withdraws) a level instead. Deliberately handled here
+    // rather than in useWithoutItem -- mirrors MasticatorBlock/MutatorBlock's own "crouch + empty
+    // hand" shape, since a crouching player's click doesn't reliably reach useWithoutItem at all.
     @NotNull
     @Override
     protected ItemInteractionResult useItemOn(
@@ -94,7 +96,8 @@ public class KnowledgeVatBlock extends ModBaseEntityBlock {
             return ItemInteractionResult.SUCCESS;
         }
 
-        if (stack.isEmpty() && player instanceof ServerPlayer serverPlayer) {
+        boolean isFluidHandler = stack.getCapability(Capabilities.FluidHandler.ITEM) != null;
+        if (!isFluidHandler && player instanceof ServerPlayer serverPlayer) {
             boolean acted = player.isShiftKeyDown()
                     ? vat.withdrawLevel(serverPlayer)
                     : vat.depositLevel(serverPlayer);
