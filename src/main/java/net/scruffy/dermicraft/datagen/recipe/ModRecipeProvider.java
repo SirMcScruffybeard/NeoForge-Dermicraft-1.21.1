@@ -1996,10 +1996,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Fluids.LAVA, 1000, ModBlocks.CHARRED_INNARDS_NODE.get(), solidTicks);
 
         // Innards Gate Controller: Redstone Repeater (the logic/priority core) flanked by Nerve
-        // Clusters (signal-routing tissue), Inert Tumor at the bottom center (biological seed).
+        // Clusters (signal-routing tissue), Inert Tumor directly beneath the Repeater (biological
+        // seed) -- no blank spacer row between them.
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INNARDS_GATE_CONTROLLER)
                 .pattern("NRN")
-                .pattern("   ")
                 .pattern(" T ")
                 .define('N', ModItems.NERVE_CLUSTER)
                 .define('R', Items.REPEATER)

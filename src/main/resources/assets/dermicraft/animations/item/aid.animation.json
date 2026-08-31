@@ -1,0 +1,527 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"forceps_deploy": {
+			"animation_length": 0.75,
+			"bones": {
+				"forceps": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 7]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"left": {
+					"rotation": {
+						"0.5": {
+							"vector": [0, 0, 0]
+						},
+						"0.75": {
+							"vector": [0, -35, 0]
+						}
+					}
+				},
+				"right": {
+					"rotation": {
+						"0.5": {
+							"vector": [0, 0, 0]
+						},
+						"0.75": {
+							"vector": [0, 35, 0]
+						}
+					}
+				},
+				"l_tip": {
+					"rotation": {
+						"0.5": {
+							"vector": [0, 0, 0]
+						},
+						"0.75": {
+							"vector": [0, 65, 0]
+						}
+					}
+				},
+				"r_tip": {
+					"rotation": {
+						"0.5": {
+							"vector": [0, 0, 0]
+						},
+						"0.75": {
+							"vector": [0, -65, 0]
+						}
+					}
+				}
+			}
+		},
+		"forceps_retract": {
+			"animation_length": 0.5,
+			"bones": {
+				"forceps": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 7]
+						}
+					}
+				},
+				"left": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -35, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"right": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 35, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"l_tip": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 65, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"r_tip": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -65, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
+		},
+		"forceps_grab": {
+			"animation_length": 0.5,
+			"bones": {
+				"forceps": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"left": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -35, 0]
+						},
+						"0.2917": {
+							"vector": [0, -45, 0]
+						},
+						"0.5": {
+							"vector": [0, -35, 0]
+						}
+					}
+				},
+				"right": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 35, 0]
+						},
+						"0.2917": {
+							"vector": [0, 45, 0]
+						},
+						"0.5": {
+							"vector": [0, 35, 0]
+						}
+					}
+				},
+				"l_tip": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 65, 0]
+						},
+						"0.5": {
+							"vector": [0, 65, 0]
+						}
+					}
+				},
+				"r_tip": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -65, 0]
+						},
+						"0.5": {
+							"vector": [0, -65, 0]
+						}
+					}
+				}
+			}
+		},
+		"forceps_idle": {
+			"loop": true,
+			"animation_length": 0.75,
+			"bones": {
+				"forceps": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.75": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"left": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -35, 0]
+						},
+						"0.2917": {
+							"vector": [0, -45, 0]
+						},
+						"0.75": {
+							"vector": [0, -35, 0]
+						}
+					}
+				},
+				"right": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 35, 0]
+						},
+						"0.2917": {
+							"vector": [0, 45, 0]
+						},
+						"0.75": {
+							"vector": [0, 35, 0]
+						}
+					}
+				},
+				"l_tip": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 65, 0]
+						},
+						"0.75": {
+							"vector": [0, 65, 0]
+						}
+					}
+				},
+				"r_tip": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -65, 0]
+						},
+						"0.5": {
+							"vector": [0, -65, 0]
+						}
+					}
+				}
+			}
+		},
+		"scalpel_deploy": {
+			"animation_length": 1,
+			"bones": {
+				"sleeve": {
+					"position": {
+						"vector": [0, 0, 0]
+					}
+				},
+				"scalpel": {
+					"position": {
+						"vector": [0, 0, 8]
+					}
+				},
+				"base": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, -8]
+						}
+					}
+				},
+				"mount": {
+					"position": {
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, -8]
+						}
+					}
+				},
+				"blade": {
+					"position": {
+						"0.5": {
+							"vector": [0, 0, 0]
+						},
+						"1.0": {
+							"vector": [0, 0, -8],
+							"easing": "easeInOutCubic"
+						}
+					}
+				}
+			}
+		},
+		"scalpel_retract": {
+			"animation_length": 1,
+			"bones": {
+				"scalpel": {
+					"position": {
+						"vector": [0, 0, 0]
+					}
+				},
+				"base": {
+					"position": {
+						"0.7917": {
+							"vector": [0, 0, 0]
+						},
+						"1.0": {
+							"vector": [0, 0, 1]
+						}
+					}
+				},
+				"mount": {
+					"position": {
+						"0.5": {
+							"vector": [0, 0, 0]
+						},
+						"0.7917": {
+							"vector": [0, 0, 2]
+						},
+						"1.0": {
+							"vector": [0, 0, 2]
+						}
+					}
+				},
+				"blade": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 8]
+						}
+					}
+				}
+			}
+		},
+		"scalpel_cut": {
+			"animation_length": 0.5417,
+			"bones": {
+				"blade": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.2917": {
+							"vector": [0, 0, 1]
+						},
+						"0.5417": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
+		},
+		"syringe_deploy": {
+			"animation_length": 0.5,
+			"bones": {
+				"syringe": {
+					"position": {
+						"vector": [0, 0, 8]
+					}
+				},
+				"sy_base": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, -8]
+						}
+					}
+				},
+				"sy_needle": {
+					"position": {
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, -8]
+						}
+					}
+				}
+			}
+		},
+		"syringe_retract": {
+			"animation_length": 0.5,
+			"bones": {
+				"syringe": {
+					"position": {
+						"vector": [0, 0, 0]
+					}
+				},
+				"sy_base": {
+					"position": {
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 2]
+						}
+					}
+				},
+				"sy_needle": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 8]
+						}
+					}
+				}
+			}
+		},
+		"syringe_inject": {
+			"animation_length": 0.5,
+			"bones": {
+				"sy_needle": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 1]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
+		},
+		"suture_deploy": {
+			"animation_length": 0.5,
+			"bones": {
+				"suture": {
+					"position": {
+						"vector": [0, 0, 8]
+					}
+				},
+				"su_mount": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, -8]
+						}
+					}
+				},
+				"su_needle": {
+					"position": {
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, -8]
+						}
+					}
+				}
+			}
+		},
+		"suture_retract": {
+			"animation_length": 0.5,
+			"bones": {
+				"suture": {
+					"position": {
+						"vector": [0, 0, 0]
+					}
+				},
+				"su_mount": {
+					"position": {
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 1]
+						}
+					}
+				},
+				"su_needle": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 8]
+						}
+					}
+				}
+			}
+		},
+		"suture_sow": {
+			"animation_length": 0.5,
+			"bones": {
+				"su_needle": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.125": {
+							"vector": [7.5, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.375": {
+							"vector": [-7.5, 0, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.125": {
+							"vector": [0, 0, 1]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						},
+						"0.375": {
+							"vector": [0, 0, 1]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
+		}
+	}
+}
