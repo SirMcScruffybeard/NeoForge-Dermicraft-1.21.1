@@ -987,9 +987,10 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
     ////////////////////Tooltip\\\\\\\\\\\\\\\\\\\\
 
     /** Same shape as {@code SunderItem#appendHoverText} -- fuel and head durability always show (no
-     * shift-gate, both are "can I keep using this right now" reads); computed damage and mining tier
-     * are shift-gated (no per-head *special* stat exists yet beyond these two, see the design
-     * notes). */
+     * shift-gate, both are "can I keep using this right now" reads); computed damage, mining tier,
+     * mining speed, and whichever signature trait(s) the mounted head actually has (loot bonus,
+     * ignite, auto-smelt, XP bonus) are shift-gated. Mirrors {@code ShatterHeadItem}'s own standalone
+     * tooltip. */
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, java.util.List<net.minecraft.network.chat.Component> tooltip, net.minecraft.world.item.TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltip, tooltipFlag);
@@ -1020,11 +1021,35 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
         float damageShift = head != null ? head.damageShift() : NO_HEAD_DAMAGE_PENALTY;
         boolean multiplied = head == null; // no-head penalty is ADD_MULTIPLIED_BASE, a head's own shift is ADD_VALUE
         float effectiveDamage = multiplied ? BASE_ATTACK_DAMAGE * (1.0F + damageShift) : BASE_ATTACK_DAMAGE + damageShift;
+        net.minecraft.ChatFormatting damageColor = damageShift > 0 ? net.minecraft.ChatFormatting.GREEN
+                : damageShift < 0 ? net.minecraft.ChatFormatting.RED : net.minecraft.ChatFormatting.GRAY;
         tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.shatter.damage",
-                String.format("%.1f", effectiveDamage)).withStyle(net.minecraft.ChatFormatting.GRAY));
+                String.format("%.1f", effectiveDamage)).withStyle(damageColor));
 
         tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.shatter.mining_tier",
                 head != null ? head.miningTier() : NO_HEAD_MINING_TIER).withStyle(net.minecraft.ChatFormatting.GRAY));
+        tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.shatter_head.mining_speed",
+                String.format("%.1f", head != null ? head.miningSpeed() : 1.0F)).withStyle(net.minecraft.ChatFormatting.GRAY));
+
+        // Gold, not gray -- these only ever show up conditionally (the mounted head actually has the
+        // trait), so the color itself flags "this is the special thing about this material" at a
+        // glance, distinct from the baseline stats above.
+        if (head != null && head.lootBonusChance() > 0.0f) {
+            tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.shatter_head.loot_bonus",
+                    Math.round(head.lootBonusChance() * 100)).withStyle(net.minecraft.ChatFormatting.GOLD));
+        }
+        if (head != null && head.igniteChance() > 0.0f) {
+            tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.shatter_head.ignite",
+                    Math.round(head.igniteChance() * 100), head.igniteFireSeconds()).withStyle(net.minecraft.ChatFormatting.GOLD));
+        }
+        if (head != null && head.autoSmelt()) {
+            tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.shatter_head.auto_smelt")
+                    .withStyle(net.minecraft.ChatFormatting.GOLD));
+        }
+        if (head != null && head.xpBonusChance() > 0.0f) {
+            tooltip.add(net.minecraft.network.chat.Component.translatable("tooltip.dermicraft.shatter_head.xp_bonus",
+                    Math.round(head.xpBonusChance() * 100), String.format("%.0f", head.xpBonusAmount())).withStyle(net.minecraft.ChatFormatting.GOLD));
+        }
     }
 
     ////////////////////Animation\\\\\\\\\\\\\\\\\\\\

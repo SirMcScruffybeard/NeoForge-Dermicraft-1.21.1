@@ -1100,15 +1100,34 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         ChainProperties chain = chainProperties(stack);
         float damageShift = chain == null ? NO_CHAIN_DAMAGE_PENALTY : chain.damageMultiplier() - 1.0F;
         float effectiveDamage = BASE_ATTACK_DAMAGE * (1.0F + damageShift);
+        ChatFormatting damageColor = damageShift > 0 ? ChatFormatting.GREEN
+                : damageShift < 0 ? ChatFormatting.RED : ChatFormatting.GRAY;
         tooltip.add(Component.translatable("tooltip.dermicraft.sunder.damage", String.format("%.2f", effectiveDamage))
-                .withStyle(ChatFormatting.GRAY));
+                .withStyle(damageColor));
         tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.bleed_chance",
                 Math.round((chain == null ? 0.0F : chain.bleedChance()) * 100)).withStyle(ChatFormatting.GRAY));
         tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.decap_chance",
                 Math.round((chain == null ? 0.0F : chain.decapChance()) * 100)).withStyle(ChatFormatting.GRAY));
+        tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.mining_speed",
+                String.format("%.1f", chain == null ? 1.0F : chain.miningSpeed())).withStyle(ChatFormatting.GRAY));
+
+        // Gold, not gray -- these only ever show up conditionally (the mounted chain actually has
+        // the trait), so the color itself flags "this is the special thing about this material" at
+        // a glance, distinct from the baseline stats above.
         if (chain != null && chain.lootBonusChance() > 0.0F) {
             tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.loot_bonus",
-                    Math.round(chain.lootBonusChance() * 100)).withStyle(ChatFormatting.GRAY));
+                    Math.round(chain.lootBonusChance() * 100)).withStyle(ChatFormatting.GOLD));
+        }
+        if (chain != null && chain.igniteChance() > 0.0F) {
+            tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.ignite",
+                    Math.round(chain.igniteChance() * 100), chain.igniteFireSeconds()).withStyle(ChatFormatting.GOLD));
+        }
+        if (chain != null && chain.smeltsLogs()) {
+            tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.smelts_logs").withStyle(ChatFormatting.GOLD));
+        }
+        if (chain != null && chain.xpBonusChance() > 0.0F) {
+            tooltip.add(Component.translatable("tooltip.dermicraft.sunder_chain.xp_bonus",
+                    Math.round(chain.xpBonusChance() * 100), String.format("%.0f", chain.xpBonusAmount())).withStyle(ChatFormatting.GOLD));
         }
     }
 
