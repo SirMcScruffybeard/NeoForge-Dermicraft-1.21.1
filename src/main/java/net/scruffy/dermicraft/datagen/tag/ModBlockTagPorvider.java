@@ -114,6 +114,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(Blocks.TUFF)
                 .add(Blocks.CALCITE)
                 .add(Blocks.OBSIDIAN)
+                .add(Blocks.POINTED_DRIPSTONE)
                 .addTag(BlockTags.COAL_ORES)
                 .addTag(BlockTags.COPPER_ORES)
                 .addTag(BlockTags.IRON_ORES)
