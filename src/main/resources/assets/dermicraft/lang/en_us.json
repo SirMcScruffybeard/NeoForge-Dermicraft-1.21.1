@@ -211,6 +211,47 @@
   "fluid_type.dermicraft.ender_essence_fluid": "Ender Essence",
   "fluid_type.dermicraft.molten_soul_silica_fluid": "Molten Soul Silica",
 
+  "block.dermicraft.calcium_blend_block": "Calcium Blend",
+  "block.dermicraft.carbon_blend_block": "Carbon Blend",
+  "block.dermicraft.protein_blend_block": "Protein Blend",
+  "block.dermicraft.f_stuff_block": "F-Stuff",
+  "block.dermicraft.c_stuff_block": "C-Stuff",
+
+  "block.dermicraft.crude_slurry_block": "Crude Slurry",
+  "block.dermicraft.concentrated_slurry_block": "Concentrated Slurry",
+
+  "block.dermicraft.primitive_catalyst_block": "Primitive Catalyst",
+  "block.dermicraft.reinforcing_catalyst_block": "Reinforcing Catalyst",
+  "block.dermicraft.synapse_catalyst_block": "Synapse Catalyst",
+  "block.dermicraft.knowledge_essence_block": "Knowledge Essence",
+  "block.dermicraft.kinetic_catalyst_block": "Kinetic Catalyst",
+  "block.dermicraft.evolution_catalyst_block": "Evolution Catalyst",
+
+  "block.dermicraft.stone_blend_block": "Stone Blend",
+  "block.dermicraft.silica_blend_block": "Silica Blend",
+  "block.dermicraft.clay_blend_block": "Clay Blend",
+
+  "block.dermicraft.ferrous_blend_block": "Ferrous Blend",
+  "block.dermicraft.cuprous_blend_block": "Cuprous Blend",
+  "block.dermicraft.aurous_blend_block": "Aurous Blend",
+
+  "block.dermicraft.pulp_blend_block": "Pulp Blend",
+
+  "block.dermicraft.molten_redstone_block": "Molten Redstone",
+  "block.dermicraft.molten_quartz_block": "Molten Quartz",
+  "block.dermicraft.molten_glowstone_block": "Molten Glowstone",
+  "block.dermicraft.molten_amethyst_block": "Molten Amethyst",
+  "block.dermicraft.molten_diamond_block": "Molten Diamond",
+  "block.dermicraft.molten_emerald_block": "Molten Emerald",
+  "block.dermicraft.molten_lapis_block": "Molten Lapis",
+  "block.dermicraft.molten_raw_netherite_scrap_block": "Molten Raw Netherite Scrap",
+  "block.dermicraft.molten_netherite_block": "Molten Netherite",
+  "block.dermicraft.blaze_essence_block": "Blaze Essence",
+  "block.dermicraft.ghast_essence_block": "Ghast Essence",
+  "block.dermicraft.wither_essence_block": "Wither Essence",
+  "block.dermicraft.ender_essence_block": "Ender Essence",
+  "block.dermicraft.molten_soul_silica_block": "Molten Soul Silica",
+
   "block.dermicraft.inert_tumor": "Inert Tumor",
   "block.dermicraft.charred_tumor": "Charred Tumor",
   "block.dermicraft.hot_bone": "Hot Bone",
