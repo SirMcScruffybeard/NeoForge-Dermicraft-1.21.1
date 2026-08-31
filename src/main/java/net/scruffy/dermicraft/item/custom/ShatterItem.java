@@ -1069,6 +1069,20 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
                      THIRD_PERSON_RIGHT_HAND, THIRD_PERSON_LEFT_HAND -> true;
                 default -> false;
             };
+
+            // Bug fix (same shape as SunderItem's own "saw" trigger fix -- see its comment): if the
+            // player switches away from Shatter (or drops it) while the one-shot "release"/"attack"
+            // trigger below is still mid-play, this controller stops ticking that stack entirely, so
+            // GeckoLib's own bookkeeping never gets a chance to let the trigger finish naturally --
+            // it stays marked in-flight indefinitely. Switching back later then shows the model
+            // frozen on whatever frame the trigger was on, since GeckoLib holds a controller on an
+            // in-flight triggeredAnim regardless of what this predicate returns. Force it off the
+            // instant we know this stack isn't actually held/rendered right now, rather than trusting
+            // it to time out on its own.
+            if (!heldInHand && state.getController().isPlayingTriggeredAnimation()) {
+                state.getController().stop();
+            }
+
             if (!heldInHand) return software.bernie.geckolib.animation.PlayState.STOP;
 
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
