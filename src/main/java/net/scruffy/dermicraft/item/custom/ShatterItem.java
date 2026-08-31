@@ -290,7 +290,9 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
         boolean fired;
         if (target != null && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             payForAttack(stack, player);
-            wearHead(stack, HEAD_WEAR_PER_ATTACK);
+            // No explicit wearHead here -- the burst's own delayed target.hurt() call (see
+            // scheduleMobBurst/its consumer) fires a real LivingDamageEvent.Post that
+            // ShatterEvents#onCombatWear already handles, same as any ordinary swing.
             scheduleMobBurst(stack, serverLevel, player, target);
             fired = true;
         } else if (target == null && hasMountedHead(stack) && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
@@ -504,8 +506,12 @@ public class ShatterItem extends Item implements GeoItem, IGadget, IWorkbenchSwa
      * own wear, and duplicating the number there would risk the two drifting apart. */
     public static final int HEAD_WEAR_PER_BLOCK = 1;
 
-    /** Same placeholder magnitude, worn once per fired charge attack -- see {@link #release}. */
-    private static final int HEAD_WEAR_PER_ATTACK = 1;
+    /** Same placeholder magnitude, worn once per combat hit -- both an ordinary melee swing and the
+     * charge-release special's delayed burst impact land as a real {@code LivingDamageEvent.Post}
+     * with Shatter as the weapon, so a single hook ({@code ShatterEvents#onCombatWear}) covers both
+     * uniformly; there's no separate explicit wear call in {@link #release} for the burst. Public,
+     * not private, for that same cross-class reason {@link #HEAD_WEAR_PER_BLOCK} already is. */
+    public static final int HEAD_WEAR_PER_ATTACK = 1;
 
     /** Wears the mounted head by {@code amount} -- breaking outright (lost, not materialized) if
      * this pushes it to its max damage, same "the part disappears off the model" convention Sunder's

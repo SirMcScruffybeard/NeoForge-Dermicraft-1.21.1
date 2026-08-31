@@ -126,12 +126,24 @@ public class ShatterEvents {
 
         BlockPos origin = event.getPos();
         Direction.Axis axis = faceStruck(player, level, origin).getAxis();
+        float originHardness = event.getState().getDestroySpeed(level, origin);
 
         for (BlockPos pos : facePositions(origin, axis)) {
             BlockState state = level.getBlockState(pos);
             if (state.isAir()) continue;
-            if (state.getDestroySpeed(level, pos) < 0) continue; // unbreakable (bedrock, etc.)
+            float hardness = state.getDestroySpeed(level, pos);
+            if (hardness < 0) continue; // unbreakable (bedrock, etc.)
             if (!state.getFluidState().isEmpty()) continue; // leave fluid blocks (source or flowing) alone
+
+            // Anything tougher than the block actually struck stays standing -- the AoE only ever
+            // sweeps up material at or below the target's own hardness, so swinging at dirt next to
+            // an obsidian vein (or a diamond ore, etc.) doesn't vaporize the hard block for free.
+            // Deliberately compares against the ORIGIN block's own hardness, not a fixed threshold,
+            // so this scales naturally with whatever the player is actually mining -- chosen over
+            // having the whole AoE (including the origin block) wait on the hardest qualifying
+            // block's own break time instead, which would also slow down mining anything merely
+            // adjacent to a hard block, not just protect the hard block itself.
+            if (hardness > originHardness) continue;
 
             // Below the mounted head's tier -- left completely untouched, not swept into the AoE at
             // all (see the class javadoc). Only the struck block itself ever gets vanilla's own
@@ -248,6 +260,23 @@ public class ShatterEvents {
         if (level.getRandom().nextFloat() < head.xpBonusChance()) {
             AutoSmeltUtil.awardExperience(level, event.getPos(), head.xpBonusAmount());
         }
+    }
+
+    /**
+     * Wears the mounted head on every combat hit that actually lands -- an ordinary melee swing AND
+     * the charge-release special's delayed burst impact both flow through this same event (the
+     * burst's own {@code target.hurt(player.damageSources().playerAttack(player), ...)} call is
+     * indistinguishable from a normal swing at the event level), so one hook covers both instead of
+     * the special needing its own explicit {@code wearHead} call -- see {@code ShatterItem#release}'s
+     * own comment. Mining wear ({@code HEAD_WEAR_PER_BLOCK}) is entirely separate and unaffected.
+     */
+    @SubscribeEvent
+    public static void onCombatWear(LivingDamageEvent.Post event) {
+        ItemStack weapon = event.getSource().getWeaponItem();
+        if (weapon == null || !(weapon.getItem() instanceof ShatterItem)) return;
+        if (event.getNewDamage() <= 0) return;
+
+        ShatterItem.wearHead(weapon, ShatterItem.HEAD_WEAR_PER_ATTACK);
     }
 
     /**
