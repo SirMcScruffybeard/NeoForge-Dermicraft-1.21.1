@@ -1362,6 +1362,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "mutating_muscle_tumor", ModItems.DENSE_MUSCLE.get(),
                 ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, ModBlocks.MUSCLE_TUMOR.asItem(), solidTicks);
 
+        // Skeleton Skull -> Zombie Head: grows flesh over bone with a full bucket of Protein Blend.
+        // Deliberately cheap -- with Sunder's own decapitation farming, either head is easy to come
+        // by, so this reads as a convenience trade between two equally-farmable heads, not a source
+        // of otherwise-scarce Zombie Heads.
+        RecipeBuilders.mutate(recipeOutput, "mutating_zombie_head_from_skeleton_skull", Items.SKELETON_SKULL,
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, Items.ZOMBIE_HEAD, solidTicks);
+
         // Stitched Tumor - Mutator route: Marred Tumor + Protein Blend, priced at String's own
         // Metastasizer cost (100 mB, see metastasizing_string above) since it's the "stitching it back
         // together" step -- same fleshy-fix-up cost as a single strand of thread.
@@ -1650,6 +1657,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
         RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_stick", Items.STICK, 125,
                 ModFluids.SOURCE_PULP_BLEND.get(), 125, halfPlankTicks);
+        // Bow -- 3 Sticks' worth (3 x 125 mB), same per-stick rate as recycling a Stick directly.
+        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_bow", Items.BOW, 375,
+                ModFluids.SOURCE_PULP_BLEND.get(), 375, stairsTicks);
         // Pressure Plate (2 Planks -> 1) and Button (1 Plank -> 1), same real-vanilla-ratio
         // derivation as the rest of this family -- Pressure Plate costs Door's own 500 mB/100
         // ticks (also a 2-Plank item), Button costs Planks' own 250 mB/50 ticks exactly (it's
@@ -1815,6 +1825,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "molten_amethyst_masticating_block",
                 Ingredient.of(Items.AMETHYST_BLOCK), 1, Fluids.LAVA, 4000,
                 ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 4000, -1, ModMath.Time.getSecondsToTicks(60));
+
+        // Molten Quartz -> Molten Amethyst: a real conversion route past needing to find a geode,
+        // deliberately NOT cheap -- Evolution Catalyst (the mod's own "spend real progression
+        // currency to jump a rarity tier" reagent, same role it plays in evolution_catalyst_effluencing)
+        // pays for the rarity gap instead of a steep raw ratio. Flat bucket-for-bucket (1000 mB each
+        // way), same 45s as Evolution Catalyst's own production.
+        RecipeBuilders.buildEffluencing(recipeOutput, "molten_amethyst_effluencing",
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000, ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000,
+                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 1000, ModMath.Time.getSecondsToTicks(45));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating",
                 Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, 1000,

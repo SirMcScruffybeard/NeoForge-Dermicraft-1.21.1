@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_molten_quartz",
+  "fluid_a_amount": 1000,
+  "fluid_b": "dermicraft:source_evolution_catalyst",
+  "fluid_b_amount": 1000,
+  "result_fluid": "dermicraft:source_molten_amethyst",
+  "result_fluid_amount": 1000,
+  "ticks": 900
+}
