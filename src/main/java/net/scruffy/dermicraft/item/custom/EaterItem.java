@@ -46,6 +46,7 @@ import net.scruffy.dermicraft.interfaces.IHaveItemData;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
+import net.scruffy.dermicraft.util.ModFluidUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -619,7 +620,8 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
         // shared Aggregate shovel stand-in, so it mines as if the correct tool were actually used.
         boolean netherrackTarget = !beamTarget && state.is(net.minecraft.world.level.block.Blocks.NETHERRACK);
 
-        int fuelCost = beamTarget ? BEAM_FUEL_PER_STEP : AGGREGATE_FUEL_PER_STEP;
+        int baseFuelCost = beamTarget ? BEAM_FUEL_PER_STEP : AGGREGATE_FUEL_PER_STEP;
+        int fuelCost = fuelCost(stack, baseFuelCost);
         IFluidHandlerItem fuelHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
         FluidStack simulatedFuel = fuelHandler != null
                 ? fuelHandler.drain(fuelCost, IFluidHandler.FluidAction.SIMULATE) : FluidStack.EMPTY;
@@ -632,7 +634,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
         ItemStack minimumTool = beamTarget ? minimumToolFor(state)
                 : netherrackTarget ? BEAM_SPEED_TOOL_STAND_IN : ItemStack.EMPTY;
         ItemStack speedTool = beamTarget || netherrackTarget ? BEAM_SPEED_TOOL_STAND_IN : AGGREGATE_SPEED_TOOL_STAND_IN;
-        float increment = progressPerStep(state, level, pos, speedTool);
+        float increment = progressPerStep(state, level, pos, speedTool) * speedRatio(stack);
 
         AggregateProgress existing = AGGREGATE_PROGRESS.get(player.getUUID());
         float progress = (existing != null && existing.pos().equals(pos) ? existing.progress() : 0F) + increment;
@@ -677,6 +679,35 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
         boolean correctTool = !state.requiresCorrectToolForDrops() || speedTool.isCorrectToolForDrops(state);
         float perTick = speed / hardness / (correctTool ? 30F : 100F);
         return perTick * AGGREGATE_STEP_TICKS;
+    }
+
+    /** Fuel grade's speed value relative to Crude's own -- same shape and same Crude baseline as
+     * {@code ShatterItem#speedRatio}/{@code SunderItem#speedRatio}, via the shared
+     * {@link ModFluidUtil#getSpeed} accessor. 1.0 at Crude itself; empty/unrecognized fuel also
+     * falls back to 1.0. Scales {@link #progressPerStep}'s own increment in {@link #aggregateTick} --
+     * step cadence itself stays fixed; a better fuel mines more of the block per step instead of
+     * stepping faster. */
+    private float speedRatio(ItemStack stack) {
+        FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+        float crudeSpeed = ModFluidUtil.getSpeed(new FluidStack(net.scruffy.dermicraft.fluid.ModFluids.SOURCE_CRUDE_SLURRY.get(), 1));
+        if (data.isFluidEmpty() || crudeSpeed <= 0.0F) return 1.0F;
+
+        float fuelSpeed = ModFluidUtil.getSpeed(data.getFluidStack());
+        return fuelSpeed / crudeSpeed;
+    }
+
+    /** Fuel grade's use-rate applied to a flat base cost -- same shape as {@code SunderItem}'s own
+     * {@code fuelCost} helper. Crude's own use rate is exactly 1.0 (see the BIOFUELS data map), so
+     * this is a no-op at the baseline every existing per-step cost was already tuned around; a lower
+     * use-rate (more fuel-efficient) fluid costs less than the flat number, a higher one costs more.
+     * Rounded, floored at 1 mB so a very efficient fuel can never make a step free. Empty/
+     * unrecognized fuel falls back to the flat {@code baseCost} unscaled. */
+    private int fuelCost(ItemStack stack, int baseCost) {
+        FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+        if (data.isFluidEmpty()) return baseCost;
+
+        float useRate = ModFluidUtil.getUseRate(data.getFluidStack());
+        return Math.max(1, Math.round(useRate * baseCost));
     }
 
     /** Clears this player's mining progress and the crack overlay it was driving -- called both on

@@ -63,6 +63,7 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
 import net.scruffy.dermicraft.util.AutoSmeltUtil;
+import net.scruffy.dermicraft.util.ModFluidUtil;
 import java.util.Optional;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -523,7 +524,7 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
             return;
         }
 
-        target.hurt(player.damageSources().playerAttack(player), SAW_PULSE_DAMAGE);
+        target.hurt(player.damageSources().playerAttack(player), SAW_PULSE_DAMAGE * speedRatio(stack));
         // Blaze Essence's ignite-on-hit trait -- guaranteed every pulse while sawing (not a chance
         // roll like the standard-hit version in hurtEnemy), which is also what gives "burns through
         // the whole attack plus igniteFireSeconds after it ends" for free -- see ChainProperties'
@@ -630,26 +631,27 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         return found;
     }
 
-    /** Pulses needed to fully cut through one log -- derived from {@link #TREE_LOG_HEALTH_COST}
-     * against the shared {@link #SAW_PULSE_DAMAGE} rather than a second independent number, so the
-     * two stay in sync automatically if either is retuned. */
-    private static final int TREE_PULSES_PER_LOG = Math.round(TREE_LOG_HEALTH_COST / SAW_PULSE_DAMAGE);
-
     /**
      * Tree-felling's counterpart to {@code tickSawing} -- same pulse cadence, resource draw, and
      * chain wear (no separate tree-specific numbers there), just no position lock (a tree doesn't
      * move). No mob time cap either -- trees have none, the fuel/hunger budget is the only limiter
      * (see the design notes).
      *
-     * <p>Logs are consumed as cutting happens, not all at once at the end -- every {@link
-     * #TREE_PULSES_PER_LOG}th pulse finishes cutting through the current top-most remaining log
-     * (see {@code floodFillLogs}' top-down sort), which breaks immediately and drops at the player's
-     * feet right then, same tree-feller-mod feedback loop rather than a silent damage counter with
-     * nothing to show for it until the very end. This also means there's no separate "partial
-     * harvest on interruption" case to handle -- whatever's already been cut is already in the
-     * player's hands the moment SAWING stops for any reason (release, knockback, resources
-     * exhausted, or the origin log itself gone -- {@code floodFillLogs} returning empty covers that
-     * last one for free); nothing further needs doing on exit beyond the normal state transition.
+     * <p>Logs are consumed as cutting happens, not all at once at the end -- how many finish cutting
+     * on a given pulse is derived from cumulative damage dealt so far ({@code pulsesLanded *
+     * SAW_PULSE_DAMAGE * speedRatio}) against {@link #TREE_LOG_HEALTH_COST}, comparing this pulse's
+     * total to the previous pulse's rather than storing a running counter anywhere -- this assumes
+     * the mounted fuel's grade doesn't change mid-cut, the same assumption {@link #payForPulse}'s own
+     * flat per-pulse cost already makes. A fuel strong enough to deal more than one log's worth of
+     * damage in a single pulse fells more than one log that same pulse (see the loop below) rather
+     * than capping at one regardless of overkill. Each felled log breaks immediately and drops at the
+     * player's feet right then (see {@code floodFillLogs}' top-down sort for which log goes first),
+     * same tree-feller-mod feedback loop rather than a silent damage counter with nothing to show for
+     * it until the very end. This also means there's no separate "partial harvest on interruption"
+     * case to handle -- whatever's already been cut is already in the player's hands the moment
+     * SAWING stops for any reason (release, knockback, resources exhausted, or the origin log itself
+     * gone -- {@code floodFillLogs} returning empty covers that last one for free); nothing further
+     * needs doing on exit beyond the normal state transition.
      *
      * <p>Requires a mounted chain to even be reachable -- see the ACTIVE case's own gate -- but also
      * re-checked every tick here, not just at acquisition: if the chain breaks mid-cut (wear, same
@@ -678,27 +680,33 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         triggerAnim(player, GeoItem.getOrAssignId(stack, level), "Body", "saw");
 
         long pulsesLanded = elapsed / SAW_PULSE_COOLDOWN_TICKS + 1;
-        if (pulsesLanded % TREE_PULSES_PER_LOG != 0) return; // still cutting through the current log
+        float ratio = speedRatio(stack);
+        float damagePerPulse = SAW_PULSE_DAMAGE * ratio;
+        int logsDoneNow = (int) Math.floor(pulsesLanded * damagePerPulse / TREE_LOG_HEALTH_COST);
+        int logsDonePrev = (int) Math.floor((pulsesLanded - 1) * damagePerPulse / TREE_LOG_HEALTH_COST);
+        int logsToFell = Math.min(logsDoneNow - logsDonePrev, logs.size());
 
-        BlockPos cutPos = logs.get(0);
-        ItemStack rawDrop = new ItemStack(level.getBlockState(cutPos).getBlock());
+        for (int i = 0; i < logsToFell; i++) {
+            BlockPos cutPos = logs.get(i);
+            ItemStack rawDrop = new ItemStack(level.getBlockState(cutPos).getBlock());
 
-        // Blaze Essence's other trait -- SAWING felling drops Charcoal (via a real SmeltingRecipe
-        // lookup, same as Shatter's auto-smelt) instead of the raw Log, with the recipe's own XP
-        // awarded too. Falls back to the raw log if no smelting recipe matches (shouldn't happen
-        // for a real log, but safe regardless).
-        ItemStack drop = rawDrop;
-        ChainProperties fellingChain = chainProperties(stack);
-        if (fellingChain != null && fellingChain.smeltsLogs()) {
-            Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, rawDrop);
-            if (smelted.isPresent()) {
-                drop = smelted.get().result();
-                AutoSmeltUtil.awardExperience(level, player.position(), smelted.get().experience());
+            // Blaze Essence's other trait -- SAWING felling drops Charcoal (via a real SmeltingRecipe
+            // lookup, same as Shatter's auto-smelt) instead of the raw Log, with the recipe's own XP
+            // awarded too. Falls back to the raw log if no smelting recipe matches (shouldn't happen
+            // for a real log, but safe regardless).
+            ItemStack drop = rawDrop;
+            ChainProperties fellingChain = chainProperties(stack);
+            if (fellingChain != null && fellingChain.smeltsLogs()) {
+                Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, rawDrop);
+                if (smelted.isPresent()) {
+                    drop = smelted.get().result();
+                    AutoSmeltUtil.awardExperience(level, player.position(), smelted.get().experience());
+                }
             }
-        }
 
-        level.destroyBlock(cutPos, false, player);
-        level.addFreshEntity(new ItemEntity(level, player.getX(), player.getY(), player.getZ(), drop));
+            level.destroyBlock(cutPos, false, player);
+            level.addFreshEntity(new ItemEntity(level, player.getX(), player.getY(), player.getZ(), drop));
+        }
         // If that was the last log, next tick's flood-fill from the (now-gone) origin comes back
         // empty and the early-return above ends SAWING cleanly -- no separate "tree complete" branch
         // needed.
@@ -746,13 +754,16 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
 
     /** Fuel-then-hunger as a clean switchover, not a blend -- a pulse's full cost comes from fuel if
      * there's enough, otherwise the whole cost shifts to hunger instead. Returns false (pulse can't
-     * be paid for at all) only once both are insufficient. */
+     * be paid for at all) only once both are insufficient. The fuel side of the cost is scaled by
+     * {@link #fuelCost} -- the hunger fallback stays flat at {@link #SAW_HUNGER_PER_PULSE}
+     * regardless, since use-rate is a property of the fuel, meaningless once there's none left. */
     private boolean payForPulse(ItemStack stack, Player player) {
         IFluidHandlerItem fuelHandler = stack.getCapability(Capabilities.FluidHandler.ITEM, null);
         if (fuelHandler != null) {
-            FluidStack simulated = fuelHandler.drain(SAW_FUEL_PER_PULSE, IFluidHandler.FluidAction.SIMULATE);
-            if (simulated.getAmount() >= SAW_FUEL_PER_PULSE) {
-                fuelHandler.drain(SAW_FUEL_PER_PULSE, IFluidHandler.FluidAction.EXECUTE);
+            int cost = fuelCost(stack, SAW_FUEL_PER_PULSE);
+            FluidStack simulated = fuelHandler.drain(cost, IFluidHandler.FluidAction.SIMULATE);
+            if (simulated.getAmount() >= cost) {
+                fuelHandler.drain(cost, IFluidHandler.FluidAction.EXECUTE);
                 return true;
             }
         }
@@ -761,6 +772,38 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         if (food.getFoodLevel() < SAW_HUNGER_PER_PULSE) return false;
         food.setFoodLevel(food.getFoodLevel() - SAW_HUNGER_PER_PULSE);
         return true;
+    }
+
+    /** Fuel grade's use-rate applied to a flat base cost -- Crude's own use rate is exactly 1.0 (see
+     * the BIOFUELS data map), so this is a no-op at the baseline every existing cost number was
+     * already tuned around; a lower use-rate (more fuel-efficient) fluid costs less than the flat
+     * number, a higher one costs more. Rounded, floored at 1 mB so a very efficient fuel can never
+     * make an action free. Empty/unrecognized fuel falls back to the flat {@code baseCost}
+     * unscaled -- shouldn't happen here (the fuel branch above only runs with real fuel in hand),
+     * but matches every other {@code speedRatio}-style helper's "don't error on the impossible case"
+     * convention. */
+    private int fuelCost(ItemStack stack, int baseCost) {
+        FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+        if (data.isFluidEmpty()) return baseCost;
+
+        float useRate = ModFluidUtil.getUseRate(data.getFluidStack());
+        return Math.max(1, Math.round(useRate * baseCost));
+    }
+
+    /** Fuel grade's speed value relative to Crude's own -- same shape and same Crude baseline as
+     * {@code ShatterItem#speedRatio}, just going through the shared {@link ModFluidUtil#getSpeed}
+     * accessor instead of re-deriving the data-map lookup locally. 1.0 at Crude itself; empty/
+     * unrecognized fuel (shouldn't happen mid-SAWING, since starting a saw already requires fuel --
+     * see {@link #hasFuel}) also falls back to 1.0 rather than erroring. Scales {@link
+     * #SAW_PULSE_DAMAGE} directly in both {@link #tickSawing} and {@link #tickFelling} -- pulse
+     * cadence itself stays fixed; a better fuel hits harder per pulse instead of pulsing faster. */
+    private float speedRatio(ItemStack stack) {
+        FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+        float crudeSpeed = ModFluidUtil.getSpeed(new FluidStack(net.scruffy.dermicraft.fluid.ModFluids.SOURCE_CRUDE_SLURRY.get(), 1));
+        if (data.isFluidEmpty() || crudeSpeed <= 0.0F) return 1.0F;
+
+        float fuelSpeed = ModFluidUtil.getSpeed(data.getFluidStack());
+        return fuelSpeed / crudeSpeed;
     }
 
     /** Wears the mounted chain by one pulse's worth -- breaking outright (lost, not materialized)
