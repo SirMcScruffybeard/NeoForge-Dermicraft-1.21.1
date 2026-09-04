@@ -415,7 +415,8 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
      * crouch-to-insert-a-stack variant is unreachable from the block side. The Craw is bulk storage
      * (single item type, 640 capacity) rather than a precision inserter, so always taking the full
      * stack is the better default -- a player wanting to deposit less splits the stack first.
-     * Withdrawal is unaffected and still uses crouch, since an empty hand does reach the block.
+     * Withdrawal is unaffected by this and uses standing/crouch for its own separate purposes --
+     * see {@link CrawBlock#useWithoutItem}.
      */
     /** Window for the "quickly double click to vacuum" gesture -- see {@link #isDoubleClick} --
      * 6 ticks (~300ms), a standard double-click threshold. */
@@ -468,17 +469,25 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         }
     }
 
+    /** Cancels any pending delayed GUI open scheduled by {@link #schedulePendingMenuOpen} for this
+     * player -- shared by both double-click gestures below, since either one means the click that
+     * would have opened the menu got reinterpreted as the gesture's second click instead. */
+    private void cancelPendingMenuOpen(Player player) {
+        pendingMenuOpenTick.remove(player.getUUID());
+    }
+
     /**
-     * Double-click vacuum -- pulls every stack matching the Craw's currently-stored item type out
-     * of the player's main inventory (36 slots; armor/offhand not scanned) and deposits as much as
-     * fits. {@code INVENTORY.insertItem}'s existing slot-limit override (see {@link #capacity()})
-     * already caps each insertion at the Craw's remaining room, so this needs no separate capacity
-     * bookkeeping -- whichever runs out first (the player's matching stock or the Craw's remaining
-     * capacity) naturally stops it. No-op if the Craw isn't holding anything yet (nothing to match
-     * against, per the gesture's own precondition) or the player has none of it.
+     * Double-click vacuum (standing) -- pulls every stack matching the Craw's currently-stored item
+     * type out of the player's main inventory (36 slots; armor/offhand not scanned) and deposits as
+     * much as fits. {@code INVENTORY.insertItem}'s existing slot-limit override (see
+     * {@link #capacity()}) already caps each insertion at the Craw's remaining room, so this needs
+     * no separate capacity bookkeeping -- whichever runs out first (the player's matching stock or
+     * the Craw's remaining capacity) naturally stops it. No-op if the Craw isn't holding anything
+     * yet (nothing to match against, per the gesture's own precondition) or the player has none of
+     * it.
      */
     public void vacuumFromInventory(Player player) {
-        pendingMenuOpenTick.remove(player.getUUID());
+        cancelPendingMenuOpen(player);
         if (level == null || level.isClientSide) return;
         ItemStack stored = getStoredStack();
         if (stored.isEmpty()) return;
@@ -509,16 +518,28 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     }
 
     /**
-     * Withdraw from storage. Regular use pulls one item; crouch use pulls a full stack
-     * (up to the item's max stack size, or the remainder if less).
+     * Withdraw a single item from storage -- the standing single-click action.
      */
-    public ItemStack withdraw(boolean fullStack) {
+    public ItemStack withdraw() {
         ItemStack stored = getStoredStack();
         if (stored.isEmpty()) {
             return ItemStack.EMPTY;
         }
-        int amount = fullStack ? stored.getMaxStackSize() : 1;
-        return INVENTORY.extractItem(STORAGE_SLOT, amount, false);
+        return INVENTORY.extractItem(STORAGE_SLOT, 1, false);
+    }
+
+    /**
+     * Double-click withdraw (crouch) -- pulls a full stack (up to the item's max stack size, or the
+     * remainder if less) out of storage. Cancels the pending GUI open scheduled by the gesture's
+     * first click, same reasoning as {@link #vacuumFromInventory}.
+     */
+    public ItemStack withdrawStack(Player player) {
+        cancelPendingMenuOpen(player);
+        ItemStack stored = getStoredStack();
+        if (stored.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return INVENTORY.extractItem(STORAGE_SLOT, stored.getMaxStackSize(), false);
     }
 
     @Override

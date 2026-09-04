@@ -68,15 +68,25 @@ public class CrawBlock extends ModBaseEntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        // Double-click vacuum -- checked here, unconditionally, BEFORE the empty-hand branch below,
+        // Double-click gesture -- checked here, unconditionally, BEFORE the empty-hand branch below,
         // because useItemOn always runs first for every click (including an empty hand -- see that
         // branch's own comment). Registering/checking this only once per physical click is why
         // useWithoutItem does NOT also call isDoubleClick: this method's own PASS_TO_DEFAULT_BLOCK_
         // INTERACTION fallthroughs (empty hand, or a held item that doesn't deposit) reach
         // useWithoutItem in the SAME click, so a second check there would register twice per click
-        // and false-trigger the vacuum on the very first real click.
+        // and false-trigger the gesture on the very first real click.
+        // Standing double-click vacuums (deposit all matching); crouch double-click withdraws a
+        // full stack instead -- the two mirror each other's single-click counterparts (standing
+        // single = withdraw 1, crouch single = open GUI).
         if (craw.isDoubleClick(player)) {
-            craw.vacuumFromInventory(player);
+            if (player.isShiftKeyDown()) {
+                ItemStack withdrawn = craw.withdrawStack(player);
+                if (!withdrawn.isEmpty()) {
+                    player.getInventory().placeItemBackInInventory(withdrawn);
+                }
+            } else {
+                craw.vacuumFromInventory(player);
+            }
             return ItemInteractionResult.SUCCESS;
         }
 
@@ -129,11 +139,11 @@ public class CrawBlock extends ModBaseEntityBlock {
         }
     }
 
-    // Crouch withdraws a full stack, unchanged. A plain (non-crouch) click used to withdraw a
-    // single item; it now opens the GUI instead -- matches every other machine's own "empty hand
-    // (or a held item useItemOn didn't claim) opens the GUI" convention. Also reached whenever
-    // useItemOn falls through with a non-empty invalid item (wrong type, or Craw locked to a
-    // different item), same as Masticator/Effluentcer/Mutator's identical fall-through shape.
+    // Standing withdraws a single item, immediately -- no GUI involved, so no double-click-
+    // reachability problem. Crouch opens the GUI instead (bulk withdrawal happens via shift-click
+    // inside the GUI, same as any other container). Also reached whenever useItemOn falls through
+    // with a non-empty invalid item (wrong type, or Craw locked to a different item), same as
+    // Masticator/Effluentcer/Mutator's identical fall-through shape.
     // Double-click vacuum is NOT checked here -- useItemOn already checked it once for this same
     // click before falling through (see that method's own comment); checking it again here would
     // register the same physical click twice and false-trigger on the very first click.
@@ -141,17 +151,15 @@ public class CrawBlock extends ModBaseEntityBlock {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (!level.isClientSide && level.getBlockEntity(pos) instanceof CrawBlockEntity craw) {
             if (player.isShiftKeyDown()) {
-                // No GUI involved, so no double-click-reachability problem -- withdraws immediately,
-                // same as always.
-                ItemStack withdrawn = craw.withdraw(true);
-                if (!withdrawn.isEmpty()) {
-                    player.getInventory().placeItemBackInInventory(withdrawn);
-                }
-            } else {
                 // Delayed, not immediate -- see CrawBlockEntity#schedulePendingMenuOpen's own
                 // javadoc for why opening right here would make the empty-hand double-click
                 // unreachable (an open container screen swallows the second click).
                 craw.schedulePendingMenuOpen(player);
+            } else {
+                ItemStack withdrawn = craw.withdraw();
+                if (!withdrawn.isEmpty()) {
+                    player.getInventory().placeItemBackInInventory(withdrawn);
+                }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
