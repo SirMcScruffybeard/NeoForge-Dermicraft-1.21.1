@@ -1,10 +1,10 @@
 {
   "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_stone_blend",
-  "fluid_amount": 1000,
+  "fluid_amount": 900,
   "result": {
     "count": 1,
-    "id": "minecraft:stone"
+    "id": "minecraft:cobblestone"
   },
-  "ticks": 200
+  "ticks": 160
 }

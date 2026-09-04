@@ -2078,7 +2078,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
-        RecipeBuilders.render(recipeOutput, "render_kiln_stone", ModFluids.SOURCE_STONE_BLEND.get(), 1000, Items.STONE, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_cobblestone", ModFluids.SOURCE_STONE_BLEND.get(), 900, Items.COBBLESTONE, cobbleTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_sand", ModFluids.SOURCE_SILICA_BLEND.get(), 750, Items.SAND, aggregateTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_clay_ball", ModFluids.SOURCE_CLAY_BLEND.get(), 250, Items.CLAY_BALL, lightTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_iron_ingot", ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, Items.IRON_INGOT, solidTicks);
