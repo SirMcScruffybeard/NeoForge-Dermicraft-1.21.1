@@ -159,6 +159,17 @@ public class DermicraftClient {
             }
         }, net.scruffy.dermicraft.item.ModItems.SIPPING.get());
 
+        // Bare stand-up renderer only -- see AidItem's class javadoc. No mode/animation logic yet.
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private final net.scruffy.dermicraft.item.custom.AidItemRenderer renderer =
+                    new net.scruffy.dermicraft.item.custom.AidItemRenderer();
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return renderer;
+            }
+        }, net.scruffy.dermicraft.item.ModItems.AID.get());
+
         // Not an inline anonymous class like the others -- DRINKER also overrides the hand
         // transform to stay still while siphoning. See DrinkerClientExtensions.
         event.registerItem(new net.scruffy.dermicraft.item.custom.DrinkerClientExtensions(),
@@ -258,6 +269,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.RENDER_KILN_MENU.get(), RenderKilnScreen::new);
         event.register(ModMenuTypes.CHARRED_RENDER_KILN_MENU.get(), CharredRenderKilnScreen::new);
         event.register(ModMenuTypes.SCRENCH_MENU.get(), net.scruffy.dermicraft.screen.custom.scrench.ScrenchScreen::new);
+        event.register(ModMenuTypes.AID_MENU.get(), net.scruffy.dermicraft.screen.custom.aid.AidScreen::new);
         event.register(ModMenuTypes.WORKBENCH_MENU.get(), net.scruffy.dermicraft.screen.custom.workbench.WorkbenchScreen::new);
     }
 

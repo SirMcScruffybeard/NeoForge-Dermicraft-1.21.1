@@ -280,6 +280,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_flint",
                 Ingredient.of(Items.FLINT), Ingredient.of(ItemTags.WOOL),
                 new ItemStack(Items.STRING, 4), 0, true);
+        // A.I.D., in Scalpel mode -- see AidItem's useScalpel/HandShreddingEvent's mode gate. 0
+        // tool damage like the iron Scalpel: A.I.D.'s durability is Gadget HP, not per-use wear.
+        RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_aid",
+                Ingredient.of(ModItems.AID.get()), Ingredient.of(ItemTags.WOOL),
+                new ItemStack(Items.STRING, 4), 0, false);
 
         // Carved Pumpkin -- same 3-tool roster as Wool->String above, Shears matching its real
         // vanilla carving-tool role (1 durability, same as vanilla's own shears-on-pumpkin
@@ -293,6 +298,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_primitive_scalpel",
                 Ingredient.of(ModItems.PRIMITIVE_SCALPEL.get()), Ingredient.of(Items.PUMPKIN),
                 new ItemStack(Items.CARVED_PUMPKIN), 1, false);
+        RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_aid",
+                Ingredient.of(ModItems.AID.get()), Ingredient.of(Items.PUMPKIN),
+                new ItemStack(Items.CARVED_PUMPKIN), 0, false);
 
         RecipeBuilders.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem());
 
@@ -320,7 +328,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.DROOLING_CAULDRON.asItem());
 
         // Drooling Geode -- same recipe shape as Drooling Cauldron above (same tier, no evolution
@@ -332,7 +340,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(Blocks.STONE)),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.DROOLING_GEODE.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "masticator_implant",
@@ -342,7 +350,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MASTICATOR.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "skin_tank_implant",
@@ -352,7 +360,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModBlocks.BEAKER_ITEM.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.SKIN_TANK.asItem());
 
         // Knowledge Vat -- Skin Tank's own implant, plus a Proto Brain (the "smart" identity, same
@@ -366,7 +374,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModBlocks.BEAKER_ITEM.get()),
                         Ingredient.of(ModItems.PROTO_BRAIN.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.KNOWLEDGE_VAT.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "effluentcer_implant",
@@ -378,7 +386,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.EFFLUENTCER.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "craw_implant",
@@ -388,7 +396,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.CRAW.asItem());
 
         ////////////////////Gear Stations\\\\\\\\\\\\\\\\\\\\
@@ -406,7 +414,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.WORKBENCH.asItem());
 
         ////////////////////Gadget Modules\\\\\\\\\\\\\\\\\\\\
@@ -629,7 +637,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.EYE.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.METASTASIZER.asItem());
 
         // F-Stuff/C-Stuff: 25% faster than the original 30-second (600-tick) craft time ->
@@ -1222,7 +1230,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.EYE.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MUTATOR.asItem());
 
         // Render Furnace and Grafting Table - deliberately the cheapest implants in the mod: just the
@@ -1230,12 +1238,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // modified vanilla objects, so their "birth" doesn't need much biological investment).
         RecipeBuilders.buildEarlyImplant(recipeOutput, "render_furnace_implant",
                 List.of(Ingredient.of(Items.FURNACE)),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_FURNACE.asItem());
 
         RecipeBuilders.buildEarlyImplant(recipeOutput, "grafting_table_implant",
                 List.of(Ingredient.of(Items.CRAFTING_TABLE)),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.GRAFTING_TABLE.asItem());
 
         // Mutator recipe roster - all values provisional (functional-not-final, see machine notes),
@@ -1951,7 +1959,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
         ////////////////////Mr. Farmer\\\\\\\\\\\\\\\\\\\\
@@ -1968,7 +1976,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.PROTO_BRAIN.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_FARMER.asItem());
 
         ////////////////////Mr. Shepard\\\\\\\\\\\\\\\\\\\\
@@ -1981,7 +1989,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.PROTO_BRAIN.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_SHEPARD.asItem());
 
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
@@ -2075,7 +2083,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get()),
                         Ingredient.of(ModItems.NERVE_CLUSTER.get())),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
         RecipeBuilders.render(recipeOutput, "render_kiln_cobblestone", ModFluids.SOURCE_STONE_BLEND.get(), 900, Items.COBBLESTONE, cobbleTicks);

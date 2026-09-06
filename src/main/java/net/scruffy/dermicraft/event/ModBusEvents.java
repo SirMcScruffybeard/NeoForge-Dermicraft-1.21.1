@@ -273,6 +273,19 @@ public class ModBusEvents {
                 stack, net.scruffy.dermicraft.item.custom.EaterItem.effectiveCapacity(stack), HazardProfile.TIER_1,
                 fluidStack -> fluidStack.is(ModTags.Fluids.BIOFUELS)),
                 ModItems.EATER.get());
+
+        // A.I.D.: Syringe mode's plain single-fluid tank, no hazard gating specified by the design
+        // notes (unlike Sunder/Shatter/Eater's biofuel-only fuel tanks above). Rebuilt from scratch
+        // (2026-09-05) after the previous fill/drain logic was gutted following several confirmed
+        // bugs -- this is deliberately just the capability existing, no interaction logic yet.
+        event.registerItem(Capabilities.FluidHandler.ITEM, (stack, context) ->
+                        new IHaveFluidData.FlexibleFluidDataFluidHandler(stack, net.scruffy.dermicraft.item.custom.AidItem.FLUID_CAPACITY),
+                ModItems.AID.get());
+
+        // A.I.D.: Suture mode's string-only slot, backing both the GUI's item slot and useMaterials.
+        event.registerItem(Capabilities.ItemHandler.ITEM,
+                (stack, context) -> new net.scruffy.dermicraft.item.custom.AidItem.StringSlotHandler(() -> stack),
+                ModItems.AID.get());
     }
 
     /** All Gate Buffers directly touching {@code portPos}, in {@link Direction#values()} order. */

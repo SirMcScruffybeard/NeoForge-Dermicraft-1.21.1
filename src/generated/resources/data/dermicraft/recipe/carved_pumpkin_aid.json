@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:hand_shredding",
+  "input": {
+    "item": "minecraft:pumpkin"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:carved_pumpkin"
+  },
+  "tool": {
+    "item": "dermicraft:aid"
+  }
+}

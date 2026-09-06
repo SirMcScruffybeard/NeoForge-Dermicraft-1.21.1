@@ -51,6 +51,16 @@ public class ModDataComponentTypes {
                     .persistent(SippingModeData.CODEC)
                     .networkSynchronized(SippingModeData.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<AidModeData>> AID_MODE_DATA =
+            register("aid_mode_data", builder -> builder
+                    .persistent(AidModeData.CODEC)
+                    .networkSynchronized(AidModeData.STREAM_CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<AidPendingModeData>> AID_PENDING_MODE_DATA =
+            register("aid_pending_mode_data", builder -> builder
+                    .persistent(AidPendingModeData.CODEC)
+                    .networkSynchronized(AidPendingModeData.STREAM_CODEC));
+
     /** Backing store for {@code IHaveItemData}'s bulk item handlers -- see {@link BulkItemData}
      * for why this exists instead of vanilla's {@code DataComponents.CONTAINER}. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BulkItemData>> BULK_ITEM_DATA =

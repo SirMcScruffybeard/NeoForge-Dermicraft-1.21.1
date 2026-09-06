@@ -73,16 +73,29 @@ public class RecipeBuilders {
         output.accept(id, recipe, null);
     }
 
+    // A.I.D. is deliberately NOT a member of SUTURE_TOOLS (see AidItem#useSuture's class doc --
+    // MarredTumorBlock's own tag-gated dispatch has no notion of A.I.D.'s current mode, so being
+    // tagged would let it suture in any mode, not just Suture). EarlyImplantRecipe#testSuture's own
+    // sutureTool Ingredient is a separate, independent gate with no mode concept of its own, so it
+    // needs A.I.D. included explicitly here rather than via the tag -- the mode gating itself still
+    // lives entirely in AidItem's own onItemUseFirst dispatch, this is just recognizing a tool that's
+    // already been mode-checked by the time this Ingredient is ever tested.
+    public static Ingredient sutureToolIngredient() {
+        return net.neoforged.neoforge.common.crafting.CompoundIngredient.of(
+                Ingredient.of(ModTags.Items.SUTURE_TOOLS),
+                Ingredient.of(net.scruffy.dermicraft.item.ModItems.AID.get()));
+    }
+
     public static void simpleEarlyImplant(RecipeOutput recipeOutput, Item ingredient, String name, Item result) {
         buildEarlyImplant(recipeOutput, name, List.of(Ingredient.of(ingredient)),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS),
+                sutureToolIngredient(),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 result);
     }
 
     public static void simpleEarlyImplant(RecipeOutput recipeOutput, TagKey<Item> ingredient, String name, Item result) {
         buildEarlyImplant(recipeOutput, name, List.of(Ingredient.of(ingredient)),
-                Ingredient.of(ModTags.Items.SUTURE_TOOLS),
+                sutureToolIngredient(),
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 100,
                 result);
     }

@@ -23,7 +23,9 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.interfaces.ICutStitches;
 import net.scruffy.dermicraft.interfaces.IInject;
+import net.scruffy.dermicraft.interfaces.IInjectableBlock;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import net.scruffy.dermicraft.util.ToolUtil;
@@ -31,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
+public class StitchedTumorBlock extends EarlySurgeryTumorBlock implements ICutStitches, IInjectableBlock {
 
     public static final MapCodec<StitchedTumorBlock> CODEC = simpleCodec(StitchedTumorBlock::new);
 
@@ -96,7 +98,8 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
         return ItemInteractionResult.FAIL;
     }
 
-    private void cutStitches(Level level, BlockPos pos, Player player, ItemStack scalpelStack, StitchedTumorBlockEntity stitchedEntity) {
+    @Override
+    public void cutStitches(Level level, BlockPos pos, Player player, ItemStack scalpelStack, StitchedTumorBlockEntity stitchedEntity) {
         // Take an exact snapshot of the incubating contents
         List<ItemStack> savedItems = ModItemUtil.snapshotInventory(stitchedEntity.getInventory());
 
@@ -119,21 +122,21 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock {
         level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1.0F, 0.7F);
     }
 
-    private void inject(Level level, Player player, ItemStack stack, StitchedTumorBlockEntity blockEntity) {
-        if (stack.getItem() instanceof IInject syringe) {
+    @Override
+    public boolean inject(Level level, Player player, ItemStack stack, StitchedTumorBlockEntity blockEntity) {
+        if (!(stack.getItem() instanceof IInject syringe)) return false;
 
-            FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);
-            if (data.isFluidEmpty()) return;
+        FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);
+        if (data.isFluidEmpty()) return false;
 
-            FluidStack fluidStack = data.getFluidStack();
-            EarlyImplantRecipe recipe = blockEntity.getCachedRecipe();
+        FluidStack fluidStack = data.getFluidStack();
+        EarlyImplantRecipe recipe = blockEntity.getCachedRecipe();
 
-            if (recipe != null && recipe.testFluid(fluidStack)) {
-                syringe.emptyDataFluidIfSurvival(stack, player);
+        if (recipe == null || !recipe.testFluid(fluidStack)) return false;
 
-                this.evolveImplant(level, player, blockEntity.getBlockPos(), recipe);
-            }
-        }
+        syringe.emptyDataFluidIfSurvival(stack, player);
+        this.evolveImplant(level, player, blockEntity.getBlockPos(), recipe);
+        return true;
     }
 
     /**

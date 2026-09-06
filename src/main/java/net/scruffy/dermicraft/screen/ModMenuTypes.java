@@ -111,6 +111,10 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<ScrenchMenu>> SCRENCH_MENU =
             registerMenuType("scrench_menu", ScrenchMenu::new);
 
+    // A.I.D.'s own crouch-triggered GUI -- same item-triggered, no-block-entity shape as ScrenchMenu.
+    public static final DeferredHolder<MenuType<?>, MenuType<net.scruffy.dermicraft.screen.custom.aid.AidMenu>> AID_MENU =
+            registerMenuType("aid_menu", net.scruffy.dermicraft.screen.custom.aid.AidMenu::new);
+
     public static final DeferredHolder<MenuType<?>, MenuType<WorkbenchMenu>> WORKBENCH_MENU =
             registerMenuType("workbench_menu", WorkbenchMenu::new);
 

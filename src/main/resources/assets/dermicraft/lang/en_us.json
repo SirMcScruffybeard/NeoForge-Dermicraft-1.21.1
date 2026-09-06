@@ -14,6 +14,7 @@
   "item.dermicraft.sipping": "S.I.P.P.I.N.G.",
   "item.dermicraft.drinker": "D.R.I.N.K.E.R.",
   "item.dermicraft.eater": "E.A.T.E.R.",
+  "item.dermicraft.aid": "A.I.D.",
   "item.dermicraft.sunder": "Sunder",
   "item.dermicraft.shatter": "Shatter",
   "item.dermicraft.iron_shatter_head": "Iron Shatter Head",
@@ -69,6 +70,15 @@
   "tooltip.dermicraft.drinker.mode.disposal": "Disposal",
   "tooltip.dermicraft.drinker.storage_inert": "Storage holds -- switch to Transfer or Disposal to empty",
   "tooltip.dermicraft.drinker.nothing_held": "Buffer is empty",
+
+  "tooltip.dermicraft.aid.mode": "Mode: %s",
+  "tooltip.dermicraft.aid.mode.forceps": "Forceps",
+  "tooltip.dermicraft.aid.mode.scalpel": "Scalpel",
+  "tooltip.dermicraft.aid.mode.suture": "Suture",
+  "tooltip.dermicraft.aid.mode.syringe": "Syringe",
+  "tooltip.dermicraft.aid.no_string": "No string loaded",
+  "tooltip.dermicraft.aid.string_ingredient": "String Ingredient",
+  "screen.dermicraft.aid": "A.I.D.",
   "tooltip.dermicraft.drinker.no_container": "No container with room in inventory",
   "tooltip.dermicraft.drinker.transferred": "Transferred %s mB",
   "tooltip.dermicraft.drinker.transferred_partial": "Transferred %s mB -- %s mB left, out of room",
@@ -426,6 +436,7 @@
 
   "tooltip.dermicraft.liquid.amount.with.capacity": "%s / %s mB",
   "tooltip.dermicraft.liquid.amount": "%s mB",
+  "tooltip.dermicraft.knowledge_vat.levels": "%s Levels",
 
   "gui.dermicraft.mr_farmer.range": "Range: %1$sx%1$s",
   "gui.dermicraft.mr_shepard.range": "Range: %1$sx%1$s",

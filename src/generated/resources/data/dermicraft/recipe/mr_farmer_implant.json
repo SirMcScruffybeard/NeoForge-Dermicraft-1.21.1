@@ -22,7 +22,12 @@
     }
   ],
   "resultFluid": "dermicraft:mr_farmer",
-  "suture_tool": {
-    "tag": "dermicraft:suture_tools"
-  }
+  "suture_tool": [
+    {
+      "tag": "dermicraft:suture_tools"
+    },
+    {
+      "item": "dermicraft:aid"
+    }
+  ]
 }

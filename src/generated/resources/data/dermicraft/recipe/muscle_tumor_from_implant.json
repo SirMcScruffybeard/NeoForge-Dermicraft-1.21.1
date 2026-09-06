@@ -10,7 +10,12 @@
     }
   ],
   "resultFluid": "dermicraft:muscle_tumor",
-  "suture_tool": {
-    "tag": "dermicraft:suture_tools"
-  }
+  "suture_tool": [
+    {
+      "tag": "dermicraft:suture_tools"
+    },
+    {
+      "item": "dermicraft:aid"
+    }
+  ]
 }

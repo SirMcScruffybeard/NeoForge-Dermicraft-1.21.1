@@ -116,6 +116,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.DRINKER);
                         output.accept(ModItems.EATER);
                         output.accept(ModItems.SIPPING);
+                        output.accept(ModItems.AID);
                         output.accept(ModItems.SUNDER);
                         output.accept(ModItems.SHATTER);
                         output.accept(ModItems.BONE_SHATTER_HEAD);

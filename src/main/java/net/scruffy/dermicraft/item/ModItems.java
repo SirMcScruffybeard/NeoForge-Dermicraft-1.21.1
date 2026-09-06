@@ -106,6 +106,9 @@ public class ModItems {
     // Durability is gadget HP, not wear -- see IGadget. Base tier only, see EaterItem's class javadoc.
     public static final DeferredItem<Item> EATER = ITEMS.register("eater", () -> new EaterItem(new Item.Properties().durability(EaterItem.MAX_HP)));
 
+    // Durability is gadget HP, not wear -- see IGadget. Bare stand-up only -- see AidItem's class javadoc.
+    public static final DeferredItem<Item> AID = ITEMS.register("aid", () -> new AidItem(new Item.Properties().durability(AidItem.MAX_HP)));
+
     ////////////////////Weapons\\\\\\\\\\\\\\\\\\\\
     // No .attributes() here on purpose -- Sunder's combat stats vary with the mounted chain, so they
     // come from its getDefaultAttributeModifiers(ItemStack) override instead. Setting them here would
