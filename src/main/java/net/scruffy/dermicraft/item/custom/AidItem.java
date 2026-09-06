@@ -6,6 +6,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -123,7 +126,10 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
         }
 
         player.displayClientMessage(Component.translatable("tooltip.dermicraft.aid.mode",
-                Component.translatable(modeKey(next))), true);
+                Component.translatable(modeKey(next))).withStyle(modeColor(next)), true);
+
+        SoundEvent sound = modeSound(next);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), sound, SoundSource.PLAYERS, 1.0F, modeSoundPitch(next));
     }
 
     /** Commits a pending mode transition once its retract clip has actually finished. */
@@ -158,6 +164,38 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
             case SCALPEL -> "tooltip.dermicraft.aid.mode.scalpel";
             case SUTURE -> "tooltip.dermicraft.aid.mode.suture";
             case SYRINGE -> "tooltip.dermicraft.aid.mode.syringe";
+        };
+    }
+
+    /** Distinct color per mode for the cycle action-bar message -- purely cosmetic, easy to retune. */
+    private static ChatFormatting modeColor(AidModeData.Mode mode) {
+        return switch (mode) {
+            case FORCEPS -> ChatFormatting.GREEN;
+            case SCALPEL -> ChatFormatting.RED;
+            case SUTURE -> ChatFormatting.YELLOW;
+            case SYRINGE -> ChatFormatting.AQUA;
+        };
+    }
+
+    /** Placeholder vanilla sounds, same convention as every other gadget's placeholder audio (see
+     * IGadget#deathFlourish) -- swap freely once real ones exist. Suture reuses
+     * SutureKitItem#playDefaultSutureSound's exact sound so cycling into it previews what a real
+     * suture will sound like. */
+    private static SoundEvent modeSound(AidModeData.Mode mode) {
+        return switch (mode) {
+            case FORCEPS -> SoundEvents.LEVER_CLICK;
+            case SCALPEL -> SoundEvents.ARMOR_EQUIP_IRON.value();
+            case SUTURE -> SoundEvents.LEASH_KNOT_PLACE;
+            case SYRINGE -> SoundEvents.BOTTLE_FILL;
+        };
+    }
+
+    private static float modeSoundPitch(AidModeData.Mode mode) {
+        return switch (mode) {
+            case FORCEPS -> 1.6F;
+            case SCALPEL -> 1.4F;
+            case SUTURE -> 1.0F;
+            case SYRINGE -> 1.0F;
         };
     }
 
