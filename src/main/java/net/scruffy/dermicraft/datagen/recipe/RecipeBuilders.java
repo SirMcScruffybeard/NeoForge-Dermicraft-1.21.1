@@ -56,6 +56,18 @@ public class RecipeBuilders {
         output.accept(id, recipe, null);
     }
 
+    /** Drooling Geode's own sibling of {@link #buildVagueDrooling}/{@link #buildVagueDroolingCrucible}
+     * -- same "produce what they produce regardless of food" convention, just targeting Geode's own
+     * {@code VAGUE_DROOLING_GEODE_TYPE} so lookups don't collide with the other two machines'. */
+    public static void buildVagueDroolingGeode(RecipeOutput output, String name, Ingredient ingredient, float modifier,
+                                                Fluid result) {
+
+        ResourceLocation id = getResourceLocation(name);
+        net.scruffy.dermicraft.recipe.drooling.VagueDroolingGeodeRecipe recipe =
+                new net.scruffy.dermicraft.recipe.drooling.VagueDroolingGeodeRecipe(ingredient, modifier, result);
+        output.accept(id, recipe, null);
+    }
+
     ////////////////////HandShredding\\\\\\\\\\\\\\\\\\\\
     public static void buildHandShredding(RecipeOutput output, String name, Ingredient tool, Ingredient input,
                                            ItemStack result, int toolDamage, boolean consumeTool) {

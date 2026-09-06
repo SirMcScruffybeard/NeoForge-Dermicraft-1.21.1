@@ -719,6 +719,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // of food... exposure to food drives their hunger more" (dermicraft-machine-notes.md).
         // Separate recipe type only, not a different ingredient list.
         RecipeBuilders.buildVagueDroolingCrucible(recipeOutput, "lava_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.LAVA);
+        // Same convention -- Geode was missing this entirely (passive-only until now).
+        RecipeBuilders.buildVagueDroolingGeode(recipeOutput, "stone_blend_drooling", Ingredient.of(Tags.Items.FOODS), 2,
+                ModFluids.SOURCE_STONE_BLEND.get());
 
         RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
                 Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,

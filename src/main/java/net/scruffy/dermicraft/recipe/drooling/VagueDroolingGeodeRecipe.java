@@ -24,9 +24,9 @@ import org.jetbrains.annotations.NotNull;
  * {@link VagueDroolingCrucibleRecipe}, not a reuse of either. Registered under its own
  * {@link RecipeType}/{@link RecipeSerializer} so its lookups never collide with Cauldron's or
  * Crucible's -- see {@link net.scruffy.dermicraft.block.entity.custom.DroolingMachineBlockEntity}'s
- * class javadoc for why two recipes matching the same ingredient can't share one type. No actual
- * recipes are registered against this type yet -- Geode currently has no food-boost roster, only
- * passive generation -- but the machine's own generic base requires a real type to exist regardless.
+ * class javadoc for why two recipes matching the same ingredient can't share one type. Same
+ * FOODS-tag/modifier-2 convention as Cauldron's water and Crucible's lava recipes -- see
+ * ModRecipeProvider's "stone_blend_drooling" registration.
  */
 public record VagueDroolingGeodeRecipe(Ingredient ingredient, float modifier, Fluid result) implements Recipe<SingleRecipeInput>, IVagueRecipe {
 
