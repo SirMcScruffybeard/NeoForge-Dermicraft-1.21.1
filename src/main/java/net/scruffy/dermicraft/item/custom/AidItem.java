@@ -1,6 +1,7 @@
 package net.scruffy.dermicraft.item.custom;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,6 +30,7 @@ import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
 import net.scruffy.dermicraft.component.AidModeData;
 import net.scruffy.dermicraft.component.AidPendingModeData;
+import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.HeldItemData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.interfaces.ICollectBlocks;
@@ -51,6 +54,8 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.util.GeckoLibUtil;
+
+import java.util.List;
 
 /**
  * A.I.D. -- Adaptive Intervention Device. Mode cycling and every mode's full animation set are
@@ -221,6 +226,47 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
             case SUTURE -> SUTURE_RETRACT_TICKS;
             case SYRINGE -> SYRINGE_RETRACT_TICKS;
         };
+    }
+
+    ////////////////////Tooltip\\\\\\\\\\\\\\\\\\\\
+
+    /** All shift-hidden -- current mode (named and colored the same as the mode-cycle action-bar
+     * message, see {@link #modeColor}/{@link #modeKey}), plus whatever that mode is actually holding:
+     * Suture's loaded string count ({@link #useMaterials}'s own slot) or Syringe's loaded fluid and
+     * amount (its {@link #getDataType} tank). Forceps/Scalpel carry nothing extra, so the mode line
+     * is all they get. */
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        if (!Screen.hasShiftDown()) {
+            tooltip.add(Component.translatable("tooltip.dermicraft.hold_shift_for_stats"));
+            return;
+        }
+
+        AidModeData.Mode mode = modeData(stack).modeEnum();
+        tooltip.add(Component.translatable("tooltip.dermicraft.aid.mode", Component.translatable(modeKey(mode)))
+                .withStyle(modeColor(mode)));
+
+        switch (mode) {
+            case SUTURE -> {
+                ItemStack held = stack.getOrDefault(ModDataComponentTypes.HELD_ITEM_DATA.get(), HeldItemData.EMPTY).itemStack();
+                tooltip.add(held.isEmpty()
+                        ? Component.translatable("tooltip.dermicraft.aid.no_string").withStyle(ChatFormatting.DARK_GRAY)
+                        : Component.translatable("tooltip.dermicraft.aid.string_count", held.getCount())
+                                .withStyle(ChatFormatting.GRAY));
+            }
+            case SYRINGE -> {
+                FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);
+                if (data.isFluidEmpty()) {
+                    tooltip.add(Component.translatable("tooltip.dermicraft.aid.no_fluid").withStyle(ChatFormatting.DARK_GRAY));
+                } else {
+                    tooltip.add(data.getFluidComponent());
+                    tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity",
+                            data.getFluidAmount(), FLUID_CAPACITY).withStyle(ChatFormatting.GRAY));
+                }
+            }
+            default -> {
+            }
+        }
     }
 
     ////////////////////Target interactions\\\\\\\\\\\\\\\\\\\\

@@ -21,6 +21,7 @@ import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -88,21 +89,23 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
     // Detail panel (ingredient icons + Craft button/progress) for whichever recipe icon is
     // currently selected -- see #renderFabricationDetail. Items and fluids sit in two side-by-side
-    // icon columns (tooltip-only, no inline text) rather than a stacked text list, so the panel
-    // stays compact regardless of how many ingredients a recipe has -- see #renderIngredientColumn/
-    // #renderFluidColumn for the wrapping rule.
+    // icon columns (tooltip-only, no inline text) rather than a stacked text list. Each column shows
+    // exactly ONE row of FAB_ICONS_PER_ROW icons at a time now (2026-09-06, revised) -- past that, an
+    // independent per-column scrollbar (#fabItemScrollRow/#fabFluidScrollRow) pages through the rest
+    // instead of wrapping to a 2nd row, which used to silently overlap the fixed action row below
+    // once a recipe needed more than 4 of something (a real gadget hit this: 6 items). The action
+    // row's own Y is unchanged from before this revision -- it was always sized for exactly one row.
     private static final int FAB_DETAIL_X = FAB_ICON_X;
     private static final int FAB_DETAIL_Y = FAB_ICON_Y + WorkbenchScreen.ITEM_SLOT_SIZE + 4;
-    private static final int FAB_COLUMN_GAP = 6;
-    private static final int FAB_COLUMN_WIDTH = 77;
-    private static final int FAB_ICONS_PER_ROW = FAB_COLUMN_WIDTH / WorkbenchScreen.ITEM_SLOT_SIZE;
-    private static final int FAB_ROW_HEIGHT = WorkbenchScreen.ITEM_SLOT_SIZE + 2;
-    private static final int FLUID_COLUMN_X = FAB_DETAIL_X + FAB_COLUMN_WIDTH + FAB_COLUMN_GAP;
-    // Sized for every currently-authored recipe's worst case (Drinker: 4 items, 3 fluids), which
-    // fits in a single icon row per column -- if a future recipe needs a 2nd row, its icons will
-    // overlap this action row rather than pushing it down, since the row is fixed rather than
-    // recipe-dependent (a moving Craft button/click target while browsing recipes would be worse).
-    private static final int FAB_ACTION_Y = FAB_DETAIL_Y + FAB_ROW_HEIGHT + 4;
+    private static final int FAB_ICONS_PER_ROW = 4;
+    // Each column's scrollbar sits directly right of its own 4 icons. Width mirrors SCROLL_BAR_WIDTH
+    // (8, declared further down alongside the Storage strip's own scrollbar constants) as a literal
+    // rather than a reference -- Java disallows forward-referencing a later field's name from an
+    // earlier one's initializer within the same class.
+    private static final int FAB_ITEM_SCROLL_X = FAB_DETAIL_X + FAB_ICONS_PER_ROW * WorkbenchScreen.ITEM_SLOT_SIZE + 1;
+    private static final int FLUID_COLUMN_X = FAB_ITEM_SCROLL_X + 8 + 3;
+    private static final int FAB_FLUID_SCROLL_X = FLUID_COLUMN_X + FAB_ICONS_PER_ROW * WorkbenchScreen.ITEM_SLOT_SIZE + 1;
+    private static final int FAB_ACTION_Y = FAB_DETAIL_Y + WorkbenchScreen.ITEM_SLOT_SIZE + 6;
     private static final int FAB_ACTION_WIDTH = 18;
     private static final int FAB_ACTION_HEIGHT = 18;
     private static final int FAB_ARROW_WIDTH = 17;
@@ -131,6 +134,16 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     private static final float GHOST_ALPHA = 0.35f;
 
     private int selectedFabricationIndex = menu.getSelectedFabricationIndex();
+
+    // Which row of the selected recipe's item/fluid list is currently showing, independent per
+    // column. Deliberately pure client state, NOT menu/BE-backed like the Storage strip's own
+    // scrollRow -- the ingredient columns are decorative tooltip-only icons, not real Slots (see
+    // #renderIngredientColumn's own javadoc), so there's nothing server-authoritative to keep in
+    // sync; no button-click round-trip needed to change these. Reset to 0 whenever a different
+    // recipe is selected (see #handleFabricationClick) so scrolling into one recipe's fluid list
+    // doesn't carry over to the next one picked.
+    private int fabItemScrollRow = 0;
+    private int fabFluidScrollRow = 0;
 
     private static final ResourceLocation ITEM_SLOT_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
@@ -175,6 +188,13 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     private static final int SCROLL_BAR_WIDTH = 8;
     private static final int SCROLL_BAR_HEIGHT = 31;
 
+    // Purpose-built 8x18 track for the Fabrication panel's two ingredient scrollbars -- stretching
+    // SCROLL_BAR_TEXTURE (native 31 tall, made for the Storage strip) down to their 18px row height
+    // squashed/cut off its art, so this is a separate texture at the exact height instead.
+    private static final ResourceLocation FAB_SCROLL_BAR_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "scrollbar_18.png");
+    private static final int FAB_SCROLL_BAR_HEIGHT = 18;
+
     private static final ResourceLocation SCROLLER_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BACKGROUNDS_DIR + "scroller.png");
     private static final int SCROLLER_WIDTH = 6;
@@ -194,9 +214,14 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     private static final int STRIP_GAP = 4;
     private static final int STRIP_BOTTOM_MARGIN = 7;
 
-    // Thumb-drag state -- grab offset keeps the thumb anchored under the cursor at the point it
-    // was clicked, rather than snapping its top edge to the cursor.
-    private boolean draggingThumb = false;
+    // Which of the (now three) scrollbars is currently being thumb-dragged, if any -- generalized
+    // 2026-09-06 alongside #renderScrollbar so the Storage strip and the two independent Fabrication
+    // ingredient-column scrollbars share one drag implementation. Grab offset keeps the thumb
+    // anchored under the cursor at the point it was clicked, rather than snapping its top edge to it.
+    private enum ScrollTarget { STORAGE, FAB_ITEMS, FAB_FLUIDS }
+
+    @Nullable
+    private ScrollTarget draggingScrollbar = null;
     private int dragGrabOffsetY = 0;
     private int lastDraggedRow = -1;
     private boolean fillButtonPressedFlash = false;
@@ -318,9 +343,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         GearStationPool.Snapshot pool = menu.getPoolSnapshot();
 
         List<ItemStack> items = recipe.items();
-        for (int i = 0; i < items.size(); i++) {
-            int slotX = FAB_DETAIL_X + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
-            int slotY = FAB_DETAIL_Y + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+        int itemStart = fabItemScrollRow * FAB_ICONS_PER_ROW;
+        for (int i = itemStart; i < Math.min(items.size(), itemStart + FAB_ICONS_PER_ROW); i++) {
+            int slotX = FAB_DETAIL_X + (i - itemStart) * ITEM_SLOT_SIZE;
+            int slotY = FAB_DETAIL_Y;
             if (!MouseUtil.isMouseOver(mouseX, mouseY, x + slotX, y + slotY, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE)) continue;
 
             ItemStack requirement = items.get(i);
@@ -333,9 +359,10 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         }
 
         List<FluidStack> fluids = recipe.fluids();
-        for (int i = 0; i < fluids.size(); i++) {
-            int slotX = FLUID_COLUMN_X + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
-            int slotY = FAB_DETAIL_Y + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+        int fluidStart = fabFluidScrollRow * FAB_ICONS_PER_ROW;
+        for (int i = fluidStart; i < Math.min(fluids.size(), fluidStart + FAB_ICONS_PER_ROW); i++) {
+            int slotX = FLUID_COLUMN_X + (i - fluidStart) * ITEM_SLOT_SIZE;
+            int slotY = FAB_DETAIL_Y;
             if (!MouseUtil.isMouseOver(mouseX, mouseY, x + slotX, y + slotY, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE)) continue;
 
             FluidStack requirement = fluids.get(i);
@@ -472,7 +499,7 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         guiGraphics.blit(ITEM_SLOT_BAR_TEXTURE, x + WorkbenchMenu.STRIP_X, y + WorkbenchMenu.STRIP_Y, 0, 0,
                 ITEM_SLOT_BAR_WIDTH, ITEM_SLOT_BAR_HEIGHT, ITEM_SLOT_BAR_WIDTH, ITEM_SLOT_BAR_HEIGHT);
 
-        renderScrollbar(guiGraphics, x + SCROLL_BAR_X, stripBgY);
+        renderScrollbar(guiGraphics, x + SCROLL_BAR_X, stripBgY, SCROLL_BAR_HEIGHT, menu.getScrollRow(), menu.getMaxScrollRow());
     }
 
     /** Every registered GadgetFabricatingRecipe, read live off the client's own synced
@@ -534,8 +561,20 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         GadgetFabricatingRecipe recipe = recipes.get(selectedFabricationIndex).value();
         GearStationPool.Snapshot pool = menu.getPoolSnapshot();
 
-        renderIngredientColumn(guiGraphics, x + FAB_DETAIL_X, y + FAB_DETAIL_Y, recipe.items(), pool);
-        renderFluidColumn(guiGraphics, x + FLUID_COLUMN_X, y + FAB_DETAIL_Y, recipe.fluids(), pool);
+        int itemMaxRow = maxIngredientScrollRow(recipe.items().size());
+        int fluidMaxRow = maxIngredientScrollRow(recipe.fluids().size());
+        fabItemScrollRow = Math.min(fabItemScrollRow, itemMaxRow);
+        fabFluidScrollRow = Math.min(fabFluidScrollRow, fluidMaxRow);
+
+        renderIngredientColumn(guiGraphics, x + FAB_DETAIL_X, y + FAB_DETAIL_Y, recipe.items(), pool, fabItemScrollRow);
+        renderFluidColumn(guiGraphics, x + FLUID_COLUMN_X, y + FAB_DETAIL_Y, recipe.fluids(), pool, fabFluidScrollRow);
+
+        if (itemMaxRow > 0) {
+            renderScrollbar(guiGraphics, x + FAB_ITEM_SCROLL_X, y + FAB_DETAIL_Y, ITEM_SLOT_SIZE, fabItemScrollRow, itemMaxRow);
+        }
+        if (fluidMaxRow > 0) {
+            renderScrollbar(guiGraphics, x + FAB_FLUID_SCROLL_X, y + FAB_DETAIL_Y, ITEM_SLOT_SIZE, fabFluidScrollRow, fluidMaxRow);
+        }
 
         int actionX = x + FAB_DETAIL_X;
         int actionY = y + FAB_ACTION_Y;
@@ -566,13 +605,22 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         }
     }
 
-    /** Item ingredients, flowing left-to-right within the column and wrapping to a new row past
-     * FAB_ICONS_PER_ROW -- see FAB_ACTION_Y's own note on why a 2nd row isn't currently reachable. */
-    private void renderIngredientColumn(GuiGraphics guiGraphics, int columnX, int columnY, List<ItemStack> required, GearStationPool.Snapshot pool) {
-        for (int i = 0; i < required.size(); i++) {
+    /** How many extra rows past the first exist for a {@code count}-long ingredient list -- 0 means
+     * everything already fits in the one visible row, no scrollbar needed. */
+    private static int maxIngredientScrollRow(int count) {
+        return Math.max(0, (count - 1) / FAB_ICONS_PER_ROW);
+    }
+
+    /** Item ingredients, one row of {@link #FAB_ICONS_PER_ROW} at a time starting at
+     * {@code scrollRow * FAB_ICONS_PER_ROW} -- past-4 ingredients page via the column's own
+     * scrollbar (see #renderFabricationDetail) rather than wrapping to a 2nd row, which used to
+     * silently overlap the fixed action row below once a recipe needed more than 4 of something. */
+    private void renderIngredientColumn(GuiGraphics guiGraphics, int columnX, int columnY, List<ItemStack> required, GearStationPool.Snapshot pool, int scrollRow) {
+        int start = scrollRow * FAB_ICONS_PER_ROW;
+        for (int i = start; i < Math.min(required.size(), start + FAB_ICONS_PER_ROW); i++) {
             ItemStack requirement = required.get(i);
-            int slotX = columnX + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
-            int slotY = columnY + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+            int slotX = columnX + (i - start) * ITEM_SLOT_SIZE;
+            int slotY = columnY;
 
             guiGraphics.blit(ITEM_SLOT_TEXTURE, slotX, slotY, 0, 0, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
             guiGraphics.renderItem(requirement, slotX + 1, slotY + 1);
@@ -583,15 +631,17 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         }
     }
 
-    /** Fluid counterpart to {@link #renderIngredientColumn} -- each slot's fill level is the
-     * available amount rendered against a tank whose capacity IS the required amount, so a full
-     * swatch means "enough," not an absolute reading. Reuses FluidTankRenderer, the same gauge
-     * machinery Sunder's fuel tank already uses on this screen's Mod page. */
-    private void renderFluidColumn(GuiGraphics guiGraphics, int columnX, int columnY, List<FluidStack> required, GearStationPool.Snapshot pool) {
-        for (int i = 0; i < required.size(); i++) {
+    /** Fluid counterpart to {@link #renderIngredientColumn} -- same one-row-at-a-time/scrollbar
+     * shape, same reasoning. Each slot's fill level is the available amount rendered against a tank
+     * whose capacity IS the required amount, so a full swatch means "enough," not an absolute
+     * reading. Reuses FluidTankRenderer, the same gauge machinery Sunder's fuel tank already uses on
+     * this screen's Mod page. */
+    private void renderFluidColumn(GuiGraphics guiGraphics, int columnX, int columnY, List<FluidStack> required, GearStationPool.Snapshot pool, int scrollRow) {
+        int start = scrollRow * FAB_ICONS_PER_ROW;
+        for (int i = start; i < Math.min(required.size(), start + FAB_ICONS_PER_ROW); i++) {
             FluidStack requirement = required.get(i);
-            int slotX = columnX + (i % FAB_ICONS_PER_ROW) * ITEM_SLOT_SIZE;
-            int slotY = columnY + (i / FAB_ICONS_PER_ROW) * FAB_ROW_HEIGHT;
+            int slotX = columnX + (i - start) * ITEM_SLOT_SIZE;
+            int slotY = columnY;
 
             guiGraphics.blit(ITEM_SLOT_TEXTURE, slotX, slotY, 0, 0, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
 
@@ -635,6 +685,8 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             int slotY = y + FAB_ICON_Y;
             if (MouseUtil.isMouseOver(mouseX, mouseY, slotX, slotY, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE)) {
                 selectedFabricationIndex = i;
+                fabItemScrollRow = 0;
+                fabFluidScrollRow = 0;
                 minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.selectRecipeButtonId(i));
                 return true;
             }
@@ -662,38 +714,54 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     // drawScaledString/blitFlippedX moved to AbstractModScreen (generalized for the shared tab-bar
     // helper, dermicraft-progression-notes.md Decision Point #2) -- inherited from there now.
 
-    private void renderScrollbar(GuiGraphics guiGraphics, int trackX, int trackY) {
-        guiGraphics.blit(SCROLL_BAR_TEXTURE, trackX, trackY, 0, 0,
-                SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT);
+    /** Generalized 2026-09-06 so the Storage strip's scrollbar and the Fabrication detail panel's
+     * two independent per-column ones (see #renderFabricationDetail) all share one implementation --
+     * {@code trackHeight}/{@code currentRow}/{@code maxRow} are passed in rather than pulled from
+     * {@code menu} (which only the Storage strip's scroll is actually backed by; the Fabrication
+     * columns are pure client-side state, see #fabItemScrollRow's own javadoc). The Storage strip's
+     * 31-tall track uses SCROLL_BAR_TEXTURE at its native size; the Fabrication columns' 18-tall
+     * track uses the separate FAB_SCROLL_BAR_TEXTURE (stretching the 31-tall art down to 18 cut off
+     * its border), picked by matching trackHeight rather than a caller-passed flag. */
+    private void renderScrollbar(GuiGraphics guiGraphics, int trackX, int trackY, int trackHeight, int currentRow, int maxRow) {
+        ResourceLocation trackTexture = trackHeight == FAB_SCROLL_BAR_HEIGHT ? FAB_SCROLL_BAR_TEXTURE : SCROLL_BAR_TEXTURE;
+        guiGraphics.blit(trackTexture, trackX, trackY, 0, 0,
+                SCROLL_BAR_WIDTH, trackHeight, SCROLL_BAR_WIDTH, trackHeight);
 
-        int thumbHeight = thumbHeight();
-        int thumbY = thumbY(trackY, thumbHeight);
-        int thumbX = thumbX(trackX);
+        int thumbHeight = thumbHeight(trackHeight, maxRow);
+        int thumbY = thumbY(trackY, trackHeight, currentRow, maxRow, thumbHeight);
+        int thumbX = thumbX(trackX, trackHeight);
         guiGraphics.blit(SCROLLER_TEXTURE, thumbX, thumbY, 0, 0,
                 SCROLLER_WIDTH, thumbHeight, SCROLLER_WIDTH, SCROLLER_NATIVE_HEIGHT);
     }
 
-    private int travel() {
-        return SCROLL_BAR_HEIGHT - 2 * SCROLL_TRACK_MARGIN;
+    // The Storage strip's 31-tall track was tuned with a 2px margin; the Fabrication columns' 18-tall
+    // track sat 1px short of both ends at that same margin (a real gap above the thumb when scrolled
+    // to the top, and below it when scrolled to the bottom), so it gets its own tighter margin instead.
+    private static int trackMargin(int trackHeight) {
+        return trackHeight == FAB_SCROLL_BAR_HEIGHT ? 1 : SCROLL_TRACK_MARGIN;
     }
 
-    private int thumbHeight() {
-        int totalRows = menu.getMaxScrollRow() + 1;
-        int travel = travel();
+    private static int travel(int trackHeight) {
+        return trackHeight - 2 * trackMargin(trackHeight);
+    }
+
+    private static int thumbHeight(int trackHeight, int maxRow) {
+        int totalRows = maxRow + 1;
+        int travel = travel(trackHeight);
         return Math.min(travel, Math.max(SCROLLER_MIN_HEIGHT, travel / totalRows));
     }
 
-    private int thumbY(int trackY, int thumbHeight) {
-        int maxRow = menu.getMaxScrollRow();
-        int thumbY = trackY + SCROLL_TRACK_MARGIN;
+    private static int thumbY(int trackY, int trackHeight, int currentRow, int maxRow, int thumbHeight) {
+        int thumbY = trackY + trackMargin(trackHeight);
         if (maxRow > 0) {
-            thumbY += (int) (((float) menu.getScrollRow() / maxRow) * (travel() - thumbHeight));
+            thumbY += (int) (((float) currentRow / maxRow) * (travel(trackHeight) - thumbHeight));
         }
         return thumbY;
     }
 
-    private int thumbX(int trackX) {
-        return trackX + (SCROLL_BAR_WIDTH - SCROLLER_WIDTH) / 2 - 1;
+    private static int thumbX(int trackX, int trackHeight) {
+        int offset = trackHeight == FAB_SCROLL_BAR_HEIGHT ? 0 : -1;
+        return trackX + (SCROLL_BAR_WIDTH - SCROLLER_WIDTH) / 2 + offset;
     }
 
     private int trackX() {
@@ -706,14 +774,54 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        int steps = (int) Math.signum(scrollY);
+        if (steps == 0) return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        boolean up = steps > 0;
+
         if (menu.getMaxScrollRow() > 0 && isOverStrip((int) mouseX, (int) mouseY)) {
-            int steps = (int) Math.signum(scrollY);
-            if (steps != 0) {
-                pressScrollButton(steps < 0 ? WorkbenchMenu.BUTTON_SCROLL_DOWN : WorkbenchMenu.BUTTON_SCROLL_UP);
-                return true;
+            pressScrollButton(up ? WorkbenchMenu.BUTTON_SCROLL_UP : WorkbenchMenu.BUTTON_SCROLL_DOWN);
+            return true;
+        }
+
+        if (currentPage == Page.FABRICATION) {
+            int x = (width - imageWidth) / 2;
+            int y = (height - imageHeight) / 2;
+            GadgetFabricatingRecipe recipe = selectedFabricationRecipe();
+            if (recipe != null) {
+                int itemMaxRow = maxIngredientScrollRow(recipe.items().size());
+                int itemZoneWidth = FAB_ITEM_SCROLL_X - FAB_DETAIL_X + SCROLL_BAR_WIDTH;
+                if (itemMaxRow > 0 && MouseUtil.isMouseOver((int) mouseX, (int) mouseY,
+                        x + FAB_DETAIL_X, y + FAB_DETAIL_Y, itemZoneWidth, ITEM_SLOT_SIZE)) {
+                    fabItemScrollRow = clampRow(fabItemScrollRow + (up ? -1 : 1), itemMaxRow);
+                    return true;
+                }
+
+                int fluidMaxRow = maxIngredientScrollRow(recipe.fluids().size());
+                int fluidZoneWidth = FAB_FLUID_SCROLL_X - FLUID_COLUMN_X + SCROLL_BAR_WIDTH;
+                if (fluidMaxRow > 0 && MouseUtil.isMouseOver((int) mouseX, (int) mouseY,
+                        x + FLUID_COLUMN_X, y + FAB_DETAIL_Y, fluidZoneWidth, ITEM_SLOT_SIZE)) {
+                    fabFluidScrollRow = clampRow(fabFluidScrollRow + (up ? -1 : 1), fluidMaxRow);
+                    return true;
+                }
             }
         }
+
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    /** The recipe the Fabrication grid currently has selected, or null if the selection index is
+     * stale/unset -- shared by every scroll/click handler that needs to know the current item/fluid
+     * counts without re-deriving the bounds-check each time. */
+    @Nullable
+    private GadgetFabricatingRecipe selectedFabricationRecipe() {
+        List<RecipeHolder<GadgetFabricatingRecipe>> recipes = fabricationRecipes();
+        return selectedFabricationIndex >= 0 && selectedFabricationIndex < recipes.size()
+                ? recipes.get(selectedFabricationIndex).value()
+                : null;
+    }
+
+    private static int clampRow(int row, int maxRow) {
+        return Math.max(0, Math.min(maxRow, row));
     }
 
     private static final int FILL_PRESS_FLASH_TICKS = 4;
@@ -773,59 +881,118 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
             return true;
         }
 
-        if (menu.getMaxScrollRow() > 0) {
-            int trackX = trackX();
-            int trackY = trackY();
-            int thumbHeight = thumbHeight();
-            int thumbY = thumbY(trackY, thumbHeight);
-            int thumbX = thumbX(trackX);
+        if (tryScrollbarClick(ScrollTarget.STORAGE, trackX(), trackY(), SCROLL_BAR_HEIGHT,
+                menu.getScrollRow(), menu.getMaxScrollRow(), mouseX, mouseY)) {
+            return true;
+        }
 
-            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, thumbX, thumbY, SCROLLER_WIDTH, thumbHeight)) {
-                draggingThumb = true;
-                dragGrabOffsetY = (int) mouseY - thumbY;
-                lastDraggedRow = menu.getScrollRow();
-                return true;
-            }
-
-            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, trackX, trackY, SCROLL_BAR_WIDTH, SCROLL_BAR_HEIGHT)) {
-                int trackMid = trackY + SCROLL_BAR_HEIGHT / 2;
-                pressScrollButton(mouseY < trackMid ? WorkbenchMenu.BUTTON_SCROLL_UP : WorkbenchMenu.BUTTON_SCROLL_DOWN);
-                return true;
+        if (currentPage == Page.FABRICATION) {
+            GadgetFabricatingRecipe recipe = selectedFabricationRecipe();
+            if (recipe != null) {
+                if (tryScrollbarClick(ScrollTarget.FAB_ITEMS, x + FAB_ITEM_SCROLL_X, y + FAB_DETAIL_Y, ITEM_SLOT_SIZE,
+                        fabItemScrollRow, maxIngredientScrollRow(recipe.items().size()), mouseX, mouseY)) {
+                    return true;
+                }
+                if (tryScrollbarClick(ScrollTarget.FAB_FLUIDS, x + FAB_FLUID_SCROLL_X, y + FAB_DETAIL_Y, ITEM_SLOT_SIZE,
+                        fabFluidScrollRow, maxIngredientScrollRow(recipe.fluids().size()), mouseX, mouseY)) {
+                    return true;
+                }
             }
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
-    @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (draggingThumb) {
-            int maxRow = menu.getMaxScrollRow();
-            int thumbHeight = thumbHeight();
-            int usableTravel = travel() - thumbHeight;
-            int trackTop = trackY() + SCROLL_TRACK_MARGIN;
+    /** Shared thumb-grab/track-click detection for whichever scrollbar {@code target} identifies --
+     * generalized 2026-09-06 (see {@link ScrollTarget}'s own javadoc). Starts a drag on a thumb hit,
+     * or pages one row on a track hit (above the thumb pages up, below pages down); returns whether
+     * either happened, so callers can early-return the same way the old Storage-only code did. */
+    private boolean tryScrollbarClick(ScrollTarget target, int trackX, int trackY, int trackHeight,
+                                       int currentRow, int maxRow, double mouseX, double mouseY) {
+        if (maxRow <= 0) return false;
 
-            int desiredThumbY = (int) mouseY - dragGrabOffsetY;
-            int clampedOffset = Math.max(0, Math.min(usableTravel, desiredThumbY - trackTop));
+        int thumbHeight = thumbHeight(trackHeight, maxRow);
+        int thumbY = thumbY(trackY, trackHeight, currentRow, maxRow, thumbHeight);
+        int thumbX = thumbX(trackX, trackHeight);
 
-            int row = maxRow > 0 && usableTravel > 0
-                    ? Math.round(((float) clampedOffset / usableTravel) * maxRow)
-                    : 0;
-            row = Math.max(0, Math.min(maxRow, row));
-
-            if (row != lastDraggedRow) {
-                lastDraggedRow = row;
-                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.setRowButtonId(row));
-            }
+        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, thumbX, thumbY, SCROLLER_WIDTH, thumbHeight)) {
+            draggingScrollbar = target;
+            dragGrabOffsetY = (int) mouseY - thumbY;
+            lastDraggedRow = currentRow;
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+
+        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, trackX, trackY, SCROLL_BAR_WIDTH, trackHeight)) {
+            boolean up = mouseY < trackY + trackHeight / 2.0;
+            applyScrollStep(target, up, currentRow, maxRow);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void applyScrollStep(ScrollTarget target, boolean up, int currentRow, int maxRow) {
+        switch (target) {
+            case STORAGE -> pressScrollButton(up ? WorkbenchMenu.BUTTON_SCROLL_UP : WorkbenchMenu.BUTTON_SCROLL_DOWN);
+            case FAB_ITEMS -> fabItemScrollRow = clampRow(currentRow + (up ? -1 : 1), maxRow);
+            case FAB_FLUIDS -> fabFluidScrollRow = clampRow(currentRow + (up ? -1 : 1), maxRow);
+        }
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (draggingScrollbar == null) return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+
+        int trackHeight;
+        int trackTop;
+        int maxRow;
+        switch (draggingScrollbar) {
+            case STORAGE -> {
+                trackHeight = SCROLL_BAR_HEIGHT;
+                trackTop = trackY();
+                maxRow = menu.getMaxScrollRow();
+            }
+            case FAB_ITEMS -> {
+                GadgetFabricatingRecipe recipe = selectedFabricationRecipe();
+                trackHeight = ITEM_SLOT_SIZE;
+                trackTop = (height - imageHeight) / 2 + FAB_DETAIL_Y;
+                maxRow = recipe == null ? 0 : maxIngredientScrollRow(recipe.items().size());
+            }
+            default -> {
+                GadgetFabricatingRecipe recipe = selectedFabricationRecipe();
+                trackHeight = ITEM_SLOT_SIZE;
+                trackTop = (height - imageHeight) / 2 + FAB_DETAIL_Y;
+                maxRow = recipe == null ? 0 : maxIngredientScrollRow(recipe.fluids().size());
+            }
+        }
+
+        int thumbHeight = thumbHeight(trackHeight, maxRow);
+        int usableTravel = travel(trackHeight) - thumbHeight;
+        int trackContentTop = trackTop + SCROLL_TRACK_MARGIN;
+
+        int desiredThumbY = (int) mouseY - dragGrabOffsetY;
+        int clampedOffset = Math.max(0, Math.min(usableTravel, desiredThumbY - trackContentTop));
+
+        int row = maxRow > 0 && usableTravel > 0
+                ? Math.round(((float) clampedOffset / usableTravel) * maxRow)
+                : 0;
+        row = clampRow(row, maxRow);
+
+        if (row != lastDraggedRow) {
+            lastDraggedRow = row;
+            switch (draggingScrollbar) {
+                case STORAGE -> minecraft.gameMode.handleInventoryButtonClick(menu.containerId, WorkbenchMenu.setRowButtonId(row));
+                case FAB_ITEMS -> fabItemScrollRow = row;
+                case FAB_FLUIDS -> fabFluidScrollRow = row;
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (draggingThumb) {
-            draggingThumb = false;
+        if (draggingScrollbar != null) {
+            draggingScrollbar = null;
             return true;
         }
         return super.mouseReleased(mouseX, mouseY, button);
@@ -834,7 +1001,12 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
     private boolean isOverStrip(int mouseX, int mouseY) {
         int x = (width - imageWidth) / 2;
         int stripY = trackY();
-        return MouseUtil.isMouseOver(mouseX, mouseY, x, stripY, STRIP_BACKGROUND_WIDTH, STRIP_BACKGROUND_HEIGHT);
+        // Widened past STRIP_BACKGROUND_WIDTH to also cover the scrollbar itself, which sits just to
+        // the right of the background art (SCROLL_BAR_X = STRIP_X + ITEM_SLOT_BAR_WIDTH + 1 + 6 lands
+        // right at the background's own right edge) -- otherwise scrolling while hovering the bar
+        // itself, rather than the icon row, did nothing.
+        int stripWidth = SCROLL_BAR_X + SCROLL_BAR_WIDTH;
+        return MouseUtil.isMouseOver(mouseX, mouseY, x, stripY, stripWidth, STRIP_BACKGROUND_HEIGHT);
     }
 
     private void pressScrollButton(int buttonId) {
