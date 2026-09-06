@@ -74,7 +74,14 @@
 								"up": {"uv": [0, 8], "uv_size": [4, 6]},
 								"down": {"uv": [10, 6], "uv_size": [4, -6]}
 							}
-						},
+						}
+					]
+				},
+				{
+					"name": "screen",
+					"parent": "sleeve",
+					"pivot": [0, 3.25, 3],
+					"cubes": [
 						{
 							"origin": [-1.5, 3.25, 2],
 							"size": [3, 2, 2],

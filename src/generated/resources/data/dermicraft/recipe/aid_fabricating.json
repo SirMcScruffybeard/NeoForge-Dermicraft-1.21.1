@@ -1,0 +1,45 @@
+{
+  "type": "dermicraft:gadget_fabricating",
+  "fluids": [
+    {
+      "amount": 1000,
+      "id": "dermicraft:source_ferrous_blend"
+    },
+    {
+      "amount": 1000,
+      "id": "dermicraft:source_aurous_blend"
+    }
+  ],
+  "items": [
+    {
+      "count": 1,
+      "id": "dermicraft:chassis"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:proto_brain"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:scalpel"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:forceps"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:suture_kit"
+    },
+    {
+      "count": 1,
+      "id": "dermicraft:syringe"
+    }
+  ],
+  "required_tier": 1,
+  "result": {
+    "count": 1,
+    "id": "dermicraft:aid"
+  },
+  "ticks": 1800
+}

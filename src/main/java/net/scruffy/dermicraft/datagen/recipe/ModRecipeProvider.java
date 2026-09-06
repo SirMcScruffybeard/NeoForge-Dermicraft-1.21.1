@@ -2176,6 +2176,30 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new FluidStack(ModFluids.SOURCE_SILICA_BLEND.get(), 500)),
                 ModItems.EATER.get(), ModMath.Time.getSecondsToTicks(30), 1);
 
+        // A.I.D.: a full craft-up of the four base tools it replaces, per the design notes (see
+        // src/docs/aid-gadget-notes.md) -- consuming a real Scalpel/Forceps/Suture Kit/Syringe rather
+        // than sourcing their functions from raw materials directly is the point: A.I.D. is what you
+        // build once you already have one of each. Proto Brain included (unlike Sunder, and unlike
+        // Injection Gun's own deliberate omission) -- A.I.D. has to decide which of four distinct
+        // surgical functions to perform on a given click, which justifies the processor the same way
+        // Sipping/Drinker/Eater's target-scan/routing logic does. 90 seconds reflects Eater's own
+        // complexity tier -- four distinct mode-gated behaviors, not a single-purpose gadget. Ferrous
+        // + Aurous Blend (1000 mB each, "a bucket of gold and iron blend") stand in for the shared
+        // metal housing all four tools get folded into; no Protein Blend -- unlike the sensor/buffer
+        // gadgets, there's no new organic tissue being introduced, just four existing tools recombined.
+        RecipeBuilders.fabricateGadget(recipeOutput, "aid_fabricating",
+                List.of(
+                        new ItemStack(ModItems.CHASSIS.get()),
+                        new ItemStack(ModItems.PROTO_BRAIN.get()),
+                        new ItemStack(ModItems.SCALPEL.get()),
+                        new ItemStack(ModItems.FORCEPS.get()),
+                        new ItemStack(ModItems.SUTURE_KIT.get()),
+                        new ItemStack(ModItems.SYRINGE.get())),
+                List.of(
+                        new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 1000),
+                        new FluidStack(ModFluids.SOURCE_AUROUS_BLEND.get(), 1000)),
+                ModItems.AID.get(), ModMath.Time.getSecondsToTicks(90), 1);
+
         // Sunder: no Proto Brain, deliberately -- unlike Sipping/Drinker/Eater, Sunder isn't a smart
         // device. The auto-swing/auto-targeting logic exists to work around vanilla blocking the
         // attack key while revved (see SunderItem's own class javadoc), not because the weapon
