@@ -24,6 +24,7 @@ import net.scruffy.dermicraft.block.custom.gate.GatePortBlock;
 import net.scruffy.dermicraft.block.custom.tumor.*;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BeakerItem;
+import net.scruffy.dermicraft.item.custom.KnowledgeVatBlockItem;
 import net.scruffy.dermicraft.item.custom.SkinTankBlockItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -185,11 +186,12 @@ public class ModBlocks {
 
     // Knowledge Vat -- Flesh Lab control block, stores a player's own XP as Knowledge Essence
     // fluid (KnowledgeVatBlockEntity#depositLevel/withdrawLevel). Preserves contents on Forceps
-    // pickup same as Skin Tank, so it reuses SkinTankBlockItem as-is (block-generic already).
+    // pickup the same BLOCK_ENTITY_DATA mechanism as Skin Tank, but with its own item class so the
+    // tooltip can show levels alongside mB -- see KnowledgeVatBlockItem.
     public static final DeferredBlock<Block> KNOWLEDGE_VAT = BLOCKS.register("knowledge_vat",
             () -> new KnowledgeVatBlock(machineProperties()));
     public static final DeferredItem<Item> KNOWLEDGE_VAT_ITEM = ModItems.ITEMS.register("knowledge_vat",
-            () -> new SkinTankBlockItem(KNOWLEDGE_VAT.get(), new Item.Properties()));
+            () -> new KnowledgeVatBlockItem(KNOWLEDGE_VAT.get(), new Item.Properties()));
 
     // Charred Tank -- Skin Tank's hazard-gated Tier 2 evolution, see CharredTankBlockEntity for the
     // actual capability leap (double capacity, thermal-tolerant tank). Reuses SkinTankBlockItem as-is
