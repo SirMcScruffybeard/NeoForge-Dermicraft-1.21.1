@@ -64,7 +64,13 @@ public record GadgetFabricatingRecipe(List<ItemStack> items, List<FluidStack> fl
         for (ItemStack required : items) {
             boolean matched = false;
             for (ItemStack poolStack : pool) {
-                if (!poolStack.isEmpty() && ItemStack.isSameItemSameComponents(poolStack, required)
+                // Item identity only, deliberately ignoring data components -- a used/empty Syringe,
+                // a damaged Scalpel, etc. still satisfy the requirement, same as getIngredients()'
+                // own Ingredient.of(stack.getItem()) already promises. Matching on components too
+                // would silently reject anything but a factory-fresh stack, which fabrication
+                // recipes that consume other tools (A.I.D.'s Chassis+Proto Brain+tools recipe) were
+                // never meant to require.
+                if (!poolStack.isEmpty() && poolStack.is(required.getItem())
                         && poolStack.getCount() >= required.getCount()) {
                     poolStack.shrink(required.getCount());
                     matched = true;

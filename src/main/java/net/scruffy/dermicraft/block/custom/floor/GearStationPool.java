@@ -29,11 +29,13 @@ public final class GearStationPool {
      */
     public record Snapshot(List<ItemStack> items, List<FluidStack> fluids) {
 
-        /** Total count of {@code required}'s item across every matching stack in the snapshot. */
+        /** Total count of {@code required}'s item across every matching stack in the snapshot.
+         * Item identity only, deliberately ignoring data components -- see
+         * {@link GadgetFabricatingRecipe#testItems} for why. */
         public int itemCount(ItemStack required) {
             int total = 0;
             for (ItemStack candidate : items) {
-                if (ItemStack.isSameItemSameComponents(candidate, required)) total += candidate.getCount();
+                if (candidate.is(required.getItem())) total += candidate.getCount();
             }
             return total;
         }
@@ -94,7 +96,7 @@ public final class GearStationPool {
                 if (remaining <= 0) break;
                 for (int slot = 0; slot < source.getSlots() && remaining > 0; slot++) {
                     ItemStack candidate = source.getStackInSlot(slot);
-                    if (candidate.isEmpty() || !ItemStack.isSameItemSameComponents(candidate, requirement)) continue;
+                    if (candidate.isEmpty() || !candidate.is(requirement.getItem())) continue;
 
                     ItemStack extracted = source.extractItem(slot, remaining, false);
                     remaining -= extracted.getCount();
