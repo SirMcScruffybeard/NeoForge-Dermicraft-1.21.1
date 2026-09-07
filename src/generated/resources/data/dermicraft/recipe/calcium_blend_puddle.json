@@ -1,0 +1,22 @@
+{
+  "type": "dermicraft:puddle_fluid_crafting",
+  "ingredients": [
+    {
+      "item": "minecraft:bone_meal"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    }
+  ],
+  "item_amount": 0,
+  "puddle": "minecraft:water",
+  "result_fluid": "dermicraft:source_calcium_blend",
+  "result_item": "minecraft:air",
+  "ticks": 100
+}

@@ -1198,6 +1198,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.PuddleCraft.MakeItems.makeFromOneItem(recipeOutput, "calcium_glass_puddle", Items.BONE_MEAL, 1, ModFluids.SOURCE_CALCIUM_BLEND.get(),
                 ModBlocks.CALCIUM_GLASS.asItem(), 1, ModMath.Time.getSecondsToTicks(20));
 
+        // Bootstrap route to Calcium Blend -- costs 4 Bone Meal for the same 1000 mB the Masticator's
+        // own batch recipe gets from 3 (calcium_blend_bone_meal_masticating_batch above), a real
+        // premium for skipping the machine, matching every other puddle-vs-machine tradeoff.
+        RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "calcium_blend_puddle",
+                List.of(Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL)),
+                Fluids.WATER, ModFluids.SOURCE_CALCIUM_BLEND.get(), ModMath.Time.getSecondsToTicks(5));
+
+        // Reverses Primitive Catalyst's own bone-as-ingredient recipe (dermicraft-catalyst-notes.md) --
+        // Bone Meal pulls a whole Bone back out. Puddle stays Primitive Catalyst rather than
+        // downgrading to its Crude Slurry base (unlike Calcium Glass/Inert Tumor's consume-to-air
+        // convention above) -- dropping a tier on top of the Bone Meal cost would price this Bone at
+        // more than double what it's actually worth.
+        RecipeBuilders.PuddleCraft.build(recipeOutput, "bone_puddle",
+                List.of(Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL)),
+                ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(),
+                Items.BONE, 1, ModMath.Time.getSecondsToTicks(5));
+
         // MRE - bootstrap route: 1 Filled F-Stuff Bucket smelts into 1 MRE.
         // Cook times mirror vanilla raw beef/chicken: 200 ticks (furnace), 100 ticks (smoker).
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModFluids.F_STUFF_BUCKET.get()), RecipeCategory.FOOD,

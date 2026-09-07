@@ -1,0 +1,22 @@
+{
+  "type": "dermicraft:puddle_fluid_crafting",
+  "ingredients": [
+    {
+      "item": "minecraft:bone_meal"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    },
+    {
+      "item": "minecraft:bone_meal"
+    }
+  ],
+  "item_amount": 1,
+  "puddle": "dermicraft:source_primitive_catalyst",
+  "result_fluid": "dermicraft:source_primitive_catalyst",
+  "result_item": "minecraft:bone",
+  "ticks": 100
+}
