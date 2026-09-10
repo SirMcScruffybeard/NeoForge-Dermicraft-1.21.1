@@ -438,7 +438,7 @@
 
   "tooltip.dermicraft.liquid.amount.with.capacity": "%s / %s mB",
   "tooltip.dermicraft.liquid.amount": "%s mB",
-  "tooltip.dermicraft.knowledge_vat.levels": "%s Levels",
+  "tooltip.dermicraft.knowledge_vat.levels": "≈ Level %s (from empty)",
 
   "gui.dermicraft.mr_farmer.range": "Range: %1$sx%1$s",
   "gui.dermicraft.mr_shepard.range": "Range: %1$sx%1$s",

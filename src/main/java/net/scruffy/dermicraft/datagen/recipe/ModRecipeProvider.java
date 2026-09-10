@@ -280,13 +280,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_flint",
                 Ingredient.of(Items.FLINT), Ingredient.of(ItemTags.WOOL),
                 new ItemStack(Items.STRING, 4), 0, true);
+        RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_shears",
+                Ingredient.of(Items.SHEARS), Ingredient.of(ItemTags.WOOL),
+                new ItemStack(Items.STRING, 4), 1, false);
         // A.I.D., in Scalpel mode -- see AidItem's useScalpel/HandShreddingEvent's mode gate. 0
         // tool damage like the iron Scalpel: A.I.D.'s durability is Gadget HP, not per-use wear.
         RecipeBuilders.buildHandShredding(recipeOutput, "wool_to_string_aid",
                 Ingredient.of(ModItems.AID.get()), Ingredient.of(ItemTags.WOOL),
                 new ItemStack(Items.STRING, 4), 0, false);
 
-        // Carved Pumpkin -- same 3-tool roster as Wool->String above, Shears matching its real
+        // Carved Pumpkin -- same 4-tool roster as Wool->String above, Shears matching its real
         // vanilla carving-tool role (1 durability, same as vanilla's own shears-on-pumpkin
         // interaction) alongside the surgical-toolkit alternates.
         RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_shears",

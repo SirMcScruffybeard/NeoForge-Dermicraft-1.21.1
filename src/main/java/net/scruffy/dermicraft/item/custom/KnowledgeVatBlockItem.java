@@ -17,9 +17,11 @@ import java.util.List;
 
 /**
  * Knowledge Vat's Forceps-recovered item -- same {@code BLOCK_ENTITY_DATA}-carries-the-tank-home
- * mechanism as {@link SkinTankBlockItem} (see that class's own javadoc), but with its own tooltip
- * since Knowledge Vat's contents are more meaningfully read as levels (its actual player-facing
- * unit) than raw mB alone -- shows both.
+ * mechanism as {@link SkinTankBlockItem} (see that class's own javadoc), but with its own tooltip.
+ * Since Knowledge Essence is now priced at real per-level XP cost rather than one flat mB/level rate
+ * (see {@link KnowledgeVatBlockEntity}'s own class javadoc), a banked amount doesn't correspond to a
+ * clean level count on its own -- {@link KnowledgeVatBlockEntity#levelForPoints} answers "what level
+ * would this amount of XP get a level-0 player to", which is shown alongside the raw mB instead.
  */
 public class KnowledgeVatBlockItem extends BlockItem {
 
@@ -38,7 +40,7 @@ public class KnowledgeVatBlockItem extends BlockItem {
             tooltip.add(fluid.getHoverName());
             tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount", fluid.getAmount()));
             tooltip.add(Component.translatable("tooltip.dermicraft.knowledge_vat.levels",
-                    fluid.getAmount() / KnowledgeVatBlockEntity.MB_PER_LEVEL));
+                    KnowledgeVatBlockEntity.levelForPoints(fluid.getAmount())));
         } else {
             tooltip.add(Component.translatable("tooltip.dermicraft.hold_shift_for_amount"));
         }

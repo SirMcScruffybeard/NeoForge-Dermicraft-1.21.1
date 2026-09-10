@@ -347,7 +347,11 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     // Same pickup area and work cycle as collectItems() -- called right alongside it in tick(), so
     // XP gathering happens exactly when/where item gathering does, not on its own separate timer.
 
-    private static final int MB_PER_XP_POINT = 10; // felt number -- see XP_TANK's own 100mB/level convention
+    // 1:1 with XP_TANK's own real point-cost convention (KnowledgeVatBlockEntity) -- must match
+    // exactly, or fluid collected here would be worth a different amount of real XP than the same
+    // fluid deposited by hand through the Vat, letting orb collection silently inflate or deflate a
+    // player's XP the moment it's converted back.
+    private static final int MB_PER_XP_POINT = 1;
 
     private boolean collectXp(ServerLevel level, AABB area) {
         boolean any = false;
