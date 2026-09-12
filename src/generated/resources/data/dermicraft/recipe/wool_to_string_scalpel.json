@@ -3,10 +3,12 @@
   "input": {
     "tag": "minecraft:wool"
   },
-  "result": {
-    "count": 4,
-    "id": "minecraft:string"
-  },
+  "results": [
+    {
+      "count": 4,
+      "id": "minecraft:string"
+    }
+  ],
   "tool": {
     "item": "dermicraft:scalpel"
   }

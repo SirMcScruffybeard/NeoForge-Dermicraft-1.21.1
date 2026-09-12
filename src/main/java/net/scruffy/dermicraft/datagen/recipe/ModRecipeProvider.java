@@ -291,19 +291,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Carved Pumpkin -- same 4-tool roster as Wool->String above, Shears matching its real
         // vanilla carving-tool role (1 durability, same as vanilla's own shears-on-pumpkin
-        // interaction) alongside the surgical-toolkit alternates.
+        // interaction) alongside the surgical-toolkit alternates. Also yields Pumpkin Seeds (4),
+        // matching vanilla's own shears-on-pumpkin-BLOCK seed count -- carving a pumpkin by hand
+        // shouldn't waste the seeds a block-carve wouldn't.
+        List<ItemStack> carvedPumpkinResults = List.of(new ItemStack(Items.CARVED_PUMPKIN), new ItemStack(Items.PUMPKIN_SEEDS, 4));
         RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_shears",
                 Ingredient.of(Items.SHEARS), Ingredient.of(Items.PUMPKIN),
-                new ItemStack(Items.CARVED_PUMPKIN), 1, false);
+                carvedPumpkinResults, 1, false);
         RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_scalpel",
                 Ingredient.of(ModItems.SCALPEL.get()), Ingredient.of(Items.PUMPKIN),
-                new ItemStack(Items.CARVED_PUMPKIN), 0, false);
+                carvedPumpkinResults, 0, false);
         RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_primitive_scalpel",
                 Ingredient.of(ModItems.PRIMITIVE_SCALPEL.get()), Ingredient.of(Items.PUMPKIN),
-                new ItemStack(Items.CARVED_PUMPKIN), 1, false);
+                carvedPumpkinResults, 1, false);
         RecipeBuilders.buildHandShredding(recipeOutput, "carved_pumpkin_aid",
                 Ingredient.of(ModItems.AID.get()), Ingredient.of(Items.PUMPKIN),
-                new ItemStack(Items.CARVED_PUMPKIN), 0, false);
+                carvedPumpkinResults, 0, false);
 
         RecipeBuilders.simpleEarlyImplant(recipeOutput, Tags.Items.FOODS_RAW_MEAT, "inert_tumor_implant", ModBlocks.INERT_TUMOR.asItem());
 

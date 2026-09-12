@@ -31,8 +31,11 @@ public class HandShreddingCategory implements IRecipeCategory<RecipeHolder<HandS
     private static final int INPUT_X = 29;
     private static final int ARROW_X = 58, ARROW_Y = ROW_Y + 4;
     private static final int RESULT_X = 85;
+    // Secondary result (e.g. Carved Pumpkin's Pumpkin Seeds) stacks below the primary one -- only
+    // drawn/populated for recipes that actually have a second entry in getAllResults().
+    private static final int RESULT_2_Y = ROW_Y + JeiTextures.ITEM_SLOT_SIZE + 2;
     private static final int WIDTH = RESULT_X + JeiTextures.ITEM_SLOT_SIZE;
-    private static final int HEIGHT = ROW_Y + JeiTextures.ITEM_SLOT_SIZE + 12;
+    private static final int HEIGHT = RESULT_2_Y + JeiTextures.ITEM_SLOT_SIZE + 12;
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -74,6 +77,9 @@ public class HandShreddingCategory implements IRecipeCategory<RecipeHolder<HandS
         itemSlot.draw(guiGraphics, TOOL_X, ROW_Y);
         itemSlot.draw(guiGraphics, INPUT_X, ROW_Y);
         itemSlot.draw(guiGraphics, RESULT_X, ROW_Y);
+        if (holder.value().results().size() > 1) {
+            itemSlot.draw(guiGraphics, RESULT_X, RESULT_2_Y);
+        }
         arrowBackground.draw(guiGraphics, ARROW_X, ARROW_Y);
         arrowFull.draw(guiGraphics, ARROW_X, ARROW_Y);
     }
@@ -92,5 +98,10 @@ public class HandShreddingCategory implements IRecipeCategory<RecipeHolder<HandS
 
         builder.addSlot(RecipeIngredientRole.OUTPUT, RESULT_X + 1, ROW_Y + 1)
                 .addItemStack(recipe.getResultItem(null));
+
+        if (recipe.results().size() > 1) {
+            builder.addSlot(RecipeIngredientRole.OUTPUT, RESULT_X + 1, RESULT_2_Y + 1)
+                    .addItemStack(recipe.results().get(1).copy());
+        }
     }
 }

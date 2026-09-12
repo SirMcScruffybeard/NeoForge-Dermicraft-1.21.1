@@ -75,9 +75,10 @@ public class HandShreddingEvent {
                     : EquipmentSlot.OFFHAND);
         }
 
-        ItemStack result = recipe.getResultItem(level.registryAccess());
-        if (!player.getInventory().add(result)) {
-            player.drop(result, false);
+        for (ItemStack result : recipe.getAllResults()) {
+            if (!player.getInventory().add(result)) {
+                player.drop(result, false);
+            }
         }
 
         // A.I.D. plays its own "cut" trigger in place of the vanilla arm swing -- CONSUME (rather

@@ -16,13 +16,21 @@ import net.minecraft.world.level.Level;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 /**
  * Generic "hand tool + item, right-click in air" crafting -- no block/machine involved, unlike
  * every other recipe type in the mod. Covers things like Scalpel/Flint + Wool -> String, and is
  * meant to be reused for future similar tool-in-one-hand-item-in-other interactions rather than
  * spawning a new recipe type per case. See {@code HandShreddingEvent} for the trigger.
+ *
+ * <p>{@code results} is a list rather than a single {@code ItemStack} so a recipe can grant more
+ * than one item at once (e.g. Carved Pumpkin + Pumpkin Seeds) -- the first entry is the "primary"
+ * result for display purposes ({@link #assemble}/{@link #getResultItem}, both of which vanilla's
+ * {@code Recipe} interface only allows one item from), while {@link #getAllResults} is what
+ * {@code HandShreddingEvent} actually grants everything from.
  */
-public record HandShreddingRecipe(Ingredient tool, Ingredient input, ItemStack result,
+public record HandShreddingRecipe(Ingredient tool, Ingredient input, List<ItemStack> results,
                                    int toolDamage, boolean consumeTool) implements Recipe<HandShreddingRecipeInput> {
 
     @Override @NotNull
@@ -40,7 +48,7 @@ public record HandShreddingRecipe(Ingredient tool, Ingredient input, ItemStack r
 
     @Override
     public ItemStack assemble(HandShreddingRecipeInput recipeInput, HolderLookup.Provider registries) {
-        return result.copy();
+        return primaryResult();
     }
 
     @Override
@@ -50,7 +58,17 @@ public record HandShreddingRecipe(Ingredient tool, Ingredient input, ItemStack r
 
     @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
-        return result.copy();
+        return primaryResult();
+    }
+
+    private ItemStack primaryResult() {
+        return results.isEmpty() ? ItemStack.EMPTY : results.get(0).copy();
+    }
+
+    /** Every item this recipe grants -- see {@code HandShreddingEvent}, which loops over this
+     * (not {@link #getResultItem}) when actually handing out results. */
+    public List<ItemStack> getAllResults() {
+        return results.stream().map(ItemStack::copy).toList();
     }
 
     @Override
@@ -82,7 +100,7 @@ public record HandShreddingRecipe(Ingredient tool, Ingredient input, ItemStack r
                 RecordCodecBuilder.mapCodec(inst ->
                         inst.group(Ingredient.CODEC.fieldOf("tool").forGetter(HandShreddingRecipe::tool),
                                 Ingredient.CODEC.fieldOf("input").forGetter(HandShreddingRecipe::input),
-                                ItemStack.CODEC.fieldOf("result").forGetter(HandShreddingRecipe::result),
+                                ItemStack.CODEC.listOf().fieldOf("results").forGetter(HandShreddingRecipe::results),
                                 com.mojang.serialization.Codec.INT.optionalFieldOf("tool_damage", 0)
                                         .forGetter(HandShreddingRecipe::toolDamage),
                                 com.mojang.serialization.Codec.BOOL.optionalFieldOf("consume_tool", false)
@@ -93,7 +111,7 @@ public record HandShreddingRecipe(Ingredient tool, Ingredient input, ItemStack r
                 StreamCodec.composite(
                         Ingredient.CONTENTS_STREAM_CODEC, HandShreddingRecipe::tool,
                         Ingredient.CONTENTS_STREAM_CODEC, HandShreddingRecipe::input,
-                        ItemStack.STREAM_CODEC, HandShreddingRecipe::result,
+                        ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), HandShreddingRecipe::results,
                         ByteBufCodecs.VAR_INT, HandShreddingRecipe::toolDamage,
                         ByteBufCodecs.BOOL, HandShreddingRecipe::consumeTool,
                         HandShreddingRecipe::new);

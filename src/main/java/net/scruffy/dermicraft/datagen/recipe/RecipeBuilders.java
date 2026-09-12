@@ -71,8 +71,15 @@ public class RecipeBuilders {
     ////////////////////HandShredding\\\\\\\\\\\\\\\\\\\\
     public static void buildHandShredding(RecipeOutput output, String name, Ingredient tool, Ingredient input,
                                            ItemStack result, int toolDamage, boolean consumeTool) {
+        buildHandShredding(output, name, tool, input, List.of(result), toolDamage, consumeTool);
+    }
+
+    /** Multi-result variant -- e.g. Carved Pumpkin + Pumpkin Seeds. The first entry is the
+     * "primary" result JEI/recipe-book display uses; every entry is granted on trigger. */
+    public static void buildHandShredding(RecipeOutput output, String name, Ingredient tool, Ingredient input,
+                                           List<ItemStack> results, int toolDamage, boolean consumeTool) {
         ResourceLocation id = getResourceLocation(name);
-        HandShreddingRecipe recipe = new HandShreddingRecipe(tool, input, result, toolDamage, consumeTool);
+        HandShreddingRecipe recipe = new HandShreddingRecipe(tool, input, results, toolDamage, consumeTool);
         output.accept(id, recipe, null);
     }
 
