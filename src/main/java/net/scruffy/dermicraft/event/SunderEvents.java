@@ -14,14 +14,18 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.item.ItemTossEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
+import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.component.SunderModeData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.item.custom.SunderItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.ChainProperties;
+import net.scruffy.dermicraft.util.AutoSmeltUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Hard-resets Sunder's rev state on toss -- without this, a dropped Sunder freezes wherever its
@@ -120,6 +124,68 @@ public class SunderEvents {
 
         if (target.getRandom().nextFloat() < chain.xpBonusChance()) {
             net.scruffy.dermicraft.util.AutoSmeltUtil.awardExperience(serverLevel, target.position(), chain.xpBonusAmount());
+        }
+    }
+
+    /**
+     * Normal (non-SAWING) mining's own auto-smelt -- every drop from a block Sunder mines the usual
+     * way (left-click, same as any axe/sword) gets substituted for its real {@link
+     * net.minecraft.world.item.crafting.SmeltingRecipe} result, XP included, same universal "any
+     * block, not restricted to logs/ore" framing as {@link ShatterEvents#onBlockDropsAutoSmelt}.
+     * SAWING felling has its own separate substitution ({@code SunderItem#tickFelling}, driven
+     * directly rather than through this event) since it hands out drops as it cuts, not via a real
+     * block-break -- this only covers the ordinary path. See {@code ShatterEvents
+     * #onBlockDropsAutoSmelt} for the near-identical Shatter version. Gated on either a Blaze Essence
+     * chain ({@code smeltsLogs}, now covering normal mining too, not just felling) -- free, as always
+     * -- or the Smelting Module (see {@code ModTags.Items#MODULE_SMELTING}), which costs {@link
+     * AutoSmeltUtil#SMELTING_MODULE_FUEL_PER_ITEM} mB/item from Sunder's own fuel tank (see {@link
+     * AutoSmeltUtil#affordableSmeltCount}) -- a genuinely new fuel cost on ordinary mining, which
+     * previously never touched the tank at all, but only when the Module (not the chain) is what's
+     * actually providing the trait. Whatever the Module's fuel can't cover falls back to that item's
+     * raw drop rather than blocking the whole break -- iterates a {@link List#copyOf} snapshot since
+     * a partial-fuel drop spawns an extra {@link ItemEntity} for the raw leftover, same "copy first,
+     * mutate the live list after" convention {@link #onLivingDropsLootBonus} already uses. Having both
+     * a smelting chain AND the Module installed is harmless (chain's free path always wins first, no
+     * fuel ever spent) since it only ever spends fuel to redo a smelt {@code freeSmelt} already gave
+     * away.
+     */
+    @SubscribeEvent
+    public static void onBlockDropsAutoSmelt(BlockDropsEvent event) {
+        ItemStack tool = event.getTool();
+        if (!(tool.getItem() instanceof SunderItem)) return;
+
+        ChainProperties chain = SunderItem.chainProperties(tool);
+        boolean freeSmelt = chain != null && chain.smeltsLogs();
+        boolean moduleSmelt = SunderItem.hasModule(tool, ModTags.Items.MODULE_SMELTING);
+        if (!freeSmelt && !moduleSmelt) return;
+
+        ServerLevel level = event.getLevel();
+        float totalXp = 0f;
+        for (ItemEntity drop : List.copyOf(event.getDrops())) {
+            ItemStack original = drop.getItem();
+            Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, original);
+            if (smelted.isEmpty()) continue;
+
+            AutoSmeltUtil.SmeltResult result = smelted.get();
+            int smeltCount = original.getCount();
+            if (!freeSmelt) {
+                smeltCount = AutoSmeltUtil.affordableSmeltCount(
+                        tool, AutoSmeltUtil.SMELTING_MODULE_FUEL_PER_ITEM, original.getCount());
+                if (smeltCount <= 0) continue;
+            }
+
+            drop.setItem(result.result().copyWithCount(result.result().getCount() * smeltCount));
+            totalXp += result.experience() * smeltCount;
+
+            int rawRemainder = original.getCount() - smeltCount;
+            if (rawRemainder > 0) {
+                event.getDrops().add(new ItemEntity(level, drop.getX(), drop.getY(), drop.getZ(),
+                        original.copyWithCount(rawRemainder)));
+            }
+        }
+
+        if (totalXp > 0) {
+            AutoSmeltUtil.awardExperience(level, event.getPos(), totalXp);
         }
     }
 

@@ -10,6 +10,7 @@
     "dermicraft:work_speed_module",
     "dermicraft:salvage_module",
     "dermicraft:anchor_module",
-    "dermicraft:capacity_module"
+    "dermicraft:capacity_module",
+    "dermicraft:smelting_module"
   ]
 }

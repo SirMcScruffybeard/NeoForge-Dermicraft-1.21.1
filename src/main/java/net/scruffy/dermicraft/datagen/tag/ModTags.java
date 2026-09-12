@@ -138,6 +138,12 @@ public class ModTags {
         // explicitly deferred future extension.
         public static final TagKey<Item> MODULE_CAPACITY = createTag("module/capacity");
 
+        // "Smelting" family -- generic membership only, no data map needed (unlike Safety/Work Speed/
+        // Capacity): the effect is uniform (substitute a real SmeltingRecipe result, same as Blaze
+        // Essence's own auto-smelt trait) with no per-material variation to key off of. Universal
+        // slot -- competes with every other Module for the same slot(s), not a dedicated reservation.
+        public static final TagKey<Item> MODULE_SMELTING = createTag("module/smelting");
+
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

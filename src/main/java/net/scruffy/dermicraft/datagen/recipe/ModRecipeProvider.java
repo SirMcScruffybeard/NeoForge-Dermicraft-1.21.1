@@ -603,6 +603,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("capacity_module_beaker_crafting_table"));
 
+        // Smelting Module -- Furnace (the actual smelting apparatus, same "value the real mechanism"
+        // framing as Aggregate's Shovel/Hopper) over a Bucket of Blaze Essence (fire/heat identity,
+        // mirrors Blaze Essence's own auto-smelt trait on Shatter heads/Sunder chains) over the Frame.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SMELTING_MODULE.get())
+                .pattern("U")
+                .pattern("P")
+                .pattern("F")
+                .define('U', Items.FURNACE)
+                .define('P', ModFluids.BLAZE_ESSENCE_BUCKET.get())
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("smelting_module_crafting_table"));
+
         ////////////////////EarlyIncubating\\\\\\\\\\\\\\\\\\\\
         // Proto Brain: 10 Nerve Cluster bulk-loaded into a Craw, triggered by a 100 mB Synapse
         // Catalyst injection (100 mB is the syringe's fixed physical volume, not a cost lever).

@@ -35,8 +35,11 @@ import java.util.Optional;
  * attack and lets it naturally burn out {@code igniteFireSeconds} after the last pulse, with no
  * separate "attack length" tracking needed. {@code smeltsLogs} is Blaze Essence's other trait --
  * SAWING's tree-felling drops Charcoal (via a real {@code SmeltingRecipe} lookup, granting its XP
- * too) instead of the raw Log, see {@code SunderItem#tickFelling}/{@code AutoSmeltUtil}. False for
- * every material without it.
+ * too) instead of the raw Log, see {@code SunderItem#tickFelling}/{@code AutoSmeltUtil}. Also covers
+ * Sunder's ordinary (non-SAWING) mining now, universal like Shatter's {@code autoSmelt} rather than
+ * log-restricted -- see {@code SunderEvents#onBlockDropsAutoSmelt}. The Smelting Module (see
+ * {@code ModTags.Items#MODULE_SMELTING}) grants this same substitution in both places without a
+ * Blaze Essence chain mounted. False for every material without it.
  *
  * <p>{@code miningSpeed} (2026-08-27, added) mirrors the mounted chain's real vanilla Axe
  * equivalent's own destroy speed exactly -- vanilla tool speed is a per-Tier constant shared across

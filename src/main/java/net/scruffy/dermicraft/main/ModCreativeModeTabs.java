@@ -167,6 +167,9 @@ public class ModCreativeModeTabs {
                         // Capacity Module
                         output.accept(ModItems.CAPACITY_MODULE);
 
+                        // Smelting Module
+                        output.accept(ModItems.SMELTING_MODULE);
+
                         buildFlaskContents(output);
                         buildSyringeContents(output);
 

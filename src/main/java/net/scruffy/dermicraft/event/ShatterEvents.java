@@ -21,6 +21,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.item.custom.ShatterItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
@@ -308,7 +309,15 @@ public class ShatterEvents {
      * smelting it in a real Furnace. Deliberately NOT restricted to {@code Tags.Blocks.ORES} the
      * way Gold's loot bonus is -- see {@link ShatterHeadProperties}'s own javadoc for why this one
      * is meant to be universal. Same origin-block-and-AoE coverage as {@link #onBlockDropsLootBonus}
-     * (both fire from the same {@link BlockDropsEvent}).
+     * (both fire from the same {@link BlockDropsEvent}). Also granted by the Smelting Module (see
+     * {@code ModTags.Items#MODULE_SMELTING}) with no Blaze Essence head mounted -- but, unlike the
+     * head's free trait, the Module costs {@link AutoSmeltUtil#SMELTING_MODULE_FUEL_PER_ITEM} mB/item
+     * from Shatter's own fuel tank (see {@link AutoSmeltUtil#affordableSmeltCount}). Whatever the
+     * Module's fuel can't cover falls back to that item's raw drop rather than blocking the break --
+     * iterates a {@link List#copyOf} snapshot since a partial-fuel drop spawns an extra {@link
+     * ItemEntity} for the raw leftover, same convention {@link #onBlockDropsLootBonus} already uses.
+     * Having both the head trait AND the Module installed is harmless: the head's free path is
+     * checked first, so fuel is never spent to redo a smelt it already gave away.
      */
     @SubscribeEvent
     public static void onBlockDropsAutoSmelt(BlockDropsEvent event) {
@@ -316,18 +325,33 @@ public class ShatterEvents {
         if (!(tool.getItem() instanceof ShatterItem)) return;
 
         ShatterHeadProperties head = ShatterItem.headProperties(tool);
-        if (head == null || !head.autoSmelt()) return;
+        boolean freeSmelt = head != null && head.autoSmelt();
+        boolean moduleSmelt = ShatterItem.hasModule(tool, ModTags.Items.MODULE_SMELTING);
+        if (!freeSmelt && !moduleSmelt) return;
 
         ServerLevel level = event.getLevel();
         float totalXp = 0f;
-        for (ItemEntity drop : event.getDrops()) {
+        for (ItemEntity drop : List.copyOf(event.getDrops())) {
             ItemStack original = drop.getItem();
             Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, original);
             if (smelted.isEmpty()) continue;
 
             AutoSmeltUtil.SmeltResult result = smelted.get();
-            drop.setItem(result.result().copyWithCount(result.result().getCount() * original.getCount()));
-            totalXp += result.experience() * original.getCount();
+            int smeltCount = original.getCount();
+            if (!freeSmelt) {
+                smeltCount = AutoSmeltUtil.affordableSmeltCount(
+                        tool, AutoSmeltUtil.SMELTING_MODULE_FUEL_PER_ITEM, original.getCount());
+                if (smeltCount <= 0) continue;
+            }
+
+            drop.setItem(result.result().copyWithCount(result.result().getCount() * smeltCount));
+            totalXp += result.experience() * smeltCount;
+
+            int rawRemainder = original.getCount() - smeltCount;
+            if (rawRemainder > 0) {
+                event.getDrops().add(new ItemEntity(level, drop.getX(), drop.getY(), drop.getZ(),
+                        original.copyWithCount(rawRemainder)));
+            }
         }
 
         if (totalXp > 0) {

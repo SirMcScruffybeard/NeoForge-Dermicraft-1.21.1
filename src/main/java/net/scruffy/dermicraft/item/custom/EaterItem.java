@@ -46,6 +46,7 @@ import net.scruffy.dermicraft.interfaces.IHaveItemData;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IWorkbenchSwappable;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
+import net.scruffy.dermicraft.util.AutoSmeltUtil;
 import net.scruffy.dermicraft.util.ModFluidUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,6 +61,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -469,7 +471,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
             ItemStack ground = entity.getItem();
             if (ground.isEmpty()) continue;
 
-            int consumed = routeIncoming(stack, player, ground);
+            int consumed = routeIncoming(level, stack, player, ground);
             if (consumed <= 0) continue;
 
             if (consumed >= ground.getCount()) {
@@ -499,15 +501,60 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
      * the caller decides how to shrink/remove the source entity from the returned amount. Mirrors
      * DRINKER's {@code route}, but items have no hazard profile to gate against, so every mode
      * always accepts everything it touches.
+     *
+     * <p>Smelting Module (see {@code ModTags.Items#MODULE_SMELTING}) substitutes as much of the stack
+     * as Eater's own fuel tank can afford ({@link AutoSmeltUtil#SMELTING_MODULE_FUEL_PER_ITEM} mB/item,
+     * see {@link AutoSmeltUtil#affordableSmeltCount}) for its real {@link
+     * net.minecraft.world.item.crafting.SmeltingRecipe} result before any of the mode logic runs --
+     * whatever fuel can't cover is routed through raw instead, same "soft fail, never blocks" shape as
+     * everywhere else fuel gets consulted for this Module. Both portions route through {@link
+     * #routeStack} separately and their consumed counts are summed, so the returned total (which the
+     * caller uses to shrink the ORIGINAL raw ground entity) still lines up correctly regardless of how
+     * the stack split. Unconditional otherwise (unlike Shatter/Sunder's own module gate): Eater has no
+     * Blaze Essence equivalent to defer to, so the Module is the only source of this trait here, and
+     * the only one that ever costs fuel for it. Applies to EVERYTHING routed through here -- plain
+     * loose-item vacuuming ({@link #vacuumTick}) and Aggregate/Beam-mined drops ({@link #aggregateTick})
+     * alike -- per design, not mining-gated. Skipped entirely under DISPOSAL: the substituted item
+     * would just be discarded unexamined the same as the raw one, so the recipe-manager lookup (and
+     * the fuel spend) would be pure waste in that mode.
      */
-    private static int routeIncoming(ItemStack self, Player player, ItemStack ground) {
-        return switch (modeData(self).mode()) {
-            case DISPOSAL -> ground.getCount();
-            case STORAGE -> fillBuffer(self, ground);
+    private static int routeIncoming(Level level, ItemStack self, Player player, ItemStack ground) {
+        DrinkerModeData.Mode mode = modeData(self).mode();
+
+        if (mode != DrinkerModeData.Mode.DISPOSAL && hasModule(self, ModTags.Items.MODULE_SMELTING)) {
+            Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, ground);
+            if (smelted.isPresent()) {
+                AutoSmeltUtil.SmeltResult result = smelted.get();
+                int smeltCount = AutoSmeltUtil.affordableSmeltCount(
+                        self, AutoSmeltUtil.SMELTING_MODULE_FUEL_PER_ITEM, ground.getCount());
+
+                if (smeltCount > 0) {
+                    ItemStack smeltedStack = result.result().copyWithCount(result.result().getCount() * smeltCount);
+                    int consumedSmelted = routeStack(mode, self, player, smeltedStack);
+                    if (consumedSmelted > 0 && level instanceof ServerLevel serverLevel) {
+                        AutoSmeltUtil.awardExperience(serverLevel, player.position(), result.experience() * consumedSmelted);
+                    }
+
+                    int rawRemainder = ground.getCount() - smeltCount;
+                    int consumedRaw = rawRemainder > 0
+                            ? routeStack(mode, self, player, ground.copyWithCount(rawRemainder)) : 0;
+
+                    return consumedSmelted + consumedRaw;
+                }
+            }
+        }
+
+        return routeStack(mode, self, player, ground);
+    }
+
+    private static int routeStack(DrinkerModeData.Mode mode, ItemStack self, Player player, ItemStack stack) {
+        return switch (mode) {
+            case DISPOSAL -> stack.getCount();
+            case STORAGE -> fillBuffer(self, stack);
             case TRANSFER -> {
-                ItemStack remainder = ground.copy();
+                ItemStack remainder = stack.copy();
                 player.getInventory().add(remainder);
-                int intoInventory = ground.getCount() - remainder.getCount();
+                int intoInventory = stack.getCount() - remainder.getCount();
 
                 if (remainder.isEmpty()) yield intoInventory;
                 yield intoInventory + fillBuffer(self, remainder);
@@ -656,7 +703,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
         level.destroyBlock(pos, false);
 
         for (ItemStack drop : drops) {
-            int consumed = routeIncoming(stack, player, drop);
+            int consumed = routeIncoming(level, stack, player, drop);
             if (consumed >= drop.getCount()) continue;
 
             ItemStack leftover = drop.copyWithCount(drop.getCount() - consumed);

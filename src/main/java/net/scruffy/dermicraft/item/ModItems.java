@@ -265,6 +265,12 @@ public class ModItems {
     public static final DeferredItem<Item> CAPACITY_MODULE = ITEMS.register("capacity_module",
             () -> new Item(new Item.Properties()));
 
+    // Smelting Module -- tagged MODULE_SMELTING. Universal-slot substitute for Blaze Essence's own
+    // auto-smelt trait (Shatter head / Sunder chain), also covers Sunder/Shatter's normal mining
+    // (not just SAWING felling) and Eater (any item routed through it, mining or plain vacuum).
+    public static final DeferredItem<Item> SMELTING_MODULE = ITEMS.register("smelting_module",
+            () -> new Item(new Item.Properties()));
+
     ////////////////////Food\\\\\\\\\\\\\\\\\\\\
     public static final DeferredItem<Item> MRE = ITEMS.register("mre",
             () -> new Item(new Item.Properties().food(ModFoodProperties.MRE)));

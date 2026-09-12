@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "P": {
+      "item": "dermicraft:blaze_essence_bucket"
+    },
+    "U": {
+      "item": "minecraft:furnace"
+    }
+  },
+  "pattern": [
+    "U",
+    "P",
+    "F"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:smelting_module"
+  }
+}

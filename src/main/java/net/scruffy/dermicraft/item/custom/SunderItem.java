@@ -693,12 +693,22 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
             // Blaze Essence's other trait -- SAWING felling drops Charcoal (via a real SmeltingRecipe
             // lookup, same as Shatter's auto-smelt) instead of the raw Log, with the recipe's own XP
             // awarded too. Falls back to the raw log if no smelting recipe matches (shouldn't happen
-            // for a real log, but safe regardless).
+            // for a real log, but safe regardless). The Smelting Module (see ModTags.Items
+            // #MODULE_SMELTING) grants the same substitution without a Blaze Essence chain mounted,
+            // but -- unlike the chain's free trait -- costs AutoSmeltUtil.SMELTING_MODULE_FUEL_PER_ITEM
+            // mB from Sunder's own tank per log (one log is always exactly 1 unit, so no partial-stack
+            // splitting needed here the way the batched BlockDropsEvent version needs); checked only
+            // AFTER confirming a real recipe match, so a log with no smelting recipe never spends fuel
+            // for nothing. No de-dupe needed if chain and Module are both present -- the chain's free
+            // path is checked first, so fuel is never spent to redo a smelt it already gave away.
             ItemStack drop = rawDrop;
-            ChainProperties fellingChain = chainProperties(stack);
-            if (fellingChain != null && fellingChain.smeltsLogs()) {
-                Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, rawDrop);
-                if (smelted.isPresent()) {
+            Optional<AutoSmeltUtil.SmeltResult> smelted = AutoSmeltUtil.smeltOne(level, rawDrop);
+            if (smelted.isPresent()) {
+                ChainProperties fellingChain = chainProperties(stack);
+                boolean freeSmelt = fellingChain != null && fellingChain.smeltsLogs();
+                boolean afforded = freeSmelt || (hasModule(stack, ModTags.Items.MODULE_SMELTING)
+                        && AutoSmeltUtil.affordableSmeltCount(stack, AutoSmeltUtil.SMELTING_MODULE_FUEL_PER_ITEM, 1) > 0);
+                if (afforded) {
                     drop = smelted.get().result();
                     AutoSmeltUtil.awardExperience(level, player.position(), smelted.get().experience());
                 }

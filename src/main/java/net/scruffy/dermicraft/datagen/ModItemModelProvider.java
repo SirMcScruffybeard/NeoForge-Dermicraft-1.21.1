@@ -102,6 +102,13 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.CAPACITY_MODULE.get(), "item/module/module_frame",
                 ResourceLocation.withDefaultNamespace("item/bucket"));
 
+        // Smelting Module -- plain module_frame background (no dedicated family). Furnace has no
+        // flat item/ texture of its own (its item model is the full 3D block, not a 2D icon like
+        // bucket/totem/chain), so this borrows Blaze Powder's real flat texture instead -- same
+        // fire/heat identity as the Blaze Essence ingredient in its own recipe.
+        moduleItem(ModItems.SMELTING_MODULE.get(), "item/module/module_frame",
+                ResourceLocation.withDefaultNamespace("item/blaze_powder"));
+
         // Non-standard texture folder (item/sunder_chains/, not item/) -- basicItem()'s default
         // texture-path-matches-item-id assumption doesn't reach it, hence the explicit path.
         singleTextureItem(ModItems.IRON_SUNDER_CHAIN.get(), "item/sunder_chains/iron_sunder_chain");
