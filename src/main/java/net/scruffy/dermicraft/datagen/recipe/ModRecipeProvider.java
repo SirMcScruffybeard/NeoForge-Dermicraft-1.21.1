@@ -18,7 +18,10 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
+import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.component.AidModeData;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
@@ -145,6 +148,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .requires(ModItems.SUTURE_KIT)
                 .unlockedBy("has_dense_muscle", has(ModItems.DENSE_MUSCLE))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("bladder_crafting_table"));
+
+        // A.I.D. alternate -- must specifically be in Suture mode (a plain Ingredient.of(AID) has no
+        // notion of mode, so this needs a component-value match against AID_MODE_DATA instead of the
+        // usual sutureToolIngredient() tag trick). A.I.D. isn't consumed -- see its own
+        // hasCraftingRemainingItem/getCraftingRemainingItem overrides, same pattern SutureKitItem uses.
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.BLADDER)
+                .requires(ModItems.DENSE_MUSCLE, 5)
+                .requires(DataComponentIngredient.of(false, ModDataComponentTypes.AID_MODE_DATA,
+                        new AidModeData(AidModeData.Mode.SUTURE.ordinal()), ModItems.AID.get()))
+                .unlockedBy("has_dense_muscle", has(ModItems.DENSE_MUSCLE))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("bladder_crafting_table_aid"));
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.FUEL_BLADDER)
                 .requires(ModItems.BLADDER)
@@ -785,15 +799,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_wheat", Items.WHEAT, 170,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 170, ModMath.Time.getSecondsToTicks(3.5f));
 
-        // Melon/Pumpkin blocks have no vanilla FoodProperties either (only Melon Slice is real
-        // food), so they're pinned to a fixed value like Wheat above -- set equal to 5 Melon Slices
-        // processed individually through the vague formula (nutrition 2, saturation 0.3 ->
-        // foodWeight 2.6 -> 169 mB / 65 ticks each; x5 = 845 mB / 325 ticks). Pumpkin matched to the
-        // same value for parity -- it has no edible sub-product to derive an equivalent from.
+        // Melon block has no vanilla FoodProperties either (only Melon Slice is real food), so it's
+        // pinned to a fixed value like Wheat above -- set equal to 5 Melon Slices processed
+        // individually through the vague formula (nutrition 2, saturation 0.3 -> foodWeight 2.6 ->
+        // 169 mB / 65 ticks each; x5 = 845 mB / 325 ticks).
         RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_melon", Items.MELON, 845,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 845, 325);
-        RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_pumpkin", Items.PUMPKIN, 845,
-                ModFluids.SOURCE_CRUDE_SLURRY.get(), 845, 325);
+        // Pumpkin block also has no vanilla FoodProperties, so it's pinned too -- deliberately BELOW
+        // Melon's value (600 mB, not matched for parity anymore) so Pumpkin Pie's own vague-recipe
+        // yield (676 mB, see crude_slurry_vague_masticating + the FOODS_PIE tag) is worth crafting
+        // toward instead of a strictly worse detour once eggs/sugar are easy to farm. Ticks scaled
+        // to the same ~2.6 mB/tick rate every other Crude Slurry vague recipe already runs at,
+        // rather than leaving Pumpkin at Melon's old, now mismatched pace.
+        RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_pumpkin", Items.PUMPKIN, 600,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 600, 231);
 
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 2.6f,
                 ModFluids.SOURCE_PROTEIN_BLEND.get());

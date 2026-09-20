@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "item": "dermicraft:dense_muscle"
+    },
+    {
+      "type": "neoforge:components",
+      "components": {
+        "dermicraft:aid_mode_data": {
+          "mode": 2
+        }
+      },
+      "items": "dermicraft:aid"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:bladder"
+  }
+}

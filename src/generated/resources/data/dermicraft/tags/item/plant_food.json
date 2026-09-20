@@ -4,6 +4,7 @@
     "#c:foods/fruit",
     "#c:foods/berry",
     "#c:foods/vegetable",
+    "#c:foods/pie",
     "minecraft:baked_potato"
   ]
 }

@@ -6,6 +6,20 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 public interface IVagueRecipe {
 
+    /** Baseline added to the recovered saturation modifier in {@link #getFoodWeight} before
+     * multiplying by nutrition -- at 1.0 (the value this whole formula was originally calibrated
+     * against), a food with zero saturation still weighs exactly its nutrition; raising it flattens
+     * the gap saturation makes between foods, lowering it below 1.0 lets saturation matter more
+     * (and, below 0, could let a low-nutrition/low-saturation food weigh less than its nutrition
+     * alone, or even hit zero/negative -- not a bug, just know that's what a sub-1 value does here). */
+    float SATURATION_BASELINE = 1.0f;
+
+    /** Flat multiplier on the whole {@link #getFoodWeight} result -- a single global knob to scale
+     * every vague recipe's cost/time up or down at once, independent of {@link #SATURATION_BASELINE}
+     * (which only reshapes the gap saturation makes between foods, not the overall scale). 1.0 keeps
+     * the formula's originally-calibrated values unchanged. */
+    float WEIGHT_MULTIPLIER = 1.0f;
+
     default boolean hasNutrition(ItemStack stack) {
         FoodProperties prop = stack.getFoodProperties(null);
         return prop != null && prop.nutrition() > 0;
@@ -37,7 +51,7 @@ public interface IVagueRecipe {
     }
 
     default float getFoodWeight(ItemStack stack) {
-        return getNutrition(stack) * (getSaturation(stack) + 1);
+        return getNutrition(stack) * (getSaturation(stack) + SATURATION_BASELINE) * WEIGHT_MULTIPLIER;
     }
 
     default int getCraftingTime(ItemStack stack, int baseTicks) {

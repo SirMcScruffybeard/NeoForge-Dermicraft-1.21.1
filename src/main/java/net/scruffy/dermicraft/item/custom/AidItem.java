@@ -228,6 +228,22 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
         };
     }
 
+    ////////////////////Crafting\\\\\\\\\\\\\\\\\\\\
+
+    /** A.I.D. is a persistent multi-mode gadget, not a consumable material -- any crafting-table
+     * recipe using it as an ingredient (e.g. Bladder's own A.I.D.-in-Suture-mode alternate) should
+     * get it back exactly as it went in (mode, HP, everything), same as {@code SutureKitItem}'s
+     * identical override. */
+    @Override
+    public boolean hasCraftingRemainingItem(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public ItemStack getCraftingRemainingItem(ItemStack stack) {
+        return stack.copy();
+    }
+
     ////////////////////Tooltip\\\\\\\\\\\\\\\\\\\\
 
     /** All shift-hidden -- current mode (named and colored the same as the mode-cycle action-bar
