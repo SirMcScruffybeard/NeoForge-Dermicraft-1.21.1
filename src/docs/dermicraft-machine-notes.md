@@ -23,10 +23,9 @@ This doc is large — use this to jump to a section instead of reading the whole
   - Craw
   - Flesh Lab ("FL") — component blocks
     - Lab Floor
-    - Autonomous Structure Growth
     - Core
     - Brain — Tier 1 Control (limitations)
-    - Core — Recursive Crafting & Network Behavior
+    - Core — Crafting & Network Behavior
   - Imago Engine (working name was "Network Evolver")
   - Filling Station — folded into the Mutator (see below)
   - Mutator
@@ -422,9 +421,9 @@ The three-way Tools/Machines/Gadgets construction split above is now **confirmed
 
 **Relationship to Syringe (resolved):** The two split cleanly — **Syringe** crafts Machines **by hand**; **FL** is the **automated** counterpart, and now confirmed as a universal crafting front-end rather than Gadget-only. Not overlapping roles.
 
-**FL-wide modularity (new, general rule):** All FL component parts — Floor, Core, flanking output storage — can be **upgraded, changed, or moved around** after initial construction; the FL is not a fixed one-time build. Structural changes trigger **Knitting** (see Core — Recursive Crafting & Network Behavior, below) — the network's event-driven recompute/reconnection pass — rather than an always-on continuous check.
+**FL-wide modularity (new, general rule):** All FL component parts — Floor, Core, flanking output storage — can be **upgraded, changed, or moved around** after initial construction; the FL is not a fixed one-time build. Structural changes trigger **Knitting** (see Core — Crafting & Network Behavior, below) — the network's event-driven recompute/reconnection pass — rather than an always-on continuous check.
 
-**Open questions:** New concept or carried over from the old version? Exact range of the Core's influence (Core-level property, mechanics deferred to Code). What counts as "attached to the floor" — resolved as **touching a Floor piece on any face** (in the floor plane, under, or on top); face doesn't matter, only contact (see Lab Floor below). How many evolution stages does the FL have, and what does each one unlock? Whether the FL's living-material construction (Tablet) implies a general rule for all future living Gadgets, or is a one-off.
+**Open questions:** New concept or carried over from the old version? What counts as "attached to the floor" — resolved as **touching a Floor piece on any face** (in the floor plane, under, or on top); face doesn't matter, only contact (see Lab Floor below). How many evolution stages does the FL have, and what does each one unlock? Whether the FL's living-material construction (Tablet) implies a general rule for all future living Gadgets, or is a one-off.
 
 #### Lab Floor (formerly "Floor Block")
 
@@ -436,7 +435,7 @@ The three-way Tools/Machines/Gadgets construction split above is now **confirmed
 
 **Connection requirement — within-reach connectivity:** Floor blocks must form a connected network, but "connected" is now **within-reach**, not strictly adjacent — each floor bridges up to its own tier's reach (see Floor Tiers below: Tier 1–2 adjacent-only, Tier 3–4 one-block gap), and that reach applies to both floor-to-floor spacing and machine/storage connection. The **control block's range** is still the outer boundary of the whole structure (Brain's cube, Core's larger range); floor reach is the *local* connectivity within it, and floors must be present to propagate connections through the structure at all.
 
-**Fluid-output-face conflict — resolved.** Previously flagged: existing machines output fluid from the bottom face, which conflicts with sitting a machine on top of a Floor block. This is now resolved by the FL's **direct machine access** (see Core — Recursive Crafting & Network Behavior): because the FL reads/writes Dermicraft machines' tanks directly rather than through face-based capabilities, block faces are irrelevant to FL transfer entirely — no output-face override needed.
+**Fluid-output-face conflict — resolved.** Previously flagged: existing machines output fluid from the bottom face, which conflicts with sitting a machine on top of a Floor block. This is now resolved by the FL's **direct machine access** (see Core — Crafting & Network Behavior): because the FL reads/writes Dermicraft machines' tanks directly rather than through face-based capabilities, block faces are irrelevant to FL transfer entirely — no output-face override needed.
 
 **Material progression (variants tied to tiers):** Lab Floor blocks come in multiple variants tied to different structural materials, mirroring a mini progression rather than a single fixed recipe:
 - **Stone Lab Floor**, **Cobblestone Lab Floor**, **Deepslate Lab Floor**, **Cobbled Deepslate Lab Floor**, **Diorite Lab Floor**, **Andesite Lab Floor**, and **Granite Lab Floor** — seven separate crafting-table recipes, each hand-craftable as an early (Tier 1) bootstrap variant (see recipe below). **Implemented 2026-07-21** — blocks, recipes, and a composited overlay-model template (opaque base texture + separate top/bottom and side overlay textures, no rotation) are live in code. Each variant keeps its base material's vanilla strength/hardness, and drops itself on break (same treatment as ducts/nodes/gates — structural infrastructure, not a "destroyed on break" machine).
@@ -483,44 +482,33 @@ The structural block is the only thing that changes per variant:
 | Andesite Lab Floor | 1 Andesite |
 | Granite Lab Floor | 1 Granite |
 
-**Open questions:** Exact ingredient quantities. Recipes/materials for each tier's variants (metal and beyond). Exact throughput and reach numbers per tier. How many tiers/variants total (open-ended, but at least the four hazard tiers above).
-
-#### Autonomous Structure Growth
-
-The FL builds itself out through **three related-but-distinct behaviors** — the first already noted (request-crafting), the latter two new. All three make the FL the mod's one visibly "living," self-extending structure, and reinforce the **Structural (whole-FL) evolution** concept above.
-
-1. **Request-crafting (existing):** on demand, the FL crafts more Floor pieces *into* network storage (the self-replication loop already noted under Lab Floor). Produces stock; does not place anything.
-2. **Self-Build (new, toggleable):** when enabled via a GUI toggle, roughly **every ~30 seconds** the FL takes one eligible piece from network storage and **places it into the structure**, if one is available (if not, it simply does nothing that tick).
-   - Eligible pieces: **Floor blocks, machines, and storage devices** held in storage.
-   - Placement extends the existing network — a Floor block is copied adjacent to an existing Floor block; machines/storage are installed into valid connected spots (touching the Floor network, per the any-face rule), within the control block's range.
-   - Player-controlled: feed the FL materials and it assembles itself. Consumes the stored piece.
-3. **Growth (new, always-on, not player-controlled):** a small chance rolled **~every half hour**, **free** (nothing consumed) — the FL picks a **random existing Floor block and places an identical copy adjacent to it**, so it grows using whatever variants are already in the structure.
-   - **Floor blocks only** — never machines or storage.
-   - **No toggle** — an inherent living behavior, unlike Self-Build.
-   - **Fuel grade modulates the chance** (better grade → slightly more likely); fuel is only *read*, never consumed for growth, so this doesn't conflict with the "idle machines don't consume fuel" rule.
-   - Placement is contiguous and into valid empty space only, within the control block's range — so growth scope scales automatically with control tier (a Brain's small cube vs. a Core's larger range).
-
-**Open questions:** exact Self-Build interval and Growth chance/cadence numbers. How machines/storage devices choose their placement spot during Self-Build (Floor placement is defined; machine/storage placement logic is not). Whether Self-Build should ever be smart about *what* it pulls (prioritizing floors vs. machines) or stay simple.
+**Open questions:** Exact ingredient quantities. Recipes/materials for each tier's variants (metal and beyond). Exact reach numbers per tier. How many tiers/variants total (open-ended, but at least the four hazard tiers above).
 
 #### Core
 
-**Status:** GUI/crafting behavior, output flanking, fuel/HP model, and the full Brain-build + Core-evolution recipe decided. Core-tier range and recursion depth deferred to Code.
+**Status:** GUI/crafting behavior, output flanking, fuel/HP model, and the full Brain-build + Core-evolution recipe decided. Core range set at **±4 on every axis (9×9×9 cube)**, a cube/box check like the Brain's.
 
-**What it is:** The FL's **Tier 2** control block — the Brain evolved (see Control Tiers above). Functions like a brain (thematically, not necessarily in shape), tying back to the resurrected **Brain Block** it grows from. Everything in this Core section — GUI, crafting scope, recursion, network behavior — describes the FL's control behavior generally; the **Brain (Tier 1)** runs the same systems under the tighter limits in its own subsection below.
+**What it is:** The FL's **Tier 2** control block — the Brain evolved (see Control Tiers above). Functions like a brain (thematically, not necessarily in shape), tying back to the resurrected **Brain Block** it grows from. Every control tier is its **own registered block** (Brain Block, Core, and any tiers added beyond it) — advancing a tier is an in-place block swap, the same pattern the mod already uses for Charred/Gear Worx tier evolutions, not an internal flag flip on one persistent block. Everything in this Core section — GUI, crafting scope, network behavior — describes the FL's control behavior generally; the **Brain (Tier 1)** runs the same systems under the tighter limits in its own subsection below.
 
-**Player interaction:** Right-click opens a GUI displaying available crafting options. Selecting an option displays its ingredient list. A button starts crafting.
+**Player interaction:** Right-click opens a GUI displaying available crafting options. Selecting an option displays its ingredient list. A button starts crafting. **No player-inventory slots anywhere in this GUI** — a deliberate deviation from every other machine's screen. Input comes only from whatever's already on the Lab Floor network (storage-first fulfillment, below); output only appears in the designated flanking storage. The player never feeds the Core directly from their own inventory.
 
 **Craftable scope:** Universal front-end over the combined recipe set of the FL itself and every attached Machine on the floor network — not limited to Gadgets. If the FL or any connected Machine has a recipe for something, the FL can craft it.
 
-**Recursive crafting:** If direct ingredients aren't available but the ingredients-to-make-those-ingredients are, crafting still begins — the Core actively routes sub-crafts through connected Machines (e.g. a Masticator produces a needed Blend on demand), and crafts some outputs itself directly. **Recursion depth limit is an open question for Code**, flagged specifically as a lag/performance risk on the server.
+**No recursive crafting — click-to-navigate instead.** Selecting a recipe shows its ingredient list; the FL does **not** auto-resolve missing sub-ingredients through connected Machines. Instead, any listed ingredient that's short and itself has a known recipe is rendered as a **clickable entry** — clicking it navigates the Core's screen to *that* item's own recipe view (same GUI, a different recipe loaded), with a back-navigation stack to return to where the player started once the sub-item is in hand. This fully replaces the earlier auto-walked resolver (see Core — Crafting & Network Behavior, below, for what that removed).
 
-**Queueing:** Single job at a time. All production runs one batch at a time until the request's amount-remaining counter is satisfied (see Universal batch processing under Core — Recursive Crafting & Network Behavior). Explicitly provisional — may expand later.
+**Hazard gating via Module tab.** The FL gets its own **Module tab** (the same opt-in-per-family convention already used elsewhere — a `module/*`-tagged slot living in its own screen tab), holding Safety Modules (Metaphysical, Thermal, Radiation, and whatever else exists). The FL checks the same tag-based `HazardProfile` tolerance every tank/duct/run already checks, structure-wide rather than per-tank: **default-deny** — any fluid whose hazard tag isn't either untagged/inherently safe or covered by a currently-installed Safety Module is hard-blocked (standard error: sound + GUI message). A hazard type added to the mod later is automatically blocked at the FL until its module is built and installed — no FL-side code change needed when new hazard types show up. This supersedes the earlier draft idea of a single dedicated Metaphysical-only slot with a hard block; it's now the general Module/HazardProfile mechanism applied to the FL as a whole.
+
+**Upgrade tab.** A dedicated screen tab, laid out like the Gear Worx Workbench's Fabrication page (a browsable list, ingredient availability checked against the shared network pool, a Craft/Upgrade button), covers two distinct kinds of upgrade:
+- **Control tier** — the Brain → Core step (and any tier beyond Core) is selected and paid for from here, replacing the earlier bespoke one-off evolution screen. The underlying recipe costs (below) are unchanged; only the UI surface is new.
+- **Attached machines/storage, one at a time** — the player picks a specific machine or storage device already attached to the FL's own Lab Floor network, sees its next-tier cost, and supplies the materials (from the network pool, same as everything else); the FL upgrades that single attachment. This is deliberately **not** a batch/walk-the-whole-network action — see Imago Engine (below), which keeps that job for networks *not* directly attached to an FL.
+
+**Queueing:** Single job at a time. All production runs one batch at a time until the request's amount-remaining counter is satisfied (see Universal batch processing under Core — Crafting & Network Behavior). Explicitly provisional — may expand later.
 
 **Output:** Flanked by a Skin Tank and Craw (the same blocks documented elsewhere — no bespoke FL-specific storage) where the player collects finished results. These flanking pieces are **separate from and unrelated to** the tank used in the Core's own construction (see the Tier 2 evolution step below), and can be swapped for different/upgraded storage as part of the FL's general modularity (see above).
 
 **Fuel/HP — fuel-required, no HP, heal repurposed into efficiency:**
 - **No HP mechanic.** The FL is the first confirmed Machine to use fuel while opting out of the standard HP/health-drain system entirely. With no HP pool, it has no damage-grace to spend, so it is **fuel-*required*** — unlike the fuel-*optional* machines that limp along on HP (the Masticator template). Since Slurry is only burned while actively processing, an idle FL never stalls.
-- **Speed:** fuel grade drives FL processing speed as with other machines, and also modulates the autonomous Growth chance.
+- **Speed:** fuel grade drives FL processing speed as with other machines.
 - **Heal → efficiency (repurposed):** because there is no HP for the fuel's heal modifier to act on, the FL **folds the heal factor into the use-rate factor to its own benefit** — heal *reduces* the FL's effective fuel use rate, so fuel lasts longer. On the Main Line (where heal scales with grade) this makes **better fuel disproportionately more fuel-efficient in the FL specifically** — premium fuel runs both fast *and* long here. Exact formula (e.g. use ÷ heal) deferred to Code; design intent is "heal lowers use for the FL." Thematically reframes "fuel heals the FL" into "fuel sustains it longer," fitting the living-structure theme. (Serum-family fuels, with their inverted/zeroed heal values, would interact oddly here — flagged as open if Serums are ever FL-usable; Main Line is the clean case.)
 
 **Stop-on-fuel-out behavior:** when fuel runs out mid-craft, the FL **halts immediately** and **preserves** the in-progress batch's progress (not lost), surfaces the standard error/warning in the Core GUI, and **the player decides the next action** — add fuel and Continue (resume from preserved progress) or Cancel. Same pattern as the ingredient-exhaustion recovery.
@@ -535,17 +523,16 @@ The FL builds itself out through **three related-but-distinct behaviors** — th
 
 **Cross-reference resolved:** This gives **Molten Redstone** a second confirmed use beyond the Redstone Torch Dip, resolving the open question logged in `dermicraft-crafting-notes.md`.
 
-**Open questions:** Core's exact range value and recursion depth cap number (methodology now decided — see below — but the actual numbers are deferred to Code). Exact heal→use-rate efficiency formula for the FL (resolved in principle — see Fuel/HP — but the math is deferred to Code).
+**Open questions:** Exact heal→use-rate efficiency formula for the FL (resolved in principle — see Fuel/HP — but the math is deferred to Code).
 
 #### Brain — Tier 1 Control (limitations)
 
 **Status:** Limitations decided. FL-only recipe short list still open.
 
-The Brain is the FL's Stage 1 control block. It runs **all** the same crafting/network systems documented in the Core sections below (recursion, universal batching, drain-to-storage, direct machine access, storage-first fulfillment, Knitting), but under these hard limits until evolved into the Core:
+The Brain is the FL's Stage 1 control block. It runs **all** the same crafting/network systems documented in the Core sections below (click-to-navigate crafting, universal batching, drain-to-storage, direct machine access, storage-first fulfillment, Knitting), but under these hard limits until evolved into the Core:
 
 - **Tier gate:** controls only **Tier 1** machines and storage devices. Higher-tier blocks are out of reach until the Core evolution.
-- **Range — 5×5×5 cube centered on the Brain block:** ±2 on every axis. A cube/box check, not a radial sphere — also cheaper to compute than a distance check. A machine/storage block must be inside this cube **and** touching the Floor network (any-face rule) to be controlled. (The Core's own range is larger, deferred to Code.)
-- **Recursion — full, but shallow in practice:** the Brain runs the complete recursive resolver (cycle detection, sub-craft routing, batch loop), not a cut-down version; its other limits keep trees shallow on their own. **Depth anchor:** Primitive Catalyst — `Effluencer(F-Stuff + C-Stuff)` → each `Effluencer(two Blends)` → `Masticator(Blend)`, ~3 crafting layers, every machine Tier 1 — is the confirmed in-scope case the Brain must handle comfortably.
+- **Range — 5×5×5 cube centered on the Brain block:** ±2 on every axis. A cube/box check, not a radial sphere — also cheaper to compute than a distance check. A machine/storage block must be inside this cube **and** touching the Floor network (any-face rule) to be controlled. (The Core's own range is larger — ±4/9×9×9, see Core above.)
 - **Recipe breadth:** crafts anything its connected Tier 1 machines can, **plus a few FL-only recipes** (candidate list below — some may instead be handed to a real machine later, the way F-Stuff/C-Stuff went to the Effluencer). Last-resort Early Implant/Puddle Crafting behavior is general FL behavior (see Recipe priority, below), not Brain-specific.
 
 **FL-only recipes (candidate list — Tier 1 Brain; provisional, any may later migrate to a dedicated machine). All are NEW and additive — the existing `early_implant` recipes for these tumors are kept (no recipe removed without direct order):**
@@ -605,19 +592,13 @@ The Brain is the FL's Stage 1 control block. It runs **all** the same crafting/n
 
 **Open questions:** whether the Beaker or Glass Flask should ever get the same physical→fluid treatment applied to *themselves* in some other recipe (deliberately not applied within their own Metastasizer recipes, to preserve the "keep one real item" principle above).
 
-#### Core — Recursive Crafting & Network Behavior
+#### Core — Crafting & Network Behavior
 
-**Status:** Crafting-resolution rules, error handling, and network fluid/item lifecycle fully decided. Exact numeric limits (recursion depth cap, Core range) still deferred to Code — only the surrounding methodology is a design decision now.
+**Status:** Crafting-resolution rules, error handling, and network fluid/item lifecycle fully decided.
 
-**Why this is feasible, and where the real risk is:** the Core/Floor network graph and range checks are the same category of problem already solved by other mods' block-network systems (Applied Energistics 2's cable networks, etc.) — feasible as long as the graph is recomputed only on structural change (see Knitting below), never continuously. The recursive crafting resolver is the one genuinely heavy system here, comparable in complexity to AE2/Refined Storage's autocrafting — feasible, but only safe with the cycle-prevention rules below.
+**Why this is feasible:** the Core/Floor network graph and range checks are the same category of problem already solved by other mods' block-network systems (Applied Energistics 2's cable networks, etc.) — feasible as long as the graph is recomputed only on structural change (see Knitting below), never continuously. With no auto-walked recursive resolver to defend (see Core, above — replaced by click-to-navigate), there's no AE2/Refined-Storage-autocrafting-scale complexity here at all; the graph/range system alone is comfortably cheap, and no cycle-prevention machinery is needed — a circular pair of recipes just means the player can bounce between two screens, which is harmless.
 
-**Cycle prevention (layered):**
-1. **Ancestor-chain cycle detection (primary):** while resolving a crafting tree, the Core tracks which items are currently being resolved in the active branch. If resolving an ingredient would require producing an item that's already an ancestor in that branch, the branch is rejected as circular immediately — catches a cycle at any depth, not just past an arbitrary limit.
-2. **Hard depth cap (secondary):** a backup safety net for legitimately deep, non-circular chains. Exact number deferred to Code.
-3. **Memoization per craft attempt:** once the Core determines whether it can/can't make N of an item within a single resolution pass, that result is cached instead of being re-derived every time the item recurs elsewhere in the tree.
-4. **Author-time cycle validation:** since every FL-craftable recipe is first-party, a load-time/datagen-time validation pass walks the entire known recipe graph and flags a genuine circular dependency as a build-time error — caught during development, not discovered by a player at runtime. Rule 1 remains as runtime defense-in-depth (e.g. against a future datapack/mod interaction introducing a cycle).
-
-**Error feedback:** any rejected or failed craft (circular dependency, depth cap exceeded, insufficient ingredients, drain lockout, etc.) surfaces as an **error sound + message in the Core's GUI** — the standard error-feedback pattern used throughout the FL's crafting system.
+**Error feedback:** any rejected or failed craft (insufficient ingredients, drain lockout, hazard-gated fluid, etc.) surfaces as an **error sound + message in the Core's GUI** — the standard error-feedback pattern used throughout the FL's crafting system.
 
 **Universal batch processing.** All FL-driven production runs one batch at a time — craft a batch → wait for it to finish → craft the next → repeat until the request's amount-remaining counter hits zero. This is **structure-wide**, applying to every machine and every recipe (no "batchable by the stack" fast path — that earlier provisional idea is retired). Beyond consistency, one-batch-at-a-time deliberately spreads a large job across many ticks rather than resolving it in a single burst — the same anti-lag-spike approach used by One Punch's staggered block-breaking, so universal batching is the cheaper option on the server, not just the tidier one. There is no separate "Vague recipe" handling: because batching loops until the counter is satisfied, nutrition-scaled variable yield is absorbed automatically — the loop simply runs another batch if the last one fell short. (An earlier "Vague recipes excluded from auto-resolution" rule, and its associated no-amount mode and upfront cost warning, are all scrapped as unnecessary under this model. If playtesting shows a warning is wanted, revisit then.)
 
@@ -625,7 +606,7 @@ The Brain is the FL's Stage 1 control block. It runs **all** the same crafting/n
 1. **Distinct recipes first** — if a request needs several *different* sub-recipes a machine type can make, spread them across the available duplicates (e.g. with two Masticators and a need for both Carbon Blend and Calcium Blend, one machine takes each) so all the different outputs progress at once.
 2. **Then same-recipe parallelism** — once each distinct needed recipe is assigned, any remaining duplicate machines double up on a recipe that still has **multiple batches** left, running those batches in parallel.
 
-Because machines must be within the control block's range to be used, the control tier caps how parallel the FL can get (a Brain's 5×5×5 cube fits few machines; a Core's larger range fits more) — the parallelism ceiling falls out of the range rule, no separate cap needed.
+Because machines must be within the control block's range to be used, the control tier caps how parallel the FL can get (a Brain's 5×5×5 cube fits few machines; a Core's 9×9×9 cube fits more) — the parallelism ceiling falls out of the range rule, no separate cap needed.
 
 **Fuel across parallel machines:** the FL fuels active machines from the shared storage pool, **best grade first, cascading down the Main Line tier chain** (Superior → … → Crude) as better grades run out. If there's enough of the best available grade to fuel every machine in use, they all run on that same grade; if not, the best grade goes as far as it reaches and the remaining machines take the next grade down, and so on.
 
@@ -634,7 +615,7 @@ Because machines must be within the control block's range to be used, the contro
 **Per-machine invocation rules — when the Core may auto-call each of the three special machines:**
 - **Masticator:** **never** called during an **item** crafting request. **May** be called during a **fluid** crafting request, via the universal batch loop; the item ingredient each batch consumes is chosen by the structure-wide item source setting (below).
 - **Metastasizer:** **never** called during a **fluid** crafting request (prevents its item-duplication mechanic from becoming a free fluid source). **May** be called during an **item** crafting request.
-  - **Pattern-free operation (FL-exclusive):** the FL can run a Metastasizer recipe **without owning the pattern item** — it spawns a **transient pattern** into the Metastasizer for the duration of the job, which vanishes on completion. Only the fluid is consumed; no pattern is retained. Manual (non-FL) Metastasizer use still requires a real pattern, so this is a reward for building the automation hub. It's bounded (full fluid cost per item, no retained pattern → no free-matter loop, and the fluid-request exclusion above still holds) and it **simplifies the recursive resolver** — Metastasizer recipes become effectively *fluid-only* to the resolver, since the pattern no longer needs sourcing.
+  - **Pattern-free operation (FL-exclusive):** the FL can run a Metastasizer recipe **without owning the pattern item** — it spawns a **transient pattern** into the Metastasizer for the duration of the job, which vanishes on completion. Only the fluid is consumed; no pattern is retained. Manual (non-FL) Metastasizer use still requires a real pattern, so this is a reward for building the automation hub. It's bounded (full fluid cost per item, no retained pattern → no free-matter loop, and the fluid-request exclusion above still holds); it also means Metastasizer recipes show up as effectively *fluid-only* in the Core's ingredient lists, since the pattern never needs sourcing at all.
 - **Drooling Cauldron:** each cauldron in the family **passively auto-produces one fluid on its own**, so by the time the FL needs that fluid it may already hold enough that no production request is triggered at all (ties into storage-first fulfillment). Its fluid is **pulled into storage at both the start and end** of a crafting process (harvesting whatever it passively accumulated). **Not** called to produce during a **food-item** request; otherwise called to produce when needed.
 
 **Source settings (structure-wide) — two independent settings, one for items and one for fluids:** when a machine has a choice between multiple eligible input stacks, the FL picks by player-set options in the Core GUI. There are **two separate toggles** — one governing **item** ingredient selection, one governing **fluid** ingredient selection — each independently set to **most plentiful** (burn down overflow, protect scarce inputs) or **least plentiful** (clean out small/odd stacks, consolidate storage). Once a source is selected it is used continuously until the request completes or that source is exhausted, then the FL fails over to the next stack per the same rule. Both settings apply to the whole structure and **cannot be changed while a craft is running** — switching either mid-job requires canceling the current craft first.
@@ -666,6 +647,8 @@ Because machines must be within the control block's range to be used, the contro
 **Status:** Concept designed in brainstorming; not yet implemented. Solves the mod-wide tier-upgrade tedium problem.
 
 **The problem it solves:** most/all machine families follow the same tier progression, so a player with a built-out factory would otherwise re-run the evolution ritual on every machine individually each time a new tier unlocks. The first evolutions are the interesting teaching moment; the tenth is busywork. This machine keeps the first ones meaningful and batch-automates the repeats.
+
+**Scope vs. the FL's own Upgrade tab:** the FL's Core can upgrade its own attached machines/storage one at a time from its Upgrade tab (see Core, above), so this machine's real niche is **batch evolution for networks that aren't sitting on an FL's floor at all** — a standalone factory cluster, or anywhere the player would rather pay once and evolve everything than click through each attachment individually. The two don't compete: FL's tab is single-attachment and only reaches what's on its own floor; the Imago Engine is batch and network-wide but needs its own dedicated controller/floor/storage to do it.
 
 **What it is:** a **small multiblock** — a **controller** (the evolver itself) plus **special floor blocks** that reach connected **storage** holding the payment fluids (mini-FL architecture: controller + floor + storage, its own smaller system, no FL required). The player selects an **available target tier** on the controller; the machine then walks the connected network and evolves everything below that tier up to it, paying costs from its own reachable storage.
 
