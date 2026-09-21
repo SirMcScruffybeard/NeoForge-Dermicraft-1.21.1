@@ -45,6 +45,24 @@ public class ModNetworking {
                     }
                 }));
 
+        registrar.playToServer(NodeFilterModeClickPayload.TYPE, NodeFilterModeClickPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    BlockEntity be = context.player().level().getBlockEntity(payload.pos());
+                    if (be instanceof NodeBlockEntity node) {
+                        if (payload.fluid()) node.toggleFluidFilterMode(payload.direction());
+                        else node.toggleItemFilterMode(payload.direction());
+                    }
+                }));
+
+        registrar.playToServer(NodeFilterNbtClickPayload.TYPE, NodeFilterNbtClickPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    BlockEntity be = context.player().level().getBlockEntity(payload.pos());
+                    if (be instanceof NodeBlockEntity node) {
+                        if (payload.fluid()) node.toggleFluidFilterNbt(payload.direction());
+                        else node.toggleItemFilterNbt(payload.direction());
+                    }
+                }));
+
         registrar.playToServer(MutatorModeClickPayload.TYPE, MutatorModeClickPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> {
                     BlockEntity be = context.player().level().getBlockEntity(payload.pos());

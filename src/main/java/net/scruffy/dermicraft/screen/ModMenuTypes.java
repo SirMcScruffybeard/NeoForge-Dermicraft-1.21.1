@@ -28,6 +28,7 @@ import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableMenu;
 import net.scruffy.dermicraft.screen.custom.charred_mutator.CharredMutatorMenu;
 import net.scruffy.dermicraft.screen.custom.mutator.MutatorMenu;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
+import net.scruffy.dermicraft.screen.custom.node.TabbedNodeMenu;
 import net.scruffy.dermicraft.screen.custom.render_furnace.RenderFurnaceMenu;
 import net.scruffy.dermicraft.screen.custom.render_kiln.RenderKilnMenu;
 import net.scruffy.dermicraft.screen.custom.scrench.ScrenchMenu;
@@ -79,6 +80,11 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<NodeMenu>> INNARDS_NODE_MENU =
             registerMenuType("innards_node_menu", NodeMenu::new);
+
+    // Framework menu for the tabbed Node GUI rework (see project_node_gui_tab_overhaul memory) --
+    // coexists with INNARDS_NODE_MENU above rather than replacing it while the rework is in progress.
+    public static final DeferredHolder<MenuType<?>, MenuType<TabbedNodeMenu>> TABBED_INNARDS_NODE_MENU =
+            registerMenuType("tabbed_innards_node_menu", TabbedNodeMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<MrFarmerMenu>> MR_FARMER_MENU =
             registerMenuType("mr_farmer_menu", MrFarmerMenu::new);

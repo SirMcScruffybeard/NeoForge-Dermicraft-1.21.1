@@ -3,8 +3,10 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -13,6 +15,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -29,7 +33,7 @@ import net.scruffy.dermicraft.block.custom.duct.NodeDistributionMode;
 import net.scruffy.dermicraft.block.custom.duct.NodeTier;
 import net.scruffy.dermicraft.block.custom.duct.TieredNode;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
+import net.scruffy.dermicraft.screen.custom.node.TabbedNodeMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.NotNull;
@@ -99,6 +103,19 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     private final Map<Direction, NodeDirectionMode> fluidDirectionModes = new EnumMap<>(Direction.class);
     private NodeDistributionMode distributionMode = NodeDistributionMode.ROUND_ROBIN;
 
+    // Which of the tabbed GUI's six per-direction tabs (fixed North/South/East/West/Up/Down order,
+    // see TabbedNodeScreen) was last open -- persisted so reopening the screen returns to it, same
+    // pattern as every other machine's isModuleTabActive/setModuleTabActive. Defaults to 0 (North).
+    private int activeTab = 0;
+
+    public int getActiveTab() {
+        return activeTab;
+    }
+
+    public void setActiveTab(int index) {
+        this.activeTab = index;
+    }
+
     // Per-leg item/fluid toggles -- replaces the earlier planned per-run ITEM/FLUID mode-lock with
     // an idle timer. Both default OFF: a leg set to In/Out carries nothing until the player
     // explicitly enables a type, rather than immediately carrying both. Fully independent of
@@ -109,6 +126,99 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     // direction itself).
     private final Map<Direction, Boolean> itemsEnabled = new EnumMap<>(Direction.class);
     private final Map<Direction, Boolean> fluidsEnabled = new EnumMap<>(Direction.class);
+
+    // Per-leg item/fluid filters (see project_node_filter_system_design memory). Fixed leg order
+    // matches TabbedNodeScreen's tab order exactly -- both index into this same array, so a tab
+    // index and a leg index are interchangeable. Whitelist/blacklist and NBT-match are independent
+    // per type per leg; NBT-match is stored but not yet consulted anywhere (symmetry-only for now,
+    // see the filter design memory). Empty whitelist blocks everything, empty blacklist (the
+    // default) allows everything -- enforced wherever filtering is actually wired into transfer,
+    // not yet in this step.
+    public static final Direction[] LEG_ORDER = {
+            Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST, Direction.UP, Direction.DOWN
+    };
+
+    private static int legIndex(Direction dir) {
+        for (int i = 0; i < LEG_ORDER.length; i++) {
+            if (LEG_ORDER[i] == dir) return i;
+        }
+        throw new IllegalArgumentException("Not a Node leg direction: " + dir);
+    }
+
+    // Real slot storage so the item filter's ghost slot can be an ordinary Slot (hover highlight,
+    // rendering) rather than a custom-drawn icon -- see TabbedNodeMenu. The fluid filter's slot is
+    // real too (same hover/click behavior), but renders as a fluid swatch (see TabbedNodeScreen,
+    // same FluidTankRenderer-based render Workbench uses for its own fluid requirement icons)
+    // instead of a ghost item, so its identity lives here as a plain Fluid, not an ItemStack.
+    private final ItemStackHandler ITEM_FILTERS = new ItemStackHandler(LEG_ORDER.length);
+    private final Fluid[] fluidFilters = new Fluid[LEG_ORDER.length];
+    private final boolean[] itemFilterWhitelist = new boolean[LEG_ORDER.length];
+    private final boolean[] fluidFilterWhitelist = new boolean[LEG_ORDER.length];
+    private final boolean[] itemFilterNbtMatch = new boolean[LEG_ORDER.length];
+    private final boolean[] fluidFilterNbtMatch = new boolean[LEG_ORDER.length];
+
+    public ItemStackHandler getItemFilters() {
+        return ITEM_FILTERS;
+    }
+
+    public ItemStack getItemFilter(Direction dir) {
+        return ITEM_FILTERS.getStackInSlot(legIndex(dir));
+    }
+
+    public void setItemFilter(Direction dir, ItemStack stack) {
+        ITEM_FILTERS.setStackInSlot(legIndex(dir), stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1));
+        setChanged();
+    }
+
+    public Fluid getFluidFilter(Direction dir) {
+        Fluid fluid = fluidFilters[legIndex(dir)];
+        return fluid == null ? Fluids.EMPTY : fluid;
+    }
+
+    public void setFluidFilter(Direction dir, Fluid fluid) {
+        fluidFilters[legIndex(dir)] = (fluid == null || fluid == Fluids.EMPTY) ? null : fluid;
+        setChanged();
+    }
+
+    public boolean isItemFilterWhitelist(Direction dir) {
+        return itemFilterWhitelist[legIndex(dir)];
+    }
+
+    public void toggleItemFilterMode(Direction dir) {
+        int i = legIndex(dir);
+        itemFilterWhitelist[i] = !itemFilterWhitelist[i];
+        setChanged();
+    }
+
+    public boolean isFluidFilterWhitelist(Direction dir) {
+        return fluidFilterWhitelist[legIndex(dir)];
+    }
+
+    public void toggleFluidFilterMode(Direction dir) {
+        int i = legIndex(dir);
+        fluidFilterWhitelist[i] = !fluidFilterWhitelist[i];
+        setChanged();
+    }
+
+    public boolean isItemFilterNbtMatch(Direction dir) {
+        return itemFilterNbtMatch[legIndex(dir)];
+    }
+
+    public void toggleItemFilterNbt(Direction dir) {
+        int i = legIndex(dir);
+        itemFilterNbtMatch[i] = !itemFilterNbtMatch[i];
+        setChanged();
+    }
+
+    public boolean isFluidFilterNbtMatch(Direction dir) {
+        return fluidFilterNbtMatch[legIndex(dir)];
+    }
+
+    public void toggleFluidFilterNbt(Direction dir) {
+        int i = legIndex(dir);
+        fluidFilterNbtMatch[i] = !fluidFilterNbtMatch[i];
+        setChanged();
+    }
 
     {
         for (Direction dir : Direction.values()) {
@@ -489,15 +599,26 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
         tag.put("tank", TANK.writeToNBT(registries, new CompoundTag()));
+        tag.put("itemFilters", ITEM_FILTERS.serializeNBT(registries));
         for (Direction dir : Direction.values()) {
             tag.putString("item_mode_" + dir.getSerializedName(), itemDirectionModes.get(dir).getSerializedName());
             tag.putString("fluid_mode_" + dir.getSerializedName(), fluidDirectionModes.get(dir).getSerializedName());
             tag.putBoolean("items_" + dir.getSerializedName(), itemsEnabled.get(dir));
             tag.putBoolean("fluids_" + dir.getSerializedName(), fluidsEnabled.get(dir));
+
+            int i = legIndex(dir);
+            Fluid fluidFilter = fluidFilters[i];
+            tag.putString("fluid_filter_" + dir.getSerializedName(),
+                    fluidFilter == null ? "" : BuiltInRegistries.FLUID.getKey(fluidFilter).toString());
+            tag.putBoolean("item_filter_whitelist_" + dir.getSerializedName(), itemFilterWhitelist[i]);
+            tag.putBoolean("fluid_filter_whitelist_" + dir.getSerializedName(), fluidFilterWhitelist[i]);
+            tag.putBoolean("item_filter_nbt_" + dir.getSerializedName(), itemFilterNbtMatch[i]);
+            tag.putBoolean("fluid_filter_nbt_" + dir.getSerializedName(), fluidFilterNbtMatch[i]);
         }
         tag.putString("distribution", distributionMode.getSerializedName());
         tag.putInt("itemRoundRobinIndex", itemRoundRobinIndex);
         tag.putInt("fluidRoundRobinIndex", fluidRoundRobinIndex);
+        tag.putInt("activeTab", activeTab);
     }
 
     @Override
@@ -505,6 +626,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         super.loadAdditional(tag, registries);
         if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
         if (tag.contains("tank")) TANK.readFromNBT(registries, tag.getCompound("tank"));
+        if (tag.contains("itemFilters")) ITEM_FILTERS.deserializeNBT(registries, tag.getCompound("itemFilters"));
         for (Direction dir : Direction.values()) {
             // Legacy migration (pre-2026-08-27 saves): a single shared "mode_<dir>" key covered
             // both types. Read it as a fallback ONLY when the new per-type keys aren't present yet,
@@ -533,6 +655,23 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
             if (tag.contains(itemsKey)) itemsEnabled.put(dir, tag.getBoolean(itemsKey));
             String fluidsKey = "fluids_" + dir.getSerializedName();
             if (tag.contains(fluidsKey)) fluidsEnabled.put(dir, tag.getBoolean(fluidsKey));
+
+            int i = legIndex(dir);
+            String fluidFilterKey = "fluid_filter_" + dir.getSerializedName();
+            if (tag.contains(fluidFilterKey)) {
+                String serialized = tag.getString(fluidFilterKey);
+                Fluid fluid = serialized.isEmpty() ? null
+                        : BuiltInRegistries.FLUID.get(ResourceLocation.parse(serialized));
+                setFluidFilter(dir, fluid); // also rebuilds FLUID_FILTER_GHOSTS's mirrored bucket stack
+            }
+            String itemFilterWhitelistKey = "item_filter_whitelist_" + dir.getSerializedName();
+            if (tag.contains(itemFilterWhitelistKey)) itemFilterWhitelist[i] = tag.getBoolean(itemFilterWhitelistKey);
+            String fluidFilterWhitelistKey = "fluid_filter_whitelist_" + dir.getSerializedName();
+            if (tag.contains(fluidFilterWhitelistKey)) fluidFilterWhitelist[i] = tag.getBoolean(fluidFilterWhitelistKey);
+            String itemFilterNbtKey = "item_filter_nbt_" + dir.getSerializedName();
+            if (tag.contains(itemFilterNbtKey)) itemFilterNbtMatch[i] = tag.getBoolean(itemFilterNbtKey);
+            String fluidFilterNbtKey = "fluid_filter_nbt_" + dir.getSerializedName();
+            if (tag.contains(fluidFilterNbtKey)) fluidFilterNbtMatch[i] = tag.getBoolean(fluidFilterNbtKey);
         }
         if (tag.contains("distribution")) {
             for (NodeDistributionMode mode : NodeDistributionMode.values()) {
@@ -544,6 +683,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         }
         if (tag.contains("itemRoundRobinIndex")) itemRoundRobinIndex = tag.getInt("itemRoundRobinIndex");
         if (tag.contains("fluidRoundRobinIndex")) fluidRoundRobinIndex = tag.getInt("fluidRoundRobinIndex");
+        if (tag.contains("activeTab")) activeTab = tag.getInt("activeTab");
     }
 
     @NotNull
@@ -555,6 +695,9 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new NodeMenu(containerId, playerInventory, this);
+        // Temporarily opens the tabbed-GUI framework screen instead of NodeMenu/NodeScreen while the
+        // Node GUI tab overhaul is in progress -- see project_node_gui_tab_overhaul memory. Revert
+        // this one line (and the import above) to go back to the old screen if needed.
+        return new TabbedNodeMenu(containerId, playerInventory, this);
     }
 }
