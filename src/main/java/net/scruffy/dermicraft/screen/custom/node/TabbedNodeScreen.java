@@ -30,12 +30,12 @@ import java.util.List;
  * Framework screen for the tabbed Node GUI rework (see project_node_gui_tab_overhaul memory).
  * Renders a tab per connected leg only (see {@link #connectedLegIndices}), compacted with no gaps
  * for unconnected legs; the active one -- the BE's persisted choice if still connected, otherwise
- * the first connected leg as a visual-only fallback (see {@link #effectiveActiveLeg}) -- shows open
- * art + standard direction icon, the rest stay closed with a pressed icon. The right-side column
- * (item slot, gauge+slot, distribution button) is Node-wide and always shown. Clicking a tab selects
- * it and persists the choice on the BE via {@link TabbedNodeMenu}. The distribution button still
- * only toggles a local, client-only display state -- not wired to the BE yet. What happens if the
- * leg a still-open screen is showing loses its connection mid-session (a dedicated cover/error
+ * the first connected leg as a visual-only fallback (see {@link TabbedNodeMenu#getEffectiveLeg}) --
+ * shows open art + standard direction icon, the rest stay closed with a pressed icon. The right-side
+ * column (item slot, gauge+slot, distribution button) is Node-wide and always shown. Clicking a tab
+ * selects it and persists the choice on the BE via {@link TabbedNodeMenu}. The distribution button
+ * still only toggles a local, client-only display state -- not wired to the BE yet. What happens if
+ * the leg a still-open screen is showing loses its connection mid-session (a dedicated cover/error
  * screen, per project_node_gui_tab_overhaul memory) isn't built yet -- it currently just falls back
  * silently to another connected leg next frame.
  */
@@ -152,6 +152,8 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
     private static final ResourceLocation DENY_NBT_BUTTON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "deny_nbt_button.png");
 
+    private static final int SCREEN_X_SHIFT = 32;
+
     private FluidTankRenderer tankRenderer;
 
     // Fluid filter swatch -- same FluidTankRenderer-based render Workbench uses for its own fluid
@@ -162,20 +164,188 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
     // Client-only display state -- not wired to the BE's real distribution mode yet.
     private boolean roundRobin = true;
 
+    /**
+     * Template for one per-leg row (items or fluids) -- the shared 5-column render/click shape lives
+     * here once; a subclass only supplies which BE accessors and enable-button art belong to its
+     * type, plus (fluids only) how the filter slot's contents actually render/tooltip, since a fluid
+     * filter has no ghost ItemStack to fall back on the way the item filter's real Slot provides for
+     * free. See project_node_filter_system_design memory for the semantics these accessors read.
+     */
+    private abstract class LegRow {
+        abstract int rowY();
+
+        abstract boolean fluid();
+
+        abstract boolean isEnabled(Direction dir);
+
+        abstract NodeDirectionMode directionMode(Direction dir);
+
+        abstract boolean isWhitelist(Direction dir);
+
+        abstract boolean isNbtMatch(Direction dir);
+
+        abstract ResourceLocation enableTexture(boolean on);
+
+        /** Extra content drawn over the filter slot's backdrop -- a no-op for the item row (its real
+         * Slot renders its own ghost item), overridden by the fluid row to draw its swatch. */
+        void renderFilterOverlay(GuiGraphics guiGraphics, int x, int y, Direction dir) {
+        }
+
+        /** Extra tooltip for the filter slot's contents -- a no-op for the item row (vanilla's own
+         * item tooltip already covers its ghost item), overridden by the fluid row. */
+        void renderFilterTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, Direction dir) {
+        }
+
+        void render(GuiGraphics guiGraphics, int x, int y, Direction dir) {
+            int rowY = rowY();
+            guiGraphics.blit(enableTexture(isEnabled(dir)), x + ENABLE_COL_X, y + rowY, 0, 0,
+                    ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
+            guiGraphics.blit(directionTexture(directionMode(dir)), x + DIRECTION_COL_X, y + rowY, 0, 0,
+                    ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
+            guiGraphics.blit(ITEM_SLOT_TEXTURE, x + FILTER_COL_X, y + rowY, 0, 0,
+                    ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
+            renderFilterOverlay(guiGraphics, x, y, dir);
+            guiGraphics.blit(isWhitelist(dir) ? ALLOW_FILTER_BUTTON_TEXTURE : DENY_FILTER_BUTTON_TEXTURE,
+                    x + MODE_COL_X, y + rowY, 0, 0, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
+            guiGraphics.blit(isNbtMatch(dir) ? ALLOW_NBT_BUTTON_TEXTURE : DENY_NBT_BUTTON_TEXTURE,
+                    x + NBT_COL_X, y + rowY, 0, 0, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
+        }
+
+        /** Handles the four button columns -- the filter slot column needs no handling here, since
+         * it's a real Slot in TabbedNodeMenu and vanilla's own slot click routing already reaches it. */
+        boolean handleClick(double mouseX, double mouseY, int x, int y, Direction dir) {
+            int rowY = rowY();
+            boolean fluid = fluid();
+            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + ENABLE_COL_X, y + rowY,
+                    ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
+                PacketDistributor.sendToServer(new NodeTransferToggleClickPayload(menu.BE.getBlockPos(), dir, fluid));
+                return true;
+            }
+            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + DIRECTION_COL_X, y + rowY,
+                    ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
+                PacketDistributor.sendToServer(new NodeDirectionClickPayload(menu.BE.getBlockPos(), dir, fluid));
+                return true;
+            }
+            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MODE_COL_X, y + rowY,
+                    ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
+                PacketDistributor.sendToServer(new NodeFilterModeClickPayload(menu.BE.getBlockPos(), dir, fluid));
+                return true;
+            }
+            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + NBT_COL_X, y + rowY,
+                    ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
+                PacketDistributor.sendToServer(new NodeFilterNbtClickPayload(menu.BE.getBlockPos(), dir, fluid));
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private final LegRow itemRow = new LegRow() {
+        @Override
+        int rowY() {
+            return ITEMS_ROW_Y;
+        }
+
+        @Override
+        boolean fluid() {
+            return false;
+        }
+
+        @Override
+        boolean isEnabled(Direction dir) {
+            return menu.BE.isItemsEnabled(dir);
+        }
+
+        @Override
+        NodeDirectionMode directionMode(Direction dir) {
+            return menu.BE.getItemDirectionMode(dir);
+        }
+
+        @Override
+        boolean isWhitelist(Direction dir) {
+            return menu.BE.isItemFilterWhitelist(dir);
+        }
+
+        @Override
+        boolean isNbtMatch(Direction dir) {
+            return menu.BE.isItemFilterNbtMatch(dir);
+        }
+
+        @Override
+        ResourceLocation enableTexture(boolean on) {
+            return on ? ITEM_TOGGLE_BUTTON_TEXTURE : ITEM_TOGGLE_OFF_TEXTURE;
+        }
+    };
+
+    private final LegRow fluidRow = new LegRow() {
+        @Override
+        int rowY() {
+            return FLUIDS_ROW_Y;
+        }
+
+        @Override
+        boolean fluid() {
+            return true;
+        }
+
+        @Override
+        boolean isEnabled(Direction dir) {
+            return menu.BE.isFluidsEnabled(dir);
+        }
+
+        @Override
+        NodeDirectionMode directionMode(Direction dir) {
+            return menu.BE.getFluidDirectionMode(dir);
+        }
+
+        @Override
+        boolean isWhitelist(Direction dir) {
+            return menu.BE.isFluidFilterWhitelist(dir);
+        }
+
+        @Override
+        boolean isNbtMatch(Direction dir) {
+            return menu.BE.isFluidFilterNbtMatch(dir);
+        }
+
+        @Override
+        ResourceLocation enableTexture(boolean on) {
+            return on ? FLUID_TOGGLE_BUTTON_TEXTURE : FLUID_TOGGLE_OFF_TEXTURE;
+        }
+
+        @Override
+        void renderFilterOverlay(GuiGraphics guiGraphics, int x, int y, Direction dir) {
+            Fluid filterFluid = menu.BE.getFluidFilter(dir);
+            if (filterFluid != Fluids.EMPTY) {
+                filterSwatchRenderer.render(guiGraphics, x + FILTER_COL_X + 1, y + rowY() + 1, new FluidStack(filterFluid, 1));
+            }
+        }
+
+        @Override
+        void renderFilterTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, Direction dir) {
+            Fluid filterFluid = menu.BE.getFluidFilter(dir);
+            // Fluid name only, not FluidTankRenderer#getTooltip's usual name+amount/capacity lines --
+            // a filter has no amount, so that line would just be misleading noise here.
+            if (filterFluid != Fluids.EMPTY
+                    && isMouseAboveArea(mouseX, mouseY, x, y, FILTER_COL_X + 1, rowY() + 1, filterSwatchRenderer)) {
+                guiGraphics.renderTooltip(font, filterFluid.getFluidType().getDescription(), mouseX - x, mouseY - y);
+            }
+        }
+    };
+
     public TabbedNodeScreen(TabbedNodeMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
     }
 
-    // The tab column and side column both stick out past imageWidth, but vanilla centers the screen
-    // (and JEI positions its item list) using only imageWidth -- so with the screen centered normally,
-    // JEI's list overlaps the side column it doesn't know about. Shifting leftPos left after init()
-    // moves the whole screen (background, tabs, side column, and every real slot, since vanilla's own
-    // slot rendering/hit-testing reads leftPos/topPos directly) out from under it.
-    private static final int SCREEN_X_SHIFT = 32;
-
     @Override
     protected void init() {
         super.init();
+        // The tab column and side column both stick out past imageWidth, but vanilla centers the
+        // screen (and JEI positions its item list) using only imageWidth -- so with the screen
+        // centered normally, JEI's list overlaps the side column it doesn't know about. Shifting
+        // leftPos left moves the whole screen (background, tabs, side column, and every real slot,
+        // since vanilla's own slot rendering/hit-testing reads leftPos/topPos directly) out from
+        // under it.
         leftPos -= SCREEN_X_SHIFT;
         tankRenderer = createFluidRenderer16x40(menu.BE.getFluidTank().getCapacity());
         filterSwatchRenderer = createFluidRenderer(1, 16, 16);
@@ -221,38 +391,11 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
         int effectiveLeg = menu.getEffectiveLeg();
         if (effectiveLeg >= 0) {
             Direction activeDir = NodeBlockEntity.LEG_ORDER[effectiveLeg];
-            if (rowClicked(mouseX, mouseY, x, y, ITEMS_ROW_Y, activeDir, false)) return true;
-            if (rowClicked(mouseX, mouseY, x, y, FLUIDS_ROW_Y, activeDir, true)) return true;
+            if (itemRow.handleClick(mouseX, mouseY, x, y, activeDir)) return true;
+            if (fluidRow.handleClick(mouseX, mouseY, x, y, activeDir)) return true;
         }
 
         return super.mouseClicked(mouseX, mouseY, button);
-    }
-
-    /** Handles the four button columns of one per-leg row (enable, direction, whitelist/blacklist
-     * mode, NBT match) -- the filter slot column needs no handling here, since it's a real Slot in
-     * TabbedNodeMenu and vanilla's own slot click routing already reaches it. */
-    private boolean rowClicked(double mouseX, double mouseY, int x, int y, int rowY, Direction dir, boolean fluid) {
-        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + ENABLE_COL_X, y + rowY,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
-            PacketDistributor.sendToServer(new NodeTransferToggleClickPayload(menu.BE.getBlockPos(), dir, fluid));
-            return true;
-        }
-        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + DIRECTION_COL_X, y + rowY,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
-            PacketDistributor.sendToServer(new NodeDirectionClickPayload(menu.BE.getBlockPos(), dir, fluid));
-            return true;
-        }
-        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + MODE_COL_X, y + rowY,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
-            PacketDistributor.sendToServer(new NodeFilterModeClickPayload(menu.BE.getBlockPos(), dir, fluid));
-            return true;
-        }
-        if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + NBT_COL_X, y + rowY,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
-            PacketDistributor.sendToServer(new NodeFilterNbtClickPayload(menu.BE.getBlockPos(), dir, fluid));
-            return true;
-        }
-        return false;
     }
 
     @Override
@@ -301,41 +444,12 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
                 DISTRIBUTION_BUTTON_SIZE, DISTRIBUTION_BUTTON_SIZE, DISTRIBUTION_BUTTON_SIZE, DISTRIBUTION_BUTTON_SIZE);
 
         // Per-leg rows for whichever leg is effectively active -- nothing renders at all if the Node
-        // has no connections yet. The item row's filter slot only draws the backdrop -- the ghost
-        // item on top of it renders automatically via the real Slot in TabbedNodeMenu. The fluid
-        // row's filter slot instead draws a fluid swatch (see filterSwatchRenderer) since its slot
-        // never actually holds an item.
+        // has no connections yet.
         if (effectiveLeg >= 0) {
             Direction activeDir = NodeBlockEntity.LEG_ORDER[effectiveLeg];
-            renderLegRow(guiGraphics, x, y, ITEMS_ROW_Y, null,
-                    menu.BE.isItemsEnabled(activeDir) ? ITEM_TOGGLE_BUTTON_TEXTURE : ITEM_TOGGLE_OFF_TEXTURE,
-                    directionTexture(menu.BE.getItemDirectionMode(activeDir)),
-                    menu.BE.isItemFilterWhitelist(activeDir) ? ALLOW_FILTER_BUTTON_TEXTURE : DENY_FILTER_BUTTON_TEXTURE,
-                    menu.BE.isItemFilterNbtMatch(activeDir) ? ALLOW_NBT_BUTTON_TEXTURE : DENY_NBT_BUTTON_TEXTURE);
-            renderLegRow(guiGraphics, x, y, FLUIDS_ROW_Y, menu.BE.getFluidFilter(activeDir),
-                    menu.BE.isFluidsEnabled(activeDir) ? FLUID_TOGGLE_BUTTON_TEXTURE : FLUID_TOGGLE_OFF_TEXTURE,
-                    directionTexture(menu.BE.getFluidDirectionMode(activeDir)),
-                    menu.BE.isFluidFilterWhitelist(activeDir) ? ALLOW_FILTER_BUTTON_TEXTURE : DENY_FILTER_BUTTON_TEXTURE,
-                    menu.BE.isFluidFilterNbtMatch(activeDir) ? ALLOW_NBT_BUTTON_TEXTURE : DENY_NBT_BUTTON_TEXTURE);
+            itemRow.render(guiGraphics, x, y, activeDir);
+            fluidRow.render(guiGraphics, x, y, activeDir);
         }
-    }
-
-    private void renderLegRow(GuiGraphics guiGraphics, int x, int y, int rowY, Fluid filterFluid,
-                               ResourceLocation enableTexture, ResourceLocation directionTexture,
-                               ResourceLocation modeTexture, ResourceLocation nbtTexture) {
-        guiGraphics.blit(enableTexture, x + ENABLE_COL_X, y + rowY, 0, 0,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
-        guiGraphics.blit(directionTexture, x + DIRECTION_COL_X, y + rowY, 0, 0,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
-        guiGraphics.blit(ITEM_SLOT_TEXTURE, x + FILTER_COL_X, y + rowY, 0, 0,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
-        if (filterFluid != null && filterFluid != Fluids.EMPTY) {
-            filterSwatchRenderer.render(guiGraphics, x + FILTER_COL_X + 1, y + rowY + 1, new FluidStack(filterFluid, 1));
-        }
-        guiGraphics.blit(modeTexture, x + MODE_COL_X, y + rowY, 0, 0,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
-        guiGraphics.blit(nbtTexture, x + NBT_COL_X, y + rowY, 0, 0,
-                ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE);
     }
 
     private static ResourceLocation directionTexture(NodeDirectionMode mode) {
@@ -357,12 +471,7 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
         int effectiveLeg = menu.getEffectiveLeg();
         if (effectiveLeg < 0) return;
         Direction activeDir = NodeBlockEntity.LEG_ORDER[effectiveLeg];
-        Fluid filterFluid = menu.BE.getFluidFilter(activeDir);
-        // Fluid name only, not FluidTankRenderer#getTooltip's usual name+amount/capacity lines --
-        // a filter has no amount, so that line would just be misleading noise here.
-        if (filterFluid != Fluids.EMPTY
-                && isMouseAboveArea(pMouseX, pMouseY, x, y, FILTER_COL_X + 1, FLUIDS_ROW_Y + 1, filterSwatchRenderer)) {
-            guiGraphics.renderTooltip(this.font, filterFluid.getFluidType().getDescription(), pMouseX - x, pMouseY - y);
-        }
+        itemRow.renderFilterTooltip(guiGraphics, pMouseX, pMouseY, x, y, activeDir);
+        fluidRow.renderFilterTooltip(guiGraphics, pMouseX, pMouseY, x, y, activeDir);
     }
 }
