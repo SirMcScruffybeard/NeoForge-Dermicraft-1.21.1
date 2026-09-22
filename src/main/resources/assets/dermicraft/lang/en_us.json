@@ -54,6 +54,11 @@
   "tooltip.dermicraft.tank.input_b": "Input B tank",
   "tooltip.dermicraft.tank.storage": "Storage tank",
 
+  "tooltip.dermicraft.node.filter_allow": "Allow",
+  "tooltip.dermicraft.node.filter_deny": "Deny",
+  "tooltip.dermicraft.node.nbt_use_data": "Use data",
+  "tooltip.dermicraft.node.nbt_dont_use_data": "Ignore Data",
+
   "tooltip.dermicraft.drinker.target": "Target: %s",
   "tooltip.dermicraft.drinker.blocked": "%s -- hazard incompatible",
   "tooltip.dermicraft.drinker.empty": "Target: empty",

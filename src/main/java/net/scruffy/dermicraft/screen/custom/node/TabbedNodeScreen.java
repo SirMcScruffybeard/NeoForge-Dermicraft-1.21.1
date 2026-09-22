@@ -238,6 +238,22 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
             }
             return false;
         }
+
+        /** Hover tooltips for the whitelist/blacklist and NBT-match buttons, reflecting their current
+         * state. */
+        void renderControlTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, Direction dir) {
+            int rowY = rowY();
+            if (MouseUtil.isMouseOver(mouseX, mouseY, x + MODE_COL_X, y + rowY, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
+                guiGraphics.renderTooltip(font, Component.translatable(isWhitelist(dir)
+                        ? "tooltip.dermicraft.node.filter_allow" : "tooltip.dermicraft.node.filter_deny"),
+                        mouseX - x, mouseY - y);
+            }
+            if (MouseUtil.isMouseOver(mouseX, mouseY, x + NBT_COL_X, y + rowY, ROW_CONTROL_SIZE, ROW_CONTROL_SIZE)) {
+                guiGraphics.renderTooltip(font, Component.translatable(isNbtMatch(dir)
+                        ? "tooltip.dermicraft.node.nbt_use_data" : "tooltip.dermicraft.node.nbt_dont_use_data"),
+                        mouseX - x, mouseY - y);
+            }
+        }
     }
 
     private final LegRow itemRow = new LegRow() {
@@ -473,5 +489,7 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
         Direction activeDir = NodeBlockEntity.LEG_ORDER[effectiveLeg];
         itemRow.renderFilterTooltip(guiGraphics, pMouseX, pMouseY, x, y, activeDir);
         fluidRow.renderFilterTooltip(guiGraphics, pMouseX, pMouseY, x, y, activeDir);
+        itemRow.renderControlTooltips(guiGraphics, pMouseX, pMouseY, x, y, activeDir);
+        fluidRow.renderControlTooltips(guiGraphics, pMouseX, pMouseY, x, y, activeDir);
     }
 }

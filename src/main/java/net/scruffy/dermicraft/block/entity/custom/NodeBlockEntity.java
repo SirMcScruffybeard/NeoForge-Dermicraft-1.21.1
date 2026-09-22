@@ -3,10 +3,8 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -149,9 +146,10 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     // rendering) rather than a custom-drawn icon -- see TabbedNodeMenu. The fluid filter's slot is
     // real too (same hover/click behavior), but renders as a fluid swatch (see TabbedNodeScreen,
     // same FluidTankRenderer-based render Workbench uses for its own fluid requirement icons)
-    // instead of a ghost item, so its identity lives here as a plain Fluid, not an ItemStack.
+    // instead of a ghost item. Stored as a full FluidStack (not just a Fluid) so NBT-match filtering
+    // has real component data to compare against -- see passesFluidFilter.
     private final ItemStackHandler ITEM_FILTERS = new ItemStackHandler(LEG_ORDER.length);
-    private final Fluid[] fluidFilters = new Fluid[LEG_ORDER.length];
+    private final FluidStack[] fluidFilters = new FluidStack[LEG_ORDER.length];
     private final boolean[] itemFilterWhitelist = new boolean[LEG_ORDER.length];
     private final boolean[] fluidFilterWhitelist = new boolean[LEG_ORDER.length];
     private final boolean[] itemFilterNbtMatch = new boolean[LEG_ORDER.length];
@@ -170,13 +168,19 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         setChanged();
     }
 
-    public Fluid getFluidFilter(Direction dir) {
-        Fluid fluid = fluidFilters[legIndex(dir)];
-        return fluid == null ? Fluids.EMPTY : fluid;
+    /** The stored filter with its full component data -- what {@link #passesFluidFilter} actually
+     * compares against. {@link #getFluidFilter} is the identity-only view screens/tooltips use. */
+    public FluidStack getFluidFilterStack(Direction dir) {
+        FluidStack stack = fluidFilters[legIndex(dir)];
+        return stack == null ? FluidStack.EMPTY : stack;
     }
 
-    public void setFluidFilter(Direction dir, Fluid fluid) {
-        fluidFilters[legIndex(dir)] = (fluid == null || fluid == Fluids.EMPTY) ? null : fluid;
+    public Fluid getFluidFilter(Direction dir) {
+        return getFluidFilterStack(dir).getFluid();
+    }
+
+    public void setFluidFilter(Direction dir, FluidStack stack) {
+        fluidFilters[legIndex(dir)] = (stack == null || stack.isEmpty()) ? null : stack.copyWithAmount(1);
         setChanged();
     }
 
@@ -218,6 +222,37 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         int i = legIndex(dir);
         fluidFilterNbtMatch[i] = !fluidFilterNbtMatch[i];
         setChanged();
+    }
+
+    /**
+     * Whether {@code stack} is allowed to cross the given leg, for either a push (leaving) or a pull
+     * (arriving) -- the same filter governs both directions, per project_node_filter_system_design.
+     * An empty allow-list (whitelist) blocks everything; an empty deny-list (blacklist, the default)
+     * allows everything. When the filter slot holds something, NBT-match decides whether the check
+     * is by base item type only ({@link ItemStack#isSameItem}) or full component-exact identity
+     * ({@link ItemStack#isSameItemSameComponents}).
+     */
+    private boolean passesItemFilter(Direction dir, ItemStack stack) {
+        ItemStack filter = getItemFilter(dir);
+        boolean whitelist = isItemFilterWhitelist(dir);
+        if (filter.isEmpty()) return !whitelist;
+        boolean matches = isItemFilterNbtMatch(dir)
+                ? ItemStack.isSameItemSameComponents(stack, filter)
+                : ItemStack.isSameItem(stack, filter);
+        return whitelist == matches;
+    }
+
+    /** Fluid counterpart to {@link #passesItemFilter} -- same allow/deny-list semantics and the same
+     * NBT-match choice between identity-only ({@link FluidStack#isSameFluid}) and full
+     * component-exact ({@link FluidStack#isSameFluidSameComponents}) matching. */
+    private boolean passesFluidFilter(Direction dir, FluidStack candidate) {
+        FluidStack filter = getFluidFilterStack(dir);
+        boolean whitelist = isFluidFilterWhitelist(dir);
+        if (filter.isEmpty()) return !whitelist;
+        boolean matches = isFluidFilterNbtMatch(dir)
+                ? FluidStack.isSameFluidSameComponents(candidate, filter)
+                : FluidStack.isSameFluid(candidate, filter);
+        return whitelist == matches;
     }
 
     {
@@ -451,8 +486,8 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
             Optional<DuctRunResolver.Endpoint> endpoint = DuctRunResolver.resolve(level, worldPosition, dir);
             if (endpoint.isEmpty()) continue;
-            if (wantsFluid) pullFluidFrom(level, endpoint.get());
-            if (wantsItems) pullItemFrom(level, endpoint.get());
+            if (wantsFluid) pullFluidFrom(level, dir, endpoint.get());
+            if (wantsItems) pullItemFrom(level, dir, endpoint.get());
         }
     }
 
@@ -505,7 +540,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         return targetMode == requiredMode;
     }
 
-    private void pullFluidFrom(Level level, DuctRunResolver.Endpoint endpoint) {
+    private void pullFluidFrom(Level level, Direction dir, DuctRunResolver.Endpoint endpoint) {
         if (!TANK.hasRoom(1)) return;
         if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.OUT, true)) return;
         IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
@@ -514,6 +549,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         int amount = Math.min(fluidTransferPerCycle(), TANK.getSpace());
         FluidStack simulated = handler.drain(amount, IFluidHandler.FluidAction.SIMULATE);
         if (simulated.isEmpty()) return;
+        if (!passesFluidFilter(dir, simulated)) return;
 
         // Two independent tier checks: the run's weakest-duct filter (a duct upgrade tier may
         // accept fluids this Node's own tank doesn't, or vice versa -- both must agree) and the
@@ -526,7 +562,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         TANK.fill(drained, IFluidHandler.FluidAction.EXECUTE);
     }
 
-    private void pullItemFrom(Level level, DuctRunResolver.Endpoint endpoint) {
+    private void pullItemFrom(Level level, Direction dir, DuctRunResolver.Endpoint endpoint) {
         if (!INVENTORY.getStackInSlot(BUFFER_SLOT).isEmpty()) return;
         if (!targetNodeAccepts(level, endpoint, NodeDirectionMode.OUT, false)) return;
         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, endpoint.pos(), endpoint.accessDirection());
@@ -534,7 +570,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
         for (int i = 0; i < handler.getSlots(); i++) {
             ItemStack simulated = handler.extractItem(i, itemTransferPerCycle(), true);
-            if (simulated.isEmpty()) continue;
+            if (simulated.isEmpty() || !passesItemFilter(dir, simulated)) continue;
             ItemStack extracted = handler.extractItem(i, simulated.getCount(), false);
             INVENTORY.setStackInSlot(BUFFER_SLOT, extracted);
             return;
@@ -555,6 +591,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
         if (amount <= 0) return;
         FluidStack simulated = TANK.drain(amount, IFluidHandler.FluidAction.SIMULATE);
         if (simulated.isEmpty()) return;
+        if (!passesFluidFilter(dir, simulated)) return;
         if (!endpoint.hazardProfile().accepts(simulated)) return;
 
         int accepted = handler.fill(simulated, IFluidHandler.FluidAction.SIMULATE);
@@ -567,6 +604,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
     private void pushItemTo(Level level, Direction dir, int cap) {
         ItemStack current = INVENTORY.getStackInSlot(BUFFER_SLOT);
         if (current.isEmpty()) return;
+        if (!passesItemFilter(dir, current)) return;
         Optional<DuctRunResolver.Endpoint> endpointOpt = DuctRunResolver.resolve(level, worldPosition, dir);
         if (endpointOpt.isEmpty()) return;
         DuctRunResolver.Endpoint endpoint = endpointOpt.get();
@@ -607,9 +645,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
             tag.putBoolean("fluids_" + dir.getSerializedName(), fluidsEnabled.get(dir));
 
             int i = legIndex(dir);
-            Fluid fluidFilter = fluidFilters[i];
-            tag.putString("fluid_filter_" + dir.getSerializedName(),
-                    fluidFilter == null ? "" : BuiltInRegistries.FLUID.getKey(fluidFilter).toString());
+            tag.put("fluid_filter_" + dir.getSerializedName(), getFluidFilterStack(dir).saveOptional(registries));
             tag.putBoolean("item_filter_whitelist_" + dir.getSerializedName(), itemFilterWhitelist[i]);
             tag.putBoolean("fluid_filter_whitelist_" + dir.getSerializedName(), fluidFilterWhitelist[i]);
             tag.putBoolean("item_filter_nbt_" + dir.getSerializedName(), itemFilterNbtMatch[i]);
@@ -659,10 +695,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
             int i = legIndex(dir);
             String fluidFilterKey = "fluid_filter_" + dir.getSerializedName();
             if (tag.contains(fluidFilterKey)) {
-                String serialized = tag.getString(fluidFilterKey);
-                Fluid fluid = serialized.isEmpty() ? null
-                        : BuiltInRegistries.FLUID.get(ResourceLocation.parse(serialized));
-                setFluidFilter(dir, fluid); // also rebuilds FLUID_FILTER_GHOSTS's mirrored bucket stack
+                setFluidFilter(dir, FluidStack.parseOptional(registries, tag.getCompound(fluidFilterKey)));
             }
             String itemFilterWhitelistKey = "item_filter_whitelist_" + dir.getSerializedName();
             if (tag.contains(itemFilterWhitelistKey)) itemFilterWhitelist[i] = tag.getBoolean(itemFilterWhitelistKey);

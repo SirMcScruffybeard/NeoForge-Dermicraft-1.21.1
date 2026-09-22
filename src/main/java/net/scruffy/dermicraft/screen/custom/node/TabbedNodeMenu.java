@@ -9,7 +9,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
@@ -142,12 +141,12 @@ public class TabbedNodeMenu extends AbstractModMenu {
             Direction dir = NodeBlockEntity.LEG_ORDER[fluidLeg];
             ItemStack carried = getCarried();
             if (carried.isEmpty()) {
-                BE.setFluidFilter(dir, Fluids.EMPTY);
+                BE.setFluidFilter(dir, FluidStack.EMPTY);
             } else {
                 IFluidHandlerItem handler = carried.getCapability(Capabilities.FluidHandler.ITEM, null);
                 if (handler != null) {
                     FluidStack content = handler.getFluidInTank(0);
-                    if (!content.isEmpty()) BE.setFluidFilter(dir, content.getFluid());
+                    if (!content.isEmpty()) BE.setFluidFilter(dir, content);
                 }
             }
             return;
