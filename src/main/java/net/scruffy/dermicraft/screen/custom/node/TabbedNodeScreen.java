@@ -12,9 +12,11 @@ import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.custom.duct.NodeDirectionMode;
+import net.scruffy.dermicraft.block.custom.duct.NodeDistributionMode;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.network.NodeDirectionClickPayload;
+import net.scruffy.dermicraft.network.NodeDistributionClickPayload;
 import net.scruffy.dermicraft.network.NodeFilterModeClickPayload;
 import net.scruffy.dermicraft.network.NodeFilterNbtClickPayload;
 import net.scruffy.dermicraft.network.NodeTransferToggleClickPayload;
@@ -33,8 +35,7 @@ import java.util.List;
  * the first connected leg as a visual-only fallback (see {@link TabbedNodeMenu#getEffectiveLeg}) --
  * shows open art + standard direction icon, the rest stay closed with a pressed icon. The right-side
  * column (item slot, gauge+slot, distribution button) is Node-wide and always shown. Clicking a tab
- * selects it and persists the choice on the BE via {@link TabbedNodeMenu}. The distribution button
- * still only toggles a local, client-only display state -- not wired to the BE yet. What happens if
+ * selects it and persists the choice on the BE via {@link TabbedNodeMenu}. What happens if
  * the leg a still-open screen is showing loses its connection mid-session (a dedicated cover/error
  * screen, per project_node_gui_tab_overhaul memory) isn't built yet -- it currently just falls back
  * silently to another connected leg next frame.
@@ -160,9 +161,6 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
     // requirement icons (a solid 16x16 fill of the fluid's still texture/tint), not a ghost bucket
     // item. Capacity is arbitrary (1) since a filter has no "amount" -- always rendered full.
     private FluidTankRenderer filterSwatchRenderer;
-
-    // Client-only display state -- not wired to the BE's real distribution mode yet.
-    private boolean roundRobin = true;
 
     /**
      * Template for one per-leg row (items or fluids) -- the shared 5-column render/click shape lives
@@ -400,7 +398,7 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
         if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY,
                 x + imageWidth + SIDE_COLUMN_CONTENT_X_OFFSET, y + DISTRIBUTION_BUTTON_Y,
                 DISTRIBUTION_BUTTON_SIZE, DISTRIBUTION_BUTTON_SIZE)) {
-            roundRobin = !roundRobin;
+            PacketDistributor.sendToServer(new NodeDistributionClickPayload(menu.BE.getBlockPos()));
             return true;
         }
 
@@ -455,7 +453,8 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
                 TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT, TANK_AND_SLOT_WIDTH, TANK_AND_SLOT_HEIGHT);
         tankRenderer.render(guiGraphics, contentX + 1, y + GAUGE_Y + 1, menu.BE.getFluid());
 
-        guiGraphics.blit(roundRobin ? ROUND_ROBIN_BUTTON_TEXTURE : SPREAD_BUTTON_TEXTURE,
+        guiGraphics.blit(menu.BE.getDistributionMode() == NodeDistributionMode.ROUND_ROBIN
+                        ? ROUND_ROBIN_BUTTON_TEXTURE : SPREAD_BUTTON_TEXTURE,
                 contentX, y + DISTRIBUTION_BUTTON_Y, 0, 0,
                 DISTRIBUTION_BUTTON_SIZE, DISTRIBUTION_BUTTON_SIZE, DISTRIBUTION_BUTTON_SIZE, DISTRIBUTION_BUTTON_SIZE);
 
