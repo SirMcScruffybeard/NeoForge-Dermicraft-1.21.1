@@ -39,13 +39,17 @@ public class DockBlock extends ModBaseEntityBlock {
 
     // Derived directly from the current placeholder dock.geo.json ("base"/"roof" cubes, converted
     // px->block fraction by /16), then shifted up by +1 block on Y to match
-    // DockBlockEntityRenderer's own +1 render offset (see its class javadoc) -- only the floor and
-    // roof plates get a real shape, everything else (frame/walls) is deliberately pass-through with
-    // no shape at all, per the model plan. These numbers WILL change once the real model geometry
-    // is finalized.
+    // DockBlockEntityRenderer's own +1 render offset (see its class javadoc), AND shifted +0.5 on
+    // X/Z: the geo model's own coordinate space is centered on the block (matching GeckoLib's
+    // convention of centering block models like entity models), but VoxelShape/collision space uses
+    // the corner convention (block cell is [0,1]x[0,1]) -- GeckoLib's block renderer applies that
+    // same +0.5 horizontally internally, so the shape has to match it explicitly since collision
+    // isn't driven by the renderer. Only the floor and roof plates get a real shape, everything else
+    // (frame/walls) is deliberately pass-through with no shape at all, per the model plan. These
+    // numbers WILL change once the real model geometry is finalized.
     private static final VoxelShape SHAPE = Shapes.or(
-            Shapes.box(-1.5, 0.0, -1.5, 1.5, 0.5, 1.5),   // floor plate
-            Shapes.box(-1.5, 2.75, -1.5, 1.5, 3.0, 1.5)   // roof plate
+            Shapes.box(-1.0, 0.0, -1.0, 2.0, 0.5, 2.0),   // floor plate
+            Shapes.box(-1.0, 2.75, -1.0, 2.0, 3.0, 2.0)   // roof plate
     );
 
     public DockBlock(Properties properties) {

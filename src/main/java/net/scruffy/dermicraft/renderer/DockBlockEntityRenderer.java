@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.world.phys.AABB;
 import net.scruffy.dermicraft.block.entity.custom.DockBlockEntity;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
@@ -33,5 +34,17 @@ public class DockBlockEntityRenderer extends GeoBlockRenderer<DockBlockEntity> {
         poseStack.translate(0, 1, 0);
         super.render(animatable, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
         poseStack.popPose();
+    }
+
+    // Default (IBlockEntityRendererExtension) is just the placed block's own 1x1x1 cell, since
+    // that's all vanilla ever expects a block entity to draw into. This model spans well beyond
+    // that (3 blocks wide, 3 tall after the render offset above), so the vanilla frustum-culling
+    // check against the tiny default box was dropping the whole render whenever the camera looked
+    // away from that single cell but was still looking at, say, the roof -- the "disappears when
+    // you look at the roof, comes back when you look away" symptom. AABB.INFINITE sidesteps tuning
+    // exact bounds while the model's own dimensions are still being iterated on.
+    @Override
+    public AABB getRenderBoundingBox(DockBlockEntity blockEntity) {
+        return AABB.INFINITE;
     }
 }
