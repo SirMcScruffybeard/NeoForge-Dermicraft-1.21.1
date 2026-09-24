@@ -53,6 +53,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
         // have nothing to sample and just don't render.
         simpleBlockWithItem(ModBlocks.WORKBENCH_TOP.get(), models().getExistingFile(modLoc("block/workbench_top")));
 
+        // Dock -- placeholder pass, see DockBlock/DockBlockEntity's javadocs. simpleBlock only
+        // (not simpleBlockWithItem): the item uses its own separate, hand-authored
+        // models/item/dock.json pointing at a much smaller icon geometry (dock_icon.geo.json),
+        // since Blockbench won't generate a display file for a model this large -- generating an
+        // item model here from the block model would conflict with that hand-placed file.
+        simpleBlock(ModBlocks.DOCK.get(), models().getExistingFile(modLoc("block/dock")));
+
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
         simpleBlockWithItem(ModBlocks.STONE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/stone_lab_floor")));
         simpleBlockWithItem(ModBlocks.COBBLESTONE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/cobblestone_lab_floor")));

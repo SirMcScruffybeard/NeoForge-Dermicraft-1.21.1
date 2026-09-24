@@ -129,6 +129,7 @@
   "block.dermicraft.brain": "Brain",
   "block.dermicraft.workbench": "Workbench",
   "block.dermicraft.workbench_top": "Workbench Top",
+  "block.dermicraft.dock": "Dock",
   "item.dermicraft.chassis": "Chassis",
   "item.dermicraft.module_frame": "Module Frame",
   "item.dermicraft.aggregate_module": "Aggregate Module",

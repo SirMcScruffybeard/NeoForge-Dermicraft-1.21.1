@@ -73,6 +73,8 @@ public class ModCreativeModeTabs {
                         // WORKBENCH_TOP is deliberately not offered here -- it's not meant to be
                         // placed by hand, WorkbenchBlock#setPlacedBy auto-places it above the bottom.
                         output.accept(ModBlocks.WORKBENCH);
+                        // Placeholder pass -- see DockBlock's own javadoc.
+                        output.accept(ModBlocks.DOCK);
 
                         ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.INNARDS_DUCT);

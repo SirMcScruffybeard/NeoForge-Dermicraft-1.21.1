@@ -212,6 +212,18 @@ public class DermicraftClient {
                 return renderer;
             }
         }, net.scruffy.dermicraft.block.ModBlocks.WORKBENCH.asItem());
+
+        // Placeholder pass -- see DockItemRenderer's own javadoc. Same reasoning as Workbench's
+        // item renderer, but pointed at Dock's own separate icon model instead of the block model.
+        event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+            private final net.scruffy.dermicraft.renderer.DockItemRenderer renderer =
+                    new net.scruffy.dermicraft.renderer.DockItemRenderer();
+
+            @Override
+            public net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return renderer;
+            }
+        }, net.scruffy.dermicraft.block.ModBlocks.DOCK.asItem());
     }
 
     @SubscribeEvent
@@ -227,6 +239,8 @@ public class DermicraftClient {
                 net.scruffy.dermicraft.renderer.WorkbenchTopBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.WORKBENCH_BE.get(),
                 net.scruffy.dermicraft.renderer.WorkbenchBottomBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.DOCK_BE.get(),
+                net.scruffy.dermicraft.renderer.DockBlockEntityRenderer::new);
         // Base tier only -- Charred variants' canEvolve() is hardwired false, so their progress
         // fraction is always 0 and the overlay would never actually draw anything.
         event.registerBlockEntityRenderer(ModBlockEntities.MASTICATOR_BE.get(),

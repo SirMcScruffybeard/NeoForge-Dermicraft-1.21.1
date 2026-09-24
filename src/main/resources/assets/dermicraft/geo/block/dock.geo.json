@@ -1,0 +1,58 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.dock",
+				"texture_width": 16,
+				"texture_height": 16,
+				"visible_bounds_width": 4,
+				"visible_bounds_height": 4,
+				"visible_bounds_offset": [0, 1, 0]
+			},
+			"bones": [
+				{
+					"name": "main",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "base",
+					"parent": "main",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-24, -16, -24], "size": [48, 8, 48], "uv": [-69, -46]}
+					]
+				},
+				{
+					"name": "roof",
+					"parent": "main",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-24, 28, -24], "size": [48, 4, 48], "uv": [-69, -46]}
+					]
+				},
+				{
+					"name": "supports",
+					"parent": "main",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "left_support",
+					"parent": "supports",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [20.5, -8, -3], "size": [3.5, 36, 6], "uv": [-4, -4]}
+					]
+				},
+				{
+					"name": "right_support",
+					"parent": "supports",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-24, -8, -3], "size": [3.5, 36, 6], "uv": [-4, -4]}
+					]
+				}
+			]
+		}
+	]
+}

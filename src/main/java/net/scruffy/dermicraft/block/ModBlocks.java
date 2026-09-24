@@ -147,6 +147,17 @@ public class ModBlocks {
                     .sound(SoundType.WOOD)
                     .noOcclusion()));
 
+    // Dock -- placeholder pass only, see DockBlock/DockBlockEntity's javadocs and memory:
+    // project_dock_model_plan. Single facing-aware block just to place/preview the in-progress
+    // GeckoLib model; no Duties/menu/tank wiring and no real 3x3x3 multiblock yet.
+    // noOcclusion -- GeckoLib-rendered, doesn't fill the full cube.
+    public static final DeferredBlock<Block> DOCK = registerBlock("dock",
+            () -> new DockBlock(BlockBehaviour.Properties.of()
+                    .strength(3.5f)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()
+                    .noLootTable()));
+
     // Brain Block: Gear Stations' construction-defining "smart" ingredient (see
     // dermicraft-gear-stations-notes.md -> Construction); also stands alone as a decoration
     // block, same "every item needs more than one use" convention as Proto Brain's own item.

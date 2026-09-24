@@ -147,4 +147,8 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("workbench_top_be", () -> BlockEntityType.Builder.of(
                     WorkbenchTopBlockEntity::new, ModBlocks.WORKBENCH_TOP.get()).build(null));
 
+    public static final Supplier<BlockEntityType<DockBlockEntity>> DOCK_BE =
+            BLOCK_ENTITIES.register("dock_be", () -> BlockEntityType.Builder.of(
+                    DockBlockEntity::new, ModBlocks.DOCK.get()).build(null));
+
 }
