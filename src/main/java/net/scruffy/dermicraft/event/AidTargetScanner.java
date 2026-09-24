@@ -111,8 +111,10 @@ public class AidTargetScanner {
     }
 
     private static boolean isSyringeTarget(AidItem item, Level level, BlockPos pos, BlockState state, Direction face) {
-        if (state.getBlock() instanceof IInjectableBlock
-                && level.getBlockEntity(pos) instanceof StitchedTumorBlockEntity) {
+        // Any IInjectableBlock implementor with a real block entity there -- Stitched Tumor's
+        // early-implant injection, Craw's early-incubating injection, or any future one -- not just
+        // one hardcoded target type. Matches AidItem#useSyringe's own generalized dispatch.
+        if (state.getBlock() instanceof IInjectableBlock && level.getBlockEntity(pos) != null) {
             return true;
         }
 

@@ -123,7 +123,8 @@ public class StitchedTumorBlock extends EarlySurgeryTumorBlock implements ICutSt
     }
 
     @Override
-    public boolean inject(Level level, Player player, ItemStack stack, StitchedTumorBlockEntity blockEntity) {
+    public boolean inject(Level level, Player player, ItemStack stack, BlockEntity blockEntityRaw) {
+        if (!(blockEntityRaw instanceof StitchedTumorBlockEntity blockEntity)) return false;
         if (!(stack.getItem() instanceof IInject syringe)) return false;
 
         FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);

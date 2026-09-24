@@ -444,11 +444,14 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
 
     /**
      * Inject (deliberately NOT tag-driven, same reasoning as Scalpel's harvest/Suture's sow):
-     * A.I.D. is not a member of {@code INJECTION_TOOLS}, since {@code StitchedTumorBlock.useItemOn}
-     * checks that tag with no notion of A.I.D.'s current mode. Instead this calls
-     * {@link IInjectableBlock#inject} directly, gated on mode here -- that call internally checks
-     * {@code stack.getItem() instanceof IInject}, which A.I.D. now is, and drains its own
-     * {@link ModDataComponentTypes#FLUID_DATA} exactly like the standalone Syringe would. Fires the
+     * A.I.D. is not a member of {@code INJECTION_TOOLS}, since {@code StitchedTumorBlock.useItemOn}/
+     * {@code CrawBlock.useItemOn} check that tag with no notion of A.I.D.'s current mode. Instead
+     * this calls {@link IInjectableBlock#inject} directly, gated on mode here -- works against ANY
+     * {@link IInjectableBlock} implementor (Stitched Tumor's early-implant injection, Craw's
+     * early-incubating injection, ...) rather than one hardcoded target, since the interface itself
+     * takes a generic {@link BlockEntity} and each implementor casts internally. That call
+     * internally checks {@code stack.getItem() instanceof IInject}, which A.I.D. now is, and drains
+     * its own {@link ModDataComponentTypes#FLUID_DATA} exactly like the standalone Syringe would. Fires the
      * "inject" trigger and returns CONSUME only when the injection actually took (a real recipe/
      * fluid match) -- an injection that didn't take plays no animation, same "nothing happened"
      * feel as the standalone Syringe's silent no-op.
@@ -473,11 +476,11 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
 
-        if (state.getBlock() instanceof IInjectableBlock injectable
-                && level.getBlockEntity(pos) instanceof StitchedTumorBlockEntity stitchedEntity) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (state.getBlock() instanceof IInjectableBlock injectable && blockEntity != null) {
             if (level.isClientSide) return InteractionResult.CONSUME;
 
-            boolean injected = injectable.inject(level, player, stack, stitchedEntity);
+            boolean injected = injectable.inject(level, player, stack, blockEntity);
             if (injected) {
                 triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) level), "Syringe", "inject");
             }
