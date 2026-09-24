@@ -38,12 +38,14 @@ public class DockBlock extends ModBaseEntityBlock {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     // Derived directly from the current placeholder dock.geo.json ("base"/"roof" cubes, converted
-    // px->block fraction by /16) -- only the floor and roof plates get a real shape, everything
-    // else (frame/walls) is deliberately pass-through with no shape at all, per the model plan.
-    // These numbers WILL change once the real model geometry is finalized.
+    // px->block fraction by /16), then shifted up by +1 block on Y to match
+    // DockBlockEntityRenderer's own +1 render offset (see its class javadoc) -- only the floor and
+    // roof plates get a real shape, everything else (frame/walls) is deliberately pass-through with
+    // no shape at all, per the model plan. These numbers WILL change once the real model geometry
+    // is finalized.
     private static final VoxelShape SHAPE = Shapes.or(
-            Shapes.box(-1.5, -1.0, -1.5, 1.5, -0.5, 1.5), // floor plate
-            Shapes.box(-1.5, 1.75, -1.5, 1.5, 2.0, 1.5)   // roof plate
+            Shapes.box(-1.5, 0.0, -1.5, 1.5, 0.5, 1.5),   // floor plate
+            Shapes.box(-1.5, 2.75, -1.5, 1.5, 3.0, 1.5)   // roof plate
     );
 
     public DockBlock(Properties properties) {
