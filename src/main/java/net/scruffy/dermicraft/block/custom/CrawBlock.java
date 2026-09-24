@@ -19,12 +19,13 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.interfaces.IInject;
+import net.scruffy.dermicraft.interfaces.IInjectableBlock;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.util.ToolUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class CrawBlock extends ModBaseEntityBlock {
+public class CrawBlock extends ModBaseEntityBlock implements IInjectableBlock {
 
     public static final MapCodec<CrawBlock> CODEC = simpleCodec(CrawBlock::new);
 
@@ -119,24 +120,26 @@ public class CrawBlock extends ModBaseEntityBlock {
 
     /**
      * Mirrors {@code StitchedTumorBlock.inject} -- any {@link IInject} tool (e.g. a loaded
-     * Syringe) can trigger a matching cached recipe. Unlike the Tumor version, Craw is never
-     * consumed or transformed; see {@link CrawBlockEntity#completeIncubation}.
+     * Syringe, or A.I.D. in Syringe mode via {@link IInjectableBlock}) can trigger a matching
+     * cached recipe. Unlike the Tumor version, Craw is never consumed or transformed; see
+     * {@link CrawBlockEntity#completeIncubation}.
      */
-    private void inject(Level level, Player player, ItemStack stack, CrawBlockEntity craw) {
-        if (stack.getItem() instanceof IInject syringe) {
-            FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);
-            if (data.isFluidEmpty()) {
-                return;
-            }
+    @Override
+    public boolean inject(Level level, Player player, ItemStack stack, BlockEntity blockEntityRaw) {
+        if (!(blockEntityRaw instanceof CrawBlockEntity craw)) return false;
+        if (!(stack.getItem() instanceof IInject syringe)) return false;
 
-            FluidStack fluidStack = data.getFluidStack();
-            EarlyIncubatingRecipe recipe = craw.getCachedRecipe();
+        FluidData data = stack.getOrDefault(syringe.getFluidDataType(), FluidData.EMPTY);
+        if (data.isFluidEmpty()) return false;
 
-            if (recipe != null && recipe.testFluid(fluidStack)) {
-                syringe.emptyDataFluidIfSurvival(stack, player);
-                craw.completeIncubation(recipe);
-            }
-        }
+        FluidStack fluidStack = data.getFluidStack();
+        EarlyIncubatingRecipe recipe = craw.getCachedRecipe();
+
+        if (recipe == null || !recipe.testFluid(fluidStack)) return false;
+
+        syringe.emptyDataFluidIfSurvival(stack, player);
+        craw.completeIncubation(recipe);
+        return true;
     }
 
     // Standing withdraws a single item, immediately -- no GUI involved, so no double-click-
