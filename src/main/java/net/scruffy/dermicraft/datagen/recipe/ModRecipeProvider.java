@@ -363,6 +363,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.DROOLING_GEODE.asItem());
 
+        // Drooling Crucible -- same recipe shape as Drooling Cauldron/Geode above (standalone
+        // alternate path now, not an evolution target -- see DroolingCauldronBlockEntity's own
+        // javadoc), plus a seed Magma Block for the heat identity (same "heat-resistant identity"
+        // role Magma Block already plays in the Heat Safety Module recipe).
+        RecipeBuilders.buildEarlyImplant(recipeOutput,"drooling_crucible_implant",
+                List.of(Ingredient.of(Blocks.CAULDRON),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.NERVE_CLUSTER.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(Blocks.MAGMA_BLOCK)),
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.DROOLING_CRUCIBLE.asItem());
+
         RecipeBuilders.buildEarlyImplant(recipeOutput, "masticator_implant",
                 List.of(
                         Ingredient.of(Items.BONE),

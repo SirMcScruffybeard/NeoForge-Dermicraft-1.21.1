@@ -15,7 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.block.entity.custom.DroolingCauldronBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.DroolingMachineBlockEntity;
 
 
@@ -38,18 +37,6 @@ public class DroolingCauldronBlockEntityRenderer extends TankBlockEntityRenderer
         FluidStack fluidStack = pBlockEntity.getFluid();
         if (!fluidStack.isEmpty()) {
             renderFluidPool(pBlockEntity, fluidStack, level, pPoseStack, pBuffer, pPackedLight);
-        }
-
-        // Evolution overlay is Drooling Cauldron-only -- Crucible is already the end state, it never
-        // has anything to creep toward. Independent of whether the tank currently has fluid in it
-        // (the halt-while-draining dead period still counts as "evolving" from the player's POV).
-        // Geometry itself lives on TankBlockEntityRenderer -- shared with
-        // EvolutionOverlayBlockEntityRenderer (Masticator/Metastasizer) rather than duplicated per machine.
-        if (pBlockEntity instanceof DroolingCauldronBlockEntity cauldron) {
-            float progress = cauldron.getEvolutionProgressFraction();
-            if (progress > 0) {
-                renderEvolutionOverlay(progress, pPoseStack, pBuffer, pPackedLight);
-            }
         }
     }
 
