@@ -616,6 +616,12 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     // directly from its own overridden createInputTank() -- see MasticatorBlockEntity's identical
     // getRecipeOptional()/setActiveRecipe() split for the same reason.
     protected void resolveRecipe() {
+        // Captured before setActiveRecipe() overwrites it -- swapping either input fluid directly
+        // for a different one that still resolves to SOME valid recipe must still restart progress;
+        // comparing recipe identity (not just "a recipe is present") is what tells a genuine
+        // ingredient swap apart from simply topping up a tank that still matches the same recipe,
+        // which should NOT interrupt an in-progress craft.
+        RecipeHolder<EffluencingRecipe> previousRecipe = this.activeRecipe;
         Optional<RecipeHolder<EffluencingRecipe>> recipeOpt = getRecipeOptional();
         setActiveRecipe(recipeOpt);
 
@@ -623,6 +629,9 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
             setOrientation();
             setMaxProgress();
             setResultAmount();
+            if (previousRecipe == null || !previousRecipe.id().equals(activeRecipe.id())) {
+                resetProgress();
+            }
         } else {
             resetActiveRecipe();
             resetMaxProgress();

@@ -692,10 +692,17 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
 
         Optional<RecipeHolder<MutatingRecipe>> opt = getRecipeOptional();
         if (opt.isPresent()) {
+            // Swapping the input item directly for a different one (no intermediate empty state, so
+            // the resetActiveRecipe() below never fires) must still restart progress -- comparing
+            // recipe identity (not just "a recipe is present") is what tells a genuine ingredient
+            // swap apart from a hopper simply topping up the same still-matching stack, which should
+            // NOT interrupt an in-progress craft.
+            boolean recipeChanged = activeRecipe == null || !activeRecipe.id().equals(opt.get().id());
             this.activeRecipe = opt.get();
             this.maxProgress = activeRecipe.value().getCraftingTime();
             this.cachedResult = activeRecipe.value().getResult();
             this.requiredFluid = activeRecipe.value().getFluidAmount();
+            if (recipeChanged) resetProgress();
         } else {
             resetActiveRecipe();
         }
