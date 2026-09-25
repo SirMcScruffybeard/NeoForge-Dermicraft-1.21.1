@@ -28,6 +28,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)
                 .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.DROOLING_CRUCIBLE.get())
                 .add(ModBlocks.DROOLING_GEODE.get())
                 .add(ModBlocks.CHARRED_TUMOR.get())
                 .add(ModBlocks.HOT_BONE.get())
@@ -59,13 +60,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.INNARDS_GATE_PORT.get())
                 .add(ModBlocks.MR_FARMER.get())
                 .add(ModBlocks.MR_SHEPARD.get())
-                .add(ModBlocks.STONE_LAB_FLOOR.get())
-                .add(ModBlocks.COBBLESTONE_LAB_FLOOR.get())
-                .add(ModBlocks.DEEPSLATE_LAB_FLOOR.get())
-                .add(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.get())
-                .add(ModBlocks.DIORITE_LAB_FLOOR.get())
-                .add(ModBlocks.ANDESITE_LAB_FLOOR.get())
-                .add(ModBlocks.GRANITE_LAB_FLOOR.get())
+                .addTag(ModTags.Blocks.LAB_FLOOR)
                 // Bottom half only -- the top is a purely visual companion with no item of its own
                 // worth recovering; WorkbenchBlock's own onRemove already takes it with the bottom.
                 .add(ModBlocks.WORKBENCH.get())
@@ -137,6 +132,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         tag(ModTags.Blocks.HAS_SCREEN)
                 .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.DROOLING_CRUCIBLE.get())
                 .add(ModBlocks.DROOLING_GEODE.get())
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.CHARRED_MASTICATOR.get())
@@ -171,6 +167,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         tag(ModTags.Blocks.DIPPING_TANKS)
                 .add(ModBlocks.BEAKER.get())
                 .add(ModBlocks.DROOLING_CAULDRON.get())
+                .add(ModBlocks.DROOLING_CRUCIBLE.get())
                 .add(ModBlocks.DROOLING_GEODE.get())
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.CHARRED_MASTICATOR.get())

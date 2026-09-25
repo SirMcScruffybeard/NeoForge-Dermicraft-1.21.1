@@ -2,6 +2,7 @@
   "values": [
     "#dermicraft:tumors",
     "dermicraft:drooling_cauldron",
+    "dermicraft:drooling_crucible",
     "dermicraft:drooling_geode",
     "dermicraft:charred_tumor",
     "dermicraft:hot_bone",
@@ -33,13 +34,7 @@
     "dermicraft:innards_gate_port",
     "dermicraft:mr_farmer",
     "dermicraft:mr_shepard",
-    "dermicraft:stone_lab_floor",
-    "dermicraft:cobblestone_lab_floor",
-    "dermicraft:deepslate_lab_floor",
-    "dermicraft:cobbled_deepslate_lab_floor",
-    "dermicraft:diorite_lab_floor",
-    "dermicraft:andesite_lab_floor",
-    "dermicraft:granite_lab_floor",
+    "#dermicraft:lab_floor",
     "dermicraft:workbench"
   ]
 }
