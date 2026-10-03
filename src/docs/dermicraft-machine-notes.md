@@ -153,6 +153,17 @@ Hazards no longer ride along with tier. A Thermal evolution no longer also hands
 - **Real capability leaps** (e.g. the Upgraded Effluentcer's third input tank) are not "just stats" and need a per-family rule for what a tier unlocks.
 - Runtime work this needs: growable Module-slot handler, menu/screen layout driven by tier at open time, and a decision on what an evolved machine drops (below).
 
+### Drops and pickup (decided)
+
+Context: today a normal break of a machine returns nothing (mod-wide "destroyed on break" rule, no loot table) and the contents spill; the Forceps (`COLLECTIBLE` tag, `ICollectBlocks`) recover the machine item. Only the Skin Tank, Craw, Knowledge Vat and Workbench carry contents through pickup (`IPreserveContentsOnPickup`). Evolution state used to survive pickup only because each tier was its own block/item; in-place evolution needs it carried explicitly.
+
+- **Forceps pickup keeps evolution state.** The recovered item carries tier, Overgrowth level and the unlocked hazard set as a data component (shared record across families). Placing that item restores the state exactly.
+- **Only evolution state travels.** Contents (items, fluids), recipe progress and any in-progress evolution do not travel; machines that already spill their contents on pickup keep doing so.
+- **Installed modules are always dropped**, on pickup and on break (the Module inventory spills like any other contents). Progress toward an in-progress evolution is lost, consistent with the existing "changing the Module slot resets progress" rule.
+- **Normal break:** unchanged, destroyed with nothing returned, evolution state lost. Forceps pickup is the way to move an evolved machine without losing the investment. No partial refund.
+- **Placing an item with no state component** (recipes, creative tab) produces a plain L1 machine.
+- **Same icon, informative tooltip:** the item keeps the base family icon (placeholder, see Visuals); its tooltip/name shows L#/O# and the hazard initials, since the tooltip is the only place to tell evolved items apart. Items with different states do not stack.
+
 ### Visuals (direction)
 
 - **Multipart blockstates**: one `BooleanProperty` per hazard family, one base model per tier look, one accent model per hazard, composited by `multipart` `apply` entries. File count is linear (tiers + hazards), not combinatorial; the property is set as part of the existing evolution write, no new live-update path. Texture planning must account for the front-face visual states (IDLE/RUNNING/RECOVERING) interacting with accents; not planned yet.
@@ -165,7 +176,6 @@ Hazards no longer ride along with tier. A Thermal evolution no longer also hands
 - Overgrowth formula (delta per level), the fixed ingredient set, the diminishing stat curve, and the exact level cap.
 - Hazard-module evolution thresholds and the faster Mild -> Severe mechanism; whether both module types use the existing gradual, tick-driven progress (assumed yes, not explicitly confirmed).
 - How the Flesh Lab presents/computes level-parameterized recipes (needs a look at the Core's Upgrade tab precedent).
-- What a broken evolved machine drops, and whether the single base item carries evolution state in a data component.
 - The textures list (tier base looks, per-hazard accents, front-face state interplay).
 - Migration path for the built Charred family and the built Evolution Module data map.
 - Gadgets and suit equivalents.
