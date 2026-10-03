@@ -198,7 +198,7 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 **Hazard accent approach for face machines (decided 2026-10; other machine types may need their own approach)**
 - Accents are **freeform** (not fixed border regions), drawn on the plate beneath every other layer; the artist layers them in the art program so they don't clash with features.
 - **Mild vs Severe: option B.** Severe renders the Mild accent plus an extra layer on top (fewest files). Block-state properties: Thermal and Biohazard are on/off; Radiation and Metaphysical are none/mild/severe (supersedes the earlier all-boolean plan).
-- **Hazards only add shared plate overlays; they never replace parts.** **Machine-specific parts (mouth, feature, mount) change by tier**: one variant per tier, exactly one chosen at a time, so no replacement-priority rule is needed. (Supersedes the earlier idea of hazard-specific part replacements.) How Overgrowth (unbounded levels) looks is open: keep the last early-tier look plus a generic overlay, a few Overgrowth stages, or name/tooltip only.
+- **Hazards only add shared plate overlays; they never replace parts.** **Machine-specific parts (mouth, feature, mount) change by tier**: one variant per tier, exactly one chosen at a time, so no replacement-priority rule is needed. (Supersedes the earlier idea of hazard-specific part replacements.) **Overgrowth visuals: a few stages that change at milestone levels** (the exact milestone levels and stage count are open; a placeholder would be roughly O1-4, O5-9, O10+). The block state carries a small stage value derived from the level; the exact level lives in block entity data.
 
 ### Still open
 
