@@ -10,6 +10,7 @@ This doc is large — use this to jump to a section instead of reading the whole
 
 - Machine health and fuel system
 - Machine Evolution — Smart vs. Dumb (mod-wide rule)
+- Machine Upgrade Redesign — Hazard / Tier / Overgrowth split (direction, 2026-10, not built)
 - Known machines
   - Skin Tank
   - Chitin Tank
@@ -96,6 +97,78 @@ This is a deliberate thematic echo of vanilla obsidian generation (lava + water)
 **Tier 2 FL-native construction (new):** starting at **Tier 2**, the FL gains **build-from-scratch recipes** for these Machines too — extending the existing Tier 1 FL-native recipe formula (see FL-native machine recipes, below: keep the defining physical item, convert flesh ingredients to a discounted Protein Blend cost, keep the binding agent, drop the suture requirement) to Tier 2 Machines as they're designed. This is separate from a Tier 1 Machine's own forced-evolution path (Cauldron → Crucible via Catalyst) — the FL can now also **print a Tier 2 Machine directly**, not just evolve an existing Tier 1 one.
 
 **Deferred discussion (not yet resolved) — a Tier 2 Inert Tumor variant?** Should there also be a **hand-crafted** route to a Tier 2 Machine — a Tier 2 Inert Tumor + Tier 2 implant recipes — as the hand-crafted counterpart to the FL-native construction above, the same way Tier 1 Machines have both a hand-crafted implant recipe and an FL-native one? Not designed yet; full note logged in `dermicraft-tools-notes.md` → Inert Tumor.
+
+---
+
+## Machine Upgrade Redesign — Hazard / Tier / Overgrowth split (direction, 2026-10, not built)
+
+**Status:** Brainstorm outcome, decided in conversation but NOT built and not yet playtested. Scope is **ordinary ("dumb") machine families only** (Masticator, Metastasizer, Mutator, Effluentcer, Render Furnace/Kiln, Craw, Tank, ...). Gadgets and the suit were deliberately not discussed yet and are untouched. Where this conflicts with the "Evolution Module family" notes under Drooling Cauldron (and the Charred-family notes elsewhere), **this section is the newer direction**; the built Charred code is what would be migrated, not what is being defended.
+
+**Why it exists:** today every machine evolution is one linear ladder (Tier 1 -> Charred), bundling Thermal tolerance with a stat bump, and each tier is its own Block + BlockEntity + BlockEntityType + Menu + MenuType + Screen + capability registrations + datagen (about 32 classes and 16 registry entries for the 8 existing Charred families alone). Branching the ladder on top of that multiplies per tier and per family, and the recurring "forgot the `RegisterCapabilitiesEvent` entries for the new BlockEntityType" bug (hit three times already) would multiply with it.
+
+### The core idea: two independent axes
+
+1. **Hazard axis (branching, order-independent).** A permanent *set* of unlocked hazard families on the machine. Added by **Hazard Evolution Modules**. Safety Modules are unchanged: still the temporary, slot-occupying version of the same grant.
+2. **Tier axis (linear).** A single integer per machine. Raised by **Tier Evolution Modules**. Each tier maps to a stat package: processing speed, capacities, temporary Module slots, and the **cap on permanent hazard tolerances**.
+
+Hazards no longer ride along with tier. A Thermal evolution no longer also hands out a stat bump; a tier-up no longer also grants a hazard.
+
+### Hazard rules (decided)
+
+- **Counted by family**, not by tag: Thermal, Radiation, Biohazard, Metaphysical (4 families). Each counts once against the cap, at whatever level it is held.
+- **Cap = tier number.** Tier 1 holds 1 permanent hazard family; each tier adds one. ("Tolerance slot" in conversation was shorthand for "number of tolerances", not a real slot object or UI element.) Tier 4 therefore holds all four families, and a machine must be able to hold every family eventually.
+- **Mild vs Severe (Radiation, Metaphysical):** a Mild module covers only the Mild tag; a Severe module grants both the Severe and Mild tags (the existing data-map `hazards` list already supports this; `HazardProfile` is a subset check over independent tags, so no new mechanism is needed). Severe can be applied **without Mild first**.
+- **Upgrading Mild -> Severe within a family is faster** than going from no tolerance to a tolerance, and costs no extra cap (same family). Mechanism not designed; likely a shorter evolution threshold on the Severe module when the family is already at Mild.
+- **At the cap, a new Hazard Evolution Module does nothing**: it sits in the machine, nothing is consumed, nothing happens. Permanent stays permanent (no swapping out an unlocked family).
+- Both module types (**Hazard** and **Tier**) are **consumed on completion**.
+
+### Tier ladder (decided shape, numbers open)
+
+- **Necessary tiers: L1 (the base machine) through L4.** Only **three module recipes** (to L2, L3, L4), because L4 is where all four families fit. If more hazard families are ever added, the ladder lengthens by one per family.
+- **Set recipes, finite.** Each necessary tier's recipe = the previous tier's cost **plus one item ingredient, one fluid ingredient, or both**, keeping ingredient lists short.
+- **Early tiers offer direct OR chain as alternative recipes.** Direct = the full expanded ingredient list. Chain = consumes the previous-tier module plus only the new ingredient(s). Same real cost either way.
+- **No skipping tiers.** A machine accepts only its own next tier.
+
+### Overgrowth (after the necessary tiers)
+
+- After the last necessary tier, the player can keep making **Overgrowth Modules** that continue raising the machine's level. They keep increasing stats but **do not raise the tolerance cap**, and cost grows **exponentially**. The ladder is finite for tolerance and open-ended for stats, the "finite main ladder, then an endless exponentially-priced tail" pattern common in incremental/RPG/factory games, deliberately meant to **feel different** from the early tiers.
+- **One registered item**, level stored as a **data component on the stack** (same pattern as `FLUID_DATA`/`BulkItemData`); an item registry cannot hold an unbounded item set. Name/behavior derive from the component and a formula, not a per-item data-map entry.
+- **Crafted in the Flesh Lab**, cost by formula from the level.
+- **Chain production only** (no direct recipe): a level-N module consumes a level N-1 module plus delta(N) in materials. Each level uses **the same fixed ingredient set with larger quantities**, so lists never grow.
+- **Full chain cost per step is intentional.** A machine at N-1 has already consumed its N-1 module, so reaching N means building the whole chain beneath it (roughly double the cost of the previous step). The rebuild-from-below price is the point.
+- **No skipping Overgrowth levels** either.
+- **Hard level cap for programming safety**, set far beyond anything reachable (a long overflows around level 60 if delta doubles; item counts become impossible long before that). Roughly 40-50 is the working suggestion. Exact value open.
+
+### Naming (adopted unless something better turns up)
+
+- Early tiers display as **L#** (L1..L4); Overgrowth displays as **O#**, restarting at 1 (O1 follows L4). "L" was chosen so **T** stays free for Thermal.
+- Hazard suffix = bracketed family initials, order-independent, e.g. `Masticator L2 [T]`, `Masticator L3 [T·M]` (T Thermal, R Radiation, B Biohazard, M Metaphysical). Replaces the Mark-number idea and retires "Charred" as a name (Charred was Tier 2 + Thermal bundled).
+- Whether the suffix shows in the real item/tooltip name or is a dev convention is open.
+
+### Block entity structure (direction)
+
+- **Evolve in place, not by block swap**, for families with a Charred-style tier. Depth (tier + overgrowth level) and the hazard set live on the block entity; hazards are mirrored as block-state booleans so visuals can read them. No copy-and-lose transform, in-progress recipes keep running, and **one BlockEntityType / Menu / MenuType per family** ends the per-tier registration (and capability-registration) multiplication.
+- **Identity evolutions stay as swaps** (Drooling Cauldron -> Crucible, Skin Tank -> Chitin Tank): these change what the machine *is*, not its tier.
+- The existing Charred overrides (`canEvolve()`, `moduleSlotCount()`, the hardcoded `TIER_2` floor in `installedHazardProfile()`, hazard-gated tank factories) become tier/hazard-set lookups. Already data-driven today: `MachineTier` stats, `VulnerableTank`'s `Supplier<HazardProfile>`, `applyCapacityBonus()` runtime resizing, and the stat-only-tier precedents (Charred Grafting Table and Charred Node share their base BlockEntityType).
+- **Real capability leaps** (e.g. the Upgraded Effluentcer's third input tank) are not "just stats" and need a per-family rule for what a tier unlocks.
+- Runtime work this needs: growable Module-slot handler, menu/screen layout driven by tier at open time, and a decision on what an evolved machine drops (below).
+
+### Visuals (direction)
+
+- **Multipart blockstates**: one `BooleanProperty` per hazard family, one base model per tier look, one accent model per hazard, composited by `multipart` `apply` entries. File count is linear (tiers + hazards), not combinatorial; the property is set as part of the existing evolution write, no new live-update path. Texture planning must account for the front-face visual states (IDLE/RUNNING/RECOVERING) interacting with accents; not planned yet.
+- **GeckoLib block entities rejected for machines.** They render per instance per frame outside chunk batching; machines are meant to be placed in dozens (10 in a small base, large factories planned), so cost scales with placement density. Vanilla baked/multipart models fold into the chunk mesh at near-zero marginal cost.
+- **Item icon: placeholder = reuse the base machine's icon for every tier/hazard state** (a deliberate placeholder, not a final call). Consequence: an evolved machine in the hotbar is not visually distinguishable from a base one; only the placed block shows identity.
+
+### Still open
+
+- Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
+- Overgrowth formula (delta per level), the fixed ingredient set, the diminishing stat curve, and the exact level cap.
+- Hazard-module evolution thresholds and the faster Mild -> Severe mechanism; whether both module types use the existing gradual, tick-driven progress (assumed yes, not explicitly confirmed).
+- How the Flesh Lab presents/computes level-parameterized recipes (needs a look at the Core's Upgrade tab precedent).
+- What a broken evolved machine drops, and whether the single base item carries evolution state in a data component.
+- The textures list (tier base looks, per-hazard accents, front-face state interplay).
+- Migration path for the built Charred family and the built Evolution Module data map.
+- Gadgets and suit equivalents.
 
 ---
 
