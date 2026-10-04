@@ -207,6 +207,7 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **L4:** main theme not settled; leaning magic, explicitly not cosmic horror.
 - **Overgrowth stages** (O1-4, O5-9, O10+): themes not decided; the name suggests runaway growth.
 - Tier changes the machine-specific parts (feature part and light mount) and the Overgrowth stage looks; with a 16px budget, tiers must read by material, color and silhouette, not detail.
+- **L1 light mount will be redesigned** (new fleshy mount); **L2 keeps the cream bone mount**. **Overgrowth may get completely new textures**, including its own **scar-like hazard accents** (a second accent set that replaces the standard set at Overgrowth stages). Reasoning to keep in mind: a machine can reach Overgrowth without holding every hazard (tier and hazards are independent), so Overgrowth accents are what keep a machine's hazards visible in the world. Whether the scars are one set for all three stages or one per stage is open.
 
 ### Still open
 
