@@ -200,6 +200,14 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **Mild vs Severe: option B.** Severe renders the Mild accent plus an extra layer on top (fewest files). Block-state properties: Thermal and Biohazard are on/off; Radiation and Metaphysical are none/mild/severe (supersedes the earlier all-boolean plan).
 - **Hazards only add shared plate overlays; they never replace parts.** **Machine-specific parts (mouth, feature, mount) change by tier**: one variant per tier, exactly one chosen at a time, so no replacement-priority rule is needed. (Supersedes the earlier idea of hazard-specific part replacements.) **Overgrowth visuals: a few stages that change at milestone levels** (the exact milestone levels and stage count are open; a placeholder would be roughly O1-4, O5-9, O10+). The block state carries a small stage value derived from the level; the exact level lives in block entity data.
 
+**Tier look themes (L levels must each be distinct; decided 2026-10)**
+- **L1:** standard squishy organic.
+- **L2:** a bit more hardened, still mostly organic. This is where Thermal originally came in; the existing Charred cream bone ring/mount art is a natural L2 candidate, and the Charred dark-flesh look could become the Thermal hazard accent instead.
+- **L3:** things shift to living metals.
+- **L4:** main theme not settled; leaning magic, explicitly not cosmic horror.
+- **Overgrowth stages** (O1-4, O5-9, O10+): themes not decided; the name suggests runaway growth.
+- Tier changes the machine-specific parts (feature part and light mount) and the Overgrowth stage looks; with a 16px budget, tiers must read by material, color and silhouette, not detail.
+
 ### Still open
 
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
