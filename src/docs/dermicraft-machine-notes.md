@@ -218,10 +218,10 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 
 **Stat packages (decided shape, numbers are placeholders, 2026-10)**
 - **Today:** fueled machines at L1 have a 5-bucket tank, 200 HP, speed x1.0, heal x1.0 and 1 Module slot; the Charred tier has 10 buckets, x1.25 speed, unchanged HP/heal and 2 Module slots. Skin Tank is 10 buckets / 1 slot, Charred Tank 20 buckets / 2 slots. Craw is 640 items, Charred doubles capacity and throughput. Tier speed multiplies with fuel speed and the Work Speed Module; Capacity Modules add a flat amount on top of tier capacity.
-- **Straw-man for L1-L4, fueled machines:** speed x1.0 / 1.25 / 1.5 / 1.75; tank 5 / 10 / 20 / 40 buckets; max HP 200 / 250 / 300 / 400 (see HP note below); Module slots 1 / 2 / 3 / 4.
+- **Straw-man for L1-L4, fueled machines:** speed x1.0 / 1.25 / 1.5 / 1.75; tank 5 / 10 / 20 / 40 buckets; max HP flat at 200 (see HP note below); Module slots 1 / 2 / 3 / 4.
 - **Module slots grow with tier and are capped at 4**; Overgrowth does not add slots (GUI space).
 - **Overgrowth stats grow by a fixed additive amount per level, the same every level** (not a multiplier). The constant is a fixed fraction of the L4 value (placeholder 5%), so one rule fits every family. Stats stay predictable and cannot run away while cost grows exponentially.
-- **HP and heal rate stay flat across tiers for now** (the HP column above is a straw-man only if that is later reversed), but both stay as fields in each tier's stat record with a per-level growth of zero, so changing them later is a number edit, not a code change.
+- **HP and heal rate stay flat across tiers for now** but both stay as fields in each tier's stat record with a per-level growth of zero, so changing them later is a number edit, not a code change.
 - Stat packages are per-family tables (tanks: capacity, Module slots; Craw: capacity, throughput, Module slots), shared values for now.
 
 ### Still open
