@@ -148,7 +148,7 @@ Hazards no longer ride along with tier. A Thermal evolution no longer also hands
 ### Block entity structure (direction)
 
 - **Evolve in place, not by block swap**, for families with a Charred-style tier. Depth (tier + overgrowth level) and the hazard set live on the block entity; hazards are mirrored as block-state booleans so visuals can read them. No copy-and-lose transform, in-progress recipes keep running, and **one BlockEntityType / Menu / MenuType per family** ends the per-tier registration (and capability-registration) multiplication.
-- **Identity evolutions stay as swaps** (Drooling Cauldron -> Crucible, Skin Tank -> Chitin Tank): these change what the machine *is*, not its tier.
+- **Identity evolutions stay as swaps** (Drooling Cauldron -> Crucible): these change what the machine *is*, not its tier. The Chitin Tank was removed in favor of the Charred Tank (the older Chitin entries below are stale); whether the tank joins the in-place tier/hazard system or stays a swap is open.
 - The existing Charred overrides (`canEvolve()`, `moduleSlotCount()`, the hardcoded `TIER_2` floor in `installedHazardProfile()`, hazard-gated tank factories) become tier/hazard-set lookups. Already data-driven today: `MachineTier` stats, `VulnerableTank`'s `Supplier<HazardProfile>`, `applyCapacityBonus()` runtime resizing, and the stat-only-tier precedents (Charred Grafting Table and Charred Node share their base BlockEntityType).
 - **Real capability leaps** (e.g. the Upgraded Effluentcer's third input tank) are not "just stats" and need a per-family rule for what a tier unlocks.
 - Runtime work this needs: growable Module-slot handler, menu/screen layout driven by tier at open time, and a decision on what an evolved machine drops (below).
@@ -208,6 +208,13 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **Overgrowth stages** (O1-4, O5-9, O10+): themes not decided; the name suggests runaway growth.
 - Tier changes the machine-specific parts (feature part and light mount) and the Overgrowth stage looks; with a 16px budget, tiers must read by material, color and silhouette, not detail.
 - **L1 light mount will be redesigned** (new fleshy mount); **L2 keeps the cream bone mount**. **Overgrowth may get completely new textures**, including its own **scar-like hazard accents** (a second accent set that replaces the standard set at Overgrowth stages). Reasoning to keep in mind: a machine can reach Overgrowth without holding every hazard (tier and hazards are independent), so Overgrowth accents are what keep a machine's hazards visible in the world. The scars will most likely be **one set shared by all three Overgrowth stages** (6 textures: four hazards plus the Severe extras).
+
+**Other machine types (decided so far, 2026-10)**
+- **Tanks:** trickier because of the fluid windows (the fluid is drawn by `SkinTankBlockEntityRenderer`, with the window a cutout in the side art), so layered plate/accent parts must leave the window clear. Tank tops and bottoms use the port texture. The port textures currently in use are placeholders; the user has not yet made ones they are happy with.
+- **Nodes and ducts:** will be redone; **tier only, no hazard accents**.
+- **Grafting Table:** the user will make accent textures for it.
+- **Knowledge Vat:** may or may not be upgraded; it is its own thing.
+- **Workbench:** undecided.
 
 ### Still open
 
