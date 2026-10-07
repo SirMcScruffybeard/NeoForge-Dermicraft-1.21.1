@@ -231,7 +231,7 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **All tumors move to 16px** (needed so the machine plate can be the inert tumor texture directly).
 - **Inert is the base layer; the five tumors derived from it (Eye, Muscle, Nerve, Marred, Stitched) become overlays on it**, using the same modular approach as the machines. The user will make the new art themselves.
 - Each tumor model is the inert base plus an overlay element with its own (optionally animated) texture; no multipart blockstate is needed since tumors are single-state blocks. Suggested saving: Stitched = inert + the Marred scar overlay + a stitch overlay, so there are five overlay textures (eye, muscle, nerve, scar, stitches).
-- Charred Tumor, Hot Bone and the Early Surgery tumor are not derived from inert and are out of scope unless the user says otherwise.
+- The "Early Surgery tumor" is not a separate tumor: it is the abstract base class shared by the Marred and Stitched Tumors (early implant surgery), so it is covered by their overlays. **Charred Tumor keeps its current art. Hot Bone gets a redo** (the user dislikes the original art); neither is derived from inert, so they are art-only and do not join the overlay scheme unless the user decides otherwise.
 
 ### Still open
 
