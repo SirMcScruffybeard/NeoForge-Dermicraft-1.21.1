@@ -226,6 +226,13 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 
 **Screens (decided 2026-10):** the screen background stays as it is (a retro green-on-black terminal look the user wants to keep). The Charred screens already share `screen_background.png` and draw slots, tanks and HP bars from separate small sprites in code, so no per-tier GUI textures are needed; the in-place design reduces the per-tier Menu/Screen classes to one per family that reads the tier at open time. The HP bar's green/yellow/red sprites already match the new machine light states.
 
+**Tumor texture redesign (added to this redesign, 2026-10)**
+- Today each tumor is a 32px-wide, 3-frame animated sheet (32x96): Inert is the plain tan crosshatch plate; Eye, Muscle and Nerve are that plate with a feature drawn on; Marred is the plate plus a diagonal scar; Stitched is the plate plus scar plus suture marks. Blocks are plain all-sides cubes.
+- **All tumors move to 16px** (needed so the machine plate can be the inert tumor texture directly).
+- **Inert is the base layer; the five tumors derived from it (Eye, Muscle, Nerve, Marred, Stitched) become overlays on it**, using the same modular approach as the machines. The user will make the new art themselves.
+- Each tumor model is the inert base plus an overlay element with its own (optionally animated) texture; no multipart blockstate is needed since tumors are single-state blocks. Suggested saving: Stitched = inert + the Marred scar overlay + a stitch overlay, so there are five overlay textures (eye, muscle, nerve, scar, stitches).
+- Charred Tumor, Hot Bone and the Early Surgery tumor are not derived from inert and are out of scope unless the user says otherwise.
+
 ### Still open
 
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
