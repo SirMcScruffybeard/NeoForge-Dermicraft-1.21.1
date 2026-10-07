@@ -224,13 +224,15 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **HP and heal rate stay flat across tiers for now** but both stay as fields in each tier's stat record with a per-level growth of zero, so changing them later is a number edit, not a code change.
 - Stat packages are per-family tables (tanks: capacity, Module slots; Craw: capacity, throughput, Module slots), shared values for now.
 
+**Screens (decided 2026-10):** the screen background stays as it is (a retro green-on-black terminal look the user wants to keep). The Charred screens already share `screen_background.png` and draw slots, tanks and HP bars from separate small sprites in code, so no per-tier GUI textures are needed; the in-place design reduces the per-tier Menu/Screen classes to one per family that reads the tier at open time. The HP bar's green/yellow/red sprites already match the new machine light states.
+
 ### Still open
 
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
 - Overgrowth formula (delta per level), the fixed ingredient set, the diminishing stat curve, and the exact level cap.
 - Hazard-module evolution thresholds and the faster Mild -> Severe mechanism; whether both module types use the existing gradual, tick-driven progress (assumed yes, not explicitly confirmed).
 - How the Flesh Lab presents/computes level-parameterized recipes (needs a look at the Core's Upgrade tab precedent).
-- The rest of the textures list: tier base looks, per-hazard accents (including Mild vs Severe), port parts, GUI backgrounds per tier, and the non-face machines (Craw, tanks, nodes, ducts, Grafting Table top). Face plans per family are logged above.
+- The rest of the textures list: tier base looks, per-hazard accents (including Mild vs Severe), port parts, and the non-face machines (Craw, tanks, nodes, ducts, Grafting Table top). Face plans per family are logged above.
 - Migration path for the built Charred family and the built Evolution Module data map.
 - Gadgets and suit equivalents.
 
