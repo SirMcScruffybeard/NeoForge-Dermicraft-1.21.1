@@ -258,6 +258,16 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 
 **Postponed (2026-10):** the Flesh Lab is still in its design stage, so anything that requires it is postponed, including crafting Overgrowth Modules and the Flesh Lab's display of computed level recipes. The Overgrowth design above stands but cannot be built yet.
 
+**Hazard penalties instead of hard blocks (direction, decided 2026-10, not built)**
+- **Fueled machines (including the face machines) no longer hard-block hazardous fluids.** A machine can craft any recipe of the type it already crafts; the cost is the penalty. Tanks, ducts and nodes have no health, fuel or processing speed and **stay hard-blocked for now** (ducts and nodes get their own overhaul later; the Eater/Drinker gadgets are not covered here).
+- **Penalties apply only while processing**, and the hazard comes from the **ingredient fluid**. Only fuel is consumed during processing; everything else is consumed on completion. For multi-fluid recipes the effects of all different hazards are added; within a hazard, Severe overshadows Mild; **two of the same hazard do not stack effects**.
+- **Tolerance mitigates:** a matching tolerance removes the effect. **A Mild tolerance on a Severe exposure drops it to the Mild effect**, and **two Mild protections do not stack** (only a Severe tolerance negates Severe). This is what makes the faster Mild -> Severe upgrade valuable.
+- **Each hazard has distinct effects, effects may be shared.** Straw-man: Thermal = HP damage (burn); Radiation = extra fuel use, Severe adding HP damage; Biohazard = slower processing plus a smaller HP cost. Damage per cycle must outpace healing (2 HP per cycle at base fuel) so the penalty cannot be absorbed for free.
+- **Metaphysical:** **Mild** = the machine's speed varies each cycle within a range of its current modified speed. **Severe** = every stat except capacities is randomized for that cycle (it includes the Mild speed variation). Open: the range, whether the average is neutral or skewed against the player, and which stats exactly (max HP is risky, since a low roll would clamp current HP; rate-type stats such as speed, fuel use and heal rate are safer). A random-recipe idea was considered and **scrapped** (lag concern, exploit risk).
+- **The Mind Rule is removed** (see `dermicraft-hazard-effects-notes.md`); machines are affected by Metaphysical, so the Metaphysical family counts toward a machine's tolerance cap and L4 still covers all four families.
+- **Stage gating loosens:** recipes that were hard-gated by tier or tolerance (for example Eye of Ender via a Tier 2 Mutator) become possible at any tier at a cost; older notes that describe hard gating are stale.
+- **Upgrade fluid for Metaphysical Severe:** Ender Essence (the Metaphysical Severe fluid; also Thermal-tagged) via a Mutator upgrade of the Mild module. Pattern: the upgrade fluid is one tagged with the target level. Radiation Severe and Biohazard have no fluid yet.
+
 ### Still open
 
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
