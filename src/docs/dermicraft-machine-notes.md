@@ -250,6 +250,12 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 
 **Module acquisition (decided 2026-10):** the **L tier modules and at least some of the hazard modules get both a hand-crafted recipe and a Flesh Lab recipe.** Until the Flesh Lab exists, they use **simple hand-crafted recipes** (placeholders, ingredients not designed yet) so the Masticator pilot can be tested. **A couple of Overgrowth Modules are added as creative-only items** (one registered item with different level components) for testing. The Flesh Lab recipes are added once the Flesh Lab is designed. Which hazard modules get hand-crafted recipes is open.
 
+**Hazard module set (decided 2026-10; code name and display name must match)**
+- Today: Heat Safety (grants Thermal), Radiation Safety (grants Radiation Mild only), Metaphysical Safety (grants both Metaphysical Mild and Severe); no Biohazard module exists; the only Evolution Module is the Heat one. Safety Modules have hand-crafted shaped recipes; the Heat Evolution Module is made in the Mutator from the Heat Safety Module plus 1000 mB Evolution Catalyst.
+- Target: **six Safety Modules and six Evolution Modules**: Thermal, Radiation Mild, Radiation Severe, Metaphysical Mild, Metaphysical Severe, Biohazard. Names include the level only where a hazard has two (e.g. `radiation_mild_safety_module` / "Radiation Mild Safety Module"; `thermal_evolution_module` / "Thermal Evolution Module").
+- Mapping that preserves behavior: **Heat Safety is renamed Thermal Safety** (same treatment as its evolution counterpart); the existing Radiation Safety Module becomes **Radiation Mild** and a new **Radiation Severe** is added; the existing Metaphysical Safety Module (which grants both levels) becomes **Metaphysical Severe** and a new **Metaphysical Mild** is added; **Biohazard** modules are new. New textures are needed for the new and renamed modules (the user will make them).
+- **Every Safety and Evolution Module gets two recipes: a hand route and a Flesh Lab route.** Existing recipes are left alone for now. Safety modules' hand route is their shaped recipe; the Evolution Modules' hand route is the Mutator upgrade (Safety Module + Evolution Catalyst). Flesh Lab routes wait for the Flesh Lab.
+
 **Postponed (2026-10):** the Flesh Lab is still in its design stage, so anything that requires it is postponed, including crafting Overgrowth Modules and the Flesh Lab's display of computed level recipes. The Overgrowth design above stands but cannot be built yet.
 
 ### Still open
