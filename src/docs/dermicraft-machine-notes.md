@@ -241,6 +241,13 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **Heat Evolution Module becomes the Thermal Evolution Module.** Code name and display name must match for easy maintenance (registry id `thermal_evolution_module`, constant `THERMAL_EVOLUTION_MODULE`, display name "Thermal Evolution Module"), including its texture file, lang key and data map entry.
 - Phases: (1) additive foundations: per-tier stat records, evolution-state data (tier, Overgrowth level, hazard set) and the pickup item component; (2) Masticator to in-place evolution and deletion of the Charred Masticator; (3) other fueled families; (4) Tanks and Craws; (5) new modules and Overgrowth; (6) visuals, datagen helper, cleanup of notes/lang/tags.
 
+**Tumor code streamlining (direction, 2026-10, not built)**
+- Inert, Eye, Muscle and Nerve stay **four separate blocks** (one `TumorBlock` class, no block entity, one-line registrations); the saving there is a datagen helper for "inert base plus overlay" models, not merging.
+- **Marred and Stitched merge into one block with a stage property (open or stitched) and a single block entity**, removing the block swap, the inventory snapshot/restore, the `onRemove` stitching/reverting/evolving checks and the two subclasses. The stitched stage maps to the layered textures (scar overlay always, stitch overlay when stitched). Evolving into a machine stays a block swap.
+- **Two items remain**: Marred Tumor and Stitched Tumor; the Stitched item places the block in the stitched stage. The Mutator recipe (Marred Tumor + 100 mB Protein Blend -> Stitched Tumor) is unchanged.
+- **New: an empty open tumor can be stitched in place as a decoration** (no recipe needed). A tumor holding items still needs a matching recipe to stitch, so only empty ones become decoration. A syringe does nothing on a decorative stitched tumor.
+- **Carrying:** Forceps pickup (already supported) spills a tumor's contents on the ground and gives the empty tumor item, so a carried stitched tumor is always empty and works as decoration; cutting the stitches reopens it for crafting.
+
 ### Still open
 
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
