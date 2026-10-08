@@ -248,6 +248,8 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **New: an empty open tumor can be stitched in place as a decoration** (no recipe needed). A tumor holding items still needs a matching recipe to stitch, so only empty ones become decoration. A syringe does nothing on a decorative stitched tumor.
 - **Carrying:** Forceps pickup (already supported) spills a tumor's contents on the ground and gives the empty tumor item, so a carried stitched tumor is always empty and works as decoration; cutting the stitches reopens it for crafting.
 
+**Postponed (2026-10):** the Flesh Lab is still in its design stage, so anything that requires it is postponed, including crafting Overgrowth Modules and the Flesh Lab's display of computed level recipes. The Overgrowth design above stands but cannot be built yet.
+
 ### Still open
 
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
