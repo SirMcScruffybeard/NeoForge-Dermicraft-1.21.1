@@ -133,7 +133,7 @@ Hazards no longer ride along with tier. A Thermal evolution no longer also hands
 
 - After the last necessary tier, the player can keep making **Overgrowth Modules** that continue raising the machine's level. They keep increasing stats but **do not raise the tolerance cap**, and cost grows **exponentially**. The ladder is finite for tolerance and open-ended for stats, the "finite main ladder, then an endless exponentially-priced tail" pattern common in incremental/RPG/factory games, deliberately meant to **feel different** from the early tiers.
 - **One registered item**, level stored as a **data component on the stack** (same pattern as `FLUID_DATA`/`BulkItemData`); an item registry cannot hold an unbounded item set. Name/behavior derive from the component and a formula, not a per-item data-map entry.
-- **Only O1 is made in the Flesh Lab** (one fixed recipe, ingredients not decided). **Upgrading O1 to O2 and beyond happens in the Growth Chamber** (Gear Worx Station; designed but not built), with the cost by formula from the level. This removes the need for the Flesh Lab to display level-parameterized recipes.
+- **Only O1 is made in the Flesh Lab** (one fixed recipe, ingredients not decided). **Upgrading O1 to O2 and beyond happens in the Growth Chamber** (Gear Worx Station; designed but not built), with the cost by formula from the level, **paid in fluids only** (the Growth Chamber's existing fluid-only, timed tier-up mechanic; the module being upgraded is placed in the Chamber and its level increases, and each level uses the same fixed set of fluids in larger quantities, set not yet chosen). This removes the need for the Flesh Lab to display level-parameterized recipes.
 - **Chain production only** (no direct recipe): a level-N module is made by upgrading a level N-1 module in the Growth Chamber (consuming it) plus delta(N) in materials. Each level uses **the same fixed ingredient set with larger quantities**, so lists never grow.
 - **Full chain cost per step is intentional.** A machine at N-1 has already consumed its N-1 module, so reaching N means building the whole chain beneath it (roughly double the cost of the previous step). The rebuild-from-below price is the point.
 - **No skipping Overgrowth levels** either.
@@ -276,7 +276,7 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
 - Overgrowth formula (delta per level), the fixed ingredient set, the diminishing stat curve, and the exact level cap.
 - Hazard-module evolution thresholds and the faster Mild -> Severe mechanism; whether both module types use the existing gradual, tick-driven progress (assumed yes, not explicitly confirmed).
-- The O1 Flesh Lab recipe, and how the Growth Chamber upgrades Overgrowth Modules (it is currently designed around fluid-only, timed gadget/suit tier-ups, so an item-plus-fluid module upgrade is new there).
+- The O1 Flesh Lab recipe, and the fixed fluid set and per-level quantities for Overgrowth upgrades in the Growth Chamber.
 - The rest of the textures list: tier base looks, per-hazard accents (including Mild vs Severe), port parts, and the non-face machines (Craw, tanks, nodes, ducts, Grafting Table top). Face plans per family are logged above.
 - Migration path for the built Charred family and the built Evolution Module data map.
 - Gadgets and suit equivalents.
