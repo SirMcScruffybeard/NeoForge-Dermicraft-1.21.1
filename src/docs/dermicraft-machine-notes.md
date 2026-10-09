@@ -256,6 +256,12 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - Mapping that preserves behavior: **Heat Safety is renamed Thermal Safety** (same treatment as its evolution counterpart); the existing Radiation Safety Module becomes **Radiation Mild** and a new **Radiation Severe** is added; the existing Metaphysical Safety Module (which grants both levels) becomes **Metaphysical Severe** and a new **Metaphysical Mild** is added; **Biohazard** modules are new. New textures are needed for the new and renamed modules (the user will make them).
 - **Every Safety and Evolution Module gets two recipes: a hand route and a Flesh Lab route.** Existing recipes are left alone for now. Safety modules' hand route is their shaped recipe; the Evolution Modules' hand route is the Mutator upgrade (Safety Module + Evolution Catalyst). Flesh Lab routes wait for the Flesh Lab.
 
+**Tier module recipes (in progress, 2026-10; one level discussed at a time)**
+- **The Module Frame is the base of all three tier modules, for both routes.**
+- **Hand route = a chain in the Mutator.** A new base item, the **Evolution Module**, is made from a Module Frame + 1000 mB Evolution Catalyst. The Tier 2, Tier 3 and Tier 4 modules are then made one Mutator step at a time (previous module + one fluid). The fluid for each step is not yet chosen.
+- **Flesh Lab route:** each tier module is built separately from a Module Frame (postponed until the Flesh Lab exists).
+- **The Evolution Module can also start an alternate route to the hazard Evolution Modules.** Suggested pattern: Evolution Module + a fluid carrying that hazard (and level), e.g. Thermal via a Thermal-tagged fluid, Radiation Mild via Molten Glowstone, Metaphysical Mild via Molten Soul Silica, Metaphysical Severe via Ender Essence (reachable without Mild first). Radiation Severe and Biohazard have no tagged fluids yet, so no alternate route for them until they exist. The existing route (Safety Module + Evolution Catalyst) stays.
+
 **Postponed (2026-10):** the Flesh Lab is still in its design stage and the Growth Chamber is designed but not built, so anything that requires them is postponed, including making O1 in the Flesh Lab and upgrading Overgrowth Modules in the Growth Chamber. The Overgrowth design above stands but cannot be built yet; for testing, a couple of Overgrowth levels are creative-only items.
 
 **Hazard penalties instead of hard blocks (direction, decided 2026-10, not built)**
