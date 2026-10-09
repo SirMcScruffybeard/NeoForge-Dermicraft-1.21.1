@@ -133,8 +133,8 @@ Hazards no longer ride along with tier. A Thermal evolution no longer also hands
 
 - After the last necessary tier, the player can keep making **Overgrowth Modules** that continue raising the machine's level. They keep increasing stats but **do not raise the tolerance cap**, and cost grows **exponentially**. The ladder is finite for tolerance and open-ended for stats, the "finite main ladder, then an endless exponentially-priced tail" pattern common in incremental/RPG/factory games, deliberately meant to **feel different** from the early tiers.
 - **One registered item**, level stored as a **data component on the stack** (same pattern as `FLUID_DATA`/`BulkItemData`); an item registry cannot hold an unbounded item set. Name/behavior derive from the component and a formula, not a per-item data-map entry.
-- **Crafted in the Flesh Lab**, cost by formula from the level.
-- **Chain production only** (no direct recipe): a level-N module consumes a level N-1 module plus delta(N) in materials. Each level uses **the same fixed ingredient set with larger quantities**, so lists never grow.
+- **Only O1 is made in the Flesh Lab** (one fixed recipe, ingredients not decided). **Upgrading O1 to O2 and beyond happens in the Growth Chamber** (Gear Worx Station; designed but not built), with the cost by formula from the level. This removes the need for the Flesh Lab to display level-parameterized recipes.
+- **Chain production only** (no direct recipe): a level-N module is made by upgrading a level N-1 module in the Growth Chamber (consuming it) plus delta(N) in materials. Each level uses **the same fixed ingredient set with larger quantities**, so lists never grow.
 - **Full chain cost per step is intentional.** A machine at N-1 has already consumed its N-1 module, so reaching N means building the whole chain beneath it (roughly double the cost of the previous step). The rebuild-from-below price is the point.
 - **No skipping Overgrowth levels** either.
 - **Hard level cap for programming safety**, set far beyond anything reachable (a long overflows around level 60 if delta doubles; item counts become impossible long before that). Roughly 40-50 is the working suggestion. Exact value open.
@@ -256,7 +256,7 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - Mapping that preserves behavior: **Heat Safety is renamed Thermal Safety** (same treatment as its evolution counterpart); the existing Radiation Safety Module becomes **Radiation Mild** and a new **Radiation Severe** is added; the existing Metaphysical Safety Module (which grants both levels) becomes **Metaphysical Severe** and a new **Metaphysical Mild** is added; **Biohazard** modules are new. New textures are needed for the new and renamed modules (the user will make them).
 - **Every Safety and Evolution Module gets two recipes: a hand route and a Flesh Lab route.** Existing recipes are left alone for now. Safety modules' hand route is their shaped recipe; the Evolution Modules' hand route is the Mutator upgrade (Safety Module + Evolution Catalyst). Flesh Lab routes wait for the Flesh Lab.
 
-**Postponed (2026-10):** the Flesh Lab is still in its design stage, so anything that requires it is postponed, including crafting Overgrowth Modules and the Flesh Lab's display of computed level recipes. The Overgrowth design above stands but cannot be built yet.
+**Postponed (2026-10):** the Flesh Lab is still in its design stage and the Growth Chamber is designed but not built, so anything that requires them is postponed, including making O1 in the Flesh Lab and upgrading Overgrowth Modules in the Growth Chamber. The Overgrowth design above stands but cannot be built yet; for testing, a couple of Overgrowth levels are creative-only items.
 
 **Hazard penalties instead of hard blocks (direction, decided 2026-10, not built)**
 - **Fueled machines (including the face machines) no longer hard-block hazardous fluids.** A machine can craft any recipe of the type it already crafts; the cost is the penalty. Tanks, ducts and nodes have no health, fuel or processing speed and **stay hard-blocked for now** (ducts and nodes get their own overhaul later; the Eater/Drinker gadgets are not covered here).
@@ -276,7 +276,7 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
 - Overgrowth formula (delta per level), the fixed ingredient set, the diminishing stat curve, and the exact level cap.
 - Hazard-module evolution thresholds and the faster Mild -> Severe mechanism; whether both module types use the existing gradual, tick-driven progress (assumed yes, not explicitly confirmed).
-- How the Flesh Lab presents/computes level-parameterized recipes (needs a look at the Core's Upgrade tab precedent).
+- The O1 Flesh Lab recipe, and how the Growth Chamber upgrades Overgrowth Modules (it is currently designed around fluid-only, timed gadget/suit tier-ups, so an item-plus-fluid module upgrade is new there).
 - The rest of the textures list: tier base looks, per-hazard accents (including Mild vs Severe), port parts, and the non-face machines (Craw, tanks, nodes, ducts, Grafting Table top). Face plans per family are logged above.
 - Migration path for the built Charred family and the built Evolution Module data map.
 - Gadgets and suit equivalents.
