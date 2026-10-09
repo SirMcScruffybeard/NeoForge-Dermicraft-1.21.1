@@ -285,6 +285,24 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **Stage gating loosens:** recipes that were hard-gated by tier or tolerance (for example Eye of Ender via a Tier 2 Mutator) become possible at any tier at a cost; older notes that describe hard gating are stale.
 - **Upgrade fluid for Metaphysical Severe:** Ender Essence (the Metaphysical Severe fluid; also Thermal-tagged) via a Mutator upgrade of the Mild module. Pattern: the upgrade fluid is one tagged with the target level. Radiation Severe and Biohazard have no fluid yet.
 
+**FL upgrade interface (agreed with the Flesh Lab session, 2026-10)**
+- A small interface beside (not extending) `IEvolvingMachine`, independent of how evolution is triggered. **Apply-upgrade is instant and atomic** (in-place data change, no block swap, no waiting for a craft).
+- **Available-upgrades list with stable per-upgrade IDs**; each entry reports only **kind, level and a blocked reason** (e.g. "hazard cap reached, raise the tier first"), **no cost**. The Flesh Lab keeps its own fluid-only cost table for direct upgrades from the Upgrade tab. Suggested ID scheme: `tier:2`, `hazard:thermal`, `hazard:radiation:mild`, `hazard:radiation:severe`, `overgrowth:1`.
+- **Structured state** (tier, Overgrowth level, hazard set) is exposed, with a **shared label formatter** producing the L#/O# name plus the hazard-initial suffix, so machines and the Flesh Lab never format names differently. "No upgrades available" replaces "greyed out at top tier".
+- The FL cannot raise a machine above its own control tier, but can add hazard families the machine accepts. The FL's control block will follow the in-place pattern. Storage devices (Tank, Craw) stay hard-blocked from FL upgrades until their coverage is designed here. Ducts and Nodes are a later overhaul.
+- **Two different Flesh Lab things must not be conflated:** the Upgrade tab's direct upgrades are **fluid-only** and apply straight to an attached machine; the Flesh Lab's module crafting recipes (which can use items such as a Chassis or Iron Bars) make module items.
+
+**Module recipe guide (given to the Flesh Lab as a guide for its own cost table; 2026-10)**
+- **Evolution Module:** Module Frame + 1000 mB Evolution Catalyst (Mutator).
+- **Tier 2 module:** Evolution Module + 1000 mB Reinforcing Catalyst.
+- **Tier 3 module:** Tier 2 module + 1000 mB Dragon's Milk (fluid planned, creative-only until it exists).
+- **Tier 4 module:** undefined, creative-only.
+- **Hazard Evolution Module, route A:** the matching Safety Module + 1000 mB Evolution Catalyst (existing for Heat, now Thermal).
+- **Hazard Evolution Module, route B:** Evolution Module + a fluid carrying the target hazard and level (Radiation Mild: Molten Glowstone; Metaphysical Mild: Molten Soul Silica; Metaphysical Severe: Ender Essence; Thermal: a Thermal-tagged fluid); amounts not decided; no fluid yet for Radiation Severe or Biohazard.
+- **Metaphysical Severe from Mild:** Mild Evolution Module + Ender Essence (amount not decided).
+- **Overgrowth:** O1 from the Flesh Lab (recipe undecided); O2 and beyond by fluid-only upgrades in the Growth Chamber.
+- **Gaps still to decide here:** Safety Module recipes for the new levels (Radiation Severe, Metaphysical Mild, Biohazard), hazard route amounts, Tier 4, the Overgrowth fluid set, and the Tank and Craw stat packages.
+
 ### Still open
 
 - Stat package per tier (speed, capacity, Module slots), shared across families for now but kept as per-family tables for later divergence.
