@@ -172,7 +172,7 @@ Context: today a normal break of a machine returns nothing (mod-wide "destroyed 
 
 ### Face textures: shared rules and per-family plans (decided so far, 2026-10)
 
-Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Metastasizer, Mutator, Render Furnace, Render Kiln). **Drooling family excluded** (special case, handled later). Tumor textures will be redone and given a more flexible system in a future session, not now. Craw, tanks, nodes, ducts and the Grafting Table top have not been reviewed yet.
+Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Metastasizer, Mutator, Render Furnace, Render Kiln). **Drooling family excluded** (special case, handled later). The tumor texture redo and its flexible overlay system are **in scope for this redesign** (decided 2026-10: the tumors are the base layer of every machine, and the work is small compared to the rest). Craw, tanks, nodes, ducts and the Grafting Table top have not been reviewed yet.
 
 **Shared rules**
 - **All machine textures move to 16px** (today the base Masticator is 32x32 with a 32x64 animated sheet while its Charred set is 16x16 / 16x32).
@@ -243,6 +243,7 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **Interim visuals:** keep the existing Charred art as the tier 2+ stand-in so structural work does not wait on the new textures.
 - **Heat Evolution Module becomes the Thermal Evolution Module.** Code name and display name must match for easy maintenance (registry id `thermal_evolution_module`, constant `THERMAL_EVOLUTION_MODULE`, display name "Thermal Evolution Module"), including its texture file, lang key and data map entry.
 - Phases: (1) additive foundations: per-tier stat records, evolution-state data (tier, Overgrowth level, hazard set) and the pickup item component; (2) Masticator to in-place evolution and deletion of the Charred Masticator; (3) other fueled families; (4) Tanks and Craws; (5) new modules and Overgrowth; (6) visuals, datagen helper, cleanup of notes/lang/tags.
+- **Tumor overhaul joins this branch (2026-10).** Texture redo (16px, inert base plus overlays) and the code streamlining below are part of the same redesign. Suggested ordering: the tumor textures and the overlay datagen helper land before or with Phase 6 (the machine plate points at `inert_tumor.png`); the Marred/Stitched merge is independent of the machine work and can be done any time after Phase 1.
 
 **Tumor code streamlining (direction, 2026-10, not built)**
 - Inert, Eye, Muscle and Nerve stay **four separate blocks** (one `TumorBlock` class, no block entity, one-line registrations); the saving there is a datagen helper for "inert base plus overlay" models, not merging.
