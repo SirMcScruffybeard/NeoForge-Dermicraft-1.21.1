@@ -101,7 +101,7 @@ Reuses vanilla lava/fire behavior directly (burning). No custom effect required 
 
 #### REMOVED 2026-10: the Mind Rule (kept below as history only)
 
-The Mind Rule is **no longer in effect**. Fueled machines are not immune to Metaphysical fluids: Metaphysical Mild makes a machine's speed vary each cycle, and Metaphysical Severe randomizes all its non-capacity stats each cycle (see `dermicraft-machine-notes.md`, "Hazard penalties instead of hard blocks"). Treat everything in the section below as superseded, with one temporary exception: **ducts and nodes keep their exemption from the Metaphysical hazard filter for now** (they conduct Metaphysical fluids without needing a tolerance) until their overhaul, which happens after the current machine overhaul is implemented. Tanks and other storage do not get the exemption; they need a Metaphysical tolerance like any other hazard.
+The Mind Rule is **no longer in effect**. Fueled machines are not immune to Metaphysical fluids: Metaphysical Mild makes a machine's speed vary each cycle, and Metaphysical Severe randomizes all its non-capacity stats each cycle (see `dermicraft-machine-notes.md`, "Hazard penalties instead of hard blocks"). Treat everything in the section below as superseded, with one temporary exception: **ducts, nodes, the Innards Gate blocks and the Lab Floor keep (or get) an exemption from the Metaphysical hazard filter for now** (connective pieces conduct Metaphysical fluids without needing a tolerance) until their overhaul, which happens after the current machine overhaul is implemented. Tanks and other storage do not get the exemption; they need a Metaphysical tolerance like any other hazard.
 
 #### Metaphysical vs. machines — the Mind Rule (superseded, see above)
 
