@@ -2,7 +2,9 @@ package net.scruffy.dermicraft.datagen;
 
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -63,13 +65,28 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(ModBlocks.GRANITE_LAB_FLOOR.get(), models().getExistingFile(modLoc("block/flesh_lab/granite_lab_floor")));
 
         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
-        blockWithItem(ModBlocks.INERT_TUMOR);
+        // Tumor overhaul: Inert/Eye/Muscle/Nerve are the shared tumor_base plus a transparent overlay.
+        // The textures live in tumor_new/ only while the old tumor/ directory still exists; after the
+        // overhaul, delete tumor/, rename tumor_new/ to tumor/, and update TUMOR_DIR (see
+        // dermicraft-machine-notes.md, Tumor texture redesign).
+        final String TUMOR_DIR = "block/tumor_new/";
+        ResourceLocation base = modLoc(TUMOR_DIR + "tumor_base");
+        // Inert is the only tumor with different art per face (concentric ring below, patch on top).
+        tumorOverlayCube(ModBlocks.INERT_TUMOR,
+                base,
+                modLoc(TUMOR_DIR + "inert_top_overlay"),
+                modLoc(TUMOR_DIR + "inert_bottom_overlay"),
+                modLoc(TUMOR_DIR + "inert_side_overlay"));
+
+        // Eye/Muscle/Nerve use one (animated) overlay on all six faces.
+        tumorOverlayCube(ModBlocks.EYE_TUMOR, base, modLoc(TUMOR_DIR + "eye_overlay"));
+        tumorOverlayCube(ModBlocks.MUSCLE_TUMOR, base, modLoc(TUMOR_DIR + "muscle_overlay"));
+        tumorOverlayCube(ModBlocks.NERVE_TUMOR, base, modLoc(TUMOR_DIR + "nerve_overlay"));
+
+        // Marred/Stitched still use the old single-texture cube; they are not part of the Inert family
+        // and move to a layered multipart model when they merge into one staged block.
         blockWithItem(ModBlocks.MARRED_TUMOR);
         blockWithItem(ModBlocks.STITCHED_TUMOR);
-
-        blockWithItem(ModBlocks.EYE_TUMOR);
-        blockWithItem(ModBlocks.MUSCLE_TUMOR);
-        blockWithItem(ModBlocks.NERVE_TUMOR);
 
         // Charred Tumor -- plain Block, not part of the TumorBlock family, so its texture lives at
         // the top-level block/ path rather than block/tumor/.
@@ -647,6 +664,42 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(deferredBlock.get(), models().cubeAll(
                 deferredBlock.getId().getPath(),
                 modLoc("block/tumor/" + deferredBlock.getId().getPath())));
+    }
+
+    /**
+     * Full cube made of an opaque base layer with a transparent overlay on top, with the overlay
+     * chosen per face group. Both layers are same-bounds elements (the vanilla grass-block approach),
+     * so the overlay needs no z-offset; the cutout render type lets the base show through the
+     * overlay's transparent pixels. The item model parents to this block model.
+     */
+    private void tumorOverlayCube(DeferredBlock<Block> block, ResourceLocation base, ResourceLocation top,
+                                  ResourceLocation bottom, ResourceLocation side) {
+        BlockModelBuilder model = models().getBuilder(block.getId().getPath())
+                // Required for the GUI/hand display transforms and gui_light; without a parent the
+                // inventory icon renders as a flat face-on square.
+                .parent(models().getExistingFile(mcLoc("block/block")))
+                .texture("particle", base)
+                .texture("base", base)
+                .texture("top", top)
+                .texture("side", side)
+                .texture("bottom", bottom)
+                .renderType("cutout");
+
+        // element 1: opaque base on all six faces
+        model.element().from(0, 0, 0).to(16, 16, 16).allFaces((dir, face) ->
+                face.texture("#base").cullface(dir)).end();
+
+        // element 2: same bounds, per-face overlay
+        model.element().from(0, 0, 0).to(16, 16, 16).allFaces((dir, face) ->
+                face.texture(dir == Direction.UP ? "#top" : dir == Direction.DOWN ? "#bottom" : "#side")
+                        .cullface(dir)).end();
+
+        simpleBlockWithItem(block.get(), model);
+    }
+
+    /** Same overlay on all six faces. */
+    private void tumorOverlayCube(DeferredBlock<Block> block, ResourceLocation base, ResourceLocation overlay) {
+        tumorOverlayCube(block, base, overlay, overlay, overlay);
     }
 
 }
