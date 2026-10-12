@@ -25,8 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * Early Implant has no GUI block -- ingredients are incubated inside a Stitched/Marred Tumor
- * block entity, unlocked by right-clicking with a Suture Kit (registered as this category's
+ * Early Implant has no GUI block -- ingredients are incubated inside a Marred Tumor (open or
+ * stitched) block entity, unlocked by right-clicking with a Suture Kit (registered as this category's
  * catalyst), so this category shows an ingredient grid, the required suture tool as a
  * non-consumed catalyst slot, and a reagent fluid feeding the result item.
  */

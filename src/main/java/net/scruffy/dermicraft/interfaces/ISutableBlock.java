@@ -16,8 +16,6 @@ public interface ISutableBlock {
 
     void suture(Level level, BlockPos pos, Player player, ItemStack sutureStack, MarredTumorBlockEntity tumorEntity, InteractionHand hand);
 
-    void changeState(Level level, BlockPos pos, Block block);
-
     default void setState(Level level, BlockPos pos, BlockState targetState) {
         level.setBlock(pos, targetState, 3);
     }

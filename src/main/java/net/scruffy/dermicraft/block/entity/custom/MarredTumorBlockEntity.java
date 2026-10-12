@@ -23,6 +23,8 @@ public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
 
     protected final ItemStackHandler INVENTORY = createInventory(INVENTORY_SIZE);
 
+
+
     public MarredTumorBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MARRED_TUMOR_BE.get(), pos, blockState);
     }
@@ -119,5 +121,12 @@ public class MarredTumorBlockEntity extends EarlySurgeryTumorBlockEntity {
                 updateRecipeCache();
             }
         }
+    }
+
+    public boolean isEmpty() {
+        for (int i = 0; i < INVENTORY.getSlots(); i++) {
+            if (!INVENTORY.getStackInSlot(i).isEmpty()) return false;
+        }
+        return true;
     }
 }

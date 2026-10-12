@@ -1453,7 +1453,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Metastasizer cost (100 mB, see metastasizing_string above) since it's the "stitching it back
         // together" step -- same fleshy-fix-up cost as a single strand of thread.
         RecipeBuilders.mutate(recipeOutput, "mutating_stitched_tumor", ModBlocks.MARRED_TUMOR.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 100, ModBlocks.STITCHED_TUMOR.asItem(), lightTicks);
+                ModFluids.SOURCE_PROTEIN_BLEND.get(), 100, ModBlocks.STITCHED_TUMOR.get(), lightTicks);
 
         // Flesh Lab Floor - Mutator route: structural block + 2000 mB Protein Blend -> the matching
         // Lab Floor variant. Same structural-block-defines-the-variant pattern as the crafting-table

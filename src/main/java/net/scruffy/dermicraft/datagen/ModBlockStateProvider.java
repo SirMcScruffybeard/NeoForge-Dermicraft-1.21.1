@@ -23,6 +23,7 @@ import net.scruffy.dermicraft.block.custom.MutatorVisualState;
 import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
 import net.scruffy.dermicraft.block.custom.RenderKilnBlock;
 import net.scruffy.dermicraft.block.custom.RenderKilnVisualState;
+import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -83,10 +84,20 @@ public class ModBlockStateProvider extends BlockStateProvider {
         tumorOverlayCube(ModBlocks.MUSCLE_TUMOR, base, modLoc(TUMOR_DIR + "muscle_overlay"));
         tumorOverlayCube(ModBlocks.NERVE_TUMOR, base, modLoc(TUMOR_DIR + "nerve_overlay"));
 
-        // Marred/Stitched still use the old single-texture cube; they are not part of the Inert family
-        // and move to a layered multipart model when they merge into one staged block.
-        blockWithItem(ModBlocks.MARRED_TUMOR);
-        blockWithItem(ModBlocks.STITCHED_TUMOR);
+        ResourceLocation marred = modLoc(TUMOR_DIR + "marred_overlay");
+        ResourceLocation stitch = modLoc(TUMOR_DIR + "stitch_overlay");
+
+        BlockModelBuilder openModel = tumorLayeredModel("marred_tumor", base, marred);
+        BlockModelBuilder stitchedModel = tumorLayeredModel("stitched_tumor", base, marred, stitch);
+
+        getVariantBuilder(ModBlocks.MARRED_TUMOR.get())
+                .partialState().with(MarredTumorBlock.STITCHED, false)
+                .modelForState().modelFile(openModel).addModel()
+                .partialState().with(MarredTumorBlock.STITCHED, true)
+                .modelForState().modelFile(stitchedModel).addModel();
+
+        itemModels().withExistingParent("marred_tumor", modLoc("block/marred_tumor"));
+        itemModels().withExistingParent("stitched_tumor", modLoc("block/stitched_tumor"));
 
         // Charred Tumor -- plain Block, not part of the TumorBlock family, so its texture lives at
         // the top-level block/ path rather than block/tumor/.
@@ -700,6 +711,25 @@ public class ModBlockStateProvider extends BlockStateProvider {
     /** Same overlay on all six faces. */
     private void tumorOverlayCube(DeferredBlock<Block> block, ResourceLocation base, ResourceLocation overlay) {
         tumorOverlayCube(block, base, overlay, overlay, overlay);
+    }
+
+    private BlockModelBuilder tumorLayeredModel(String name, ResourceLocation base, ResourceLocation... overlays) {
+        BlockModelBuilder model = models().getBuilder(name)
+                .parent(models().getExistingFile(mcLoc("block/block")))
+                .texture("particle", base)
+                .texture("base", base)
+                .renderType("cutout");
+
+        model.element().from(0, 0, 0).to(16, 16, 16).allFaces((dir, face) ->
+                face.texture("#base").cullface(dir)).end();
+
+        for (int i = 0; i < overlays.length; i++) {
+            String key = "layer" + i;
+            model.texture(key, overlays[i]);
+            model.element().from(0, 0, 0).to(16, 16, 16).allFaces((dir, face) ->
+                    face.texture("#" + key).cullface(dir)).end();
+        }
+        return model;
     }
 
 }

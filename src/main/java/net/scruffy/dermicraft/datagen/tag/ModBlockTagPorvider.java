@@ -155,7 +155,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         ;
 
         tag(ModTags.Blocks.INJECTABLE)
-                .add(ModBlocks.STITCHED_TUMOR.get())
+                .add(ModBlocks.MARRED_TUMOR.get())
 
         ;
 
@@ -181,7 +181,6 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
         tag(ModTags.Blocks.TUMORS)
                 .add(ModBlocks.INERT_TUMOR.get())
                 .add(ModBlocks.MARRED_TUMOR.get())
-                .add(ModBlocks.STITCHED_TUMOR.get())
 
                 .add(ModBlocks.EYE_TUMOR.get())
                 .add(ModBlocks.MUSCLE_TUMOR.get())

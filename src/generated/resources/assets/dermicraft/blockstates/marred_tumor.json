@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "stitched=false": {
       "model": "dermicraft:block/marred_tumor"
+    },
+    "stitched=true": {
+      "model": "dermicraft:block/stitched_tumor"
     }
   }
 }

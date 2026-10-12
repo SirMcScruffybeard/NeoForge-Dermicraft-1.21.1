@@ -119,7 +119,7 @@ public class CrawBlock extends ModBaseEntityBlock implements IInjectableBlock {
     }
 
     /**
-     * Mirrors {@code StitchedTumorBlock.inject} -- any {@link IInject} tool (e.g. a loaded
+     * Mirrors {@code MarredTumorBlock.inject} -- any {@link IInject} tool (e.g. a loaded
      * Syringe, or A.I.D. in Syringe mode via {@link IInjectableBlock}) can trigger a matching
      * cached recipe. Unlike the Tumor version, Craw is never consumed or transformed; see
      * {@link CrawBlockEntity#completeIncubation}.

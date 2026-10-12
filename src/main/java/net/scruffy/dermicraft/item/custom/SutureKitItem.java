@@ -10,6 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.interfaces.ISuture;
 import net.scruffy.dermicraft.item.custom.base.ToolItem;
 import net.scruffy.dermicraft.util.ModMath;
@@ -57,7 +59,9 @@ public class SutureKitItem extends ToolItem implements ISuture {
 
         if (level.isClientSide) return InteractionResult.SUCCESS;
 
-        if (isSutable(level.getBlockState(context.getClickedPos()))) {
+        BlockState state = level.getBlockState(context.getClickedPos());
+        if (isSutable(state)
+                && !(state.hasProperty(MarredTumorBlock.STITCHED) && state.getValue(MarredTumorBlock.STITCHED))) {
             useMaterials(context.getPlayer(), context.getHand());
             return InteractionResult.SUCCESS;
         }

@@ -26,6 +26,7 @@ import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BeakerItem;
 import net.scruffy.dermicraft.item.custom.KnowledgeVatBlockItem;
 import net.scruffy.dermicraft.item.custom.SkinTankBlockItem;
+import net.scruffy.dermicraft.item.custom.StitchedTumorBlockItem;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.function.Supplier;
@@ -42,8 +43,8 @@ public class ModBlocks {
     public static final DeferredBlock<Block> INERT_TUMOR = registerBlock("inert_tumor", () -> new TumorBlock(tumorProperties()));
     public static final DeferredBlock<Block> MARRED_TUMOR = registerBlock("marred_tumor",
             () -> new MarredTumorBlock(BlockBehaviour.Properties.of()));
-    public static final DeferredBlock<Block> STITCHED_TUMOR = registerBlock("stitched_tumor",
-            () -> new StitchedTumorBlock(BlockBehaviour.Properties.of()));
+    public static final DeferredItem<Item> STITCHED_TUMOR = ModItems.ITEMS.register("stitched_tumor",
+            () -> new StitchedTumorBlockItem(MARRED_TUMOR.get(), new Item.Properties()));
 
     public static final DeferredBlock<Block> EYE_TUMOR = registerBlock("eye_tumor", () -> new TumorBlock(tumorProperties()));
     public static final DeferredBlock<Block> MUSCLE_TUMOR = registerBlock("muscle_tumor", () -> new TumorBlock(tumorProperties()));

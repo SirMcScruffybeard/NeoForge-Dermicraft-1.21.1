@@ -21,11 +21,6 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("marred_tumor_be", () -> BlockEntityType.Builder.of(
                     MarredTumorBlockEntity::new, ModBlocks.MARRED_TUMOR.get()).build(null));
 
-    public static final Supplier<BlockEntityType<StitchedTumorBlockEntity>> STITCHED_TUMOR_BE =
-            BLOCK_ENTITIES.register("stitched_tumor_be", () -> BlockEntityType.Builder.of(
-                    StitchedTumorBlockEntity::new, ModBlocks.STITCHED_TUMOR.get()).build(null));
-
-
     public static final Supplier<BlockEntityType<DroolingCauldronBlockEntity>> DROOLING_CAULDRON_BE =
             BLOCK_ENTITIES.register("drooling_cauldron_be", () -> BlockEntityType.Builder.of(
                     DroolingCauldronBlockEntity::new, ModBlocks.DROOLING_CAULDRON.get()).build(null));

@@ -17,12 +17,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.scruffy.dermicraft.block.custom.duct.AbstractInnardsDuctBlock;
+import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
 import net.scruffy.dermicraft.component.AidModeData;
 import net.scruffy.dermicraft.interfaces.ICutStitches;
-import net.scruffy.dermicraft.interfaces.IInjectableBlock;
 import net.scruffy.dermicraft.interfaces.IHarvestableBlock;
+import net.scruffy.dermicraft.interfaces.IInjectableBlock;
 import net.scruffy.dermicraft.interfaces.ISutableBlock;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.AidItem;
@@ -98,7 +98,8 @@ public class AidTargetScanner {
         if (item.isHarvestable(state) && state.getBlock() instanceof IHarvestableBlock) return true;
 
         if (state.getBlock() instanceof ICutStitches
-                && level.getBlockEntity(pos) instanceof StitchedTumorBlockEntity) {
+                && state.getValue(MarredTumorBlock.STITCHED)
+                && level.getBlockEntity(pos) instanceof MarredTumorBlockEntity) {
             return true;
         }
 
@@ -106,15 +107,19 @@ public class AidTargetScanner {
     }
 
     private static boolean isSutureTarget(AidItem item, Level level, BlockPos pos, BlockState state) {
-        if (!item.isSutable(state) || !(state.getBlock() instanceof ISutableBlock)) return false;
+        if (!item.isSutable(state)
+                || (state.hasProperty(MarredTumorBlock.STITCHED) && state.getValue(MarredTumorBlock.STITCHED))
+                || !(state.getBlock() instanceof ISutableBlock)) return false;
         return level.getBlockEntity(pos) instanceof MarredTumorBlockEntity;
     }
 
     private static boolean isSyringeTarget(AidItem item, Level level, BlockPos pos, BlockState state, Direction face) {
-        // Any IInjectableBlock implementor with a real block entity there -- Stitched Tumor's
+        // Any IInjectableBlock implementor with a real block entity there -- a stitched Marred Tumor's
         // early-implant injection, Craw's early-incubating injection, or any future one -- not just
         // one hardcoded target type. Matches AidItem#useSyringe's own generalized dispatch.
-        if (state.getBlock() instanceof IInjectableBlock && level.getBlockEntity(pos) != null) {
+        if (state.getBlock() instanceof IInjectableBlock injectable
+                && injectable.canInject(state)
+                && level.getBlockEntity(pos) != null) {
             return true;
         }
 

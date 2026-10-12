@@ -26,23 +26,10 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.scruffy.dermicraft.block.custom.duct.AbstractInnardsDuctBlock;
+import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.block.entity.custom.MarredTumorBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.StitchedTumorBlockEntity;
-import net.scruffy.dermicraft.component.AidModeData;
-import net.scruffy.dermicraft.component.AidPendingModeData;
-import net.scruffy.dermicraft.component.FluidData;
-import net.scruffy.dermicraft.component.HeldItemData;
-import net.scruffy.dermicraft.component.ModDataComponentTypes;
-import net.scruffy.dermicraft.interfaces.ICollectBlocks;
-import net.scruffy.dermicraft.interfaces.ICutStitches;
-import net.scruffy.dermicraft.interfaces.IGadget;
-import net.scruffy.dermicraft.interfaces.IHarvestParts;
-import net.scruffy.dermicraft.interfaces.IHarvestableBlock;
-import net.scruffy.dermicraft.interfaces.IHaveFluidData;
-import net.scruffy.dermicraft.interfaces.IInject;
-import net.scruffy.dermicraft.interfaces.IInjectableBlock;
-import net.scruffy.dermicraft.interfaces.ISutableBlock;
-import net.scruffy.dermicraft.interfaces.ISuture;
+import net.scruffy.dermicraft.component.*;
+import net.scruffy.dermicraft.interfaces.*;
 import net.scruffy.dermicraft.screen.custom.aid.AidMenu;
 import net.scruffy.dermicraft.util.ModMath;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -331,7 +318,7 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
      * Scalpel. Instead this calls {@link IHarvestableBlock#harvest}/{@code changeState} directly,
      * gated on mode here, mirroring exactly what the tag-based path would have done. Same story for
      * cutting a Stitched Tumor's stitches ({@link ICutStitches}), also normally gated by
-     * {@code EXTRACTION_TOOLS} on {@code StitchedTumorBlock}. Falls through to the free,
+     * {@code EXTRACTION_TOOLS} on {@code MarredTumorBlock}'s stitched stage. Falls through to the free,
      * no-durability Innards Duct connection cycle (same as the standalone Scalpel) -- every branch
      * fires the "cut" trigger and returns CONSUME to cancel the vanilla swing in favor of it, same
      * reasoning as Forceps' "grab". Cutting stitches is the one action that keeps its real
@@ -354,10 +341,11 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
         }
 
         if (state.getBlock() instanceof ICutStitches cuttable
-                && level.getBlockEntity(pos) instanceof StitchedTumorBlockEntity stitchedEntity) {
+                && level.getBlockEntity(pos) instanceof MarredTumorBlockEntity tumorEntity
+                && state.getValue(MarredTumorBlock.STITCHED)) {
             if (level.isClientSide) return InteractionResult.CONSUME;
 
-            cuttable.cutStitches(level, pos, player, stack, stitchedEntity);
+            cuttable.cutStitches(level, pos, player, stack, tumorEntity);
             triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) level), "Scalpel", "cut");
             return InteractionResult.CONSUME;
         }
@@ -393,7 +381,9 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
 
-        if (!isSutable(state) || !(state.getBlock() instanceof ISutableBlock sutable)) {
+        if (!isSutable(state)
+                || (state.hasProperty(MarredTumorBlock.STITCHED) && state.getValue(MarredTumorBlock.STITCHED))
+                || !(state.getBlock() instanceof ISutableBlock sutable)) {
             return InteractionResult.PASS;
         }
         if (level.isClientSide) return InteractionResult.CONSUME;
@@ -444,10 +434,10 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
 
     /**
      * Inject (deliberately NOT tag-driven, same reasoning as Scalpel's harvest/Suture's sow):
-     * A.I.D. is not a member of {@code INJECTION_TOOLS}, since {@code StitchedTumorBlock.useItemOn}/
+     * A.I.D. is not a member of {@code INJECTION_TOOLS}, since {@code MarredTumorBlock.useItemOn}/
      * {@code CrawBlock.useItemOn} check that tag with no notion of A.I.D.'s current mode. Instead
      * this calls {@link IInjectableBlock#inject} directly, gated on mode here -- works against ANY
-     * {@link IInjectableBlock} implementor (Stitched Tumor's early-implant injection, Craw's
+     * {@link IInjectableBlock} implementor (a stitched Marred Tumor's early-implant injection, Craw's
      * early-incubating injection, ...) rather than one hardcoded target, since the interface itself
      * takes a generic {@link BlockEntity} and each implementor casts internally. That call
      * internally checks {@code stack.getItem() instanceof IInject}, which A.I.D. now is, and drains
@@ -477,7 +467,9 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
         BlockState state = level.getBlockState(pos);
 
         BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (state.getBlock() instanceof IInjectableBlock injectable && blockEntity != null) {
+        if (state.getBlock() instanceof IInjectableBlock injectable
+                && injectable.canInject(state)
+                && blockEntity != null) {
             if (level.isClientSide) return InteractionResult.CONSUME;
 
             boolean injected = injectable.inject(level, player, stack, blockEntity);
@@ -503,7 +495,7 @@ public class AidItem extends Item implements GeoItem, IGadget, ICollectBlocks, I
     private static final int DOSE_SIZE = 100;
 
     /**
-     * {@code StitchedTumorBlock#inject} calls this polymorphically to consume whatever was just
+     * {@code MarredTumorBlock#inject} calls this polymorphically to consume whatever was just
      * injected -- the default ({@link IInject#emptyDataFluidIfSurvival}) wipes the whole tank, which
      * is only correct for the standalone Syringe because it never holds more than one dose anyway.
      * A.I.D.'s tank holds up to {@link #FLUID_CAPACITY}, so one injection should only cost one dose
