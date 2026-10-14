@@ -137,7 +137,7 @@ public class ModDataComponentTypes {
                     .persistent(SunderModeData.CODEC)
                     .networkSynchronized(SunderModeData.STREAM_CODEC));
 
-    /** The chain currently mounted on Sunder, held as a real (nested) {@link ItemStack} --
+    /** The chain currently mounted on Sunder, held as a real (nested) {@link net.minecraft.world.item.ItemStack} --
      * reuses {@link HeldItemData}'s shape/codecs (same role as I.D.E.P.'s use of it) rather than a
      * dedicated record, registered separately from {@link #HELD_ITEM_DATA} so a chain is never
      * confused with I.D.E.P.'s held item (same "shared shape, separate registration per consumer"
@@ -194,7 +194,12 @@ public class ModDataComponentTypes {
                     .persistent(com.mojang.serialization.Codec.INT)
                     .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
 
-
+    /** A machine's tier, Overgrowth level and hazard tolerances, carried on its item so a Forceps pickup
+     * or creative pick block keeps the investment. Absent means a plain L1 machine. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EvolutionStateData>> EVOLUTION_STATE =
+            register("evolution_state_data", builder -> builder
+                    .persistent(EvolutionStateData.CODEC)
+                    .networkSynchronized(EvolutionStateData.STREAM_CODEC));
 
 
     ///////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\
