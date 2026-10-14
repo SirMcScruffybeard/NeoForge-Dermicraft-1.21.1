@@ -2,7 +2,9 @@ package net.scruffy.dermicraft.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
@@ -20,13 +22,15 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.component.EvolutionStateData;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class MachineBaseBlockEntity extends BlockEntity {
+public abstract class MachineBaseBlockEntity extends BlockEntity{
 
     protected static final int CRAFT_TICKS = 10;
 
@@ -44,6 +48,13 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
     // tank -- nothing ever reads it there.
     protected boolean autoDrainEnabled = true;
 
+    private static final String EVOLUTION_STATE_KEY = "evolution_state";
+
+    /** Tier, Overgrowth level and hazard tolerances. Saved in this block entity's own data and carried
+     * on the machine's item as the EVOLUTION_STATE component (see {@link #collectImplicitComponents}).
+     * Nothing reads the tier from here yet -- stats still come from the block's {@code MachineTier}. */
+    private EvolutionStateData evolutionState = EvolutionStateData.DEFAULT;
+
     public MachineBaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -58,10 +69,32 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         updateBlock();
     }
 
+    public EvolutionStateData getEvolutionState() {
+        return evolutionState;
+    }
+
+    /** Replaces the evolution state, saving and syncing it to clients. Server-side use; a no-op when
+     * the state is unchanged. */
+    public void setEvolutionState(EvolutionStateData state) {
+        if (state.equals(evolutionState)) return;
+        evolutionState = state;
+        setChanged();
+        updateBlock();
+    }
+
+
+
+
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putBoolean("auto_drain_enabled", autoDrainEnabled);
+        // Written only when it differs from the default, so plain machines save no extra data.
+        if (!evolutionState.equals(EvolutionStateData.DEFAULT)) {
+            EvolutionStateData.CODEC.encodeStart(NbtOps.INSTANCE, evolutionState)
+                    .ifSuccess(encoded -> tag.put(EVOLUTION_STATE_KEY, encoded));
+        }
     }
 
     @Override
@@ -69,6 +102,38 @@ public abstract class MachineBaseBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
         // Defaults ON for worlds saved before this existed, same as Craw's auto-push flag.
         autoDrainEnabled = !tag.contains("auto_drain_enabled") || tag.getBoolean("auto_drain_enabled");
+        // A missing or unreadable entry means a plain L1 machine.
+        evolutionState = tag.contains(EVOLUTION_STATE_KEY)
+                ? EvolutionStateData.CODEC.parse(NbtOps.INSTANCE, tag.get(EVOLUTION_STATE_KEY))
+                        .result().orElse(EvolutionStateData.DEFAULT)
+                : EvolutionStateData.DEFAULT;
+    }
+
+    /** Puts the evolution state on the machine's item (Forceps pickup and creative pick block reach
+     * this through the block's {@code getCloneItemStack}). Skipped for a plain L1 machine so that item
+     * keeps stacking with ones from recipes and the creative tab. */
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        if (!evolutionState.equals(EvolutionStateData.DEFAULT)) {
+            components.set(ModDataComponentTypes.EVOLUTION_STATE.get(), evolutionState);
+        }
+    }
+
+    /** Restores the evolution state from a placed item; an item without the component is a plain L1
+     * machine. Runs after the item's saved block entity data is loaded, so the component wins. */
+    @Override
+    protected void applyImplicitComponents(DataComponentInput componentInput) {
+        super.applyImplicitComponents(componentInput);
+        evolutionState = componentInput.getOrDefault(ModDataComponentTypes.EVOLUTION_STATE.get(), EvolutionStateData.DEFAULT);
+    }
+
+    /** The component carries the state, so drop the duplicate copy from the item's saved block entity
+     * data (the vanilla pattern for implicit components). */
+    @Override
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        tag.remove(EVOLUTION_STATE_KEY);
     }
 
     /** How many Module slots this machine instance has -- 1 by default. A Charred/evolved variant
