@@ -9,6 +9,7 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
 import org.jetbrains.annotations.Nullable;
 

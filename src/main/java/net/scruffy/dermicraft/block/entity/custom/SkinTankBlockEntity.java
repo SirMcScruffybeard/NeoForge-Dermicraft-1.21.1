@@ -15,35 +15,32 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.hazard.HazardProfile;
-import net.scruffy.dermicraft.interfaces.Channel;
-import net.scruffy.dermicraft.interfaces.IHasChannels;
-import net.scruffy.dermicraft.interfaces.IHaveInventory;
-import net.scruffy.dermicraft.interfaces.IHaveModules;
-import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
+import net.scruffy.dermicraft.interfaces.*;
+import net.scruffy.dermicraft.machine.SkinTankStats;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModMath;
-import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Pilot for machine Module slots (dermicraft-progression-notes.md, Decision Point #2 -> sequencing
@@ -56,8 +53,6 @@ import java.util.List;
  */
 public class SkinTankBlockEntity extends MachineBaseBlockEntity
         implements MenuProvider, IHaveInventory, IHasChannels, IPreserveContentsOnPickup {
-
-    public static final int CAPACITY = FluidType.BUCKET_VOLUME * 10;
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
@@ -79,21 +74,22 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * unconditional hazard tolerance -- same "hook override, not a new tier stat" split Masticator/
      * Metastasizer's own {@code createIngredientTank()}/{@code createReagentTank()} use. */
     protected VulnerableTank createTank() {
-        return createVulnerableTank(CAPACITY, -1, this::installedHazardProfile);
+        return createVulnerableTank(getBaseCapacity(), -1, this::installedHazardProfile);
     }
 
-    /** The un-bonused capacity this instance would use with no Capacity Module installed -- a
-     * virtual wrapper around {@link #CAPACITY} so {@link #applyCapacityBonus()}/
-     * {@link #canRemoveModule(int)} below resolve the RIGHT constant at runtime even though the
-     * real field is static and shadowed (not overridden) by {@link CharredTankBlockEntity#CAPACITY}. */
-    protected int baseCapacity() {
-        return CAPACITY;
+    /** The un-bonused capacity, in mB, this instance would use with no Capacity Module installed: its
+     * tier and Overgrowth level from {@link SkinTankStats}. Virtual so {@link #createTank()},
+     * {@link #applyCapacityBonus()} and {@link #canRemoveModule(int)} all resolve it per instance
+     * ({@link CharredTankBlockEntity} overrides it with its L2 capacity). Re-applied whenever the
+     * evolution state changes, see {@link #onEvolutionStateChanged()}. */
+    protected int getBaseCapacity() {
+        return SkinTankStats.getTankCapacityMb(getEvolutionState());
     }
 
     /** Capacity Module bonus, summed over every installed Module -- see
      * {@code MachineBaseBlockEntity#capacityModuleBonus}. */
     @Override
-    protected int capacityBonus() {
+    protected int getCapacityBonus() {
         int total = 0;
         for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
             total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
@@ -102,15 +98,20 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     }
 
     @Override
+    protected void onEvolutionStateChanged() {
+        applyCapacityBonus();
+    }
+
+    @Override
     protected void applyCapacityBonus() {
-        TANK.setCapacity(baseCapacity() + capacityBonus());
+        TANK.setCapacity(getBaseCapacity() + getCapacityBonus());
     }
 
     @Override
     protected boolean canRemoveModule(int slot) {
         int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
         if (thisBonus == 0) return true;
-        int newCapacity = baseCapacity() + (capacityBonus() - thisBonus);
+        int newCapacity = getBaseCapacity() + (getCapacityBonus() - thisBonus);
         return TANK.getFluid().getAmount() <= newCapacity;
     }
 

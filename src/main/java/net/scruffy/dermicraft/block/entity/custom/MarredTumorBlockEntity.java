@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.EarlySurgeryTumorBlockEntity;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipeInput;
 import org.jetbrains.annotations.NotNull;

@@ -17,6 +17,7 @@ import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.scruffy.dermicraft.block.custom.gate.GateBufferBlock;
 import net.scruffy.dermicraft.block.custom.gate.GateControllerBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IGateBlock;
 import net.scruffy.dermicraft.interfaces.IHasChannels;

@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.HitResult;
-import net.scruffy.dermicraft.block.entity.custom.MachineBaseBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class ModBaseEntityBlock extends BaseEntityBlock {

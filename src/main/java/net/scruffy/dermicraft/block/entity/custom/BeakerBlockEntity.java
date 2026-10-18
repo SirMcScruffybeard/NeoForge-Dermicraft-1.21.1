@@ -10,6 +10,7 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.scruffy.dermicraft.block.custom.BeakerBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import org.jetbrains.annotations.Nullable;
 

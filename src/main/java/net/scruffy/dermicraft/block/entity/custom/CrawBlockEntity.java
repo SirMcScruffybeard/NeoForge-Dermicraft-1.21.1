@@ -27,6 +27,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.Channel;

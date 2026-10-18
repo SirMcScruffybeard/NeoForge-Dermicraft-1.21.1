@@ -1,6 +1,5 @@
 package net.scruffy.dermicraft.machine;
 
-import net.neoforged.neoforge.fluids.FluidType;
 import net.scruffy.dermicraft.component.EvolutionStateData;
 
 /**
@@ -13,21 +12,21 @@ public final class SkinTankStats {
     private SkinTankStats() {}
 
     private static double value(double[] table, EvolutionStateData state) {
-        return StatTable.at(table, state.tier(), state.overgrowth(), StatDefaults.OVERGROWTH_PERCENT);
+        return StatTable.at(table, state.tier(), state.overgrowth(), StatConfig.getCurrent().overgrowthPercent());
     }
 
     /** Fluid capacity in mB. */
-    public static int tankCapacityMb(EvolutionStateData state) {
-        return (int) Math.round(value(StatDefaults.SKIN_TANK_BUCKETS, state) * FluidType.BUCKET_VOLUME);
+    public static int getTankCapacityMb(EvolutionStateData state) {
+        return StatTable.toInt(value(StatConfig.getCurrent().skinTankCapacityMb(), state));
     }
 
     /** Millibuckets per second the tank may auto-push. */
-    public static int fluidTransferPerSecond(EvolutionStateData state) {
-        return (int) Math.round(value(StatDefaults.FLUID_TRANSFER, state));
+    public static int getFluidTransferPerSecond(EvolutionStateData state) {
+        return StatTable.toInt(value(StatConfig.getCurrent().fluidTransfer(), state));
     }
 
     /** General Module slots (the dedicated Evolution slot is separate); Overgrowth adds none. */
-    public static int moduleSlots(EvolutionStateData state) {
-        return StatDefaults.MODULE_SLOTS[state.tier() - 1];
+    public static int getModuleSlots(EvolutionStateData state) {
+        return StatConfig.getCurrent().moduleSlots()[state.tier() - 1];
     }
 }

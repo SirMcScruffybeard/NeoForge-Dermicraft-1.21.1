@@ -6,7 +6,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
-import net.scruffy.dermicraft.block.entity.custom.MachineBaseBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;

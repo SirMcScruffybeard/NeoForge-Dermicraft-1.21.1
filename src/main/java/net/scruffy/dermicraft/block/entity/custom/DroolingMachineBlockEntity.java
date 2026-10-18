@@ -7,7 +7,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -25,6 +24,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
@@ -161,7 +161,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     /** Capacity Module bonus, summed over every installed Module. */
     @Override
-    protected int capacityBonus() {
+    protected int getCapacityBonus() {
         int total = 0;
         for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
             total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
@@ -171,14 +171,14 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     @Override
     protected void applyCapacityBonus() {
-        TANK.setCapacity(tankCapacity() + capacityBonus());
+        TANK.setCapacity(tankCapacity() + getCapacityBonus());
     }
 
     @Override
     protected boolean canRemoveModule(int slot) {
         int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
         if (thisBonus == 0) return true;
-        int newCapacity = tankCapacity() + (capacityBonus() - thisBonus);
+        int newCapacity = tankCapacity() + (getCapacityBonus() - thisBonus);
         return TANK.getFluid().getAmount() <= newCapacity;
     }
 

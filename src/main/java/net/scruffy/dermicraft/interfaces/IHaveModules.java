@@ -167,7 +167,7 @@ public interface IHaveModules {
      * Total mB every currently-installed Capacity Module grants on {@code gadgetStack}, summed
      * linearly (no diminishing returns -- see the design discussion for why capacity doesn't need
      * Work Speed's curve). Gadget-side counterpart of
-     * {@code MachineBaseBlockEntity#capacityBonus()}/{@code #capacityModuleBonus} -- same data map,
+     * {@code MachineBaseBlockEntity#getCapacityBonus()}/{@code #capacityModuleBonus} -- same data map,
      * different storage shape (a {@link BulkItemData} component on the stack, not a live
      * {@code ItemStackHandler}).
      */

@@ -34,6 +34,18 @@ public abstract class ModFluidTank extends FluidTank {
         SLOT = slot;
     }
 
+    /**
+     * A tank can end up holding more than its capacity when the capacity is lowered (a smaller tier, a
+     * removed Capacity Module or a server config change); the fluid is kept until it is drained. Vanilla's
+     * {@code FluidTank#fill} would trim that excess down to the capacity on an executed fill, so refuse any
+     * fill while the tank is overfull and leave the contents untouched.
+     */
+    @Override
+    public int fill(FluidStack resource, FluidAction action) {
+        if (getFluidAmount() > getCapacity()) return 0;
+        return super.fill(resource, action);
+    }
+
     public boolean hasRoom(FluidStack resource) {
         return getSpace() >= resource.getAmount();
     }

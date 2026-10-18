@@ -15,6 +15,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.scruffy.dermicraft.block.custom.KnowledgeVatBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;

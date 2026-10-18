@@ -10,6 +10,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.machine.MachineTier;
 import net.scruffy.dermicraft.machine.TieredMachine;
 import net.scruffy.dermicraft.tank.FuelTank;

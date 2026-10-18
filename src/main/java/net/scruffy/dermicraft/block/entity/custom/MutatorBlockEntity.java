@@ -37,7 +37,6 @@ import net.scruffy.dermicraft.block.custom.MutatorBlock;
 import net.scruffy.dermicraft.block.custom.MutatorVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -52,7 +51,6 @@ import net.scruffy.dermicraft.recipe.mutating.MutatingRecipe;
 import net.scruffy.dermicraft.screen.custom.mutator.MutatorMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
-import net.scruffy.dermicraft.util.ModFluidUtil;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -597,7 +595,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
 
     /** Capacity Module bonus, summed over every installed Module. */
     @Override
-    protected int capacityBonus() {
+    protected int getCapacityBonus() {
         int total = 0;
         for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
             total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
@@ -607,7 +605,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
 
     @Override
     protected void applyCapacityBonus() {
-        int capacity = getTier().tankCapacity() + capacityBonus();
+        int capacity = getTier().tankCapacity() + getCapacityBonus();
         FUEL_TANK.setCapacity(capacity);
         REAGENT_TANK.setCapacity(capacity);
     }
@@ -616,7 +614,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
     protected boolean canRemoveModule(int slot) {
         int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
         if (thisBonus == 0) return true;
-        int newCapacity = getTier().tankCapacity() + (capacityBonus() - thisBonus);
+        int newCapacity = getTier().tankCapacity() + (getCapacityBonus() - thisBonus);
         return FUEL_TANK.getFluid().getAmount() <= newCapacity
                 && REAGENT_TANK.getFluid().getAmount() <= newCapacity;
     }

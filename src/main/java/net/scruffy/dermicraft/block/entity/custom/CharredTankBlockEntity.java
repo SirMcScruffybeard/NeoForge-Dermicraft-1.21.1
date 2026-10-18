@@ -10,22 +10,20 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.machine.SkinTankStats;
 import net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankMenu;
-import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Charred Tank -- Skin Tank's hazard-gated Tier 2 evolution. Everything about the base storage tank
  * (item handler, channels, drops) is inherited from {@link SkinTankBlockEntity} unchanged; the only
- * real difference is the capability leap this class exists to provide: double capacity (whole
+ * real difference is the capability leap this class exists to provide: L2 capacity (twice the base, whole
  * buckets) and unconditional {@code HazardProfile.TIER_2} tolerance (thermal-hazard fluids), via
  * overriding {@link #createTank()}. Standalone Tier 2 machine for now, same as Drooling Crucible's
  * original state -- no evolution-FROM-Skin-Tank path built yet.
  */
 public class CharredTankBlockEntity extends SkinTankBlockEntity {
-
-    public static final int CAPACITY = SkinTankBlockEntity.CAPACITY * 2;
 
     public CharredTankBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.CHARRED_TANK_BE.get(), pos, blockState);
@@ -40,17 +38,13 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
         return false;
     }
 
+    // Until the Charred Tank is folded into the Skin Tank's L2-and-up tiers (machine upgrade redesign),
+    // its capacity is the Skin Tank's L2 stat, so it follows the stat table and the server config.
+    // SkinTankBlockEntity#createTank()/applyCapacityBonus()/canRemoveModule() all go through this
+    // virtual method, so no further override is needed.
     @Override
-    protected VulnerableTank createTank() {
-        return createVulnerableTank(CAPACITY, -1, this::installedHazardProfile);
-    }
-
-    // Matches createTank() above -- SkinTankBlockEntity#applyCapacityBonus()/canRemoveModule() call
-    // baseCapacity() (virtual) rather than referencing CAPACITY directly, specifically so this
-    // override makes them resolve to Charred Tank's own doubled capacity, not Skin Tank's.
-    @Override
-    protected int baseCapacity() {
-        return CAPACITY;
+    protected int getBaseCapacity() {
+        return SkinTankStats.getTankCapacityMb(getEvolutionState().withTier(2));
     }
 
     // Union of this class's permanent TIER_2 floor with whatever Safety Module(s) sit in its 2

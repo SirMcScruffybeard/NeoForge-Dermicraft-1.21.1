@@ -67,7 +67,7 @@ public class CharredTankScreen extends AbstractModScreen<CharredTankMenu> {
     @Override
     protected void init() {
         super.init();
-        fluidRenderer = createFluidRenderer16x64(CharredTankBlockEntity.CAPACITY);
+        fluidRenderer = createFluidRenderer16x64(menu.be.getTank().getTankCapacity(0));
         tabs = List.of(
                 new Tab(Component.translatable("screen.dermicraft.charred_tank.main_tab"), TAB_TEXT_COLOR),
                 new Tab(Component.translatable("screen.dermicraft.charred_tank.module_tab"), TAB_TEXT_COLOR));

@@ -19,6 +19,7 @@ import net.scruffy.dermicraft.effect.ModEffects;
 import net.scruffy.dermicraft.fluid.ModFluidTypes;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.machine.StatConfig;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 import org.slf4j.Logger;
@@ -67,6 +68,9 @@ public class Dermicraft {
 
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+
+        // Per-world, synced to clients: the L-level stat tables (see StatConfig).
+        modContainer.registerConfig(ModConfig.Type.SERVER, StatConfig.SPEC);
 
 
     }

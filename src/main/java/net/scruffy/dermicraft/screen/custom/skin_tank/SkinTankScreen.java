@@ -74,7 +74,7 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
     @Override
     protected void init() {
         super.init();
-        fluidRenderer = createFluidRenderer16x64(SkinTankBlockEntity.CAPACITY);
+        fluidRenderer = createFluidRenderer16x64(menu.be.getTank().getTankCapacity(0));
         tabs = List.of(
                 new Tab(Component.translatable("screen.dermicraft.skin_tank.main_tab"), TAB_TEXT_COLOR),
                 new Tab(Component.translatable("screen.dermicraft.skin_tank.module_tab"), TAB_TEXT_COLOR));

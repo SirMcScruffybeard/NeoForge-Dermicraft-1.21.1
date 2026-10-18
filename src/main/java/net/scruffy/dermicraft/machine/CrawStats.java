@@ -13,21 +13,21 @@ public final class CrawStats {
     private CrawStats() {}
 
     private static double value(double[] table, EvolutionStateData state) {
-        return StatTable.at(table, state.tier(), state.overgrowth(), StatDefaults.OVERGROWTH_PERCENT);
+        return StatTable.at(table, state.tier(), state.overgrowth(), StatConfig.getCurrent().overgrowthPercent());
     }
 
     /** How many stacks the Craw holds; multiply by the stored item's max stack size for the item limit. */
-    public static int stacks(EvolutionStateData state) {
-        return (int) Math.round(value(StatDefaults.CRAW_STACKS, state));
+    public static int getStacks(EvolutionStateData state) {
+        return StatTable.toInt(value(StatConfig.getCurrent().crawStacks(), state));
     }
 
     /** Items per second the Craw may auto-push; fractional, so callers keep a running budget. */
-    public static double itemTransferPerSecond(EvolutionStateData state) {
-        return value(StatDefaults.ITEM_TRANSFER, state);
+    public static double getItemTransferPerSecond(EvolutionStateData state) {
+        return value(StatConfig.getCurrent().itemTransfer(), state);
     }
 
     /** General Module slots (the dedicated Evolution slot is separate); Overgrowth adds none. */
-    public static int moduleSlots(EvolutionStateData state) {
-        return StatDefaults.MODULE_SLOTS[state.tier() - 1];
+    public static int getModuleSlots(EvolutionStateData state) {
+        return StatConfig.getCurrent().moduleSlots()[state.tier() - 1];
     }
 }

@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.block.entity.custom;
+package net.scruffy.dermicraft.block.entity.custom.base;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -21,11 +21,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.DeferredBlock;
-import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.main.Dermicraft;
-import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.Nullable;
@@ -78,13 +76,13 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
     public void setEvolutionState(EvolutionStateData state) {
         if (state.equals(evolutionState)) return;
         evolutionState = state;
+        onEvolutionStateChanged();
         setChanged();
         updateBlock();
     }
 
-
-
-
+    protected void onEvolutionStateChanged(){
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
@@ -107,6 +105,7 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
                 ? EvolutionStateData.CODEC.parse(NbtOps.INSTANCE, tag.get(EVOLUTION_STATE_KEY))
                         .result().orElse(EvolutionStateData.DEFAULT)
                 : EvolutionStateData.DEFAULT;
+        onEvolutionStateChanged();
     }
 
     /** Puts the evolution state on the machine's item (Forceps pickup and creative pick block reach
@@ -126,6 +125,7 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
     protected void applyImplicitComponents(DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
         evolutionState = componentInput.getOrDefault(ModDataComponentTypes.EVOLUTION_STATE.get(), EvolutionStateData.DEFAULT);
+        onEvolutionStateChanged();
     }
 
     /** The component carries the state, so drop the duplicate copy from the item's saved block entity
@@ -187,12 +187,12 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
      * (every non-capacity Module, and any slot on a consumer with no fluid tanks at all). A
      * consumer with fluid tanks overrides this to refuse removing a Capacity Module while any tank
      * is still holding more than the capacity that would result once this specific Module's own
-     * bonus is subtracted -- see {@link #capacityModuleBonus}/{@link #capacityBonus}. */
+     * bonus is subtracted -- see {@link #capacityModuleBonus}/{@link #getCapacityBonus}. */
     protected boolean canRemoveModule(int slot) {
         return true;
     }
 
-    /** Re-applies {@link #capacityBonus} to every tank a Capacity-Module-bearing consumer has --
+    /** Re-applies {@link #getCapacityBonus} to every tank a Capacity-Module-bearing consumer has --
      * no-op by default. Called whenever a Module slot's contents change and once after NBT load
      * (a saved consumer's tanks are freshly constructed at base capacity before load, so an
      * already-installed Capacity Module needs re-applying). */
@@ -203,12 +203,12 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
      * returns -- see the design discussion for why Capacity doesn't need Work Speed's curve) -- 0
      * by default. A consumer with fluid tanks and a Module slot overrides this to sum over its own
      * {@code MODULE_INVENTORY}. */
-    protected int capacityBonus() {
+    protected int getCapacityBonus() {
         return 0;
     }
 
     /** Reads {@code ModDataMaps.CAPACITY_MODULE_PROPERTIES} off a single Module stack -- 0 if
-     * empty or not a Capacity Module. Shared by every {@link #capacityBonus}/
+     * empty or not a Capacity Module. Shared by every {@link #getCapacityBonus}/
      * {@link #canRemoveModule} override so the data-map lookup lives in exactly one place. */
     protected static int capacityModuleBonus(net.minecraft.world.item.ItemStack module) {
         if (module.isEmpty()) return 0;

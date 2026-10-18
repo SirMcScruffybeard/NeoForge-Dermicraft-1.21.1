@@ -33,6 +33,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;

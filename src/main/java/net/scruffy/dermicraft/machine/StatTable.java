@@ -23,4 +23,9 @@ final class StatTable {
         }
         return table[tier - 1];
     }
+
+    /** Rounds to the nearest whole number, capped at Integer.MAX_VALUE so a huge config value cannot overflow. */
+    static int toInt(double value) {
+        return (int) Math.min(Integer.MAX_VALUE, Math.round(value));
+    }
 }

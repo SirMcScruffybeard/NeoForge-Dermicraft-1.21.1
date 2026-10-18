@@ -35,7 +35,6 @@ import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
 import net.scruffy.dermicraft.block.custom.EffluentcerVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -322,7 +321,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
 
     /** Capacity Module bonus, summed over every installed Module. */
     @Override
-    protected int capacityBonus() {
+    protected int getCapacityBonus() {
         int total = 0;
         for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
             total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
@@ -332,7 +331,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
 
     @Override
     protected void applyCapacityBonus() {
-        int capacity = getTier().tankCapacity() + capacityBonus();
+        int capacity = getTier().tankCapacity() + getCapacityBonus();
         FUEL_TANK.setCapacity(capacity);
         INPUT_A_TANK.setCapacity(capacity);
         INPUT_B_TANK.setCapacity(capacity);
@@ -343,7 +342,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     protected boolean canRemoveModule(int slot) {
         int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
         if (thisBonus == 0) return true;
-        int newCapacity = getTier().tankCapacity() + (capacityBonus() - thisBonus);
+        int newCapacity = getTier().tankCapacity() + (getCapacityBonus() - thisBonus);
         return FUEL_TANK.getFluid().getAmount() <= newCapacity
                 && INPUT_A_TANK.getFluid().getAmount() <= newCapacity
                 && INPUT_B_TANK.getFluid().getAmount() <= newCapacity

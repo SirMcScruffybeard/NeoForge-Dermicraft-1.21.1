@@ -21,6 +21,7 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.WorkbenchBlock;
 import net.scruffy.dermicraft.block.custom.floor.GearStationPool;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;

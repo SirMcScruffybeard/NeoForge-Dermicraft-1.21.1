@@ -13,7 +13,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.scruffy.dermicraft.block.entity.custom.MachineBaseBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.ModRecipes;

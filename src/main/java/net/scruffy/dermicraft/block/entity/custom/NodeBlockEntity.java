@@ -30,6 +30,7 @@ import net.scruffy.dermicraft.block.custom.duct.NodeDistributionMode;
 import net.scruffy.dermicraft.block.custom.duct.NodeTier;
 import net.scruffy.dermicraft.block.custom.duct.TieredNode;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
+import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.screen.custom.node.TabbedNodeMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.util.ModMath;
