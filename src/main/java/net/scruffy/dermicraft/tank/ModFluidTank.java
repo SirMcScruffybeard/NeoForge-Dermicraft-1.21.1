@@ -95,4 +95,9 @@ public abstract class ModFluidTank extends FluidTank {
     public void pushFluidToBelowNeighbour(Level level, BlockPos worldPosition) {
         ModFluidUtil.pushFluidToBelowNeighbour(level, worldPosition, this);
     }
+
+    /** Pushes at most {@code maxAmount} mB this call (a rate-limited auto-push). */
+    public void pushFluidToBelowNeighbour(Level level, BlockPos worldPosition, int maxAmount) {
+        ModFluidUtil.pushFluidToBelowNeighbour(level, worldPosition, this, maxAmount);
+    }
 }

@@ -147,7 +147,7 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
     /** One yellow Module slot -- nothing else on this tab, matching Eater's/Drinker's own bare
      * Module-slot-only look where no gauge/drain slot sits alongside it. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        for (int i = 0; i < menu.be.moduleSlotCount(); i++) {
+        for (int i = 0; i < menu.be.getModuleSlotCount(); i++) {
             guiGraphics.blit(MODULE_SLOT_TEXTURE,
                     x + SkinTankMenu.MODULE_SLOT_X + i * SkinTankMenu.MODULE_SLOT_SPACING,
                     y + SkinTankMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);

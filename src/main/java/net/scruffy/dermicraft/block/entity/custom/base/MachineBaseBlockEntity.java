@@ -139,7 +139,7 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
     /** How many Module slots this machine instance has -- 1 by default. A Charred/evolved variant
      * overrides this to grant more (the "Charred machines get extra Module slots" upgrade) --
      * public so a menu can read it too, since the slot count varies per instance, not per class. */
-    public int moduleSlotCount() {
+    public int getModuleSlotCount() {
         return 1;
     }
 
@@ -151,7 +151,7 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
 
     /** Dedicated Module-only inventory, deliberately separate from a machine's own general
      * INVENTORY (input/output/fuel-passthrough slots) -- one handler, sized per
-     * {@link #moduleSlotCount()}, shared by every Module-slot-bearing machine (Skin Tank today;
+     * {@link #getModuleSlotCount()}, shared by every Module-slot-bearing machine (Skin Tank today;
      * the fueled machines still keep their Module slot inside their own combined INVENTORY as of
      * this writing, not yet migrated). Validated to {@code ModTags.Items.MODULES} same as every
      * other Module slot in the mod. */
@@ -276,6 +276,43 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
 
         for (int i = 0; i < Math.min(loadedSlots, expectedSize); i++) {
             handler.setStackInSlot(i, loaded[i]);
+        }
+    }
+
+    /**
+     * Resizes a live Module handler to {@code newSize}, keeping every stack that still fits (the Module
+     * count follows the evolution state, so it can change after the handler was built). Growing is always
+     * safe. When shrinking (only a lowered config or tier), stacks in the removed slots are dropped in the
+     * world if the level is available; while a chunk is loading there is no level yet, so the handler is
+     * left at its larger size rather than losing the items.
+     */
+    protected void resizeModuleInventory(ItemStackHandler handler, int newSize) {
+        int oldSize = handler.getSlots();
+        if (newSize == oldSize) return;
+        boolean canDrop = level != null && !level.isClientSide;
+        if (newSize < oldSize && !canDrop) {
+            boolean removedSlotsEmpty = true;
+            for (int i = newSize; i < oldSize; i++) {
+                if (!handler.getStackInSlot(i).isEmpty()) removedSlotsEmpty = false;
+            }
+            if (!removedSlotsEmpty) return;
+        }
+
+        net.minecraft.world.item.ItemStack[] old = new net.minecraft.world.item.ItemStack[oldSize];
+        for (int i = 0; i < oldSize; i++) {
+            old[i] = handler.getStackInSlot(i);
+        }
+
+        handler.setSize(newSize);
+
+        for (int i = 0; i < oldSize; i++) {
+            if (old[i].isEmpty()) continue;
+            if (i < newSize) {
+                handler.setStackInSlot(i, old[i]);
+            } else {
+                Containers.dropItemStack(level, worldPosition.getX() + 0.5, worldPosition.getY() + 0.5,
+                        worldPosition.getZ() + 0.5, old[i]);
+            }
         }
     }
 

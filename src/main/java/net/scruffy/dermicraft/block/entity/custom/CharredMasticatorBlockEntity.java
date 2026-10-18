@@ -49,7 +49,7 @@ public class CharredMasticatorBlockEntity extends MasticatorBlockEntity {
     // below, so this machine can stack e.g. a Radiation Safety Module in one slot and a Work Speed
     // Module in the other.
     @Override
-    public int moduleSlotCount() {
+    public int getModuleSlotCount() {
         return 2;
     }
 

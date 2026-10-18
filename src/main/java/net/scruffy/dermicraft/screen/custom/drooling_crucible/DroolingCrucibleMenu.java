@@ -34,7 +34,7 @@ public class DroolingCrucibleMenu extends AbstractModMenu {
 
     public DroolingCrucibleMenu(int pContainerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.DROOLING_CRUCIBLE_MENU.get(), pContainerId,
-                DroolingMachineBlockEntity.INVENTORY_SIZE + ((DroolingCrucibleBlockEntity) blockEntity).moduleSlotCount());
+                DroolingMachineBlockEntity.INVENTORY_SIZE + ((DroolingCrucibleBlockEntity) blockEntity).getModuleSlotCount());
         this.BE = ((DroolingCrucibleBlockEntity) blockEntity);
         checkContainerSize(inv, DroolingMachineBlockEntity.INVENTORY_SIZE);
         this.level = inv.player.level();
@@ -59,7 +59,7 @@ public class DroolingCrucibleMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+        for (int i = 0; i < BE.getModuleSlotCount(); i++) {
             this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
                     MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
                 @Override

@@ -32,7 +32,7 @@ public class MutatorMenu extends AbstractModMenu {
 
     public MutatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.MUTATOR_MENU.get(), containerId,
-                MutatorBlockEntity.INVENTORY_SIZE + ((MutatorBlockEntity) blockEntity).moduleSlotCount());
+                MutatorBlockEntity.INVENTORY_SIZE + ((MutatorBlockEntity) blockEntity).getModuleSlotCount());
         this.BE = (MutatorBlockEntity) blockEntity;
         checkContainerSize(inv, 2);
         this.level = inv.player.level();
@@ -64,7 +64,7 @@ public class MutatorMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+        for (int i = 0; i < BE.getModuleSlotCount(); i++) {
             this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
                     MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
                 @Override

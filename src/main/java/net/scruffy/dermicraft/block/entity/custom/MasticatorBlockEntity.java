@@ -81,7 +81,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     // not part of the general INVENTORY above. Declared here rather than per-variant so Charred
     // Masticator inherits it for free; same tab-gated pattern as Skin Tank/Drooling Cauldron (see
     // MasticatorMenu's MAIN_TAB/MODULE_TAB).
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
 
     private int resultAmount = 0;
 
@@ -739,7 +739,7 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         }
 
         if (tag.contains("module_inventory")) {
-            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("module_inventory"));
+            loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("module_inventory"));
         } else {
             // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
             // (index 4, back when INVENTORY_SIZE was 5) -- recover it before that data's gone for

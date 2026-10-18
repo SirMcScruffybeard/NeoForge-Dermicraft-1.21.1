@@ -31,6 +31,7 @@ import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.*;
+import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.machine.SkinTankStats;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
@@ -64,9 +65,10 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     public final ItemStackHandler INVENTORY = createInventory();
 
-    /** Dedicated Module-only handler, sized per {@link #moduleSlotCount()} (1 for base Skin Tank, 2
-     * for Charred Tank) -- see {@code MachineBaseBlockEntity#createModuleInventory}. */
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
+    /** Dedicated Module-only handler, sized per {@link #getModuleSlotCount()} (1 to 4 from the tier; the
+     * Charred Tank uses its L2 count of 2) and resized when the evolution state changes, see
+     * {@link #onEvolutionStateChanged()} -- see {@code MachineBaseBlockEntity#createModuleInventory}. */
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
 
     private final VulnerableTank TANK = createTank();
 
@@ -77,13 +79,30 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         return createVulnerableTank(getBaseCapacity(), -1, this::installedHazardProfile);
     }
 
-    /** The un-bonused capacity, in mB, this instance would use with no Capacity Module installed: its
-     * tier and Overgrowth level from {@link SkinTankStats}. Virtual so {@link #createTank()},
-     * {@link #applyCapacityBonus()} and {@link #canRemoveModule(int)} all resolve it per instance
-     * ({@link CharredTankBlockEntity} overrides it with its L2 capacity). Re-applied whenever the
-     * evolution state changes, see {@link #onEvolutionStateChanged()}. */
+    /** The evolution state whose tier and Overgrowth level pick this tank's stats. The Skin Tank uses its
+     * own state; {@link CharredTankBlockEntity} overrides it to read the L2 row until it is folded into
+     * the Skin Tank's L2-and-up tiers. */
+    protected EvolutionStateData getStatState() {
+        return getEvolutionState();
+    }
+
+    /** The un-bonused capacity, in mB, this instance would use with no Capacity Module installed, from
+     * {@link SkinTankStats}. Used by {@link #createTank()}, {@link #applyCapacityBonus()} and
+     * {@link #canRemoveModule(int)}; re-applied whenever the evolution state changes, see
+     * {@link #onEvolutionStateChanged()}. */
     protected int getBaseCapacity() {
-        return SkinTankStats.getTankCapacityMb(getEvolutionState());
+        return SkinTankStats.getTankCapacityMb(getStatState());
+    }
+
+    /** Millibuckets per second this tank may auto-push, from {@link SkinTankStats}. */
+    protected int getFluidTransferPerSecond() {
+        return SkinTankStats.getFluidTransferPerSecond(getStatState());
+    }
+
+    /** General Module slots, from {@link SkinTankStats} (the dedicated Evolution slot is separate). */
+    @Override
+    public int getModuleSlotCount() {
+        return SkinTankStats.getModuleSlots(getStatState());
     }
 
     /** Capacity Module bonus, summed over every installed Module -- see
@@ -99,6 +118,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     @Override
     protected void onEvolutionStateChanged() {
+        resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
         applyCapacityBonus();
     }
 
@@ -365,7 +385,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
             if (tickEvolutionFlourish()) return;
 
             if (autoDrainEnabled && ModMath.Time.hasTicksPassed(sLevel, 20)) {
-                TANK.pushFluidToBelowNeighbour(level, worldPosition);
+                TANK.pushFluidToBelowNeighbour(level, worldPosition, getFluidTransferPerSecond());
             }
         }
     }
@@ -400,7 +420,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
 
         if (tag.contains("skin_tank_module_inv")) {
-            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("skin_tank_module_inv"));
+            loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("skin_tank_module_inv"));
         } else {
             // Pre-split save: the Module item was the old combined handler's trailing slot (index
             // 2). Recover it from the same tag loadItemHandler just read above, before that data

@@ -33,7 +33,7 @@ public class MasticatorMenu extends AbstractModMenu {
 
     public MasticatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.MASTICATOR_MENU.get(), containerId,
-                MasticatorBlockEntity.INVENTORY_SIZE + ((MasticatorBlockEntity) blockEntity).moduleSlotCount());
+                MasticatorBlockEntity.INVENTORY_SIZE + ((MasticatorBlockEntity) blockEntity).getModuleSlotCount());
         this.BE = ((MasticatorBlockEntity) blockEntity);
         checkContainerSize(inv, 2);
         this.level = inv.player.level();
@@ -66,7 +66,7 @@ public class MasticatorMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+        for (int i = 0; i < BE.getModuleSlotCount(); i++) {
             this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
                     MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
                 @Override

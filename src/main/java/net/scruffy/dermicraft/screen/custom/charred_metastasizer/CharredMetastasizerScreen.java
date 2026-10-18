@@ -194,7 +194,7 @@ public class CharredMetastasizerScreen extends AbstractModScreen<CharredMetastas
     }
 
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
-        for (int i = 0; i < menu.BE.moduleSlotCount(); i++) {
+        for (int i = 0; i < menu.BE.getModuleSlotCount(); i++) {
             guiGraphics.blit(MODULE_SLOT_TEXTURE,
                     x + CharredMetastasizerMenu.MODULE_SLOT_X + i * CharredMetastasizerMenu.MODULE_SLOT_SPACING,
                     y + CharredMetastasizerMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);

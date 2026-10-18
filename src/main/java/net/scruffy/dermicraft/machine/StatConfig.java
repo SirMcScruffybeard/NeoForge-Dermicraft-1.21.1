@@ -96,19 +96,11 @@ public final class StatConfig {
         StatValues s = snapshot;
         if (s != null) return s;
         if (!SPEC.isLoaded()) return StatDefaults.VALUES;   // not cached: the config may load later
-        s = build();
+        s = buildFromConfig();
         snapshot = s;
         return s;
     }
 
-    private static StatValues build() {
-        StatValues built = buildFromConfig();
-        // TEMP DEBUG: remove with the log in dropIfOurs.
-        Dermicraft.LOGGER.info("[StatConfig] snapshot built: simpleMachineSpeed={} itemTransfer={} skinTankCapacityMb={} overgrowth%={} hunger={}",
-                Arrays.toString(built.simpleMachineSpeed()), Arrays.toString(built.itemTransfer()),
-                Arrays.toString(built.skinTankCapacityMb()), built.overgrowthPercent(), built.hungerDamagePerCycle());
-        return built;
-    }
 
     private static StatValues buildFromConfig() {
         return new StatValues(
@@ -157,11 +149,6 @@ public final class StatConfig {
     static void onUnload(ModConfigEvent.Unloading event) { dropIfOurs(event); }
 
     private static void dropIfOurs(ModConfigEvent event) {
-        if (event.getConfig().getSpec() == SPEC) {
-            snapshot = null;
-            // TEMP DEBUG: remove with the build() log. Builds the snapshot right away on load/reload so the values print.
-            Dermicraft.LOGGER.info("[StatConfig] {} for {}", event.getClass().getSimpleName(), event.getConfig().getFileName());
-            if (!(event instanceof ModConfigEvent.Unloading)) getCurrent();
-        }
+        if (event.getConfig().getSpec() == SPEC) snapshot = null;
     }
 }

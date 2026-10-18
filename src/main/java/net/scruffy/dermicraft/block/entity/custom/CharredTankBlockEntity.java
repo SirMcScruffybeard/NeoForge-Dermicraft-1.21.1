@@ -10,7 +10,7 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
-import net.scruffy.dermicraft.machine.SkinTankStats;
+import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankMenu;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,12 +39,11 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
     }
 
     // Until the Charred Tank is folded into the Skin Tank's L2-and-up tiers (machine upgrade redesign),
-    // its capacity is the Skin Tank's L2 stat, so it follows the stat table and the server config.
-    // SkinTankBlockEntity#createTank()/applyCapacityBonus()/canRemoveModule() all go through this
-    // virtual method, so no further override is needed.
+    // it simply uses the Skin Tank's L2 stats (capacity, fluid transfer and Module slots), so it follows
+    // the stat table and the server config. Everything in SkinTankBlockEntity reads its stats through this.
     @Override
-    protected int getBaseCapacity() {
-        return SkinTankStats.getTankCapacityMb(getEvolutionState().withTier(2));
+    protected EvolutionStateData getStatState() {
+        return getEvolutionState().withTier(2);
     }
 
     // Union of this class's permanent TIER_2 floor with whatever Safety Module(s) sit in its 2
@@ -59,13 +58,6 @@ public class CharredTankBlockEntity extends SkinTankBlockEntity {
             profile = IHaveModules.installedHazardProfile(profile, MODULE_INVENTORY.getStackInSlot(slot));
         }
         return profile;
-    }
-
-    // The "Charred machines get an extra Module slot" upgrade -- both slots now count toward
-    // installedHazardProfile()'s union above.
-    @Override
-    public int moduleSlotCount() {
-        return 2;
     }
 
     @NotNull

@@ -71,7 +71,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
 
     // Module slot(s) -- own dedicated handler, not part of INVENTORY above. Declared here so
     // Charred Metastasizer inherits it for free; same tab-gated pattern as MasticatorBlockEntity's own.
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
 
     private ItemStack cachedResult = ItemStack.EMPTY;
     private int requiredFluid = 0;
@@ -671,7 +671,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         if (tag.contains("inventory")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
 
         if (tag.contains("module_inventory")) {
-            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("module_inventory"));
+            loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("module_inventory"));
         } else {
             // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
             // (index 4, back when INVENTORY_SIZE was 5) -- see

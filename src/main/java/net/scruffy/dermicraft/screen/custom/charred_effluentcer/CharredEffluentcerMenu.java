@@ -35,7 +35,7 @@ public class CharredEffluentcerMenu extends AbstractModMenu {
 
     public CharredEffluentcerMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.CHARRED_EFFLUENTCER_MENU.get(), containerId,
-                EffluentcerBlockEntity.INVENTORY_SIZE + ((CharredEffluentcerBlockEntity) blockEntity).moduleSlotCount());
+                EffluentcerBlockEntity.INVENTORY_SIZE + ((CharredEffluentcerBlockEntity) blockEntity).getModuleSlotCount());
         this.BE = ((CharredEffluentcerBlockEntity) blockEntity);
         checkContainerSize(inv, 2);
         this.level = inv.player.level();
@@ -69,7 +69,7 @@ public class CharredEffluentcerMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+        for (int i = 0; i < BE.getModuleSlotCount(); i++) {
             this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
                     MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
                 @Override

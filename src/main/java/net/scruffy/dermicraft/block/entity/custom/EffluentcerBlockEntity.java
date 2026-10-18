@@ -74,7 +74,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     // Module slot(s) -- own dedicated handler, not part of INVENTORY above. Declared here so
     // Charred Effluentcer inherits it for free; same tab-gated pattern as Masticator/Metastasizer's
     // own (see EffluentcerMenu's MAIN_TAB/MODULE_TAB).
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
 
     // Set by the menu whenever a player opens the GUI -- used only as an eject target for
     // the fill-and-eject item-slot behavior (see createItemHandler()).
@@ -718,7 +718,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         }
 
         if (tag.contains("module_inventory")) {
-            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("module_inventory"));
+            loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("module_inventory"));
         } else {
             // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
             // (index 4, back when INVENTORY_SIZE was 5) -- see

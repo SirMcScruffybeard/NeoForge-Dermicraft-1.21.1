@@ -45,7 +45,7 @@ public class CharredMutatorBlockEntity extends MutatorBlockEntity {
     // identical override for the pilot. Both slots count toward installedHazardProfile()'s union
     // below.
     @Override
-    public int moduleSlotCount() {
+    public int getModuleSlotCount() {
         return 2;
     }
 

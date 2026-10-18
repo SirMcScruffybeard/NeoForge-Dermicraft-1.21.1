@@ -212,10 +212,19 @@ public class ModFluidUtil {
     }
 
     public static void pushFluidToBelowNeighbour(Level level, BlockPos worldPosition, FluidTank tank) {
-        pushFluidToNeighbour(level, worldPosition, tank, Direction.DOWN);
+        pushFluidToNeighbour(level, worldPosition, tank, Direction.DOWN, Integer.MAX_VALUE);
+    }
+
+    /** Same as the uncapped push, but moves at most {@code maxAmount} mB in this call. */
+    public static void pushFluidToBelowNeighbour(Level level, BlockPos worldPosition, FluidTank tank, int maxAmount) {
+        pushFluidToNeighbour(level, worldPosition, tank, Direction.DOWN, maxAmount);
     }
 
     public static void pushFluidToNeighbour(Level level, BlockPos worldPosition, FluidTank tank, Direction direction) {
+        pushFluidToNeighbour(level, worldPosition, tank, direction, Integer.MAX_VALUE);
+    }
+
+    public static void pushFluidToNeighbour(Level level, BlockPos worldPosition, FluidTank tank, Direction direction, int maxAmount) {
         BlockPos neighborPos = worldPosition.relative(direction);
         BlockState neighborState = level.getBlockState(neighborPos);
 
@@ -231,17 +240,17 @@ public class ModFluidUtil {
         // direct capability lookup. Only DOWN is wired up for this -- pushFluidToAboveNeighbour has
         // no current callers, so there's no "3x3 above" case to support yet.
         if (direction == Direction.DOWN && neighborState.getBlock() instanceof AbstractInnardsDuctBlock) {
-            pushFluidThroughDuct(level, worldPosition, tank);
+            pushFluidThroughDuct(level, worldPosition, tank, maxAmount);
             return;
         }
 
         Direction hitSide = direction.getOpposite();
         FluidUtil.getFluidHandler(level, neighborPos, hitSide).ifPresent(neighborHandler -> {
-            FluidUtil.tryFluidTransfer(neighborHandler, tank, Integer.MAX_VALUE, true);
+            FluidUtil.tryFluidTransfer(neighborHandler, tank, maxAmount, true);
         });
     }
 
-    private static void pushFluidThroughDuct(Level level, BlockPos worldPosition, FluidTank tank) {
+    private static void pushFluidThroughDuct(Level level, BlockPos worldPosition, FluidTank tank, int maxAmount) {
         Optional<DuctRunResolver.Endpoint> endpointOpt =
                 DuctRunResolver.resolveWithinFootprint(level, worldPosition, Direction.DOWN, DuctRunResolver.DRAIN_MAX_HOPS);
         if (endpointOpt.isEmpty()) return;
@@ -255,7 +264,7 @@ public class ModFluidUtil {
         if (current.isEmpty() || !endpoint.hazardProfile().accepts(current)) return;
 
         FluidUtil.getFluidHandler(level, endpoint.pos(), endpoint.accessDirection()).ifPresent(neighborHandler ->
-                FluidUtil.tryFluidTransfer(neighborHandler, tank, Integer.MAX_VALUE, true));
+                FluidUtil.tryFluidTransfer(neighborHandler, tank, maxAmount, true));
     }
 
     //////////Biofuel Checkers, Getters, Setters\\\\\\\\\\

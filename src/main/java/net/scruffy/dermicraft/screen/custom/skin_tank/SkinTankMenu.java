@@ -41,10 +41,10 @@ public class SkinTankMenu extends AbstractModMenu {
 
     public SkinTankMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId,
-                SkinTankBlockEntity.INVENTORY_SIZE + ((SkinTankBlockEntity) blockEntity).moduleSlotCount());
+                SkinTankBlockEntity.INVENTORY_SIZE + ((SkinTankBlockEntity) blockEntity).getModuleSlotCount());
 
         this.be = (SkinTankBlockEntity) blockEntity;
-        checkContainerSize(inventory, SkinTankBlockEntity.INVENTORY_SIZE + be.moduleSlotCount());
+        checkContainerSize(inventory, SkinTankBlockEntity.INVENTORY_SIZE + be.getModuleSlotCount());
         this.level = inventory.player.level();
 
         addPlayerInventory(inventory);
@@ -67,7 +67,7 @@ public class SkinTankMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        for (int i = 0; i < be.moduleSlotCount(); i++) {
+        for (int i = 0; i < be.getModuleSlotCount(); i++) {
             this.addSlot(new SlotItemHandler(be.MODULE_INVENTORY, i,
                     MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
                 @Override

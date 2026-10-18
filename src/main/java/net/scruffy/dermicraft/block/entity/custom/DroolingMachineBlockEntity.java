@@ -74,7 +74,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     /** Dedicated Module-only handler, not part of INVENTORY above -- see
      * {@code MachineBaseBlockEntity#createModuleInventory}. */
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(moduleSlotCount());
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
 
     protected final DroolingTank TANK;
 
@@ -453,7 +453,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
         if (tag.contains("drooling_items")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, oldInventoryTag);
 
         if (tag.contains("drooling_module_inv")) {
-            loadItemHandler(MODULE_INVENTORY, moduleSlotCount(), registries, tag.getCompound("drooling_module_inv"));
+            loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("drooling_module_inv"));
         } else {
             // Pre-split save: the Module item was the old combined INVENTORY's trailing slot
             // (index 2, back when INVENTORY_SIZE was 3) -- see

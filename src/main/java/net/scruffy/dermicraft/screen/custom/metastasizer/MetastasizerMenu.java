@@ -31,7 +31,7 @@ public class MetastasizerMenu extends AbstractModMenu {
 
     public MetastasizerMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.METASTASIZER_MENU.get(), containerId,
-                MetastasizerBlockEntity.INVENTORY_SIZE + ((MetastasizerBlockEntity) blockEntity).moduleSlotCount());
+                MetastasizerBlockEntity.INVENTORY_SIZE + ((MetastasizerBlockEntity) blockEntity).getModuleSlotCount());
         this.BE = (MetastasizerBlockEntity) blockEntity;
         checkContainerSize(inv, 2);
         this.level = inv.player.level();
@@ -63,7 +63,7 @@ public class MetastasizerMenu extends AbstractModMenu {
                 return getActiveTab() == MAIN_TAB;
             }
         });
-        for (int i = 0; i < BE.moduleSlotCount(); i++) {
+        for (int i = 0; i < BE.getModuleSlotCount(); i++) {
             this.addSlot(new SlotItemHandler(BE.MODULE_INVENTORY, i,
                     MODULE_SLOT_X + 1 + i * MODULE_SLOT_SPACING, MODULE_SLOT_Y + 1) {
                 @Override
