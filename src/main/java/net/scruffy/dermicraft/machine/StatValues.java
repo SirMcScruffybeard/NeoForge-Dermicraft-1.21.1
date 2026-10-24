@@ -7,5 +7,7 @@ record StatValues(
         double[] simpleMachineMaxHealth, double[] simpleMachineTankCapacityMb,
         double[] skinTankCapacityMb, double[] crawStacks,
         double overgrowthPercent, int overgrowthMaxLevel,
-        int hungerDamagePerCycle, float unfueledSpeed) {
+        int hungerDamagePerCycle, float unfueledSpeed,
+        double[] evolutionTierSeconds, double evolutionHazardNewSeconds, double evolutionHazardUpgradeSeconds,
+        double evolutionOvergrowthSeconds, double evolutionOvergrowthGrowthPercent, double evolutionCountdownSeconds) {
 }

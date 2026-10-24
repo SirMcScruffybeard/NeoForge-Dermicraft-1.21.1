@@ -196,6 +196,13 @@ public class ModDataComponentTypes {
 
     /** A machine's tier, Overgrowth level and hazard tolerances, carried on its item so a Forceps pickup
      * or creative pick block keeps the investment. Absent means a plain L1 machine. */
+    /** What an Evolution Module stack does (tier, hazard family and level, or Overgrowth level). Absent on the
+     * bare Evolution Module, which does nothing. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EvolutionModuleData>> EVOLUTION_MODULE_DATA =
+            register("evolution_module_data", builder -> builder
+                    .persistent(EvolutionModuleData.CODEC)
+                    .networkSynchronized(EvolutionModuleData.STREAM_CODEC));
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<EvolutionStateData>> EVOLUTION_STATE =
             register("evolution_state_data", builder -> builder
                     .persistent(EvolutionStateData.CODEC)

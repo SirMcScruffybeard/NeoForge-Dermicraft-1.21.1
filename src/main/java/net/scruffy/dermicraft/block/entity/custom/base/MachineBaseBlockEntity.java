@@ -156,10 +156,16 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
      * this writing, not yet migrated). Validated to {@code ModTags.Items.MODULES} same as every
      * other Module slot in the mod. */
     protected ItemStackHandler createModuleInventory(int size) {
+        return createModuleInventory(size, stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES));
+    }
+
+    /** Same as {@link #createModuleInventory(int)}, but with the caller's own rule for which items a slot accepts
+     * (the Skin Tank keeps Evolution Modules out of its general slots, they have their own). */
+    protected ItemStackHandler createModuleInventory(int size, java.util.function.Predicate<net.minecraft.world.item.ItemStack> validator) {
         return new ItemStackHandler(size) {
             @Override
             public boolean isItemValid(int slot, net.minecraft.world.item.ItemStack stack) {
-                return stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES);
+                return validator.test(stack);
             }
 
             // Locks a Capacity Module in place while removing it would leave a tank over its

@@ -35,13 +35,23 @@ final class StatDefaults {
 
     static final int OVERGROWTH_MAX_LEVEL = EvolutionStateData.MAX_OVERGROWTH;
 
+    // ---- Evolution times, in seconds of real time (see EvolutionStats) ----
+    static final double[] EVOLUTION_TIER_SECONDS = {600, 1200, 2400};      // to L2, to L3, to L4
+    static final double EVOLUTION_HAZARD_NEW_SECONDS = 600;                // adding a hazard family
+    static final double EVOLUTION_HAZARD_UPGRADE_SECONDS = 300;            // Mild to Severe in a family already held
+    static final double EVOLUTION_OVERGROWTH_SECONDS = 2400;               // reaching O1
+    static final double EVOLUTION_OVERGROWTH_GROWTH_PERCENT = 10;          // each further level adds this percent of the O1 time
+    static final double EVOLUTION_COUNTDOWN_SECONDS = 5;                   // cancel window for blocks that do not process
+
     static final StatValues VALUES = new StatValues(
             ITEM_TRANSFER, FLUID_TRANSFER, MODULE_SLOTS,
             SIMPLE_MACHINE_SPEED, SIMPLE_MACHINE_FUEL_USE,
             SIMPLE_MACHINE_MAX_HEALTH, SIMPLE_MACHINE_TANK_CAPACITY_MB,
             SKIN_TANK_CAPACITY_MB, CRAW_STACKS,
             OVERGROWTH_PERCENT, OVERGROWTH_MAX_LEVEL,
-            HUNGER_DAMAGE_PER_CYCLE, UNFUELED_SPEED);
+            HUNGER_DAMAGE_PER_CYCLE, UNFUELED_SPEED,
+            EVOLUTION_TIER_SECONDS, EVOLUTION_HAZARD_NEW_SECONDS, EVOLUTION_HAZARD_UPGRADE_SECONDS,
+            EVOLUTION_OVERGROWTH_SECONDS, EVOLUTION_OVERGROWTH_GROWTH_PERCENT, EVOLUTION_COUNTDOWN_SECONDS);
 
 
 }

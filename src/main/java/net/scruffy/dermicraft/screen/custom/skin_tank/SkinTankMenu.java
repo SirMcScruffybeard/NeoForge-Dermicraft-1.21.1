@@ -32,6 +32,11 @@ public class SkinTankMenu extends AbstractModMenu {
     // standard adjacent-slot spacing, matches vanilla's own 18px slot width.
     public static final int MODULE_SLOT_SPACING = 20;
 
+    // The dedicated Evolution slot: centre-left of the panel, on the same row as INPUT/OUTPUT, drawn with
+    // the red slot texture. Module tab only, next to the general Module slots.
+    public static final int EVOLUTION_SLOT_X = 8;
+    public static final int EVOLUTION_SLOT_Y = 34;
+
     public final SkinTankBlockEntity be;
     private Level level;
 
@@ -41,10 +46,10 @@ public class SkinTankMenu extends AbstractModMenu {
 
     public SkinTankMenu(int containerId, Inventory inventory, BlockEntity blockEntity) {
         super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId,
-                SkinTankBlockEntity.INVENTORY_SIZE + ((SkinTankBlockEntity) blockEntity).getModuleSlotCount());
+                SkinTankBlockEntity.INVENTORY_SIZE + ((SkinTankBlockEntity) blockEntity).getModuleSlotCount() + 1);
 
         this.be = (SkinTankBlockEntity) blockEntity;
-        checkContainerSize(inventory, SkinTankBlockEntity.INVENTORY_SIZE + be.getModuleSlotCount());
+        checkContainerSize(inventory, SkinTankBlockEntity.INVENTORY_SIZE + be.getModuleSlotCount() + 1);
         this.level = inventory.player.level();
 
         addPlayerInventory(inventory);
@@ -76,6 +81,14 @@ public class SkinTankMenu extends AbstractModMenu {
                 }
             });
         }
+
+        // Registered last so every existing BE-relative slot index above is unchanged.
+        this.addSlot(new SlotItemHandler(be.EVOLUTION_INVENTORY, 0, EVOLUTION_SLOT_X + 1, EVOLUTION_SLOT_Y + 1) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MODULE_TAB;
+            }
+        });
 
         setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT and the Module slot(s)
 

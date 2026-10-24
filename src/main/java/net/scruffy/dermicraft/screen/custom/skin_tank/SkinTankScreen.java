@@ -43,6 +43,10 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, SLOTS_DIR + "item_slot.png");
     private static final int ITEM_SLOT_SIZE = 18;
 
+    // The dedicated Evolution slot's background (the slot itself is in SkinTankMenu).
+    private static final ResourceLocation EVOLUTION_SLOT_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/slots/red_slot.png");
+
     private static final ResourceLocation ARROW_BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_background.png");
     private static final int ARROW_WIDTH = 17;
@@ -147,6 +151,9 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
     /** One yellow Module slot -- nothing else on this tab, matching Eater's/Drinker's own bare
      * Module-slot-only look where no gauge/drain slot sits alongside it. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        // The Evolution Module slot sits left of the general Module slots, Module tab only.
+        guiGraphics.blit(EVOLUTION_SLOT_TEXTURE, x + SkinTankMenu.EVOLUTION_SLOT_X, y + SkinTankMenu.EVOLUTION_SLOT_Y,
+                0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
         for (int i = 0; i < menu.be.getModuleSlotCount(); i++) {
             guiGraphics.blit(MODULE_SLOT_TEXTURE,
                     x + SkinTankMenu.MODULE_SLOT_X + i * SkinTankMenu.MODULE_SLOT_SPACING,

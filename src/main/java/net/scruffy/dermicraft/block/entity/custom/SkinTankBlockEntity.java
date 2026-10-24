@@ -3,21 +3,15 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -27,18 +21,18 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
-import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
-import net.scruffy.dermicraft.fluid.BaseFluidType;
+import net.scruffy.dermicraft.component.EvolutionModuleData;
+import net.scruffy.dermicraft.component.EvolutionStateData;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
+import net.scruffy.dermicraft.hazard.HazardFamily;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.*;
-import net.scruffy.dermicraft.component.EvolutionStateData;
-import net.scruffy.dermicraft.machine.SkinTankStats;
-import net.scruffy.dermicraft.property.EvolutionModuleProperties;
+import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.machine.*;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +62,36 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     /** Dedicated Module-only handler, sized per {@link #getModuleSlotCount()} (1 to 4 from the tier; the
      * Charred Tank uses its L2 count of 2) and resized when the evolution state changes, see
      * {@link #onEvolutionStateChanged()} -- see {@code MachineBaseBlockEntity#createModuleInventory}. */
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
+            stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES) && !isEvolutionModule(stack));
+
+    /** The dedicated Evolution Module slot: one slot, Evolution Modules only, so installing one never
+     * disturbs a tuned setup in the general slots. Inert once this tank can no longer evolve. */
+    public final ItemStackHandler EVOLUTION_INVENTORY = new ItemStackHandler(1) {
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return canEvolve() && isEvolutionModule(stack);
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            if (level != null && !level.isClientSide) {
+                onEvolutionSlotChanged();
+                setChanged();
+                updateBlock();
+            }
+        }
+    };
+
+    /** Whether a stack is an Evolution Module: an item with real {@code EvolutionModuleProperties} data. */
+    public static boolean isEvolutionModule(ItemStack stack) {
+        return stack.is(ModItems.EVOLUTION_MODULE);
+    }
 
     private final VulnerableTank TANK = createTank();
 
@@ -135,163 +158,97 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         return TANK.getFluid().getAmount() <= newCapacity;
     }
 
-    /** Tier 1 base, plus whatever the Module slot's currently-installed Safety Module grants, or (if
-     * this instance {@link #canEvolve()}) an Evolution Module's own hazards -- same "union, never
-     * reset" rule as every gadget's identical method (DrinkerItem, SippingItem), extended with the
-     * Evolution Module read Masticator/Metastasizer's own {@code installedHazardProfile} already
-     * uses ({@link IHaveModules} only knows about Safety Modules). Public so a future screen/tooltip
-     * can read it without duplicating the union logic. */
+    /** The fluid hazards this tank tolerates: a Tier 1 base (none), plus whatever Safety Modules sit in the
+     * general Module slots, plus the permanent tolerance it has earned by evolving (every hazard family
+     * held in its {@link EvolutionStateData}, at the level held). Same "union, never reset" rule as every
+     * gadget's identical method (DrinkerItem, SippingItem). An Evolution Module still waiting in its slot
+     * grants nothing; the tolerance only arrives when the evolution completes. Public so a future
+     * screen/tooltip can read it without duplicating the union logic. */
     public HazardProfile installedHazardProfile() {
         HazardProfile profile = HazardProfile.TIER_1;
         for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
             ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
             profile = IHaveModules.installedHazardProfile(profile, module);
-
-            if (canEvolve() && !module.isEmpty()) {
-                EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                        .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-                if (evoProps != null) {
-                    for (var hazard : evoProps.hazards()) {
-                        profile = profile.plus(hazard);
-                    }
-                }
-            }
         }
+
+        // Permanent tolerance earned by evolving: every family held, at the level held.
+        for (HazardFamily family : HazardFamily.values()) {
+            profile = profile.plusFamily(family, getEvolutionState().level(family));
+        }
+
         return profile;
     }
 
-    // ---- Evolution (installed Evolution Module -> eventual Charred Tank) ---------------------
-    // Simpler than Masticator/Metastasizer/Cauldron's gradual-progress mechanic -- Skin Tank has no
-    // crafting cycle and no visible fluid pool geometry that a creeping overlay can sit outside of
-    // without either fusing with the block's own translucent surface (tiny margin) or hiding the
-    // texture behind an oversized one (large margin). Instead: installing an Evolution Module starts
-    // a flat 5-second countdown straight to the flourish, no progress render at all -- just enough
-    // time for the player to notice and pull the Module back out if they didn't mean to commit.
+    // ---- Evolution (an Evolution Module in the Evolution slot raises this tank in place) ------
+    // Storage never processes, so there is no progress to accumulate: installing an Evolution Module
+    // that applies (EvolutionRules says so) starts a short countdown (EvolutionStats.getCountdownTicks(),
+    // 5s by default) with the shared EvolutionEffects particles, and when it ends the new evolution state
+    // is applied in place. The window exists only so the player can pull the module back out if they did
+    // not mean to commit; pulling it cancels the countdown, as does picking up or breaking the tank.
+    // There is no progress overlay: a creeping overlay on a tank would fuse with, or hide, its
+    // translucent fluid surface.
     private int flourishTicksRemaining = -1;
-    private static final int FLOURISH_DURATION_TICKS = 100; // 5s
 
-    /** Whether this instance can still evolve at all -- true for the base Skin Tank, overridden to
-     * false by {@link CharredTankBlockEntity} (already evolved; installing an Evolution Module there
-     * does nothing, since its tank is permanently hazard-tolerant regardless of any Module, and
-     * there's nothing further for it to transform into). */
+    /** Whether this instance can still evolve at all -- false for {@link CharredTankBlockEntity} until
+     * the Charred Tank is retired. */
     protected boolean canEvolve() {
         return true;
     }
 
-    /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
-     * AND {@link #canEvolve()} -- a plain {@code MODULES}-tagged item with no such data (or any
-     * Module at all once this is already a Charred Tank) is inert here. */
-    private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
+    /** The upgrade the Evolution slot's module would apply right now, from {@link EvolutionRules}. Empty
+     * for the bare frame, a module this tank's state does not allow (wrong tier, family cap, already
+     * held), or an instance that cannot evolve -- those sit in the slot and do nothing. */
+    private Optional<EvolutionResult.Upgrade> getPendingUpgrade() {
         if (!canEvolve()) return Optional.empty();
-        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
-            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
-            if (module.isEmpty()) continue;
-            EvolutionModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-            if (props != null) return Optional.of(props);
-        }
-        return Optional.empty();
+        EvolutionModuleData data = EVOLUTION_INVENTORY.getStackInSlot(0).get(ModDataComponentTypes.EVOLUTION_MODULE_DATA);
+        if (data == null) return Optional.empty();
+        return EvolutionRules.evaluate(getEvolutionState(), data) instanceof EvolutionResult.Upgrade upgrade
+                ? Optional.of(upgrade) : Optional.empty();
     }
 
-    /** Called whenever any Module slot's contents change at all -- cancels any countdown already
-     * running (covers a Module being pulled back out mid-countdown), then starts a fresh one if any
-     * slot now holds a real Evolution Module. Insert, remove, and swap-for-a-different-item all
-     * fall out of this same rule. */
-    @Override
-    protected void onModuleSlotChanged(int slot) {
+
+    /** Called whenever the Evolution slot's contents change -- cancels any countdown already running
+     * (covers the module being pulled back out), then starts a fresh one if the slot now holds a module
+     * that would apply. Insert, remove, and swap all fall out of this one rule. */
+    private void onEvolutionSlotChanged() {
         flourishTicksRemaining = -1;
-        installedEvolutionProperties().ifPresent(props -> startEvolutionFlourish());
+        if (getPendingUpgrade().isPresent()) startEvolutionFlourish();
     }
 
-    /** Runs every raw tick -- Skin Tank's own {@link #tick} already runs every tick with no coarser
-     * cadence to hook into. Returns true once the countdown completes and the block swap has fired,
-     * so {@link #tick} can stop touching this now-stale instance. */
-    private boolean tickEvolutionFlourish() {
-        if (flourishTicksRemaining < 0) return false;
+    /** Runs every tick: the cancel window counts down, then the upgrade is applied. A tank never
+     * processes, so the long config times do not apply here -- only the window. */
+    private void tickEvolutionFlourish() {
+        if (flourishTicksRemaining < 0) return;
 
         if (level instanceof ServerLevel serverLevel) {
-            spawnFlourishParticles(serverLevel, flourishTicksRemaining);
+            EvolutionEffects.spawnParticles(serverLevel, worldPosition,
+                    EvolutionEffects.getProgress(flourishTicksRemaining, EvolutionStats.getCountdownTicks()),
+                    flourishTicksRemaining == 0, EvolutionEffects.DEFAULT_TINT, EvolutionEffects.Cadence.TICK);
         }
 
         flourishTicksRemaining--;
-        if (flourishTicksRemaining < 0) {
-            completeEvolution(level);
-            return true;
-        }
-        return false;
+        if (flourishTicksRemaining < 0) completeEvolution();
     }
 
     private void startEvolutionFlourish() {
-        flourishTicksRemaining = FLOURISH_DURATION_TICKS;
-        if (level != null) {
-            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
-        }
-    }
-
-    private void spawnFlourishParticles(ServerLevel serverLevel, int ticksRemaining) {
-        double cx = worldPosition.getX() + 0.5;
-        double cy = worldPosition.getY() + 0.5;
-        double cz = worldPosition.getZ() + 0.5;
-
-        float progress = 1f - (ticksRemaining / (float) FLOURISH_DURATION_TICKS);
-        int dustCount = 4 + Math.round(progress * 10);
-        DustParticleOptions dust = tintedDust();
-        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
-
-        if (ticksRemaining % 4 == 0) {
-            int smokeCount = 2 + Math.round(progress * 6);
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, smokeCount, 0.35, 0.35, 0.35, 0.02);
-        }
-
-        if (ticksRemaining == 0) {
-            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
-            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
-        }
-    }
-
-    private DustParticleOptions tintedDust() {
-        int tint = 0xFFCF4B12; // fallback: lava-orange, matches Thermal's own target fluid
-        Optional<net.minecraft.world.level.material.Fluid> targetFluid = installedEvolutionProperties()
-                .flatMap(EvolutionModuleProperties::targetFluid);
-        if (targetFluid.isPresent() && targetFluid.get().getFluidType() instanceof BaseFluidType baseType) {
-            tint = baseType.getTintColor();
-        }
-        return new DustParticleOptions(new Vector3f(
-                ((tint >> 16) & 0xFF) / 255.0F,
-                ((tint >> 8) & 0xFF) / 255.0F,
-                (tint & 0xFF) / 255.0F), 1.4F);
+        flourishTicksRemaining = EvolutionStats.getCountdownTicks();
+        if (level != null) EvolutionEffects.playDefaultStartSound(level, worldPosition);
     }
 
     /**
-     * Transforms this block into a Charred Tank in place, carrying over the input/output items and
-     * tank contents -- the Module itself is not carried over, this transform is what consumes it.
-     * No FACING (or any other block state) to preserve -- Skin Tank has none, unlike Masticator.
+     * Applies the module's upgrade to this tank in place, and consumes the module. The upgrade is
+     * evaluated again here in case the state changed during the window; if it no longer applies, the
+     * module stays in the slot. The block, its contents and its general Modules are untouched --
+     * {@link #onEvolutionStateChanged()} resizes the Module slots and capacity.
      */
-    private void completeEvolution(Level level) {
-        ItemStack inputItem = INVENTORY.getStackInSlot(INPUT);
-        ItemStack outputItem = INVENTORY.getStackInSlot(OUTPUT);
-        FluidStack tankContents = TANK.getFluid().copy();
+    private void completeEvolution() {
+        Optional<EvolutionResult.Upgrade> upgrade = getPendingUpgrade();
+        if (upgrade.isEmpty()) return;
 
-        // Clear this instance's own contents BEFORE the block swap -- the block's own onRemove drops
-        // whatever's still in INVENTORY when the block itself changes, which would otherwise
-        // duplicate everything captured above once it's handed to the new instance.
-        INVENTORY.setStackInSlot(INPUT, ItemStack.EMPTY);
-        INVENTORY.setStackInSlot(OUTPUT, ItemStack.EMPTY);
-        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
-            MODULE_INVENTORY.setStackInSlot(slot, ItemStack.EMPTY);
-        }
-        if (!tankContents.isEmpty()) TANK.drain(tankContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
-
-        level.setBlock(worldPosition, ModBlocks.CHARRED_TANK.get().defaultBlockState(), Block.UPDATE_ALL);
-
-        if (level.getBlockEntity(worldPosition) instanceof SkinTankBlockEntity charred) {
-            charred.INVENTORY.setStackInSlot(INPUT, inputItem);
-            charred.INVENTORY.setStackInSlot(OUTPUT, outputItem);
-            if (!tankContents.isEmpty()) charred.getTank(null).fill(tankContents, IFluidHandler.FluidAction.EXECUTE);
-            charred.setChanged();
-            charred.updateBlock();
-        }
+        EVOLUTION_INVENTORY.setStackInSlot(0, ItemStack.EMPTY);
+        setEvolutionState(upgrade.get().newState());
+        setChanged();
+        updateBlock();
     }
 
     // Which screen tab was last open -- mirrors WorkbenchBlockEntity#isFabricationPageActive so
@@ -376,13 +333,14 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         // Module(s) moved out of INVENTORY into their own handler -- without this, a normal (non-
         // Forceps) break would silently delete whatever Module was installed instead of dropping it.
         dropItems(level, MODULE_INVENTORY, worldPosition);
+        dropItems(level, EVOLUTION_INVENTORY, worldPosition);
     }
 
     public void tick(Level sLevel) {
         if (!sLevel.isClientSide) {
             // Early-return on a completed swap -- same as DroolingMachineBlockEntity#onTickStart --
             // this instance is now stale, its own TANK already drained by completeEvolution.
-            if (tickEvolutionFlourish()) return;
+            tickEvolutionFlourish();
 
             if (autoDrainEnabled && ModMath.Time.hasTicksPassed(sLevel, 20)) {
                 TANK.pushFluidToBelowNeighbour(level, worldPosition, getFluidTransferPerSecond());
@@ -404,6 +362,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.put("skin_tank_inv", INVENTORY.serializeNBT(registries));
         tag.put("skin_tank_module_inv", MODULE_INVENTORY.serializeNBT(registries));
+        tag.put("skin_tank_evolution_inv", EVOLUTION_INVENTORY.serializeNBT(registries));
         tag = TANK.writeToNBT(registries, tag);
         tag.putBoolean("module_tab_active", moduleTabActive);
         tag.putInt("evolution_flourish_ticks", flourishTicksRemaining);
@@ -429,6 +388,10 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
             if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
         }
 
+        if (tag.contains("skin_tank_evolution_inv")) {
+            loadItemHandler(EVOLUTION_INVENTORY, 1, registries, tag.getCompound("skin_tank_evolution_inv"));
+        }
+
         applyCapacityBonus();
         TANK.readFromNBT(registries, tag);
         moduleTabActive = tag.getBoolean("module_tab_active");
@@ -438,8 +401,8 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     private ItemStackHandler createInventory() {
         return new ItemStackHandler(INVENTORY_SIZE) {
-           @Override
-           protected void onContentsChanged(int slot) {
+            @Override
+            protected void onContentsChanged(int slot) {
                 if (level != null && !level.isClientSide) {
 
                     if (TANK.hasFluidHandlerInSlot(this, INPUT)) {

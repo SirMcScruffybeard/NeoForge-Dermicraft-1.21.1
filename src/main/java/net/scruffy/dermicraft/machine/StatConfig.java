@@ -33,6 +33,12 @@ public final class StatConfig {
     private static final ModConfigSpec.IntValue OVERGROWTH_MAX_LEVEL;
     private static final ModConfigSpec.IntValue HUNGER_DAMAGE_PER_CYCLE;
     private static final ModConfigSpec.DoubleValue UNFUELED_SPEED;
+    private static final ModConfigSpec.ConfigValue<List<? extends Number>> EVOLUTION_TIER_SECONDS;
+    private static final ModConfigSpec.DoubleValue EVOLUTION_HAZARD_NEW_SECONDS;
+    private static final ModConfigSpec.DoubleValue EVOLUTION_HAZARD_UPGRADE_SECONDS;
+    private static final ModConfigSpec.DoubleValue EVOLUTION_OVERGROWTH_SECONDS;
+    private static final ModConfigSpec.DoubleValue EVOLUTION_OVERGROWTH_GROWTH_PERCENT;
+    private static final ModConfigSpec.DoubleValue EVOLUTION_COUNTDOWN_SECONDS;
 
     public static final ModConfigSpec SPEC;
 
@@ -69,6 +75,21 @@ public final class StatConfig {
                 .defineInRange("maxLevel", StatDefaults.OVERGROWTH_MAX_LEVEL, 1, StatDefaults.OVERGROWTH_MAX_LEVEL);
         BUILDER.pop();
 
+        BUILDER.push("evolution");
+        EVOLUTION_TIER_SECONDS = sizedList("tierSeconds", "Seconds of real time an Evolution Module takes to raise the tier to L2, L3 and L4.",
+                StatDefaults.EVOLUTION_TIER_SECONDS, 1, 10000000, 3, "L2, L3, L4");
+        EVOLUTION_HAZARD_NEW_SECONDS = BUILDER.comment("Seconds to add a hazard family the machine does not hold yet.")
+                .defineInRange("hazardNewSeconds", StatDefaults.EVOLUTION_HAZARD_NEW_SECONDS, 1.0, 10000000.0);
+        EVOLUTION_HAZARD_UPGRADE_SECONDS = BUILDER.comment("Seconds to raise a hazard family already held from Mild to Severe.")
+                .defineInRange("hazardUpgradeSeconds", StatDefaults.EVOLUTION_HAZARD_UPGRADE_SECONDS, 1.0, 10000000.0);
+        EVOLUTION_OVERGROWTH_SECONDS = BUILDER.comment("Seconds to reach Overgrowth level 1.")
+                .defineInRange("overgrowthSeconds", StatDefaults.EVOLUTION_OVERGROWTH_SECONDS, 1.0, 10000000.0);
+        EVOLUTION_OVERGROWTH_GROWTH_PERCENT = BUILDER.comment("Each further Overgrowth level takes this many percent of the level 1 time longer than the one before.")
+                .defineInRange("overgrowthGrowthPercent", StatDefaults.EVOLUTION_OVERGROWTH_GROWTH_PERCENT, 0.0, 1000.0);
+        EVOLUTION_COUNTDOWN_SECONDS = BUILDER.comment("Seconds of the cancel window for blocks that do not process (tanks, the Craw) before an Evolution Module commits.")
+                .defineInRange("countdownSeconds", StatDefaults.EVOLUTION_COUNTDOWN_SECONDS, 0.0, 600.0);
+        BUILDER.pop();
+
         SPEC = BUILDER.build();
     }
 
@@ -76,11 +97,17 @@ public final class StatConfig {
 
     private static ModConfigSpec.ConfigValue<List<? extends Number>> tierList(
             String name, String comment, double[] defaults, double min, double max) {
+        return sizedList(name, comment, defaults, min, max, TIERS, "L1 to L4");
+    }
+
+    /** A list that must have exactly {@code size} numbers in {@code [min, max]}, defaulting to {@code defaults}. */
+    private static ModConfigSpec.ConfigValue<List<? extends Number>> sizedList(
+            String name, String comment, double[] defaults, double min, double max, int size, String meaning) {
         List<Double> defaultList = Arrays.stream(defaults).boxed().toList();
-        return BUILDER.comment(comment + " Exactly " + TIERS + " values, L1 to L4.")
+        return BUILDER.comment(comment + " Exactly " + size + " values, " + meaning + ".")
                 .defineList(List.of(name), () -> defaultList, () -> defaultList.get(defaultList.size() - 1),
                         o -> o instanceof Number n && n.doubleValue() >= min && n.doubleValue() <= max,
-                        ModConfigSpec.Range.of(TIERS, TIERS));
+                        ModConfigSpec.Range.of(size, size));
     }
 
     private static double[] toDoubles(int[] values) {
@@ -114,7 +141,11 @@ public final class StatConfig {
                 table(SKIN_TANK_CAPACITY_MB, StatDefaults.SKIN_TANK_CAPACITY_MB),
                 table(CRAW_STACKS, StatDefaults.CRAW_STACKS),
                 OVERGROWTH_PERCENT.get(), OVERGROWTH_MAX_LEVEL.get(),
-                HUNGER_DAMAGE_PER_CYCLE.get(), UNFUELED_SPEED.get().floatValue());
+                HUNGER_DAMAGE_PER_CYCLE.get(), UNFUELED_SPEED.get().floatValue(),
+                table(EVOLUTION_TIER_SECONDS, StatDefaults.EVOLUTION_TIER_SECONDS),
+                EVOLUTION_HAZARD_NEW_SECONDS.get(), EVOLUTION_HAZARD_UPGRADE_SECONDS.get(),
+                EVOLUTION_OVERGROWTH_SECONDS.get(), EVOLUTION_OVERGROWTH_GROWTH_PERCENT.get(),
+                EVOLUTION_COUNTDOWN_SECONDS.get());
     }
 
     /** The config list as a table, or the default if it is somehow not exactly one value per tier. */

@@ -247,6 +247,11 @@ public class ModItems {
     public static final DeferredItem<Item> HEAT_EVOLUTION_MODULE = ITEMS.register("heat_evolution_module",
             () -> new Item(new Item.Properties()));
 
+    // The single Evolution Module item. A bare stack is inert; the EVOLUTION_MODULE_DATA component makes
+    // it a Tier / Hazard / Overgrowth module (see EvolutionModuleData). Replaces the per-upgrade items.
+    public static final DeferredItem<Item> EVOLUTION_MODULE = ITEMS.register("evolution_module",
+            () -> new EvolutionModuleItem(new Item.Properties()));
+
     // Work Speed Module -- tagged MODULE_WORK_SPEED (not MODULE_SAFETY), same "kind via tag, data
     // via data map" split as the Safety Modules above.
     public static final DeferredItem<Item> WORK_SPEED_MODULE = ITEMS.register("work_speed_module",

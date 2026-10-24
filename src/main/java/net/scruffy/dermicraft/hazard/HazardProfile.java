@@ -68,6 +68,13 @@ public final class HazardProfile {
         return new HazardProfile(next);
     }
 
+    /** New profile that additionally tolerates {@code family} up to {@code level} (a Severe level includes Mild). */
+    public HazardProfile plusFamily(HazardFamily family, int level) {
+        Set<TagKey<Fluid>> next = new HashSet<>(tolerated);
+        next.addAll(family.getTags(level));
+        return new HazardProfile(next);
+    }
+
     /** New profile that no longer tolerates {@code hazard}. */
     public HazardProfile minus(TagKey<Fluid> hazard) {
         Set<TagKey<Fluid>> next = new HashSet<>(tolerated);
