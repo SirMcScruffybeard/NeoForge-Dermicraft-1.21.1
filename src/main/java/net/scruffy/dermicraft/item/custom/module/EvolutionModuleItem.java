@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.item.custom;
+package net.scruffy.dermicraft.item.custom.module;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;

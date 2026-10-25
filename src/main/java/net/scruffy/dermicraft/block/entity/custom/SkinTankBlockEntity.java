@@ -188,6 +188,9 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     // There is no progress overlay: a creeping overlay on a tank would fuse with, or hide, its
     // translucent fluid surface.
     private int flourishTicksRemaining = -1;
+    /** The countdown's full length when it started, saved so the progress fraction stays right on the client
+     * (which has no server config) and across a config reload. */
+    private int flourishTotalTicks = 1;
 
     /** Whether this instance can still evolve at all -- false for {@link CharredTankBlockEntity} until
      * the Charred Tank is retired. */
@@ -199,13 +202,20 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * for the bare frame, a module this tank's state does not allow (wrong tier, family cap, already
      * held), or an instance that cannot evolve -- those sit in the slot and do nothing. */
     private Optional<EvolutionResult.Upgrade> getPendingUpgrade() {
+        return getEvolutionStatus()
+                .filter(EvolutionResult.Upgrade.class::isInstance)
+                .map(EvolutionResult.Upgrade.class::cast);
+    }
+
+    /** What the Evolution slot's module would do on this tank right now: empty for the bare frame, an empty
+     * slot or an instance that cannot evolve; otherwise the {@link EvolutionRules} answer, an upgrade that
+     * will apply or the reason it is blocked. The slot tooltip reads this. */
+    public Optional<EvolutionResult> getEvolutionStatus() {
         if (!canEvolve()) return Optional.empty();
         EvolutionModuleData data = EVOLUTION_INVENTORY.getStackInSlot(0).get(ModDataComponentTypes.EVOLUTION_MODULE_DATA);
         if (data == null) return Optional.empty();
-        return EvolutionRules.evaluate(getEvolutionState(), data) instanceof EvolutionResult.Upgrade upgrade
-                ? Optional.of(upgrade) : Optional.empty();
+        return Optional.of(EvolutionRules.evaluate(getEvolutionState(), data));
     }
-
 
     /** Called whenever the Evolution slot's contents change -- cancels any countdown already running
      * (covers the module being pulled back out), then starts a fresh one if the slot now holds a module
@@ -221,17 +231,28 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         if (flourishTicksRemaining < 0) return;
 
         if (level instanceof ServerLevel serverLevel) {
-            EvolutionEffects.spawnParticles(serverLevel, worldPosition,
-                    EvolutionEffects.getProgress(flourishTicksRemaining, EvolutionStats.getCountdownTicks()),
+            EvolutionEffects.spawnParticles(serverLevel, worldPosition, getEvolutionProgress(),
                     flourishTicksRemaining == 0, EvolutionEffects.DEFAULT_TINT, EvolutionEffects.Cadence.TICK);
         }
 
         flourishTicksRemaining--;
-        if (flourishTicksRemaining < 0) completeEvolution();
+        if (flourishTicksRemaining < 0) {
+            completeEvolution();
+        } else {
+            updateBlock(); // the Evolution slot's fill reads the progress on the client
+        }
+    }
+
+    /** How far along the running evolution countdown is, 0 to 1 (0 when none), for the Evolution slot's
+     * fill. Synced to the client through the block entity, so the screen can read it directly. */
+    public float getEvolutionProgress() {
+        if (flourishTicksRemaining < 0) return 0f;
+        return EvolutionEffects.getProgress(flourishTicksRemaining, flourishTotalTicks);
     }
 
     private void startEvolutionFlourish() {
-        flourishTicksRemaining = EvolutionStats.getCountdownTicks();
+        flourishTotalTicks = EvolutionStats.getCountdownTicks();
+        flourishTicksRemaining = flourishTotalTicks;
         if (level != null) EvolutionEffects.playDefaultStartSound(level, worldPosition);
     }
 
@@ -366,6 +387,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         tag = TANK.writeToNBT(registries, tag);
         tag.putBoolean("module_tab_active", moduleTabActive);
         tag.putInt("evolution_flourish_ticks", flourishTicksRemaining);
+        tag.putInt("evolution_flourish_total", flourishTotalTicks);
         super.saveAdditional(tag, registries);
     }
 
@@ -397,6 +419,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
         moduleTabActive = tag.getBoolean("module_tab_active");
         flourishTicksRemaining = tag.contains("evolution_flourish_ticks")
                 ? tag.getInt("evolution_flourish_ticks") : -1;
+        flourishTotalTicks = Math.max(1, tag.getInt("evolution_flourish_total"));
     }
 
     private ItemStackHandler createInventory() {

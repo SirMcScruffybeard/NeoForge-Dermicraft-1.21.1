@@ -1,5 +1,67 @@
 {
   "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "dermicraft:item/evolution_module_tier_2",
+      "predicate": {
+        "dermicraft:variant": 1.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_tier_3",
+      "predicate": {
+        "dermicraft:variant": 2.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_tier_4",
+      "predicate": {
+        "dermicraft:variant": 3.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_thermal",
+      "predicate": {
+        "dermicraft:variant": 4.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_radiation_mild",
+      "predicate": {
+        "dermicraft:variant": 5.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_radiation_severe",
+      "predicate": {
+        "dermicraft:variant": 6.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_biohazard",
+      "predicate": {
+        "dermicraft:variant": 7.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_metaphysical_mild",
+      "predicate": {
+        "dermicraft:variant": 8.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_metaphysical_severe",
+      "predicate": {
+        "dermicraft:variant": 9.0
+      }
+    },
+    {
+      "model": "dermicraft:item/evolution_module_overgrowth",
+      "predicate": {
+        "dermicraft:variant": 10.0
+      }
+    }
+  ],
   "textures": {
     "layer0": "dermicraft:item/module/evolution_module_frame"
   }

@@ -15,6 +15,7 @@ import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BladderItem;
+import net.scruffy.dermicraft.item.custom.module.EvolutionModuleVariant;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItemProperties {
@@ -104,6 +105,11 @@ public class ModItemProperties {
         registerBladderFillProperty(ModItems.CHARRED_BLADDER.get());
         registerBladderFillProperty(ModItems.CHARRED_FUEL_BLADDER.get());
         registerBladderFillProperty(ModItems.CHARRED_FEEDER_BLADDER.get());
+
+        ItemProperties.register(ModItems.EVOLUTION_MODULE.get(),
+                getResourceLocation("variant"),
+                (stack, level, entity, seed) -> EvolutionModuleVariant.getPredicateValue(
+                        stack.get(ModDataComponentTypes.EVOLUTION_MODULE_DATA)));
     }
 
     /**

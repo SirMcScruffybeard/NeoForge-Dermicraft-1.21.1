@@ -1,21 +1,29 @@
 package net.scruffy.dermicraft.screen.custom.skin_tank;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
+import net.scruffy.dermicraft.machine.EvolutionResult;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Pilot for the shared tab-bar helper (dermicraft-progression-notes.md, Decision Point #2 ->
@@ -45,7 +53,13 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
 
     // The dedicated Evolution slot's background (the slot itself is in SkinTankMenu).
     private static final ResourceLocation EVOLUTION_SLOT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/slots/red_slot.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/slots/evolution_slot.png");
+
+    // The evolution countdown bar, beside the Evolution slot: a dark track with a green fill rising from the bottom.
+    private static final int EVOLUTION_BAR_WIDTH = 2;
+    private static final int EVOLUTION_BAR_GAP = 2;
+    private static final int EVOLUTION_BAR_TRACK_COLOR = 0xFF2B2B2B;
+    private static final int EVOLUTION_BAR_FILL_COLOR = 0xFF3CD13C;
 
     private static final ResourceLocation ARROW_BACKGROUND_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ARROWS_DIR + "arrow_background.png");
@@ -99,6 +113,11 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
                         : Component.translatable("tooltip.dermicraft.machine.auto_drain_off");
                 guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
             }
+        } else if (isEvolutionSlot(hoveredSlot) && !hoveredSlot.hasItem()) {
+            guiGraphics.renderComponentTooltip(this.font, List.of(
+                            Component.translatable("tooltip.dermicraft.evolution_slot.empty"),
+                            Component.translatable("tooltip.dermicraft.evolution_slot.empty_hint").withStyle(ChatFormatting.GRAY)),
+                    pMouseX - x, pMouseY - y);
         }
     }
 
@@ -154,11 +173,27 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
         // The Evolution Module slot sits left of the general Module slots, Module tab only.
         guiGraphics.blit(EVOLUTION_SLOT_TEXTURE, x + SkinTankMenu.EVOLUTION_SLOT_X, y + SkinTankMenu.EVOLUTION_SLOT_Y,
                 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        renderEvolutionBar(guiGraphics, x, y);
         for (int i = 0; i < menu.be.getModuleSlotCount(); i++) {
             guiGraphics.blit(MODULE_SLOT_TEXTURE,
                     x + SkinTankMenu.MODULE_SLOT_X + i * SkinTankMenu.MODULE_SLOT_SPACING,
                     y + SkinTankMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
         }
+    }
+
+    /** The evolution countdown's progress, a thin bar beside the Evolution slot that fills from the bottom up.
+     * Only drawn while a countdown runs, so an idle slot looks the same as before. */
+    private void renderEvolutionBar(GuiGraphics guiGraphics, int x, int y) {
+        float progress = menu.be.getEvolutionProgress();
+        if (progress <= 0f) return;
+
+        int left = x + SkinTankMenu.EVOLUTION_SLOT_X - EVOLUTION_BAR_GAP - EVOLUTION_BAR_WIDTH;
+        int top = y + SkinTankMenu.EVOLUTION_SLOT_Y;
+        int bottom = top + SLOT_SIZE;
+        guiGraphics.fill(left, top, left + EVOLUTION_BAR_WIDTH, bottom, EVOLUTION_BAR_TRACK_COLOR);
+
+        int filled = Math.round(SLOT_SIZE * progress);
+        guiGraphics.fill(left, bottom - filled, left + EVOLUTION_BAR_WIDTH, bottom, EVOLUTION_BAR_FILL_COLOR);
     }
 
     @Override
@@ -191,5 +226,33 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
     private void renderArrowBackground(GuiGraphics guiGraphics, int arrowX, int arrowY) {
         guiGraphics.blit(ARROW_BACKGROUND_TEXTURE, arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT,
                 ARROW_WIDTH, ARROW_HEIGHT);
+    }
+
+    private boolean isEvolutionSlot(@Nullable Slot slot) {
+        return slot instanceof SlotItemHandler handlerSlot && handlerSlot.getItemHandler() == menu.be.EVOLUTION_INVENTORY;
+    }
+
+    /** The status line(s) under the Evolution slot's tooltip, from {@link SkinTankBlockEntity#getEvolutionStatus()}. */
+    private List<Component> getEvolutionStatusLines() {
+        Optional<EvolutionResult> status = menu.be.getEvolutionStatus();
+        if (status.isEmpty()) {
+            return List.of(Component.translatable("tooltip.dermicraft.evolution_slot.inert").withStyle(ChatFormatting.GRAY));
+        }
+        return switch (status.get()) {
+            case EvolutionResult.Upgrade upgrade ->
+                    List.of(Component.translatable("tooltip.dermicraft.evolution_slot.applying").withStyle(ChatFormatting.GREEN));
+            case EvolutionResult.Blocked blocked ->
+                    List.of(Component.translatable("tooltip.dermicraft.evolution_slot.blocked." + blocked.reasonKey())
+                            .withStyle(ChatFormatting.RED));
+        };
+    }
+
+    @Override
+    protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
+        List<Component> lines = super.getTooltipFromContainerItem(stack);
+        if (!isEvolutionSlot(hoveredSlot)) return lines;
+        List<Component> withStatus = new ArrayList<>(lines);
+        withStatus.addAll(getEvolutionStatusLines());
+        return withStatus;
     }
 }

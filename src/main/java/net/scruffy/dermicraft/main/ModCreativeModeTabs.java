@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.module.EvolutionModuleVariant;
 import net.scruffy.dermicraft.util.ModItemUtil;
 
 import java.util.function.Supplier;
@@ -40,7 +41,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.CHARRED_TUMOR);
                         output.accept(ModBlocks.HOT_BONE); // no craft recipe yet
 
-                        ////////////////////Machines and Tanks\\\\\\\\\\\\\\\\\\\\
+
                         output.accept(ModBlocks.CALCIUM_GLASS);
                         output.accept(ModBlocks.OUTERFACE);
                         output.accept(ModBlocks.DROOLING_CAULDRON);
@@ -154,8 +155,12 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
                         output.accept(ModItems.RADIATION_SAFETY_MODULE);
 
-                        // Evolution Modules
-                        output.accept(ModItems.HEAT_EVOLUTION_MODULE); // no mechanics yet, item only
+                        // Evolution Modules -- the bare frame, then one stack per variant (see
+                        // EvolutionModuleVariant); Overgrowth is level 1, other levels come from commands.
+                        output.accept(ModItems.EVOLUTION_MODULE);
+                        for (EvolutionModuleVariant variant : EvolutionModuleVariant.values()) {
+                            output.accept(variant.createStack());
+                        }
 
                         // Work Speed Modules
                         output.accept(ModItems.WORK_SPEED_MODULE);

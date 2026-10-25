@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.module.EvolutionModuleVariant;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.Objects;
@@ -82,10 +83,25 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.HEAT_EVOLUTION_MODULE.get(), "item/module/evolution_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/lava_bucket_icon"));
 
-        // Single Evolution Module -- the bare (inert) module is just the frame, one layer and no icon;
-        // the per-variant icon layers come with the component-driven model overrides.
-        withExistingParent(BuiltInRegistries.ITEM.getKey(ModItems.EVOLUTION_MODULE.get()).toString(), "item/generated")
-                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/evolution_module_frame"));
+        // Single Evolution Module -- the bare (inert) module is just the frame, one layer and no icon. Each
+        // variant is the frame plus its icon layer, chosen by the "variant" property (see
+        // EvolutionModuleVariant and ModItemProperties). Overrides pick the last matching entry, so they
+        // are added in ascending value order.
+        ResourceLocation evolutionFrame = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/evolution_module_frame");
+        ItemModelBuilder evolutionModule = withExistingParent(
+                BuiltInRegistries.ITEM.getKey(ModItems.EVOLUTION_MODULE.get()).toString(), "item/generated")
+                .texture("layer0", evolutionFrame);
+        for (EvolutionModuleVariant variant : EvolutionModuleVariant.values()) {
+            ItemModelBuilder variantModel = withExistingParent(
+                    Dermicraft.MOD_ID + ":" + variant.getModelName(), "item/generated")
+                    .texture("layer0", evolutionFrame)
+                    .texture("layer1", ResourceLocation.fromNamespaceAndPath(
+                            Dermicraft.MOD_ID, "item/module/icons/" + variant.getIconName()));
+            evolutionModule.override()
+                    .predicate(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "variant"), variant.getPredicateValue())
+                    .model(variantModel)
+                    .end();
+        }
 
         // Work Speed Module -- plain module_frame background (not its own family frame), per
         // explicit instruction, with the user's own hand-painted speed icon on top.
