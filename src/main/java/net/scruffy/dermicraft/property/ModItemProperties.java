@@ -15,7 +15,8 @@ import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.BladderItem;
-import net.scruffy.dermicraft.item.custom.module.EvolutionModuleVariant;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamily;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModItemProperties {
@@ -106,10 +107,15 @@ public class ModItemProperties {
         registerBladderFillProperty(ModItems.CHARRED_FUEL_BLADDER.get());
         registerBladderFillProperty(ModItems.CHARRED_FEEDER_BLADDER.get());
 
-        ItemProperties.register(ModItems.EVOLUTION_MODULE.get(),
-                getResourceLocation("variant"),
-                (stack, level, entity, seed) -> EvolutionModuleVariant.getPredicateValue(
-                        stack.get(ModDataComponentTypes.EVOLUTION_MODULE_DATA)));
+        registerModuleFamily(ModuleFamilies.TIER);
+        registerModuleFamily(ModuleFamilies.OVERGROWTH);
+        registerModuleFamily(ModuleFamilies.HAZARD_EVOLUTION);
+    }
+
+    /** The client "variant" property for a module family: a stack's component picks which variant model shows. */
+    private static <D> void registerModuleFamily(ModuleFamily<D> family) {
+        ItemProperties.register(family.getItem(), getResourceLocation(ModuleFamily.VARIANT_PROPERTY),
+                (stack, level, entity, seed) -> family.getPredicateValue(stack.get(family.getComponent())));
     }
 
     /**

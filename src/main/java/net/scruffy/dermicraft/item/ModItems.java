@@ -8,6 +8,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.item.custom.*;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
+import net.scruffy.dermicraft.item.custom.module.HazardEvolutionModuleItem;
+import net.scruffy.dermicraft.item.custom.module.LevelEvolutionModuleItem;
+import net.scruffy.dermicraft.machine.EvolutionLadder;
 import net.scruffy.dermicraft.property.ModFoodProperties;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -248,10 +251,17 @@ public class ModItems {
     public static final DeferredItem<Item> HEAT_EVOLUTION_MODULE = ITEMS.register("heat_evolution_module",
             () -> new Item(new Item.Properties()));
 
-    // The single Evolution Module item. A bare stack is inert; the EVOLUTION_MODULE_DATA component makes
-    // it a Tier / Hazard / Overgrowth module (see EvolutionModuleData). Replaces the per-upgrade items.
-    public static final DeferredItem<Item> EVOLUTION_MODULE = ITEMS.register("evolution_module",
+    // Evolution Modules. The Frame is the inert base (it fits the Evolution slot and does nothing); the
+    // loaded modules are each their own item whose stacks carry one component: the level to raise to
+    // (Tier, Overgrowth) or the hazard family and level (Hazard). See EvolutionModuleItem.
+    public static final DeferredItem<Item> EVOLUTION_MODULE_FRAME = ITEMS.register("evolution_module_frame",
             () -> new EvolutionModuleItem(new Item.Properties()));
+    public static final DeferredItem<Item> TIER_EVOLUTION_MODULE = ITEMS.register("tier_evolution_module",
+            () -> new LevelEvolutionModuleItem(new Item.Properties(), EvolutionLadder.TIER));
+    public static final DeferredItem<Item> OVERGROWTH_EVOLUTION_MODULE = ITEMS.register("overgrowth_evolution_module",
+            () -> new LevelEvolutionModuleItem(new Item.Properties(), EvolutionLadder.OVERGROWTH));
+    public static final DeferredItem<Item> HAZARD_EVOLUTION_MODULE = ITEMS.register("hazard_evolution_module",
+            () -> new HazardEvolutionModuleItem(new Item.Properties()));
 
     // Work Speed Module -- tagged MODULE_WORK_SPEED (not MODULE_SAFETY), same "kind via tag, data
     // via data map" split as the Safety Modules above.

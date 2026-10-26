@@ -1,14 +1,15 @@
 package net.scruffy.dermicraft.machine;
 
-import net.scruffy.dermicraft.component.EvolutionModuleData;
 import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.hazard.HazardFamily;
 
 /**
- * The one place that decides whether an Evolution Module applies to a machine and what it would do. Every
- * machine calls this with its current {@link EvolutionStateData} and the module's {@link EvolutionModuleData},
- * then owns the rest itself: counting the time, deciding when it advances, and applying the new state. The
- * Flesh Lab's available-upgrades list asks the same question, so both always agree.
+ * The one place that decides whether an Evolution Module applies to a machine and what it would do. Each
+ * Evolution Module item calls the rule for its kind from its {@code evaluate} method (the level ladders through
+ * {@link EvolutionLadder}) with the machine's current {@link EvolutionStateData} and the level or hazard on its
+ * stack; the machine asks the module, then owns the rest itself: counting the time, deciding when it advances,
+ * and applying the new state. The Flesh Lab's available-upgrades list asks the same question, so both always
+ * agree.
  *
  * <p>Rules (machine upgrade redesign notes):
  * <ul>
@@ -25,15 +26,7 @@ public final class EvolutionRules {
 
     private EvolutionRules() {}
 
-    public static EvolutionResult evaluate(EvolutionStateData state, EvolutionModuleData kind) {
-        return switch (kind.type()) {
-            case TIER -> evaluateTier(state, kind.level());
-            case HAZARD -> evaluateHazard(state, kind.family(), kind.level());
-            case OVERGROWTH -> evaluateOvergrowth(state, kind.level());
-        };
-    }
-
-    private static EvolutionResult evaluateTier(EvolutionStateData state, int targetTier) {
+    public static EvolutionResult evaluateTier(EvolutionStateData state, int targetTier) {
         // Once Overgrowth has begun the machine is at the top tier already.
         if (state.overgrowth() > 0 || targetTier <= state.tier()) {
             return new EvolutionResult.Blocked(EvolutionResult.NO_FURTHER_LEVELS);
@@ -47,7 +40,7 @@ public final class EvolutionRules {
         return new EvolutionResult.Upgrade(state.withTier(targetTier), EvolutionStats.getTierTicks(targetTier));
     }
 
-    private static EvolutionResult evaluateHazard(EvolutionStateData state, HazardFamily family, int level) {
+    public static EvolutionResult evaluateHazard(EvolutionStateData state, HazardFamily family, int level) {
         if (family == null || level < 1 || level > family.getMaxLevel()) {
             return new EvolutionResult.Blocked(EvolutionResult.NO_FURTHER_LEVELS);
         }
@@ -66,7 +59,7 @@ public final class EvolutionRules {
         return new EvolutionResult.Upgrade(state.withLevel(family, level), EvolutionStats.getHazardNewTicks());
     }
 
-    private static EvolutionResult evaluateOvergrowth(EvolutionStateData state, int targetLevel) {
+    public static EvolutionResult evaluateOvergrowth(EvolutionStateData state, int targetLevel) {
         if (state.tier() < EvolutionStateData.MAX_TIER) {
             return new EvolutionResult.Blocked(EvolutionResult.RAISE_TIER_FIRST);
         }

@@ -10,7 +10,9 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
-import net.scruffy.dermicraft.item.custom.module.EvolutionModuleVariant;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamily;
+import net.scruffy.dermicraft.item.custom.module.ModuleVariant;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.Objects;
@@ -83,25 +85,13 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.HEAT_EVOLUTION_MODULE.get(), "item/module/evolution_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/lava_bucket_icon"));
 
-        // Single Evolution Module -- the bare (inert) module is just the frame, one layer and no icon. Each
-        // variant is the frame plus its icon layer, chosen by the "variant" property (see
-        // EvolutionModuleVariant and ModItemProperties). Overrides pick the last matching entry, so they
-        // are added in ascending value order.
-        ResourceLocation evolutionFrame = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/evolution_module_frame");
-        ItemModelBuilder evolutionModule = withExistingParent(
-                BuiltInRegistries.ITEM.getKey(ModItems.EVOLUTION_MODULE.get()).toString(), "item/generated")
-                .texture("layer0", evolutionFrame);
-        for (EvolutionModuleVariant variant : EvolutionModuleVariant.values()) {
-            ItemModelBuilder variantModel = withExistingParent(
-                    Dermicraft.MOD_ID + ":" + variant.getModelName(), "item/generated")
-                    .texture("layer0", evolutionFrame)
-                    .texture("layer1", ResourceLocation.fromNamespaceAndPath(
-                            Dermicraft.MOD_ID, "item/module/icons/" + variant.getIconName()));
-            evolutionModule.override()
-                    .predicate(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "variant"), variant.getPredicateValue())
-                    .model(variantModel)
-                    .end();
-        }
+        // The Evolution Module Frame -- one layer, no icon. The loaded Evolution Modules are the frame plus
+        // an icon layer per variant, chosen by the "variant" property (see ModuleFamilies).
+        withExistingParent(BuiltInRegistries.ITEM.getKey(ModItems.EVOLUTION_MODULE_FRAME.get()).toString(), "item/generated")
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/evolution_module_frame"));
+        moduleFamilyItem(ModuleFamilies.TIER, "item/module/evolution_module_frame");
+        moduleFamilyItem(ModuleFamilies.OVERGROWTH, "item/module/evolution_module_frame");
+        moduleFamilyItem(ModuleFamilies.HAZARD_EVOLUTION, "item/module/evolution_module_frame");
 
         // Work Speed Module -- plain module_frame background (not its own family frame), per
         // explicit instruction, with the user's own hand-painted speed icon on top.
@@ -272,5 +262,27 @@ public class ModItemModelProvider extends ItemModelProvider {
     private ItemModelBuilder moduleItem(Item item, String backgroundTexturePath, ResourceLocation icon1Texture, ResourceLocation icon2Texture) {
         return moduleItem(item, backgroundTexturePath, icon1Texture)
                 .texture("layer2", icon2Texture);
+    }
+
+    /** A variant module family's models: the bare frame as the base, and one model per variant (the frame plus
+     * its icon layer) switched on by the family's "variant" property -- see {@link ModuleFamily}. Overrides pick
+     * the last matching entry, so they are added in the family's ascending order. */
+    private <D> void moduleFamilyItem(ModuleFamily<D> family, String frameTexturePath) {
+        ResourceLocation frame = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, frameTexturePath);
+        ItemModelBuilder base = withExistingParent(
+                BuiltInRegistries.ITEM.getKey(family.getItem()).toString(), "item/generated")
+                .texture("layer0", frame);
+        for (ModuleVariant<D> variant : family.getVariants()) {
+            ItemModelBuilder variantModel = withExistingParent(
+                    Dermicraft.MOD_ID + ":" + family.getModelName(variant), "item/generated")
+                    .texture("layer0", frame)
+                    .texture("layer1", ResourceLocation.fromNamespaceAndPath(
+                            Dermicraft.MOD_ID, "item/module/icons/" + variant.icon()));
+            base.override()
+                    .predicate(ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, ModuleFamily.VARIANT_PROPERTY),
+                            family.getPredicateValue(variant))
+                    .model(variantModel)
+                    .end();
+        }
     }
 }

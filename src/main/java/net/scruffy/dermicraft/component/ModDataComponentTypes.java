@@ -194,15 +194,22 @@ public class ModDataComponentTypes {
                     .persistent(com.mojang.serialization.Codec.INT)
                     .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
 
+    /** The level a Tier or Overgrowth Evolution Module raises a machine to; which ladder it climbs is the
+     * item's. Absent on a bare module, which does nothing. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LevelModuleData>> LEVEL_MODULE_DATA =
+            register("level_module_data", builder -> builder
+                    .persistent(LevelModuleData.CODEC)
+                    .networkSynchronized(LevelModuleData.STREAM_CODEC));
+
+    /** The hazard family and level a hazard module (Evolution or Safety) grants; what the grant does is the
+     * item's. Absent on a bare module, which does nothing. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<HazardModuleData>> HAZARD_MODULE_DATA =
+            register("hazard_module_data", builder -> builder
+                    .persistent(HazardModuleData.CODEC)
+                    .networkSynchronized(HazardModuleData.STREAM_CODEC));
+
     /** A machine's tier, Overgrowth level and hazard tolerances, carried on its item so a Forceps pickup
      * or creative pick block keeps the investment. Absent means a plain L1 machine. */
-    /** What an Evolution Module stack does (tier, hazard family and level, or Overgrowth level). Absent on the
-     * bare Evolution Module, which does nothing. */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EvolutionModuleData>> EVOLUTION_MODULE_DATA =
-            register("evolution_module_data", builder -> builder
-                    .persistent(EvolutionModuleData.CODEC)
-                    .networkSynchronized(EvolutionModuleData.STREAM_CODEC));
-
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<EvolutionStateData>> EVOLUTION_STATE =
             register("evolution_state_data", builder -> builder
                     .persistent(EvolutionStateData.CODEC)

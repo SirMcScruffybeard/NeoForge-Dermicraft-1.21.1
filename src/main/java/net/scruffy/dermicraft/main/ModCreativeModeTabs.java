@@ -10,7 +10,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
-import net.scruffy.dermicraft.item.custom.module.EvolutionModuleVariant;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
 import net.scruffy.dermicraft.util.ModItemUtil;
 
 import java.util.function.Supplier;
@@ -155,12 +155,12 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
                         output.accept(ModItems.RADIATION_SAFETY_MODULE);
 
-                        // Evolution Modules -- the bare frame, then one stack per variant (see
-                        // EvolutionModuleVariant); Overgrowth is level 1, other levels come from commands.
-                        output.accept(ModItems.EVOLUTION_MODULE);
-                        for (EvolutionModuleVariant variant : EvolutionModuleVariant.values()) {
-                            output.accept(variant.createStack());
-                        }
+                        // Evolution Modules -- the Frame, then one stack per variant of each loaded module (see
+                        // ModuleFamilies); Overgrowth is level 1, other levels come from commands.
+                        output.accept(ModItems.EVOLUTION_MODULE_FRAME);
+                        ModuleFamilies.TIER.createStacks().forEach(output::accept);
+                        ModuleFamilies.OVERGROWTH.createStacks().forEach(output::accept);
+                        ModuleFamilies.HAZARD_EVOLUTION.createStacks().forEach(output::accept);
 
                         // Work Speed Modules
                         output.accept(ModItems.WORK_SPEED_MODULE);

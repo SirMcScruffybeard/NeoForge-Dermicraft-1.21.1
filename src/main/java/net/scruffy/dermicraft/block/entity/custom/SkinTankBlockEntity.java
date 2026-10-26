@@ -21,13 +21,11 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
-import net.scruffy.dermicraft.component.EvolutionModuleData;
+import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
 import net.scruffy.dermicraft.component.EvolutionStateData;
-import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.hazard.HazardFamily;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.*;
-import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.machine.*;
 import net.scruffy.dermicraft.screen.custom.skin_tank.SkinTankMenu;
 import net.scruffy.dermicraft.tank.VulnerableTank;
@@ -90,7 +88,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     /** Whether a stack is an Evolution Module: an item with real {@code EvolutionModuleProperties} data. */
     public static boolean isEvolutionModule(ItemStack stack) {
-        return stack.is(ModItems.EVOLUTION_MODULE);
+        return stack.getItem() instanceof EvolutionModuleItem;
     }
 
     private final VulnerableTank TANK = createTank();
@@ -212,9 +210,9 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * will apply or the reason it is blocked. The slot tooltip reads this. */
     public Optional<EvolutionResult> getEvolutionStatus() {
         if (!canEvolve()) return Optional.empty();
-        EvolutionModuleData data = EVOLUTION_INVENTORY.getStackInSlot(0).get(ModDataComponentTypes.EVOLUTION_MODULE_DATA);
-        if (data == null) return Optional.empty();
-        return Optional.of(EvolutionRules.evaluate(getEvolutionState(), data));
+        ItemStack module = EVOLUTION_INVENTORY.getStackInSlot(0);
+        if (!(module.getItem() instanceof EvolutionModuleItem evolutionModule)) return Optional.empty();
+        return evolutionModule.evaluate(getEvolutionState(), module);
     }
 
     /** Called whenever the Evolution slot's contents change -- cancels any countdown already running
