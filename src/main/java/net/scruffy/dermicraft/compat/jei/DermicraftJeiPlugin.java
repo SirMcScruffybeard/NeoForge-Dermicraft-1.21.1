@@ -2,9 +2,12 @@ package net.scruffy.dermicraft.compat.jei;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +29,8 @@ import net.scruffy.dermicraft.compat.jei.category.MutatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.PuddleCraftingCategory;
 import net.scruffy.dermicraft.compat.jei.category.RenderingCategory;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamily;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
@@ -65,6 +70,34 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 new HarvestingCategory(gui),
                 new HandShreddingCategory(gui)
         );
+    }
+
+    /**
+     * JEI treats every stack of an item as the same ingredient unless told otherwise, so the component-driven
+     * modules (the hazard, tier and Overgrowth variants) would collapse into one entry and their recipes would
+     * not be found. Each module family's component value is its subtype.
+     */
+    @Override
+    public void registerItemSubtypes(ISubtypeRegistration registration) {
+        registerModuleFamily(registration, ModuleFamilies.TIER);
+        registerModuleFamily(registration, ModuleFamilies.OVERGROWTH);
+        registerModuleFamily(registration, ModuleFamilies.HAZARD_EVOLUTION);
+        registerModuleFamily(registration, ModuleFamilies.HAZARD_SAFETY);
+    }
+
+    private static <D> void registerModuleFamily(ISubtypeRegistration registration, ModuleFamily<D> family) {
+        registration.registerSubtypeInterpreter(family.getItem(), new ISubtypeInterpreter<ItemStack>() {
+            @Override
+            public Object getSubtypeData(ItemStack stack, UidContext context) {
+                return stack.get(family.getComponent());
+            }
+
+            @Override
+            public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
+                D data = stack.get(family.getComponent());
+                return data == null ? "" : data.toString();
+            }
+        });
     }
 
     @Override
