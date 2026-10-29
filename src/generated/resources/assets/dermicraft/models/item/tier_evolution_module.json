@@ -2,21 +2,27 @@
   "parent": "minecraft:item/generated",
   "overrides": [
     {
-      "model": "dermicraft:item/tier_evolution_module_2",
+      "model": "dermicraft:item/tier_evolution_module_1",
       "predicate": {
         "dermicraft:variant": 1.0
       }
     },
     {
-      "model": "dermicraft:item/tier_evolution_module_3",
+      "model": "dermicraft:item/tier_evolution_module_2",
       "predicate": {
         "dermicraft:variant": 2.0
       }
     },
     {
-      "model": "dermicraft:item/tier_evolution_module_4",
+      "model": "dermicraft:item/tier_evolution_module_3",
       "predicate": {
         "dermicraft:variant": 3.0
+      }
+    },
+    {
+      "model": "dermicraft:item/tier_evolution_module_4",
+      "predicate": {
+        "dermicraft:variant": 4.0
       }
     }
   ],

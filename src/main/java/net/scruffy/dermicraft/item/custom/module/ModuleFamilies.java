@@ -12,12 +12,14 @@ public final class ModuleFamilies {
 
     private ModuleFamilies() {}
 
-    /** Tier Evolution Modules: Tier 2 to 4, shown as roman-numeral icons. */
+    /** Tier Evolution Modules: Tier 2 to 4, shown as roman-numeral icons. Tier 1 is listed first only so the machine
+     * screens can draw its icon (there is no Tier 1 module to obtain); the creative tab skips it. */
     public static final ModuleFamily<LevelModuleData> TIER = new ModuleFamily<LevelModuleData>(
             "tier_evolution_module",
             () -> ModItems.TIER_EVOLUTION_MODULE.get(),
             () -> ModDataComponentTypes.LEVEL_MODULE_DATA.get(),
-            List.of(new ModuleVariant<>("2", "l2", new LevelModuleData(2)),
+            List.of(new ModuleVariant<>("1", "l1", new LevelModuleData(1)),
+                    new ModuleVariant<>("2", "l2", new LevelModuleData(2)),
                     new ModuleVariant<>("3", "l3", new LevelModuleData(3)),
                     new ModuleVariant<>("4", "l4", new LevelModuleData(4))),
             Objects::equals);

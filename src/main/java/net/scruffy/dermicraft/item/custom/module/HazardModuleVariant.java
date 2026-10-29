@@ -2,6 +2,7 @@ package net.scruffy.dermicraft.item.custom.module;
 
 import net.scruffy.dermicraft.component.HazardModuleData;
 import net.scruffy.dermicraft.hazard.HazardFamily;
+import org.jetbrains.annotations.Nullable;
 
 public enum HazardModuleVariant {
     THERMAL("thermal", HazardFamily.THERMAL, 1),
@@ -25,5 +26,19 @@ public enum HazardModuleVariant {
 
     public HazardModuleData getData() {
         return DATA;
+    }
+
+    /** The lang key of this variant's plain hazard name, such as "Severe Radiation". */
+    public String getTranslationKey() {
+        return "hazard_variant.dermicraft." + NAME;
+    }
+
+    /** The variant for {@code family} at exactly {@code level}, or null if there is none. */
+    @Nullable
+    public static HazardModuleVariant of(HazardFamily family, int level) {
+        for (HazardModuleVariant variant : values()) {
+            if (variant.DATA.family() == family && variant.DATA.level() == level) return variant;
+        }
+        return null;
     }
 }

@@ -18,6 +18,7 @@ import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
+import net.scruffy.dermicraft.screen.EvolutionPanel;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.Nullable;
 
@@ -119,6 +120,10 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
                             Component.translatable("tooltip.dermicraft.evolution_slot.empty_hint").withStyle(ChatFormatting.GRAY)),
                     pMouseX - x, pMouseY - y);
         }
+
+        if (menu.getActiveTab() == SkinTankMenu.MODULE_TAB) {
+            EvolutionPanel.renderTooltip(guiGraphics, font, pMouseX - x, pMouseY - y, getEvolutionPanelCells());
+        }
     }
 
     @Override
@@ -179,6 +184,11 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
                     x + SkinTankMenu.MODULE_SLOT_X + i * SkinTankMenu.MODULE_SLOT_SPACING,
                     y + SkinTankMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
         }
+        EvolutionPanel.render(guiGraphics, font, x, y, getEvolutionPanelCells());
+    }
+    /** The icons under the slots on the Module tab: this tank's tier and tolerances, see {@link EvolutionPanel}. */
+    private List<EvolutionPanel.Cell> getEvolutionPanelCells() {
+        return EvolutionPanel.getCells(menu.be.getEvolutionState(), menu.be.MODULE_INVENTORY);
     }
 
     /** The evolution countdown's progress, a thin bar beside the Evolution slot that fills from the bottom up.

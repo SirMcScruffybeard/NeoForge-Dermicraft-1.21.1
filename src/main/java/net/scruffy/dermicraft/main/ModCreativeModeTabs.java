@@ -157,7 +157,7 @@ public class ModCreativeModeTabs {
                         // Evolution Modules -- the Frame, then one stack per variant of each loaded module (see
                         // ModuleFamilies); Overgrowth is level 1, other levels come from commands.
                         output.accept(ModItems.EVOLUTION_MODULE_FRAME);
-                        ModuleFamilies.TIER.createStacks().forEach(output::accept);
+                        ModuleFamilies.TIER.createStacks().stream().skip(1).forEach(output::accept); // skip Tier 1: display-only
                         ModuleFamilies.OVERGROWTH.createStacks().forEach(output::accept);
                         ModItems.HAZARD_EVOLUTION_MODULES.values().forEach(output::accept);
 
