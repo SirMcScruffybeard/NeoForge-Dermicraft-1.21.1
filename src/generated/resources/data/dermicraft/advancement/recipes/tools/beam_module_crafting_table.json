@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_metaphysical_safety_module": {
+    "has_hazard_safety_module": {
       "conditions": {
         "items": [
           {
-            "items": "dermicraft:metaphysical_safety_module"
+            "items": "dermicraft:hazard_safety_module"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_metaphysical_safety_module"
+      "has_hazard_safety_module"
     ]
   ],
   "rewards": {

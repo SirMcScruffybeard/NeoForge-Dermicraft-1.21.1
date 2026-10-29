@@ -22,6 +22,7 @@ import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.AidModeData;
 import net.scruffy.dermicraft.component.HazardModuleData;
+import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
 import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
 import net.scruffy.dermicraft.item.custom.module.ModuleVariant;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
@@ -470,7 +471,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("aggregate_module_crafting_table"));
 
-        // Beam Module: built FROM the Metaphysical Safety Module rather than a Module Frame directly
+        // Beam Module: built FROM the Severe Metaphysical Safety Module (a placeholder level until this module is
+        // redone) rather than a Module Frame directly
         // -- the metaphysical destabilization mechanic is the actual capability being crafted in, the
         // Safety Module just already carries that material identity (see the beam design discussion's
         // recipe-carries-the-crossover reasoning). Iron Pickaxe on top mirrors EaterItem's own
@@ -483,8 +485,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern(" M ")
                 .define('P', Items.IRON_PICKAXE)
                 .define('H', Items.HOPPER)
-                .define('M', ModItems.METAPHYSICAL_SAFETY_MODULE.get())
-                .unlockedBy("has_metaphysical_safety_module", has(ModItems.METAPHYSICAL_SAFETY_MODULE.get()))
+                .define('M', DataComponentIngredient.of(false, ModDataComponentTypes.HAZARD_MODULE_DATA,
+                        HazardModuleVariant.METAPHYSICAL_SEVERE.getData(), ModItems.HAZARD_SAFETY_MODULE.get()))
+                .unlockedBy("has_hazard_safety_module", has(ModItems.HAZARD_SAFETY_MODULE.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("beam_module_crafting_table"));
 
         // Fluid Bypass Module: deliberately cheap relative to Aggregate/Thermal Safety -- see the
