@@ -81,8 +81,6 @@ public class DermicraftJeiPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registerModuleFamily(registration, ModuleFamilies.TIER);
         registerModuleFamily(registration, ModuleFamilies.OVERGROWTH);
-        registerModuleFamily(registration, ModuleFamilies.HAZARD_EVOLUTION);
-        registerModuleFamily(registration, ModuleFamilies.HAZARD_SAFETY);
     }
 
     private static <D> void registerModuleFamily(ISubtypeRegistration registration, ModuleFamily<D> family) {

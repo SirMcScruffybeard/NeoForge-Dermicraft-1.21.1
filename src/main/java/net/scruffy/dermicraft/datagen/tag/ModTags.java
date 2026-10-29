@@ -118,6 +118,11 @@ public class ModTags {
         // live in ordinary water) stay cheap regardless of hazard progression.
         public static final TagKey<Item> MODULE_FLUID_BYPASS = createTag("module/fluid_bypass");
 
+        // Hazard modules, by kind -- so a recipe or a pack can ask for "any Safety Module" or "any hazard Evolution
+        // Module". WHICH hazard each grants lives in the hazard_module item data map.
+        public static final TagKey<Item> MODULE_HAZARD_SAFETY = createTag("module/hazard_safety");
+        public static final TagKey<Item> MODULE_HAZARD_EVOLUTION = createTag("module/hazard_evolution");
+
         // "Work Speed" family -- same kind-vs-data split as the other property-driven modules: generic membership only
         // here, WHICH multiplier a specific one grants lives in
         // ModDataMaps.WORK_SPEED_MODULE_PROPERTIES.

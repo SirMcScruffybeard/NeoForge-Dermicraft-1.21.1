@@ -10,6 +10,7 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
 import net.scruffy.dermicraft.main.Dermicraft;
 import org.jetbrains.annotations.Nullable;
 
@@ -96,18 +97,24 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.BEAM_MODULE.get())
                 .add(ModItems.FLUID_BYPASS_MODULE.get())
                 .add(ModItems.SAFETY_MODULE_FRAME.get())
-                .add(ModItems.HAZARD_SAFETY_MODULE.get())
+                .addTag(ModTags.Items.MODULE_HAZARD_SAFETY)
                 .add(ModItems.HEAT_EVOLUTION_MODULE.get())
                 .add(ModItems.EVOLUTION_MODULE_FRAME.get())
                 .add(ModItems.TIER_EVOLUTION_MODULE.get())
                 .add(ModItems.OVERGROWTH_EVOLUTION_MODULE.get())
-                .add(ModItems.HAZARD_EVOLUTION_MODULE.get())
+                .addTag(ModTags.Items.MODULE_HAZARD_EVOLUTION)
                 .add(ModItems.WORK_SPEED_MODULE.get())
                 .add(ModItems.SALVAGE_MODULE.get())
                 .add(ModItems.ANCHOR_MODULE.get())
                 .add(ModItems.CAPACITY_MODULE.get())
                 .add(ModItems.SMELTING_MODULE.get())
         ;
+
+        // Hazard modules by kind: the six variants of each (see HazardModuleVariant).
+        for (HazardModuleVariant variant : HazardModuleVariant.values()) {
+            tag(ModTags.Items.MODULE_HAZARD_SAFETY).add(ModItems.getHazardSafetyModule(variant));
+            tag(ModTags.Items.MODULE_HAZARD_EVOLUTION).add(ModItems.getHazardEvolutionModule(variant));
+        }
 
         tag(ModTags.Items.MODULE_AGGREGATE)
                 .add(ModItems.AGGREGATE_MODULE.get())

@@ -1,0 +1,52 @@
+{
+  "values": {
+    "dermicraft:biohazard_evolution_module": {
+      "family": "biohazard",
+      "level": 1
+    },
+    "dermicraft:biohazard_safety_module": {
+      "family": "biohazard",
+      "level": 1
+    },
+    "dermicraft:metaphysical_mild_evolution_module": {
+      "family": "metaphysical",
+      "level": 1
+    },
+    "dermicraft:metaphysical_mild_safety_module": {
+      "family": "metaphysical",
+      "level": 1
+    },
+    "dermicraft:metaphysical_severe_evolution_module": {
+      "family": "metaphysical",
+      "level": 2
+    },
+    "dermicraft:metaphysical_severe_safety_module": {
+      "family": "metaphysical",
+      "level": 2
+    },
+    "dermicraft:radiation_mild_evolution_module": {
+      "family": "radiation",
+      "level": 1
+    },
+    "dermicraft:radiation_mild_safety_module": {
+      "family": "radiation",
+      "level": 1
+    },
+    "dermicraft:radiation_severe_evolution_module": {
+      "family": "radiation",
+      "level": 2
+    },
+    "dermicraft:radiation_severe_safety_module": {
+      "family": "radiation",
+      "level": 2
+    },
+    "dermicraft:thermal_evolution_module": {
+      "family": "thermal",
+      "level": 1
+    },
+    "dermicraft:thermal_safety_module": {
+      "family": "thermal",
+      "level": 1
+    }
+  }
+}

@@ -5,10 +5,14 @@ import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.function.Function;
 import net.scruffy.dermicraft.item.custom.*;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
 import net.scruffy.dermicraft.item.custom.module.HazardEvolutionModuleItem;
+import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
 import net.scruffy.dermicraft.item.custom.module.HazardSafetyModuleItem;
 import net.scruffy.dermicraft.item.custom.module.SafetyModuleItem;
 import net.scruffy.dermicraft.item.custom.module.LevelEvolutionModuleItem;
@@ -241,10 +245,10 @@ public class ModItems {
     // The Safety Module Frame: the inert base of the Safety Module branch (see SafetyModuleItem).
     public static final DeferredItem<Item> SAFETY_MODULE_FRAME = ITEMS.register("safety_module_frame",
             () -> new SafetyModuleItem(new Item.Properties()));
-    // The new Safety Module: one item whose stacks carry the hazard family and level (HazardModuleData), six
-    // variants. Replaced the three old per-hazard items.
-    public static final DeferredItem<Item> HAZARD_SAFETY_MODULE = ITEMS.register("hazard_safety_module",
-            () -> new HazardSafetyModuleItem(new Item.Properties()));
+    // The Safety Modules: one item per hazard variant (see HazardModuleVariant), each granting its family and level
+    // through the hazard_module data map. Use getHazardSafetyModule(variant).
+    public static final Map<HazardModuleVariant, DeferredItem<Item>> HAZARD_SAFETY_MODULES =
+            registerHazardModules("safety_module", HazardSafetyModuleItem::new);
 
     // Evolution Module family (dermicraft-progression-notes.md / dermicraft-machine-notes.md,
     // Drooling Cauldron entry "Evolution Module family") -- item only for now, no mechanics wired
@@ -255,16 +259,17 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
 
     // Evolution Modules. The Frame is the inert base (it fits the Evolution slot and does nothing); the
-    // loaded modules are each their own item whose stacks carry one component: the level to raise to
-    // (Tier, Overgrowth) or the hazard family and level (Hazard). See EvolutionModuleItem.
+    // loaded modules are each their own item: Tier and Overgrowth stacks carry the level to raise to as a component,
+    // the hazard modules are one item per variant (family and level from the hazard_module data map). See EvolutionModuleItem.
     public static final DeferredItem<Item> EVOLUTION_MODULE_FRAME = ITEMS.register("evolution_module_frame",
             () -> new EvolutionModuleItem(new Item.Properties()));
     public static final DeferredItem<Item> TIER_EVOLUTION_MODULE = ITEMS.register("tier_evolution_module",
             () -> new LevelEvolutionModuleItem(new Item.Properties(), EvolutionLadder.TIER));
     public static final DeferredItem<Item> OVERGROWTH_EVOLUTION_MODULE = ITEMS.register("overgrowth_evolution_module",
             () -> new LevelEvolutionModuleItem(new Item.Properties(), EvolutionLadder.OVERGROWTH));
-    public static final DeferredItem<Item> HAZARD_EVOLUTION_MODULE = ITEMS.register("hazard_evolution_module",
-            () -> new HazardEvolutionModuleItem(new Item.Properties()));
+    // One hazard Evolution Module per variant, the same six as the Safety Modules. Use getHazardEvolutionModule(variant).
+    public static final Map<HazardModuleVariant, DeferredItem<Item>> HAZARD_EVOLUTION_MODULES =
+            registerHazardModules("evolution_module", HazardEvolutionModuleItem::new);
 
     // Work Speed Module -- tagged MODULE_WORK_SPEED (not a Safety Module), same "kind via tag, data
     // via data map" split as the Safety Modules above.
@@ -300,5 +305,24 @@ public class ModItems {
 
 
     ////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\
+
+    /** Registers one item per {@link HazardModuleVariant} named {@code <variant>_<suffix>}. */
+    private static Map<HazardModuleVariant, DeferredItem<Item>> registerHazardModules(
+            String suffix, Function<Item.Properties, Item> factory) {
+        Map<HazardModuleVariant, DeferredItem<Item>> modules = new EnumMap<>(HazardModuleVariant.class);
+        for (HazardModuleVariant variant : HazardModuleVariant.values()) {
+            modules.put(variant, ITEMS.register(variant.getName() + "_" + suffix,
+                    () -> factory.apply(new Item.Properties())));
+        }
+        return modules;
+    }
+
+    public static Item getHazardSafetyModule(HazardModuleVariant variant) {
+        return HAZARD_SAFETY_MODULES.get(variant).get();
+    }
+
+    public static Item getHazardEvolutionModule(HazardModuleVariant variant) {
+        return HAZARD_EVOLUTION_MODULES.get(variant).get();
+    }
 
 }

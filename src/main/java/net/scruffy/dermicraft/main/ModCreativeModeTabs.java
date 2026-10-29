@@ -150,16 +150,16 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.FLUID_BYPASS_MODULE);
 
                         // Safety Modules
-                        // The Safety Module Frame, then the new Safety Module's six variants.
+                        // The Safety Module Frame, then the six hazard Safety Modules.
                         output.accept(ModItems.SAFETY_MODULE_FRAME);
-                        ModuleFamilies.HAZARD_SAFETY.createStacks().forEach(output::accept);
+                        ModItems.HAZARD_SAFETY_MODULES.values().forEach(output::accept);
 
                         // Evolution Modules -- the Frame, then one stack per variant of each loaded module (see
                         // ModuleFamilies); Overgrowth is level 1, other levels come from commands.
                         output.accept(ModItems.EVOLUTION_MODULE_FRAME);
                         ModuleFamilies.TIER.createStacks().forEach(output::accept);
                         ModuleFamilies.OVERGROWTH.createStacks().forEach(output::accept);
-                        ModuleFamilies.HAZARD_EVOLUTION.createStacks().forEach(output::accept);
+                        ModItems.HAZARD_EVOLUTION_MODULES.values().forEach(output::accept);
 
                         // Work Speed Modules
                         output.accept(ModItems.WORK_SPEED_MODULE);

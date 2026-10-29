@@ -1,0 +1,10 @@
+{
+  "values": [
+    "dermicraft:thermal_safety_module",
+    "dermicraft:radiation_mild_safety_module",
+    "dermicraft:radiation_severe_safety_module",
+    "dermicraft:biohazard_safety_module",
+    "dermicraft:metaphysical_mild_safety_module",
+    "dermicraft:metaphysical_severe_safety_module"
+  ]
+}

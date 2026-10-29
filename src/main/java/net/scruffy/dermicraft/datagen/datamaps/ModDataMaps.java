@@ -10,6 +10,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
+import net.scruffy.dermicraft.component.HazardModuleData;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
@@ -47,6 +48,7 @@ public class ModDataMaps {
                     )
                     .build();
 
+/** Which hazard family and level a hazard module item grants -- see {@link HazardModuleData}. Safety and     * Evolution hazard modules share it; what the grant does (temporary tolerance, or a permanent evolution) comes     * from the item class. Synced to clients so tooltips and screens can read it, and editable by a datapack. */    public static final DataMapType<Item, HazardModuleData> HAZARD_MODULE =            DataMapType.builder(                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "hazard_module"),                            Registries.ITEM,                            HazardModuleData.CODEC                    )                    .synced(HazardModuleData.CODEC, true)                    .build();
     /** Per-item Evolution Module data -- see {@link EvolutionModuleProperties}. Kind (is this an
      * Evolution Module at all) lives on {@code ModTags.Items.MODULES}; a future sub-tag can narrow
      * which machine's Module slot accepts it if that turns out to matter. This map is specifically
@@ -118,6 +120,7 @@ public class ModDataMaps {
         event.register(EDIBLE_FLUID);
         event.register(SUNDER_CHAIN_PROPERTIES);
         event.register(EVOLUTION_MODULE_PROPERTIES);
+        event.register(HAZARD_MODULE);
         event.register(DECAPITATION_HEADS);
         event.register(SHATTER_HEAD_PROPERTIES);
         event.register(WORK_SPEED_MODULE_PROPERTIES);

@@ -1,0 +1,10 @@
+{
+  "values": [
+    "dermicraft:thermal_evolution_module",
+    "dermicraft:radiation_mild_evolution_module",
+    "dermicraft:radiation_severe_evolution_module",
+    "dermicraft:biohazard_evolution_module",
+    "dermicraft:metaphysical_mild_evolution_module",
+    "dermicraft:metaphysical_severe_evolution_module"
+  ]
+}

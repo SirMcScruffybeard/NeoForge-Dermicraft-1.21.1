@@ -9,7 +9,7 @@ import net.scruffy.dermicraft.machine.EvolutionRules;
 
 import java.util.Optional;
 
-/** A hazard Evolution Module: permanently grants its hazard family and level when the evolution completes. */
+/** A hazard Evolution Module: permanently grants the hazard family and level its data map entry names when the evolution completes. */
 public class HazardEvolutionModuleItem extends EvolutionModuleItem implements IHasHazardModuleData {
 
     public HazardEvolutionModuleItem(Properties properties) {

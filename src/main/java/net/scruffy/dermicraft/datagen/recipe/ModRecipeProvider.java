@@ -21,10 +21,7 @@ import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.AidModeData;
-import net.scruffy.dermicraft.component.HazardModuleData;
 import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
-import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
-import net.scruffy.dermicraft.item.custom.module.ModuleVariant;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
@@ -485,9 +482,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .pattern(" M ")
                 .define('P', Items.IRON_PICKAXE)
                 .define('H', Items.HOPPER)
-                .define('M', DataComponentIngredient.of(false, ModDataComponentTypes.HAZARD_MODULE_DATA,
-                        HazardModuleVariant.METAPHYSICAL_SEVERE.getData(), ModItems.HAZARD_SAFETY_MODULE.get()))
-                .unlockedBy("has_hazard_safety_module", has(ModItems.HAZARD_SAFETY_MODULE.get()))
+                .define('M', ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_SEVERE))
+                .unlockedBy("has_severe_metaphysical_safety_module",
+                        has(ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_SEVERE)))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("beam_module_crafting_table"));
 
         // Fluid Bypass Module: deliberately cheap relative to Aggregate/Thermal Safety -- see the
@@ -1324,23 +1321,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Safety Module + a bucket (1000 mB) of Evolution Catalyst --
         // same cost tier as Chassis, since it's an upgrade-part item rather than permanent
         // infrastructure like the Module Frame above.
-        RecipeBuilders.buildMutating(recipeOutput, "heat_evolution_module_mutating",
-                DataComponentIngredient.of(false, ModDataComponentTypes.HAZARD_MODULE_DATA,
-                        HazardModuleVariant.THERMAL.getData(), ModItems.HAZARD_SAFETY_MODULE.get()),
-                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, new ItemStack(ModItems.HEAT_EVOLUTION_MODULE.get()),
-                solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "heat_evolution_module_mutating",
+                ModItems.getHazardSafetyModule(HazardModuleVariant.THERMAL),
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.HEAT_EVOLUTION_MODULE.get(), solidTicks);
 
-        // Hazard Evolution Modules: a Safety Module of the matching hazard family and level + a bucket (1000 mB)
-        // of Evolution Catalyst. One recipe per variant; the Safety Module is matched by its HazardModuleData
-        // (non-strict, so any other components on the stack are ignored) and the result carries the same data.
-        for (ModuleVariant<HazardModuleData> variant : ModuleFamilies.HAZARD_SAFETY.getVariants()) {
-            ItemStack result = new ItemStack(ModItems.HAZARD_EVOLUTION_MODULE.get());
-            result.set(ModDataComponentTypes.HAZARD_MODULE_DATA, variant.data());
-
-            RecipeBuilders.buildMutating(recipeOutput, "hazard_evolution_module_" + variant.name() + "_mutating",
-                    DataComponentIngredient.of(false, ModDataComponentTypes.HAZARD_MODULE_DATA, variant.data(),
-                            ModItems.HAZARD_SAFETY_MODULE.get()),
-                    ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, result, solidTicks);
+        // Hazard Evolution Modules: a Safety Module + a bucket (1000 mB) of Evolution Catalyst gives the Evolution
+        // Module of the same variant. One recipe per variant.
+        for (HazardModuleVariant variant : HazardModuleVariant.values()) {
+            RecipeBuilders.mutate(recipeOutput, variant.getName() + "_evolution_module_mutating",
+                    ModItems.getHazardSafetyModule(variant), ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000,
+                    ModItems.getHazardEvolutionModule(variant), solidTicks);
         }
 
         // Evolution Module Frame: a Safety Module Frame + a bucket (1000 mB) of Evolution Catalyst, the frame

@@ -201,13 +201,6 @@ public class ModDataComponentTypes {
                     .persistent(LevelModuleData.CODEC)
                     .networkSynchronized(LevelModuleData.STREAM_CODEC));
 
-    /** The hazard family and level a hazard module (Evolution or Safety) grants; what the grant does is the
-     * item's. Absent on a bare module, which does nothing. */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<HazardModuleData>> HAZARD_MODULE_DATA =
-            register("hazard_module_data", builder -> builder
-                    .persistent(HazardModuleData.CODEC)
-                    .networkSynchronized(HazardModuleData.STREAM_CODEC));
-
     /** A machine's tier, Overgrowth level and hazard tolerances, carried on its item so a Forceps pickup
      * or creative pick block keeps the investment. Absent means a plain L1 machine. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<EvolutionStateData>> EVOLUTION_STATE =

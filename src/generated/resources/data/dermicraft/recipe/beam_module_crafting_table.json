@@ -6,14 +6,7 @@
       "item": "minecraft:hopper"
     },
     "M": {
-      "type": "neoforge:components",
-      "components": {
-        "dermicraft:hazard_module_data": {
-          "family": "metaphysical",
-          "level": 2
-        }
-      },
-      "items": "dermicraft:hazard_safety_module"
+      "item": "dermicraft:metaphysical_severe_safety_module"
     },
     "P": {
       "item": "minecraft:iron_pickaxe"

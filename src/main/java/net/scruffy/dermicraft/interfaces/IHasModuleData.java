@@ -7,8 +7,8 @@ import java.util.Optional;
 
 /**
  * A module item whose stacks carry component data that names them. {@code ModuleItem#getName} asks this, since an
- * interface default cannot override a class method; {@link IHasHazardModuleData} and {@link IHasLevelModuleData} supply it for their
- * component.
+ * interface default cannot override a class method; {@link IHasLevelModuleData} supplies it for its
+ * component. (The hazard modules are separate items, named by their own lang keys, so they do not use it.)
  */
 public interface IHasModuleData {
 

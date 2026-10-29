@@ -10,6 +10,7 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
 import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
 import net.scruffy.dermicraft.item.custom.module.ModuleFamily;
 import net.scruffy.dermicraft.item.custom.module.ModuleVariant;
@@ -85,13 +86,19 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .texture("layer0", ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/evolution_module_frame"));
         moduleFamilyItem(ModuleFamilies.TIER, "item/module/evolution_module_frame");
         moduleFamilyItem(ModuleFamilies.OVERGROWTH, "item/module/evolution_module_frame");
-        moduleFamilyItem(ModuleFamilies.HAZARD_EVOLUTION, "item/module/evolution_module_frame");
 
         // The Safety Module Frame -- one layer, no icon, on the hazard frame texture.
         withExistingParent(BuiltInRegistries.ITEM.getKey(ModItems.SAFETY_MODULE_FRAME.get()).toString(), "item/generated")
                 .texture("layer0", ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/hazard_module_frame"));
-        // The new Safety Module -- the same six hazard icons as the hazard Evolution Module, on the hazard frame.
-        moduleFamilyItem(ModuleFamilies.HAZARD_SAFETY, "item/module/hazard_module_frame");
+
+        // The hazard modules: one item per variant, the variant's icon over its family's frame. Safety Modules use
+        // the hazard frame, hazard Evolution Modules the Evolution frame.
+        for (HazardModuleVariant variant : HazardModuleVariant.values()) {
+            ResourceLocation icon = ResourceLocation.fromNamespaceAndPath(
+                    Dermicraft.MOD_ID, "item/module/icons/" + variant.getName());
+            moduleItem(ModItems.getHazardSafetyModule(variant), "item/module/hazard_module_frame", icon);
+            moduleItem(ModItems.getHazardEvolutionModule(variant), "item/module/evolution_module_frame", icon);
+        }
 
         // Work Speed Module -- plain module_frame background (not its own family frame), per
         // explicit instruction, with the user's own hand-painted speed icon on top.

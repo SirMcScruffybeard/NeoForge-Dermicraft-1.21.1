@@ -12,6 +12,7 @@ import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.item.ModItems;
+import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
@@ -248,6 +249,14 @@ public class ModDataMapProvider extends DataMapProvider {
                                 List.of(ModTags.Fluids.THERMAL),
                                 24000), false)
                 ;
+
+        // Hazard modules: every variant's Safety and Evolution item grants the same family and level; what the
+        // grant does (temporary tolerance, or a permanent evolution) comes from the item class.
+        var hazardModules = this.builder(ModDataMaps.HAZARD_MODULE);
+        for (HazardModuleVariant variant : HazardModuleVariant.values()) {
+            hazardModules.add(getResourceLocation(ModItems.HAZARD_SAFETY_MODULES.get(variant)), variant.getData(), false);
+            hazardModules.add(getResourceLocation(ModItems.HAZARD_EVOLUTION_MODULES.get(variant)), variant.getData(), false);
+        }
 
         // Scoped to mobs with a real vanilla head/skull item already -- see the design notes.
         // Player excluded deliberately: a real player head needs profile NBT, not just an Item
