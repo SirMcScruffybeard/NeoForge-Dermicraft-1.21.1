@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:module_frame"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "I I",
+    "IFI",
+    "I I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:safety_module_frame"
+  }
+}

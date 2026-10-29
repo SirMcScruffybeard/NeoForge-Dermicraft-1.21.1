@@ -3,10 +3,7 @@
   "fluid": "dermicraft:source_evolution_catalyst",
   "fluid_amount": 1000,
   "ingredient": {
-    "type": "neoforge:components",
-    "components": {},
-    "items": "dermicraft:hazard_safety_module",
-    "strict": true
+    "item": "dermicraft:safety_module_frame"
   },
   "result": {
     "count": 1,

@@ -93,6 +93,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleFamilyItem(ModuleFamilies.OVERGROWTH, "item/module/evolution_module_frame");
         moduleFamilyItem(ModuleFamilies.HAZARD_EVOLUTION, "item/module/evolution_module_frame");
 
+        // The Safety Module Frame -- one layer, no icon, on the hazard frame texture.
+        withExistingParent(BuiltInRegistries.ITEM.getKey(ModItems.SAFETY_MODULE_FRAME.get()).toString(), "item/generated")
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/hazard_module_frame"));
         // The new Safety Module -- the same six hazard icons as the hazard Evolution Module, on the hazard frame.
         moduleFamilyItem(ModuleFamilies.HAZARD_SAFETY, "item/module/hazard_module_frame");
 

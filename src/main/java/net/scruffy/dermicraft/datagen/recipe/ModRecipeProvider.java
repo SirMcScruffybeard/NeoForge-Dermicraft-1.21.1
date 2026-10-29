@@ -15,7 +15,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.core.component.DataComponentMap;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
@@ -505,6 +504,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("fluid_bypass_module_crafting_table"));
+
+        // Safety Module Frame: the Module Frame cased in 6 Iron Ingots, the same housing weight the old
+        // Safety Modules used, minus the hazard core. Placeholder until the Safety Module recipes are redesigned.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SAFETY_MODULE_FRAME.get())
+                .pattern("I I")
+                .pattern("IFI")
+                .pattern("I I")
+                .define('I', Items.IRON_INGOT)
+                .define('F', ModItems.MODULE_FRAME.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("safety_module_frame_crafting_table"));
 
         // Thermal Safety Module: the priciest of the three, deliberately -- this is the one that
         // actually skips a real progression gate (early hazard tolerance), not just convenience
@@ -1394,13 +1404,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                     ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, result, solidTicks);
         }
 
-        // Evolution Module Frame: a bare Safety Module (no hazard data) + a bucket (1000 mB) of Evolution
-        // Catalyst. Strict match against an empty component map, so only a stack with no HazardModuleData
-        // qualifies; the six variants above take the data-carrying route instead.
-        RecipeBuilders.buildMutating(recipeOutput, "evolution_module_frame_mutating",
-                DataComponentIngredient.of(true, DataComponentMap.EMPTY, ModItems.HAZARD_SAFETY_MODULE.get()),
-                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, new ItemStack(ModItems.EVOLUTION_MODULE_FRAME.get()),
-                solidTicks);
+        // Evolution Module Frame: a Safety Module Frame + a bucket (1000 mB) of Evolution Catalyst, the frame
+        // counterpart of the six variant recipes above.
+        RecipeBuilders.mutate(recipeOutput, "evolution_module_frame_mutating", ModItems.SAFETY_MODULE_FRAME.get(),
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.EVOLUTION_MODULE_FRAME.get(), solidTicks);
 
         // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
         // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier

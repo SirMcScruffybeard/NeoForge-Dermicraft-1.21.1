@@ -11,7 +11,7 @@ import net.scruffy.dermicraft.interfaces.IHasHazardModuleData;
  * hazard data is the same {@link net.scruffy.dermicraft.component.HazardModuleData} the hazard Evolution Module
  * carries; what the grant does comes from this item class, so the reading code checks for it.
  */
-public class HazardSafetyModuleItem extends ModuleItem implements IHasHazardModuleData {
+public class HazardSafetyModuleItem extends SafetyModuleItem implements IHasHazardModuleData {
     public HazardSafetyModuleItem(Properties properties) {
         super(properties);
     }

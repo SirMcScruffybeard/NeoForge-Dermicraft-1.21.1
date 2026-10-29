@@ -98,6 +98,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.HEAT_SAFETY_MODULE.get())
                 .add(ModItems.METAPHYSICAL_SAFETY_MODULE.get())
                 .add(ModItems.RADIATION_SAFETY_MODULE.get())
+                .add(ModItems.SAFETY_MODULE_FRAME.get())
                 .add(ModItems.HAZARD_SAFETY_MODULE.get())
                 .add(ModItems.HEAT_EVOLUTION_MODULE.get())
                 .add(ModItems.EVOLUTION_MODULE_FRAME.get())
