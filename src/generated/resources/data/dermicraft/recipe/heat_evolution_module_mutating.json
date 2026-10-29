@@ -3,7 +3,14 @@
   "fluid": "dermicraft:source_evolution_catalyst",
   "fluid_amount": 1000,
   "ingredient": {
-    "item": "dermicraft:heat_safety_module"
+    "type": "neoforge:components",
+    "components": {
+      "dermicraft:hazard_module_data": {
+        "family": "thermal",
+        "level": 1
+      }
+    },
+    "items": "dermicraft:hazard_safety_module"
   },
   "result": {
     "count": 1,

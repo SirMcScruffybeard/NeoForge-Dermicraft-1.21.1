@@ -150,9 +150,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.FLUID_BYPASS_MODULE);
 
                         // Safety Modules
-                        output.accept(ModItems.HEAT_SAFETY_MODULE);
-                        output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
-                        output.accept(ModItems.RADIATION_SAFETY_MODULE);
                         // The Safety Module Frame, then the new Safety Module's six variants.
                         output.accept(ModItems.SAFETY_MODULE_FRAME);
                         ModuleFamilies.HAZARD_SAFETY.createStacks().forEach(output::accept);

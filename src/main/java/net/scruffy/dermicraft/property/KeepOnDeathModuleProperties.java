@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 /**
  * Per-item data for a Keep-on-Death Module (Salvage/Anchor), looked up via
  * {@code ModDataMaps.KEEP_ON_DEATH_MODULE_PROPERTIES} (keyed on the Module item) -- same
- * kind-vs-data split as {@link SafetyModuleProperties}: tag membership in
+ * kind-vs-data split as the Work Speed Module: tag membership in
  * {@code ModTags.Items.MODULE_KEEP_ON_DEATH} marks an item as one of these Modules at all, this
  * data map says WHICH tier a specific one is.
  *

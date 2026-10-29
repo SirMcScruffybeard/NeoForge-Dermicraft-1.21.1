@@ -519,74 +519,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("safety_module_frame_crafting_table"));
 
-        // Thermal Safety Module: the priciest of the three, deliberately -- this is the one that
-        // actually skips a real progression gate (early hazard tolerance), not just convenience
-        // (Fluid Bypass) or a harvesting-category unlock (Aggregate). Magma Block (heat-resistant
-        // identity) over a Lava Bucket (the hazard itself, not the bucket's iron -- same "value the
-        // content, not the container" framing as Fluid Bypass's water) over the Module Frame, cased
-        // in 6 Iron Ingots as a protective housing around the heat core.
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.HEAT_SAFETY_MODULE.get())
-                .pattern("IMI")
-                .pattern("ILI")
-                .pattern("IFI")
-                .define('I', Items.IRON_INGOT)
-                .define('M', Blocks.MAGMA_BLOCK)
-                .define('L', Items.LAVA_BUCKET)
-                .define('F', ModItems.MODULE_FRAME.get())
-                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
-                .save(recipeOutput, RecipeBuilders.getResourceLocation("heat_safety_module_crafting_table"));
-
-        // Metaphysical Safety Module: deliberately mirrors Thermal Safety Module's own shape/weight --
-        // an Ender Pearl (metaphysical identity, playing Magma Block's role) over Soul Sand (the raw
-        // ingredient Molten Soul Silica is itself made from -- NOT the fluid, which is METAPHYSICAL_MILD-
-        // tagged and only ever producible in a Masticator's hazard-gated RESULT_TANK; that tank refuses
-        // to hold METAPHYSICAL_MILD fluid without a Metaphysical Safety Module already installed, which
-        // made the module's own recipe unbootstrappable -- 2026-08-31, found and fixed) over the Module
-        // Frame, cased in 6 Iron Ingots. Tune later if it ends up feeling off relative to Thermal.
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.METAPHYSICAL_SAFETY_MODULE.get())
-                .pattern("IPI")
-                .pattern("ISI")
-                .pattern("IFI")
-                .define('I', Items.IRON_INGOT)
-                .define('P', Items.ENDER_PEARL)
-                .define('S', Blocks.SOUL_SAND)
-                .define('F', ModItems.MODULE_FRAME.get())
-                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
-                .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_crafting_table"));
-
-        // Metaphysical Safety Module -- alternate recipe, the original Molten Soul Silica Bucket
-        // version (see the Soul Sand recipe above's javadoc: that fluid is only producible in a
-        // Masticator's hazard-gated RESULT_TANK, which requires a Metaphysical Safety Module already
-        // installed to accept METAPHYSICAL_MILD fluid -- an unbootstrappable loop on its own). Kept
-        // as a second route once the player already has the tolerance to make the fluid some other
-        // way (e.g. a second module from the Soul Sand recipe, or trading/finding one).
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.METAPHYSICAL_SAFETY_MODULE.get())
-                .pattern("IPI")
-                .pattern("ISI")
-                .pattern("IFI")
-                .define('I', Items.IRON_INGOT)
-                .define('P', Items.ENDER_PEARL)
-                .define('S', ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get())
-                .define('F', ModItems.MODULE_FRAME.get())
-                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
-                .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_safety_module_soul_silica_crafting_table"));
-
-        // Radiation Safety Module: exact same shape as Thermal Safety Module -- Glowstone Block
-        // (radiant identity, playing Magma Block's role) over a Molten Redstone Bucket (the hazard
-        // content -- shares Thermal's own THERMAL-tagged fluid rather than reaching for a
-        // RADIATION_MILD one, mirroring Thermal Safety's Lava Bucket 1:1) over the Module Frame,
-        // cased in 6 Iron Ingots.
-        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.RADIATION_SAFETY_MODULE.get())
-                .pattern("IGI")
-                .pattern("ILI")
-                .pattern("IFI")
-                .define('I', Items.IRON_INGOT)
-                .define('G', Items.GLOWSTONE)
-                .define('L', ModFluids.MOLTEN_REDSTONE_BUCKET.get())
-                .define('F', ModItems.MODULE_FRAME.get())
-                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
-                .save(recipeOutput, RecipeBuilders.getResourceLocation("radiation_safety_module_crafting_table"));
-
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
         // an identity item + the fluid's own bucket + Module Frame). Sugar stands in for the
         // "speed" identity, mirroring Ender Pearl/Magma Block's role -- real vanilla precedent
@@ -1388,11 +1320,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "module_frame_mutating", ModItems.CHASSIS.get(),
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.MODULE_FRAME.get(), solidTicks);
 
-        // Evolution Modules: matching Safety Module + a bucket (1000 mB) of Evolution Catalyst --
+        // Old Heat Evolution Module (still used by the machines not yet moved to the component modules): the Thermal
+        // Safety Module + a bucket (1000 mB) of Evolution Catalyst --
         // same cost tier as Chassis, since it's an upgrade-part item rather than permanent
         // infrastructure like the Module Frame above.
-        RecipeBuilders.mutate(recipeOutput, "heat_evolution_module_mutating", ModItems.HEAT_SAFETY_MODULE.get(),
-                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.HEAT_EVOLUTION_MODULE.get(), solidTicks);
+        RecipeBuilders.buildMutating(recipeOutput, "heat_evolution_module_mutating",
+                DataComponentIngredient.of(false, ModDataComponentTypes.HAZARD_MODULE_DATA,
+                        HazardModuleVariant.THERMAL.getData(), ModItems.HAZARD_SAFETY_MODULE.get()),
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, new ItemStack(ModItems.HEAT_EVOLUTION_MODULE.get()),
+                solidTicks);
 
         // Hazard Evolution Modules: a Safety Module of the matching hazard family and level + a bucket (1000 mB)
         // of Evolution Catalyst. One recipe per variant; the Safety Module is matched by its HazardModuleData

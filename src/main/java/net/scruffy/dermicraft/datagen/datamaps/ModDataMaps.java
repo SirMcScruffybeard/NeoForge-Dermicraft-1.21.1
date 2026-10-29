@@ -15,7 +15,6 @@ import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
 import net.scruffy.dermicraft.property.EvolutionModuleProperties;
-import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
 import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.KeepOnDeathModuleProperties;
@@ -45,17 +44,6 @@ public class ModDataMaps {
                             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "sunder_chain_properties"),
                             Registries.ITEM,
                             ChainProperties.CODEC
-                    )
-                    .build();
-
-    /** Which hazard(s) a Safety Module grants while equipped -- see {@link SafetyModuleProperties}.
-     * Kind (is this a Safety Module at all) lives on {@code ModTags.Items.MODULE_SAFETY}; this data
-     * map is specifically WHICH hazard(s) a given one grants. */
-    public static final DataMapType<Item, SafetyModuleProperties> SAFETY_MODULE_PROPERTIES =
-            DataMapType.builder(
-                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "safety_module_properties"),
-                            Registries.ITEM,
-                            SafetyModuleProperties.CODEC
                     )
                     .build();
 
@@ -129,7 +117,6 @@ public class ModDataMaps {
         event.register(BIOFUELS);
         event.register(EDIBLE_FLUID);
         event.register(SUNDER_CHAIN_PROPERTIES);
-        event.register(SAFETY_MODULE_PROPERTIES);
         event.register(EVOLUTION_MODULE_PROPERTIES);
         event.register(DECAPITATION_HEADS);
         event.register(SHATTER_HEAD_PROPERTIES);

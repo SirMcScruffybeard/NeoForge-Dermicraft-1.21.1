@@ -6,7 +6,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.component.BulkItemData;
@@ -15,7 +14,6 @@ import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.item.custom.module.HazardSafetyModuleItem;
 import net.scruffy.dermicraft.property.CapacityModuleProperties;
-import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
 import java.util.ArrayList;
@@ -29,7 +27,7 @@ import java.util.function.BooleanSupplier;
  * step 2 of the sequencing plan. See {@code dermicraft-gadget-notes.md} -> Gadget upgrade points
  * -> "Modules — direction note" for the design this backs: a fixed-size, item-tag-identified
  * loadout on a gadget's own {@link ItemStack}, field-swappable via the Scrench/Workbench, where a
- * Safety Module ({@link ModTags.Items#MODULE_SAFETY}) grants temporary hazard tolerance on top of
+ * Safety Module ({@link HazardSafetyModuleItem}) grants temporary hazard tolerance on top of
  * whatever the gadget's own permanent tier already tolerates.
  *
  * <p>Pure static-utility shape (no abstract methods to implement), matching {@link IHaveItemData}'s
@@ -93,8 +91,7 @@ public interface IHaveModules {
      * {@link BulkItemData} component in the first place. {@code base.plus(hazard)}-per-tag, unioning
      * onto whatever {@code base} already tolerates -- same "never resets, only adds" rule as the
      * multi-slot overload. A {@link HazardSafetyModuleItem} grants its component's family and level
-     * ({@link HazardSafetyModuleItem#addTolerance}); the older per-hazard Safety Modules, read from the
-     * {@code MODULE_SAFETY} tag and a data map, still work until they are removed.
+     * ({@link HazardSafetyModuleItem#addTolerance}); any other item grants nothing.
      */
     static HazardProfile installedHazardProfile(HazardProfile base, ItemStack module) {
         if (module.isEmpty()) return base;
@@ -105,18 +102,7 @@ public interface IHaveModules {
             return safetyModule.addTolerance(base, module);
         }
 
-        // Legacy per-hazard Safety Modules (tag plus data map); goes away with the old items.
-        if (!module.is(ModTags.Items.MODULE_SAFETY)) return base;
-
-        SafetyModuleProperties properties = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                .getData(ModDataMaps.SAFETY_MODULE_PROPERTIES);
-        if (properties == null) return base;
-
-        HazardProfile profile = base;
-        for (TagKey<Fluid> hazard : properties.hazards()) {
-            profile = profile.plus(hazard);
-        }
-        return profile;
+        return base;
     }
 
     /**

@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 /**
  * Per-item speed grant for a Work Speed Module, looked up via
  * {@code ModDataMaps.WORK_SPEED_MODULE_PROPERTIES} (keyed on the Module item) -- same kind-vs-data
- * split as {@link SafetyModuleProperties}: tag membership in {@code ModTags.Items.MODULE_WORK_SPEED}
+ * split as the Keep-on-Death Module: tag membership in {@code ModTags.Items.MODULE_WORK_SPEED}
  * marks an item as a Work Speed Module at all, this data map says WHAT multiplier a specific one
  * grants. Deliberately multiplicative onto the existing fuel-grade/tier speed calculation
  * ({@code AbstractFueledMachineBlockEntity#setSpeed()}), not additive -- and since fuel use rate is

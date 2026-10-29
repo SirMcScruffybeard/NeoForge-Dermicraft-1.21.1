@@ -21,7 +21,7 @@ import java.util.Optional;
  *   <li>{@code targetFluid} -- for a SELECTOR consumer (Drooling Cauldron): which fluid installing
  *   this Module switches production to.</li>
  *   <li>{@code hazards} -- for a HAZARD-GATED consumer (Masticator, eventually): same shape as
- *   {@link SafetyModuleProperties#hazards()}, additive to whatever that consumer's own Safety
+ *   the Safety Module's hazard grant, additive to whatever that consumer's own Safety
  *   Module already grants.</li>
  * </ul>
  *
@@ -41,7 +41,7 @@ public record EvolutionModuleProperties(Optional<Fluid> targetFluid, List<TagKey
                     Codec.INT.fieldOf("evolution_threshold").forGetter(EvolutionModuleProperties::evolutionThreshold))
             .apply(instance, EvolutionModuleProperties::new));
 
-    /** Same shape as {@link SafetyModuleProperties#hazardProfile()} -- built fresh each call, not
+    /** Same shape as the old Safety Module hazard grant -- built fresh each call, not
      * cached here. */
     public HazardProfile hazardProfile() {
         return HazardProfile.of(hazards);

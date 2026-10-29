@@ -114,16 +114,11 @@ public class ModTags {
         public static final TagKey<Item> MODULE_BEAM = createTag("module/beam");
 
         // "Fluid" family -- mundane "can target through plain fluid at all," kept deliberately
-        // separate from hazard tolerance (see MODULE_SAFETY below) so kelp/fish-style combos (which
+        // separate from hazard tolerance (see the Safety Modules) so kelp/fish-style combos (which
         // live in ordinary water) stay cheap regardless of hazard progression.
         public static final TagKey<Item> MODULE_FLUID_BYPASS = createTag("module/fluid_bypass");
 
-        // "Hazard" family -- generic membership only ("this is A Safety Module"); WHICH hazard(s) a
-        // specific one grants lives in ModDataMaps.SAFETY_MODULE_PROPERTIES instead of a per-hazard
-        // tag, so adding a new hazard kind later is a data map entry, not a new tag + new dispatch.
-        public static final TagKey<Item> MODULE_SAFETY = createTag("module/safety");
-
-        // "Work Speed" family -- same kind-vs-data split as Safety Modules: generic membership only
+        // "Work Speed" family -- same kind-vs-data split as the other property-driven modules: generic membership only
         // here, WHICH multiplier a specific one grants lives in
         // ModDataMaps.WORK_SPEED_MODULE_PROPERTIES.
         public static final TagKey<Item> MODULE_WORK_SPEED = createTag("module/work_speed");

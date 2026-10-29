@@ -238,23 +238,17 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> FLUID_BYPASS_MODULE = ITEMS.register("fluid_bypass_module",
             () -> new Item(new Item.Properties()));
-    public static final DeferredItem<Item> HEAT_SAFETY_MODULE = ITEMS.register("heat_safety_module",
-            () -> new Item(new Item.Properties()));
-    public static final DeferredItem<Item> METAPHYSICAL_SAFETY_MODULE = ITEMS.register("metaphysical_safety_module",
-            () -> new Item(new Item.Properties()));
-    public static final DeferredItem<Item> RADIATION_SAFETY_MODULE = ITEMS.register("radiation_safety_module",
-            () -> new Item(new Item.Properties()));
     // The Safety Module Frame: the inert base of the Safety Module branch (see SafetyModuleItem).
     public static final DeferredItem<Item> SAFETY_MODULE_FRAME = ITEMS.register("safety_module_frame",
             () -> new SafetyModuleItem(new Item.Properties()));
     // The new Safety Module: one item whose stacks carry the hazard family and level (HazardModuleData), six
-    // variants. Replaces the three per-hazard items above once the tolerance reading is switched over.
+    // variants. Replaced the three old per-hazard items.
     public static final DeferredItem<Item> HAZARD_SAFETY_MODULE = ITEMS.register("hazard_safety_module",
             () -> new HazardSafetyModuleItem(new Item.Properties()));
 
     // Evolution Module family (dermicraft-progression-notes.md / dermicraft-machine-notes.md,
     // Drooling Cauldron entry "Evolution Module family") -- item only for now, no mechanics wired
-    // up yet. Not tagged MODULE_SAFETY like the Safety Modules above: that tag is what makes
+    // up yet. Not a HazardSafetyModuleItem like the Safety Modules above: that class is what makes
     // IHaveModules#installedHazardProfile treat an item as granting hazard tolerance, and this
     // doesn't do that (yet) -- just MODULES, so it can sit in a Module slot.
     public static final DeferredItem<Item> HEAT_EVOLUTION_MODULE = ITEMS.register("heat_evolution_module",
@@ -272,12 +266,12 @@ public class ModItems {
     public static final DeferredItem<Item> HAZARD_EVOLUTION_MODULE = ITEMS.register("hazard_evolution_module",
             () -> new HazardEvolutionModuleItem(new Item.Properties()));
 
-    // Work Speed Module -- tagged MODULE_WORK_SPEED (not MODULE_SAFETY), same "kind via tag, data
+    // Work Speed Module -- tagged MODULE_WORK_SPEED (not a Safety Module), same "kind via tag, data
     // via data map" split as the Safety Modules above.
     public static final DeferredItem<Item> WORK_SPEED_MODULE = ITEMS.register("work_speed_module",
             () -> new Item(new Item.Properties()));
 
-    // Keep-on-Death family -- tagged MODULE_KEEP_ON_DEATH, not MODULE_SAFETY/MODULE_WORK_SPEED.
+    // Keep-on-Death family -- tagged MODULE_KEEP_ON_DEATH, not Work Speed.
     // Salvage: cheap, consumed on trigger (Totem of Undying shape). Anchor: expensive, never
     // consumed, gated only by Config#ANCHOR_MODULE_COOLDOWN_SECONDS (0 = no cooldown).
     public static final DeferredItem<Item> SALVAGE_MODULE = ITEMS.register("salvage_module",

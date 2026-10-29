@@ -15,7 +15,6 @@ import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
-import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
 import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.KeepOnDeathModuleProperties;
@@ -236,18 +235,6 @@ public class ModDataMapProvider extends DataMapProvider {
                 // which read too dark on the chain/head.
                 .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SHATTER_HEAD),
                         new ShatterHeadProperties(TextColor.fromRgb(0xFFCC55), 2, 0.0f, 0.0f, 0.5f, 4, true, 6.0f, 0.0f, 0.0f), false);
-
-        // Thermal Safety Module grants exactly THERMAL (lava) -- the tag-vs-data split means
-        // adding a Radiation/Biohazard Safety Module later is just another entry here, no new tag.
-        this.builder(ModDataMaps.SAFETY_MODULE_PROPERTIES)
-                .add(getResourceLocation(ModItems.HEAT_SAFETY_MODULE),
-                        new SafetyModuleProperties(List.of(ModTags.Fluids.THERMAL)), false)
-                .add(getResourceLocation(ModItems.METAPHYSICAL_SAFETY_MODULE),
-                        new SafetyModuleProperties(List.of(ModTags.Fluids.METAPHYSICAL_MILD, ModTags.Fluids.METAPHYSICAL_SEVERE)), false)
-                .add(getResourceLocation(ModItems.RADIATION_SAFETY_MODULE),
-                        new SafetyModuleProperties(List.of(ModTags.Fluids.RADIATION_MILD)), false)
-
-                ;
 
         // Thermal Evolution Module: targets lava for a selector consumer (Drooling Cauldron) AND
         // grants THERMAL for a hazard-gated consumer (Masticator, eventually) -- same physical
