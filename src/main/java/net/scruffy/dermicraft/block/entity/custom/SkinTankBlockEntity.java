@@ -57,18 +57,18 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     public final ItemStackHandler INVENTORY = createInventory();
 
-    /** Dedicated Module-only handler, sized per {@link #getModuleSlotCount()} (1 to 4 from the tier; the
-     * Charred Tank uses its L2 count of 2) and resized when the evolution state changes, see
-     * {@link #onEvolutionStateChanged()} -- see {@code MachineBaseBlockEntity#createModuleInventory}. */
+    /** Dedicated Module-only handler, sized per {@link #getModuleSlotCount()} (1 to 4 from the tier) and resized
+     * when the evolution state changes, see {@link #onEvolutionStateChanged()} -- see
+     * {@code MachineBaseBlockEntity#createModuleInventory}. */
     public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
             stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES) && !isEvolutionModule(stack));
 
     /** The dedicated Evolution Module slot: one slot, Evolution Modules only, so installing one never
-     * disturbs a tuned setup in the general slots. Inert once this tank can no longer evolve. */
+     * disturbs a tuned setup in the general slots. Evolution Modules only. */
     public final ItemStackHandler EVOLUTION_INVENTORY = new ItemStackHandler(1) {
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return canEvolve() && isEvolutionModule(stack);
+            return isEvolutionModule(stack);
         }
 
         @Override
@@ -93,18 +93,11 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     private final VulnerableTank TANK = createTank();
 
-    /** Capability leap hook for a Tier 2 evolution (Charred Tank) to override -- higher capacity,
-     * unconditional hazard tolerance -- same "hook override, not a new tier stat" split Masticator/
+    /** Builds the hazard-gated tank at the stat-table capacity; the profile is read fresh from
+     * {@link #installedHazardProfile()} on every fill. Same hook shape as Masticator/
      * Metastasizer's own {@code createIngredientTank()}/{@code createReagentTank()} use. */
     protected VulnerableTank createTank() {
         return createVulnerableTank(getBaseCapacity(), -1, this::installedHazardProfile);
-    }
-
-    /** The evolution state whose tier and Overgrowth level pick this tank's stats. The Skin Tank uses its
-     * own state; {@link CharredTankBlockEntity} overrides it to read the L2 row until it is folded into
-     * the Skin Tank's L2-and-up tiers. */
-    protected EvolutionStateData getStatState() {
-        return getEvolutionState();
     }
 
     /** The un-bonused capacity, in mB, this instance would use with no Capacity Module installed, from
@@ -112,18 +105,18 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * {@link #canRemoveModule(int)}; re-applied whenever the evolution state changes, see
      * {@link #onEvolutionStateChanged()}. */
     protected int getBaseCapacity() {
-        return SkinTankStats.getTankCapacityMb(getStatState());
+        return SkinTankStats.getTankCapacityMb(getEvolutionState());
     }
 
     /** Millibuckets per second this tank may auto-push, from {@link SkinTankStats}. */
     protected int getFluidTransferPerSecond() {
-        return SkinTankStats.getFluidTransferPerSecond(getStatState());
+        return SkinTankStats.getFluidTransferPerSecond(getEvolutionState());
     }
 
     /** General Module slots, from {@link SkinTankStats} (the dedicated Evolution slot is separate). */
     @Override
     public int getModuleSlotCount() {
-        return SkinTankStats.getModuleSlots(getStatState());
+        return SkinTankStats.getModuleSlots(getEvolutionState());
     }
 
     /** Capacity Module bonus, summed over every installed Module -- see
@@ -190,12 +183,6 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * (which has no server config) and across a config reload. */
     private int flourishTotalTicks = 1;
 
-    /** Whether this instance can still evolve at all -- false for {@link CharredTankBlockEntity} until
-     * the Charred Tank is retired. */
-    protected boolean canEvolve() {
-        return true;
-    }
-
     /** The upgrade the Evolution slot's module would apply right now, from {@link EvolutionRules}. Empty
      * for the bare frame, a module this tank's state does not allow (wrong tier, family cap, already
      * held), or an instance that cannot evolve -- those sit in the slot and do nothing. */
@@ -209,7 +196,6 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * slot or an instance that cannot evolve; otherwise the {@link EvolutionRules} answer, an upgrade that
      * will apply or the reason it is blocked. The slot tooltip reads this. */
     public Optional<EvolutionResult> getEvolutionStatus() {
-        if (!canEvolve()) return Optional.empty();
         ItemStack module = EVOLUTION_INVENTORY.getStackInSlot(0);
         if (!(module.getItem() instanceof EvolutionModuleItem evolutionModule)) return Optional.empty();
         return evolutionModule.evaluate(getEvolutionState(), module);
@@ -283,15 +269,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     }
 
     public SkinTankBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.SKIN_TANK_BE.get(), pos, blockState);
-    }
-
-    // Lets a capability-leap subclass (Charred Tank) register under its own BlockEntityType while
-    // reusing everything else this class provides -- see MachineTier's own javadoc on why a genuine
-    // capability leap (here: higher capacity + hazard-tolerant tank) is a hook override, not a new
-    // MachineTier constant (Skin Tank has no MachineTier concept at all, but the same split applies).
-    protected SkinTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
+        super(ModBlockEntities.SKIN_TANK_BE.get(), pos, blockState);
     }
 
     @Override

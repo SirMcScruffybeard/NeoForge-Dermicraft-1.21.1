@@ -217,7 +217,6 @@ public class DermicraftClient {
     @SubscribeEvent
     public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(ModBlockEntities.CHARRED_TANK_BE.get(), SkinTankBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.KNOWLEDGE_VAT_BE.get(), KnowledgeVatBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CAULDRON_BE.get(), DroolingCauldronBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), DroolingCauldronBlockEntityRenderer::new);
@@ -246,7 +245,6 @@ public class DermicraftClient {
     @SubscribeEvent
     public static void registerScreens(RegisterMenuScreensEvent event) {
         event.register(ModMenuTypes.SKIN_TANK_MENU.get(), SkinTankScreen::new);
-        event.register(ModMenuTypes.CHARRED_TANK_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_tank.CharredTankScreen::new);
         event.register(ModMenuTypes.DROOLING_CAULDRON_MENU.get(), DroolingCauldronScreen::new);
         event.register(ModMenuTypes.DROOLING_CRUCIBLE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleScreen::new);
         event.register(ModMenuTypes.DROOLING_GEODE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_geode.DroolingGeodeScreen::new);

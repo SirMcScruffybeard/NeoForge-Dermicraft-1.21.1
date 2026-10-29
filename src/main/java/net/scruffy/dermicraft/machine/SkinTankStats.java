@@ -3,7 +3,7 @@ package net.scruffy.dermicraft.machine;
 import net.scruffy.dermicraft.component.EvolutionStateData;
 
 /**
- * Stats for the Skin Tank (and the Charred Tank folded into it). A tank has no health, fuel or processing
+ * Stats for the Skin Tank (the Charred Tank has been folded into its L2 row). A tank has no health, fuel or processing
  * speed, so only capacity, fluid transfer and Module slots exist. Same lookup rule and defaults as
  * {@link SimpleMachineStats}; the transfer rate and slot tables are shared with the machines.
  */

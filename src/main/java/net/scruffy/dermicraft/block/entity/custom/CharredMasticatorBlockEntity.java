@@ -44,7 +44,7 @@ public class CharredMasticatorBlockEntity extends MasticatorBlockEntity {
         return false;
     }
 
-    // The "Charred machines get an extra Module slot" upgrade -- see CharredTankBlockEntity's
+    // The "Charred machines get an extra Module slot" upgrade -- see the retired Charred Tank's
     // identical override for the pilot. Both slots count toward installedHazardProfile()'s union
     // below, so this machine can stack e.g. a Radiation Safety Module in one slot and a Work Speed
     // Module in the other.
