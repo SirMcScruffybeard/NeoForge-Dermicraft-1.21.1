@@ -12,7 +12,6 @@ import net.scruffy.dermicraft.component.BulkItemData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
-import net.scruffy.dermicraft.item.custom.module.HazardSafetyModuleItem;
 import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
 
@@ -27,7 +26,7 @@ import java.util.function.BooleanSupplier;
  * step 2 of the sequencing plan. See {@code dermicraft-gadget-notes.md} -> Gadget upgrade points
  * -> "Modules — direction note" for the design this backs: a fixed-size, item-tag-identified
  * loadout on a gadget's own {@link ItemStack}, field-swappable via the Scrench/Workbench, where a
- * Safety Module ({@link HazardSafetyModuleItem}) grants temporary hazard tolerance on top of
+ * Safety Module ({@link IGrantTempHazardSafety}) grants temporary hazard tolerance on top of
  * whatever the gadget's own permanent tier already tolerates.
  *
  * <p>Pure static-utility shape (no abstract methods to implement), matching {@link IHaveItemData}'s
@@ -90,15 +89,15 @@ public interface IHaveModules {
      * gadget-style component on an {@link ItemStack} -- there's no {@link ItemStack} to hold a
      * {@link BulkItemData} component in the first place. {@code base.plus(hazard)}-per-tag, unioning
      * onto whatever {@code base} already tolerates -- same "never resets, only adds" rule as the
-     * multi-slot overload. A {@link HazardSafetyModuleItem} grants its component's family and level
-     * ({@link HazardSafetyModuleItem#addTolerance}); any other item grants nothing.
+     * multi-slot overload. A {@link IGrantTempHazardSafety} item grants its component's family and level
+     * ({@link IGrantTempHazardSafety#addTolerance}); any other item grants nothing.
      */
     static HazardProfile installedHazardProfile(HazardProfile base, ItemStack module) {
         if (module.isEmpty()) return base;
 
-        // The Safety Module: its family and level come from its component. Gated on the item class, so a hazard
+        // The Safety Module: its family and level come from its component. Gated on the interface, so a hazard
         // Evolution Module (identical data, different item) in a Module slot grants nothing.
-        if (module.getItem() instanceof HazardSafetyModuleItem safetyModule) {
+        if (module.getItem() instanceof IGrantTempHazardSafety safetyModule) {
             return safetyModule.addTolerance(base, module);
         }
 
