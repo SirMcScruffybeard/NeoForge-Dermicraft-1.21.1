@@ -13,6 +13,7 @@ import net.scruffy.dermicraft.component.BulkItemData;
 import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
+import net.scruffy.dermicraft.item.custom.module.HazardSafetyModuleItem;
 import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.SafetyModuleProperties;
 import net.scruffy.dermicraft.property.WorkSpeedModuleProperties;
@@ -91,10 +92,21 @@ public interface IHaveModules {
      * gadget-style component on an {@link ItemStack} -- there's no {@link ItemStack} to hold a
      * {@link BulkItemData} component in the first place. {@code base.plus(hazard)}-per-tag, unioning
      * onto whatever {@code base} already tolerates -- same "never resets, only adds" rule as the
-     * multi-slot overload.
+     * multi-slot overload. A {@link HazardSafetyModuleItem} grants its component's family and level
+     * ({@link HazardSafetyModuleItem#addTolerance}); the older per-hazard Safety Modules, read from the
+     * {@code MODULE_SAFETY} tag and a data map, still work until they are removed.
      */
     static HazardProfile installedHazardProfile(HazardProfile base, ItemStack module) {
-        if (module.isEmpty() || !module.is(ModTags.Items.MODULE_SAFETY)) return base;
+        if (module.isEmpty()) return base;
+
+        // The Safety Module: its family and level come from its component. Gated on the item class, so a hazard
+        // Evolution Module (identical data, different item) in a Module slot grants nothing.
+        if (module.getItem() instanceof HazardSafetyModuleItem safetyModule) {
+            return safetyModule.addTolerance(base, module);
+        }
+
+        // Legacy per-hazard Safety Modules (tag plus data map); goes away with the old items.
+        if (!module.is(ModTags.Items.MODULE_SAFETY)) return base;
 
         SafetyModuleProperties properties = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
                 .getData(ModDataMaps.SAFETY_MODULE_PROPERTIES);

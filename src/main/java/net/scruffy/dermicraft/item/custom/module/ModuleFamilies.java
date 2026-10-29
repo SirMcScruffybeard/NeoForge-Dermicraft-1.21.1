@@ -40,6 +40,14 @@ public final class ModuleFamilies {
             createHazardVariants(),
             Objects::equals);
 
+    /** Hazard Safety Modules: the same six hazard variants, on the hazard frame. */
+    public static final ModuleFamily<HazardModuleData> HAZARD_SAFETY = new ModuleFamily<HazardModuleData>(
+            "hazard_safety_module",
+            () -> ModItems.HAZARD_SAFETY_MODULE.get(),
+            () -> ModDataComponentTypes.HAZARD_MODULE_DATA.get(),
+            createHazardVariants(),
+            Objects::equals);
+
     /** The six hazard variants as module variants; shared by every hazard module family. */
     private static List<ModuleVariant<HazardModuleData>> createHazardVariants() {
         return Arrays.stream(HazardModuleVariant.values())

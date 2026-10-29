@@ -1,0 +1,16 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_evolution_catalyst",
+  "fluid_amount": 1000,
+  "ingredient": {
+    "type": "neoforge:components",
+    "components": {},
+    "items": "dermicraft:hazard_safety_module",
+    "strict": true
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:evolution_module_frame"
+  },
+  "ticks": 200
+}

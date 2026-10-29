@@ -15,12 +15,16 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.core.component.DataComponentMap;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.AidModeData;
+import net.scruffy.dermicraft.component.HazardModuleData;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
+import net.scruffy.dermicraft.item.custom.module.ModuleVariant;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
@@ -1376,6 +1380,27 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // infrastructure like the Module Frame above.
         RecipeBuilders.mutate(recipeOutput, "heat_evolution_module_mutating", ModItems.HEAT_SAFETY_MODULE.get(),
                 ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.HEAT_EVOLUTION_MODULE.get(), solidTicks);
+
+        // Hazard Evolution Modules: a Safety Module of the matching hazard family and level + a bucket (1000 mB)
+        // of Evolution Catalyst. One recipe per variant; the Safety Module is matched by its HazardModuleData
+        // (non-strict, so any other components on the stack are ignored) and the result carries the same data.
+        for (ModuleVariant<HazardModuleData> variant : ModuleFamilies.HAZARD_SAFETY.getVariants()) {
+            ItemStack result = new ItemStack(ModItems.HAZARD_EVOLUTION_MODULE.get());
+            result.set(ModDataComponentTypes.HAZARD_MODULE_DATA, variant.data());
+
+            RecipeBuilders.buildMutating(recipeOutput, "hazard_evolution_module_" + variant.name() + "_mutating",
+                    DataComponentIngredient.of(false, ModDataComponentTypes.HAZARD_MODULE_DATA, variant.data(),
+                            ModItems.HAZARD_SAFETY_MODULE.get()),
+                    ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, result, solidTicks);
+        }
+
+        // Evolution Module Frame: a bare Safety Module (no hazard data) + a bucket (1000 mB) of Evolution
+        // Catalyst. Strict match against an empty component map, so only a stack with no HazardModuleData
+        // qualifies; the six variants above take the data-carrying route instead.
+        RecipeBuilders.buildMutating(recipeOutput, "evolution_module_frame_mutating",
+                DataComponentIngredient.of(true, DataComponentMap.EMPTY, ModItems.HAZARD_SAFETY_MODULE.get()),
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, new ItemStack(ModItems.EVOLUTION_MODULE_FRAME.get()),
+                solidTicks);
 
         // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
         // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier

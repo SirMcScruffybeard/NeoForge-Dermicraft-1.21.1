@@ -154,6 +154,8 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.HEAT_SAFETY_MODULE);
                         output.accept(ModItems.METAPHYSICAL_SAFETY_MODULE);
                         output.accept(ModItems.RADIATION_SAFETY_MODULE);
+                        // The new Safety Module's six variants (the bare module is not listed).
+                        ModuleFamilies.HAZARD_SAFETY.createStacks().forEach(output::accept);
 
                         // Evolution Modules -- the Frame, then one stack per variant of each loaded module (see
                         // ModuleFamilies); Overgrowth is level 1, other levels come from commands.

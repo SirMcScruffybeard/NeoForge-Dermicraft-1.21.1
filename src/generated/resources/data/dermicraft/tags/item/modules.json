@@ -6,6 +6,7 @@
     "dermicraft:heat_safety_module",
     "dermicraft:metaphysical_safety_module",
     "dermicraft:radiation_safety_module",
+    "dermicraft:hazard_safety_module",
     "dermicraft:heat_evolution_module",
     "dermicraft:evolution_module_frame",
     "dermicraft:tier_evolution_module",

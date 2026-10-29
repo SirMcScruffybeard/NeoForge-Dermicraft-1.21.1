@@ -93,6 +93,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleFamilyItem(ModuleFamilies.OVERGROWTH, "item/module/evolution_module_frame");
         moduleFamilyItem(ModuleFamilies.HAZARD_EVOLUTION, "item/module/evolution_module_frame");
 
+        // The new Safety Module -- the same six hazard icons as the hazard Evolution Module, on the hazard frame.
+        moduleFamilyItem(ModuleFamilies.HAZARD_SAFETY, "item/module/hazard_module_frame");
+
         // Work Speed Module -- plain module_frame background (not its own family frame), per
         // explicit instruction, with the user's own hand-painted speed icon on top.
         moduleItem(ModItems.WORK_SPEED_MODULE.get(), "item/module/module_frame",

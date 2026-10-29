@@ -110,6 +110,7 @@ public class ModItemProperties {
         registerModuleFamily(ModuleFamilies.TIER);
         registerModuleFamily(ModuleFamilies.OVERGROWTH);
         registerModuleFamily(ModuleFamilies.HAZARD_EVOLUTION);
+        registerModuleFamily(ModuleFamilies.HAZARD_SAFETY);
     }
 
     /** The client "variant" property for a module family: a stack's component picks which variant model shows. */

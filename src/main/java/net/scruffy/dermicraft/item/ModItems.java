@@ -9,6 +9,7 @@ import net.scruffy.dermicraft.item.custom.*;
 import net.scruffy.dermicraft.item.custom.base.PartItem;
 import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
 import net.scruffy.dermicraft.item.custom.module.HazardEvolutionModuleItem;
+import net.scruffy.dermicraft.item.custom.module.HazardSafetyModuleItem;
 import net.scruffy.dermicraft.item.custom.module.LevelEvolutionModuleItem;
 import net.scruffy.dermicraft.machine.EvolutionLadder;
 import net.scruffy.dermicraft.property.ModFoodProperties;
@@ -242,6 +243,10 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
     public static final DeferredItem<Item> RADIATION_SAFETY_MODULE = ITEMS.register("radiation_safety_module",
             () -> new Item(new Item.Properties()));
+    // The new Safety Module: one item whose stacks carry the hazard family and level (HazardModuleData), six
+    // variants. Replaces the three per-hazard items above once the tolerance reading is switched over.
+    public static final DeferredItem<Item> HAZARD_SAFETY_MODULE = ITEMS.register("hazard_safety_module",
+            () -> new HazardSafetyModuleItem(new Item.Properties()));
 
     // Evolution Module family (dermicraft-progression-notes.md / dermicraft-machine-notes.md,
     // Drooling Cauldron entry "Evolution Module family") -- item only for now, no mechanics wired
