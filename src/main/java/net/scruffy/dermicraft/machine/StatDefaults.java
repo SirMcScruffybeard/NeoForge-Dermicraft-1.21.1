@@ -43,6 +43,11 @@ final class StatDefaults {
     static final double EVOLUTION_OVERGROWTH_GROWTH_PERCENT = 10;          // each further level adds this percent of the O1 time
     static final double EVOLUTION_COUNTDOWN_SECONDS = 5;                   // cancel window for blocks that do not process
 
+    // ---- Hazard penalties on machines (see HazardEffects); placeholders until tested in play ----
+    static final double THERMAL_DAMAGE_MODIFIER = 0.5;                     // HP per cycle = this x |fluid temperature - reference| / 100
+    static final int THERMAL_REFERENCE_TEMPERATURE = 300;                  // the temperature of an ordinary fluid (water), in kelvin
+    static final int THERMAL_SAFE_RANGE = 50;                              // kelvin either side of the reference that does no damage
+
     static final StatValues VALUES = new StatValues(
             ITEM_TRANSFER, FLUID_TRANSFER, MODULE_SLOTS,
             SIMPLE_MACHINE_SPEED, SIMPLE_MACHINE_FUEL_USE,
@@ -52,6 +57,7 @@ final class StatDefaults {
             HUNGER_DAMAGE_PER_CYCLE, UNFUELED_SPEED,
             EVOLUTION_TIER_SECONDS, EVOLUTION_HAZARD_NEW_SECONDS, EVOLUTION_HAZARD_UPGRADE_SECONDS,
             EVOLUTION_OVERGROWTH_SECONDS, EVOLUTION_OVERGROWTH_GROWTH_PERCENT, EVOLUTION_COUNTDOWN_SECONDS,
+            THERMAL_DAMAGE_MODIFIER, THERMAL_REFERENCE_TEMPERATURE, THERMAL_SAFE_RANGE,
             java.util.Map.of());
 
 

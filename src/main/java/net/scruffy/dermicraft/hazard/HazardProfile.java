@@ -51,6 +51,11 @@ public final class HazardProfile {
             ModTags.Fluids.RADIATION_SEVERE,
             ModTags.Fluids.BIOHAZARD);
 
+
+    /** True if this profile tolerates the single hazard kind {@code hazard} (a machine's penalty for that hazard is cancelled). */
+    public boolean tolerates(TagKey<Fluid> hazard) {
+        return tolerated.contains(hazard);
+    }
     /** True if every hazard kind the fluid carries is tolerated by this profile. */
     public boolean accepts(FluidStack fluid) {
         for (TagKey<Fluid> hazard : ModTags.Fluids.ALL_HAZARDS) {

@@ -12,6 +12,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.component.HazardModuleData;
@@ -21,6 +22,7 @@ import net.scruffy.dermicraft.interfaces.IHasHazardModuleData;
 import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
 import net.scruffy.dermicraft.machine.EvolutionEffects;
 import net.scruffy.dermicraft.machine.EvolutionResult;
+import net.scruffy.dermicraft.machine.HazardEffects;
 import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.scruffy.dermicraft.machine.MachineTier;
 import net.scruffy.dermicraft.machine.SimpleMachineStats;
@@ -29,6 +31,7 @@ import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -447,6 +450,32 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
             damageMachine(HUNGER_RATE);
             incrementProgress(UNFUELED_SPEED_MODIFIER);
         }
+        applyHazardPenalties();
+    }
+
+    // ---- Hazard penalties -------------------------------------------------------------------
+    // A machine that uses the evolution state does not refuse hazardous fluids; it pays for processing them, per work
+    // cycle, unless it has the matching tolerance (see HazardEffects). A machine opts in by saying which fluids are in
+    // play and what it tolerates; one that does neither is unaffected.
+
+    /** The fluids this machine is processing right now, whose hazards decide the penalties: its ingredient fluids,
+     * not its fuel or output. Empty by default. */
+    protected List<FluidStack> getProcessingFluids() {
+        return List.of();
+    }
+
+    /** What this machine tolerates, which cancels the matching penalties. Everything by default, so a machine that
+     * has not moved onto the penalty rules never takes any. */
+    protected HazardProfile getHazardProfile() {
+        return HazardProfile.ALL;
+    }
+
+    /** Charges this cycle's hazard penalties; runs only on a cycle where the machine actually worked. */
+    private void applyHazardPenalties() {
+        if (!usesEvolutionState()) return;
+
+        int thermalDamage = HazardEffects.getThermalDamage(getProcessingFluids(), getHazardProfile());
+        if (thermalDamage > 0) damageMachine(thermalDamage);
     }
 
     // ---- Shared NBT (fuel + engine + saved recipe). Subclasses super-call, then add their IO. ----

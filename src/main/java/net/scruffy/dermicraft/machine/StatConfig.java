@@ -41,6 +41,9 @@ public final class StatConfig {
     private static final ModConfigSpec.DoubleValue EVOLUTION_OVERGROWTH_SECONDS;
     private static final ModConfigSpec.DoubleValue EVOLUTION_OVERGROWTH_GROWTH_PERCENT;
     private static final ModConfigSpec.DoubleValue EVOLUTION_COUNTDOWN_SECONDS;
+    private static final ModConfigSpec.DoubleValue THERMAL_DAMAGE_MODIFIER;
+    private static final ModConfigSpec.IntValue THERMAL_REFERENCE_TEMPERATURE;
+    private static final ModConfigSpec.IntValue THERMAL_SAFE_RANGE;
 
     /** One machine's optional overrides in the config. An empty list or a negative number means "use the shared value". */
     private record MachineSection(
@@ -107,6 +110,15 @@ public final class StatConfig {
                 .defineInRange("countdownSeconds", StatDefaults.EVOLUTION_COUNTDOWN_SECONDS, 0.0, 600.0);
         BUILDER.pop();
 
+
+        BUILDER.push("hazards");
+        THERMAL_DAMAGE_MODIFIER = BUILDER.comment("Thermal hazard: a machine processing a Thermal fluid without a Thermal tolerance loses this x (|fluid temperature - reference temperature| - safe range) / 100 HP per cycle (at least 1 once outside the safe range). 0 turns the effect off.")
+                .defineInRange("thermalDamageModifier", StatDefaults.THERMAL_DAMAGE_MODIFIER, 0.0, 1000.0);
+        THERMAL_REFERENCE_TEMPERATURE = BUILDER.comment("Temperature in kelvin of an ordinary fluid; the Thermal damage grows with the distance from this, hot or cold.")
+                .defineInRange("thermalReferenceTemperature", StatDefaults.THERMAL_REFERENCE_TEMPERATURE, 0, 100000);
+        THERMAL_SAFE_RANGE = BUILDER.comment("Kelvin either side of the reference temperature that does no Thermal damage (water is 300, so the default 50 means 250 to 350 is harmless). Past the range, damage grows with the distance beyond it.")
+                .defineInRange("thermalSafeRange", StatDefaults.THERMAL_SAFE_RANGE, 0, 100000);
+        BUILDER.pop();
         // Per-machine overrides. Every value starts empty (lists) or -1 (numbers), which means "use the shared value
         // above", so a server owner writes only what they want to change for that machine.
         BUILDER.comment("Per-machine overrides of the shared values above. Leave a list empty (or a number at -1) to use the shared value.")
@@ -198,6 +210,7 @@ public final class StatConfig {
                 EVOLUTION_HAZARD_NEW_SECONDS.get(), EVOLUTION_HAZARD_UPGRADE_SECONDS.get(),
                 EVOLUTION_OVERGROWTH_SECONDS.get(), EVOLUTION_OVERGROWTH_GROWTH_PERCENT.get(),
                 EVOLUTION_COUNTDOWN_SECONDS.get(),
+                THERMAL_DAMAGE_MODIFIER.get(), THERMAL_REFERENCE_TEMPERATURE.get(), THERMAL_SAFE_RANGE.get(),
                 buildMachineOverrides());
     }
 

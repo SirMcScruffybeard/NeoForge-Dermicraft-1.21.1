@@ -18,6 +18,7 @@ record StatValues(
         int hungerDamagePerCycle, float unfueledSpeed,
         double[] evolutionTierSeconds, double evolutionHazardNewSeconds, double evolutionHazardUpgradeSeconds,
         double evolutionOvergrowthSeconds, double evolutionOvergrowthGrowthPercent, double evolutionCountdownSeconds,
+        double thermalDamageModifier, int thermalReferenceTemperature, int thermalSafeRange,
         Map<MachineStatKey, MachineOverrides> machines) {
 
     private MachineOverrides overrides(@Nullable MachineStatKey machine) {

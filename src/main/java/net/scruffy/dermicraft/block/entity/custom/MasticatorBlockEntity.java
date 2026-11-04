@@ -42,7 +42,6 @@ import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
-import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModFluidUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,8 +60,8 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     public static final int INGREDIENT_ITEM_SLOT = 3;
     public static final int INVENTORY_SIZE = 4;
 
-    private final VulnerableTank INGREDIENT_TANK = createIngredientTank();
-    private final VulnerableTank RESULT_TANK = createResultTank();
+    private final ModFluidTank INGREDIENT_TANK = createIngredientTank();
+    private final ModFluidTank RESULT_TANK = createResultTank();
 
     private boolean isTransferringFluids = false;
 
@@ -213,11 +212,11 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         };
     }
 
-    public VulnerableTank getIngredientTank() {
+    public ModFluidTank getIngredientTank() {
         return INGREDIENT_TANK;
     }
 
-    public VulnerableTank getResultTank() {
+    public ModFluidTank getResultTank() {
         return RESULT_TANK;
     }
 
@@ -498,9 +497,20 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
-    /** The fluid hazards this machine's tanks tolerate: a Tier 1 base (none), plus the Safety Modules in the general
-     * Module slots, plus the permanent tolerance it has earned by evolving, plus the tolerance of a hazard Evolution
-     * Module that is evolving it right now. Recomputed on demand, never cached. */
+    /** The hazards that matter when the Masticator processes: its ingredient fluid (the fuel and the output do not). */
+    @Override
+    protected List<FluidStack> getProcessingFluids() {
+        return List.of(INGREDIENT_TANK.getFluid());
+    }
+
+    @Override
+    protected HazardProfile getHazardProfile() {
+        return installedHazardProfile();
+    }
+
+    /** The hazards this machine tolerates, which cancel the matching penalties: a Tier 1 base (none), plus the Safety
+     * Modules in the general Module slots, plus the permanent tolerance it has earned by evolving, plus the tolerance
+     * of a hazard Evolution Module that is evolving it right now. Recomputed on demand, never cached. */
     protected HazardProfile installedHazardProfile() {
         HazardProfile profile = HazardProfile.TIER_1;
         for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
@@ -717,8 +727,8 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         };
     }
 
-    protected VulnerableTank createIngredientTank() {
-        return new VulnerableTank(getBaseTankCapacity(), 1, this::installedHazardProfile) {
+    protected ModFluidTank createIngredientTank() {
+        return new ModFluidTank(getBaseTankCapacity(), 1) {
             @Override
             protected void onContentsChanged() {
 
@@ -741,8 +751,8 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         };
     }
 
-    protected VulnerableTank createResultTank() {
-        return new VulnerableTank(getBaseTankCapacity(), 2, this::installedHazardProfile) {
+    protected ModFluidTank createResultTank() {
+        return new ModFluidTank(getBaseTankCapacity(), 2) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {
