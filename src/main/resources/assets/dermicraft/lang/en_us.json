@@ -318,9 +318,6 @@
 
   "block.dermicraft.masticator": "Masticator",
   "blockEntity.dermicraft.masticator_be": "Masticator",
-  "block.dermicraft.charred_masticator": "Charred Masticator",
-  "blockentity.dermicraft.charred_masticator": "Charred Masticator",
-  "blockEntity.dermicraft.charred_masticator_be": "Charred Masticator",
 
 
   "block.dermicraft.outerface": "Outerface",
@@ -531,8 +528,6 @@
   "screen.dermicraft.drooling_cauldron.module_tab": "Mod",
   "screen.dermicraft.masticator.main_tab": "Main",
   "screen.dermicraft.masticator.module_tab": "Mod",
-  "screen.dermicraft.charred_masticator.main_tab": "Main",
-  "screen.dermicraft.charred_masticator.module_tab": "Mod",
   "screen.dermicraft.effluentcer.main_tab": "Main",
   "screen.dermicraft.effluentcer.module_tab": "Mod",
   "screen.dermicraft.charred_effluentcer.main_tab": "Main",

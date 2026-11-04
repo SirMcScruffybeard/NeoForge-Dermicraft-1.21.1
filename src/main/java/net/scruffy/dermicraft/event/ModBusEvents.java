@@ -71,14 +71,6 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
 
-        // Charred Masticator has its own BlockEntityType (CHARRED_MASTICATOR_BE), so it does NOT
-        // inherit MASTICATOR_BE's capability registration above -- same gap that bit Drooling
-        // Crucible originally (see that comment above). Without this, MasticatorBlock#useItemOn's
-        // FluidUtil.interactWithFluidHandler call finds nothing at this block's position, silently
-        // fails, and falls through to opening the GUI instead of actually filling/draining a tank.
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_MASTICATOR_BE.get(), MasticatorBlockEntity::getItemHandler);
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_MASTICATOR_BE.get(), MasticatorBlockEntity::getTank);
-
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.SKIN_TANK_BE.get(), SkinTankBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.KNOWLEDGE_VAT_BE.get(), KnowledgeVatBlockEntity::getTank);
@@ -88,7 +80,7 @@ public class ModBusEvents {
 
         // Charred Effluentcer has its own BlockEntityType (CHARRED_EFFLUENTCER_BE), so it does NOT
         // inherit EFFLUENTCER_BE's capability registration above -- same gap that's bitten every
-        // other Charred variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        // other Charred variant so far (see the Drooling Crucible comment above).
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);
 
@@ -107,7 +99,7 @@ public class ModBusEvents {
 
         // Charred Mutator has its own BlockEntityType (CHARRED_MUTATOR_BE), so it does NOT inherit
         // MUTATOR_BE's capability registration above -- same gap that's bitten every other Charred
-        // variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        // variant so far (see the Drooling Crucible comment above).
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_MUTATOR_BE.get(), MutatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_MUTATOR_BE.get(), MutatorBlockEntity::getTank);
 
@@ -116,7 +108,7 @@ public class ModBusEvents {
 
         // Charred Render Furnace has its own BlockEntityType (CHARRED_RENDER_FURNACE_BE), so it does
         // NOT inherit RENDER_FURNACE_BE's capability registration above -- same gap that's bitten
-        // every other Charred variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        // every other Charred variant so far (see the Drooling Crucible comment above).
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getTank);
 
@@ -128,7 +120,7 @@ public class ModBusEvents {
 
         // Charred Render Kiln has its own BlockEntityType (CHARRED_RENDER_KILN_BE), so it does NOT
         // inherit RENDER_KILN_BE's capability registration above -- same gap that's bitten every
-        // other Charred variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        // other Charred variant so far (see the Drooling Crucible comment above).
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_KILN_BE.get(), RenderKilnBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_KILN_BE.get(), RenderKilnBlockEntity::getTank);
 
@@ -136,7 +128,7 @@ public class ModBusEvents {
 
         // Charred Craw has its own BlockEntityType (CHARRED_CRAW_BE), so it does NOT inherit
         // CRAW_BE's capability registration above -- same gap that's bitten every other Charred
-        // variant so far (see CHARRED_MASTICATOR_BE's comment above).
+        // variant so far (see the Drooling Crucible comment above).
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 
         // Mr. Farmer: both capabilities on all six faces. Fluid = the fuel tank (biofuel-filtered fill,

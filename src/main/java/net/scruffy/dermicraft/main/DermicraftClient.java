@@ -29,7 +29,6 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
 import net.scruffy.dermicraft.screen.custom.craw.CrawScreen;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronScreen;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
-import net.scruffy.dermicraft.screen.custom.charred_masticator.CharredMasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.charred_metastasizer.CharredMetastasizerScreen;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerScreen;
@@ -249,7 +248,6 @@ public class DermicraftClient {
         event.register(ModMenuTypes.DROOLING_CRUCIBLE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleScreen::new);
         event.register(ModMenuTypes.DROOLING_GEODE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_geode.DroolingGeodeScreen::new);
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
-        event.register(ModMenuTypes.CHARRED_MASTICATOR_MENU.get(), CharredMasticatorScreen::new);
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
         event.register(ModMenuTypes.CHARRED_EFFLUENTCER_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerScreen::new);
         event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);

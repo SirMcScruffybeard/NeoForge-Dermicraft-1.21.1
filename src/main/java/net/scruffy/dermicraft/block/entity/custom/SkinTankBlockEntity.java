@@ -198,7 +198,7 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     public Optional<EvolutionResult> getEvolutionStatus() {
         ItemStack module = EVOLUTION_INVENTORY.getStackInSlot(0);
         if (!(module.getItem() instanceof EvolutionModuleItem evolutionModule)) return Optional.empty();
-        return evolutionModule.evaluate(getEvolutionState(), module);
+        return evolutionModule.evaluate(null, getEvolutionState(), module);
     }
 
     /** Called whenever the Evolution slot's contents change -- cancels any countdown already running

@@ -131,7 +131,6 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CAULDRON.get()), DermicraftRecipeTypes.DROOLING_CAULDRON);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CRUCIBLE.get()), DermicraftRecipeTypes.DROOLING_CRUCIBLE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MASTICATOR.get()), DermicraftRecipeTypes.MASTICATING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CHARRED_MASTICATOR.get()), DermicraftRecipeTypes.MASTICATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EFFLUENTCER.get()), DermicraftRecipeTypes.EFFLUENCING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.METASTASIZER.get()), DermicraftRecipeTypes.METASTASIZING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CHARRED_METASTASIZER.get()), DermicraftRecipeTypes.METASTASIZING);

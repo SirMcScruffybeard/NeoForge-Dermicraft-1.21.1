@@ -9,6 +9,7 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
+import net.scruffy.dermicraft.screen.EvolutionPanel;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
 public class MasticatorMenu extends AbstractModMenu {
@@ -24,6 +25,10 @@ public class MasticatorMenu extends AbstractModMenu {
     public static final int MODULE_SLOT_Y = 34;
     public static final int MODULE_SLOT_SPACING = 20;
 
+    // The dedicated Evolution slot sits right of the health bar (which takes the left edge, x 8 to 26, on both tabs),
+    // on the same row as the Module slots. Other machines without that bar put it at x 8.
+    public static final int EVOLUTION_SLOT_X = 30;
+
     public final MasticatorBlockEntity BE;
     private Level level;
 
@@ -33,7 +38,7 @@ public class MasticatorMenu extends AbstractModMenu {
 
     public MasticatorMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.MASTICATOR_MENU.get(), containerId,
-                MasticatorBlockEntity.INVENTORY_SIZE + ((MasticatorBlockEntity) blockEntity).getModuleSlotCount());
+                MasticatorBlockEntity.INVENTORY_SIZE + ((MasticatorBlockEntity) blockEntity).getModuleSlotCount() + 1);
         this.BE = ((MasticatorBlockEntity) blockEntity);
         checkContainerSize(inv, 2);
         this.level = inv.player.level();
@@ -75,6 +80,15 @@ public class MasticatorMenu extends AbstractModMenu {
                 }
             });
         }
+
+        // The dedicated Evolution slot, registered last so every existing slot index above is unchanged.
+        this.addSlot(new SlotItemHandler(BE.EVOLUTION_INVENTORY, 0,
+                EVOLUTION_SLOT_X + 1, EvolutionPanel.SLOT_Y + 1) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MODULE_TAB;
+            }
+        });
 
         setQuickMoveInputSlots(3, 1); // INGREDIENT_ITEM_SLOT only -- skip fuel/ingredient/result tank slots and Module
 

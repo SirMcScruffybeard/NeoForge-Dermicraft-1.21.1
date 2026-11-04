@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Charred Metastasizer -- the Metastasizer family's hazard-gated Tier 2 evolution, same shape as
- * {@link CharredMasticatorBlockEntity}. Everything about the base engine (fuel/health, recipe
+ * the retired Charred Masticator. Everything about the base engine (fuel/health, recipe
  * lookup, visual state, item/fluid IO layout, Module tab, evolution mechanic) is inherited from
  * {@link MetastasizerBlockEntity} unchanged; the only real differences are
  * {@link #createReagentTank()} (unconditional {@code HazardProfile.TIER_2} instead of the base's

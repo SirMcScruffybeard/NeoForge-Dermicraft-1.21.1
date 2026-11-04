@@ -2,6 +2,8 @@ package net.scruffy.dermicraft.item.custom.module;
 
 import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.component.EvolutionStateData;
+import net.scruffy.dermicraft.machine.MachineStatKey;
+import org.jetbrains.annotations.Nullable;
 import net.scruffy.dermicraft.machine.EvolutionResult;
 
 import java.util.Optional;
@@ -16,11 +18,12 @@ public class EvolutionModuleItem extends ModuleItem {
     }
 
     /**
-     * What this module would do on a machine in {@code state}: an upgrade that will apply, or why it will not.
+     * What this module would do on a machine in {@code state}: an upgrade that will apply, or why it will not. {@code machine}
+     * is the machine asking, for its own evolution times from the config (null for the shared times).
      * Empty means inert, which is all the Frame does, and what a loaded module without its component does.
      * Override this when adding a new kind of Evolution Module; forgetting to makes it silently inert.
      */
-    public Optional<EvolutionResult> evaluate(EvolutionStateData state, ItemStack stack) {
+    public Optional<EvolutionResult> evaluate(@Nullable MachineStatKey machine, EvolutionStateData state, ItemStack stack) {
         return Optional.empty();
     }
 }

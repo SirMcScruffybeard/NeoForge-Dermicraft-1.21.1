@@ -2,6 +2,7 @@ package net.scruffy.dermicraft.machine;
 
 import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.hazard.HazardFamily;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The one place that decides whether an Evolution Module applies to a machine and what it would do. Each
@@ -9,7 +10,7 @@ import net.scruffy.dermicraft.hazard.HazardFamily;
  * {@link EvolutionLadder}) with the machine's current {@link EvolutionStateData} and the level or hazard on its
  * stack; the machine asks the module, then owns the rest itself: counting the time, deciding when it advances,
  * and applying the new state. The Flesh Lab's available-upgrades list asks the same question, so both always
- * agree.
+ * agree. Every rule takes the machine asking (null for the shared times), since a machine can have its own times in the config.
  *
  * <p>Rules (machine upgrade redesign notes):
  * <ul>
@@ -26,7 +27,7 @@ public final class EvolutionRules {
 
     private EvolutionRules() {}
 
-    public static EvolutionResult evaluateTier(EvolutionStateData state, int targetTier) {
+    public static EvolutionResult evaluateTier(@Nullable MachineStatKey machine, EvolutionStateData state, int targetTier) {
         // Once Overgrowth has begun the machine is at the top tier already.
         if (state.overgrowth() > 0 || targetTier <= state.tier()) {
             return new EvolutionResult.Blocked(EvolutionResult.NO_FURTHER_LEVELS);
@@ -37,10 +38,10 @@ public final class EvolutionRules {
         if (targetTier != state.tier() + 1) {
             return new EvolutionResult.Blocked(EvolutionResult.RAISE_TIER_FIRST);
         }
-        return new EvolutionResult.Upgrade(state.withTier(targetTier), EvolutionStats.getTierTicks(targetTier));
+        return new EvolutionResult.Upgrade(state.withTier(targetTier), EvolutionStats.getTierTicks(machine, targetTier));
     }
 
-    public static EvolutionResult evaluateHazard(EvolutionStateData state, HazardFamily family, int level) {
+    public static EvolutionResult evaluateHazard(@Nullable MachineStatKey machine, EvolutionStateData state, HazardFamily family, int level) {
         if (family == null || level < 1 || level > family.getMaxLevel()) {
             return new EvolutionResult.Blocked(EvolutionResult.NO_FURTHER_LEVELS);
         }
@@ -50,16 +51,16 @@ public final class EvolutionRules {
         }
         if (held > 0) {
             // Mild to Severe in a family already held: no extra tolerance slot, and faster.
-            return new EvolutionResult.Upgrade(state.withLevel(family, level), EvolutionStats.getHazardUpgradeTicks());
+            return new EvolutionResult.Upgrade(state.withLevel(family, level), EvolutionStats.getHazardUpgradeTicks(machine));
         }
         // A new family (including Severe without Mild first) needs a free tolerance slot: the cap equals the tier.
         if (state.getHeldFamilyCount() >= state.tier()) {
             return new EvolutionResult.Blocked(EvolutionResult.HAZARD_CAP_REACHED);
         }
-        return new EvolutionResult.Upgrade(state.withLevel(family, level), EvolutionStats.getHazardNewTicks());
+        return new EvolutionResult.Upgrade(state.withLevel(family, level), EvolutionStats.getHazardNewTicks(machine));
     }
 
-    public static EvolutionResult evaluateOvergrowth(EvolutionStateData state, int targetLevel) {
+    public static EvolutionResult evaluateOvergrowth(@Nullable MachineStatKey machine, EvolutionStateData state, int targetLevel) {
         if (state.tier() < EvolutionStateData.MAX_TIER) {
             return new EvolutionResult.Blocked(EvolutionResult.RAISE_TIER_FIRST);
         }
@@ -70,6 +71,6 @@ public final class EvolutionRules {
             // Skipping levels is not allowed; the module for the next level must be used first.
             return new EvolutionResult.Blocked(EvolutionResult.PREVIOUS_LEVEL_FIRST);
         }
-        return new EvolutionResult.Upgrade(state.withOvergrowth(targetLevel), EvolutionStats.getOvergrowthTicks(targetLevel));
+        return new EvolutionResult.Upgrade(state.withOvergrowth(targetLevel), EvolutionStats.getOvergrowthTicks(machine, targetLevel));
     }
 }

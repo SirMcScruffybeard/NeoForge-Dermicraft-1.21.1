@@ -3,7 +3,9 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -11,11 +13,23 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import net.scruffy.dermicraft.component.HazardModuleData;
+import net.scruffy.dermicraft.hazard.HazardFamily;
+import net.scruffy.dermicraft.hazard.HazardProfile;
+import net.scruffy.dermicraft.interfaces.IHasHazardModuleData;
+import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
+import net.scruffy.dermicraft.machine.EvolutionEffects;
+import net.scruffy.dermicraft.machine.EvolutionResult;
+import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.scruffy.dermicraft.machine.MachineTier;
+import net.scruffy.dermicraft.machine.SimpleMachineStats;
 import net.scruffy.dermicraft.machine.TieredMachine;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Shared groundwork for every fuel-powered crafting machine (Masticator, Metastasizer, Effluentcer,
@@ -51,9 +65,8 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
 
     protected AbstractFueledMachineBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        MachineTier tier = tierOf(blockState);
-        this.maxHealth = tier.maxHealth();
-        this.health = tier.maxHealth();
+        this.maxHealth = getBaseMaxHealth();
+        this.health = maxHealth;
     }
 
     @Override
@@ -72,6 +85,218 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
 
     public FuelTank getFuelTank() {
         return FUEL_TANK;
+    }
+
+    // ---- Stat sources ------------------------------------------------------------------------
+    // A machine that has moved onto the evolution state (see usesEvolutionState) takes these numbers from
+    // SimpleMachineStats(getEvolutionState()); any other machine takes them from its block's MachineTier. A machine
+    // whose numbers differ from the standard table (no health system, a different tank count) overrides just the
+    // hook that differs.
+
+    /** Per-tank capacity in mB, before any Capacity Module bonus. */
+    protected int getBaseTankCapacity() {
+        return usesEvolutionState() ? SimpleMachineStats.getTankCapacityMb(getStatKey(), getEvolutionState()) : getTier().tankCapacity();
+    }
+
+    protected int getBaseMaxHealth() {
+        return usesEvolutionState() ? SimpleMachineStats.getMaxHealth(getStatKey(), getEvolutionState()) : getTier().maxHealth();
+    }
+
+    protected float getTierSpeedMultiplier() {
+        return usesEvolutionState() ? SimpleMachineStats.getSpeedMultiplier(getStatKey(), getEvolutionState()) : getTier().speedMultiplier();
+    }
+
+    protected float getTierHealMultiplier() {
+        return getTier().healMultiplier();
+    }
+
+    /** Multiplier on the fuel spent per cycle; 1.0 until the machine uses the evolution state. */
+    protected float getTierFuelUseMultiplier() {
+        return usesEvolutionState() ? SimpleMachineStats.getFuelUseMultiplier(getStatKey(), getEvolutionState()) : 1.0f;
+    }
+
+    /** General Module slots (the dedicated Evolution slot is separate): from the stat table once the machine uses the
+     * evolution state, otherwise the base default. */
+    @Override
+    public int getModuleSlotCount() {
+        return usesEvolutionState() ? SimpleMachineStats.getModuleSlots(getStatKey(), getEvolutionState()) : super.getModuleSlotCount();
+    }
+
+    /** Re-reads the stats a new evolution state changes: max health (a full machine stays full) and the speed and
+     * fuel use derived from the tier. A machine overrides this to also resize what depends on the tier, such as
+     * its Module slots and tanks. */
+    @Override
+    protected void onEvolutionStateChanged() {
+        int newMaxHealth = getBaseMaxHealth();
+        if (newMaxHealth != maxHealth) {
+            boolean wasFull = health >= maxHealth;
+            maxHealth = newMaxHealth;
+            health = wasFull ? newMaxHealth : Math.min(health, newMaxHealth);
+        }
+        setSpeed();
+        setUseRate();
+    }
+
+    // ---- Gradual evolution (an Evolution Module in the Evolution slot raises the machine in place) ----------------
+    // For machines that process, evolution is gradual: real ticks of production accrue toward the module's upgrade
+    // time (from EvolutionRules), pausing on a fuel stall or zero HP, and resetting only when the module comes out
+    // or the machine is picked up. When the time is served a short flourish plays, then the new evolution state is
+    // applied in place and the module is consumed. A machine opts in with usesEvolutionState().
+
+    private static final int GRADUAL_FLOURISH_CYCLES = 4; // 4 * CRAFT_TICKS(10) = 40 ticks, about 2s
+
+    /** The dedicated Evolution Module slot: one slot, Evolution Modules only. Unused (and unexposed) on a machine
+     * that has not opted in with {@link #usesEvolutionState()}. */
+    public final ItemStackHandler EVOLUTION_INVENTORY = createEvolutionInventory();
+
+    /** Real production ticks accrued toward the pending upgrade. */
+    private int gradualProgress = 0;
+    /** The pending upgrade's time when progress last advanced, saved so a client (which has no server config) can
+     * draw the progress fraction. */
+    private int gradualTarget = 1;
+    /** Cycles left in the end-of-evolution flourish; negative when it is not running. */
+    private int gradualFlourishCycles = -1;
+
+    /** Whether this machine's stats and evolution come from its evolution state and Evolution slot, not from its
+     * block's {@link MachineTier}. False until a machine is migrated. */
+    protected boolean usesEvolutionState() {
+        return false;
+    }
+
+    /** The machine's key in the stat config (its own section of overrides), or null for the shared values. A machine
+     * that uses the evolution state returns its {@link MachineStatKey}. */
+    @Nullable
+    protected MachineStatKey getStatKey() {
+        return null;
+    }
+
+    /** Whether a stack is an Evolution Module (the frame or any loaded module). */
+    public static boolean isEvolutionModule(ItemStack stack) {
+        return stack.getItem() instanceof EvolutionModuleItem;
+    }
+
+    private ItemStackHandler createEvolutionInventory() {
+        return new ItemStackHandler(1) {
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return usesEvolutionState() && isEvolutionModule(stack);
+            }
+
+            @Override
+            public int getSlotLimit(int slot) {
+                return 1;
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (level != null && !level.isClientSide) {
+                    onEvolutionSlotChanged();
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
+    /** Whatever was accrued belongs to the old module, so insert, removal and swap all start over. */
+    private void onEvolutionSlotChanged() {
+        gradualProgress = 0;
+        gradualFlourishCycles = -1;
+        gradualTarget = getPendingUpgrade().map(EvolutionResult.Upgrade::durationTicks).orElse(1);
+    }
+
+    /** What the Evolution slot's module would do on this machine right now: empty for an empty slot, the bare frame
+     * or a machine that does not use the evolution state; otherwise the {@link EvolutionRules} answer. */
+    public Optional<EvolutionResult> getEvolutionStatus() {
+        if (!usesEvolutionState()) return Optional.empty();
+        ItemStack module = EVOLUTION_INVENTORY.getStackInSlot(0);
+        if (!(module.getItem() instanceof EvolutionModuleItem evolutionModule)) return Optional.empty();
+        return evolutionModule.evaluate(getStatKey(), getEvolutionState(), module);
+    }
+
+    /** The upgrade the Evolution slot's module would apply, or empty if it is blocked, inert or absent. */
+    protected Optional<EvolutionResult.Upgrade> getPendingUpgrade() {
+        return getEvolutionStatus()
+                .filter(EvolutionResult.Upgrade.class::isInstance)
+                .map(EvolutionResult.Upgrade.class::cast);
+    }
+
+    /** Production is frozen while the flourish plays, so the swap never lands mid-craft. */
+    protected boolean isEvolutionFlourishing() {
+        return gradualFlourishCycles >= 0;
+    }
+
+    /** How far the pending evolution is, 0 to 1 (0 with no live module). Read by the evolution overlay renderer and
+     * the Evolution slot's fill. */
+    public float getGradualEvolutionFraction() {
+        if (!usesEvolutionState() || getPendingUpgrade().isEmpty()) return 0f;
+        return Math.clamp(gradualProgress / (float) Math.max(1, gradualTarget), 0f, 1f);
+    }
+
+    /** Adds one cycle of real production to the pending evolution; called when the machine actually worked this
+     * cycle (fueled and not starved). */
+    private void tickGradualProgress() {
+        if (!usesEvolutionState() || isEvolutionFlourishing()) return;
+
+        Optional<EvolutionResult.Upgrade> pending = getPendingUpgrade();
+        if (pending.isEmpty()) {
+            gradualProgress = 0;
+            return;
+        }
+        gradualTarget = pending.get().durationTicks();
+        gradualProgress += CRAFT_TICKS;
+        if (gradualProgress >= gradualTarget) {
+            gradualFlourishCycles = GRADUAL_FLOURISH_CYCLES;
+            if (level != null) EvolutionEffects.playDefaultStartSound(level, worldPosition);
+        }
+    }
+
+    /** One step of the end-of-evolution flourish per cycle; the upgrade is applied on its last step. */
+    private void tickGradualFlourish() {
+        if (!isEvolutionFlourishing()) return;
+
+        if (level instanceof ServerLevel serverLevel) {
+            EvolutionEffects.spawnParticles(serverLevel, worldPosition,
+                    EvolutionEffects.getProgress(gradualFlourishCycles, GRADUAL_FLOURISH_CYCLES),
+                    gradualFlourishCycles == 0, EvolutionEffects.DEFAULT_TINT, EvolutionEffects.Cadence.CYCLE);
+        }
+
+        gradualFlourishCycles--;
+        if (gradualFlourishCycles < 0) completeGradualEvolution();
+    }
+
+    /** Applies the module's upgrade in place and consumes the module. It is evaluated again first in case the state
+     * changed during the flourish; if it no longer applies the module stays in the slot. */
+    private void completeGradualEvolution() {
+        Optional<EvolutionResult.Upgrade> upgrade = getPendingUpgrade();
+        gradualProgress = 0;
+        gradualFlourishCycles = -1;
+        if (upgrade.isEmpty()) return;
+
+        EVOLUTION_INVENTORY.setStackInSlot(0, ItemStack.EMPTY);
+        setEvolutionState(upgrade.get().newState());
+        setChanged();
+        updateBlock();
+    }
+
+    /** {@code profile} plus the permanent tolerance the machine has earned: every hazard family in its state, at the
+     * level held. */
+    protected HazardProfile addPermanentTolerance(HazardProfile profile) {
+        for (HazardFamily family : HazardFamily.values()) {
+            profile = profile.plusFamily(family, getEvolutionState().level(family));
+        }
+        return profile;
+    }
+
+    /** {@code profile} plus the tolerance of a hazard Evolution Module that is evolving the machine right now. It
+     * counts while its upgrade is live (so a blocked module grants nothing) and becomes permanent when the
+     * evolution completes. */
+    protected HazardProfile addEvolvingTolerance(HazardProfile profile) {
+        if (!usesEvolutionState() || getPendingUpgrade().isEmpty()) return profile;
+        ItemStack module = EVOLUTION_INVENTORY.getStackInSlot(0);
+        if (!(module.getItem() instanceof IHasHazardModuleData hazardModule)) return profile;
+        HazardModuleData data = hazardModule.getHazardData(module);
+        return data == null ? profile : profile.plusFamily(data.family(), data.level());
     }
 
     // ---- Hooks each machine (or future tier) implements --------------------------------------
@@ -110,6 +335,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
             // fueled machine below max health should still recover.
             boolean fueled = FUEL_TANK.hasEnoughFuel(fuelUseRate);
             boolean healedThisCycle = tickHealing(fueled);
+            tickGradualFlourish();
 
             if (!isRecipeValid(activeRecipe)) {
                 if (progress > 0) {
@@ -147,7 +373,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     // ---- Fuel economy ------------------------------------------------------------------------
 
     protected FuelTank createFuelTank() {
-        return new FuelTank(getTier().tankCapacity(), 0) {
+        return new FuelTank(getBaseTankCapacity(), 0) {
             @Override
             protected void onContentsChanged() {
                 if (!level.isClientSide) {
@@ -163,7 +389,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         // `speed` is the fuel's raw multiplier (~1.0 for base Crude Slurry), scaled by the tier and
         // by any installed Work Speed Module(s). Progress advances CRAFT_TICKS per cycle at speed
         // 1.0, so a recipe's `ticks` maps 1:1 to real wall-clock ticks.
-        speed = FUEL_TANK.getSpeed() * getTier().speedMultiplier() * workSpeedMultiplier();
+        speed = FUEL_TANK.getSpeed() * getTierSpeedMultiplier() * workSpeedMultiplier();
     }
 
     /** 1.0 (no bonus) by default -- overridden by a subclass with a real Module slot, mirroring
@@ -174,7 +400,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     }
 
     protected void setUseRate() {
-        fuelUseRate = Math.max(FUEL_USE_DEFAULT, Math.round(FUEL_TANK.getRawUseRate() * CRAFT_TICKS));
+        fuelUseRate = Math.max(FUEL_USE_DEFAULT, Math.round(FUEL_TANK.getRawUseRate() * CRAFT_TICKS * getTierFuelUseMultiplier()));
     }
 
     protected void useFuel() {
@@ -187,7 +413,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     }
 
     private int getHealAmount() {
-        return Math.round(BASE_HEAL_RATE * FUEL_TANK.getHeal() * getTier().healMultiplier());
+        return Math.round(BASE_HEAL_RATE * FUEL_TANK.getHeal() * getTierHealMultiplier());
     }
 
     /**
@@ -216,6 +442,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
                 useFuel();
                 incrementProgress(speed);
             }
+            tickGradualProgress();
         } else {
             damageMachine(HUNGER_RATE);
             incrementProgress(UNFUELED_SPEED_MODIFIER);
@@ -233,6 +460,10 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         tag.putInt("progress", progress);
         tag.putInt("maxProgress", maxProgress);
         tag.putInt("health", health);
+        tag.put("evolution_inventory", EVOLUTION_INVENTORY.serializeNBT(registries));
+        tag.putInt("gradual_progress", gradualProgress);
+        tag.putInt("gradual_target", gradualTarget);
+        tag.putInt("gradual_flourish_cycles", gradualFlourishCycles);
         if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
     }
 
@@ -245,6 +476,12 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         this.progress = tag.getInt("progress");
         this.maxProgress = tag.getInt("maxProgress");
         this.health = tag.contains("health") ? tag.getInt("health") : maxHealth;
+        if (tag.contains("evolution_inventory")) {
+            loadItemHandler(EVOLUTION_INVENTORY, 1, registries, tag.getCompound("evolution_inventory"));
+        }
+        gradualProgress = tag.getInt("gradual_progress");
+        gradualTarget = tag.contains("gradual_target") ? tag.getInt("gradual_target") : 1;
+        gradualFlourishCycles = tag.contains("gradual_flourish_cycles") ? tag.getInt("gradual_flourish_cycles") : -1;
 
         if (tag.contains("saved_recipe", CompoundTag.TAG_STRING)) {
             pendingRecipeId = ResourceLocation.parse(tag.getString("saved_recipe"));

@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.scruffy.dermicraft.block.entity.custom.MasticatorBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -13,15 +14,19 @@ import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractModMenu;
 import net.scruffy.dermicraft.screen.AbstractModScreen;
+import net.scruffy.dermicraft.screen.EvolutionPanel;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
 
     private static final int TAB_TEXT_COLOR = 0x007F0E;
     private List<Tab> tabs;
+    /** Where the Evolution slot, tier icon, label and hazard icons go; set in init() once the font is known. */
+    private EvolutionPanel.Layout panelLayout;
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
@@ -93,6 +98,7 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     @Override
     protected void init() {
         super.init();
+        panelLayout = EvolutionPanel.Layout.of(font, MasticatorMenu.EVOLUTION_SLOT_X);
 
         fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
         ingredientRenderer = createFluidRenderer16x40(menu.BE.getIngredientTank().getCapacity());
@@ -155,6 +161,28 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
                     : Component.translatable("tooltip.dermicraft.machine.auto_drain_off");
             guiGraphics.renderTooltip(this.font, label, pMouseX - x, pMouseY - y);
         }
+
+        if (menu.getActiveTab() == MasticatorMenu.MODULE_TAB) {
+            if (EvolutionPanel.isEvolutionSlot(hoveredSlot, menu.BE.EVOLUTION_INVENTORY) && !hoveredSlot.hasItem()) {
+                guiGraphics.renderComponentTooltip(this.font, EvolutionPanel.getEmptySlotTooltip(), pMouseX - x, pMouseY - y);
+            }
+            EvolutionPanel.renderTooltip(guiGraphics, font, pMouseX - x, pMouseY - y, getEvolutionPanelCells());
+        }
+    }
+
+    /** The icons under the slots on the Module tab: this machine's tier and tolerances, see {@link EvolutionPanel}. */
+    private List<EvolutionPanel.Cell> getEvolutionPanelCells() {
+        return EvolutionPanel.getCells(panelLayout, menu.BE.getEvolutionState(), menu.BE.MODULE_INVENTORY,
+                menu.BE.EVOLUTION_INVENTORY);
+    }
+
+    @Override
+    protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
+        List<Component> lines = super.getTooltipFromContainerItem(stack);
+        if (!EvolutionPanel.isEvolutionSlot(hoveredSlot, menu.BE.EVOLUTION_INVENTORY)) return lines;
+        List<Component> withStatus = new ArrayList<>(lines);
+        withStatus.addAll(EvolutionPanel.getStatusLines(menu.BE.getEvolutionStatus()));
+        return withStatus;
     }
 
     @Override
@@ -205,11 +233,13 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     /** One yellow Module slot -- nothing else on this tab, matching Drooling Cauldron/Skin Tank's
      * own bare Module-slot-only look. */
     private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        EvolutionPanel.renderSlot(guiGraphics, x, y, panelLayout, menu.BE.getGradualEvolutionFraction());
         for (int i = 0; i < menu.BE.getModuleSlotCount(); i++) {
             guiGraphics.blit(MODULE_SLOT_TEXTURE,
                     x + MasticatorMenu.MODULE_SLOT_X + i * MasticatorMenu.MODULE_SLOT_SPACING,
                     y + MasticatorMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
         }
+        EvolutionPanel.render(guiGraphics, font, x, y, panelLayout, getEvolutionPanelCells());
     }
 
     @Override

@@ -7,7 +7,9 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The SERVER config for the L-level stats. The spec's defaults come from StatDefaults. The snapshot is
@@ -39,6 +41,21 @@ public final class StatConfig {
     private static final ModConfigSpec.DoubleValue EVOLUTION_OVERGROWTH_SECONDS;
     private static final ModConfigSpec.DoubleValue EVOLUTION_OVERGROWTH_GROWTH_PERCENT;
     private static final ModConfigSpec.DoubleValue EVOLUTION_COUNTDOWN_SECONDS;
+
+    /** One machine's optional overrides in the config. An empty list or a negative number means "use the shared value". */
+    private record MachineSection(
+            ModConfigSpec.ConfigValue<List<? extends Number>> speed,
+            ModConfigSpec.ConfigValue<List<? extends Number>> fuelUse,
+            ModConfigSpec.ConfigValue<List<? extends Number>> maxHealth,
+            ModConfigSpec.ConfigValue<List<? extends Number>> tankCapacityMb,
+            ModConfigSpec.ConfigValue<List<? extends Number>> moduleSlots,
+            ModConfigSpec.ConfigValue<List<? extends Number>> evolutionTierSeconds,
+            ModConfigSpec.DoubleValue evolutionHazardNewSeconds,
+            ModConfigSpec.DoubleValue evolutionHazardUpgradeSeconds,
+            ModConfigSpec.DoubleValue evolutionOvergrowthSeconds,
+            ModConfigSpec.DoubleValue evolutionOvergrowthGrowthPercent) {}
+
+    private static final Map<MachineStatKey, MachineSection> MACHINE_SECTIONS = new EnumMap<>(MachineStatKey.class);
 
     public static final ModConfigSpec SPEC;
 
@@ -90,7 +107,42 @@ public final class StatConfig {
                 .defineInRange("countdownSeconds", StatDefaults.EVOLUTION_COUNTDOWN_SECONDS, 0.0, 600.0);
         BUILDER.pop();
 
+        // Per-machine overrides. Every value starts empty (lists) or -1 (numbers), which means "use the shared value
+        // above", so a server owner writes only what they want to change for that machine.
+        BUILDER.comment("Per-machine overrides of the shared values above. Leave a list empty (or a number at -1) to use the shared value.")
+                .push("machines");
+        for (MachineStatKey machine : MachineStatKey.values()) {
+            BUILDER.push(machine.getSectionName());
+            MACHINE_SECTIONS.put(machine, new MachineSection(
+                    overrideList("speedMultiplier", "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
+                    overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4"),
+                    overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4"),
+                    overrideList("tankCapacityMb", "Capacity of each tank, in millibuckets, per tier.", 1, 100000000, TIERS, "L1 to L4"),
+                    overrideList("generalModuleSlots", "General Module slots per tier (0 to 4).", 0, 4, TIERS, "L1 to L4"),
+                    overrideList("tierSeconds", "Seconds of production an Evolution Module takes to raise the tier.", 1, 10000000, 3, "L2, L3, L4"),
+                    overrideNumber("hazardNewSeconds", "Seconds to add a hazard family the machine does not hold yet.", 10000000),
+                    overrideNumber("hazardUpgradeSeconds", "Seconds to raise a held hazard family from Mild to Severe.", 10000000),
+                    overrideNumber("overgrowthSeconds", "Seconds to reach Overgrowth level 1.", 10000000),
+                    overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000)));
+            BUILDER.pop();
+        }
+        BUILDER.pop();
+
         SPEC = BUILDER.build();
+    }
+
+    /** A list that is either empty (use the shared values) or exactly {@code size} numbers in {@code [min, max]}. */
+    private static ModConfigSpec.ConfigValue<List<? extends Number>> overrideList(
+            String name, String comment, double min, double max, int size, String meaning) {
+        return BUILDER.comment(comment + " Empty uses the shared values; otherwise exactly " + size + " values, " + meaning + ".")
+                .defineList(List.of(name), () -> List.<Double>of(), () -> max,
+                        o -> o instanceof Number n && n.doubleValue() >= min && n.doubleValue() <= max,
+                        ModConfigSpec.Range.of(0, size));
+    }
+
+    /** A number that is -1 (use the shared value) or between 0 and {@code max}. */
+    private static ModConfigSpec.DoubleValue overrideNumber(String name, String comment, double max) {
+        return BUILDER.comment(comment + " -1 uses the shared value.").defineInRange(name, -1.0, -1.0, max);
     }
 
     private StatConfig() {}
@@ -145,7 +197,55 @@ public final class StatConfig {
                 table(EVOLUTION_TIER_SECONDS, StatDefaults.EVOLUTION_TIER_SECONDS),
                 EVOLUTION_HAZARD_NEW_SECONDS.get(), EVOLUTION_HAZARD_UPGRADE_SECONDS.get(),
                 EVOLUTION_OVERGROWTH_SECONDS.get(), EVOLUTION_OVERGROWTH_GROWTH_PERCENT.get(),
-                EVOLUTION_COUNTDOWN_SECONDS.get());
+                EVOLUTION_COUNTDOWN_SECONDS.get(),
+                buildMachineOverrides());
+    }
+
+    private static Map<MachineStatKey, MachineOverrides> buildMachineOverrides() {
+        Map<MachineStatKey, MachineOverrides> overrides = new EnumMap<>(MachineStatKey.class);
+        for (Map.Entry<MachineStatKey, MachineSection> entry : MACHINE_SECTIONS.entrySet()) {
+            MachineSection section = entry.getValue();
+            overrides.put(entry.getKey(), new MachineOverrides(
+                    optionalTable(section.speed(), TIERS),
+                    optionalTable(section.fuelUse(), TIERS),
+                    optionalTable(section.maxHealth(), TIERS),
+                    optionalTable(section.tankCapacityMb(), TIERS),
+                    optionalSlots(section.moduleSlots()),
+                    optionalTable(section.evolutionTierSeconds(), 3),
+                    optionalNumber(section.evolutionHazardNewSeconds()),
+                    optionalNumber(section.evolutionHazardUpgradeSeconds()),
+                    optionalNumber(section.evolutionOvergrowthSeconds()),
+                    optionalNumber(section.evolutionOvergrowthGrowthPercent())));
+        }
+        return overrides;
+    }
+
+    /** The list as a table, or null (use the shared table) if it is empty or not exactly {@code size} values. */
+    private static double[] optionalTable(ModConfigSpec.ConfigValue<List<? extends Number>> value, int size) {
+        List<? extends Number> list = value.get();
+        if (list.isEmpty()) return null;
+        if (list.size() != size) {
+            Dermicraft.LOGGER.warn("Stat config list {} has {} values, expected {} or none; using the shared values.",
+                    value.getPath(), list.size(), size);
+            return null;
+        }
+        double[] out = new double[size];
+        for (int i = 0; i < size; i++) out[i] = list.get(i).doubleValue();
+        return out;
+    }
+
+    private static int[] optionalSlots(ModConfigSpec.ConfigValue<List<? extends Number>> value) {
+        double[] asDoubles = optionalTable(value, TIERS);
+        if (asDoubles == null) return null;
+        int[] out = new int[asDoubles.length];
+        for (int i = 0; i < out.length; i++) out[i] = (int) Math.round(asDoubles[i]);
+        return out;
+    }
+
+    /** The number, or null (use the shared value) when it is negative. */
+    private static Double optionalNumber(ModConfigSpec.DoubleValue value) {
+        double number = value.get();
+        return number < 0 ? null : number;
     }
 
     /** The config list as a table, or the default if it is somehow not exactly one value per tier. */

@@ -4,6 +4,8 @@ import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.component.HazardModuleData;
 import net.scruffy.dermicraft.interfaces.IHasHazardModuleData;
+import net.scruffy.dermicraft.machine.MachineStatKey;
+import org.jetbrains.annotations.Nullable;
 import net.scruffy.dermicraft.machine.EvolutionResult;
 import net.scruffy.dermicraft.machine.EvolutionRules;
 
@@ -17,9 +19,9 @@ public class HazardEvolutionModuleItem extends EvolutionModuleItem implements IH
     }
 
     @Override
-    public Optional<EvolutionResult> evaluate(EvolutionStateData state, ItemStack stack) {
+    public Optional<EvolutionResult> evaluate(@Nullable MachineStatKey machine, EvolutionStateData state, ItemStack stack) {
         HazardModuleData data = getHazardData(stack);
         return data == null ? Optional.empty()
-                : Optional.of(EvolutionRules.evaluateHazard(state, data.family(), data.level()));
+                : Optional.of(EvolutionRules.evaluateHazard(machine, state, data.family(), data.level()));
     }
 }

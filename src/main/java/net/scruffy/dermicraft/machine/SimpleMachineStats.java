@@ -1,6 +1,7 @@
 package net.scruffy.dermicraft.machine;
 
 import net.scruffy.dermicraft.component.EvolutionStateData;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Stats for the simple (fueled) machines: Masticator, Effluentcer, Metastasizer, Mutator, Render Furnace,
@@ -10,7 +11,8 @@ import net.scruffy.dermicraft.component.EvolutionStateData;
  * grow. Values come from {@link StatConfig}'s current snapshot (the server config once it is loaded,
  * the {@link StatDefaults} otherwise), so a config change reaches every caller without changing any of
  * them. See "Stat table for the L levels" in
- * {@code dermicraft-machine-notes.md}.
+ * {@code dermicraft-machine-notes.md}. Each stat takes the machine asking (null for the shared value): a machine with
+ * its own section in the config uses its overrides where it has them.
  */
 public final class SimpleMachineStats {
 
@@ -21,13 +23,13 @@ public final class SimpleMachineStats {
     }
 
     /** Tier processing speed multiplier; multiplies with the fuel's speed and the Work Speed Modules. */
-    public static float getSpeedMultiplier(EvolutionStateData state) {
-        return (float) value(StatConfig.getCurrent().simpleMachineSpeed(), state);
+    public static float getSpeedMultiplier(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return (float) value(StatConfig.getCurrent().speedFor(machine), state);
     }
 
     /** Tier multiplier on fuel spent per cycle (grows at half the rate of speed, so higher tiers are mildly more efficient per item). */
-    public static float getFuelUseMultiplier(EvolutionStateData state) {
-        return (float) value(StatConfig.getCurrent().simpleMachineFuelUse(), state);
+    public static float getFuelUseMultiplier(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return (float) value(StatConfig.getCurrent().fuelUseFor(machine), state);
     }
 
     /** Items per second the machine may auto-push; fractional, so callers keep a running budget. */
@@ -41,18 +43,18 @@ public final class SimpleMachineStats {
     }
 
     /** Maximum machine health; doubles per tier. */
-    public static int getMaxHealth(EvolutionStateData state) {
-        return StatTable.toInt(value(StatConfig.getCurrent().simpleMachineMaxHealth(), state));
+    public static int getMaxHealth(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return StatTable.toInt(value(StatConfig.getCurrent().maxHealthFor(machine), state));
     }
 
     /** Per-tank fluid capacity in mB. */
-    public static int getTankCapacityMb(EvolutionStateData state) {
-        return StatTable.toInt(value(StatConfig.getCurrent().simpleMachineTankCapacityMb(), state));
+    public static int getTankCapacityMb(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return StatTable.toInt(value(StatConfig.getCurrent().tankCapacityMbFor(machine), state));
     }
 
     /** General Module slots (the dedicated Evolution slot is separate and always present); Overgrowth adds none. */
-    public static int getModuleSlots(EvolutionStateData state) {
-        return StatConfig.getCurrent().moduleSlots()[state.tier() - 1];
+    public static int getModuleSlots(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return StatConfig.getCurrent().moduleSlotsFor(machine)[state.tier() - 1];
     }
 
     /** HP a processing machine loses per 10-tick cycle with no fuel; flat, does not scale with tier. */

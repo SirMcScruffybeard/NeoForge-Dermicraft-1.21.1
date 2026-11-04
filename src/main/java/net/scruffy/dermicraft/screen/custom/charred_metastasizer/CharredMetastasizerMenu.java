@@ -15,7 +15,7 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
 /** Charred Metastasizer's menu -- identical layout/slots (Module tab included) to
  * {@code MetastasizerMenu}, just typed to {@link CharredMetastasizerBlockEntity} and checked
  * against {@link ModBlocks#CHARRED_METASTASIZER} in {@link #stillValid}. Distinct class for the
- * same reason CharredMasticatorMenu is. */
+ * same reason the retired Charred Masticator menu was. */
 public class CharredMetastasizerMenu extends AbstractModMenu {
 
     public static final int MAIN_TAB = 0;

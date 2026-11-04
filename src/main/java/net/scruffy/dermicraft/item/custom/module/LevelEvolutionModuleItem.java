@@ -4,6 +4,8 @@ import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.component.LevelModuleData;
 import net.scruffy.dermicraft.interfaces.IHasLevelModuleData;
+import net.scruffy.dermicraft.machine.MachineStatKey;
+import org.jetbrains.annotations.Nullable;
 import net.scruffy.dermicraft.machine.EvolutionLadder;
 import net.scruffy.dermicraft.machine.EvolutionResult;
 
@@ -20,8 +22,8 @@ public class LevelEvolutionModuleItem extends EvolutionModuleItem implements IHa
     }
 
     @Override
-    public Optional<EvolutionResult> evaluate(EvolutionStateData state, ItemStack stack) {
+    public Optional<EvolutionResult> evaluate(@Nullable MachineStatKey machine, EvolutionStateData state, ItemStack stack) {
         LevelModuleData data = getLevelData(stack);
-        return data == null ? Optional.empty() : Optional.of(LADDER.evaluate(state, data.level()));
+        return data == null ? Optional.empty() : Optional.of(LADDER.evaluate(machine, state, data.level()));
     }
 }
