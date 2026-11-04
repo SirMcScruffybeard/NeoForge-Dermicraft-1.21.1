@@ -1,100 +1,89 @@
 package net.scruffy.dermicraft.hazard;
 
-import net.minecraft.tags.TagKey;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.machine.FluidHazards;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
- * Immutable description of which hazard KINDS a container (tank, duct, machine) tolerates.
+ * Immutable description of how much of each hazard family a container (tank, duct, machine) tolerates: a level per
+ * family, 0 for none, 1 for Mild (the only level of Thermal and Biohazard), 2 for Severe. A level covers every level
+ * below it, so holding Severe also covers Mild.
  *
- * <p>Acceptance rule is subset-based: a fluid is allowed iff every hazard kind it carries is in
- * this profile's tolerated set (fluid's hazards ⊆ tolerated). Tier presets below follow the design
- * ladder, but the set model also permits off-ladder combinations (e.g. the metaphysical hazards added
- * to any tier without disturbing the heat/radiation ordering).
+ * <p>Acceptance rule: a fluid is allowed iff, in every family, the band it falls in (see {@link FluidHazards}) is at or
+ * below the level this profile holds. Tier presets below follow the design ladder, but a profile can hold any
+ * combination, so off-ladder grants (a Metaphysical tolerance on a Tier 1 machine) work without disturbing the rest.
  *
- * <p>Weakest-link across a run of containers is {@link #intersect(HazardProfile)} — the set analog
- * of taking the minimum tier.
+ * <p>Weakest-link across a run of containers is {@link #intersect(HazardProfile)}: the lower level in each family.
  */
 public final class HazardProfile {
 
-    private final Set<TagKey<Fluid>> tolerated;
+    private final EnumMap<HazardFamily, Integer> levels;
 
-    private HazardProfile(Set<TagKey<Fluid>> tolerated) {
-        this.tolerated = Set.copyOf(tolerated);
+    private HazardProfile(Map<HazardFamily, Integer> levels) {
+        this.levels = new EnumMap<>(HazardFamily.class);
+        for (HazardFamily family : HazardFamily.values()) {
+            int level = Math.clamp(levels.getOrDefault(family, 0), 0, family.getMaxLevel());
+            this.levels.put(family, level);
+        }
     }
 
-    @SafeVarargs
-    public static HazardProfile of(TagKey<Fluid>... hazards) {
-        return new HazardProfile(Set.of(hazards));
+    /** A profile holding exactly the given levels (families left out are 0). */
+    public static HazardProfile of(Map<HazardFamily, Integer> levels) {
+        return new HazardProfile(levels);
     }
 
-    /** Collection counterpart to {@link #of(TagKey[])} -- for callers building a profile from a
-     * data-driven list (e.g. a Safety Module's granted hazards) rather than a compile-time literal. */
-    public static HazardProfile of(java.util.Collection<TagKey<Fluid>> hazards) {
-        return new HazardProfile(new HashSet<>(hazards));
-    }
-
-    /** Tolerates every known hazard — an unrestricted container that gates nothing. */
-    public static final HazardProfile ALL = new HazardProfile(new HashSet<>(ModTags.Fluids.ALL_HAZARDS));
+    /** Tolerates every family up to its top level, an unrestricted container that gates nothing. */
+    public static final HazardProfile ALL = allAtMax();
 
     // --- Ladder presets (cumulative, matching the design notes) ---
-    public static final HazardProfile TIER_1 = new HazardProfile(Set.of());
-    public static final HazardProfile TIER_2 = of(ModTags.Fluids.THERMAL);
-    public static final HazardProfile TIER_3 = of(ModTags.Fluids.THERMAL, ModTags.Fluids.RADIATION_MILD);
-    public static final HazardProfile TIER_4 = of(
-            ModTags.Fluids.THERMAL,
-            ModTags.Fluids.RADIATION_MILD,
-            ModTags.Fluids.RADIATION_SEVERE,
-            ModTags.Fluids.BIOHAZARD);
+    public static final HazardProfile TIER_1 = new HazardProfile(Map.of());
+    public static final HazardProfile TIER_2 = TIER_1.plusFamily(HazardFamily.THERMAL, 1);
+    public static final HazardProfile TIER_3 = TIER_2.plusFamily(HazardFamily.RADIATION, 1);
+    public static final HazardProfile TIER_4 = TIER_3
+            .plusFamily(HazardFamily.RADIATION, 2)
+            .plusFamily(HazardFamily.BIOHAZARD, 1);
 
-
-    /** True if this profile tolerates the single hazard kind {@code hazard} (a machine's penalty for that hazard is cancelled). */
-    public boolean tolerates(TagKey<Fluid> hazard) {
-        return tolerated.contains(hazard);
+    private static HazardProfile allAtMax() {
+        Map<HazardFamily, Integer> max = new EnumMap<>(HazardFamily.class);
+        for (HazardFamily family : HazardFamily.values()) max.put(family, family.getMaxLevel());
+        return new HazardProfile(max);
     }
-    /** True if every hazard kind the fluid carries is tolerated by this profile. */
+
+    /** The level this profile holds in {@code family}, 0 for none. */
+    public int getLevel(HazardFamily family) {
+        return levels.get(family);
+    }
+
+    /** True if this profile tolerates {@code family} at all (a machine's penalty for it is at least reduced). */
+    public boolean tolerates(HazardFamily family) {
+        return getLevel(family) >= 1;
+    }
+
+    /** True if every family's band for the fluid is within the level this profile holds. */
     public boolean accepts(FluidStack fluid) {
-        for (TagKey<Fluid> hazard : ModTags.Fluids.ALL_HAZARDS) {
-            if (fluid.is(hazard) && !tolerated.contains(hazard)) {
+        for (HazardFamily family : HazardFamily.values()) {
+            if (FluidHazards.getLevel(fluid, family) > getLevel(family)) {
                 return false;
             }
         }
         return true;
     }
 
-    /** New profile that additionally tolerates {@code hazard} (off-ladder add-on, e.g. a metaphysical kind). */
-    public HazardProfile plus(TagKey<Fluid> hazard) {
-        Set<TagKey<Fluid>> next = new HashSet<>(tolerated);
-        next.add(hazard);
-        return new HazardProfile(next);
-    }
-
-    /** New profile that additionally tolerates {@code family} up to {@code level} (a Severe level includes Mild). */
+    /** New profile that additionally tolerates {@code family} up to {@code level} (never lowers an existing level). */
     public HazardProfile plusFamily(HazardFamily family, int level) {
-        Set<TagKey<Fluid>> next = new HashSet<>(tolerated);
-        next.addAll(family.getTags(level));
+        EnumMap<HazardFamily, Integer> next = new EnumMap<>(levels);
+        next.merge(family, level, Math::max);
         return new HazardProfile(next);
     }
 
-    /** New profile that no longer tolerates {@code hazard}. */
-    public HazardProfile minus(TagKey<Fluid> hazard) {
-        Set<TagKey<Fluid>> next = new HashSet<>(tolerated);
-        next.remove(hazard);
-        return new HazardProfile(next);
-    }
-
-    /** Weakest-link combine: tolerates only hazards tolerated by BOTH profiles. */
+    /** Weakest-link combine: the lower level in each family. */
     public HazardProfile intersect(HazardProfile other) {
-        Set<TagKey<Fluid>> next = new HashSet<>(tolerated);
-        next.retainAll(other.tolerated);
+        EnumMap<HazardFamily, Integer> next = new EnumMap<>(HazardFamily.class);
+        for (HazardFamily family : HazardFamily.values()) {
+            next.put(family, Math.min(getLevel(family), other.getLevel(family)));
+        }
         return new HazardProfile(next);
-    }
-
-    public Set<TagKey<Fluid>> tolerated() {
-        return tolerated;
     }
 }

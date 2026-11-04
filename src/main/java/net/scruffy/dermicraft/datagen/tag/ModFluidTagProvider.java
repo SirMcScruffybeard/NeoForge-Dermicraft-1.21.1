@@ -34,56 +34,6 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_CONCENTRATED_SLURRY.get())
         ;
 
-        // --- Hazard kinds ---
-        tag(ModTags.Fluids.THERMAL)
-                .addTag(FluidTags.LAVA)
-                .add(ModFluids.SOURCE_MOLTEN_REDSTONE.get())
-                .add(ModFluids.SOURCE_MOLTEN_QUARTZ.get())
-                .add(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get())
-                .add(ModFluids.SOURCE_MOLTEN_AMETHYST.get())
-                .add(ModFluids.SOURCE_MOLTEN_DIAMOND.get())                .add(ModFluids.SOURCE_MOLTEN_LAPIS.get())
-                .add(ModFluids.SOURCE_MOLTEN_EMERALD.get())
-                .add(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get())
-                .add(ModFluids.SOURCE_MOLTEN_NETHERITE.get())
-                .add(ModFluids.SOURCE_BLAZE_ESSENCE.get())
-                .add(ModFluids.SOURCE_GHAST_ESSENCE.get())
-                .add(ModFluids.SOURCE_WITHER_ESSENCE.get())
-                .add(ModFluids.SOURCE_ENDER_ESSENCE.get())
-                .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
-                // Kinetic Catalyst -- only ever producible from Molten Redstone + Molten Quartz
-                // (both already THERMAL), so any machine capable of making it is already Tier 2;
-                // this just reflects that lineage rather than newly gating anything.
-                .add(ModFluids.SOURCE_KINETIC_CATALYST.get())
-        ;
-
-        tag(ModTags.Fluids.RADIATION_MILD)
-                .add(ModFluids.SOURCE_MOLTEN_GLOWSTONE.get())
-        ;
-
-        tag(ModTags.Fluids.RADIATION_SEVERE)
-        ;
-
-        tag(ModTags.Fluids.BIOHAZARD)
-        ;
-
-        tag(ModTags.Fluids.METAPHYSICAL_MILD)
-                .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
-        ;
-
-        tag(ModTags.Fluids.METAPHYSICAL_SEVERE)
-                .add(ModFluids.SOURCE_ENDER_ESSENCE.get())
-        ;
-
-        // Union of every hazard kind above.
-        tag(ModTags.Fluids.HAZARDOUS)
-                .addTag(ModTags.Fluids.THERMAL)
-                .addTag(ModTags.Fluids.RADIATION_MILD)
-                .addTag(ModTags.Fluids.RADIATION_SEVERE)
-                .addTag(ModTags.Fluids.BIOHAZARD)
-                .addTag(ModTags.Fluids.METAPHYSICAL_MILD)
-                .addTag(ModTags.Fluids.METAPHYSICAL_SEVERE)
-        ;
-
         tag(ModTags.Fluids.THICK)
                 .add(ModFluids.SOURCE_CALCIUM_BLEND.get())
                 .add(ModFluids.SOURCE_CARBON_BLEND.get())

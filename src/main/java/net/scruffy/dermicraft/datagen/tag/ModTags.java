@@ -45,9 +45,9 @@ public class ModTags {
         public static final TagKey<Block> AGGREGATE_HOT = createTag("aggregate_hot");
 
         // Aggregate targets hazardous in a metaphysical rather than thermal sense -- same shape as
-        // AGGREGATE_HOT, just gated on METAPHYSICAL_MILD tolerance instead of THERMAL. Members:
+        // AGGREGATE_HOT, just gated on Metaphysical tolerance instead of Thermal. Members:
         // Soul Sand and Soul Soil, both tied thematically (and tag-wise) to the Molten Soul Silica
-        // fluid's own METAPHYSICAL_MILD tag -- see ModFluidTagProvider.
+        // fluid's own Metaphysical hazard -- see the fluid_hazard data map.
         public static final TagKey<Block> AGGREGATE_METAPHYSICAL = createTag("aggregate_metaphysical");
 
         // What the Beam Module lets Eater target instead -- regular stone/ore, independent of
@@ -162,24 +162,6 @@ public class ModTags {
 
     public static class Fluids {
         public static final TagKey<Fluid> BIOFUELS = createTag("biofuels");
-
-        // Union tag: membership = "in any child hazard tag below". Coarse "is this dangerous at all?" check.
-        public static final TagKey<Fluid> HAZARDOUS = createTag("hazardous");
-
-        // Specific hazard kinds. A fluid may belong to more than one.
-        public static final TagKey<Fluid> THERMAL = createTag("hazard/thermal");
-        public static final TagKey<Fluid> RADIATION_MILD = createTag("hazard/radiation_mild");
-        public static final TagKey<Fluid> RADIATION_SEVERE = createTag("hazard/radiation_severe");
-        public static final TagKey<Fluid> BIOHAZARD = createTag("hazard/biohazard");
-        public static final TagKey<Fluid> METAPHYSICAL_MILD = createTag("hazard/metaphysical_mild");
-        public static final TagKey<Fluid> METAPHYSICAL_SEVERE = createTag("hazard/metaphysical_severe");
-
-        // Java-side roster of every hazard KIND, for code that must iterate the individual
-        // hazard tags (e.g. HazardProfile). The HAZARDOUS union tag only answers the runtime
-        // yes/no "is this fluid dangerous"; it can't hand back its child TagKeys.
-        public static final List<TagKey<Fluid>> ALL_HAZARDS = List.of(
-                THERMAL, RADIATION_MILD, RADIATION_SEVERE, BIOHAZARD,
-                METAPHYSICAL_MILD, METAPHYSICAL_SEVERE);
 
         public static final TagKey<Fluid> THICK = createTag("thick");
         public static final TagKey<Fluid> THIN = createTag("thin");

@@ -11,6 +11,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
+import net.scruffy.dermicraft.hazard.FluidHazardData;
 import net.scruffy.dermicraft.item.ModItems;
 import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
 import net.scruffy.dermicraft.property.BiofuelProperties;
@@ -46,6 +47,16 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModFluids.SOURCE_CONCENTRATED_SLURRY),
                         new BiofuelProperties(.125f, .90f, .125f, 1), false)
 
+                ;
+
+        // Fluid hazards. Thermal needs no entry: it reads each fluid's real temperature, so only a fluid whose own
+        // temperature misrepresents it gets an override. Radiation, Biohazard and Metaphysical are intensities against
+        // the config thresholds (defaults: Mild 1 to 99, Severe 100 to 200, Biohazard 1 to 100); these values keep the
+        // old Mild/Severe tags' placement, mid-band, and are placeholders until the fluids are tuned.
+        this.builder(ModDataMaps.FLUID_HAZARD)
+                .add(getResourceLocation(ModFluids.SOURCE_MOLTEN_GLOWSTONE), FluidHazardData.radiation(50), false)
+                .add(getResourceLocation(ModFluids.SOURCE_MOLTEN_SOUL_SILICA), FluidHazardData.metaphysical(50), false)
+                .add(getResourceLocation(ModFluids.SOURCE_ENDER_ESSENCE), FluidHazardData.metaphysical(150), false)
                 ;
 
         this.builder(ModDataMaps.EDIBLE_FLUID)
@@ -246,7 +257,7 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModItems.HEAT_EVOLUTION_MODULE),
                         new net.scruffy.dermicraft.property.EvolutionModuleProperties(
                                 java.util.Optional.of(net.minecraft.world.level.material.Fluids.LAVA),
-                                List.of(ModTags.Fluids.THERMAL),
+                                List.of(net.scruffy.dermicraft.hazard.HazardFamily.THERMAL),
                                 24000), false)
                 ;
 

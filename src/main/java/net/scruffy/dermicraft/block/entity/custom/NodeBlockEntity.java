@@ -74,7 +74,7 @@ public class NodeBlockEntity extends MachineBaseBlockEntity implements MenuProvi
 
     private boolean isTransferringFluids = false;
 
-    // The tank's hazard profile comes from this Node's tier (TIER_1 rejects HAZARDOUS-tagged fluids,
+    // The tank's hazard profile comes from this Node's tier (TIER_1 rejects any fluid with a hazard,
     // the mod-wide baseline; higher tiers accept more). Since a duct has no block entity/fluid state
     // of its own, this tank is the ONLY place fluid ever sits in the whole system (every hop, in or
     // out, passes through it), so gating it here is enough to protect the entire duct network for

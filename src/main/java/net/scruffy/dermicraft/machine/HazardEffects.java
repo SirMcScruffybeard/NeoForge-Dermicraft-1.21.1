@@ -1,7 +1,7 @@
 package net.scruffy.dermicraft.machine;
 
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.hazard.HazardFamily;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 
 import java.util.List;
@@ -19,26 +19,24 @@ public final class HazardEffects {
     private HazardEffects() {}
 
     /**
-     * HP a machine loses this cycle to the hot or cold fluids in {@code fluids}. The fluid's real temperature decides,
-     * not the Thermal tag, so any fluid from any mod hurts when it is far enough from the reference (the tag only
-     * matters to what tolerates it and to the hard blocks in tanks and ducts). For the worst one,
-     * {@code modifier x (|temperature - reference| - safeRange) / 100}, at least 1, so super-cooled fluids burn as well
-     * as hot ones. A fluid within the safe range of the reference does nothing.
-     * Zero when none of the fluids is Thermal, when {@code tolerance} covers Thermal, or when the config turns it off.
+     * HP a machine loses this cycle to the hot or cold fluids in {@code fluids}. The fluid's real temperature decides
+     * (or its {@code fluid_hazard} data map override), not any tag, so any fluid from any mod hurts when it is far
+     * enough from the reference. For the worst one, {@code modifier x (|temperature - reference| - safeRange) / 100},
+     * at least 1. A fluid within the safe range of the reference does nothing. Zero when {@code tolerance} covers
+     * Thermal, or when the config turns it off.
      */
     public static int getThermalDamage(List<FluidStack> fluids, HazardProfile tolerance) {
-        if (tolerance.tolerates(ModTags.Fluids.THERMAL)) return 0;
+        if (tolerance.tolerates(HazardFamily.THERMAL)) return 0;
 
-        StatValues values = StatConfig.getCurrent();
-        if (values.thermalDamageModifier() <= 0) return 0;
+        double modifier = StatConfig.getCurrent().thermalDamageModifier();
+        if (modifier <= 0) return 0;
 
         int worst = 0;
         for (FluidStack fluid : fluids) {
             if (fluid.isEmpty()) continue;
-            int temperature = fluid.getFluidType().getTemperature(fluid);
-            double distance = Math.abs(temperature - values.thermalReferenceTemperature()) - values.thermalSafeRange();
-            if (distance <= 0) continue;
-            int damage = (int) Math.max(1, Math.round(values.thermalDamageModifier() * distance / 100.0));
+            int excess = FluidHazards.getThermalExcess(fluid);
+            if (excess <= 0) continue;
+            int damage = (int) Math.max(1, Math.round(modifier * excess / 100.0));
             worst = Math.max(worst, damage);
         }
         return worst;

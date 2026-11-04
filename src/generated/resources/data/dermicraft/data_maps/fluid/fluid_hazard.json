@@ -1,0 +1,13 @@
+{
+  "values": {
+    "dermicraft:source_ender_essence": {
+      "metaphysical": 150
+    },
+    "dermicraft:source_molten_glowstone": {
+      "radiation": 50
+    },
+    "dermicraft:source_molten_soul_silica": {
+      "metaphysical": 50
+    }
+  }
+}

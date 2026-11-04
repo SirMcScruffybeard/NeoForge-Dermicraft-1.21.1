@@ -246,7 +246,7 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
                         .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
                 if (evoProps != null) {
                     for (var hazard : evoProps.hazards()) {
-                        profile = profile.plus(hazard);
+                        profile = profile.plusFamily(hazard, 1);
                     }
                 }
             }

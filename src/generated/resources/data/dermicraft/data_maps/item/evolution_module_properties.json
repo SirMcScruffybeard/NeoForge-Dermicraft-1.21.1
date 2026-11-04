@@ -3,7 +3,7 @@
     "dermicraft:heat_evolution_module": {
       "evolution_threshold": 24000,
       "hazards": [
-        "#dermicraft:hazard/thermal"
+        "thermal"
       ],
       "target_fluid": "minecraft:lava"
     }

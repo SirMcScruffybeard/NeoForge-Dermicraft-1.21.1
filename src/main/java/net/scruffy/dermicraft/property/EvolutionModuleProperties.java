@@ -3,9 +3,9 @@ package net.scruffy.dermicraft.property;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.tags.TagKey;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.material.Fluid;
+import net.scruffy.dermicraft.hazard.HazardFamily;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 
 import java.util.List;
@@ -33,17 +33,23 @@ import java.util.Optional;
  * <p>{@code evolutionThreshold} is ticks of genuinely active production (not wall-clock/idle time --
  * see the design doc) needed before the consumer's permanent Tier evolution completes.
  */
-public record EvolutionModuleProperties(Optional<Fluid> targetFluid, List<TagKey<Fluid>> hazards, int evolutionThreshold) {
+public record EvolutionModuleProperties(Optional<Fluid> targetFluid, List<HazardFamily> hazards, int evolutionThreshold) {
 
     public static final Codec<EvolutionModuleProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                     BuiltInRegistries.FLUID.byNameCodec().optionalFieldOf("target_fluid").forGetter(EvolutionModuleProperties::targetFluid),
-                    TagKey.hashedCodec(Registries.FLUID).listOf().optionalFieldOf("hazards", List.of()).forGetter(EvolutionModuleProperties::hazards),
+                    StringRepresentable.fromEnum(HazardFamily::values).listOf().optionalFieldOf("hazards", List.of()).forGetter(EvolutionModuleProperties::hazards),
                     Codec.INT.fieldOf("evolution_threshold").forGetter(EvolutionModuleProperties::evolutionThreshold))
             .apply(instance, EvolutionModuleProperties::new));
 
-    /** Same shape as the old Safety Module hazard grant -- built fresh each call, not
-     * cached here. */
+    /** {@code base} plus the Mild tolerance of each listed family, built fresh each call. */
+    public HazardProfile addTolerance(HazardProfile base) {
+        HazardProfile profile = base;
+        for (HazardFamily family : hazards) profile = profile.plusFamily(family, 1);
+        return profile;
+    }
+
+    /** The tolerance this grants on its own. */
     public HazardProfile hazardProfile() {
-        return HazardProfile.of(hazards);
+        return addTolerance(HazardProfile.TIER_1);
     }
 }

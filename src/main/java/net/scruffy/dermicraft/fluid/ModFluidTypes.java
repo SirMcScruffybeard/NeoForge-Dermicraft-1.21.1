@@ -149,7 +149,7 @@ public class ModFluidTypes {
                     FluidType.Properties.create()
                             .viscosity(1500)
                             .density(1500)
-                            .temperature(305)
+                            .temperature(700)
                             .motionScale(0.05)
                             .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
                             .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)

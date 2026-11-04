@@ -39,6 +39,7 @@ import net.scruffy.dermicraft.component.DrinkerModeData;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.scruffy.dermicraft.hazard.HazardFamily;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.IGadget;
 import net.scruffy.dermicraft.interfaces.IHaveFluidData;
@@ -420,7 +421,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
      * its path was heat-tolerated (see {@link #nearbyVacuumTargets}) would still burn to nothing
      * mid-pull, defeating the point of tolerating the path at all. */
     private static void protectVacuumCandidates(Level level, Player player, ItemStack stack) {
-        boolean heatTolerant = installedHazardProfile(stack).tolerated().contains(ModTags.Fluids.THERMAL);
+        boolean heatTolerant = installedHazardProfile(stack).tolerates(HazardFamily.THERMAL);
         for (ItemEntity candidate : nearbyVacuumTargets(level, player, stack)) {
             candidate.setPickUpDelay(PULL_PICKUP_DELAY_TICKS);
             if (heatTolerant && candidate.isInLava()) {
@@ -813,9 +814,9 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
         if (hasModule(stack, ModTags.Items.MODULE_AGGREGATE)) {
             if (targetState.is(ModTags.Blocks.AGGREGATE)) return hit;
             if (targetState.is(ModTags.Blocks.AGGREGATE_HOT)
-                    && profile.tolerated().contains(ModTags.Fluids.THERMAL)) return hit;
+                    && profile.tolerates(HazardFamily.THERMAL)) return hit;
             if (targetState.is(ModTags.Blocks.AGGREGATE_METAPHYSICAL)
-                    && profile.tolerated().contains(ModTags.Fluids.METAPHYSICAL_MILD)) return hit;
+                    && profile.tolerates(HazardFamily.METAPHYSICAL)) return hit;
         }
         if (hasModule(stack, ModTags.Items.MODULE_BEAM) && targetState.is(ModTags.Blocks.STONE_ORE)) return hit;
         return null;

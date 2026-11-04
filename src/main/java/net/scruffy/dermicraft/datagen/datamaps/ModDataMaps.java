@@ -39,6 +39,18 @@ public class ModDataMaps {
                     )
                     .build();
 
+    /** How hazardous a fluid is, as numbers -- see {@link net.scruffy.dermicraft.hazard.FluidHazardData}. Thresholds
+     * come from the server config. Synced so the client can read it for tooltips and the Tablet reveal, and editable
+     * by a data pack, which is how another mod's fluids join the hazard rules. */
+    public static final DataMapType<Fluid, net.scruffy.dermicraft.hazard.FluidHazardData> FLUID_HAZARD =
+            DataMapType.builder(
+                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "fluid_hazard"),
+                            Registries.FLUID,
+                            net.scruffy.dermicraft.hazard.FluidHazardData.CODEC
+                    )
+                    .synced(net.scruffy.dermicraft.hazard.FluidHazardData.CODEC, true)
+                    .build();
+
     /** Per-material Sunder chain stats, keyed on the chain Item -- see {@link ChainProperties}. */
     public static final DataMapType<Item, ChainProperties> SUNDER_CHAIN_PROPERTIES =
             DataMapType.builder(
@@ -118,6 +130,7 @@ public class ModDataMaps {
     public static void register(RegisterDataMapTypesEvent event) {
         event.register(BIOFUELS);
         event.register(EDIBLE_FLUID);
+        event.register(FLUID_HAZARD);
         event.register(SUNDER_CHAIN_PROPERTIES);
         event.register(EVOLUTION_MODULE_PROPERTIES);
         event.register(HAZARD_MODULE);

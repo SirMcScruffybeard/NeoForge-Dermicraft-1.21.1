@@ -47,6 +47,10 @@ final class StatDefaults {
     static final double THERMAL_DAMAGE_MODIFIER = 0.5;                     // HP per cycle = this x |fluid temperature - reference| / 100
     static final int THERMAL_REFERENCE_TEMPERATURE = 300;                  // the temperature of an ordinary fluid (water), in kelvin
     static final int THERMAL_SAFE_RANGE = 50;                              // kelvin either side of the reference that does no damage
+    // Intensity bands for the numeric hazards: mild runs mildStart to severeStart, severe runs severeStart to max.
+    static final HazardBand RADIATION_BAND = new HazardBand(1, 100, 200);
+    static final HazardBand BIOHAZARD_BAND = new HazardBand(1, 100, 100);  // one band only, so severeStart equals max
+    static final HazardBand METAPHYSICAL_BAND = new HazardBand(1, 100, 200);
 
     static final StatValues VALUES = new StatValues(
             ITEM_TRANSFER, FLUID_TRANSFER, MODULE_SLOTS,
@@ -58,6 +62,7 @@ final class StatDefaults {
             EVOLUTION_TIER_SECONDS, EVOLUTION_HAZARD_NEW_SECONDS, EVOLUTION_HAZARD_UPGRADE_SECONDS,
             EVOLUTION_OVERGROWTH_SECONDS, EVOLUTION_OVERGROWTH_GROWTH_PERCENT, EVOLUTION_COUNTDOWN_SECONDS,
             THERMAL_DAMAGE_MODIFIER, THERMAL_REFERENCE_TEMPERATURE, THERMAL_SAFE_RANGE,
+            RADIATION_BAND, BIOHAZARD_BAND, METAPHYSICAL_BAND,
             java.util.Map.of());
 
 

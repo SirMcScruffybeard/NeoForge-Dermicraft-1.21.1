@@ -44,6 +44,9 @@ public final class StatConfig {
     private static final ModConfigSpec.DoubleValue THERMAL_DAMAGE_MODIFIER;
     private static final ModConfigSpec.IntValue THERMAL_REFERENCE_TEMPERATURE;
     private static final ModConfigSpec.IntValue THERMAL_SAFE_RANGE;
+    private static final ModConfigSpec.IntValue RADIATION_MILD_START, RADIATION_SEVERE_START, RADIATION_MAX;
+    private static final ModConfigSpec.IntValue BIOHAZARD_START, BIOHAZARD_MAX;
+    private static final ModConfigSpec.IntValue METAPHYSICAL_MILD_START, METAPHYSICAL_SEVERE_START, METAPHYSICAL_MAX;
 
     /** One machine's optional overrides in the config. An empty list or a negative number means "use the shared value". */
     private record MachineSection(
@@ -118,6 +121,25 @@ public final class StatConfig {
                 .defineInRange("thermalReferenceTemperature", StatDefaults.THERMAL_REFERENCE_TEMPERATURE, 0, 100000);
         THERMAL_SAFE_RANGE = BUILDER.comment("Kelvin either side of the reference temperature that does no Thermal damage (water is 300, so the default 50 means 250 to 350 is harmless). Past the range, damage grows with the distance beyond it.")
                 .defineInRange("thermalSafeRange", StatDefaults.THERMAL_SAFE_RANGE, 0, 100000);
+        // Intensity thresholds for the numeric hazards. A fluid's intensity (from the fluid_hazard data map) below the
+        // mild start is harmless, from there to the severe start is Mild, from the severe start up is Severe. Tanks,
+        // ducts and nodes refuse a fluid whose band is above their tolerance, and effects grow across their band.
+        RADIATION_MILD_START = BUILDER.comment("Radiation: the lowest intensity that counts as Mild.")
+                .defineInRange("radiationMildStart", StatDefaults.RADIATION_BAND.mildStart(), 1, 100000);
+        RADIATION_SEVERE_START = BUILDER.comment("Radiation: the lowest intensity that counts as Severe.")
+                .defineInRange("radiationSevereStart", StatDefaults.RADIATION_BAND.severeStart(), 1, 100000);
+        RADIATION_MAX = BUILDER.comment("Radiation: the intensity where the Severe effect stops growing.")
+                .defineInRange("radiationMax", StatDefaults.RADIATION_BAND.max(), 1, 100000);
+        BIOHAZARD_START = BUILDER.comment("Biohazard: the lowest intensity that counts as hazardous (Biohazard has a single band).")
+                .defineInRange("biohazardStart", StatDefaults.BIOHAZARD_BAND.mildStart(), 1, 100000);
+        BIOHAZARD_MAX = BUILDER.comment("Biohazard: the intensity where the effect stops growing.")
+                .defineInRange("biohazardMax", StatDefaults.BIOHAZARD_BAND.max(), 1, 100000);
+        METAPHYSICAL_MILD_START = BUILDER.comment("Metaphysical: the lowest intensity that counts as Mild.")
+                .defineInRange("metaphysicalMildStart", StatDefaults.METAPHYSICAL_BAND.mildStart(), 1, 100000);
+        METAPHYSICAL_SEVERE_START = BUILDER.comment("Metaphysical: the lowest intensity that counts as Severe.")
+                .defineInRange("metaphysicalSevereStart", StatDefaults.METAPHYSICAL_BAND.severeStart(), 1, 100000);
+        METAPHYSICAL_MAX = BUILDER.comment("Metaphysical: the intensity where the Severe effect stops growing.")
+                .defineInRange("metaphysicalMax", StatDefaults.METAPHYSICAL_BAND.max(), 1, 100000);
         BUILDER.pop();
         // Per-machine overrides. Every value starts empty (lists) or -1 (numbers), which means "use the shared value
         // above", so a server owner writes only what they want to change for that machine.
@@ -211,6 +233,9 @@ public final class StatConfig {
                 EVOLUTION_OVERGROWTH_SECONDS.get(), EVOLUTION_OVERGROWTH_GROWTH_PERCENT.get(),
                 EVOLUTION_COUNTDOWN_SECONDS.get(),
                 THERMAL_DAMAGE_MODIFIER.get(), THERMAL_REFERENCE_TEMPERATURE.get(), THERMAL_SAFE_RANGE.get(),
+                new HazardBand(RADIATION_MILD_START.get(), RADIATION_SEVERE_START.get(), RADIATION_MAX.get()),
+                new HazardBand(BIOHAZARD_START.get(), BIOHAZARD_MAX.get(), BIOHAZARD_MAX.get()),
+                new HazardBand(METAPHYSICAL_MILD_START.get(), METAPHYSICAL_SEVERE_START.get(), METAPHYSICAL_MAX.get()),
                 buildMachineOverrides());
     }
 

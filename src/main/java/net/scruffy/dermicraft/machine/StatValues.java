@@ -19,6 +19,7 @@ record StatValues(
         double[] evolutionTierSeconds, double evolutionHazardNewSeconds, double evolutionHazardUpgradeSeconds,
         double evolutionOvergrowthSeconds, double evolutionOvergrowthGrowthPercent, double evolutionCountdownSeconds,
         double thermalDamageModifier, int thermalReferenceTemperature, int thermalSafeRange,
+        HazardBand radiationBand, HazardBand biohazardBand, HazardBand metaphysicalBand,
         Map<MachineStatKey, MachineOverrides> machines) {
 
     private MachineOverrides overrides(@Nullable MachineStatKey machine) {
