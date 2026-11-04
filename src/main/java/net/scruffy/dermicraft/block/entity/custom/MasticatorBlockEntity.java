@@ -497,10 +497,11 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
         maxProgress = activeRecipe.value().getCraftingTime(INVENTORY.getStackInSlot(INGREDIENT_ITEM_SLOT));
     }
 
-    /** The hazards that matter when the Masticator processes: its ingredient fluid (the fuel and the output do not). */
+    /** The hazards that matter when the Masticator processes: the ingredient fluid it consumes and the fluid its recipe
+     * produces (the fuel does not). */
     @Override
     protected List<FluidStack> getProcessingFluids() {
-        return List.of(INGREDIENT_TANK.getFluid());
+        return List.of(INGREDIENT_TANK.getFluid(), craftResult(1));
     }
 
     @Override

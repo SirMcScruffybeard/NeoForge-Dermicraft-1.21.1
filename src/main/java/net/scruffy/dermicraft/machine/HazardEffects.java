@@ -41,4 +41,53 @@ public final class HazardEffects {
         }
         return worst;
     }
+
+    /** What radioactive fluids cost a machine this cycle: a multiplier on the fuel it spends and HP it loses. */
+    public record RadiationEffect(double fuelMultiplier, int damage) {
+        public static final RadiationEffect NONE = new RadiationEffect(1.0, 0);
+    }
+
+    /**
+     * The Radiation cost of the fluids in {@code fluids}, the worst one counting. Per fluid, by the band its intensity
+     * falls in and the machine's Radiation tolerance level:
+     * <ul>
+     *   <li>Tolerance covers the fluid's band: no effect.</li>
+     *   <li>A Mild-band fluid: fuel use grows x1 to x2 across the band.</li>
+     *   <li>A Severe-band fluid: fuel use grows x2 to x3 across the band, and the machine loses 1 to 2 HP per cycle,
+     *   growing with the intensity.</li>
+     *   <li>A Severe-band fluid against a Mild tolerance: the effect is capped at the top of the Mild band, so the fuel
+     *   surcharge of x2 and no HP loss, softened but not cancelled.</li>
+     * </ul>
+     * The configured modifier scales the extra fuel and the HP loss (0 turns the effect off).
+     */
+    public static RadiationEffect getRadiationEffect(List<FluidStack> fluids, HazardProfile tolerance) {
+        StatValues values = StatConfig.getCurrent();
+        double modifier = values.radiationEffectModifier();
+        int tolerated = tolerance.getLevel(HazardFamily.RADIATION);
+        if (modifier <= 0 || tolerated >= HazardFamily.RADIATION.getMaxLevel()) return RadiationEffect.NONE;
+
+        HazardBand band = values.radiationBand();
+        double fuel = 1.0;
+        int damage = 0;
+        for (FluidStack fluid : fluids) {
+            int intensity = FluidHazards.getIntensity(fluid, HazardFamily.RADIATION);
+            int level = band.getLevel(intensity);
+            if (level <= tolerated) continue;
+
+            double rawFuel;
+            int rawDamage = 0;
+            if (level == 1) {
+                rawFuel = 1.0 + band.getMildFraction(intensity);
+            } else if (tolerated >= 1) {
+                rawFuel = 2.0;
+            } else {
+                double severe = band.getSevereFraction(intensity);
+                rawFuel = 2.0 + severe;
+                rawDamage = (int) Math.max(1, Math.ceil(modifier * 2.0 * severe));
+            }
+            fuel = Math.max(fuel, 1.0 + (rawFuel - 1.0) * modifier);
+            damage = Math.max(damage, rawDamage);
+        }
+        return new RadiationEffect(fuel, damage);
+    }
 }

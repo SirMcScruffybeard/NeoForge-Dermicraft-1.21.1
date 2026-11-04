@@ -49,6 +49,7 @@ final class StatDefaults {
     static final int THERMAL_SAFE_RANGE = 50;                              // kelvin either side of the reference that does no damage
     // Intensity bands for the numeric hazards: mild runs mildStart to severeStart, severe runs severeStart to max.
     static final HazardBand RADIATION_BAND = new HazardBand(1, 100, 200);
+    static final double RADIATION_EFFECT_MODIFIER = 1.0;                   // scales the Radiation fuel surcharge and HP loss; 0 turns it off
     static final HazardBand BIOHAZARD_BAND = new HazardBand(1, 100, 100);  // one band only, so severeStart equals max
     static final HazardBand METAPHYSICAL_BAND = new HazardBand(1, 100, 200);
 
@@ -63,6 +64,7 @@ final class StatDefaults {
             EVOLUTION_OVERGROWTH_SECONDS, EVOLUTION_OVERGROWTH_GROWTH_PERCENT, EVOLUTION_COUNTDOWN_SECONDS,
             THERMAL_DAMAGE_MODIFIER, THERMAL_REFERENCE_TEMPERATURE, THERMAL_SAFE_RANGE,
             RADIATION_BAND, BIOHAZARD_BAND, METAPHYSICAL_BAND,
+            RADIATION_EFFECT_MODIFIER,
             java.util.Map.of());
 
 

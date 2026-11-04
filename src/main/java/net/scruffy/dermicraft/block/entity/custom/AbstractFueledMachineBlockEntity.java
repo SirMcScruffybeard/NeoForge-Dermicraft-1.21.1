@@ -336,7 +336,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
             // Healing runs every cycle regardless of whether a recipe is active -- an idle,
             // fueled machine below max health should still recover.
-            boolean fueled = FUEL_TANK.hasEnoughFuel(fuelUseRate);
+            boolean fueled = FUEL_TANK.hasEnoughFuel(getEffectiveFuelUse());
             boolean healedThisCycle = tickHealing(fueled);
             tickGradualFlourish();
 
@@ -407,7 +407,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     }
 
     protected void useFuel() {
-        FUEL_TANK.useFuel(fuelUseRate);
+        FUEL_TANK.useFuel(getEffectiveFuelUse());
     }
 
     protected void incrementProgress(float speedOverride) {
@@ -458,8 +458,9 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     // cycle, unless it has the matching tolerance (see HazardEffects). A machine opts in by saying which fluids are in
     // play and what it tolerates; one that does neither is unaffected.
 
-    /** The fluids this machine is processing right now, whose hazards decide the penalties: its ingredient fluids,
-     * not its fuel or output. Empty by default. */
+    /** The fluids this machine is processing right now, whose hazards decide the penalties: its ingredient fluids and
+     * the fluids its recipe produces,
+     * not its fuel. Empty by default. */
     protected List<FluidStack> getProcessingFluids() {
         return List.of();
     }
@@ -476,6 +477,23 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
 
         int thermalDamage = HazardEffects.getThermalDamage(getProcessingFluids(), getHazardProfile());
         if (thermalDamage > 0) damageMachine(thermalDamage);
+
+        int radiationDamage = getRadiationEffect().damage();
+        if (radiationDamage > 0) damageMachine(radiationDamage);
+    }
+
+    /** The Radiation cost right now. Only while a recipe is actually running with its inputs in place, so a machine
+     * sitting idle next to a radioactive fluid in its tank pays nothing. */
+    private HazardEffects.RadiationEffect getRadiationEffect() {
+        if (!usesEvolutionState() || !isRecipeValid(activeRecipe) || !hasCraftingInputs()) {
+            return HazardEffects.RadiationEffect.NONE;
+        }
+        return HazardEffects.getRadiationEffect(getProcessingFluids(), getHazardProfile());
+    }
+
+    /** The fuel spent (and required) per cycle: the base use rate times the Radiation surcharge. */
+    protected int getEffectiveFuelUse() {
+        return Math.round(fuelUseRate * (float) getRadiationEffect().fuelMultiplier());
     }
 
     // ---- Shared NBT (fuel + engine + saved recipe). Subclasses super-call, then add their IO. ----
