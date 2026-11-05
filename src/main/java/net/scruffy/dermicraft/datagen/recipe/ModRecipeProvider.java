@@ -680,10 +680,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Evolution Catalyst -- second production route alongside evolution_catalyst_puddle (same
         // Knowledge Essence, this time paired with Kinetic Catalyst instead of the puddle's solid
-        // items). Kinetic Catalyst is THERMAL (see ModFluidTagProvider), so this only runs on a
-        // Charred Effluentcer -- Tier 1 genuinely can't reach it, same as Molten Glowstone needing
-        // both THERMAL and RADIATION_MILD. Same even-parts 500+500->750/45s shape as every other
-        // two-fluid Effluencing recipe here.
+        // items). Kinetic Catalyst is hot (700 K), so an Effluentcer without a Thermal tolerance loses HP
+        // every cycle it runs this and one with the tolerance runs it free. Same even-parts 500+500->750/45s
+        // shape as every other two-fluid Effluencing recipe here.
         RecipeBuilders.buildEffluencing(recipeOutput, "evolution_catalyst_effluencing",
                 ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 500, ModFluids.SOURCE_KINETIC_CATALYST.get(), 500,
                 ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
@@ -701,8 +700,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Molten Netherite: mirrors the real 4 Scrap + 4 Gold Ingot -> 1 Netherite Ingot vanilla
         // smithing ratio (each fluid is 1000 mB per item). 60s matches the mod's other 4:1-ratio
-        // recipes (Quartz Block/Glowstone/Amethyst Block). Requires the Charred Effluentcer --
-        // both inputs carry Thermal Hazard.
+        // recipes (Quartz Block/Glowstone/Amethyst Block). Both inputs are hot, so an Effluentcer
+        // without a Thermal tolerance loses HP every cycle it runs this.
         RecipeBuilders.buildEffluencing(recipeOutput, "molten_netherite_effluencing",
                 ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 4000, ModFluids.SOURCE_AUROUS_BLEND.get(), 4000,
                 ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(60));

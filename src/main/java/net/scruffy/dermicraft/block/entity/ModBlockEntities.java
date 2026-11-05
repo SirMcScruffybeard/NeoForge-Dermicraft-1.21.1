@@ -49,9 +49,6 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("effluentcer_be", () -> BlockEntityType.Builder.of(
                     EffluentcerBlockEntity::new, ModBlocks.EFFLUENTCER.get()).build(null));
 
-    public static final Supplier<BlockEntityType<CharredEffluentcerBlockEntity>> CHARRED_EFFLUENTCER_BE =
-            BLOCK_ENTITIES.register("charred_effluentcer_be", () -> BlockEntityType.Builder.of(
-                    CharredEffluentcerBlockEntity::new, ModBlocks.CHARRED_EFFLUENTCER.get()).build(null));
 
     public static final Supplier<BlockEntityType<BeakerBlockEntity>> BEAKER_BE =
             BLOCK_ENTITIES.register("beaker_be", () -> BlockEntityType.Builder.of(

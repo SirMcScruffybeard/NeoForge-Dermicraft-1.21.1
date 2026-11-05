@@ -9,7 +9,6 @@ import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
-import net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerMenu;
 import net.scruffy.dermicraft.screen.custom.charred_render_furnace.CharredRenderFurnaceMenu;
 import net.scruffy.dermicraft.screen.custom.charred_render_kiln.CharredRenderKilnMenu;
 import net.scruffy.dermicraft.screen.custom.charred_craw.CharredCrawMenu;
@@ -53,8 +52,6 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<EffluentcerMenu>> EFFLUENTCER_MENU =
             registerMenuType("effluentcer_menu", EffluentcerMenu::new);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<CharredEffluentcerMenu>> CHARRED_EFFLUENTCER_MENU =
-            registerMenuType("charred_effluentcer_menu", CharredEffluentcerMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<MetastasizerMenu>> METASTASIZER_MENU =
             registerMenuType("metastasizer_menu", MetastasizerMenu::new);

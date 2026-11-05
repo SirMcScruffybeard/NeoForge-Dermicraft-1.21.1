@@ -248,7 +248,6 @@ public class DermicraftClient {
         event.register(ModMenuTypes.DROOLING_GEODE_MENU.get(), net.scruffy.dermicraft.screen.custom.drooling_geode.DroolingGeodeScreen::new);
         event.register(ModMenuTypes.MASTICATOR_MENU.get(), MasticatorScreen::new);
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
-        event.register(ModMenuTypes.CHARRED_EFFLUENTCER_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_effluentcer.CharredEffluentcerScreen::new);
         event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);
         event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
         event.register(ModMenuTypes.CHARRED_CRAW_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_craw.CharredCrawScreen::new);

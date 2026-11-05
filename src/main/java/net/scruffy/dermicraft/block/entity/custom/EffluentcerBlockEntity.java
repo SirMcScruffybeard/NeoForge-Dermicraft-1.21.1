@@ -3,14 +3,8 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,7 +16,6 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -34,24 +27,21 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
 import net.scruffy.dermicraft.block.custom.EffluentcerVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
-import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
+import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
+import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
-import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.TwoFluidRecipeInput;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
 import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
-import net.scruffy.dermicraft.tank.VulnerableTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,22 +49,23 @@ import java.util.Optional;
 
 
 public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<EffluencingRecipe>
-        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine {
+        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine, IModuleTabMachine {
 
     public static final int INVENTORY_SIZE = 4;
 
-    private final VulnerableTank INPUT_A_TANK = createInputTank(1);
-    private final VulnerableTank INPUT_B_TANK = createInputTank(2);
-    private final VulnerableTank RESULT_TANK = createResultTank();
+    private final ModFluidTank INPUT_A_TANK = createInputTank(1);
+    private final ModFluidTank INPUT_B_TANK = createInputTank(2);
+    private final ModFluidTank RESULT_TANK = createResultTank();
 
     private boolean isTransferringFluids = false;
 
     public final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
 
-    // Module slot(s) -- own dedicated handler, not part of INVENTORY above. Declared here so
-    // Charred Effluentcer inherits it for free; same tab-gated pattern as Masticator/Metastasizer's
-    // own (see EffluentcerMenu's MAIN_TAB/MODULE_TAB).
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
+    // General Module slot(s) -- own dedicated handler (see MachineBaseBlockEntity#createModuleInventory), not part of
+    // INVENTORY above. Evolution Modules go in the dedicated Evolution slot (EVOLUTION_INVENTORY, in the engine), never here.
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
+            stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES) && !isEvolutionModule(stack));
+
 
     // Set by the menu whenever a player opens the GUI -- used only as an eject target for
     // the fill-and-eject item-slot behavior (see createItemHandler()).
@@ -85,37 +76,49 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     private int requiredAmountForA = 0;
     private int requiredAmountForB = 0;
 
-    // ---- Evolution (installed Evolution Module -> eventual Charred Effluentcer) --------------
-    // Mirrors Masticator/Metastasizer's own evolution mechanic exactly -- installing an Evolution
-    // Module here grants its hazard tolerance IMMEDIATELY (see installedHazardProfile()), and
-    // separately accumulates evolutionProgress toward eventually transforming this block into an
-    // actual placed Charred Effluentcer at MachineTier.CHARRED's own faster speed/doubled capacity.
-    private int evolutionProgress = 0;
-    private int flourishCyclesRemaining = -1;
-    private static final int FLOURISH_DURATION_CYCLES = 4; // 4 * CRAFT_TICKS(10) = 40 ticks, ~2s
-
     // Which screen tab was last open -- same pattern as every other Module-tab machine, so
     // reopening the screen returns to the tab last viewed.
     private boolean moduleTabActive = false;
 
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    @Override
     public boolean isModuleTabActive() {
         return moduleTabActive;
     }
 
+    @Override
     public void setModuleTabActive(boolean active) {
         this.moduleTabActive = active;
     }
 
     public EffluentcerBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.EFFLUENTCER_BE.get(), pos, blockState);
+        super(ModBlockEntities.EFFLUENTCER_BE.get(), pos, blockState);
     }
 
-    // Lets a capability-leap subclass (Charred Effluentcer) register under its own BlockEntityType
-    // while reusing everything else this class provides -- see MachineTier's own javadoc on why a
-    // genuine capability leap (here: hazard-tolerant tanks) is a hook override, not a new MachineTier
-    // constant.
-    protected EffluentcerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
+    // ---- Evolution ----------------------------------------------------------------------------
+    // The Effluentcer evolves in place through its evolution state and the Evolution slot. The gradual-progress
+    // machinery, the Evolution slot, the flourish and the stat defaults (tank capacity, HP, speed, fuel use, Module
+    // slots) all live in AbstractFueledMachineBlockEntity; this class opts in and resizes what it owns.
+
+    @Override
+    protected boolean usesEvolutionState() {
+        return true;
+    }
+
+    @Override
+    protected MachineStatKey getStatKey() {
+        return MachineStatKey.EFFLUENTCER;
+    }
+
+    @Override
+    protected void onEvolutionStateChanged() {
+        super.onEvolutionStateChanged();
+        resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
+        applyCapacityBonus();
     }
 
     @Override
@@ -144,12 +147,11 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     private EffluentcerVisualState pendingVisualState = null;
     private int pendingVisualCycles = 0;
 
+    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
+     * and is hurt again every cycle still shows as recovering. */
     @Override
-    protected boolean tickHealing(boolean fueled) {
-        boolean healed = super.tickHealing(fueled);
+    protected void onCycleEnd() {
         updateVisualState();
-        tickEvolutionFlourish();
-        return healed;
     }
 
     private void updateVisualState() {
@@ -185,127 +187,29 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         return EffluentcerVisualState.IDLE;
     }
 
-    /** Runs once per CRAFT_TICKS cycle (this class's natural cadence, same one visual-state/healing
-     * already use) -- mirrors Masticator/Metastasizer's identical mechanism. */
-    private void tickEvolutionFlourish() {
-        if (flourishCyclesRemaining < 0) return;
+    // ---- Hazards ----------------------------------------------------------------------------------
 
-        if (level instanceof ServerLevel serverLevel) {
-            spawnFlourishParticles(serverLevel, flourishCyclesRemaining);
-        }
-
-        flourishCyclesRemaining--;
-        if (flourishCyclesRemaining < 0) {
-            completeEvolution(level);
-        }
+    /** The hazards that matter when the Effluentcer processes: both input fluids it consumes and the fluid its recipe
+     * produces (the fuel does not). */
+    @Override
+    protected List<FluidStack> getProcessingFluids() {
+        return List.of(INPUT_A_TANK.getFluid(), INPUT_B_TANK.getFluid(), craftResult(1));
     }
 
-    private void startEvolutionFlourish() {
-        flourishCyclesRemaining = FLOURISH_DURATION_CYCLES;
-        if (level != null) {
-            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
-        }
+    @Override
+    protected HazardProfile getHazardProfile() {
+        return installedHazardProfile();
     }
 
-    private void spawnFlourishParticles(ServerLevel serverLevel, int cyclesRemaining) {
-        double cx = worldPosition.getX() + 0.5;
-        double cy = worldPosition.getY() + 0.5;
-        double cz = worldPosition.getZ() + 0.5;
-
-        float progress = 1f - (cyclesRemaining / (float) FLOURISH_DURATION_CYCLES);
-        int dustCount = 8 + Math.round(progress * 16);
-        DustParticleOptions dust = tintedDust();
-        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
-        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 3 + Math.round(progress * 8), 0.35, 0.35, 0.35, 0.02);
-
-        if (cyclesRemaining == 0) {
-            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
-            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
-        }
-    }
-
-    private DustParticleOptions tintedDust() {
-        int tint = 0xFFCF4B12; // fallback: lava-orange, matches Thermal's own target fluid
-        Optional<Fluid> targetFluid = installedEvolutionProperties()
-                .flatMap(EvolutionModuleProperties::targetFluid);
-        if (targetFluid.isPresent() && targetFluid.get().getFluidType() instanceof BaseFluidType baseType) {
-            tint = baseType.getTintColor();
-        }
-        return new DustParticleOptions(new Vector3f(
-                ((tint >> 16) & 0xFF) / 255.0F,
-                ((tint >> 8) & 0xFF) / 255.0F,
-                (tint & 0xFF) / 255.0F), 1.4F);
-    }
-
-    /**
-     * Transforms this block into a Charred Effluentcer in place, carrying over the fuel/input/result
-     * tank contents -- but deliberately NOT the recipe-in-progress bookkeeping (active recipe/craft
-     * progress), same reasoning as Masticator/Metastasizer's own completeEvolution: a half-finished
-     * cycle just restarts cleanly on the new block instead. The Module itself is not carried over --
-     * this transform is what consumes it.
-     */
-    private void completeEvolution(Level level) {
-        FluidStack fuelContents = FUEL_TANK.getFluid().copy();
-        FluidStack inputAContents = INPUT_A_TANK.getFluid().copy();
-        FluidStack inputBContents = INPUT_B_TANK.getFluid().copy();
-        FluidStack resultContents = RESULT_TANK.getFluid().copy();
-        BlockState oldState = getBlockState();
-
-        // Clear this instance's own contents BEFORE the block swap -- the block's own onRemove drops
-        // whatever's still in INVENTORY when the block itself changes, which would otherwise
-        // duplicate everything captured above once it's handed to the new instance.
-        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
-            MODULE_INVENTORY.setStackInSlot(slot, ItemStack.EMPTY);
-        }
-        if (!fuelContents.isEmpty()) FUEL_TANK.drain(fuelContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
-        if (!inputAContents.isEmpty()) INPUT_A_TANK.drain(inputAContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
-        if (!inputBContents.isEmpty()) INPUT_B_TANK.drain(inputBContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
-        if (!resultContents.isEmpty()) RESULT_TANK.drain(resultContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
-
-        BlockState newState = ModBlocks.CHARRED_EFFLUENTCER.get().defaultBlockState()
-                .setValue(EffluentcerBlock.FACING, oldState.getValue(EffluentcerBlock.FACING));
-        level.setBlock(worldPosition, newState, Block.UPDATE_ALL);
-
-        if (level.getBlockEntity(worldPosition) instanceof EffluentcerBlockEntity charred) {
-            if (!fuelContents.isEmpty()) charred.FUEL_TANK.fill(fuelContents, IFluidHandler.FluidAction.EXECUTE);
-            if (!inputAContents.isEmpty()) charred.INPUT_A_TANK.fill(inputAContents, IFluidHandler.FluidAction.EXECUTE);
-            if (!inputBContents.isEmpty()) charred.INPUT_B_TANK.fill(inputBContents, IFluidHandler.FluidAction.EXECUTE);
-            if (!resultContents.isEmpty()) charred.RESULT_TANK.fill(resultContents, IFluidHandler.FluidAction.EXECUTE);
-            charred.setChanged();
-            charred.updateBlock();
-        }
-    }
-
-    /** Whether this instance can still evolve at all -- true for the base Effluentcer, overridden to
-     * false by {@code CharredEffluentcerBlockEntity} (already evolved; installing an Evolution
-     * Module there does nothing, since its tanks are permanently hazard-tolerant regardless of any
-     * Module, and there's nothing further for it to transform into). */
-    protected boolean canEvolve() {
-        return true;
-    }
-
-    /** Union of this machine's base (TIER_1) hazard tolerance with whatever the installed Module
-     * grants -- a Safety Module (via the shared {@link IHaveModules} helper) or an Evolution Module
-     * (read directly here, since {@code IHaveModules} only knows about Safety Modules). Recomputed
-     * on demand, not cached, matching every other consumer of this data map. */
+    /** The hazards this machine tolerates, which cancel the matching penalties: a Tier 1 base (none), plus the Safety
+     * Modules in the general Module slots, plus the permanent tolerance it has earned by evolving, plus the tolerance
+     * of a hazard Evolution Module that is evolving it right now. Recomputed on demand, never cached. */
     protected HazardProfile installedHazardProfile() {
         HazardProfile profile = HazardProfile.TIER_1;
         for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
-            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
-            profile = IHaveModules.installedHazardProfile(profile, module);
-
-            if (canEvolve() && !module.isEmpty()) {
-                EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                        .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-                if (evoProps != null) {
-                    for (var hazard : evoProps.hazards()) {
-                        profile = profile.plusFamily(hazard, 1);
-                    }
-                }
-            }
+            profile = IHaveModules.installedHazardProfile(profile, MODULE_INVENTORY.getStackInSlot(slot));
         }
-        return profile;
+        return addEvolvingTolerance(addPermanentTolerance(profile));
     }
 
     /** Work Speed Module bonus across this machine's Module slot(s) -- see
@@ -331,7 +235,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
 
     @Override
     protected void applyCapacityBonus() {
-        int capacity = getTier().tankCapacity() + getCapacityBonus();
+        int capacity = getBaseTankCapacity() + getCapacityBonus();
         FUEL_TANK.setCapacity(capacity);
         INPUT_A_TANK.setCapacity(capacity);
         INPUT_B_TANK.setCapacity(capacity);
@@ -342,44 +246,18 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     protected boolean canRemoveModule(int slot) {
         int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
         if (thisBonus == 0) return true;
-        int newCapacity = getTier().tankCapacity() + (getCapacityBonus() - thisBonus);
+        int newCapacity = getBaseTankCapacity() + (getCapacityBonus() - thisBonus);
         return FUEL_TANK.getFluid().getAmount() <= newCapacity
                 && INPUT_A_TANK.getFluid().getAmount() <= newCapacity
                 && INPUT_B_TANK.getFluid().getAmount() <= newCapacity
                 && RESULT_TANK.getFluid().getAmount() <= newCapacity;
     }
 
-    /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
-     * Charred Effluentcer); otherwise how far {@link #evolutionProgress} is toward
-     * {@code evolutionThreshold}, 0-1. Public purely for {@code EvolutionOverlayBlockEntityRenderer}'s
-     * creeping overlay -- mirrors Masticator/Metastasizer's identical method. */
+    /** How far the pending evolution is, 0 to 1 (0 with no live Evolution Module). Read by
+     * {@code EvolutionOverlayBlockEntityRenderer}'s creeping overlay. */
     @Override
     public float getEvolutionProgressFraction() {
-        return installedEvolutionProperties()
-                .map(props -> Math.min(1f, evolutionProgress / (float) props.evolutionThreshold()))
-                .orElse(0f);
-    }
-
-    /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
-     * AND {@link #canEvolve()} -- a plain {@code MODULES}-tagged item with no such data (or any
-     * Module at all once this is already a Charred Effluentcer) is inert here. */
-    private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
-        if (!canEvolve()) return Optional.empty();
-        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
-            ItemStack module = MODULE_INVENTORY.getStackInSlot(slot);
-            if (module.isEmpty()) continue;
-            EvolutionModuleProperties props = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-            if (props != null) return Optional.of(props);
-        }
-        return Optional.empty();
-    }
-
-    /** Called whenever any Module slot's contents change at all -- full reset, matching every other
-     * Evolution Module consumer's "pulling the Module wipes all progress" rule. */
-    @Override
-    protected void onModuleSlotChanged(int slot) {
-        evolutionProgress = 0;
+        return getGradualEvolutionFraction();
     }
 
     /** See {@link IHasChannels#describeFluidFace} -- mirrors {@link #getTank} literally. */
@@ -418,15 +296,15 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_input_b");
     }
 
-    public VulnerableTank getInputATank() {
+    public ModFluidTank getInputATank() {
         return INPUT_A_TANK;
     }
 
-    public VulnerableTank getInputBTank() {
+    public ModFluidTank getInputBTank() {
         return INPUT_B_TANK;
     }
 
-    public VulnerableTank getResultTank() {
+    public ModFluidTank getResultTank() {
         return RESULT_TANK;
     }
 
@@ -551,6 +429,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     public void drops() {
         super.drops(INVENTORY);
         super.drops(MODULE_INVENTORY);
+        super.drops(EVOLUTION_INVENTORY);
     }
 
     public void setInteractingPlayer(@Nullable Player player) {
@@ -589,18 +468,10 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         int amountA = requiredAmountForA;
         int amountB = requiredAmountForB;
         FluidStack output = craftResult(resultAmount);
-        int completedTicks = maxProgress;
 
         INPUT_A_TANK.useFluid(amountA);
         INPUT_B_TANK.useFluid(amountB);
         RESULT_TANK.fill(output, IFluidHandler.FluidAction.EXECUTE);
-
-        installedEvolutionProperties().ifPresent(props -> {
-            evolutionProgress += completedTicks;
-            if (evolutionProgress >= props.evolutionThreshold() && flourishCyclesRemaining < 0) {
-                startEvolutionFlourish();
-            }
-        });
     }
 
     private Optional<RecipeHolder<EffluencingRecipe>> getRecipeOptional() {
@@ -611,7 +482,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
                 new TwoFluidRecipeInput(INPUT_A_TANK.getFluid(), INPUT_B_TANK.getFluid()), this.level);
     }
 
-    // protected (not private) so a capability-leap subclass (Charred Effluentcer) can call it
+    // protected (not private) so a subclass can call it
     // directly from its own overridden createInputTank() -- see MasticatorBlockEntity's identical
     // getRecipeOptional()/setActiveRecipe() split for the same reason.
     protected void resolveRecipe() {
@@ -702,8 +573,6 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         tag.putInt("requiredA", requiredAmountForA);
         tag.putInt("requiredB", requiredAmountForB);
         tag.putBoolean("module_tab_active", moduleTabActive);
-        tag.putInt("evolution_progress", evolutionProgress);
-        tag.putInt("evolution_flourish_cycles", flourishCyclesRemaining);
     }
 
     @Override
@@ -735,9 +604,6 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         requiredAmountForA = tag.getInt("requiredA");
         requiredAmountForB = tag.getInt("requiredB");
         moduleTabActive = tag.getBoolean("module_tab_active");
-        evolutionProgress = tag.getInt("evolution_progress");
-        flourishCyclesRemaining = tag.contains("evolution_flourish_cycles")
-                ? tag.getInt("evolution_flourish_cycles") : -1;
     }
 
     @NotNull
@@ -826,8 +692,8 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         }
     }
 
-    protected VulnerableTank createInputTank(int slot) {
-        return new VulnerableTank(getTier().tankCapacity(), slot, this::installedHazardProfile) {
+    protected ModFluidTank createInputTank(int slot) {
+        return new ModFluidTank(getBaseTankCapacity(), slot) {
             @Override
             protected void onContentsChanged() {
 
@@ -839,8 +705,8 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         };
     }
 
-    protected VulnerableTank createResultTank() {
-        return new VulnerableTank(getTier().tankCapacity(), 3, this::installedHazardProfile) {
+    protected ModFluidTank createResultTank() {
+        return new ModFluidTank(getBaseTankCapacity(), 3) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {

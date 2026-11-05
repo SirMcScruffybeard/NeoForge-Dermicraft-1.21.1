@@ -421,8 +421,14 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
         if (mode == Mode.FILL) {
             tickFill(healed, fueled);
         }
-        updateVisualState();
         return healed;
+    }
+
+    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
+     * and is hurt again every cycle still shows as recovering. */
+    @Override
+    protected void onCycleEnd() {
+        updateVisualState();
     }
 
     private void updateVisualState() {

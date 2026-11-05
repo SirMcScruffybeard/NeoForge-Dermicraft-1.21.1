@@ -136,11 +136,11 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     private MetastasizerVisualState pendingVisualState = null;
     private int pendingVisualCycles = 0;
 
+    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
+     * and is hurt again every cycle still shows as recovering. */
     @Override
-    protected boolean tickHealing(boolean fueled) {
-        boolean healed = super.tickHealing(fueled);
+    protected void onCycleEnd() {
         updateVisualState();
-        return healed;
     }
 
     /** The hazards that matter when the Metastasizer processes: the reagent fluid it consumes (its output is an item,

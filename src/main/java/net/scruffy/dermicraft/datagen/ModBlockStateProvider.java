@@ -165,9 +165,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
                 modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
 
-        charredEffluentcerBlockState("block/charred_machine_port");
-        itemModels().withExistingParent(ModBlocks.CHARRED_EFFLUENTCER.getId().getPath(),
-                modLoc("block/" + ModBlocks.CHARRED_EFFLUENTCER.getId().getPath()));
 
         metastasizerBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.METASTASIZER.getId().getPath(),
@@ -511,31 +508,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RECOVERING)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
-    }
-
-    // Mirrors charredMasticatorBlockState -- Charred Machine Port replaces skinTankEnd/effluentcer_side
-    // on all 5 non-front faces (Charred Effluentcer's shared visual identity with the rest of the
-    // Charred family, not the base Effluentcer's own 2-texture split) and uses the charred face
-    // texture set for the front face.
-    private void charredEffluentcerBlockState(String machinePort) {
-        ModelFile idle = models().cube(ModBlocks.CHARRED_EFFLUENTCER.getId().getPath(),
-                        modLoc(machinePort), modLoc(machinePort), modLoc("block/effluentcer/charred_effluentcer_face"),
-                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
-                .texture("particle", modLoc("block/effluentcer/charred_effluentcer_face"));
-        ModelFile running = models().cube("charred_effluentcer_on",
-                        modLoc(machinePort), modLoc(machinePort), modLoc("block/effluentcer/charred_effluentcer_face_on"),
-                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
-                .texture("particle", modLoc("block/effluentcer/charred_effluentcer_face_on"));
-        ModelFile recovering = models().cube("charred_effluentcer_error",
-                        modLoc(machinePort), modLoc(machinePort), modLoc("block/effluentcer/charred_effluentcer_face_error"),
-                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
-                .texture("particle", modLoc("block/effluentcer/charred_effluentcer_face_error"));
-
-        var builder = getVariantBuilder(ModBlocks.CHARRED_EFFLUENTCER.get());
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.EAST, 90);
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.WEST, 270);
     }
 
     // Mirrors effluentcerBlockState/masticatorBlockState -- 4 horizontal facings x 3

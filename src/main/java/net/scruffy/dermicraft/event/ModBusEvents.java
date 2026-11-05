@@ -78,11 +78,6 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);
 
-        // Charred Effluentcer has its own BlockEntityType (CHARRED_EFFLUENTCER_BE), so it does NOT
-        // inherit EFFLUENTCER_BE's capability registration above -- same gap that's bitten every
-        // other Charred variant so far (see the Drooling Crucible comment above).
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getItemHandler);
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_EFFLUENTCER_BE.get(), EffluentcerBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.BEAKER_BE.get(), BeakerBlockEntity::getTank);
 

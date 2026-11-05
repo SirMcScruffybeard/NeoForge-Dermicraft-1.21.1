@@ -146,11 +146,11 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     private MasticatorVisualState pendingVisualState = null;
     private int pendingVisualCycles = 0;
 
+    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
+     * and is hurt again every cycle still shows as recovering. */
     @Override
-    protected boolean tickHealing(boolean fueled) {
-        boolean healed = super.tickHealing(fueled);
+    protected void onCycleEnd() {
         updateVisualState();
-        return healed;
     }
 
     private void updateVisualState() {

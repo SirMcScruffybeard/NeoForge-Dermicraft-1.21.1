@@ -53,7 +53,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.SKIN_TANK);
                         output.accept(ModBlocks.KNOWLEDGE_VAT);
                         output.accept(ModBlocks.EFFLUENTCER);
-                        output.accept(ModBlocks.CHARRED_EFFLUENTCER); // no craft recipe yet
                         output.accept(ModBlocks.METASTASIZER);
                         output.accept(ModBlocks.MUTATOR);
                         output.accept(ModBlocks.RENDER_FURNACE);
@@ -269,6 +268,7 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SYNAPSE_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_KINETIC_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_EVOLUTION_CATALYST.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_BLEND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SILICA_BLEND.get()));

@@ -320,6 +320,10 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     /** Push finished output to the neighbour below. Called every 5s. Default: nothing. */
     protected void drainOutputs(Level level) {}
 
+    /** Runs at the very end of each work cycle, after healing, progress and any hazard damage. A machine reads state
+     * that should reflect the whole cycle here (such as its face texture). Nothing by default. */
+    protected void onCycleEnd() {}
+
     /** Called after a saved recipe is restored from NBT, so a machine can rebuild cached amounts. */
     protected void onRecipeResolved(RecipeHolder<R> recipe) {}
 
@@ -355,6 +359,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
                     resetProgress();
                 }
             }
+            onCycleEnd();
             // Always sync, even when idle -- otherwise healing that happens with no active recipe
             // never reaches the client and the GUI health bar appears frozen.
             setChanged();
