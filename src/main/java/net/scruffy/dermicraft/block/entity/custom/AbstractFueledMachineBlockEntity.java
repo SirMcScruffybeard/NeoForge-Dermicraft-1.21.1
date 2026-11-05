@@ -239,7 +239,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
 
     /** Adds one cycle of real production to the pending evolution; called when the machine actually worked this
      * cycle (fueled and not starved). */
-    private void tickGradualProgress() {
+    protected void tickGradualProgress() {
         if (!usesEvolutionState() || isEvolutionFlourishing()) return;
 
         Optional<EvolutionResult.Upgrade> pending = getPendingUpgrade();
@@ -474,8 +474,21 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         return HazardProfile.ALL;
     }
 
+    /** Whether the machine is doing work right now that its fluids' hazards apply to. By default a running recipe with
+     * its inputs in place; a machine with another way of working (the Mutator's Fill mode) overrides this to say when
+     * that is happening. An idle machine sitting next to a hazardous fluid in its tank pays nothing. */
+    protected boolean isHazardProcessing() {
+        return usesEvolutionState() && isRecipeValid(activeRecipe) && hasCraftingInputs();
+    }
+
+    /** This cycle's Metaphysical work-speed roll (1.0 when none), for a machine that does its own work outside the
+     * recipe engine and so applies the speed factor itself. */
+    protected float getMetaphysicalSpeedFactor() {
+        return (float) metaphysicalRoll.speedFactor();
+    }
+
     /** Charges this cycle's hazard penalties; runs only on a cycle where the machine actually worked. */
-    private void applyHazardPenalties() {
+    protected void applyHazardPenalties() {
         if (!usesEvolutionState()) return;
 
         int thermalDamage = HazardEffects.getThermalDamage(getProcessingFluids(), getHazardProfile());
@@ -492,7 +505,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     /** The Radiation cost right now. Only while a recipe is actually running with its inputs in place, so a machine
      * sitting idle next to a radioactive fluid in its tank pays nothing. */
     private HazardEffects.RadiationEffect getRadiationEffect() {
-        if (!usesEvolutionState() || !isRecipeValid(activeRecipe) || !hasCraftingInputs()) {
+        if (!isHazardProcessing()) {
             return HazardEffects.RadiationEffect.NONE;
         }
         return HazardEffects.getRadiationEffect(getProcessingFluids(), getHazardProfile());
@@ -500,8 +513,8 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
 
     /** The Biohazard slowdown factor on work speed and healing right now (1.0 for none). Gated like the Radiation cost:
      * only while a recipe is running with its inputs in place. */
-    private float getBiohazardFactor() {
-        if (!usesEvolutionState() || !isRecipeValid(activeRecipe) || !hasCraftingInputs()) return 1.0f;
+    protected float getBiohazardFactor() {
+        if (!isHazardProcessing()) return 1.0f;
         return (float) HazardEffects.getBiohazardEffect(getProcessingFluids(), getHazardProfile()).factor();
     }
 
@@ -538,7 +551,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     /** Rolls the Metaphysical randomness for a new cycle. Gated like the other effects: only while a recipe is running
      * with its inputs in place, so an idle machine is never erratic. */
     private HazardEffects.MetaphysicalRoll rollMetaphysical(Level level) {
-        if (!usesEvolutionState() || !isRecipeValid(activeRecipe) || !hasCraftingInputs()) {
+        if (!isHazardProcessing()) {
             return HazardEffects.MetaphysicalRoll.NONE;
         }
         HazardEffects.MetaphysicalEffect effect = HazardEffects.getMetaphysicalEffect(getProcessingFluids(), getHazardProfile());

@@ -257,7 +257,6 @@ public class DermicraftClient {
         event.register(ModMenuTypes.MR_FARMER_MENU.get(), MrFarmerScreen::new);
         event.register(ModMenuTypes.MR_SHEPARD_MENU.get(), net.scruffy.dermicraft.screen.custom.mr_shepard.MrShepardScreen::new);
         event.register(ModMenuTypes.MUTATOR_MENU.get(), MutatorScreen::new);
-        event.register(ModMenuTypes.CHARRED_MUTATOR_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_mutator.CharredMutatorScreen::new);
         event.register(ModMenuTypes.RENDER_FURNACE_MENU.get(), RenderFurnaceScreen::new);
         event.register(ModMenuTypes.CHARRED_RENDER_FURNACE_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_render_furnace.CharredRenderFurnaceScreen::new);
         event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);

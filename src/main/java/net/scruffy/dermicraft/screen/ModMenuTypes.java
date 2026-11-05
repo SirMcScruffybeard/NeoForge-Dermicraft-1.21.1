@@ -22,7 +22,6 @@ import net.scruffy.dermicraft.screen.custom.masticator.MasticatorMenu;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerMenu;
 import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerMenu;
 import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableMenu;
-import net.scruffy.dermicraft.screen.custom.charred_mutator.CharredMutatorMenu;
 import net.scruffy.dermicraft.screen.custom.mutator.MutatorMenu;
 import net.scruffy.dermicraft.screen.custom.node.NodeMenu;
 import net.scruffy.dermicraft.screen.custom.node.TabbedNodeMenu;
@@ -84,8 +83,6 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<MutatorMenu>> MUTATOR_MENU =
             registerMenuType("mutator_menu", MutatorMenu::new);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<CharredMutatorMenu>> CHARRED_MUTATOR_MENU =
-            registerMenuType("charred_mutator_menu", CharredMutatorMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<RenderFurnaceMenu>> RENDER_FURNACE_MENU =
             registerMenuType("render_furnace_menu", RenderFurnaceMenu::new);

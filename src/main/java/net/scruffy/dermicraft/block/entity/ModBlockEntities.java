@@ -66,9 +66,6 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("mutator_be", () -> BlockEntityType.Builder.of(
                     MutatorBlockEntity::new, ModBlocks.MUTATOR.get()).build(null));
 
-    public static final Supplier<BlockEntityType<CharredMutatorBlockEntity>> CHARRED_MUTATOR_BE =
-            BLOCK_ENTITIES.register("charred_mutator_be", () -> BlockEntityType.Builder.of(
-                    CharredMutatorBlockEntity::new, ModBlocks.CHARRED_MUTATOR.get()).build(null));
 
     public static final Supplier<BlockEntityType<RenderFurnaceBlockEntity>> RENDER_FURNACE_BE =
             BLOCK_ENTITIES.register("render_furnace_be", () -> BlockEntityType.Builder.of(

@@ -56,7 +56,6 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.CHARRED_EFFLUENTCER); // no craft recipe yet
                         output.accept(ModBlocks.METASTASIZER);
                         output.accept(ModBlocks.MUTATOR);
-                        output.accept(ModBlocks.CHARRED_MUTATOR); // no craft recipe yet
                         output.accept(ModBlocks.RENDER_FURNACE);
                         output.accept(ModBlocks.CHARRED_RENDER_FURNACE); // no craft recipe yet
                         output.accept(ModBlocks.GRAFTING_TABLE);

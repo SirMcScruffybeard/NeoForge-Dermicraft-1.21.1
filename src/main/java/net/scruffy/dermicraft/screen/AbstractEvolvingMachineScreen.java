@@ -120,6 +120,12 @@ public abstract class AbstractEvolvingMachineScreen<M extends AbstractEvolvingMa
 
     protected abstract int getAutoDrainButtonY();
 
+    /** A machine's own extra Main-tab buttons (the Mutator's mode toggle): handle a click and return true if it was
+     * on one. {@code x/y} is the screen's top-left. Nothing by default. */
+    protected boolean handleMainTabClick(double mouseX, double mouseY, int x, int y) {
+        return false;
+    }
+
     // ---- Shared drawing ----------------------------------------------------------------------
 
     @Override
@@ -219,6 +225,10 @@ public abstract class AbstractEvolvingMachineScreen<M extends AbstractEvolvingMa
         if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
             menu.setActiveTab(clickedTab);
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
+            return true;
+        }
+
+        if (menu.getActiveTab() == AbstractEvolvingMachineMenu.MAIN_TAB && handleMainTabClick(mouseX, mouseY, x, y)) {
             return true;
         }
 

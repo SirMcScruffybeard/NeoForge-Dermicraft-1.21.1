@@ -8,7 +8,8 @@ package net.scruffy.dermicraft.machine;
  */
 public enum MachineStatKey {
     MASTICATOR("masticator"),
-    METASTASIZER("metastasizer");
+    METASTASIZER("metastasizer"),
+    MUTATOR("mutator");
 
     private final String SECTION_NAME;
 

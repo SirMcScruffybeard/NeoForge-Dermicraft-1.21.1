@@ -93,11 +93,6 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MUTATOR_BE.get(), MutatorBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MUTATOR_BE.get(), MutatorBlockEntity::getTank);
 
-        // Charred Mutator has its own BlockEntityType (CHARRED_MUTATOR_BE), so it does NOT inherit
-        // MUTATOR_BE's capability registration above -- same gap that's bitten every other Charred
-        // variant so far (see the Drooling Crucible comment above).
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_MUTATOR_BE.get(), MutatorBlockEntity::getItemHandler);
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_MUTATOR_BE.get(), MutatorBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getTank);
