@@ -21,12 +21,14 @@ import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
 import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
 import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
 import net.scruffy.dermicraft.machine.EvolutionResult;
+import net.scruffy.dermicraft.machine.HazardWarnings;
 import net.scruffy.dermicraft.main.Dermicraft;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.ToIntFunction;
 
 /**
  * The row of icons on a machine's Module tab that shows what the machine has become: the current tier (or Overgrowth
@@ -56,8 +58,13 @@ public final class EvolutionPanel {
     /** Gap between the label and the first hazard icon, and between the label and the tier icon at the least. */
     private static final int LABEL_GAP = 3;
 
-    /** One icon: where it goes, what it draws, a counter over it if any, and its hover text. */
-    public record Cell(int x, int y, ItemStack stack, @Nullable String count, Component tooltip) {}
+    /** The red X drawn over a hazard icon whose tolerance the machine needs but does not have. */
+    private static final ResourceLocation MISSING_X_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/item/module/icons/crossout.png");
+
+    /** One icon: where it goes, what it draws, a counter over it if any, its hover text (first line is the title), and
+     * whether it is a tolerance the machine is missing (drawn with a red X over it). */
+    public record Cell(int x, int y, ItemStack stack, @Nullable String count, List<Component> tooltip, boolean missing) {}
 
     /**
      * Where the parts of a machine's panel go, in panel coordinates. The Evolution slot is at {@code slotX}, the tier
@@ -85,19 +92,20 @@ public final class EvolutionPanel {
      * @param modules   the machine's general Module slots, read for temporary Safety Module tolerance
      * @param evolution the machine's Evolution slot, or null for a machine without one
      */
-    public static List<Cell> getCells(Layout layout, EvolutionStateData state, IItemHandler modules, @Nullable IItemHandler evolution) {
+    public static List<Cell> getCells(Layout layout, EvolutionStateData state, IItemHandler modules, @Nullable IItemHandler evolution,
+                                      ToIntFunction<HazardFamily> hazardIntensity) {
         List<Cell> cells = new ArrayList<>();
 
         if (state.overgrowth() > 0) {
             ItemStack stack = new ItemStack(ModuleFamilies.OVERGROWTH.getItem());
             stack.set(ModDataComponentTypes.LEVEL_MODULE_DATA, new LevelModuleData(state.overgrowth()));
             cells.add(new Cell(layout.tierX(), ROW_Y, stack, String.valueOf(state.overgrowth()),
-                    Component.translatable("tooltip.dermicraft.evolution_panel.overgrowth", state.overgrowth())));
+                    List.of(Component.translatable("tooltip.dermicraft.evolution_panel.overgrowth", state.overgrowth())), false));
         } else {
             ItemStack stack = new ItemStack(ModuleFamilies.TIER.getItem());
             stack.set(ModDataComponentTypes.LEVEL_MODULE_DATA, new LevelModuleData(state.tier()));
             cells.add(new Cell(layout.tierX(), ROW_Y, stack, null,
-                    Component.translatable("tooltip.dermicraft.evolution_panel.tier", state.tier())));
+                    List.of(Component.translatable("tooltip.dermicraft.evolution_panel.tier", state.tier())), false));
         }
 
         int column = 0;
@@ -105,6 +113,25 @@ public final class EvolutionPanel {
             int permanent = state.level(family);
             int temporary = Math.max(getTemporaryLevel(modules, family), getEvolvingLevel(state, evolution, family));
             int level = Math.max(permanent, temporary);
+
+            // A tolerance the fluids in play call for but the machine lacks (or only has a weaker level of) takes the
+            // icon's usual place with a red X over it, showing the level it would need.
+            int needed = HazardWarnings.getNeededLevel(family, hazardIntensity.applyAsInt(family));
+            List<Component> effects = HazardWarnings.getEffectLines(family, needed, level);
+            if (!effects.isEmpty()) {
+                HazardModuleVariant neededVariant = HazardModuleVariant.of(family, needed);
+                if (neededVariant != null) {
+                    List<Component> tooltip = new ArrayList<>();
+                    tooltip.add(Component.translatable("tooltip.dermicraft.hazard_warning.title",
+                            Component.translatable(neededVariant.getTranslationKey())).withStyle(ChatFormatting.RED));
+                    for (Component effect : effects) tooltip.add(effect.copy().withStyle(ChatFormatting.GRAY));
+                    cells.add(new Cell(layout.hazardX() + column * ICON_STEP, ROW_Y,
+                            new ItemStack(ModItems.getHazardSafetyModule(neededVariant)), null, tooltip, true));
+                    column++;
+                    continue;
+                }
+            }
+
             if (level == 0) continue;
 
             HazardModuleVariant variant = HazardModuleVariant.of(family, level);
@@ -116,7 +143,7 @@ public final class EvolutionPanel {
             Component tooltip = Component.translatable(
                     isPermanent ? "tooltip.dermicraft.evolution_panel.permanent" : "tooltip.dermicraft.evolution_panel.temporary",
                     Component.translatable(variant.getTranslationKey()));
-            cells.add(new Cell(layout.hazardX() + column * ICON_STEP, ROW_Y, stack, null, tooltip));
+            cells.add(new Cell(layout.hazardX() + column * ICON_STEP, ROW_Y, stack, null, List.of(tooltip), false));
             column++;
         }
         return cells;
@@ -164,6 +191,14 @@ public final class EvolutionPanel {
             guiGraphics.renderItem(cell.stack(), originX + cell.x(), originY + cell.y());
             if (cell.count() != null) {
                 guiGraphics.renderItemDecorations(font, cell.stack(), originX + cell.x(), originY + cell.y(), cell.count());
+            }
+            if (cell.missing()) {
+                // Above the item model (items are drawn up to about 150 deep).
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(0, 0, 200);
+                guiGraphics.blit(MISSING_X_TEXTURE, originX + cell.x(), originY + cell.y(), 0, 0,
+                        ICON_SIZE, ICON_SIZE, ICON_SIZE, ICON_SIZE);
+                guiGraphics.pose().popPose();
             }
         }
     }
@@ -234,7 +269,7 @@ public final class EvolutionPanel {
     public static void renderTooltip(GuiGraphics guiGraphics, Font font, int mouseX, int mouseY, List<Cell> cells) {
         for (Cell cell : cells) {
             if (mouseX >= cell.x() && mouseX < cell.x() + ICON_SIZE && mouseY >= cell.y() && mouseY < cell.y() + ICON_SIZE) {
-                guiGraphics.renderTooltip(font, cell.tooltip(), mouseX, mouseY);
+                guiGraphics.renderComponentTooltip(font, cell.tooltip(), mouseX, mouseY);
                 return;
             }
         }

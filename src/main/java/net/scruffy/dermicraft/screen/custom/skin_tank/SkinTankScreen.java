@@ -177,7 +177,7 @@ public class SkinTankScreen extends AbstractModScreen<SkinTankMenu> {
 
     /** The icons under the slots on the Module tab: this tank's tier and tolerances, see {@link EvolutionPanel}. */
     private List<EvolutionPanel.Cell> getEvolutionPanelCells() {
-        return EvolutionPanel.getCells(panelLayout, menu.be.getEvolutionState(), menu.be.MODULE_INVENTORY, null);
+        return EvolutionPanel.getCells(panelLayout, menu.be.getEvolutionState(), menu.be.MODULE_INVENTORY, null, family -> 0);
     }
 
     @Override

@@ -173,7 +173,7 @@ public class MasticatorScreen extends AbstractModScreen<MasticatorMenu> {
     /** The icons under the slots on the Module tab: this machine's tier and tolerances, see {@link EvolutionPanel}. */
     private List<EvolutionPanel.Cell> getEvolutionPanelCells() {
         return EvolutionPanel.getCells(panelLayout, menu.BE.getEvolutionState(), menu.BE.MODULE_INVENTORY,
-                menu.BE.EVOLUTION_INVENTORY);
+                menu.BE.EVOLUTION_INVENTORY, menu.BE::getHazardIntensity);
     }
 
     @Override

@@ -22,6 +22,7 @@ import net.scruffy.dermicraft.interfaces.IHasHazardModuleData;
 import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
 import net.scruffy.dermicraft.machine.EvolutionEffects;
 import net.scruffy.dermicraft.machine.EvolutionResult;
+import net.scruffy.dermicraft.machine.FluidHazards;
 import net.scruffy.dermicraft.machine.HazardEffects;
 import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.scruffy.dermicraft.machine.MachineTier;
@@ -336,6 +337,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
             // Healing runs every cycle regardless of whether a recipe is active -- an idle,
             // fueled machine below max health should still recover.
+            refreshHazardIntensities();
             metaphysicalRoll = rollMetaphysical(level);
             boolean fueled = FUEL_TANK.hasEnoughFuel(getEffectiveFuelUse());
             boolean healedThisCycle = tickHealing(fueled);
@@ -503,6 +505,32 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         return (float) HazardEffects.getBiohazardEffect(getProcessingFluids(), getHazardProfile()).factor();
     }
 
+    // ---- Hazard readout for the screen ------------------------------------------------------
+
+    /** The worst intensity of each hazard family among the fluids in play, indexed by family ordinal. Synced to the
+     * client so the screen can warn about a missing tolerance (the client cannot see the recipe's output fluid). */
+    private int[] hazardIntensities = new int[HazardFamily.values().length];
+
+    /** The worst intensity of {@code family} among this machine's processing fluids as of the last cycle (Thermal is
+     * the kelvin beyond the safe range). 0 when none, or when the machine does not use the penalty rules. */
+    public int getHazardIntensity(HazardFamily family) {
+        return hazardIntensities[family.ordinal()];
+    }
+
+    /** Recomputes {@link #hazardIntensities} from the fluids in play, whether or not a recipe is running, so the
+     * warning shows as soon as a hazardous fluid is in place. */
+    private void refreshHazardIntensities() {
+        int[] fresh = new int[HazardFamily.values().length];
+        if (usesEvolutionState()) {
+            for (FluidStack fluid : getProcessingFluids()) {
+                for (HazardFamily family : HazardFamily.values()) {
+                    fresh[family.ordinal()] = Math.max(fresh[family.ordinal()], FluidHazards.getIntensity(fluid, family));
+                }
+            }
+        }
+        hazardIntensities = fresh;
+    }
+
     /** This cycle's Metaphysical dice, rolled once at the start of the cycle so the fuel check, the fuel spent, the
      * work done and the HP swing all agree. Not saved: a reload simply rolls again next cycle. */
     private HazardEffects.MetaphysicalRoll metaphysicalRoll = HazardEffects.MetaphysicalRoll.NONE;
@@ -534,6 +562,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         tag.putInt("maxProgress", maxProgress);
         tag.putInt("health", health);
         tag.put("evolution_inventory", EVOLUTION_INVENTORY.serializeNBT(registries));
+        tag.putIntArray("hazard_intensities", hazardIntensities);
         tag.putInt("gradual_progress", gradualProgress);
         tag.putInt("gradual_target", gradualTarget);
         tag.putInt("gradual_flourish_cycles", gradualFlourishCycles);
@@ -552,6 +581,8 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         if (tag.contains("evolution_inventory")) {
             loadItemHandler(EVOLUTION_INVENTORY, 1, registries, tag.getCompound("evolution_inventory"));
         }
+        int[] savedIntensities = tag.getIntArray("hazard_intensities");
+        hazardIntensities = savedIntensities.length == HazardFamily.values().length ? savedIntensities : new int[HazardFamily.values().length];
         gradualProgress = tag.getInt("gradual_progress");
         gradualTarget = tag.contains("gradual_target") ? tag.getInt("gradual_target") : 1;
         gradualFlourishCycles = tag.contains("gradual_flourish_cycles") ? tag.getInt("gradual_flourish_cycles") : -1;
