@@ -20,6 +20,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.scruffy.dermicraft.main.Dermicraft;
+import net.scruffy.dermicraft.machine.HazardTooltips;
 import org.joml.Matrix4f;
 
 import java.text.NumberFormat;
@@ -254,6 +255,7 @@ public class FluidTankRenderer {
         } catch (RuntimeException e) {
             Dermicraft.LOGGER.error("Failed to get tooltip for ingredientFluid: " + e);
         }
+        tooltip.addAll(HazardTooltips.getLines(fluidStack));
 
         return tooltip;
     }

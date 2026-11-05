@@ -8,6 +8,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.minecraft.world.item.ItemStack;
+import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.interfaces.IHaveFluidData;
+import net.scruffy.dermicraft.machine.HazardTooltips;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.FluidData;
@@ -22,6 +29,18 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = Dermicraft.MOD_ID, value = Dist.CLIENT)
 public class ModClientEvents {
+
+    /** Adds the "Hazard:" lines to the tooltip of any item holding a hazardous fluid: buckets, Beakers, Glass Flasks,
+     * Syringes and the rest, whatever the way they store it. */
+    @SubscribeEvent
+    public static void onItemTooltip(ItemTooltipEvent event) {
+        ItemStack stack = event.getItemStack();
+        FluidStack fluid = FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY);
+        if (fluid.isEmpty() && stack.getItem() instanceof IHaveFluidData holder) {
+            fluid = stack.getOrDefault(holder.getDataType(), FluidData.EMPTY).getFluidStack();
+        }
+        event.getToolTip().addAll(HazardTooltips.getLines(fluid));
+    }
 
     @SubscribeEvent
     public static void registerItemColors(RegisterColorHandlersEvent.Item event) {
