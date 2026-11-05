@@ -42,6 +42,36 @@ public final class HazardEffects {
         return worst;
     }
 
+    /** What Biohazard fluids do to a machine: one factor applied to both its work speed and its healing rate. */
+    public record BiohazardEffect(double factor) {
+        public static final BiohazardEffect NONE = new BiohazardEffect(1.0);
+    }
+
+    /** The lowest the Biohazard factor can fall, so a strong modifier slows a machine to a crawl, never a standstill. */
+    private static final double BIOHAZARD_MIN_FACTOR = 0.05;
+
+    /**
+     * The Biohazard slowdown from the fluids in {@code fluids}, the worst one counting: both speed and healing are
+     * multiplied by {@code 1 - 0.5 x modifier x fraction}, where the fraction is how far the fluid's intensity is
+     * through the Biohazard band (so x1 at the start, x0.5 at the max). Biohazard has a single level, so any Biohazard
+     * tolerance cancels it. It multiplies with the other effects, and does no HP damage of its own.
+     */
+    public static BiohazardEffect getBiohazardEffect(List<FluidStack> fluids, HazardProfile tolerance) {
+        StatValues values = StatConfig.getCurrent();
+        double modifier = values.biohazardEffectModifier();
+        if (modifier <= 0 || tolerance.tolerates(HazardFamily.BIOHAZARD)) return BiohazardEffect.NONE;
+
+        HazardBand band = values.biohazardBand();
+        double factor = 1.0;
+        for (FluidStack fluid : fluids) {
+            int intensity = FluidHazards.getIntensity(fluid, HazardFamily.BIOHAZARD);
+            if (band.getLevel(intensity) < 1) continue;
+            double slowed = Math.max(BIOHAZARD_MIN_FACTOR, 1.0 - 0.5 * modifier * band.getMildFraction(intensity));
+            factor = Math.min(factor, slowed);
+        }
+        return new BiohazardEffect(factor);
+    }
+
     /** What radioactive fluids cost a machine this cycle: a multiplier on the fuel it spends and HP it loses. */
     public record RadiationEffect(double fuelMultiplier, int damage) {
         public static final RadiationEffect NONE = new RadiationEffect(1.0, 0);

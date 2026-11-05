@@ -411,12 +411,12 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     }
 
     protected void incrementProgress(float speedOverride) {
-        int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride);
+        int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride * getBiohazardFactor());
         progress += Math.max(1, workDoneInCycle);
     }
 
     private int getHealAmount() {
-        return Math.round(BASE_HEAL_RATE * FUEL_TANK.getHeal() * getTierHealMultiplier());
+        return Math.round(BASE_HEAL_RATE * FUEL_TANK.getHeal() * getTierHealMultiplier() * getBiohazardFactor());
     }
 
     /**
@@ -489,6 +489,13 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
             return HazardEffects.RadiationEffect.NONE;
         }
         return HazardEffects.getRadiationEffect(getProcessingFluids(), getHazardProfile());
+    }
+
+    /** The Biohazard slowdown factor on work speed and healing right now (1.0 for none). Gated like the Radiation cost:
+     * only while a recipe is running with its inputs in place. */
+    private float getBiohazardFactor() {
+        if (!usesEvolutionState() || !isRecipeValid(activeRecipe) || !hasCraftingInputs()) return 1.0f;
+        return (float) HazardEffects.getBiohazardEffect(getProcessingFluids(), getHazardProfile()).factor();
     }
 
     /** The fuel spent (and required) per cycle: the base use rate times the Radiation surcharge. */
