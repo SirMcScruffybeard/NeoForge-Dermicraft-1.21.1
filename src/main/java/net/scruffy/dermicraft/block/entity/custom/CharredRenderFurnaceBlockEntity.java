@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Charred Render Furnace -- the Render Furnace family's Tier 2 evolution, same shape as
- * {@link CharredMetastasizerBlockEntity}. Everything about the base engine (fuel, recipe lookup,
+ * the retired Charred Metastasizer. Everything about the base engine (fuel, recipe lookup,
  * visual state, item/fluid IO layout, Module tab, evolution mechanic) is inherited from
  * {@link RenderFurnaceBlockEntity} unchanged; the only real difference is {@link #canEvolve()}
  * (already evolved, nothing further to do). Unlike the Masticator/Metastasizer/Render Kiln

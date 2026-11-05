@@ -7,7 +7,8 @@ package net.scruffy.dermicraft.machine;
  * onto the evolution state), not before, so the config never offers settings that do nothing.
  */
 public enum MachineStatKey {
-    MASTICATOR("masticator");
+    MASTICATOR("masticator"),
+    METASTASIZER("metastasizer");
 
     private final String SECTION_NAME;
 

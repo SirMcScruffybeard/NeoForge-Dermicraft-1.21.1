@@ -350,9 +350,6 @@
 
   "block.dermicraft.metastasizer": "Metastasizer",
   "blockEntity.dermicraft.metastasizer_be": "Metastasizer",
-  "block.dermicraft.charred_metastasizer": "Charred Metastasizer",
-  "blockentity.dermicraft.charred_metastasizer": "Charred Metastasizer",
-  "blockEntity.dermicraft.charred_metastasizer_be": "Charred Metastasizer",
 
   "block.dermicraft.mutator": "Mutator",
   "blockEntity.dermicraft.mutator_be": "Mutator",
@@ -571,8 +568,6 @@
 
   "screen.dermicraft.charred_render_furnace.main_tab": "Main",
   "screen.dermicraft.charred_render_furnace.module_tab": "Mod",
-  "screen.dermicraft.charred_metastasizer.main_tab": "Main",
-  "screen.dermicraft.charred_metastasizer.module_tab": "Mod",
   "screen.dermicraft.drooling_crucible.main_tab": "Main",
   "screen.dermicraft.drooling_crucible.module_tab": "Mod",
   "screen.dermicraft.drooling_geode.main_tab": "Main",

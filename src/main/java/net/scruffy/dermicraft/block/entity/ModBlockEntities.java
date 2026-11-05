@@ -61,9 +61,6 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("metastasizer_be", () -> BlockEntityType.Builder.of(
                     MetastasizerBlockEntity::new, ModBlocks.METASTASIZER.get()).build(null));
 
-    public static final Supplier<BlockEntityType<CharredMetastasizerBlockEntity>> CHARRED_METASTASIZER_BE =
-            BLOCK_ENTITIES.register("charred_metastasizer_be", () -> BlockEntityType.Builder.of(
-                    CharredMetastasizerBlockEntity::new, ModBlocks.CHARRED_METASTASIZER.get()).build(null));
 
     public static final Supplier<BlockEntityType<MutatorBlockEntity>> MUTATOR_BE =
             BLOCK_ENTITIES.register("mutator_be", () -> BlockEntityType.Builder.of(

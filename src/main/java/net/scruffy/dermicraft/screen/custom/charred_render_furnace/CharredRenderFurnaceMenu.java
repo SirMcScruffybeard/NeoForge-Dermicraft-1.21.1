@@ -15,7 +15,7 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
 /** Charred Render Furnace's menu -- identical layout/slots (Module tab included) to
  * {@code RenderFurnaceMenu}, just typed to {@link CharredRenderFurnaceBlockEntity} and checked
  * against {@link ModBlocks#CHARRED_RENDER_FURNACE} in {@link #stillValid}. Distinct class for the
- * same reason CharredMetastasizerMenu is. */
+ * same reason the retired Charred Metastasizer menu was. */
 public class CharredRenderFurnaceMenu extends AbstractModMenu {
 
     public static final int MAIN_TAB = 0;

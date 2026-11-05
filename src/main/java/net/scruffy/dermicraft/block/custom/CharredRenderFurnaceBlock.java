@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Charred Render Furnace's block half -- see {@link CharredRenderFurnaceBlockEntity} for the
  * actual (purely stat-based) capability leap. Thin re-skin of {@link RenderFurnaceBlock}, same
- * pattern as {@code CharredMetastasizerBlock}: same {@code FACING}/{@code ACTIVE} properties
+ * pattern the retired Charred Metastasizer used: same {@code FACING}/{@code ACTIVE} properties
  * (inherited), same interaction/rotation behavior, just its own {@code CODEC}, block entity type,
  * and ticker registration.
  */

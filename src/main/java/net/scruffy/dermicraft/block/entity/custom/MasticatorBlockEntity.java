@@ -36,6 +36,7 @@ import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
 import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
+import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
 import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.OneFluidOneItemRecipeInput;
@@ -52,7 +53,7 @@ import java.util.Optional;
 
 
 public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<MasticatingRecipe>
-        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine {
+        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine, IModuleTabMachine {
 
     // The solid recipe ingredient (food item) lives in its own slot -- INGREDIENT_TANK.SLOT is
     // purely a fluid-container passthrough for filling/draining the Water tank (bucket in, bucket
@@ -82,10 +83,17 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     // own isModuleTabActive/setModuleTabActive, so reopening the screen returns to the tab last viewed.
     private boolean moduleTabActive = false;
 
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    @Override
     public boolean isModuleTabActive() {
         return moduleTabActive;
     }
 
+    @Override
     public void setModuleTabActive(boolean active) {
         this.moduleTabActive = active;
     }
