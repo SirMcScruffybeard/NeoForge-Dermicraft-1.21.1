@@ -336,6 +336,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         if (ModMath.Time.hasTicksPassed(level, CRAFT_TICKS)) {
             // Healing runs every cycle regardless of whether a recipe is active -- an idle,
             // fueled machine below max health should still recover.
+            metaphysicalRoll = rollMetaphysical(level);
             boolean fueled = FUEL_TANK.hasEnoughFuel(getEffectiveFuelUse());
             boolean healedThisCycle = tickHealing(fueled);
             tickGradualFlourish();
@@ -411,7 +412,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
     }
 
     protected void incrementProgress(float speedOverride) {
-        int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride * getBiohazardFactor());
+        int workDoneInCycle = Math.round(CRAFT_TICKS * speedOverride * getBiohazardFactor() * (float) metaphysicalRoll.speedFactor());
         progress += Math.max(1, workDoneInCycle);
     }
 
@@ -480,6 +481,10 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
 
         int radiationDamage = getRadiationEffect().damage();
         if (radiationDamage > 0) damageMachine(radiationDamage);
+
+        int healthChange = metaphysicalRoll.healthChange();
+        if (healthChange < 0) damageMachine(-healthChange);
+        else if (healthChange > 0) healMachine(healthChange);
     }
 
     /** The Radiation cost right now. Only while a recipe is actually running with its inputs in place, so a machine
@@ -498,9 +503,23 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         return (float) HazardEffects.getBiohazardEffect(getProcessingFluids(), getHazardProfile()).factor();
     }
 
+    /** This cycle's Metaphysical dice, rolled once at the start of the cycle so the fuel check, the fuel spent, the
+     * work done and the HP swing all agree. Not saved: a reload simply rolls again next cycle. */
+    private HazardEffects.MetaphysicalRoll metaphysicalRoll = HazardEffects.MetaphysicalRoll.NONE;
+
+    /** Rolls the Metaphysical randomness for a new cycle. Gated like the other effects: only while a recipe is running
+     * with its inputs in place, so an idle machine is never erratic. */
+    private HazardEffects.MetaphysicalRoll rollMetaphysical(Level level) {
+        if (!usesEvolutionState() || !isRecipeValid(activeRecipe) || !hasCraftingInputs()) {
+            return HazardEffects.MetaphysicalRoll.NONE;
+        }
+        HazardEffects.MetaphysicalEffect effect = HazardEffects.getMetaphysicalEffect(getProcessingFluids(), getHazardProfile());
+        return HazardEffects.rollMetaphysical(effect, level.random);
+    }
+
     /** The fuel spent (and required) per cycle: the base use rate times the Radiation surcharge. */
     protected int getEffectiveFuelUse() {
-        return Math.round(fuelUseRate * (float) getRadiationEffect().fuelMultiplier());
+        return Math.round(fuelUseRate * (float) getRadiationEffect().fuelMultiplier() * (float) metaphysicalRoll.fuelFactor());
     }
 
     // ---- Shared NBT (fuel + engine + saved recipe). Subclasses super-call, then add their IO. ----

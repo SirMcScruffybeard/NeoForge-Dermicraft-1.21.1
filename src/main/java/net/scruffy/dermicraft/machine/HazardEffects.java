@@ -1,5 +1,6 @@
 package net.scruffy.dermicraft.machine;
 
+import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.scruffy.dermicraft.hazard.HazardFamily;
 import net.scruffy.dermicraft.hazard.HazardProfile;
@@ -119,5 +120,78 @@ public final class HazardEffects {
             damage = Math.max(damage, rawDamage);
         }
         return new RadiationEffect(fuel, damage);
+    }
+
+    /**
+     * How erratic a machine is this cycle. Each spread is the half-width of a random swing around "normal": a speed
+     * spread of 0.5 means the cycle's work speed is anywhere from x0.5 to x1.5. {@code healthSwing} is the most HP the
+     * machine can gain or lose in the cycle.
+     */
+    public record MetaphysicalEffect(double speedSpread, double fuelSpread, int healthSwing) {
+        public static final MetaphysicalEffect NONE = new MetaphysicalEffect(0, 0, 0);
+
+        public boolean isNone() {
+            return speedSpread <= 0 && fuelSpread <= 0 && healthSwing <= 0;
+        }
+    }
+
+    /** What one cycle's dice came out as: multipliers on work speed and fuel use, and a signed HP change. */
+    public record MetaphysicalRoll(double speedFactor, double fuelFactor, int healthChange) {
+        public static final MetaphysicalRoll NONE = new MetaphysicalRoll(1.0, 1.0, 0);
+    }
+
+    /** The lowest a rolled speed factor can fall, so a bad roll stalls a cycle without freezing the machine. */
+    private static final double METAPHYSICAL_MIN_SPEED_FACTOR = 0.05;
+
+    /** Rolls one cycle of {@code effect}: uniform random speed and fuel factors within their spreads, and an HP change
+     * from -swing to +swing. */
+    public static MetaphysicalRoll rollMetaphysical(MetaphysicalEffect effect, RandomSource random) {
+        if (effect.isNone()) return MetaphysicalRoll.NONE;
+        double speed = Math.max(METAPHYSICAL_MIN_SPEED_FACTOR, 1.0 + (random.nextDouble() * 2 - 1) * effect.speedSpread());
+        double fuel = Math.max(0.0, 1.0 + (random.nextDouble() * 2 - 1) * effect.fuelSpread());
+        int health = effect.healthSwing() > 0 ? random.nextInt(-effect.healthSwing(), effect.healthSwing() + 1) : 0;
+        return new MetaphysicalRoll(speed, fuel, health);
+    }
+
+    /**
+     * The Metaphysical erratic-ness of the fluids in {@code fluids}, the worst one counting for each part. By the
+     * fluid's band and the machine's tolerance level:
+     * <ul>
+     *   <li>Tolerance covers the band: no effect.</li>
+     *   <li>Mild band: work speed varies by up to +-50% across the band.</li>
+     *   <li>Severe band: speed varies +-50% to +-100% across the band, fuel use varies up to +-50%, and the machine
+     *   gains or loses up to 2 HP per cycle, all growing across the band.</li>
+     *   <li>Severe-band fluid against a Mild tolerance: capped at the top of the Mild band, so only the +-50% speed
+     *   variation.</li>
+     * </ul>
+     * The configured modifier scales the spreads and the HP swing (0 turns the effect off).
+     */
+    public static MetaphysicalEffect getMetaphysicalEffect(List<FluidStack> fluids, HazardProfile tolerance) {
+        StatValues values = StatConfig.getCurrent();
+        double modifier = values.metaphysicalEffectModifier();
+        int tolerated = tolerance.getLevel(HazardFamily.METAPHYSICAL);
+        if (modifier <= 0 || tolerated >= HazardFamily.METAPHYSICAL.getMaxLevel()) return MetaphysicalEffect.NONE;
+
+        HazardBand band = values.metaphysicalBand();
+        double speed = 0;
+        double fuel = 0;
+        int swing = 0;
+        for (FluidStack fluid : fluids) {
+            int intensity = FluidHazards.getIntensity(fluid, HazardFamily.METAPHYSICAL);
+            int level = band.getLevel(intensity);
+            if (level <= tolerated) continue;
+
+            if (level == 1) {
+                speed = Math.max(speed, 0.5 * band.getMildFraction(intensity));
+            } else if (tolerated >= 1) {
+                speed = Math.max(speed, 0.5);
+            } else {
+                double severe = band.getSevereFraction(intensity);
+                speed = Math.max(speed, 0.5 + 0.5 * severe);
+                fuel = Math.max(fuel, 0.5 * severe);
+                swing = Math.max(swing, (int) Math.max(1, Math.ceil(modifier * 2.0 * severe)));
+            }
+        }
+        return new MetaphysicalEffect(speed * modifier, fuel * modifier, swing);
     }
 }

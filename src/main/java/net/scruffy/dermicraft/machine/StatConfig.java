@@ -45,7 +45,7 @@ public final class StatConfig {
     private static final ModConfigSpec.IntValue THERMAL_REFERENCE_TEMPERATURE;
     private static final ModConfigSpec.IntValue THERMAL_SAFE_RANGE;
     private static final ModConfigSpec.IntValue RADIATION_MILD_START, RADIATION_SEVERE_START, RADIATION_MAX;
-    private static final ModConfigSpec.DoubleValue RADIATION_EFFECT_MODIFIER, BIOHAZARD_EFFECT_MODIFIER;
+    private static final ModConfigSpec.DoubleValue RADIATION_EFFECT_MODIFIER, BIOHAZARD_EFFECT_MODIFIER, METAPHYSICAL_EFFECT_MODIFIER;
     private static final ModConfigSpec.IntValue BIOHAZARD_START, BIOHAZARD_MAX;
     private static final ModConfigSpec.IntValue METAPHYSICAL_MILD_START, METAPHYSICAL_SEVERE_START, METAPHYSICAL_MAX;
 
@@ -139,6 +139,8 @@ public final class StatConfig {
                 .defineInRange("biohazardMax", StatDefaults.BIOHAZARD_BAND.max(), 1, 100000);
         BIOHAZARD_EFFECT_MODIFIER = BUILDER.comment("Biohazard effect strength. A machine processing a Biohazard fluid without the tolerance works and heals slower, down to x0.5 of both across the band (x1 at the start of it); this scales how far down it goes. 0 turns the effect off.")
                 .defineInRange("biohazardEffectModifier", StatDefaults.BIOHAZARD_EFFECT_MODIFIER, 0.0, 1.9);
+        METAPHYSICAL_EFFECT_MODIFIER = BUILDER.comment("Metaphysical effect strength. A machine processing a Metaphysical fluid without enough tolerance gets an erratic work speed each cycle (up to +-50% across the Mild band, up to +-100% across the Severe band) and, in the Severe band, also random fuel use (up to +-50%) and random HP swings (up to 2 HP up or down); this scales how wide the swings are. 0 turns the effect off.")
+                .defineInRange("metaphysicalEffectModifier", StatDefaults.METAPHYSICAL_EFFECT_MODIFIER, 0.0, 1.9);
         METAPHYSICAL_MILD_START = BUILDER.comment("Metaphysical: the lowest intensity that counts as Mild.")
                 .defineInRange("metaphysicalMildStart", StatDefaults.METAPHYSICAL_BAND.mildStart(), 1, 100000);
         METAPHYSICAL_SEVERE_START = BUILDER.comment("Metaphysical: the lowest intensity that counts as Severe.")
@@ -241,7 +243,7 @@ public final class StatConfig {
                 new HazardBand(RADIATION_MILD_START.get(), RADIATION_SEVERE_START.get(), RADIATION_MAX.get()),
                 new HazardBand(BIOHAZARD_START.get(), BIOHAZARD_MAX.get(), BIOHAZARD_MAX.get()),
                 new HazardBand(METAPHYSICAL_MILD_START.get(), METAPHYSICAL_SEVERE_START.get(), METAPHYSICAL_MAX.get()),
-                RADIATION_EFFECT_MODIFIER.get(), BIOHAZARD_EFFECT_MODIFIER.get(),
+                RADIATION_EFFECT_MODIFIER.get(), BIOHAZARD_EFFECT_MODIFIER.get(), METAPHYSICAL_EFFECT_MODIFIER.get(),
                 buildMachineOverrides());
     }
 

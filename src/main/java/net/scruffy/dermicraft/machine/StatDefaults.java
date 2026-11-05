@@ -51,6 +51,7 @@ final class StatDefaults {
     static final HazardBand RADIATION_BAND = new HazardBand(1, 100, 200);
     static final double RADIATION_EFFECT_MODIFIER = 1.0;                   // scales the Radiation fuel surcharge and HP loss; 0 turns it off
     static final double BIOHAZARD_EFFECT_MODIFIER = 1.0;                   // scales the Biohazard slowdown (x0.5 speed and healing at full strength); 0 turns it off
+    static final double METAPHYSICAL_EFFECT_MODIFIER = 1.0;                // scales the Metaphysical randomness (speed, fuel use, HP swings); 0 turns it off
     static final HazardBand BIOHAZARD_BAND = new HazardBand(1, 100, 100);  // one band only, so severeStart equals max
     static final HazardBand METAPHYSICAL_BAND = new HazardBand(1, 100, 200);
 
@@ -65,7 +66,7 @@ final class StatDefaults {
             EVOLUTION_OVERGROWTH_SECONDS, EVOLUTION_OVERGROWTH_GROWTH_PERCENT, EVOLUTION_COUNTDOWN_SECONDS,
             THERMAL_DAMAGE_MODIFIER, THERMAL_REFERENCE_TEMPERATURE, THERMAL_SAFE_RANGE,
             RADIATION_BAND, BIOHAZARD_BAND, METAPHYSICAL_BAND,
-            RADIATION_EFFECT_MODIFIER, BIOHAZARD_EFFECT_MODIFIER,
+            RADIATION_EFFECT_MODIFIER, BIOHAZARD_EFFECT_MODIFIER, METAPHYSICAL_EFFECT_MODIFIER,
             java.util.Map.of());
 
 
