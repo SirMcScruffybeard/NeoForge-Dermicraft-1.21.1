@@ -25,7 +25,6 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
-import net.scruffy.dermicraft.block.custom.EffluentcerVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -124,67 +123,6 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
     @Override
     protected RecipeType<EffluencingRecipe> getRecipeType() {
         return ModRecipes.EFFLUENCING_TYPE.get();
-    }
-
-    // ---- Visual state (face texture) --------------------------------------------------------
-    // tickHealing runs every cycle regardless of crafting state, so it doubles as the visual-state
-    // refresh point. Recovering (health < maxHealth) takes priority over Running -- a damaged
-    // machine signals distress even mid-cycle. Mirrors MutatorBlockEntity/MasticatorBlockEntity's
-    // identical mechanism.
-    //
-    // Debounced: a new state must be observed for VISUAL_STATE_STABLE_CYCLES consecutive cycles
-    // (2 cycles = ~1s at CRAFT_TICKS=10) before the texture commits, to avoid flicker on borderline
-    // conditions; every commit is a setBlock (client update + chunk re-render), so flapping is also
-    // wasted churn. Transient, deliberately not saved to NBT.
-    //
-    // isRecipeValid(activeRecipe) is required here, not just hasCraftingInputs()/hasCraftingOutputRoom()
-    // -- those two are vacuously true while idle (requiredAmountForA/B and resultAmount default to 0,
-    // so hasEnoughFluid(0)/hasRoom(0) are trivially satisfied), so without the recipe check RUNNING
-    // would show whenever fueled, even with no actual recipe active.
-    private static final int VISUAL_STATE_STABLE_CYCLES = 2;
-
-    @Nullable
-    private EffluentcerVisualState pendingVisualState = null;
-    private int pendingVisualCycles = 0;
-
-    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
-     * and is hurt again every cycle still shows as recovering. */
-    @Override
-    protected void onCycleEnd() {
-        updateVisualState();
-    }
-
-    private void updateVisualState() {
-        if (level == null) return;
-
-        EffluentcerVisualState computed = computeVisualState();
-        BlockState state = getBlockState();
-
-        if (state.getValue(EffluentcerBlock.STATE) == computed) {
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-            return;
-        }
-
-        if (pendingVisualState != computed) {
-            pendingVisualState = computed;
-            pendingVisualCycles = 1;
-            return;
-        }
-
-        if (++pendingVisualCycles >= VISUAL_STATE_STABLE_CYCLES) {
-            level.setBlock(worldPosition, state.setValue(EffluentcerBlock.STATE, computed), Block.UPDATE_CLIENTS);
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-        }
-    }
-
-    private EffluentcerVisualState computeVisualState() {
-        if (maxHealth > 0 && health < maxHealth) return EffluentcerVisualState.RECOVERING;
-        if (!isStarved() && isRecipeValid(activeRecipe) && hasCraftingInputs() && hasCraftingOutputRoom()) {
-            return EffluentcerVisualState.RUNNING;
-        }
-        return EffluentcerVisualState.IDLE;
     }
 
     // ---- Hazards ----------------------------------------------------------------------------------

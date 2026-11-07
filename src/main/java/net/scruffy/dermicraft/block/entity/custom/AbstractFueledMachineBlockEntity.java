@@ -9,9 +9,11 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.scruffy.dermicraft.block.custom.MachineStatus;
 import net.scruffy.dermicraft.block.entity.custom.base.EvolvingMachineBlockEntity;
 import net.scruffy.dermicraft.component.HazardModuleData;
 import net.scruffy.dermicraft.hazard.HazardFamily;
@@ -124,6 +126,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
             boolean wasFull = health >= maxHealth;
             maxHealth = newMaxHealth;
             health = wasFull ? newMaxHealth : Math.min(health, newMaxHealth);
+            if (health >= maxHealth) brokenDown = false;
         }
         setSpeed();
         setUseRate();
@@ -170,6 +173,60 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
      * that should reflect the whole cycle here (such as its face texture). Nothing by default. */
     protected void onCycleEnd() {}
 
+    // ---- Status (block state) ---------------------------------------------------------------
+    // The machine's MachineStatus block property is read at the end of every cycle, after progress, healing and any
+    // hazard damage, so a machine that heals and is hurt again every cycle still shows as strained.
+    //
+    // Debounced: a new status must be observed for STATUS_STABLE_CYCLES consecutive cycles (2 cycles = ~1s at
+    // CRAFT_TICKS=10) before it commits. Borderline conditions can otherwise strobe, e.g. a hopper feeding the input
+    // every 8 ticks against the 10-tick cycle flaps RUNNING/IDLE, and every commit is a setBlock (client update + chunk
+    // re-render), so flapping is also wasted churn. Matching the current status resets any pending change, so a
+    // one-cycle blip never flashes the lamp. Transient, deliberately not saved to NBT.
+    private static final int STATUS_STABLE_CYCLES = 2;
+
+    @Nullable
+    private MachineStatus pendingStatus = null;
+    private int pendingStatusCycles = 0;
+
+    /** Whether the machine is actually doing work right now, which is what the RUNNING statuses show. By default a
+     * valid recipe with its inputs in place and room for the output; a machine with another way of working (the
+     * Mutator's Fill mode) overrides this. A broken-down machine never works. */
+    protected boolean isWorking() {
+        // hasCraftingInputs()/hasCraftingOutputRoom() can be vacuously true while idle, so isRecipeValid is the real
+        // "is there actually something to craft" signal, matching the tick's own crafting gate.
+        return !isStarved() && isRecipeValid(activeRecipe) && hasCraftingInputs() && hasCraftingOutputRoom();
+    }
+
+    /** The status the block should show now. */
+    protected final MachineStatus computeStatus() {
+        return MachineStatus.of(isWorking(), brokenDown, health, maxHealth);
+    }
+
+    private void updateStatus() {
+        if (level == null) return;
+        BlockState state = getBlockState();
+        if (!state.hasProperty(MachineStatus.PROPERTY)) return;
+
+        MachineStatus computed = computeStatus();
+        if (state.getValue(MachineStatus.PROPERTY) == computed) {
+            pendingStatus = null;
+            pendingStatusCycles = 0;
+            return;
+        }
+
+        if (pendingStatus != computed) {
+            pendingStatus = computed;
+            pendingStatusCycles = 1;
+            return;
+        }
+
+        if (++pendingStatusCycles >= STATUS_STABLE_CYCLES) {
+            level.setBlock(worldPosition, state.setValue(MachineStatus.PROPERTY, computed), Block.UPDATE_CLIENTS);
+            pendingStatus = null;
+            pendingStatusCycles = 0;
+        }
+    }
+
     /** Called after a saved recipe is restored from NBT, so a machine can rebuild cached amounts. */
     protected void onRecipeResolved(RecipeHolder<R> recipe) {}
 
@@ -207,6 +264,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
                 }
             }
             onCycleEnd();
+            updateStatus();
             // Always sync, even when idle -- otherwise healing that happens with no active recipe
             // never reaches the client and the GUI health bar appears frozen.
             setChanged();
@@ -426,6 +484,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         tag.putInt("progress", progress);
         tag.putInt("maxProgress", maxProgress);
         tag.putInt("health", health);
+        tag.putBoolean("broken_down", brokenDown);
         tag.putIntArray("hazard_intensities", hazardIntensities);
         if (isRecipeValid(activeRecipe)) tag.putString("saved_recipe", activeRecipe.id().toString());
     }
@@ -439,6 +498,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
         this.progress = tag.getInt("progress");
         this.maxProgress = tag.getInt("maxProgress");
         this.health = tag.contains("health") ? tag.getInt("health") : maxHealth;
+        this.brokenDown = tag.getBoolean("broken_down");
         int[] savedIntensities = tag.getIntArray("hazard_intensities");
         hazardIntensities = savedIntensities.length == HazardFamily.values().length ? savedIntensities : new int[HazardFamily.values().length];
 

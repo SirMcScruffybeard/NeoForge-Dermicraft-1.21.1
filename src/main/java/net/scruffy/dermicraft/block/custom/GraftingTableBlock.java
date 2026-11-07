@@ -46,7 +46,7 @@ public class GraftingTableBlock extends ModBaseEntityBlock implements TieredMach
     public GraftingTableBlock(Properties properties, MachineTier tier) {
         super(properties.noLootTable().ignitedByLava());
         this.tier = tier;
-        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any()));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(MachineStatus.PROPERTY, MachineStatus.IDLE)));
     }
 
     @Override
@@ -57,6 +57,7 @@ public class GraftingTableBlock extends ModBaseEntityBlock implements TieredMach
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         EvolutionBlockProperties.add(builder);
+        builder.add(MachineStatus.PROPERTY);
     }
 
     @Override

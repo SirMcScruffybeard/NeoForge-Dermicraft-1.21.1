@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -41,9 +40,6 @@ public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMach
 
     public static final MapCodec<RenderFurnaceBlock> CODEC = simpleCodec(RenderFurnaceBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    // Which front face texture shows: idle, running (render_furnace_face_on) or recovering (the error face), set by the
-    // block entity with a debounce, same idiom as the Render Kiln and the other machines with HP.
-    public static final EnumProperty<RenderFurnaceVisualState> STATE = EnumProperty.create("state", RenderFurnaceVisualState.class);
 
     private final MachineTier tier;
 
@@ -58,7 +54,7 @@ public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMach
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(STATE, RenderFurnaceVisualState.IDLE)));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(MachineStatus.PROPERTY, MachineStatus.IDLE)));
     }
 
     @Override
@@ -90,7 +86,7 @@ public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMach
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, STATE);
+        builder.add(FACING, MachineStatus.PROPERTY);
         EvolutionBlockProperties.add(builder);
     }
 

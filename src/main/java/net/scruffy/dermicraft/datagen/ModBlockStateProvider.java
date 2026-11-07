@@ -12,19 +12,14 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
-import net.scruffy.dermicraft.block.custom.EffluentcerVisualState;
+import net.scruffy.dermicraft.block.custom.MachineStatus;
 import net.scruffy.dermicraft.block.custom.MasticatorBlock;
-import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
 import net.scruffy.dermicraft.block.custom.MetastasizerBlock;
-import net.scruffy.dermicraft.block.custom.MetastasizerVisualState;
 import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
 import net.scruffy.dermicraft.block.custom.MrShepardBlock;
 import net.scruffy.dermicraft.block.custom.MutatorBlock;
-import net.scruffy.dermicraft.block.custom.MutatorVisualState;
 import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
-import net.scruffy.dermicraft.block.custom.RenderFurnaceVisualState;
 import net.scruffy.dermicraft.block.custom.RenderKilnBlock;
-import net.scruffy.dermicraft.block.custom.RenderKilnVisualState;
 import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.main.Dermicraft;
 
@@ -282,7 +277,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
     }
 
-    // 4 horizontal facings x 3 MutatorVisualState values -- only the front (north-authored) face
+    // 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face) -- only the front (north-authored) face
     // texture differs between the three models; skin_tank_end covers every other face in all three.
     // Y-rotation per facing matches the standard horizontal-facing convention (same values horizontalBlock
     // itself would generate): North=identity, East=90, South=180, West=270.
@@ -309,15 +304,19 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void putMutatorVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
                                    ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MutatorBlock.STATE, MutatorVisualState.IDLE)
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
                 .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MutatorBlock.STATE, MutatorVisualState.RUNNING)
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MutatorBlock.STATE, MutatorVisualState.RECOVERING)
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
-    // Same shape as renderKilnBlockState -- 4 horizontal facings x 3 RenderFurnaceVisualState values, only the front
+    // Same shape as renderKilnBlockState -- 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face), only the front
     // (north-authored) face texture differs between the three models; skin_tank_end covers every other face.
     private void renderFurnaceBlockState(String skinTankEnd) {
         ModelFile idle = models().cube(ModBlocks.RENDER_FURNACE.getId().getPath(),
@@ -342,15 +341,19 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void putRenderFurnaceVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
                                          ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.STATE, RenderFurnaceVisualState.IDLE)
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
                 .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.STATE, RenderFurnaceVisualState.RUNNING)
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.STATE, RenderFurnaceVisualState.RECOVERING)
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
-    // Same shape as mutatorBlockState -- 4 horizontal facings x 3 RenderKilnVisualState values, only
+    // Same shape as mutatorBlockState -- 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face), only
     // the front (north-authored) face texture differs between the three models; skin_tank_end covers
     // every other face in all three.
     private void renderKilnBlockState(String skinTankEnd) {
@@ -376,15 +379,19 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void putRenderKilnVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
                                       ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(RenderKilnBlock.STATE, RenderKilnVisualState.IDLE)
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
                 .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(RenderKilnBlock.STATE, RenderKilnVisualState.RUNNING)
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(RenderKilnBlock.STATE, RenderKilnVisualState.RECOVERING)
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
-    // Mirrors mutatorBlockState -- 4 horizontal facings x 3 MasticatorVisualState values, only the
+    // Mirrors mutatorBlockState -- 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face), only the
     // front (north-authored) face texture differs between the three models; skin_tank_end covers
     // every other face in all three. masticator_face_on is a 2-frame animated texture (see its
     // .png.mcmeta) so the RUNNING model visibly pulses while the machine is actively crafting.
@@ -411,16 +418,20 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void putMasticatorVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
                                    ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MasticatorBlock.STATE, MasticatorVisualState.IDLE)
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
                 .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MasticatorBlock.STATE, MasticatorVisualState.RUNNING)
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MasticatorBlock.STATE, MasticatorVisualState.RECOVERING)
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
     // Mirrors masticatorBlockState/mutatorBlockState -- 4 horizontal facings x 3
-    // EffluentcerVisualState values, only the front (north-authored) face texture differs between
+    // MachineStatus values (3 face models for now), only the front (north-authored) face texture differs between
     // the three models; effluentcer_side covers the other 3 horizontal faces and skinTankEnd covers
     // top/bottom in all three.
     private void effluentcerBlockState(String skinTankEnd) {
@@ -446,16 +457,20 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void putEffluentcerVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
                                    ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.IDLE)
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
                 .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RUNNING)
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(EffluentcerBlock.STATE, EffluentcerVisualState.RECOVERING)
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
     // Mirrors effluentcerBlockState/masticatorBlockState -- 4 horizontal facings x 3
-    // MetastasizerVisualState values, only the front (north-authored) face texture differs between
+    // MachineStatus values (3 face models for now), only the front (north-authored) face texture differs between
     // the three models; metastasizer_side covers the other 3 horizontal faces and skinTankEnd
     // covers top/bottom in all three.
     private void metastasizerBlockState(String skinTankEnd) {
@@ -481,11 +496,15 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     private void putMetastasizerVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
                                    ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.IDLE)
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
                 .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.RUNNING)
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.RECOVERING)
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 

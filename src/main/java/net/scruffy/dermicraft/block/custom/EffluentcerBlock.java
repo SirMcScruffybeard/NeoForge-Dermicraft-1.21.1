@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -37,8 +36,6 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
 
     public static final MapCodec<EffluentcerBlock> CODEC = simpleCodec(EffluentcerBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    // Drives which face texture renders (idle / running / recovering-HP "error"); see EffluentcerVisualState.
-    public static final EnumProperty<EffluentcerVisualState> STATE = EnumProperty.create("state", EffluentcerVisualState.class);
 
     private final MachineTier tier;
 
@@ -54,7 +51,7 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(STATE, EffluentcerVisualState.IDLE)));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(MachineStatus.PROPERTY, MachineStatus.IDLE)));
     }
 
     @Override
@@ -86,7 +83,7 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, STATE);
+        builder.add(FACING, MachineStatus.PROPERTY);
         EvolutionBlockProperties.add(builder);
     }
 

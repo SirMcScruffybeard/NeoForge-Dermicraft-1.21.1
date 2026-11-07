@@ -14,7 +14,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidActionResult;
@@ -27,7 +26,6 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MutatorBlock;
-import net.scruffy.dermicraft.block.custom.MutatorVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -95,12 +93,6 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
     // store (the reagent tank keeps holding the real fluid the whole time), so switching modes or
     // swapping the input item can just reset it to 0 with nothing to refund.
     private int fillBudget = 0;
-
-    // Tracks whether the machine has bottomed out at 0 HP and not yet fully recovered -- fill is
-    // blocked for the whole "recovering from 0" window, not just while HP == 0 (see setMode/tickFill
-    // and the machine notes' HP-gated fill rule). Distinct from ordinary partial-HP recovery
-    // (health < maxHealth but never hit 0), which only slows fill rather than blocking it.
-    private boolean recoveringFromZero = false;
 
     // Which screen tab was last open -- same pattern as every other Module-tab machine, so
     // reopening the screen returns to the tab last viewed.
@@ -367,51 +359,30 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
     // FILL mode deliberately does NOT impersonate an active recipe to the base engine (an earlier
     // version overrode isRecipeValid() to return true in FILL mode, which also lied to the base
     // class's saveAdditional() guard -- `activeRecipe.id()` NPE on save). Instead, fill runs from
-    // the tickHealing() hook (see the visual-state section below), which the base tick() calls
+    // the tickHealing() hook (see tickHealing below), which the base tick() calls
     // unconditionally every cycle; in FILL mode activeRecipe simply stays null and the base
     // recipe branch idles honestly.
 
     @Override
     protected boolean hasCraftingInputs() {
-        if (mode == Mode.FILL) return hasFillCandidate(); // only reached via computeVisualState()
+        if (mode == Mode.FILL) return hasFillCandidate(); // only reached via isWorking()
         return hasInput() && hasEnoughReagent();
     }
 
     @Override
     protected boolean hasCraftingOutputRoom() {
-        if (mode == Mode.FILL) return true; // only reached via computeVisualState(); fill leaves the item in place if OUTPUT_SLOT is occupied
+        if (mode == Mode.FILL) return true; // only reached via isWorking(); fill leaves the item in place if OUTPUT_SLOT is occupied
         return hasOutputRoom();
     }
 
+    /** Mutate mode works like any recipe machine; Fill mode has no recipe for the base engine to track, so the machine
+     * counts as working while it has something to fill and room for it. Broken down (see {@link #isStarved()}) it does
+     * neither. */
     @Override
-    protected void damageMachine(int amount) {
-        super.damageMachine(amount);
-        if (isStarved()) recoveringFromZero = true;
+    protected boolean isWorking() {
+        return !isStarved() && hasCraftingInputs() && hasCraftingOutputRoom();
     }
 
-    @Override
-    protected void healMachine(int amount) {
-        super.healMachine(amount);
-        if (health >= maxHealth) recoveringFromZero = false;
-    }
-
-    // ---- Visual state (face texture) -------------------------------------------------------------
-    // tickHealing() is the one hook the base tick() calls unconditionally every cycle regardless of
-    // crafting state, so it doubles as the visual-state refresh point. Recovering (health < maxHealth)
-    // takes priority over Running -- a damaged machine signals distress even mid-cycle.
-    //
-    // Debounced: a new state must be observed for VISUAL_STATE_STABLE_CYCLES consecutive cycles
-    // (2 cycles = ~1s at CRAFT_TICKS=10) before the texture commits. Borderline conditions can
-    // otherwise strobe -- e.g. a hopper feeding the input every 8 ticks against the 10-tick cycle
-    // flaps RUNNING/IDLE -- and every commit is a setBlock (client update + chunk re-render), so
-    // flapping is also wasted churn. Matching the current state resets any pending change, so a
-    // one-cycle blip never flashes the face. Transient, deliberately not saved to NBT.
-
-    private static final int VISUAL_STATE_STABLE_CYCLES = 2;
-
-    @Nullable
-    private MutatorVisualState pendingVisualState = null;
-    private int pendingVisualCycles = 0;
     @Override
     protected boolean tickHealing(boolean fueled) {
         boolean healed = super.tickHealing(fueled);
@@ -422,44 +393,6 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
             tickFill(healed, fueled);
         }
         return healed;
-    }
-
-    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
-     * and is hurt again every cycle still shows as recovering. */
-    @Override
-    protected void onCycleEnd() {
-        updateVisualState();
-    }
-
-    private void updateVisualState() {
-        if (level == null) return;
-
-        MutatorVisualState computed = computeVisualState();
-        BlockState state = getBlockState();
-
-        if (state.getValue(MutatorBlock.STATE) == computed) {
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-            return;
-        }
-
-        if (pendingVisualState != computed) {
-            pendingVisualState = computed;
-            pendingVisualCycles = 1;
-            return;
-        }
-
-        if (++pendingVisualCycles >= VISUAL_STATE_STABLE_CYCLES) {
-            level.setBlock(worldPosition, state.setValue(MutatorBlock.STATE, computed), Block.UPDATE_CLIENTS);
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-        }
-    }
-
-    private MutatorVisualState computeVisualState() {
-        if (maxHealth > 0 && health < maxHealth) return MutatorVisualState.RECOVERING;
-        if (!isStarved() && hasCraftingInputs() && hasCraftingOutputRoom()) return MutatorVisualState.RUNNING;
-        return MutatorVisualState.IDLE;
     }
 
     // ---- Hazards ----------------------------------------------------------------------------------
@@ -615,7 +548,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
     // ---- Fill mode (generic capability operation -- no recipe system involved) -------------------
     //
     // Rate-limited (FILL_RATE mB/cycle, 0.1x while recovering from partial HP, blocked entirely at
-    // HP 0 or while recovering from a past 0 -- see damageMachine/healMachine and fillBlocked()).
+    // HP 0 or while recovering from a past 0 -- see the broken-down latch in MachineBaseBlockEntity and fillBlocked()).
     // Every container fills through the same budget flow: probe what a SINGLE unit of the input
     // stack would accept, accumulate a rate-equivalent "budget" across cycles until it covers that
     // amount, then complete the fill in one atomic action -- verify (simulate fill + simulate output
@@ -633,7 +566,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
     }
 
     private boolean fillBlocked() {
-        return isStarved() || recoveringFromZero || isEvolutionFlourishing(); // frozen during the flourish, like a recipe
+        return isStarved() || isEvolutionFlourishing(); // frozen during the flourish, like a recipe
     }
 
     private void tickFill(boolean healedThisCycle, boolean fueled) {
@@ -739,7 +672,6 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
         tag.putInt("requiredFluid", requiredFluid);
         tag.putInt("mode", mode.ordinal());
         tag.putInt("fillBudget", fillBudget);
-        tag.putBoolean("recoveringFromZero", recoveringFromZero);
         tag.putBoolean("module_tab_active", moduleTabActive);
     }
 
@@ -769,7 +701,6 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
         requiredFluid = tag.getInt("requiredFluid");
         mode = tag.getInt("mode") == Mode.FILL.ordinal() ? Mode.FILL : Mode.MUTATE;
         fillBudget = tag.getInt("fillBudget");
-        recoveringFromZero = tag.getBoolean("recoveringFromZero");
         moduleTabActive = tag.getBoolean("module_tab_active");
     }
 

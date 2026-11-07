@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -37,8 +36,6 @@ public class RenderKilnBlock extends ModBaseEntityBlock implements TieredMachine
 
     public static final MapCodec<RenderKilnBlock> CODEC = simpleCodec(RenderKilnBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    // Drives which face texture renders (idle / running / recovering-HP "error"); see RenderKilnVisualState.
-    public static final EnumProperty<RenderKilnVisualState> STATE = EnumProperty.create("state", RenderKilnVisualState.class);
 
     private final MachineTier tier;
 
@@ -54,7 +51,7 @@ public class RenderKilnBlock extends ModBaseEntityBlock implements TieredMachine
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(STATE, RenderKilnVisualState.IDLE)));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(MachineStatus.PROPERTY, MachineStatus.IDLE)));
     }
 
     @Override
@@ -86,7 +83,7 @@ public class RenderKilnBlock extends ModBaseEntityBlock implements TieredMachine
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, STATE);
+        builder.add(FACING, MachineStatus.PROPERTY);
         EvolutionBlockProperties.add(builder);
     }
 

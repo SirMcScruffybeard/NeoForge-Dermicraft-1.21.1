@@ -14,7 +14,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -23,7 +22,6 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.RenderKilnBlock;
-import net.scruffy.dermicraft.block.custom.RenderKilnVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.hazard.HazardProfile;
@@ -119,60 +117,6 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
         return INPUT_TANK;
     }
 
-    // ---- Visual state (face texture) --------------------------------------------------------
-    // tickHealing runs every cycle regardless of crafting state, so it doubles as the visual-state
-    // refresh point. Recovering (health < maxHealth) takes priority over Running -- a damaged
-    // machine signals distress even mid-cycle. Mirrors MasticatorBlockEntity/MutatorBlockEntity's
-    // identical mechanism.
-    //
-    // Debounced: a new state must be observed for VISUAL_STATE_STABLE_CYCLES consecutive cycles
-    // before the texture commits, avoiding strobing from a borderline condition flapping every cycle.
-    private static final int VISUAL_STATE_STABLE_CYCLES = 2;
-
-    @Nullable
-    private RenderKilnVisualState pendingVisualState = null;
-    private int pendingVisualCycles = 0;
-
-
-    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
-     * and is hurt again every cycle still shows as recovering. */
-    @Override
-    protected void onCycleEnd() {
-        updateVisualState();
-    }
-
-    private void updateVisualState() {
-        if (level == null) return;
-
-        RenderKilnVisualState computed = computeVisualState();
-        BlockState state = getBlockState();
-
-        if (state.getValue(RenderKilnBlock.STATE) == computed) {
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-            return;
-        }
-
-        if (pendingVisualState != computed) {
-            pendingVisualState = computed;
-            pendingVisualCycles = 1;
-            return;
-        }
-
-        if (++pendingVisualCycles >= VISUAL_STATE_STABLE_CYCLES) {
-            level.setBlock(worldPosition, state.setValue(RenderKilnBlock.STATE, computed), Block.UPDATE_CLIENTS);
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-        }
-    }
-
-    private RenderKilnVisualState computeVisualState() {
-        if (maxHealth > 0 && health < maxHealth) return RenderKilnVisualState.RECOVERING;
-        if (!isStarved() && isRecipeValid(activeRecipe) && hasCraftingInputs() && hasCraftingOutputRoom()) {
-            return RenderKilnVisualState.RUNNING;
-        }
-        return RenderKilnVisualState.IDLE;
-    }
 
     // ---- Hazards ----------------------------------------------------------------------------------
 

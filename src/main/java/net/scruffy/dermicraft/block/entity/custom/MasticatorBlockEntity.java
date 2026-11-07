@@ -19,7 +19,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -28,7 +27,6 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MasticatorBlock;
-import net.scruffy.dermicraft.block.custom.MasticatorVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -127,67 +125,6 @@ public class MasticatorBlockEntity extends AbstractFueledMachineBlockEntity<Mast
     @Override
     protected RecipeType<MasticatingRecipe> getRecipeType() {
         return ModRecipes.MASTICATING_TYPE.get();
-    }
-
-    // ---- Visual state (face texture) --------------------------------------------------------
-    // tickHealing runs every cycle regardless of crafting state, so it doubles as the visual-state
-    // refresh point. Recovering (health < maxHealth) takes priority over Running -- a damaged
-    // machine signals distress even mid-cycle. Mirrors MutatorBlockEntity's identical mechanism.
-    //
-    // Debounced: a new state must be observed for VISUAL_STATE_STABLE_CYCLES consecutive cycles
-    // (2 cycles = ~1s at CRAFT_TICKS=10) before the texture commits. Borderline conditions can
-    // otherwise strobe -- e.g. a hopper feeding the ingredient slot every 8 ticks against the
-    // 10-tick cycle flaps RUNNING/IDLE -- and every commit is a setBlock (client update + chunk
-    // re-render), so flapping is also wasted churn. Matching the current state resets any pending
-    // change, so a one-cycle blip never flashes the face. Transient, deliberately not saved to NBT.
-    private static final int VISUAL_STATE_STABLE_CYCLES = 2;
-
-    @Nullable
-    private MasticatorVisualState pendingVisualState = null;
-    private int pendingVisualCycles = 0;
-
-    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
-     * and is hurt again every cycle still shows as recovering. */
-    @Override
-    protected void onCycleEnd() {
-        updateVisualState();
-    }
-
-    private void updateVisualState() {
-        if (level == null) return;
-
-        MasticatorVisualState computed = computeVisualState();
-        BlockState state = getBlockState();
-
-        if (state.getValue(MasticatorBlock.STATE) == computed) {
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-            return;
-        }
-
-        if (pendingVisualState != computed) {
-            pendingVisualState = computed;
-            pendingVisualCycles = 1;
-            return;
-        }
-
-        if (++pendingVisualCycles >= VISUAL_STATE_STABLE_CYCLES) {
-            level.setBlock(worldPosition, state.setValue(MasticatorBlock.STATE, computed), Block.UPDATE_CLIENTS);
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-        }
-    }
-
-    private MasticatorVisualState computeVisualState() {
-        if (maxHealth > 0 && health < maxHealth) return MasticatorVisualState.RECOVERING;
-        // hasCraftingInputs()/hasCraftingOutputRoom() are vacuously true while idle (resultAmount
-        // defaults to 0, so hasEnoughFluid(0)/hasRoom(0) are trivially satisfied) -- isRecipeValid
-        // is the real "is there actually something to craft" signal, matching the base tick()'s
-        // own crafting gate.
-        if (!isStarved() && isRecipeValid(activeRecipe) && hasCraftingInputs() && hasCraftingOutputRoom()) {
-            return MasticatorVisualState.RUNNING;
-        }
-        return MasticatorVisualState.IDLE;
     }
 
     /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler} literally. */

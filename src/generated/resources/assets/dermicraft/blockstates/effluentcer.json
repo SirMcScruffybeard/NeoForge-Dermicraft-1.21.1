@@ -1,47 +1,77 @@
 {
   "variants": {
-    "facing=east,state=idle": {
-      "model": "dermicraft:block/effluentcer",
-      "y": 90
-    },
-    "facing=east,state=recovering": {
+    "facing=east,status=broken_down": {
       "model": "dermicraft:block/effluentcer_error",
       "y": 90
     },
-    "facing=east,state=running": {
+    "facing=east,status=idle": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 90
+    },
+    "facing=east,status=running": {
       "model": "dermicraft:block/effluentcer_on",
       "y": 90
     },
-    "facing=north,state=idle": {
-      "model": "dermicraft:block/effluentcer"
+    "facing=east,status=strained_idle": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 90
     },
-    "facing=north,state=recovering": {
+    "facing=east,status=strained_running": {
+      "model": "dermicraft:block/effluentcer_on",
+      "y": 90
+    },
+    "facing=north,status=broken_down": {
       "model": "dermicraft:block/effluentcer_error"
     },
-    "facing=north,state=running": {
+    "facing=north,status=idle": {
+      "model": "dermicraft:block/effluentcer"
+    },
+    "facing=north,status=running": {
       "model": "dermicraft:block/effluentcer_on"
     },
-    "facing=south,state=idle": {
-      "model": "dermicraft:block/effluentcer",
-      "y": 180
+    "facing=north,status=strained_idle": {
+      "model": "dermicraft:block/effluentcer"
     },
-    "facing=south,state=recovering": {
+    "facing=north,status=strained_running": {
+      "model": "dermicraft:block/effluentcer_on"
+    },
+    "facing=south,status=broken_down": {
       "model": "dermicraft:block/effluentcer_error",
       "y": 180
     },
-    "facing=south,state=running": {
+    "facing=south,status=idle": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 180
+    },
+    "facing=south,status=running": {
       "model": "dermicraft:block/effluentcer_on",
       "y": 180
     },
-    "facing=west,state=idle": {
+    "facing=south,status=strained_idle": {
       "model": "dermicraft:block/effluentcer",
-      "y": 270
+      "y": 180
     },
-    "facing=west,state=recovering": {
+    "facing=south,status=strained_running": {
+      "model": "dermicraft:block/effluentcer_on",
+      "y": 180
+    },
+    "facing=west,status=broken_down": {
       "model": "dermicraft:block/effluentcer_error",
       "y": 270
     },
-    "facing=west,state=running": {
+    "facing=west,status=idle": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 270
+    },
+    "facing=west,status=running": {
+      "model": "dermicraft:block/effluentcer_on",
+      "y": 270
+    },
+    "facing=west,status=strained_idle": {
+      "model": "dermicraft:block/effluentcer",
+      "y": 270
+    },
+    "facing=west,status=strained_running": {
       "model": "dermicraft:block/effluentcer_on",
       "y": 270
     }

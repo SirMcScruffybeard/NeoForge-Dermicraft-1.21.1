@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -38,8 +37,6 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
 
     public static final MapCodec<MetastasizerBlock> CODEC = simpleCodec(MetastasizerBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    // Drives which face texture renders (idle / running / recovering-HP "error"); see MetastasizerVisualState.
-    public static final EnumProperty<MetastasizerVisualState> STATE = EnumProperty.create("state", MetastasizerVisualState.class);
 
     private final MachineTier tier;
 
@@ -55,7 +52,7 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(STATE, MetastasizerVisualState.IDLE)));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(MachineStatus.PROPERTY, MachineStatus.IDLE)));
     }
 
     @Override
@@ -87,7 +84,7 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, STATE);
+        builder.add(FACING, MachineStatus.PROPERTY);
         EvolutionBlockProperties.add(builder);
     }
 

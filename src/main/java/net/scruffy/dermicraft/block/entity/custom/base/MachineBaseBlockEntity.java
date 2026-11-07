@@ -38,6 +38,9 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
     // Health mechanic is opt-in: maxHealth stays 0 (disabled) unless a subclass sets it.
     protected int health = 0;
     protected int maxHealth = 0;
+    /** Latched when health reaches 0 and cleared only when it is full again, so a machine that has broken down stays
+     * down while it heals instead of resuming at 1 HP. Saved with the health (see AbstractFueledMachineBlockEntity). */
+    protected boolean brokenDown = false;
 
     // Auto-drain toggle -- mirrors CrawBlockEntity's own item auto-push toggle, but for the fluid
     // side and hoisted here since every machine with an output tank that pushes to its neighbour
@@ -486,14 +489,24 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
 
     protected void damageMachine(int amount) {
         health = Math.max(0, health - amount);
+        if (maxHealth > 0 && health <= 0) brokenDown = true;
     }
 
     protected void healMachine(int amount) {
         health = Math.min(maxHealth, health + amount);
+        if (health >= maxHealth) brokenDown = false;
     }
 
+    /** Whether the machine is broken down: its health reached 0 and it has not yet healed back to full. A broken-down
+     * machine does not work (see {@link #isStarved()}) and shows the BROKEN_DOWN status. */
+    public boolean isBrokenDown() {
+        return brokenDown;
+    }
+
+    /** Whether the machine cannot work for lack of health: broken down, which starts at 0 health and lasts until the
+     * machine is full again. (Named for the old "starved" rule, where only 0 health stopped work.) */
     protected boolean isStarved() {
-        return maxHealth > 0 && health <= 0;
+        return maxHealth > 0 && (health <= 0 || brokenDown);
     }
 
     public int getHealth() {

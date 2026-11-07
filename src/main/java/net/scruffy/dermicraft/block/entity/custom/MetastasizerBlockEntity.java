@@ -14,7 +14,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -23,7 +22,6 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.MetastasizerBlock;
-import net.scruffy.dermicraft.block.custom.MetastasizerVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -115,34 +113,6 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
         return ModRecipes.METASTASIZING_TYPE.get();
     }
 
-    // ---- Visual state (face texture) --------------------------------------------------------
-    // tickHealing runs every cycle regardless of crafting state, so it doubles as the visual-state
-    // refresh point. Recovering (health < maxHealth) takes priority over Running -- a damaged
-    // machine signals distress even mid-cycle. Mirrors MutatorBlockEntity/MasticatorBlockEntity/
-    // EffluentcerBlockEntity's identical mechanism.
-    //
-    // Debounced: a new state must be observed for VISUAL_STATE_STABLE_CYCLES consecutive cycles
-    // (2 cycles = ~1s at CRAFT_TICKS=10) before the texture commits, to avoid flicker on borderline
-    // conditions; every commit is a setBlock (client update + chunk re-render), so flapping is also
-    // wasted churn. Transient, deliberately not saved to NBT.
-    //
-    // Unlike the Masticator/Effluentcer, hasCraftingOutputRoom() (hasOutputRoom()) already gates on
-    // cachedResult being non-empty, which is only populated by a genuinely resolved recipe -- so it
-    // isn't vacuously true while idle. The isRecipeValid check is kept anyway for defensive
-    // consistency with the other machines' visual-state hooks.
-    private static final int VISUAL_STATE_STABLE_CYCLES = 2;
-
-    @Nullable
-    private MetastasizerVisualState pendingVisualState = null;
-    private int pendingVisualCycles = 0;
-
-    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
-     * and is hurt again every cycle still shows as recovering. */
-    @Override
-    protected void onCycleEnd() {
-        updateVisualState();
-    }
-
     /** The hazards that matter when the Metastasizer processes: the reagent fluid it consumes (its output is an item,
      * and the fuel does not count). */
     @Override
@@ -208,39 +178,6 @@ public class MetastasizerBlockEntity extends AbstractFueledMachineBlockEntity<Me
     @Override
     public float getEvolutionProgressFraction() {
         return getGradualEvolutionFraction();
-    }
-
-    private void updateVisualState() {
-        if (level == null) return;
-
-        MetastasizerVisualState computed = computeVisualState();
-        BlockState state = getBlockState();
-
-        if (state.getValue(MetastasizerBlock.STATE) == computed) {
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-            return;
-        }
-
-        if (pendingVisualState != computed) {
-            pendingVisualState = computed;
-            pendingVisualCycles = 1;
-            return;
-        }
-
-        if (++pendingVisualCycles >= VISUAL_STATE_STABLE_CYCLES) {
-            level.setBlock(worldPosition, state.setValue(MetastasizerBlock.STATE, computed), Block.UPDATE_CLIENTS);
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-        }
-    }
-
-    private MetastasizerVisualState computeVisualState() {
-        if (maxHealth > 0 && health < maxHealth) return MetastasizerVisualState.RECOVERING;
-        if (!isStarved() && isRecipeValid(activeRecipe) && hasCraftingInputs() && hasCraftingOutputRoom()) {
-            return MetastasizerVisualState.RUNNING;
-        }
-        return MetastasizerVisualState.IDLE;
     }
 
     public ModFluidTank getReagentTank() {

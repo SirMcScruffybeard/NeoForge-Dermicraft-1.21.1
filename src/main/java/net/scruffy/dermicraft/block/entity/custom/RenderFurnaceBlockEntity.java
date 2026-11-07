@@ -16,7 +16,6 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -25,7 +24,6 @@ import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
-import net.scruffy.dermicraft.block.custom.RenderFurnaceVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -311,57 +309,6 @@ public class RenderFurnaceBlockEntity extends AbstractFueledMachineBlockEntity<S
     @Override
     protected void onRecipeResolved(RecipeHolder<SmeltingRecipe> recipe) {
         this.cachedResult = recipe.value().assemble(currentInput(), registryAccessOrNull());
-    }
-
-    // ---- Visual state (face texture) --------------------------------------------------------
-    // Read at the end of every cycle (see onCycleEnd). Recovering (health < maxHealth) takes priority over Running --
-    // a damaged machine signals distress even mid-cycle. Debounced: a new state must be observed for
-    // VISUAL_STATE_STABLE_CYCLES consecutive cycles before the texture commits, so a borderline condition cannot
-    // strobe the face. Transient, deliberately not saved to NBT. Mirrors RenderKilnBlockEntity's identical mechanism.
-    private static final int VISUAL_STATE_STABLE_CYCLES = 2;
-
-    @Nullable
-    private RenderFurnaceVisualState pendingVisualState = null;
-    private int pendingVisualCycles = 0;
-
-    /** The face texture is read at the end of the cycle, after progress and any damage, so a machine that heals and is
-     * hurt again every cycle still shows as recovering. */
-    @Override
-    protected void onCycleEnd() {
-        updateVisualState();
-    }
-
-    private void updateVisualState() {
-        if (level == null) return;
-
-        RenderFurnaceVisualState computed = computeVisualState();
-        BlockState state = getBlockState();
-
-        if (state.getValue(RenderFurnaceBlock.STATE) == computed) {
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-            return;
-        }
-
-        if (pendingVisualState != computed) {
-            pendingVisualState = computed;
-            pendingVisualCycles = 1;
-            return;
-        }
-
-        if (++pendingVisualCycles >= VISUAL_STATE_STABLE_CYCLES) {
-            level.setBlock(worldPosition, state.setValue(RenderFurnaceBlock.STATE, computed), Block.UPDATE_CLIENTS);
-            pendingVisualState = null;
-            pendingVisualCycles = 0;
-        }
-    }
-
-    private RenderFurnaceVisualState computeVisualState() {
-        if (maxHealth > 0 && health < maxHealth) return RenderFurnaceVisualState.RECOVERING;
-        if (!isStarved() && isRecipeValid(activeRecipe) && hasCraftingInputs() && hasCraftingOutputRoom()) {
-            return RenderFurnaceVisualState.RUNNING;
-        }
-        return RenderFurnaceVisualState.IDLE;
     }
 
     // ---- Modules ----------------------------------------------------------------------------------
