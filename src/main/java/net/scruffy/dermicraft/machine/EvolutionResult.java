@@ -26,4 +26,6 @@ public sealed interface EvolutionResult {
     String NO_FURTHER_LEVELS = "no_further_levels";
     /** An Overgrowth module for a level above the next one; the module for the next level must be used first. */
     String PREVIOUS_LEVEL_FIRST = "previous_level_first";
+    /** A hazard module on a machine that handles no hazards (the Drooling family), so a tolerance would protect nothing. */
+    String NO_HAZARDS = "no_hazards";
 }

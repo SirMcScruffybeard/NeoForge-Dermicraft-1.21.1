@@ -9,11 +9,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import net.neoforged.neoforge.registries.DeferredBlock;
-import net.scruffy.dermicraft.block.entity.custom.AbstractFueledMachineBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.base.EvolvingMachineBlockEntity;
 import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
 
 /**
- * The menu shared by every machine that has moved onto the evolution engine: two tabs (Main and Module), the general
+ * The menu shared by every machine that has moved onto the evolution engine (the fueled machines and the Drooling family): two tabs (Main and Module), the general
  * Module slots and the dedicated Evolution slot on the Module tab, and the readouts the screen draws (progress, HP,
  * auto-drain). A machine's menu adds its own Main-tab slots with {@link #addMainSlot}, then calls
  * {@link #addModuleTabSlots()}, sets its quick-move range and calls {@link #restoreActiveTab()}, in that order, so
@@ -21,7 +21,7 @@ import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
  *
  * @param <B> the machine's block entity
  */
-public abstract class AbstractEvolvingMachineMenu<B extends AbstractFueledMachineBlockEntity<?> & IModuleTabMachine>
+public abstract class AbstractEvolvingMachineMenu<B extends EvolvingMachineBlockEntity & IModuleTabMachine>
         extends AbstractModMenu {
 
     public static final int MAIN_TAB = 0;

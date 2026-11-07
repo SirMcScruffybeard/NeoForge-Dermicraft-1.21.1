@@ -24,10 +24,12 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.custom.DroolingMachineBlock;
-import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.base.EvolvingMachineBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
+import net.scruffy.dermicraft.machine.SimpleMachineStats;
 import net.scruffy.dermicraft.interfaces.IVagueRecipe;
 import net.scruffy.dermicraft.tank.DroolingTank;
 import net.scruffy.dermicraft.util.ModMath;
@@ -60,7 +62,7 @@ import java.util.Optional;
  * straight into the new instance without a subclass-specific key mapping layer.
  */
 public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeInput> & IVagueRecipe>
-        extends MachineBaseBlockEntity implements IHaveInventory, IHasChannels, net.scruffy.dermicraft.interfaces.IHaveModules {
+        extends EvolvingMachineBlockEntity implements IHaveInventory, IHasChannels, net.scruffy.dermicraft.interfaces.IHaveModules, IModuleTabMachine {
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
@@ -74,7 +76,8 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     /** Dedicated Module-only handler, not part of INVENTORY above -- see
      * {@code MachineBaseBlockEntity#createModuleInventory}. */
-    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount());
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
+            stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES) && !isEvolutionModule(stack));
 
     protected final DroolingTank TANK;
 
@@ -89,10 +92,17 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     // isModuleTabActive/setModuleTabActive, so reopening the screen returns to the tab last viewed.
     private boolean moduleTabActive = false;
 
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    @Override
     public boolean isModuleTabActive() {
         return moduleTabActive;
     }
 
+    @Override
     public void setModuleTabActive(boolean active) {
         this.moduleTabActive = active;
     }
@@ -119,15 +129,43 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
      * raw game tick). A hook rather than a constant specifically so a machine mid-evolution can
      * return a reduced rate and switch to full rate once evolution completes, per
      * dermicraft-machine-notes.md's Evolution Module design. */
-    protected abstract int passiveYieldAmount();
+    protected abstract int basePassiveYield();
 
-    /** {@link #TANK}'s capacity. Called from the constructor, before any subclass field is
-     * initialized -- MUST be a literal/constant expression, not something reading subclass state. */
-    protected abstract int tankCapacity();
+    /** mB added per passive-generation cycle: the machine's base yield scaled by its tier's production multiplier (the
+     * same stat-table speed the fueled machines use), at least 1. */
+    protected int passiveYieldAmount() {
+        return Math.max(1, Math.round(basePassiveYield() * getTierSpeedMultiplier()));
+    }
+
+    /** The tier's production multiplier from the stat table (with this machine's own config overrides). */
+    protected float getTierSpeedMultiplier() {
+        return SimpleMachineStats.getSpeedMultiplier(getStatKey(), getEvolutionState());
+    }
+
+    /** {@link #TANK}'s capacity before any Capacity Module, from the tier's stat table. Called from the constructor,
+     * before any subclass field is initialized, so it may only read what {@link #getStatKey()} and the evolution state
+     * give it, never subclass fields. */
+    protected int tankCapacity() {
+        return SimpleMachineStats.getTankCapacityMb(getStatKey(), getEvolutionState());
+    }
 
     /** This machine's own food-boost recipe type -- see the class javadoc for why this can't be
      * shared across Drooling machines. */
     protected abstract RecipeType<R> recipeType();
+
+    @Override
+    protected boolean usesEvolutionState() {
+        return true;
+    }
+
+    /** Re-reads what a new evolution state changes: the Module slots and the tank size. Passive yield and craft speed are
+     * read from the tier live, so they need nothing here. */
+    @Override
+    protected void onEvolutionStateChanged() {
+        super.onEvolutionStateChanged();
+        resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
+        applyCapacityBonus();
+    }
 
     /** Called first thing every server tick, before anything else in {@link #tick} touches this
      * instance. Return {@code true} to skip the rest of this tick entirely -- for a subclass that
@@ -291,6 +329,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     public void drops() {
         dropItems(level, INVENTORY, worldPosition);
         dropItems(level, MODULE_INVENTORY, worldPosition);
+        dropItems(level, EVOLUTION_INVENTORY, worldPosition);
     }
 
     public ItemStack insertItemStack(ItemStack stack) {
@@ -326,9 +365,14 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
         //////////Every Second (20 ticks)\\\\\\\\\\
         if (ModMath.Time.hasTicksPassed(level, ModMath.Time.getSecondsToTicks(1))) {
-            FluidStack offer = new FluidStack(currentTargetFluid(), passiveYieldAmount());
-            int filled = TANK.hasRoom(offer) ? TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE) : 0;
-            onPassiveFillResult(filled);
+            tickGradualFlourish(); // one step a second, so the flourish plays for 4 seconds
+            if (!isEvolutionFlourishing()) {
+                FluidStack offer = new FluidStack(currentTargetFluid(), passiveYieldAmount());
+                int filled = TANK.hasRoom(offer) ? TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE) : 0;
+                onPassiveFillResult(filled);
+                // Real production, the same as a craft cycle for the fueled machines, counts toward evolution.
+                if (filled > 0) tickGradualProgress(ModMath.Time.getSecondsToTicks(1));
+            }
             setChanged();
             updateBlock();
         }
@@ -352,7 +396,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
             // Masticator's own "won't even attempt it" convention) rather than the old
             // amount-only TANK.hasRoom check, which said yes even when the fluid didn't match.
             FluidStack offer = new FluidStack(currentTargetFluid(), resultAmount);
-            boolean canComplete = isMaxProgressValid() && hasIngredients()
+            boolean canComplete = isMaxProgressValid() && hasIngredients() && !isEvolutionFlourishing()
                     && TANK.fill(offer, IFluidHandler.FluidAction.SIMULATE) >= offer.getAmount();
 
             if (canComplete) {
@@ -424,7 +468,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     }
 
     private void incrementProgress() {
-        progress += Math.max(1, Math.round(CRAFT_TICKS * workSpeedMultiplier()));
+        progress += Math.max(1, Math.round(CRAFT_TICKS * workSpeedMultiplier() * getTierSpeedMultiplier()));
     }
 
     @Override

@@ -15,25 +15,19 @@ import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingGeodeRecipe;
 import net.scruffy.dermicraft.screen.custom.drooling_geode.DroolingGeodeMenu;
-import net.scruffy.dermicraft.tank.ModFluidTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Drooling Geode -- Stone Blend, per {@link #currentTargetFluid} below. Everything else lives on
- * {@link DroolingMachineBlockEntity}, the shared Drooling-family base this,
- * {@link DroolingCauldronBlockEntity}, and {@link DroolingCrucibleBlockEntity} all extend.
+ * {@link DroolingMachineBlockEntity}, the shared Drooling-family base the Cauldron, Crucible and Geode all extend.
  *
- * <p>Standalone Stage 1 machine, same tier as Drooling Cauldron (same Early Implant recipe shape,
- * a vanilla Cauldron plus a seed Stone block) -- no evolution mechanic, matching Crucible's own
- * simplicity rather than Cauldron's Evolution Module complexity. Passive rate and tank capacity
- * match Cauldron's own numbers exactly, since Stone Blend isn't meant to outperform mining plus a
- * real Masticator -- this is a convenience trickle, not a power play (see the design discussion).
+ * <p>Evolves in place like the fueled machines: an Evolution Module in its Evolution slot raises its tier after
+ * enough seconds of real production, which scales its passive yield and craft speed (the stat table's production
+ * multiplier), its tank, and its Module slots. It handles no hazards, so tolerances do not apply to it.
  */
 public class DroolingGeodeBlockEntity extends DroolingMachineBlockEntity<VagueDroolingGeodeRecipe> implements MenuProvider {
 
-    /** Same 5 buckets Cauldron's own tank uses -- same tier, same convenience-not-power framing. */
-    public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 5;
     /** Same 4 mB/s Cauldron's own water always produces. */
     public static final int PASSIVE_YIELD = 4;
 
@@ -47,13 +41,13 @@ public class DroolingGeodeBlockEntity extends DroolingMachineBlockEntity<VagueDr
     }
 
     @Override
-    protected int passiveYieldAmount() {
-        return PASSIVE_YIELD;
+    protected net.scruffy.dermicraft.machine.MachineStatKey getStatKey() {
+        return net.scruffy.dermicraft.machine.MachineStatKey.DROOLING_GEODE;
     }
 
     @Override
-    protected int tankCapacity() {
-        return CAPACITY;
+    protected int basePassiveYield() {
+        return PASSIVE_YIELD;
     }
 
     @Override

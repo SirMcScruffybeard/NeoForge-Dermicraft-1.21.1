@@ -150,19 +150,21 @@ public final class StatConfig {
         BUILDER.pop();
         // Per-machine overrides. Every value starts empty (lists) or -1 (numbers), which means "use the shared value
         // above", so a server owner writes only what they want to change for that machine.
+        // A machine's section only has the keys that mean something to it (see MachineStatKey), so the Drooling family's
+        // sections leave out fuel use, max health and the hazard times.
         BUILDER.comment("Per-machine overrides of the shared values above. Leave a list empty (or a number at -1) to use the shared value.")
                 .push("machines");
         for (MachineStatKey machine : MachineStatKey.values()) {
             BUILDER.push(machine.getSectionName());
             MACHINE_SECTIONS.put(machine, new MachineSection(
                     overrideList("speedMultiplier", "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
-                    overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4"),
-                    overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4"),
+                    machine.usesFuelAndHealth() ? overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4") : null,
+                    machine.usesFuelAndHealth() ? overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4") : null,
                     overrideList("tankCapacityMb", "Capacity of each tank, in millibuckets, per tier.", 1, 100000000, TIERS, "L1 to L4"),
                     overrideList("generalModuleSlots", "General Module slots per tier (0 to 4).", 0, 4, TIERS, "L1 to L4"),
                     overrideList("tierSeconds", "Seconds of production an Evolution Module takes to raise the tier.", 1, 10000000, 3, "L2, L3, L4"),
-                    overrideNumber("hazardNewSeconds", "Seconds to add a hazard family the machine does not hold yet.", 10000000),
-                    overrideNumber("hazardUpgradeSeconds", "Seconds to raise a held hazard family from Mild to Severe.", 10000000),
+                    machine.handlesHazards() ? overrideNumber("hazardNewSeconds", "Seconds to add a hazard family the machine does not hold yet.", 10000000) : null,
+                    machine.handlesHazards() ? overrideNumber("hazardUpgradeSeconds", "Seconds to raise a held hazard family from Mild to Severe.", 10000000) : null,
                     overrideNumber("overgrowthSeconds", "Seconds to reach Overgrowth level 1.", 10000000),
                     overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000)));
             BUILDER.pop();
@@ -268,6 +270,7 @@ public final class StatConfig {
 
     /** The list as a table, or null (use the shared table) if it is empty or not exactly {@code size} values. */
     private static double[] optionalTable(ModConfigSpec.ConfigValue<List<? extends Number>> value, int size) {
+        if (value == null) return null; // a key this machine's section does not have
         List<? extends Number> list = value.get();
         if (list.isEmpty()) return null;
         if (list.size() != size) {
@@ -290,6 +293,7 @@ public final class StatConfig {
 
     /** The number, or null (use the shared value) when it is negative. */
     private static Double optionalNumber(ModConfigSpec.DoubleValue value) {
+        if (value == null) return null; // a key this machine's section does not have
         double number = value.get();
         return number < 0 ? null : number;
     }

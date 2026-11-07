@@ -678,7 +678,7 @@ public class MutatorBlockEntity extends AbstractFueledMachineBlockEntity<Mutatin
         if (!healedThisCycle) useFuel(); // a cycle that already healed has already spent its fuel
         applyHazardPenalties();
         fillBudget += rate;
-        tickGradualProgress(); // Fill counts toward evolution like a craft does
+        tickGradualProgress(CRAFT_TICKS); // Fill counts toward evolution like a craft does
         setChanged();
         if (fillBudget < required) return;
         if (REAGENT_TANK.getFluidAmount() < required) return; // budget's ready, but the tank itself doesn't hold enough yet -- keep waiting

@@ -42,6 +42,9 @@ public final class EvolutionRules {
     }
 
     public static EvolutionResult evaluateHazard(@Nullable MachineStatKey machine, EvolutionStateData state, HazardFamily family, int level) {
+        if (machine != null && !machine.handlesHazards()) {
+            return new EvolutionResult.Blocked(EvolutionResult.NO_HAZARDS);
+        }
         if (family == null || level < 1 || level > family.getMaxLevel()) {
             return new EvolutionResult.Blocked(EvolutionResult.NO_FURTHER_LEVELS);
         }

@@ -72,15 +72,21 @@ public final class EvolutionPanel {
      * under the first Module slot with the label right before them; where the slot has to sit further right (the
      * Masticator's health bar takes the left edge) everything after it shifts right so nothing overlaps.
      */
-    public record Layout(int slotX, int tierX, int labelX, int hazardX) {
+    public record Layout(int slotX, int tierX, int labelX, int hazardX, boolean showTolerances) {
 
         /** The layout for an Evolution slot at {@code slotX}; needs the font to measure the label. */
         public static Layout of(Font font, int slotX) {
+            return of(font, slotX, true);
+        }
+
+        /** As {@link #of(Font, int)}, but a machine with no hazard concept (the Drooling family) passes false to show only
+         * the tier icon: no "Tolerances:" label, no hazard icons, no "None". */
+        public static Layout of(Font font, int slotX, boolean showTolerances) {
             int tierX = slotX + 1;
             int labelWidth = Math.round(font.width(Component.translatable("screen.dermicraft.evolution_panel.tolerances")) * TEXT_SCALE);
             int labelX = Math.max(tierX + ICON_SIZE + LABEL_GAP, HAZARD_ANCHOR_X - LABEL_GAP - labelWidth);
             int hazardX = Math.max(HAZARD_ANCHOR_X, labelX + labelWidth + LABEL_GAP);
-            return new Layout(slotX, tierX, labelX, hazardX);
+            return new Layout(slotX, tierX, labelX, hazardX, showTolerances);
         }
     }
 
@@ -109,7 +115,7 @@ public final class EvolutionPanel {
         }
 
         int column = 0;
-        for (HazardFamily family : HazardFamily.values()) {
+        for (HazardFamily family : layout.showTolerances() ? HazardFamily.values() : new HazardFamily[0]) {
             int permanent = state.level(family);
             int temporary = Math.max(getTemporaryLevel(modules, family), getEvolvingLevel(state, evolution, family));
             int level = Math.max(permanent, temporary);
@@ -179,10 +185,10 @@ public final class EvolutionPanel {
      * only cell is the tier cell (no hazard is tolerated), "None" is drawn after the label instead.
      */
     public static void render(GuiGraphics guiGraphics, Font font, int originX, int originY, Layout layout, List<Cell> cells) {
-        drawScaledText(guiGraphics, font, Component.translatable("screen.dermicraft.evolution_panel.tolerances"),
+        if (layout.showTolerances()) drawScaledText(guiGraphics, font, Component.translatable("screen.dermicraft.evolution_panel.tolerances"),
                 originX + layout.labelX(), originY + ROW_Y, LABEL_COLOR);
 
-        if (cells.size() <= 1) {
+        if (layout.showTolerances() && cells.size() <= 1) {
             drawScaledText(guiGraphics, font, Component.translatable("screen.dermicraft.evolution_panel.none"),
                     originX + layout.hazardX(), originY + ROW_Y, NONE_COLOR);
         }

@@ -15,27 +15,19 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
-import net.scruffy.dermicraft.tank.ModFluidTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Drooling Cauldron -- water, per {@link #currentTargetFluid} below. Everything else lives on
- * {@link DroolingMachineBlockEntity}, the shared Drooling-family base this,
- * {@link DroolingCrucibleBlockEntity}, and {@link DroolingGeodeBlockEntity} all extend.
+ * {@link DroolingMachineBlockEntity}, the shared Drooling-family base the Cauldron, Crucible and Geode all extend.
  *
- * <p>Standalone Tier 1 machine -- same simplicity as Crucible/Geode, a fixed single target fluid
- * with no Module-driven behavior. Previously had a Cauldron-evolves-into-Crucible mechanic
- * (Evolution Module in the Module slot both switched the target fluid and slowly transformed this
- * block into a {@link DroolingCrucibleBlockEntity} in place); removed 2026-09-21 in favor of
- * Crucible being its own standalone alternate path (its own Early Implant recipe now), the same
- * relationship Cauldron already has with Geode. A future Drooling-family evolution mechanic is
- * planned to increase production/add Module slots instead of changing what's produced -- not this.
+ * <p>Evolves in place like the fueled machines: an Evolution Module in its Evolution slot raises its tier after
+ * enough seconds of real production, which scales its passive yield and craft speed (the stat table's production
+ * multiplier), its tank, and its Module slots. It handles no hazards, so tolerances do not apply to it.
  */
 public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<VagueDroolingRecipe> implements MenuProvider {
 
-    /** Same 5 buckets the original hardcoded-water version always had. */
-    public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 5;
     /** Same 4 mB/s the original hardcoded-water version always had. */
     public static final int PASSIVE_YIELD = 4;
 
@@ -49,13 +41,13 @@ public class DroolingCauldronBlockEntity extends DroolingMachineBlockEntity<Vagu
     }
 
     @Override
-    protected int passiveYieldAmount() {
-        return PASSIVE_YIELD;
+    protected net.scruffy.dermicraft.machine.MachineStatKey getStatKey() {
+        return net.scruffy.dermicraft.machine.MachineStatKey.DROOLING_CAULDRON;
     }
 
     @Override
-    protected int tankCapacity() {
-        return CAPACITY;
+    protected int basePassiveYield() {
+        return PASSIVE_YIELD;
     }
 
     @Override

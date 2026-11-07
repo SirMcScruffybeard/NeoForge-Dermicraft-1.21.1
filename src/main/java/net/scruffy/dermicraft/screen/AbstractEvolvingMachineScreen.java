@@ -101,7 +101,7 @@ public abstract class AbstractEvolvingMachineScreen<M extends AbstractEvolvingMa
     @Override
     protected void init() {
         super.init();
-        panelLayout = EvolutionPanel.Layout.of(font, AbstractEvolvingMachineMenu.EVOLUTION_SLOT_X);
+        panelLayout = EvolutionPanel.Layout.of(font, AbstractEvolvingMachineMenu.EVOLUTION_SLOT_X, showsTolerances());
         tabs = List.of(
                 new Tab(Component.translatable("screen.dermicraft." + screenName + ".main_tab"), TAB_TEXT_COLOR),
                 new Tab(Component.translatable("screen.dermicraft." + screenName + ".module_tab"), TAB_TEXT_COLOR));
@@ -119,6 +119,12 @@ public abstract class AbstractEvolvingMachineScreen<M extends AbstractEvolvingMa
     protected abstract int getAutoDrainButtonX();
 
     protected abstract int getAutoDrainButtonY();
+
+    /** Whether the Module tab shows the hazard tolerances (the "Tolerances:" label and icons). A machine with no hazard
+     * concept, such as the Drooling family, returns false and shows only its tier. */
+    protected boolean showsTolerances() {
+        return true;
+    }
 
     /** A machine's own extra Main-tab buttons (the Mutator's mode toggle): handle a click and return true if it was
      * on one. {@code x/y} is the screen's top-left. Nothing by default. */
@@ -167,7 +173,8 @@ public abstract class AbstractEvolvingMachineScreen<M extends AbstractEvolvingMa
         }
 
         // The health bar stays interactive on both tabs: ambient status, not tied to either tab's content.
-        if (MouseUtil.isMouseOver(mouseX, mouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
+        if (menu.getMaxHealth() > 0
+                && MouseUtil.isMouseOver(mouseX, mouseY, x + HEALTH_BAR_X, y + HEALTH_BAR_Y, HP_BAR_WIDTH, HP_BAR_HEIGHT)) {
             int maxHealth = menu.getMaxHealth();
             int percent = maxHealth <= 0 ? 0 : Math.round(100f * menu.getHealth() / maxHealth);
             guiGraphics.renderTooltip(this.font, Component.literal("HP: " + percent + "%"), mouseX - x, mouseY - y);
@@ -254,6 +261,12 @@ public abstract class AbstractEvolvingMachineScreen<M extends AbstractEvolvingMa
     protected void renderItemSlot(GuiGraphics guiGraphics, int x, int y) {
         guiGraphics.blit(ITEM_SLOT_TEXTURE, x, y, 0, 0, ITEM_SLOT_SIZE, ITEM_SLOT_SIZE,
                 ITEM_SLOT_SIZE, ITEM_SLOT_SIZE);
+    }
+
+    /** The empty arrow track alone, with no progress fill. */
+    protected void renderArrowTrack(GuiGraphics guiGraphics, int arrowX, int arrowY) {
+        guiGraphics.blit(ARROW_BACKGROUND_TEXTURE, arrowX, arrowY, 0, 0, ARROW_WIDTH, ARROW_HEIGHT,
+                ARROW_WIDTH, ARROW_HEIGHT);
     }
 
     /** The crafting-progress arrow at the given absolute position; its textures carry a 1px transparent margin. */

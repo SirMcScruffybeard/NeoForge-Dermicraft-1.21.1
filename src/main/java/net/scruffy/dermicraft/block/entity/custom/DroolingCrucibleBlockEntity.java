@@ -15,27 +15,19 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
 import net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleMenu;
-import net.scruffy.dermicraft.tank.ModFluidTank;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Drooling Crucible -- lava, per {@link #currentTargetFluid} below. Everything else lives on
- * {@link DroolingMachineBlockEntity}, the shared Drooling-family base this and
- * {@link DroolingCauldronBlockEntity} both extend.
+ * {@link DroolingMachineBlockEntity}, the shared Drooling-family base the Cauldron, Crucible and Geode all extend.
  *
- * <p>Standalone Tier 2 machine for now -- see dermicraft-machine-notes.md's Drooling Cauldron
- * entry ("Evolution Module family"): the evolution-FROM-Cauldron path (Evolution Catalyst
- * injection, or the gradual Evolution Module) is separate, not-yet-built work. This class's own
- * base passive rate matches Cauldron's exactly (4 mB/s), per direction -- not because the two are
- * required to match forever, just the confirmed starting number.
+ * <p>Evolves in place like the fueled machines: an Evolution Module in its Evolution slot raises its tier after
+ * enough seconds of real production, which scales its passive yield and craft speed (the stat table's production
+ * multiplier), its tank, and its Module slots. It handles no hazards, so tolerances do not apply to it.
  */
 public class DroolingCrucibleBlockEntity extends DroolingMachineBlockEntity<VagueDroolingCrucibleRecipe> implements MenuProvider {
 
-    /** Double Cauldron's capacity -- Crucible is a Tier 2 evolution, whole-bucket capacity bump per
-     * the Charred family's own tier-2 convention (see {@code MachineTier.CHARRED}), even though this
-     * class doesn't go through {@code MachineTier} itself (the Drooling family predates it). */
-    public static final int CAPACITY = ModFluidTank.BUCKET_VOLUME * 10;
     /** Same rate as Cauldron's water, per direction. */
     public static final int PASSIVE_YIELD = 4;
 
@@ -49,13 +41,13 @@ public class DroolingCrucibleBlockEntity extends DroolingMachineBlockEntity<Vagu
     }
 
     @Override
-    protected int passiveYieldAmount() {
-        return PASSIVE_YIELD;
+    protected net.scruffy.dermicraft.machine.MachineStatKey getStatKey() {
+        return net.scruffy.dermicraft.machine.MachineStatKey.DROOLING_CRUCIBLE;
     }
 
     @Override
-    protected int tankCapacity() {
-        return CAPACITY;
+    protected int basePassiveYield() {
+        return PASSIVE_YIELD;
     }
 
     @Override
