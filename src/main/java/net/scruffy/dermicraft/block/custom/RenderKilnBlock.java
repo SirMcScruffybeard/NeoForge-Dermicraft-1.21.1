@@ -54,7 +54,7 @@ public class RenderKilnBlock extends ModBaseEntityBlock implements TieredMachine
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(this.stateDefinition.any().setValue(STATE, RenderKilnVisualState.IDLE));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(STATE, RenderKilnVisualState.IDLE)));
     }
 
     @Override
@@ -87,6 +87,7 @@ public class RenderKilnBlock extends ModBaseEntityBlock implements TieredMachine
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, STATE);
+        EvolutionBlockProperties.add(builder);
     }
 
     @Override

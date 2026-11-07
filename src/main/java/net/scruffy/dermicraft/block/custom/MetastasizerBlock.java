@@ -55,7 +55,7 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(this.stateDefinition.any().setValue(STATE, MetastasizerVisualState.IDLE));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(STATE, MetastasizerVisualState.IDLE)));
     }
 
     @Override
@@ -88,6 +88,7 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, STATE);
+        EvolutionBlockProperties.add(builder);
     }
 
     @Override

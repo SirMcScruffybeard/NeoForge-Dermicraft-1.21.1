@@ -177,6 +177,7 @@ public abstract class AbstractFueledMachineBlockEntity<R extends Recipe<?>> exte
 
     public final void tick(Level level) {
         if (level.isClientSide) return;
+        syncEvolutionBlockState();
 
         if (ModMath.Time.hasSecondsPassed(level, 5)) {
             drainOutputs(level);

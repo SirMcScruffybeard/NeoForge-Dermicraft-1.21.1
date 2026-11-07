@@ -53,6 +53,10 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
      * Nothing reads the tier from here yet -- stats still come from the block's {@code MachineTier}. */
     private EvolutionStateData evolutionState = EvolutionStateData.DEFAULT;
 
+    /** Set whenever the evolution state may have changed (a change, a load, a placed item's state) so the machine's next
+     * tick writes it into the block's properties. Starts set, so a freshly loaded machine syncs once. Not saved. */
+    private boolean evolutionBlockStateDirty = true;
+
     public MachineBaseBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
@@ -76,9 +80,26 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
     public void setEvolutionState(EvolutionStateData state) {
         if (state.equals(evolutionState)) return;
         evolutionState = state;
+        evolutionBlockStateDirty = true;
         onEvolutionStateChanged();
         setChanged();
         updateBlock();
+    }
+
+    /**
+     * Mirrors the evolution state into the block's {@link net.scruffy.dermicraft.block.custom.EvolutionBlockProperties}
+     * (tier and Overgrowth stage) so models can read it. A machine calls this from the top of its
+     * server tick; it does nothing unless the state changed or the machine just loaded, and a block without these
+     * properties is left alone. Done on a tick, not inside the load or the change itself, since changing the block
+     * state while a chunk is loading or mid-evolution is not safe.
+     */
+    protected final void syncEvolutionBlockState() {
+        if (!evolutionBlockStateDirty || level == null || level.isClientSide) return;
+        evolutionBlockStateDirty = false;
+
+        BlockState current = getBlockState();
+        BlockState wanted = net.scruffy.dermicraft.block.custom.EvolutionBlockProperties.apply(current, evolutionState);
+        if (wanted != current) level.setBlock(worldPosition, wanted, net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
     }
 
     protected void onEvolutionStateChanged(){
@@ -105,6 +126,7 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
                 ? EvolutionStateData.CODEC.parse(NbtOps.INSTANCE, tag.get(EVOLUTION_STATE_KEY))
                         .result().orElse(EvolutionStateData.DEFAULT)
                 : EvolutionStateData.DEFAULT;
+        evolutionBlockStateDirty = true;
         onEvolutionStateChanged();
     }
 
@@ -125,6 +147,7 @@ public abstract class MachineBaseBlockEntity extends BlockEntity{
     protected void applyImplicitComponents(DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
         evolutionState = componentInput.getOrDefault(ModDataComponentTypes.EVOLUTION_STATE.get(), EvolutionStateData.DEFAULT);
+        evolutionBlockStateDirty = true;
         onEvolutionStateChanged();
     }
 

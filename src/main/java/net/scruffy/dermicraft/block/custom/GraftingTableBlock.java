@@ -12,10 +12,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -44,11 +46,17 @@ public class GraftingTableBlock extends ModBaseEntityBlock implements TieredMach
     public GraftingTableBlock(Properties properties, MachineTier tier) {
         super(properties.noLootTable().ignitedByLava());
         this.tier = tier;
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any()));
     }
 
     @Override
     public MachineTier getTier() {
         return tier;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        EvolutionBlockProperties.add(builder);
     }
 
     @Override

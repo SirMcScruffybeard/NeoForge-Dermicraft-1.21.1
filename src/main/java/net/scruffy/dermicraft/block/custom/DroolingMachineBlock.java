@@ -56,7 +56,7 @@ public abstract class DroolingMachineBlock extends ModBaseEntityBlock {
                 .ignitedByLava()
                 .lightLevel(state -> state.getValue(LIGHT_LEVEL))
         );
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIGHT_LEVEL, 0));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(LIGHT_LEVEL, 0)));
     }
 
     @Override
@@ -77,6 +77,7 @@ public abstract class DroolingMachineBlock extends ModBaseEntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, LIGHT_LEVEL);
+        EvolutionBlockProperties.add(builder);
     }
 
     @NotNull

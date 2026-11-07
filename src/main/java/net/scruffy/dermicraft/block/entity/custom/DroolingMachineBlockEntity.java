@@ -338,6 +338,7 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
 
     public void tick(Level level) {
         if (level.isClientSide) return;
+        syncEvolutionBlockState();
 
         // Checked first, before anything else this tick touches `this` -- a subclass whose
         // evolution just completed (Drooling Cauldron) replaces the block here, which makes this

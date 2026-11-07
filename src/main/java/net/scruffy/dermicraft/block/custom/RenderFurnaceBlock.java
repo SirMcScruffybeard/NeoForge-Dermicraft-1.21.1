@@ -58,7 +58,7 @@ public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMach
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(this.stateDefinition.any().setValue(STATE, RenderFurnaceVisualState.IDLE));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(STATE, RenderFurnaceVisualState.IDLE)));
     }
 
     @Override
@@ -91,6 +91,7 @@ public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMach
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, STATE);
+        EvolutionBlockProperties.add(builder);
     }
 
     @Override

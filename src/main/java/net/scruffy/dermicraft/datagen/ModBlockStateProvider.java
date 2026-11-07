@@ -6,6 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -137,7 +138,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                         .end()
                         .renderType("translucent"));
 
-        horizontalBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
+        droolingBlock(ModBlocks.DROOLING_CAULDRON.get(), models().getExistingFile(ModBlocks.DROOLING_CAULDRON.getId()));
         // New model carries its own display transforms (2026-08-20) -- item model now parents
         // straight to the block model, same convention every other machine already uses (see
         // Masticator below), rather than the old hand-authored flat item/generated icon.
@@ -147,13 +148,13 @@ public class ModBlockStateProvider extends BlockStateProvider {
         // Shares Cauldron's geometry via model-level parenting (models/block/drooling_crucible.json
         // parents drooling_cauldron.json, only the texture differs) -- same convention as the item
         // model below.
-        horizontalBlock(ModBlocks.DROOLING_CRUCIBLE.get(), models().getExistingFile(ModBlocks.DROOLING_CRUCIBLE.getId()));
+        droolingBlock(ModBlocks.DROOLING_CRUCIBLE.get(), models().getExistingFile(ModBlocks.DROOLING_CRUCIBLE.getId()));
         itemModels().withExistingParent(ModBlocks.DROOLING_CRUCIBLE.getId().getPath(),
                 modLoc("block/" + ModBlocks.DROOLING_CRUCIBLE.getId().getPath()));
 
         // Same geometry-sharing convention as Crucible above (models/block/drooling_geode.json
         // parents drooling_cauldron.json, only the texture differs).
-        horizontalBlock(ModBlocks.DROOLING_GEODE.get(), models().getExistingFile(ModBlocks.DROOLING_GEODE.getId()));
+        droolingBlock(ModBlocks.DROOLING_GEODE.get(), models().getExistingFile(ModBlocks.DROOLING_GEODE.getId()));
         itemModels().withExistingParent(ModBlocks.DROOLING_GEODE.getId().getPath(),
                 modLoc("block/" + ModBlocks.DROOLING_GEODE.getId().getPath()));
 
@@ -486,6 +487,19 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(MetastasizerBlock.FACING, facing).with(MetastasizerBlock.STATE, MetastasizerVisualState.RECOVERING)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    }
+
+
+    /** The Drooling family's one model per facing, with the light level and the evolution properties left out of the
+     * generated keys so the blockstate file stays at four entries however many states the block has. */
+    private void droolingBlock(Block block, ModelFile model) {
+        getVariantBuilder(block).forAllStatesExcept(state -> ConfiguredModel.builder()
+                        .modelFile(model)
+                        .rotationY(((int) state.getValue(net.scruffy.dermicraft.block.custom.DroolingMachineBlock.FACING).toYRot() + 180) % 360)
+                        .build(),
+                net.scruffy.dermicraft.block.custom.DroolingMachineBlock.LIGHT_LEVEL,
+                net.scruffy.dermicraft.block.custom.EvolutionBlockProperties.TIER,
+                net.scruffy.dermicraft.block.custom.EvolutionBlockProperties.OVERGROWTH);
     }
 
     private void blockWithItem(DeferredBlock<Block> deferredBlock) {
