@@ -79,7 +79,7 @@ public final class StatConfig {
         // "Simple machine" means any single-block machine (as opposed to the Skin Tank, Craw and the like): the fueled
         // machines and the Drooling family both read these as their global values.
         BUILDER.push("simple_machine");
-        SIMPLE_MACHINE_SPEED = tierList("speedMultiplier", "Processing speed multiplier per tier.", StatDefaults.SIMPLE_MACHINE_SPEED, 0.1, 1000);
+        SIMPLE_MACHINE_SPEED = tierList("speedMultiplier", "Processing speed multiplier per tier. For the Drooling family it speeds up only the food-boost craft, never the no-input trickle (that is passiveYield).", StatDefaults.SIMPLE_MACHINE_SPEED, 0.1, 1000);
         SIMPLE_MACHINE_FUEL_USE = tierList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", StatDefaults.SIMPLE_MACHINE_FUEL_USE, 0.1, 1000);
         SIMPLE_MACHINE_MAX_HEALTH = tierList("maxHealth", "Maximum machine health per tier.", StatDefaults.SIMPLE_MACHINE_MAX_HEALTH, 1, 1000000);
         SIMPLE_MACHINE_TANK_CAPACITY_MB = tierList("tankCapacityMb", "Capacity of each tank, in millibuckets (1000 = 1 bucket), per tier.", StatDefaults.SIMPLE_MACHINE_TANK_CAPACITY_MB, 1, 100000000);
@@ -260,7 +260,7 @@ public final class StatConfig {
     /** One section of optional overrides (a family's or a machine's), with only the keys the flags say apply. */
     private static MachineSection buildSection(boolean usesFuelAndHealth, boolean handlesHazards, boolean usesPassiveYield) {
         return new MachineSection(
-                overrideList("speedMultiplier", "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
+                overrideList("speedMultiplier", usesPassiveYield ? "Craft speed multiplier per tier. For the food-boost craft only; the no-input trickle is passiveYield." : "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
                 usesFuelAndHealth ? overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4") : null,
                 usesFuelAndHealth ? overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4") : null,
                 overrideList("tankCapacityMb", "Capacity of each tank, in millibuckets, per tier.", 1, 100000000, TIERS, "L1 to L4"),
