@@ -26,10 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The Grafting Table: an automated, fuel-powered vanilla crafting table. Same "no HP, hard fuel
- * gate" philosophy as the Render Furnace (see {@link MachineTier#NO_HEALTH}) -- these two are a
- * deliberate matched pair. No FACING property: unlike every other machine, a 3x3 crafting grid has
- * no directional "front" to orient (vanilla's own crafting table doesn't rotate either), so
+ * The Grafting Table: an automated, fuel-powered vanilla crafting table, with the standard HP mechanic like every
+ * other fueled machine. No FACING property: unlike every other machine, a 3x3 crafting grid
+ * has no directional "front" to orient (vanilla's own crafting table doesn't rotate either), so
  * placement is unconditional and automation zoning is UP=fuel, DOWN=output, everything else=grid.
  */
 public class GraftingTableBlock extends ModBaseEntityBlock implements TieredMachine {
@@ -39,7 +38,7 @@ public class GraftingTableBlock extends ModBaseEntityBlock implements TieredMach
     private final MachineTier tier;
 
     public GraftingTableBlock(Properties properties) {
-        this(properties, MachineTier.NO_HEALTH);
+        this(properties, MachineTier.BASIC);
     }
 
     public GraftingTableBlock(Properties properties, MachineTier tier) {

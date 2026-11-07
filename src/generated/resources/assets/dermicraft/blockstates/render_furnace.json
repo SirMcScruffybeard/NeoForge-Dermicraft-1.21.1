@@ -1,32 +1,47 @@
 {
   "variants": {
-    "facing=east,lit=false": {
+    "facing=east,state=idle": {
       "model": "dermicraft:block/render_furnace",
       "y": 90
     },
-    "facing=east,lit=true": {
+    "facing=east,state=recovering": {
+      "model": "dermicraft:block/render_furnace_error",
+      "y": 90
+    },
+    "facing=east,state=running": {
       "model": "dermicraft:block/render_furnace_on",
       "y": 90
     },
-    "facing=north,lit=false": {
+    "facing=north,state=idle": {
       "model": "dermicraft:block/render_furnace"
     },
-    "facing=north,lit=true": {
+    "facing=north,state=recovering": {
+      "model": "dermicraft:block/render_furnace_error"
+    },
+    "facing=north,state=running": {
       "model": "dermicraft:block/render_furnace_on"
     },
-    "facing=south,lit=false": {
+    "facing=south,state=idle": {
       "model": "dermicraft:block/render_furnace",
       "y": 180
     },
-    "facing=south,lit=true": {
+    "facing=south,state=recovering": {
+      "model": "dermicraft:block/render_furnace_error",
+      "y": 180
+    },
+    "facing=south,state=running": {
       "model": "dermicraft:block/render_furnace_on",
       "y": 180
     },
-    "facing=west,lit=false": {
+    "facing=west,state=idle": {
       "model": "dermicraft:block/render_furnace",
       "y": 270
     },
-    "facing=west,lit=true": {
+    "facing=west,state=recovering": {
+      "model": "dermicraft:block/render_furnace_error",
+      "y": 270
+    },
+    "facing=west,state=running": {
       "model": "dermicraft:block/render_furnace_on",
       "y": 270
     }

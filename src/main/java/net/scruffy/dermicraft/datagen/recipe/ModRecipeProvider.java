@@ -327,7 +327,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Charred Tumor -- straight furnace/blast smelting of Inert Tumor, not a Mutator recipe.
         // Cook times mirror vanilla stone/cobblestone smelting (200/100 ticks); no XP, matching
-        // Charred Grafting Table's own "pure stat bump" convention rather than treating this as a
+        // the old Charred Machine convention of a flat stat bump rather than treating this as a
         // real ore-smelting payoff.
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModBlocks.INERT_TUMOR.get()), RecipeCategory.MISC,
                         ModBlocks.CHARRED_TUMOR.get(), 0.0f, ModMath.Time.getSecondsToTicks(10))
@@ -1161,12 +1161,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMutating(recipeOutput, "mutating_magma_block", Ingredient.of(Tags.Items.STONES),
                 Fluids.LAVA, 1000, new ItemStack(Items.MAGMA_BLOCK), solidTicks);
 
-        // Charred Grafting Table: pure stat-tier bump (see ModBlocks#CHARRED_GRAFTING_TABLE), same
-        // "whole block baked in Lava" shape as Magma Block above -- not an in-place Evolution
-        // Module transform like every other Charred machine, since this one has no Module slot at all.
-        RecipeBuilders.buildMutating(recipeOutput, "mutating_charred_grafting_table",
-                Ingredient.of(ModBlocks.GRAFTING_TABLE.get()),
-                Fluids.LAVA, 1000, new ItemStack(ModBlocks.CHARRED_GRAFTING_TABLE.get()), solidTicks);
 
         RecipeBuilders.PuddleCraft.MakeFluids.makeFromTag(recipeOutput, "crude_slurry_puddle", ModTags.Items.PLANT_FOOD, 4, Fluids.WATER,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModMath.Time.getSecondsToTicks(10));

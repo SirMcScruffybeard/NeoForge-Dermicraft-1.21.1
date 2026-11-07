@@ -21,10 +21,9 @@ public record MachineTier(int tankCapacity, int maxHealth, float speedMultiplier
 
     /** The baseline every current progenitor machine uses. Matches the old hard-coded values. */
     public static final MachineTier BASIC = new MachineTier(FluidType.BUCKET_VOLUME * 5, 200, 1.0f, 1.0f);
-
-    /** No HP mechanic at all -- the machine simply doesn't process without fuel, rather than limping
-     * along at reduced speed while taking damage. Used by the minor convenience machines (Render
-     * Furnace, Grafting Table) that deliberately skip the health system entirely. */
+    /** No HP mechanic at all -- the machine simply does not process without fuel. No machine uses it now (the Render
+     * Furnace and Grafting Table were the last, and both have health since 2026-11-07); kept for a future
+     * machine that wants to skip the health system. */
     public static final MachineTier NO_HEALTH = new MachineTier(FluidType.BUCKET_VOLUME * 5, 0, 1.0f, 1.0f);
 
     /** The Charred family's upgrade tier (Charred Masticator, and future Charred Metastasizer/
@@ -36,7 +35,7 @@ public record MachineTier(int tankCapacity, int maxHealth, float speedMultiplier
      * unchanged -- only speed and capacity differ. */
     public static final MachineTier CHARRED = new MachineTier(BASIC.tankCapacity() * 2, BASIC.maxHealth(), 1.25f, BASIC.healMultiplier());
 
-    /** The Charred upgrade tier for a {@link #NO_HEALTH} machine (Charred Render Furnace) -- same
+    /** The Charred upgrade tier for a {@link #NO_HEALTH} machine (unused since the Charred Grafting Table was deleted) -- same
      * double-capacity/1.25x-speed treatment as {@link #CHARRED}, but keeps maxHealth at 0 since the
      * progenitor never had the HP mechanic to begin with. */
     public static final MachineTier CHARRED_NO_HEALTH = new MachineTier(NO_HEALTH.tankCapacity() * 2, NO_HEALTH.maxHealth(), 1.25f, NO_HEALTH.healMultiplier());

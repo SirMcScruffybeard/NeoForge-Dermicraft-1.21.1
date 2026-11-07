@@ -29,6 +29,10 @@ import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
+import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
 import net.scruffy.dermicraft.util.ModItemUtil;
@@ -45,9 +49,10 @@ import java.util.Optional;
  * vanilla or other mod's crafting-table recipe for free (see the machine notes for why this is a
  * deliberate exception to the mod's own recipe types, same reasoning as the Render Furnace).
  *
- * <p>No HP mechanic ({@link net.scruffy.dermicraft.machine.MachineTier#NO_HEALTH}), same hard
- * fuel-gate philosophy as the Render Furnace: {@link #hasCraftingInputs()} requires fuel, so it
- * freezes rather than limping along unfueled.
+ * <p>It has the standard HP mechanic like every other fueled machine, so an unfueled table limps along at the usual
+ * 0.1x trickle and takes hunger damage rather than freezing. It processes no fluid but its fuel, so the hazard
+ * effects never apply to it; its Module tab still shows tolerances and takes Safety Modules, on purpose (see the
+ * machine notes).
  *
  * <p><b>Ghost/pattern model (the rework):</b> each grid slot tracks TWO separate things -- a
  * {@link #ghosts} entry (an item-type marker, no count, imprinted once and never returned to the
@@ -65,7 +70,7 @@ import java.util.Optional;
  * recipe ticks. A tuning knob, not a fact.
  */
 public class GraftingTableBlockEntity extends AbstractFueledMachineBlockEntity<CraftingRecipe>
-        implements MenuProvider, IHaveInventory, IHasChannels {
+        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine, IModuleTabMachine {
 
     public static final int GRID_START = 1;
     public static final int GRID_SIZE = 9;
@@ -91,6 +96,91 @@ public class GraftingTableBlockEntity extends AbstractFueledMachineBlockEntity<C
 
     public GraftingTableBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.GRAFTING_TABLE_BE.get(), pos, blockState);
+    }
+
+    // General Module slot(s) -- own dedicated handler (see MachineBaseBlockEntity#createModuleInventory), not part of
+    // INVENTORY above. Evolution Modules go in the dedicated Evolution slot (EVOLUTION_INVENTORY, in the engine), never here.
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
+            stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES) && !isEvolutionModule(stack));
+
+    private boolean moduleTabActive = false;
+
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    @Override
+    public boolean isModuleTabActive() {
+        return moduleTabActive;
+    }
+
+    @Override
+    public void setModuleTabActive(boolean active) {
+        this.moduleTabActive = active;
+    }
+
+    // ---- Evolution ----------------------------------------------------------------------------
+    // The Grafting Table evolves in place through its evolution state and the Evolution slot. The gradual-progress
+    // machinery, the Evolution slot, the flourish and the stat defaults (tank capacity, HP, speed, fuel use, Module
+    // slots) all live in AbstractFueledMachineBlockEntity; this class opts in and resizes what it owns.
+
+    @Override
+    protected boolean usesEvolutionState() {
+        return true;
+    }
+
+    @Override
+    protected MachineStatKey getStatKey() {
+        return MachineStatKey.GRAFTING_TABLE;
+    }
+
+    @Override
+    protected void onEvolutionStateChanged() {
+        super.onEvolutionStateChanged();
+        resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
+        applyCapacityBonus();
+    }
+
+    /** Work Speed Module bonus across this machine's Module slot(s) -- see
+     * IHaveModules#workSpeedMultiplier for the diminishing-return stacking rule. */
+    @Override
+    protected float workSpeedMultiplier() {
+        List<ItemStack> modules = new ArrayList<>();
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            modules.add(MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return IHaveModules.workSpeedMultiplier(modules);
+    }
+
+    /** Capacity Module bonus, summed over every installed Module. */
+    @Override
+    protected int getCapacityBonus() {
+        int total = 0;
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
+        }
+        return total;
+    }
+
+    @Override
+    protected void applyCapacityBonus() {
+        FUEL_TANK.setCapacity(getBaseTankCapacity() + getCapacityBonus());
+    }
+
+    @Override
+    protected boolean canRemoveModule(int slot) {
+        int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
+        if (thisBonus == 0) return true;
+        int newCapacity = getBaseTankCapacity() + (getCapacityBonus() - thisBonus);
+        return FUEL_TANK.getFluid().getAmount() <= newCapacity;
+    }
+
+    /** How far the pending evolution is, 0 to 1 (0 with no live Evolution Module). Read by
+     * {@code EvolutionOverlayBlockEntityRenderer}'s creeping overlay. */
+    @Override
+    public float getEvolutionProgressFraction() {
+        return getGradualEvolutionFraction();
     }
 
     @Override
@@ -263,6 +353,8 @@ public class GraftingTableBlockEntity extends AbstractFueledMachineBlockEntity<C
     @Override
     public void drops() {
         super.drops(INVENTORY);
+        super.drops(MODULE_INVENTORY);
+        super.drops(EVOLUTION_INVENTORY);
     }
 
     @Override
@@ -331,15 +423,14 @@ public class GraftingTableBlockEntity extends AbstractFueledMachineBlockEntity<C
         return activeRecipe.value().matches(CraftingInput.of(GRID_WIDTH, GRID_HEIGHT, trial), level);
     }
 
-    // No HP mechanic (NO_HEALTH tier) -- requiring fuel here, same as the Render Furnace, is what
-    // makes this STOP when fuel runs out instead of limping along at the standard 0.1x unfueled
-    // trickle. Progress freezes (not reset) until fuel returns. Additionally requires the REAL
+    // Standard HP mechanic now, so an unfueled table takes the base engine's usual 0.1x trickle plus hunger damage rather
+    // than freezing. Frozen during the evolution flourish. Additionally requires the REAL
     // stock (not just the ghost pattern) to satisfy the locked recipe -- resolveRecipe() only ever
     // matches against ghost types, so this is the second stage that gates actual crafting.
     @Override
     protected boolean hasCraftingInputs() {
         return activeRecipe != null
-                && FUEL_TANK.hasEnoughFuel(fuelUseRate)
+                && !isEvolutionFlourishing()
                 && level != null
                 && activeRecipe.value().matches(realInput(), level);
     }
@@ -464,6 +555,8 @@ public class GraftingTableBlockEntity extends AbstractFueledMachineBlockEntity<C
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
+        tag.put("module_inventory", MODULE_INVENTORY.serializeNBT(registries));
+        tag.putBoolean("module_tab_active", moduleTabActive);
         CompoundTag ghostTag = new CompoundTag();
         ContainerHelper.saveAllItems(ghostTag, ghosts, registries);
         tag.put("ghosts", ghostTag);
@@ -474,6 +567,9 @@ public class GraftingTableBlockEntity extends AbstractFueledMachineBlockEntity<C
         super.loadAdditional(tag, registries);
         if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
         if (tag.contains("ghosts")) ContainerHelper.loadAllItems(tag.getCompound("ghosts"), ghosts, registries);
+        if (tag.contains("module_inventory")) loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("module_inventory"));
+        applyCapacityBonus();
+        moduleTabActive = tag.getBoolean("module_tab_active");
     }
 
     private ItemStackHandler createInventory(int size) {

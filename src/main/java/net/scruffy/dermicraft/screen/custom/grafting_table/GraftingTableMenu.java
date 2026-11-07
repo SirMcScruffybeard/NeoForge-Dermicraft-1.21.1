@@ -5,11 +5,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
+import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.GraftingTableBlockEntity;
-import net.scruffy.dermicraft.screen.AbstractModMenu;
+import net.scruffy.dermicraft.screen.AbstractEvolvingMachineMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
 /**
@@ -20,16 +19,15 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
  * {@link GraftingTableBlockEntity}'s {@code isItemValid} gate (a slot with no ghost, or an item
  * that doesn't match/substitute for the ghost, is rejected by vanilla's own mayPlace check).
  */
-public class GraftingTableMenu extends AbstractModMenu {
+public class GraftingTableMenu extends AbstractEvolvingMachineMenu<GraftingTableBlockEntity> {
 
     // Grid origin/step matches GraftingTableScreen's GRID_X/GRID_Y/GRID_STEP exactly -- the two
     // must stay in lockstep since the menu places the real slots and the screen only draws art.
-    private static final int GRID_X = 8;
+    // The grid starts right of the HP bar (which takes the left edge, x 8 to 26, on both tabs).
+    private static final int GRID_X = 30;
     private static final int GRID_Y = 11;
     private static final int GRID_STEP = 18;
 
-    public final GraftingTableBlockEntity BE;
-    private final Level level;
     private final int gridSlotStart;
 
     public GraftingTableMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
@@ -37,15 +35,10 @@ public class GraftingTableMenu extends AbstractModMenu {
     }
 
     public GraftingTableMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.GRAFTING_TABLE_MENU.get(), containerId, GraftingTableBlockEntity.GRID_SIZE + 2);
-        checkContainerSize(inv, 2);
-        this.BE = (GraftingTableBlockEntity) blockEntity;
-        this.level = inv.player.level();
+        super(ModMenuTypes.GRAFTING_TABLE_MENU.get(), containerId, inv, blockEntity,
+                GraftingTableBlockEntity.GRID_SIZE + 2, ModBlocks.GRAFTING_TABLE);
 
-        addPlayerInventory(inv);
-        addPlayerHotbar(inv);
-
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60));
+        addMainSlot(BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60);
 
         // +1 down-right vs. the background art's GRID_X/GRID_Y (see GraftingTableScreen, which draws
         // the item_slot texture at the un-shifted position) -- the real item render and the vanilla
@@ -55,14 +48,17 @@ public class GraftingTableMenu extends AbstractModMenu {
         for (int row = 0; row < GraftingTableBlockEntity.GRID_HEIGHT; row++) {
             for (int col = 0; col < GraftingTableBlockEntity.GRID_WIDTH; col++) {
                 int gridIndex = row * GraftingTableBlockEntity.GRID_WIDTH + col;
-                this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), GraftingTableBlockEntity.GRID_START + gridIndex,
-                        GRID_X + col * GRID_STEP + 1, GRID_Y + row * GRID_STEP + 1));
+                addMainSlot(BE.getItemHandler(null), GraftingTableBlockEntity.GRID_START + gridIndex,
+                        GRID_X + col * GRID_STEP + 1, GRID_Y + row * GRID_STEP + 1);
             }
         }
 
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), GraftingTableBlockEntity.OUTPUT_SLOT, 101, 30));
+        addMainSlot(BE.getItemHandler(null), GraftingTableBlockEntity.OUTPUT_SLOT, 121, 30);
+        addModuleTabSlots();
 
-        setQuickMoveInputSlots(1, GraftingTableBlockEntity.GRID_SIZE); // grid slots only -- skip fuel tank slot and OUTPUT_SLOT
+        setQuickMoveInputSlots(1, GraftingTableBlockEntity.GRID_SIZE); // grid slots only -- skip fuel tank slot, OUTPUT_SLOT and Module slots
+
+        restoreActiveTab();
     }
 
     @Override
@@ -97,30 +93,5 @@ public class GraftingTableMenu extends AbstractModMenu {
         }
 
         super.clicked(slotId, button, clickType, player);
-    }
-
-    // NOT super.stillValid(level, player, ModBlocks.GRAFTING_TABLE, BE) -- Charred Grafting Table
-    // shares this exact Menu (see ModBlockEntities#GRAFTING_TABLE_BE), so validity has to accept
-    // either block instead of one exact Block identity. Mirrors vanilla's own
-    // AbstractContainerMenu#stillValid(ContainerLevelAccess, Player, Block) implementation, just
-    // with an instanceof check in place of the exact-block check.
-    @Override
-    public boolean stillValid(Player player) {
-        return net.minecraft.world.inventory.ContainerLevelAccess.create(level, BE.getBlockPos())
-                .evaluate((lvl, pos) -> lvl.getBlockState(pos).getBlock() instanceof net.scruffy.dermicraft.block.custom.GraftingTableBlock
-                        && player.distanceToSqr(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) <= 64.0, true);
-    }
-
-    public boolean isCrafting() {
-        return BE.isStillCrafting();
-    }
-
-    public int getScaledArrowProgress() {
-        int arrowPixels = 15;
-        return BE.getScaledProgress(arrowPixels);
-    }
-
-    public boolean isAutoDrainEnabled() {
-        return BE.isAutoDrainEnabled();
     }
 }

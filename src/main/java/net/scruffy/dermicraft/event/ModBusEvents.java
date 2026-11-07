@@ -92,11 +92,6 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getTank);
 
-        // Charred Render Furnace has its own BlockEntityType (CHARRED_RENDER_FURNACE_BE), so it does
-        // NOT inherit RENDER_FURNACE_BE's capability registration above -- same gap that's bitten
-        // every other Charred variant so far (see the Drooling Crucible comment above).
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getItemHandler);
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.CHARRED_RENDER_FURNACE_BE.get(), RenderFurnaceBlockEntity::getTank);
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.GRAFTING_TABLE_BE.get(), GraftingTableBlockEntity::getItemHandler);
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.GRAFTING_TABLE_BE.get(), GraftingTableBlockEntity::getTank);

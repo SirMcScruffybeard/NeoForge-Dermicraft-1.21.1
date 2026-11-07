@@ -21,6 +21,7 @@ import net.scruffy.dermicraft.block.custom.MrShepardBlock;
 import net.scruffy.dermicraft.block.custom.MutatorBlock;
 import net.scruffy.dermicraft.block.custom.MutatorVisualState;
 import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
+import net.scruffy.dermicraft.block.custom.RenderFurnaceVisualState;
 import net.scruffy.dermicraft.block.custom.RenderKilnBlock;
 import net.scruffy.dermicraft.block.custom.RenderKilnVisualState;
 import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
@@ -180,13 +181,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.RENDER_FURNACE.getId().getPath(),
                 modLoc("block/" + ModBlocks.RENDER_FURNACE.getId().getPath()));
 
-        // Charred Render Furnace -- same 2-face-texture (ACTIVE-boolean) shape as the base Furnace,
-        // but Charred Machine Port replaces skin_tank_end on the other 5 faces, matching Charred
-        // Render Kiln's own single-port-texture shape.
-        charredRenderFurnaceBlockState("block/charred_machine_port");
-        itemModels().withExistingParent(ModBlocks.CHARRED_RENDER_FURNACE.getId().getPath(),
-                modLoc("block/" + ModBlocks.CHARRED_RENDER_FURNACE.getId().getPath()));
-
         // No FACING, no ACTIVE state -- only a top texture exists for this one so far, sides/bottom
         // reuse skin_tank_end like every other machine's placeholder faces.
         simpleBlockWithItem(ModBlocks.GRAFTING_TABLE.get(), models().cubeBottomTop(
@@ -195,14 +189,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc(skinTankEnd),
                 modLoc("block/grafting_table_top")));
 
-        // Charred Grafting Table -- sides/bottom use Charred Machine Port, same as every other
-        // Charred variant's shared port texture, instead of the base's skin_tank_end placeholder.
-        // Only the top texture is unique to this block.
-        simpleBlockWithItem(ModBlocks.CHARRED_GRAFTING_TABLE.get(), models().cubeBottomTop(
-                ModBlocks.CHARRED_GRAFTING_TABLE.getId().getPath(),
-                modLoc("block/charred_machine_port"),
-                modLoc("block/charred_machine_port"),
-                modLoc("block/charred_grafting_table_top")));
 
         simpleBlockWithItem(ModBlocks.CRAW.get(), models().cubeBottomTop(
                 ModBlocks.CRAW.getId().getPath(),
@@ -330,50 +316,37 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
-    // Same shape as mutatorBlockState, but only 2 models (no HP mechanic here -- see MachineTier.NO_HEALTH
-    // -- so no "recovering" state) using a plain BooleanProperty ACTIVE, same idiom as Mr. Farmer's.
+    // Same shape as renderKilnBlockState -- 4 horizontal facings x 3 RenderFurnaceVisualState values, only the front
+    // (north-authored) face texture differs between the three models; skin_tank_end covers every other face.
     private void renderFurnaceBlockState(String skinTankEnd) {
-        ModelFile off = models().cube(ModBlocks.RENDER_FURNACE.getId().getPath(),
+        ModelFile idle = models().cube(ModBlocks.RENDER_FURNACE.getId().getPath(),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
                 .texture("particle", modLoc("block/render_furnace/render_furnace_face"));
-        ModelFile on = models().cube("render_furnace_on",
+        ModelFile running = models().cube("render_furnace_on",
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face_on"),
                         modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
                 .texture("particle", modLoc("block/render_furnace/render_furnace_face_on"));
+        ModelFile recovering = models().cube("render_furnace_error",
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face_error"),
+                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
+                .texture("particle", modLoc("block/render_furnace/render_furnace_face_error"));
 
         var builder = getVariantBuilder(ModBlocks.RENDER_FURNACE.get());
-        putRenderFurnaceVariant(builder, off, on, Direction.NORTH, 0);
-        putRenderFurnaceVariant(builder, off, on, Direction.EAST, 90);
-        putRenderFurnaceVariant(builder, off, on, Direction.SOUTH, 180);
-        putRenderFurnaceVariant(builder, off, on, Direction.WEST, 270);
+        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.NORTH, 0);
+        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.EAST, 90);
+        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
+        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.WEST, 270);
     }
 
     private void putRenderFurnaceVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                         ModelFile off, ModelFile on, Direction facing, int rotY) {
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.ACTIVE, false)
-                .modelForState().modelFile(off).rotationY(rotY).addModel();
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.ACTIVE, true)
-                .modelForState().modelFile(on).rotationY(rotY).addModel();
-    }
-
-    // Same shape as renderFurnaceBlockState, but Charred Machine Port replaces skin_tank_end on the
-    // other 5 faces -- the Charred family's single-port-texture treatment.
-    private void charredRenderFurnaceBlockState(String machinePort) {
-        ModelFile off = models().cube(ModBlocks.CHARRED_RENDER_FURNACE.getId().getPath(),
-                        modLoc(machinePort), modLoc(machinePort), modLoc("block/render_furnace/charred_render_furnace_face"),
-                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
-                .texture("particle", modLoc("block/render_furnace/charred_render_furnace_face"));
-        ModelFile on = models().cube("charred_render_furnace_on",
-                        modLoc(machinePort), modLoc(machinePort), modLoc("block/render_furnace/charred_render_furnace_face_on"),
-                        modLoc(machinePort), modLoc(machinePort), modLoc(machinePort))
-                .texture("particle", modLoc("block/render_furnace/charred_render_furnace_face_on"));
-
-        var builder = getVariantBuilder(ModBlocks.CHARRED_RENDER_FURNACE.get());
-        putRenderFurnaceVariant(builder, off, on, Direction.NORTH, 0);
-        putRenderFurnaceVariant(builder, off, on, Direction.EAST, 90);
-        putRenderFurnaceVariant(builder, off, on, Direction.SOUTH, 180);
-        putRenderFurnaceVariant(builder, off, on, Direction.WEST, 270);
+                                         ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.STATE, RenderFurnaceVisualState.IDLE)
+                .modelForState().modelFile(idle).rotationY(rotY).addModel();
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.STATE, RenderFurnaceVisualState.RUNNING)
+                .modelForState().modelFile(running).rotationY(rotY).addModel();
+        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(RenderFurnaceBlock.STATE, RenderFurnaceVisualState.RECOVERING)
+                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
     // Same shape as mutatorBlockState -- 4 horizontal facings x 3 RenderKilnVisualState values, only

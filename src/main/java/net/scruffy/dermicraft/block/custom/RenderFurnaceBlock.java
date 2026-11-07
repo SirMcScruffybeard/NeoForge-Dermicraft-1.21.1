@@ -22,7 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
@@ -34,26 +34,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The Render Furnace: an automated, fuel-powered vanilla furnace. Deliberately minor -- no HP
- * mechanic (see {@link MachineTier#NO_HEALTH}), no reagent tank, no Dermicraft-owned recipe type.
- * It just stops processing when the fuel tank runs dry, rather than limping along at reduced speed.
+ * The Render Furnace: an automated, fuel-powered vanilla furnace. Deliberately minor -- no reagent tank, no
+ * Dermicraft-owned recipe type. It has the standard HP mechanic like every other fueled machine.
  */
 public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMachine {
 
     public static final MapCodec<RenderFurnaceBlock> CODEC = simpleCodec(RenderFurnaceBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    // ACTIVE swaps the front face texture (render_furnace_face -> render_furnace_face_on) while lit
-    // and actively processing -- same idiom as Mr. Farmer's ACTIVE, no debounce (unlike the Mutator's
-    // 3-state visual system, there's no HP-recovery state to strobe against here).
-    public static final BooleanProperty ACTIVE = BlockStateProperties.LIT;
+    // Which front face texture shows: idle, running (render_furnace_face_on) or recovering (the error face), set by the
+    // block entity with a debounce, same idiom as the Render Kiln and the other machines with HP.
+    public static final EnumProperty<RenderFurnaceVisualState> STATE = EnumProperty.create("state", RenderFurnaceVisualState.class);
 
     private final MachineTier tier;
 
-    // simpleCodec needs a Properties-only constructor; it produces the progenitor tier. Defaults to
-    // NO_HEALTH rather than BASIC -- this machine is health-less from birth, not just presently
-    // undamaged.
+    // simpleCodec needs a Properties-only constructor; it produces the progenitor tier.
     public RenderFurnaceBlock(Properties properties) {
-        this(properties, MachineTier.NO_HEALTH);
+        this(properties, MachineTier.BASIC);
     }
 
     public RenderFurnaceBlock(Properties properties, MachineTier tier) {
@@ -62,7 +58,7 @@ public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMach
                 .ignitedByLava()
         );
         this.tier = tier;
-        this.registerDefaultState(this.stateDefinition.any().setValue(ACTIVE, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(STATE, RenderFurnaceVisualState.IDLE));
     }
 
     @Override
@@ -94,7 +90,7 @@ public class RenderFurnaceBlock extends ModBaseEntityBlock implements TieredMach
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ACTIVE);
+        builder.add(FACING, STATE);
     }
 
     @Override

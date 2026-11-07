@@ -11,7 +11,9 @@ public enum MachineStatKey {
     METASTASIZER("metastasizer"),
     MUTATOR("mutator"),
     EFFLUENTCER("effluentcer"),
-    RENDER_KILN("render_kiln");
+    RENDER_KILN("render_kiln"),
+    RENDER_FURNACE("render_furnace"),
+    GRAFTING_TABLE("grafting_table");
 
     private final String SECTION_NAME;
 

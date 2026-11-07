@@ -2,92 +2,29 @@ package net.scruffy.dermicraft.screen.custom.render_furnace;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.RenderFurnaceBlockEntity;
-import net.scruffy.dermicraft.screen.AbstractModMenu;
+import net.scruffy.dermicraft.screen.AbstractEvolvingMachineMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
-public class RenderFurnaceMenu extends AbstractModMenu {
-
-    // Same tab pattern as every other Module-tab machine.
-    public static final int MAIN_TAB = 0;
-    public static final int MODULE_TAB = 1;
-
-    // Matches every other machine's own Module slot position -- one consistent mod-wide GUI
-    // convention.
-    public static final int MODULE_SLOT_X = 79;
-    public static final int MODULE_SLOT_Y = 34;
-
-    public final RenderFurnaceBlockEntity BE;
-    private final Level level;
+public class RenderFurnaceMenu extends AbstractEvolvingMachineMenu<RenderFurnaceBlockEntity> {
 
     public RenderFurnaceMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
         this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     public RenderFurnaceMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.RENDER_FURNACE_MENU.get(), containerId, RenderFurnaceBlockEntity.INVENTORY_SIZE);
-        checkContainerSize(inv, 2);
-        this.BE = (RenderFurnaceBlockEntity) blockEntity;
-        this.level = inv.player.level();
+        super(ModMenuTypes.RENDER_FURNACE_MENU.get(), containerId, inv, blockEntity,
+                RenderFurnaceBlockEntity.INVENTORY_SIZE, ModBlocks.RENDER_FURNACE);
 
-        addPlayerInventory(inv);
-        addPlayerHotbar(inv);
+        addMainSlot(BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60);
+        addMainSlot(BE.getItemHandler(null), RenderFurnaceBlockEntity.INPUT_SLOT, 61, 35);
+        addMainSlot(BE.getItemHandler(null), RenderFurnaceBlockEntity.OUTPUT_SLOT, 121, 35);
+        addModuleTabSlots();
 
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), BE.getFuelTank().SLOT, 151, 60) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MAIN_TAB;
-            }
-        });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), RenderFurnaceBlockEntity.INPUT_SLOT, 61, 35) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MAIN_TAB;
-            }
-        });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), RenderFurnaceBlockEntity.OUTPUT_SLOT, 121, 35) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MAIN_TAB;
-            }
-        });
-        this.addSlot(new SlotItemHandler(this.BE.getItemHandler(null), RenderFurnaceBlockEntity.MODULE, MODULE_SLOT_X + 1, MODULE_SLOT_Y + 1) {
-            @Override
-            public boolean isActive() {
-                return getActiveTab() == MODULE_TAB;
-            }
-        });
+        setQuickMoveInputSlots(1, 1); // INPUT_SLOT only -- skip the fuel tank slot, OUTPUT_SLOT and Module slots
 
-        setQuickMoveInputSlots(1, 1); // INPUT_SLOT only -- skip fuel tank slot, OUTPUT_SLOT, and Module
-
-        setActiveTab(BE.isModuleTabActive() ? MODULE_TAB : MAIN_TAB);
-    }
-
-    @Override
-    protected void onTabChanged(int index) {
-        BE.setModuleTabActive(index == MODULE_TAB);
-    }
-
-    @Override
-    public boolean stillValid(Player player) {
-        return super.stillValid(level, player, ModBlocks.RENDER_FURNACE, BE);
-    }
-
-    public boolean isCrafting() {
-        return BE.isStillCrafting();
-    }
-
-    public int getScaledArrowProgress() {
-        int arrowPixels = 15;
-        return BE.getScaledProgress(arrowPixels);
-    }
-
-    public boolean isAutoDrainEnabled() {
-        return BE.isAutoDrainEnabled();
+        restoreActiveTab();
     }
 }
