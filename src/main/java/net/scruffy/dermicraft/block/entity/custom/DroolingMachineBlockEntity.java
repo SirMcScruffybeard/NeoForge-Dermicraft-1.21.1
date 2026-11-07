@@ -84,6 +84,9 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
     private RecipeHolder<R> activeRecipe = null;
     private Item activeItem = Items.AIR;
     private int resultAmount = 0;
+    /** Whether the machine produced fluid since the last once-a-second check; counted toward evolution there, once a
+     * second however many ways it produced. Not saved. */
+    private boolean producedSinceLastSecond = false;
 
     @Nullable
     private ResourceLocation pendingRecipeId = null;
@@ -123,18 +126,11 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
      * machine whose target can change post-construction (an evolving Cauldron, eventually) just
      * needs this to reflect current state -- no other hook or tank swap required. */
     protected abstract Fluid currentTargetFluid();
-
-    /** mB added per passive-generation cycle (see {@link #tick}: gated on a 1-second timer, same
-     * cadence the original Cauldron always used -- called once per fire of that gate, not once per
-     * raw game tick). A hook rather than a constant specifically so a machine mid-evolution can
-     * return a reduced rate and switch to full rate once evolution completes, per
-     * dermicraft-machine-notes.md's Evolution Module design. */
-    protected abstract int basePassiveYield();
-
-    /** mB added per passive-generation cycle: the machine's base yield scaled by its tier's production multiplier (the
-     * same stat-table speed the fueled machines use), at least 1. */
+    /** mB added per passive-generation cycle (see {@link #tick}: gated on a 1-second timer, so this is mB per second):
+     * the tier's value from the stat table's passive yield (with this machine's own config override), at least 1.
+     * Read fresh every time, so an evolution takes effect at once. */
     protected int passiveYieldAmount() {
-        return Math.max(1, Math.round(basePassiveYield() * getTierSpeedMultiplier()));
+        return Math.max(1, SimpleMachineStats.getPassiveYieldPerSecond(getStatKey(), getEvolutionState()));
     }
 
     /** The tier's production multiplier from the stat table (with this machine's own config overrides). */
@@ -368,10 +364,19 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
             tickGradualFlourish(); // one step a second, so the flourish plays for 4 seconds
             if (!isEvolutionFlourishing()) {
                 FluidStack offer = new FluidStack(currentTargetFluid(), passiveYieldAmount());
-                int filled = TANK.hasRoom(offer) ? TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE) : 0;
-                onPassiveFillResult(filled);
-                // Real production, the same as a craft cycle for the fueled machines, counts toward evolution.
-                if (filled > 0) tickGradualProgress(ModMath.Time.getSecondsToTicks(1));
+                // How much the tank accepts is measured BEFORE filling: a fill's own return is what is left in the tank
+                // afterward, and with auto-drain the fluid is pushed out as it arrives, so the return reads 0 and the
+                // machine would look like it produced nothing.
+                int accepted = TANK.hasRoom(offer) ? TANK.fill(offer, IFluidHandler.FluidAction.SIMULATE) : 0;
+                if (accepted > 0) TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE);
+                onPassiveFillResult(accepted);
+                if (accepted > 0) producedSinceLastSecond = true;
+            }
+            // Any real production this second (passive fill, or a food-boost craft that advanced or finished) counts
+            // toward evolution once, in the machine's own terms: it made fluid, wherever the fluid then goes.
+            if (producedSinceLastSecond) {
+                tickGradualProgress(ModMath.Time.getSecondsToTicks(1));
+                producedSinceLastSecond = false;
             }
             setChanged();
             updateBlock();
@@ -402,10 +407,12 @@ public abstract class DroolingMachineBlockEntity<R extends Recipe<SingleRecipeIn
             if (canComplete) {
                 if (isStillCrafting()) {
                     incrementProgress();
+                    producedSinceLastSecond = true;
                     setChanged();
 
                 } else {
                     TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE);
+                    producedSinceLastSecond = true;
                     INVENTORY.extractItem(INPUT, 1, false);
                     resetProgress();
                 }

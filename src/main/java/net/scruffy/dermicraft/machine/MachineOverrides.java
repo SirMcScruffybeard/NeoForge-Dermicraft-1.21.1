@@ -8,11 +8,11 @@ import org.jetbrains.annotations.Nullable;
  */
 record MachineOverrides(
         @Nullable double[] speed, @Nullable double[] fuelUse, @Nullable double[] maxHealth,
-        @Nullable double[] tankCapacityMb, @Nullable int[] moduleSlots,
+        @Nullable double[] tankCapacityMb, @Nullable double[] passiveYield, @Nullable int[] moduleSlots,
         @Nullable double[] evolutionTierSeconds, @Nullable Double evolutionHazardNewSeconds,
         @Nullable Double evolutionHazardUpgradeSeconds, @Nullable Double evolutionOvergrowthSeconds,
         @Nullable Double evolutionOvergrowthGrowthPercent) {
 
     /** No overrides: everything comes from the shared values. */
-    static final MachineOverrides NONE = new MachineOverrides(null, null, null, null, null, null, null, null, null, null);
+    static final MachineOverrides NONE = new MachineOverrides(null, null, null, null, null, null, null, null, null, null, null);
 }

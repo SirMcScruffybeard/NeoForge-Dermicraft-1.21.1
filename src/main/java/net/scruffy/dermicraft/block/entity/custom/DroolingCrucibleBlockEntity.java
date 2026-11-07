@@ -23,13 +23,10 @@ import org.jetbrains.annotations.Nullable;
  * {@link DroolingMachineBlockEntity}, the shared Drooling-family base the Cauldron, Crucible and Geode all extend.
  *
  * <p>Evolves in place like the fueled machines: an Evolution Module in its Evolution slot raises its tier after
- * enough seconds of real production, which scales its passive yield and craft speed (the stat table's production
+ * enough seconds of real production, which raises its passive yield (its own config table) and craft speed (the stat table's production
  * multiplier), its tank, and its Module slots. It handles no hazards, so tolerances do not apply to it.
  */
 public class DroolingCrucibleBlockEntity extends DroolingMachineBlockEntity<VagueDroolingCrucibleRecipe> implements MenuProvider {
-
-    /** Same rate as Cauldron's water, per direction. */
-    public static final int PASSIVE_YIELD = 4;
 
     public DroolingCrucibleBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.DROOLING_CRUCIBLE_BE.get(), pos, blockState);
@@ -43,11 +40,6 @@ public class DroolingCrucibleBlockEntity extends DroolingMachineBlockEntity<Vagu
     @Override
     protected net.scruffy.dermicraft.machine.MachineStatKey getStatKey() {
         return net.scruffy.dermicraft.machine.MachineStatKey.DROOLING_CRUCIBLE;
-    }
-
-    @Override
-    protected int basePassiveYield() {
-        return PASSIVE_YIELD;
     }
 
     @Override

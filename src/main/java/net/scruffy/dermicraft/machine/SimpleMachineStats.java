@@ -52,6 +52,11 @@ public final class SimpleMachineStats {
         return StatTable.toInt(value(StatConfig.getCurrent().tankCapacityMbFor(machine), state));
     }
 
+    /** Millibuckets per second a Drooling machine makes with no input. */
+    public static int getPassiveYieldPerSecond(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return StatTable.toInt(value(StatConfig.getCurrent().passiveYieldFor(machine), state));
+    }
+
     /** General Module slots (the dedicated Evolution slot is separate and always present); Overgrowth adds none. */
     public static int getModuleSlots(@Nullable MachineStatKey machine, EvolutionStateData state) {
         return StatConfig.getCurrent().moduleSlotsFor(machine)[state.tier() - 1];

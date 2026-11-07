@@ -24,6 +24,9 @@ final class StatDefaults {
     static final double[] SIMPLE_MACHINE_MAX_HEALTH = {200, 400, 800, 1600};
     static final double[] SIMPLE_MACHINE_TANK_CAPACITY_MB = {5000, 10000, 20000, 40000};
 
+    // ---- Drooling family ----
+    static final double[] SIMPLE_MACHINE_PASSIVE_YIELD = {4, 8, 16, 32};   // mB per second with no input, per tier
+
     // ---- Storage ----
     static final double[] SKIN_TANK_CAPACITY_MB = {10000, 20000, 40000, 80000};
     static final double[] CRAW_STACKS = {10, 20, 40, 80};
@@ -58,7 +61,7 @@ final class StatDefaults {
     static final StatValues VALUES = new StatValues(
             ITEM_TRANSFER, FLUID_TRANSFER, MODULE_SLOTS,
             SIMPLE_MACHINE_SPEED, SIMPLE_MACHINE_FUEL_USE,
-            SIMPLE_MACHINE_MAX_HEALTH, SIMPLE_MACHINE_TANK_CAPACITY_MB,
+            SIMPLE_MACHINE_MAX_HEALTH, SIMPLE_MACHINE_TANK_CAPACITY_MB, SIMPLE_MACHINE_PASSIVE_YIELD,
             SKIN_TANK_CAPACITY_MB, CRAW_STACKS,
             OVERGROWTH_PERCENT, OVERGROWTH_MAX_LEVEL,
             HUNGER_DAMAGE_PER_CYCLE, UNFUELED_SPEED,
@@ -67,7 +70,7 @@ final class StatDefaults {
             THERMAL_DAMAGE_MODIFIER, THERMAL_REFERENCE_TEMPERATURE, THERMAL_SAFE_RANGE,
             RADIATION_BAND, BIOHAZARD_BAND, METAPHYSICAL_BAND,
             RADIATION_EFFECT_MODIFIER, BIOHAZARD_EFFECT_MODIFIER, METAPHYSICAL_EFFECT_MODIFIER,
-            java.util.Map.of());
+            java.util.Map.of(), java.util.Map.of());
 
 
 }

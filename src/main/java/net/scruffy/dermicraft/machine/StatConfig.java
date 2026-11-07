@@ -29,6 +29,7 @@ public final class StatConfig {
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_FUEL_USE;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_MAX_HEALTH;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_TANK_CAPACITY_MB;
+    private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_PASSIVE_YIELD;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SKIN_TANK_CAPACITY_MB;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> CRAW_STACKS;
     private static final ModConfigSpec.DoubleValue OVERGROWTH_PERCENT;
@@ -55,6 +56,7 @@ public final class StatConfig {
             ModConfigSpec.ConfigValue<List<? extends Number>> fuelUse,
             ModConfigSpec.ConfigValue<List<? extends Number>> maxHealth,
             ModConfigSpec.ConfigValue<List<? extends Number>> tankCapacityMb,
+            ModConfigSpec.ConfigValue<List<? extends Number>> passiveYield,
             ModConfigSpec.ConfigValue<List<? extends Number>> moduleSlots,
             ModConfigSpec.ConfigValue<List<? extends Number>> evolutionTierSeconds,
             ModConfigSpec.DoubleValue evolutionHazardNewSeconds,
@@ -63,6 +65,7 @@ public final class StatConfig {
             ModConfigSpec.DoubleValue evolutionOvergrowthGrowthPercent) {}
 
     private static final Map<MachineStatKey, MachineSection> MACHINE_SECTIONS = new EnumMap<>(MachineStatKey.class);
+    private static final Map<MachineFamily, MachineSection> FAMILY_SECTIONS = new EnumMap<>(MachineFamily.class);
 
     public static final ModConfigSpec SPEC;
 
@@ -73,11 +76,14 @@ public final class StatConfig {
         MODULE_SLOTS = tierList("generalModuleSlots", "General Module slots (the Evolution slot is separate). 0 to 4.", toDoubles(StatDefaults.MODULE_SLOTS), 0, 4);
         BUILDER.pop();
 
+        // "Simple machine" means any single-block machine (as opposed to the Skin Tank, Craw and the like): the fueled
+        // machines and the Drooling family both read these as their global values.
         BUILDER.push("simple_machine");
         SIMPLE_MACHINE_SPEED = tierList("speedMultiplier", "Processing speed multiplier per tier.", StatDefaults.SIMPLE_MACHINE_SPEED, 0.1, 1000);
         SIMPLE_MACHINE_FUEL_USE = tierList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", StatDefaults.SIMPLE_MACHINE_FUEL_USE, 0.1, 1000);
         SIMPLE_MACHINE_MAX_HEALTH = tierList("maxHealth", "Maximum machine health per tier.", StatDefaults.SIMPLE_MACHINE_MAX_HEALTH, 1, 1000000);
         SIMPLE_MACHINE_TANK_CAPACITY_MB = tierList("tankCapacityMb", "Capacity of each tank, in millibuckets (1000 = 1 bucket), per tier.", StatDefaults.SIMPLE_MACHINE_TANK_CAPACITY_MB, 1, 100000000);
+        SIMPLE_MACHINE_PASSIVE_YIELD = tierList("passiveYield", "Millibuckets per second a machine makes with no input, per tier. Only affects machines that have a passive yield (the Drooling family today); every other machine ignores it. A family table or a machine's own section can override it.", StatDefaults.SIMPLE_MACHINE_PASSIVE_YIELD, 0.1, 1000000);
         HUNGER_DAMAGE_PER_CYCLE = BUILDER.comment("HP a processing machine loses per 10-tick cycle with no fuel.")
                 .defineInRange("hungerDamagePerCycle", StatDefaults.HUNGER_DAMAGE_PER_CYCLE, 0, 1000);
         UNFUELED_SPEED = BUILDER.comment("Processing speed with no fuel (flat, independent of tier).")
@@ -148,29 +154,29 @@ public final class StatConfig {
         METAPHYSICAL_MAX = BUILDER.comment("Metaphysical: the intensity where the Severe effect stops growing.")
                 .defineInRange("metaphysicalMax", StatDefaults.METAPHYSICAL_BAND.max(), 1, 100000);
         BUILDER.pop();
-        // Per-machine overrides. Every value starts empty (lists) or -1 (numbers), which means "use the shared value
-        // above", so a server owner writes only what they want to change for that machine.
+
+        // Family tables: one section per family, between the global values and each machine's own. Every value starts
+        // empty (lists) or -1 (numbers), which means "use the global value", so a server owner writes only what they
+        // want to change for the whole family. A section only has the keys that mean something to the family.
+        for (MachineFamily family : MachineFamily.values()) {
+            BUILDER.comment("Shared overrides for the " + family.getSectionName() + " family. They replace the global values for these machines, and a machine's own section replaces them in turn. Leave a list empty (or a number at -1) to use the global value.")
+                    .push(family.getSectionName());
+            FAMILY_SECTIONS.put(family, buildSection(family.usesFuelAndHealth(), family.handlesHazards(), family.usesPassiveYield()));
+            BUILDER.pop();
+        }
+
+        // Per-machine overrides. Every value starts empty (lists) or -1 (numbers), which means "use the family or
+        // global value", so a server owner writes only what they want to change for that machine.
         // A machine's section only has the keys that mean something to it (see MachineStatKey), so the Drooling family's
         // sections leave out fuel use, max health and the hazard times.
-        BUILDER.comment("Per-machine overrides of the shared values above. Leave a list empty (or a number at -1) to use the shared value.")
+        BUILDER.comment("Per-machine overrides. They replace the family table (if the machine is in a family) and the global values. Leave a list empty (or a number at -1) to use those.")
                 .push("machines");
         for (MachineStatKey machine : MachineStatKey.values()) {
             BUILDER.push(machine.getSectionName());
-            MACHINE_SECTIONS.put(machine, new MachineSection(
-                    overrideList("speedMultiplier", "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
-                    machine.usesFuelAndHealth() ? overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4") : null,
-                    machine.usesFuelAndHealth() ? overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4") : null,
-                    overrideList("tankCapacityMb", "Capacity of each tank, in millibuckets, per tier.", 1, 100000000, TIERS, "L1 to L4"),
-                    overrideList("generalModuleSlots", "General Module slots per tier (0 to 4).", 0, 4, TIERS, "L1 to L4"),
-                    overrideList("tierSeconds", "Seconds of production an Evolution Module takes to raise the tier.", 1, 10000000, 3, "L2, L3, L4"),
-                    machine.handlesHazards() ? overrideNumber("hazardNewSeconds", "Seconds to add a hazard family the machine does not hold yet.", 10000000) : null,
-                    machine.handlesHazards() ? overrideNumber("hazardUpgradeSeconds", "Seconds to raise a held hazard family from Mild to Severe.", 10000000) : null,
-                    overrideNumber("overgrowthSeconds", "Seconds to reach Overgrowth level 1.", 10000000),
-                    overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000)));
+            MACHINE_SECTIONS.put(machine, buildSection(machine.usesFuelAndHealth(), machine.handlesHazards(), machine.usesPassiveYield()));
             BUILDER.pop();
         }
         BUILDER.pop();
-
         SPEC = BUILDER.build();
     }
 
@@ -233,6 +239,7 @@ public final class StatConfig {
                 table(SIMPLE_MACHINE_FUEL_USE, StatDefaults.SIMPLE_MACHINE_FUEL_USE),
                 table(SIMPLE_MACHINE_MAX_HEALTH, StatDefaults.SIMPLE_MACHINE_MAX_HEALTH),
                 table(SIMPLE_MACHINE_TANK_CAPACITY_MB, StatDefaults.SIMPLE_MACHINE_TANK_CAPACITY_MB),
+                table(SIMPLE_MACHINE_PASSIVE_YIELD, StatDefaults.SIMPLE_MACHINE_PASSIVE_YIELD),
                 table(SKIN_TANK_CAPACITY_MB, StatDefaults.SKIN_TANK_CAPACITY_MB),
                 table(CRAW_STACKS, StatDefaults.CRAW_STACKS),
                 OVERGROWTH_PERCENT.get(), OVERGROWTH_MAX_LEVEL.get(),
@@ -246,24 +253,53 @@ public final class StatConfig {
                 new HazardBand(BIOHAZARD_START.get(), BIOHAZARD_MAX.get(), BIOHAZARD_MAX.get()),
                 new HazardBand(METAPHYSICAL_MILD_START.get(), METAPHYSICAL_SEVERE_START.get(), METAPHYSICAL_MAX.get()),
                 RADIATION_EFFECT_MODIFIER.get(), BIOHAZARD_EFFECT_MODIFIER.get(), METAPHYSICAL_EFFECT_MODIFIER.get(),
-                buildMachineOverrides());
+                buildFamilyOverrides(), buildMachineOverrides());
+    }
+
+
+    /** One section of optional overrides (a family's or a machine's), with only the keys the flags say apply. */
+    private static MachineSection buildSection(boolean usesFuelAndHealth, boolean handlesHazards, boolean usesPassiveYield) {
+        return new MachineSection(
+                overrideList("speedMultiplier", "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
+                usesFuelAndHealth ? overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4") : null,
+                usesFuelAndHealth ? overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4") : null,
+                overrideList("tankCapacityMb", "Capacity of each tank, in millibuckets, per tier.", 1, 100000000, TIERS, "L1 to L4"),
+                usesPassiveYield ? overrideList("passiveYield", "Millibuckets per second made with no input, per tier.", 0.1, 1000000, TIERS, "L1 to L4") : null,
+                overrideList("generalModuleSlots", "General Module slots per tier (0 to 4).", 0, 4, TIERS, "L1 to L4"),
+                overrideList("tierSeconds", "Seconds of production an Evolution Module takes to raise the tier.", 1, 10000000, 3, "L2, L3, L4"),
+                handlesHazards ? overrideNumber("hazardNewSeconds", "Seconds to add a hazard family the machine does not hold yet.", 10000000) : null,
+                handlesHazards ? overrideNumber("hazardUpgradeSeconds", "Seconds to raise a held hazard family from Mild to Severe.", 10000000) : null,
+                overrideNumber("overgrowthSeconds", "Seconds to reach Overgrowth level 1.", 10000000),
+                overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000));
+    }
+
+    private static MachineOverrides toOverrides(MachineSection section) {
+        return new MachineOverrides(
+                optionalTable(section.speed(), TIERS),
+                optionalTable(section.fuelUse(), TIERS),
+                optionalTable(section.maxHealth(), TIERS),
+                optionalTable(section.tankCapacityMb(), TIERS),
+                optionalTable(section.passiveYield(), TIERS),
+                optionalSlots(section.moduleSlots()),
+                optionalTable(section.evolutionTierSeconds(), 3),
+                optionalNumber(section.evolutionHazardNewSeconds()),
+                optionalNumber(section.evolutionHazardUpgradeSeconds()),
+                optionalNumber(section.evolutionOvergrowthSeconds()),
+                optionalNumber(section.evolutionOvergrowthGrowthPercent()));
+    }
+
+    private static Map<MachineFamily, MachineOverrides> buildFamilyOverrides() {
+        Map<MachineFamily, MachineOverrides> overrides = new EnumMap<>(MachineFamily.class);
+        for (Map.Entry<MachineFamily, MachineSection> entry : FAMILY_SECTIONS.entrySet()) {
+            overrides.put(entry.getKey(), toOverrides(entry.getValue()));
+        }
+        return overrides;
     }
 
     private static Map<MachineStatKey, MachineOverrides> buildMachineOverrides() {
         Map<MachineStatKey, MachineOverrides> overrides = new EnumMap<>(MachineStatKey.class);
         for (Map.Entry<MachineStatKey, MachineSection> entry : MACHINE_SECTIONS.entrySet()) {
-            MachineSection section = entry.getValue();
-            overrides.put(entry.getKey(), new MachineOverrides(
-                    optionalTable(section.speed(), TIERS),
-                    optionalTable(section.fuelUse(), TIERS),
-                    optionalTable(section.maxHealth(), TIERS),
-                    optionalTable(section.tankCapacityMb(), TIERS),
-                    optionalSlots(section.moduleSlots()),
-                    optionalTable(section.evolutionTierSeconds(), 3),
-                    optionalNumber(section.evolutionHazardNewSeconds()),
-                    optionalNumber(section.evolutionHazardUpgradeSeconds()),
-                    optionalNumber(section.evolutionOvergrowthSeconds()),
-                    optionalNumber(section.evolutionOvergrowthGrowthPercent())));
+            overrides.put(entry.getKey(), toOverrides(entry.getValue()));
         }
         return overrides;
     }
