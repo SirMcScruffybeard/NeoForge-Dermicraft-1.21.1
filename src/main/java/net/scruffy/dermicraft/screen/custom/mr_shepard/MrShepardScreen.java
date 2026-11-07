@@ -137,7 +137,7 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
         super.init();
         fuelRenderer = new FluidTankRenderer(menu.BE.getFuelTank().getCapacity(), true,
                 GAUGE_INTERIOR_WIDTH, GAUGE_INTERIOR_HEIGHT, FluidTankRenderer.Orientation.HORIZONTAL);
-        xpRenderer = createFluidRenderer16x40(menu.BE.getXpTank().getCapacity());
+        xpRenderer = createFluidRenderer16x40(() -> menu.BE.getXpTank().getCapacity());
     }
 
     /** Counts down the press flash, and runs the value while a stepper is held past the delay. */

@@ -32,7 +32,6 @@ import net.scruffy.dermicraft.screen.custom.effluentcer.EffluentcerScreen;
 import net.scruffy.dermicraft.screen.custom.masticator.MasticatorScreen;
 import net.scruffy.dermicraft.screen.custom.metastasizer.MetastasizerScreen;
 import net.scruffy.dermicraft.screen.custom.render_kiln.RenderKilnScreen;
-import net.scruffy.dermicraft.screen.custom.charred_render_kiln.CharredRenderKilnScreen;
 import net.scruffy.dermicraft.screen.custom.grafting_table.GraftingTableScreen;
 import net.scruffy.dermicraft.screen.custom.mutator.MutatorScreen;
 import net.scruffy.dermicraft.screen.custom.render_furnace.RenderFurnaceScreen;
@@ -260,7 +259,6 @@ public class DermicraftClient {
         event.register(ModMenuTypes.CHARRED_RENDER_FURNACE_MENU.get(), net.scruffy.dermicraft.screen.custom.charred_render_furnace.CharredRenderFurnaceScreen::new);
         event.register(ModMenuTypes.GRAFTING_TABLE_MENU.get(), GraftingTableScreen::new);
         event.register(ModMenuTypes.RENDER_KILN_MENU.get(), RenderKilnScreen::new);
-        event.register(ModMenuTypes.CHARRED_RENDER_KILN_MENU.get(), CharredRenderKilnScreen::new);
         event.register(ModMenuTypes.SCRENCH_MENU.get(), net.scruffy.dermicraft.screen.custom.scrench.ScrenchScreen::new);
         event.register(ModMenuTypes.AID_MENU.get(), net.scruffy.dermicraft.screen.custom.aid.AidScreen::new);
         event.register(ModMenuTypes.WORKBENCH_MENU.get(), net.scruffy.dermicraft.screen.custom.workbench.WorkbenchScreen::new);

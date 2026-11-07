@@ -66,7 +66,7 @@ public class DroolingGeodeScreen extends AbstractModScreen<DroolingGeodeMenu> {
     protected void init() {
         super.init();
 
-        fluidRenderer = createFluidRenderer16x64(menu.BE.getTank(null).getTankCapacity(0));
+        fluidRenderer = createFluidRenderer16x64(() -> menu.BE.getTank(null).getTankCapacity(0));
         tabs = List.of(
                 new Tab(Component.translatable("screen.dermicraft.drooling_geode.main_tab"), TAB_TEXT_COLOR),
                 new Tab(Component.translatable("screen.dermicraft.drooling_geode.module_tab"), TAB_TEXT_COLOR));

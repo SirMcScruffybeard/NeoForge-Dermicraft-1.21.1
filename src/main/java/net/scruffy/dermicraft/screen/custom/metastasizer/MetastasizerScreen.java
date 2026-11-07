@@ -29,8 +29,8 @@ public class MetastasizerScreen extends AbstractEvolvingMachineScreen<Metastasiz
     @Override
     protected void init() {
         super.init();
-        reagentRenderer = createFluidRenderer16x40(menu.BE.getReagentTank().getCapacity());
-        fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        reagentRenderer = createFluidRenderer16x40(() -> menu.BE.getReagentTank().getCapacity());
+        fuelRenderer = createFluidRenderer16x40(() -> menu.BE.getFuelTank().getCapacity());
     }
 
     @Override

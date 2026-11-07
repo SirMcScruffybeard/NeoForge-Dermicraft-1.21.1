@@ -10,7 +10,6 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.screen.custom.charred_render_furnace.CharredRenderFurnaceMenu;
-import net.scruffy.dermicraft.screen.custom.charred_render_kiln.CharredRenderKilnMenu;
 import net.scruffy.dermicraft.screen.custom.charred_craw.CharredCrawMenu;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
@@ -93,8 +92,6 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<RenderKilnMenu>> RENDER_KILN_MENU =
             registerMenuType("render_kiln_menu", RenderKilnMenu::new);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<CharredRenderKilnMenu>> CHARRED_RENDER_KILN_MENU =
-            registerMenuType("charred_render_kiln_menu", CharredRenderKilnMenu::new);
 
     // First item-triggered menu in the mod, no block entity -- see ScrenchMenu's class javadoc.
     public static final DeferredHolder<MenuType<?>, MenuType<ScrenchMenu>> SCRENCH_MENU =

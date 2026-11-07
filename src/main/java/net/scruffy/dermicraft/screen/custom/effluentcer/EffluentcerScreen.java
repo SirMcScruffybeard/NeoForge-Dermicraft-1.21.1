@@ -31,10 +31,10 @@ public class EffluentcerScreen extends AbstractEvolvingMachineScreen<Effluentcer
     protected void init() {
         super.init();
 
-        fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
-        inputARenderer = createFluidRenderer16x40(menu.BE.getInputATank().getCapacity());
-        inputBRenderer = createFluidRenderer16x40(menu.BE.getInputBTank().getCapacity());
-        resultRenderer = createFluidRenderer16x40(menu.BE.getResultTank().getCapacity());
+        fuelRenderer = createFluidRenderer16x40(() -> menu.BE.getFuelTank().getCapacity());
+        inputARenderer = createFluidRenderer16x40(() -> menu.BE.getInputATank().getCapacity());
+        inputBRenderer = createFluidRenderer16x40(() -> menu.BE.getInputBTank().getCapacity());
+        resultRenderer = createFluidRenderer16x40(() -> menu.BE.getResultTank().getCapacity());
     }
 
     // Auto-drain toggle -- sits directly above the crafting-progress arrow, in the empty column between the input

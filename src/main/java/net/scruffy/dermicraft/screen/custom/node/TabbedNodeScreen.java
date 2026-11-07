@@ -361,7 +361,7 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
         // since vanilla's own slot rendering/hit-testing reads leftPos/topPos directly) out from
         // under it.
         leftPos -= SCREEN_X_SHIFT;
-        tankRenderer = createFluidRenderer16x40(menu.BE.getFluidTank().getCapacity());
+        tankRenderer = createFluidRenderer16x40(() -> menu.BE.getFluidTank().getCapacity());
         filterSwatchRenderer = createFluidRenderer(1, 16, 16);
     }
 

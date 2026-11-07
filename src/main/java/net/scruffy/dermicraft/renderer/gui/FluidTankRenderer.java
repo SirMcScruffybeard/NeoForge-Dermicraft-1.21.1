@@ -36,7 +36,8 @@ public class FluidTankRenderer {
     private static final int TEXTURE_SIZE = 16;
     private static final int MIN_FLUID_HEIGHT = 1; // ensure tiny amounts of ingredientFluid are still visible
 
-    private final long capacity;
+    /** Read each time it is needed, so a gauge follows its tank when a Capacity Module changes the size. */
+    private final java.util.function.LongSupplier capacitySupplier;
     private final TooltipMode tooltipMode;
     private final int width;
     private final int height;
@@ -55,24 +56,36 @@ public class FluidTankRenderer {
         HORIZONTAL
     }
 
-    public FluidTankRenderer(long capacity, boolean showCapacity, int width, int height) {
+    public FluidTankRenderer(java.util.function.LongSupplier capacity, boolean showCapacity, int width, int height) {
         this(capacity, showCapacity, width, height, Orientation.VERTICAL);
     }
 
-    public FluidTankRenderer(long capacity, boolean showCapacity, int width, int height, Orientation orientation) {
+    public FluidTankRenderer(long capacity, boolean showCapacity, int width, int height) {
+        this(() -> capacity, showCapacity, width, height, Orientation.VERTICAL);
+    }
+
+    public FluidTankRenderer(java.util.function.LongSupplier capacity, boolean showCapacity, int width, int height, Orientation orientation) {
         this(capacity, showCapacity ? TooltipMode.SHOW_AMOUNT_AND_CAPACITY : TooltipMode.SHOW_AMOUNT, width, height, orientation);
     }
 
-    private FluidTankRenderer(long capacity, TooltipMode tooltipMode, int width, int height, Orientation orientation) {
-        Preconditions.checkArgument(capacity > 0, "capacity must be > 0");
+    public FluidTankRenderer(long capacity, boolean showCapacity, int width, int height, Orientation orientation) {
+        this(() -> capacity, showCapacity ? TooltipMode.SHOW_AMOUNT_AND_CAPACITY : TooltipMode.SHOW_AMOUNT, width, height, orientation);
+    }
+
+    private FluidTankRenderer(java.util.function.LongSupplier capacity, TooltipMode tooltipMode, int width, int height, Orientation orientation) {
+        Preconditions.checkArgument(capacity.getAsLong() > 0, "capacity must be > 0");
         Preconditions.checkArgument(width > 0, "width must be > 0");
         Preconditions.checkArgument(height > 0, "height must be > 0");
 
-        this.capacity = capacity;
+        this.capacitySupplier = capacity;
         this.tooltipMode = tooltipMode;
         this.width = width;
         this.height = height;
         this.orientation = orientation;
+    }
+
+    private long getCapacity() {
+        return Math.max(1, capacitySupplier.getAsLong());
     }
 
     public void render(GuiGraphics guiGraphics, int x, int y, FluidStack fluidStack) {
@@ -108,7 +121,7 @@ public class FluidTankRenderer {
 
         long amount = fluidStack.getAmount();
         int fillAxis = orientation == Orientation.HORIZONTAL ? width : height;
-        long scaledAmount = (amount * fillAxis) / capacity;
+        long scaledAmount = (amount * fillAxis) / getCapacity();
 
         if (amount > 0 && scaledAmount < MIN_FLUID_HEIGHT) {
             scaledAmount = MIN_FLUID_HEIGHT;
@@ -235,7 +248,7 @@ public class FluidTankRenderer {
         try {
             if (fluidType.isSame(Fluids.EMPTY)) {
                 tooltip.add(Component.literal("Empty"));
-                tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity", 0, nf.format(capacity)).withStyle(ChatFormatting.GRAY));
+                tooltip.add(Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity", 0, nf.format(getCapacity())).withStyle(ChatFormatting.GRAY));
                 return tooltip;
             }
 
@@ -246,7 +259,7 @@ public class FluidTankRenderer {
             long milliBuckets = (amount * 1000) / FluidType.BUCKET_VOLUME;
 
             if (tooltipMode == TooltipMode.SHOW_AMOUNT_AND_CAPACITY) {
-                MutableComponent amountString = Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity", nf.format(milliBuckets), nf.format(capacity));
+                MutableComponent amountString = Component.translatable("tooltip.dermicraft.liquid.amount.with.capacity", nf.format(milliBuckets), nf.format(getCapacity()));
                 tooltip.add(amountString.withStyle(ChatFormatting.GRAY));
             } else if (tooltipMode == TooltipMode.SHOW_AMOUNT) {
                 MutableComponent amountString = Component.translatable("tooltip.dermicraft.liquid.amount", nf.format(milliBuckets));

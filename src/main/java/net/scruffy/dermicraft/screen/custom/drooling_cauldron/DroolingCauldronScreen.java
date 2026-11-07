@@ -66,7 +66,7 @@ public class DroolingCauldronScreen extends AbstractModScreen<DroolingCauldronMe
     protected void init() {
         super.init();
 
-        fluidRenderer = createFluidRenderer16x64(menu.BE.getTank(null).getTankCapacity(0));
+        fluidRenderer = createFluidRenderer16x64(() -> menu.BE.getTank(null).getTankCapacity(0));
         tabs = List.of(
                 new Tab(Component.translatable("screen.dermicraft.drooling_cauldron.main_tab"), TAB_TEXT_COLOR),
                 new Tab(Component.translatable("screen.dermicraft.drooling_cauldron.module_tab"), TAB_TEXT_COLOR));

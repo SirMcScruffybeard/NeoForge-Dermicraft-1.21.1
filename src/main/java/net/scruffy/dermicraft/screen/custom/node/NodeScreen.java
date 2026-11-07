@@ -191,7 +191,7 @@ public class NodeScreen extends AbstractModScreen<NodeMenu> {
     @Override
     protected void init() {
         super.init();
-        tankRenderer = createFluidRenderer16x40(menu.BE.getFluidTank().getCapacity());
+        tankRenderer = createFluidRenderer16x40(() -> menu.BE.getFluidTank().getCapacity());
     }
 
     @Override

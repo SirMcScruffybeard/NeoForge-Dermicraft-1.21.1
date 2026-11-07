@@ -49,8 +49,8 @@ public class MutatorScreen extends AbstractEvolvingMachineScreen<MutatorMenu> {
     @Override
     protected void init() {
         super.init();
-        reagentRenderer = createFluidRenderer16x40(menu.BE.getReagentTank().getCapacity());
-        fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        reagentRenderer = createFluidRenderer16x40(() -> menu.BE.getReagentTank().getCapacity());
+        fuelRenderer = createFluidRenderer16x40(() -> menu.BE.getFuelTank().getCapacity());
     }
 
     // Directly above the crafting-progress arrow, one column right of the Mode button so the two don't collide.

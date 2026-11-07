@@ -25,9 +25,9 @@ public class MasticatorScreen extends AbstractEvolvingMachineScreen<MasticatorMe
     @Override
     protected void init() {
         super.init();
-        fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
-        ingredientRenderer = createFluidRenderer16x40(menu.BE.getIngredientTank().getCapacity());
-        resultRenderer = createFluidRenderer16x40(menu.BE.getResultTank().getCapacity());
+        fuelRenderer = createFluidRenderer16x40(() -> menu.BE.getFuelTank().getCapacity());
+        ingredientRenderer = createFluidRenderer16x40(() -> menu.BE.getIngredientTank().getCapacity());
+        resultRenderer = createFluidRenderer16x40(() -> menu.BE.getResultTank().getCapacity());
     }
 
     @Override

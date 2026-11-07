@@ -3,15 +3,8 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -32,74 +25,89 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.RenderKilnBlock;
 import net.scruffy.dermicraft.block.custom.RenderKilnVisualState;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
-import net.scruffy.dermicraft.fluid.BaseFluidType;
 import net.scruffy.dermicraft.hazard.HazardProfile;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IEvolvingMachine;
+import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
+import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IHaveModules;
-import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.recipe.FluidOnlyRecipeInput;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.rendering.RenderingRecipe;
 import net.scruffy.dermicraft.screen.custom.render_kiln.RenderKilnMenu;
 import net.scruffy.dermicraft.tank.ModFluidTank;
-import net.scruffy.dermicraft.tank.VulnerableTank;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<RenderingRecipe>
-        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine {
+        implements MenuProvider, IHaveInventory, IHasChannels, IEvolvingMachine, IModuleTabMachine {
 
     public static final int OUTPUT_SLOT = 2;
-    // Module slot -- same tab-gated evolution pattern as MasticatorBlockEntity/MetastasizerBlockEntity's
-    // own, declared here so Charred Render Kiln inherits it for free.
-    public static final int MODULE = 3;
-    public static final int INVENTORY_SIZE = 4;
+    public static final int INVENTORY_SIZE = 3;
 
-    private final VulnerableTank INPUT_TANK = createInputTank();
+    private final ModFluidTank INPUT_TANK = createInputTank();
 
     private boolean isTransferringFluids = false;
 
     private final ItemStackHandler INVENTORY = createInventory(INVENTORY_SIZE);
+
+    // General Module slot(s) -- own dedicated handler (see MachineBaseBlockEntity#createModuleInventory), not part of
+    // INVENTORY above. Evolution Modules go in the dedicated Evolution slot (EVOLUTION_INVENTORY, in the engine), never here.
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
+            stack -> stack.is(ModTags.Items.MODULES) && !isEvolutionModule(stack));
 
     private ItemStack cachedResult = ItemStack.EMPTY;
     private int requiredFluid = 0;
 
     private boolean moduleTabActive = false;
 
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    @Override
     public boolean isModuleTabActive() {
         return moduleTabActive;
     }
 
+    @Override
     public void setModuleTabActive(boolean active) {
         this.moduleTabActive = active;
     }
 
-    // ---- Evolution (installed Evolution Module -> eventual Charred Render Kiln) ----------------
-    // Mirrors MetastasizerBlockEntity's identical mechanic -- see that class's own comment for the
-    // full rationale.
-    private int evolutionProgress = 0;
-    private int flourishCyclesRemaining = -1;
-    private static final int FLOURISH_DURATION_CYCLES = 4; // 4 * CRAFT_TICKS(10) = 40 ticks, ~2s
-
     public RenderKilnBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.RENDER_KILN_BE.get(), pos, blockState);
+        super(ModBlockEntities.RENDER_KILN_BE.get(), pos, blockState);
     }
 
-    // Lets a capability-leap subclass (Charred Render Kiln) register under its own BlockEntityType --
-    // mirrors MasticatorBlockEntity's identical protected constructor.
-    protected RenderKilnBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
+    // ---- Evolution ----------------------------------------------------------------------------
+    // The Render Kiln evolves in place through its evolution state and the Evolution slot. The gradual-progress
+    // machinery, the Evolution slot, the flourish and the stat defaults (tank capacity, HP, speed, fuel use, Module
+    // slots) all live in AbstractFueledMachineBlockEntity; this class opts in and resizes what it owns.
+
+    @Override
+    protected boolean usesEvolutionState() {
+        return true;
+    }
+
+    @Override
+    protected MachineStatKey getStatKey() {
+        return MachineStatKey.RENDER_KILN;
+    }
+
+    @Override
+    protected void onEvolutionStateChanged() {
+        super.onEvolutionStateChanged();
+        resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
+        applyCapacityBonus();
     }
 
     @Override
@@ -107,7 +115,7 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
         return ModRecipes.RENDERING_TYPE.get();
     }
 
-    public VulnerableTank getInputTank() {
+    public ModFluidTank getInputTank() {
         return INPUT_TANK;
     }
 
@@ -125,147 +133,12 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
     private RenderKilnVisualState pendingVisualState = null;
     private int pendingVisualCycles = 0;
 
+
+    /** The face texture is read at the end of the cycle, after progress and any hazard damage, so a machine that heals
+     * and is hurt again every cycle still shows as recovering. */
     @Override
-    protected boolean tickHealing(boolean fueled) {
-        boolean healed = super.tickHealing(fueled);
+    protected void onCycleEnd() {
         updateVisualState();
-        tickEvolutionFlourish();
-        return healed;
-    }
-
-    /** Runs once per CRAFT_TICKS cycle -- see MasticatorBlockEntity's identical method for the
-     * full rationale (density ramps up, block swap fires in the densest part of the burst). */
-    private void tickEvolutionFlourish() {
-        if (flourishCyclesRemaining < 0) return;
-
-        if (level instanceof ServerLevel serverLevel) {
-            spawnFlourishParticles(serverLevel, flourishCyclesRemaining);
-        }
-
-        flourishCyclesRemaining--;
-        if (flourishCyclesRemaining < 0) {
-            completeEvolution(level);
-        }
-    }
-
-    private void startEvolutionFlourish() {
-        flourishCyclesRemaining = FLOURISH_DURATION_CYCLES;
-        if (level != null) {
-            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
-        }
-    }
-
-    private void spawnFlourishParticles(ServerLevel serverLevel, int cyclesRemaining) {
-        double cx = worldPosition.getX() + 0.5;
-        double cy = worldPosition.getY() + 0.5;
-        double cz = worldPosition.getZ() + 0.5;
-
-        float progress = 1f - (cyclesRemaining / (float) FLOURISH_DURATION_CYCLES);
-        int dustCount = 8 + Math.round(progress * 16);
-        DustParticleOptions dust = tintedDust();
-        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
-        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 3 + Math.round(progress * 8), 0.35, 0.35, 0.35, 0.02);
-
-        if (cyclesRemaining == 0) {
-            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
-            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
-        }
-    }
-
-    private DustParticleOptions tintedDust() {
-        int tint = 0xFFCF4B12; // fallback: lava-orange, matches Thermal's own target fluid
-        Optional<net.minecraft.world.level.material.Fluid> targetFluid = installedEvolutionProperties()
-                .flatMap(EvolutionModuleProperties::targetFluid);
-        if (targetFluid.isPresent() && targetFluid.get().getFluidType() instanceof BaseFluidType baseType) {
-            tint = baseType.getTintColor();
-        }
-        return new DustParticleOptions(new Vector3f(
-                ((tint >> 16) & 0xFF) / 255.0F,
-                ((tint >> 8) & 0xFF) / 255.0F,
-                (tint & 0xFF) / 255.0F), 1.4F);
-    }
-
-    /**
-     * Transforms this block into a Charred Render Kiln in place, carrying over fuel/input tank
-     * contents and the output item slot -- but deliberately NOT the recipe-in-progress bookkeeping
-     * (active recipe, craft progress, cached result), same reasoning as
-     * MetastasizerBlockEntity#completeEvolution: a half-finished cycle just restarts cleanly on the
-     * new block instead. The Module itself is not carried over -- this transform is what consumes it.
-     */
-    private void completeEvolution(Level level) {
-        ItemStack outputItem = INVENTORY.getStackInSlot(OUTPUT_SLOT);
-        FluidStack fuelContents = FUEL_TANK.getFluid().copy();
-        FluidStack inputContents = INPUT_TANK.getFluid().copy();
-        BlockState oldState = getBlockState();
-
-        INVENTORY.setStackInSlot(OUTPUT_SLOT, ItemStack.EMPTY);
-        INVENTORY.setStackInSlot(MODULE, ItemStack.EMPTY);
-        if (!fuelContents.isEmpty()) FUEL_TANK.drain(fuelContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
-        if (!inputContents.isEmpty()) INPUT_TANK.drain(inputContents.getAmount(), IFluidHandler.FluidAction.EXECUTE);
-
-        BlockState newState = ModBlocks.CHARRED_RENDER_KILN.get().defaultBlockState()
-                .setValue(RenderKilnBlock.FACING, oldState.getValue(RenderKilnBlock.FACING));
-        level.setBlock(worldPosition, newState, Block.UPDATE_ALL);
-
-        if (level.getBlockEntity(worldPosition) instanceof RenderKilnBlockEntity charred) {
-            charred.INVENTORY.setStackInSlot(OUTPUT_SLOT, outputItem);
-            if (!fuelContents.isEmpty()) charred.FUEL_TANK.fill(fuelContents, IFluidHandler.FluidAction.EXECUTE);
-            if (!inputContents.isEmpty()) charred.INPUT_TANK.fill(inputContents, IFluidHandler.FluidAction.EXECUTE);
-            charred.setChanged();
-            charred.updateBlock();
-        }
-    }
-
-    /** Whether this instance can still evolve at all -- true for the base Render Kiln, overridden
-     * to false by {@link CharredRenderKilnBlockEntity} (already evolved). */
-    protected boolean canEvolve() {
-        return true;
-    }
-
-    /** Union of this machine's base (TIER_1) hazard tolerance with whatever the installed Module
-     * grants -- see MasticatorBlockEntity#installedHazardProfile for the full rationale. */
-    protected HazardProfile installedHazardProfile() {
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        HazardProfile profile = IHaveModules.installedHazardProfile(HazardProfile.TIER_1, module);
-
-        if (canEvolve() && !module.isEmpty()) {
-            EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                    .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-            if (evoProps != null) {
-                for (var hazard : evoProps.hazards()) {
-                    profile = profile.plusFamily(hazard, 1);
-                }
-            }
-        }
-        return profile;
-    }
-
-    /** 0 when not evolving at all (no Module, one with no real Evolution properties, or already a
-     * Charred Render Kiln); otherwise how far {@link #evolutionProgress} is toward
-     * {@code evolutionThreshold}, 0-1. Public purely for {@code EvolutionOverlayBlockEntityRenderer}'s
-     * creeping overlay -- mirrors MetastasizerBlockEntity's identical method. */
-    @Override
-    public float getEvolutionProgressFraction() {
-        return installedEvolutionProperties()
-                .map(props -> Math.min(1f, evolutionProgress / (float) props.evolutionThreshold()))
-                .orElse(0f);
-    }
-
-    /** Empty unless the Module slot holds an item with real {@code EvolutionModuleProperties} data
-     * AND {@link #canEvolve()}. */
-    private Optional<EvolutionModuleProperties> installedEvolutionProperties() {
-        if (!canEvolve()) return Optional.empty();
-        ItemStack module = INVENTORY.getStackInSlot(MODULE);
-        if (module.isEmpty()) return Optional.empty();
-        return Optional.ofNullable(
-                BuiltInRegistries.ITEM.wrapAsHolder(module.getItem()).getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES));
-    }
-
-    /** Called whenever the Module slot's contents change at all -- full reset, matching
-     * MasticatorBlockEntity's identical rule. */
-    protected void onModuleChanged() {
-        evolutionProgress = 0;
     }
 
     private void updateVisualState() {
@@ -299,6 +172,75 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
             return RenderKilnVisualState.RUNNING;
         }
         return RenderKilnVisualState.IDLE;
+    }
+
+    // ---- Hazards ----------------------------------------------------------------------------------
+
+    /** The hazards that matter when the Render Kiln processes: the input fluid it consumes (its output is an item, and
+     * the fuel does not count). */
+    @Override
+    protected List<FluidStack> getProcessingFluids() {
+        return List.of(INPUT_TANK.getFluid());
+    }
+
+    @Override
+    protected HazardProfile getHazardProfile() {
+        return installedHazardProfile();
+    }
+
+    /** The hazards this machine tolerates, which cancel the matching penalties: a Tier 1 base (none), plus the Safety
+     * Modules in the general Module slots, plus the permanent tolerance it has earned by evolving, plus the tolerance
+     * of a hazard Evolution Module that is evolving it right now. Recomputed on demand, never cached. */
+    protected HazardProfile installedHazardProfile() {
+        HazardProfile profile = HazardProfile.TIER_1;
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            profile = IHaveModules.installedHazardProfile(profile, MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return addEvolvingTolerance(addPermanentTolerance(profile));
+    }
+
+    /** Work Speed Module bonus across this machine's Module slot(s) -- see
+     * IHaveModules#workSpeedMultiplier for the diminishing-return stacking rule. */
+    @Override
+    protected float workSpeedMultiplier() {
+        List<ItemStack> modules = new ArrayList<>();
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            modules.add(MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return IHaveModules.workSpeedMultiplier(modules);
+    }
+
+    /** Capacity Module bonus, summed over every installed Module. */
+    @Override
+    protected int getCapacityBonus() {
+        int total = 0;
+        for (int i = 0; i < MODULE_INVENTORY.getSlots(); i++) {
+            total += capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(i));
+        }
+        return total;
+    }
+
+    @Override
+    protected void applyCapacityBonus() {
+        int capacity = getBaseTankCapacity() + getCapacityBonus();
+        FUEL_TANK.setCapacity(capacity);
+        INPUT_TANK.setCapacity(capacity);
+    }
+
+    @Override
+    protected boolean canRemoveModule(int slot) {
+        int thisBonus = capacityModuleBonus(MODULE_INVENTORY.getStackInSlot(slot));
+        if (thisBonus == 0) return true;
+        int newCapacity = getBaseTankCapacity() + (getCapacityBonus() - thisBonus);
+        return FUEL_TANK.getFluid().getAmount() <= newCapacity
+                && INPUT_TANK.getFluid().getAmount() <= newCapacity;
+    }
+
+    /** How far the pending evolution is, 0 to 1 (0 with no live Evolution Module). Read by
+     * {@code EvolutionOverlayBlockEntityRenderer}'s creeping overlay. */
+    @Override
+    public float getEvolutionProgressFraction() {
+        return getGradualEvolutionFraction();
     }
 
     public FluidStack getFluid(int slot) {
@@ -463,6 +405,8 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
     @Override
     public void drops() {
         super.drops(INVENTORY);
+        super.drops(MODULE_INVENTORY);
+        super.drops(EVOLUTION_INVENTORY);
     }
 
     @Override
@@ -476,8 +420,8 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
 
     @Override
     protected boolean hasCraftingInputs() {
-        // Frozen during the evolution flourish, same as Metastasizer/Masticator.
-        return flourishCyclesRemaining < 0 && hasEnoughInput();
+        // Frozen during the evolution flourish, so the new state never lands mid-craft.
+        return !isEvolutionFlourishing() && hasEnoughInput();
     }
 
     @Override
@@ -493,17 +437,9 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
         int amount = requiredFluid;
         ItemStack output = cachedResult.copy();
 
-        int completedTicks = maxProgress;
 
         INPUT_TANK.useFluid(amount);
         INVENTORY.insertItem(OUTPUT_SLOT, output, false);
-
-        installedEvolutionProperties().ifPresent(props -> {
-            evolutionProgress += completedTicks;
-            if (evolutionProgress >= props.evolutionThreshold() && flourishCyclesRemaining < 0) {
-                startEvolutionFlourish();
-            }
-        });
     }
 
     // Restores the cached result/fluid amount when a saved recipe is reloaded from NBT.
@@ -565,25 +501,24 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", INVENTORY.serializeNBT(registries));
+        tag.put("module_inventory", MODULE_INVENTORY.serializeNBT(registries));
         tag.put("input", INPUT_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("requiredFluid", requiredFluid);
         tag.putBoolean("module_tab_active", moduleTabActive);
-        tag.putInt("evolution_progress", evolutionProgress);
-        tag.putInt("evolution_flourish_cycles", flourishCyclesRemaining);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        // Worlds saved before MODULE existed have a smaller Size -- see
+        // Worlds saved at an older size have a smaller Size -- see
         // MachineBaseBlockEntity#loadItemHandler for why a plain deserializeNBT would shrink
         // INVENTORY back down and crash the menu (slot out of range).
         if (tag.contains("inventory")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
+        if (tag.contains("module_inventory")) loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("module_inventory"));
+        applyCapacityBonus();
         if (tag.contains("input")) INPUT_TANK.readFromNBT(registries, tag.getCompound("input"));
         requiredFluid = tag.getInt("requiredFluid");
         moduleTabActive = tag.getBoolean("module_tab_active");
-        evolutionProgress = tag.getInt("evolution_progress");
-        flourishCyclesRemaining = tag.contains("evolution_flourish_cycles") ? tag.getInt("evolution_flourish_cycles") : -1;
     }
 
     private ItemStackHandler createInventory(int size) {
@@ -591,8 +526,6 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
             @Override
             protected void onContentsChanged(int slot) {
                 if (level == null || level.isClientSide()) return;
-
-                if (slot == MODULE) onModuleChanged();
 
                 if (isTransferringFluids) return;
 
@@ -620,19 +553,14 @@ public class RenderKilnBlockEntity extends AbstractFueledMachineBlockEntity<Rend
             // containers could otherwise collapse to one silently).
             @Override
             public int getSlotLimit(int slot) {
-                if (slot == FUEL_TANK.SLOT || slot == INPUT_TANK.SLOT || slot == MODULE) return 1;
+                if (slot == FUEL_TANK.SLOT || slot == INPUT_TANK.SLOT) return 1;
                 return super.getSlotLimit(slot);
-            }
-
-            @Override
-            public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-                return slot != MODULE || stack.is(ModTags.Items.MODULES);
             }
         };
     }
 
-    protected VulnerableTank createInputTank() {
-        return new VulnerableTank(getTier().tankCapacity(), 1, this::installedHazardProfile) {
+    protected ModFluidTank createInputTank() {
+        return new ModFluidTank(getBaseTankCapacity(), 1) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide()) {

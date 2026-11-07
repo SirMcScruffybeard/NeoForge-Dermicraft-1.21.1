@@ -83,7 +83,7 @@ public class RenderFurnaceScreen extends AbstractModScreen<RenderFurnaceMenu> {
     @Override
     protected void init() {
         super.init();
-        fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        fuelRenderer = createFluidRenderer16x40(() -> menu.BE.getFuelTank().getCapacity());
         tabs = List.of(
                 new Tab(Component.translatable("screen.dermicraft.render_furnace.main_tab"), TAB_TEXT_COLOR),
                 new Tab(Component.translatable("screen.dermicraft.render_furnace.module_tab"), TAB_TEXT_COLOR));

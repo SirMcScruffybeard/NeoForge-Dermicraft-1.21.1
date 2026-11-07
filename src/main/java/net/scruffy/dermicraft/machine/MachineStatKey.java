@@ -10,7 +10,8 @@ public enum MachineStatKey {
     MASTICATOR("masticator"),
     METASTASIZER("metastasizer"),
     MUTATOR("mutator"),
-    EFFLUENTCER("effluentcer");
+    EFFLUENTCER("effluentcer"),
+    RENDER_KILN("render_kiln");
 
     private final String SECTION_NAME;
 

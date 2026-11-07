@@ -363,8 +363,6 @@
 
   "block.dermicraft.render_kiln": "Render Kiln",
   "blockEntity.dermicraft.render_kiln_be": "Render Kiln",
-  "block.dermicraft.charred_render_kiln": "Charred Render Kiln",
-  "blockEntity.dermicraft.charred_render_kiln_be": "Charred Render Kiln",
 
   "block.dermicraft.craw": "Craw",
   "blockEntity.dermicraft.craw_be": "Craw",
@@ -552,8 +550,6 @@
   "screen.dermicraft.render_kiln.main_tab": "Main",
   "screen.dermicraft.render_kiln.module_tab": "Mod",
 
-  "screen.dermicraft.charred_render_kiln.main_tab": "Main",
-  "screen.dermicraft.charred_render_kiln.module_tab": "Mod",
 
   "screen.dermicraft.render_furnace.main_tab": "Main",
   "screen.dermicraft.render_furnace.module_tab": "Mod",

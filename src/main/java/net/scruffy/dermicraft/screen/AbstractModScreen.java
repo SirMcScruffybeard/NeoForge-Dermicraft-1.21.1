@@ -157,6 +157,11 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
      * @return puddle renderer that is 16px X 64px.
      *      Used by DroolingCauldronScreen, SkinTankScreen
      *************************************************************************************/
+    /** A gauge that reads its tank's capacity every frame, so it follows a Capacity Module put in or taken out while the screen is open. */
+    protected FluidTankRenderer createFluidRenderer16x64(java.util.function.IntSupplier capacity) {
+        return new FluidTankRenderer((java.util.function.LongSupplier) capacity::getAsInt, true, 16, 64);
+    }
+
     protected FluidTankRenderer createFluidRenderer16x64(int capacity) {
         return createFluidRenderer(capacity, 16, 64);
     }
@@ -167,6 +172,11 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
      * @return puddle renderer that is 16px X 40px.
      *      Used by MasticatorScreen
      *************************************************************************************/
+    /** A gauge that reads its tank's capacity every frame, so it follows a Capacity Module put in or taken out while the screen is open. */
+    protected FluidTankRenderer createFluidRenderer16x40(java.util.function.IntSupplier capacity) {
+        return new FluidTankRenderer((java.util.function.LongSupplier) capacity::getAsInt, true, 16, 40);
+    }
+
     protected FluidTankRenderer createFluidRenderer16x40(int capacity) {
         return createFluidRenderer(capacity, 16, 40);
     }

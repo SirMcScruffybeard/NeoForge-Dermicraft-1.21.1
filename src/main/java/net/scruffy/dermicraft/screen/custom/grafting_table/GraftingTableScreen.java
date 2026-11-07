@@ -83,7 +83,7 @@ public class GraftingTableScreen extends AbstractModScreen<GraftingTableMenu> {
     @Override
     protected void init() {
         super.init();
-        fuelRenderer = createFluidRenderer16x40(menu.BE.getFuelTank().getCapacity());
+        fuelRenderer = createFluidRenderer16x40(() -> menu.BE.getFuelTank().getCapacity());
     }
 
     @Override
