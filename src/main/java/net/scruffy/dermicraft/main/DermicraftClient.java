@@ -235,6 +235,8 @@ public class DermicraftClient {
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.RENDER_KILN_BE.get(),
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.GRAFTING_TABLE_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.RENDER_FURNACE_BE.get(),
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
     }

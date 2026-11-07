@@ -38,6 +38,13 @@ public class DroolingCauldronBlockEntityRenderer extends TankBlockEntityRenderer
         if (!fluidStack.isEmpty()) {
             renderFluidPool(pBlockEntity, fluidStack, level, pPoseStack, pBuffer, pPackedLight);
         }
+
+        // The creeping evolution tint, drawn over the block's shell whether or not the tank holds anything, since a
+        // machine keeps evolving while its output is drained as fast as it is made.
+        float evolutionProgress = pBlockEntity.getGradualEvolutionFraction();
+        if (evolutionProgress > 0) {
+            renderEvolutionOverlay(evolutionProgress, pPoseStack, pBuffer, pPackedLight);
+        }
     }
 
     private void renderFluidPool(DroolingMachineBlockEntity<?> pBlockEntity, FluidStack fluidStack, Level level,
