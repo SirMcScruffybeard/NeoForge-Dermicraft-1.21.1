@@ -72,7 +72,7 @@ Every Masticator, Metastasizer (duplicate) and Render Kiln recipe for these mate
 
 **Coal / Charcoal (Carbon Pulp):** 90 each, Coal Block 810.
 
-**Bone (Calcium Pulp):** Bone Meal 90, Bone Block 810, Bone 270 (3x bone meal), Skeleton Skull 810. The 330-vs-334 hack and the batch-of-3 recipe go away (3 x 90 = 270 = Bone). Add Bone Block recipes (masticate, metastasize, Render Kiln); none exist today. Puddle bone-meal bootstrap keeps its premium (4 meal -> 270).
+**Bone (Calcium Pulp):** Bone Meal 90, Bone Block 810, Bone 270 (3x bone meal), Skeleton Skull 810. The 330-vs-334 hack and the batch-of-3 recipe go away (3 x 90 = 270 = Bone). Add Bone Block recipes (masticate, metastasize, Render Kiln); none exist today. The Calcium Pulp puddle recipe is REMOVED (see Phase 5, Puddle Craft recipes).
 
 **Molten gems (all get the ratio):** Diamond, Emerald, Lapis, Redstone, Quartz, Glowstone, Amethyst, Soul Silica.
 - 9:1 materials (Diamond, Emerald, Lapis, Redstone): item 90, block 810.
@@ -90,24 +90,47 @@ Every Masticator, Metastasizer (duplicate) and Render Kiln recipe for these mate
 
 **Netherrack family (new, feeds Nether Ichor), REVISED 2026-11-05:** Netherrack = 90 (1 unit). It smelts to the Nether Brick item = 90; 4 bricks = Nether Bricks block = 360; Nether Brick Slab = 180 (half). Netherrack gives 90 mB Nether Ichor (the earlier 810 block rate is superseded). Needs the Masticator recipe (Phase 5), a Render Kiln reverse (90 Nether Ichor -> 1 Netherrack) and a Metastasizer duplicate (pattern Netherrack, 90 Nether Ichor). Nether Brick Slab 180, Stairs 360, Wall 360 and Fence 180 (2 Nether Bricks + 4 Nether Brick items make 6 fences = 1080 / 6) all get recipes (user confirmed). The supply is Nether-only: every mB of Nether Ichor originates from mined netherrack, and conversions consume it, so the gate is ongoing, not first-trip.
 
-**Wood (Cellulose Pulp), PENDING REVISION (2026-11-05): wood does not have to follow the stone scale and is being decided separately. The table below is the OLD Log = 810 derivation and is stale for stairs (new stair rule: 1 stair = 1 plank, 1:1 with its block) and slabs (half a plank). Do not implement until revised.**
+**Wood (Cellulose Pulp), DECIDED 2026-11-06: Log = 360, Plank = 90.** A log is 4 planks (the same 4:1 shape as Dripstone Block / Pointed Dripstone), so every value is a multiple of 45 and nothing rounds; 4 planks cost exactly one log. Slab = half a plank; Stairs = 1 plank (the 1:1 stair rule). All four log variants (Log, Wood, Stripped Log, Stripped Wood) cost the same (vanilla's 4 logs -> 3 wood is deliberately ignored). Times are UNCHANGED from the current tiers (log 10 s, plank 2.5 s, etc.), except Stairs use the plank's 2.5 s instead of 3.75 s; Bow also moves off `stairsTicks` (it used the 375 mB stairs tier) to 3 sticks' worth. Nothing consumes wood pulp except the duplicate and recycling recipes (verified by grep: no reagent, fuel or data-map use).
 
-| Item | Old | New |
-|---|---|---|
-| Log / Wood / Stripped variants | 1000 | 810 |
-| Planks | 250 | 203 |
-| Slab | 125 | 102 |
-| Stairs | 375 | 304 |
-| Door | 500 | 405 |
-| Trapdoor | 750 | 608 |
-| Fence Gate | 1000 | 810 |
-| Pressure Plate | 500 | 405 |
-| Button | 250 | 203 |
-| Stick | 125 | 102 |
-| Fence (batch of 3) | 1250 | 1013 |
-| Fence (single) | 400 | 325 |
-| Crafting Table | 1000 | 810 |
-| Chest (and the other 2000 mB chest-family line) | 2000 | 1620 |
+| Item | Basis | Old | New |
+|---|---|---|---|
+| Log / Wood / Stripped Log / Stripped Wood | 4 planks | 1000 | 360 |
+| Planks | 1 unit | 250 | 90 |
+| Slab | 1/2 plank | 125 | 45 |
+| Stairs | 1 plank | 375 | 90 |
+| Stick | 1/2 plank | 125 | 45 |
+| Button | 1 plank | 250 | 90 |
+| Door | 2 planks | 500 | 180 |
+| Pressure Plate | 2 planks | 500 | 180 |
+| Trapdoor | 3 planks | 750 | 270 |
+| Fence Gate | 2 planks + 4 sticks | 1000 | 360 |
+| Fence (batch of 3) | 4 planks + 2 sticks | 1250 | 450 |
+| Fence (single) | just under 1/3 of the batch (150) | 400 | 140 |
+| Bow | 3 sticks | 375 | 135 |
+| Crafting Table | 4 planks | 1000 | 360 |
+| Chest (and the other 2000 mB chest-family line) | 8 planks | 2000 | 720 |
+| Paper (NEW, no recipe exists today) | decorative-cheap; 3 paper = 1 plank | none | 30 |
+
+Paper (added 2026-11-06): joins the wood family even though sugar cane is not wood (other mods make paper from wood, so there is precedent). New Metastasizer duplicate (`metastasizing_paper`, pattern Items.PAPER) and a Masticator recycle (`pulp_blend_recycling_paper`), both 30 mB Cellulose Pulp. Craft time `halfPlankTicks` (1.25 s), user accepted.
+
+**Glass family (DECIDED 2026-11-06), Silica Pulp unless noted, craft times unchanged:**
+
+| Item | Old | New | Note |
+|---|---|---|---|
+| Glass Block | 1000 | 90 | duplicate + Masticator recycle |
+| Glass Pane | 500 | 30 | duplicate + recycle |
+| Stained Glass Block (16 colors) | 1000 | 90 | duplicate; `mutating_stained_glass_*` takes dye + 90 Silica |
+| Stained Glass Pane (16 colors) | 500 | 30 | duplicate |
+| Calcium Glass | 1000 | 90 | duplicate with Calcium Pulp |
+| Beaker (Silica and Calcium recipes) | 1000 | 90 | matched to Glass Block |
+| Glass Flask (Silica and Calcium recipes) | 250 | 20 | sized from the Beaker's volume |
+| Glass Bottle (vanilla, NEW) | none | 30 | new duplicate; recycle also assumed (same 30 tier as Pane) |
+
+- REMOVE `calcium_glass_puddle` (bone meal + Calcium Pulp puddle, ~line 1195).
+- ADD a Metastasizer recipe that copies a plain Glass Block into Calcium Glass with Calcium Pulp: pattern `Items.GLASS` (non-consumed), 90 Calcium Pulp, result Calcium Glass; use `RecipeBuilders.buildMetastasizing(...)` with an `ItemStack` result (the fence recipe is the precedent for a result differing from a plain duplicate). Cost matches regular glass (90). Craft time solidTicks (10 s). Keep the existing `metastasizing_calcium_glass` duplicate at 90.
+- Bottle craft time is unspecified; suggest the Pane's `aggregateTicks` (placeholder).
+
+Recipes to touch (ModRecipeProvider ~1669-1781): `pulp_blend_masticating` (logs), the `pulp_blend_recycling_*` family (planks, slabs, stairs, doors, trapdoors, fence gates, stick, bow, pressure plates, buttons, fence, single fence), the per-species `metastasizing_<species>_*` loop, `metastasizing_stick`, chest and crafting table (both directions). Remember the fence batch recipes use `itemAmount = 3`.
 
 **NOT rescaled:**
 - Protein Pulp (values come from the food).
@@ -124,16 +147,16 @@ Checkpoint: spot-check a round trip per family in-game (masticate -> duplicate c
 
 ## Phase 4: New fluids (full CLAUDE.md checklist for EACH)
 
-Five new registered fluids (Flux, Luminous Ichor, Nether Ichor, and the three Dirty Pulps counted as one family). Per fluid: `ModFluidTypes`, `ModFluids` (source, flowing, LiquidBlock, bucket, Properties), `ModItemModelProvider` (chunky or thin bucket), `ModClientEvents.registerBucketTint`, `DermicraftClient` (`renderTranslucentFluid` AND `registerFluidType`), `ModFluidTagProvider` (THICK/THIN + hazards), `ModItemTagProvider` mirrors, `ModDataMapProvider` if relevant, a survival recipe, lang keys, `ModCreativeModeTabs` (bucket + filled Beaker). Then `runData`.
+Five new registered fluids (Flux, Luminous Ichor, Nether Ichor, and the three Dirty Pulps counted as one family). Per fluid: `ModFluidTypes`, `ModFluids` (source, flowing, LiquidBlock, bucket, Properties), `ModItemModelProvider` (chunky or thin bucket), `ModClientEvents.registerBucketTint`, `DermicraftClient` (`renderTranslucentFluid` AND `registerFluidType`), `ModFluidTagProvider` (THICK/THIN only; hazards are no longer tags), `ModDataMapProvider` FLUID_HAZARD entry for Radiation / Biohazard / Metaphysical intensity (Thermal comes from the FluidType's temperature, so set it honestly), `ModItemTagProvider` mirrors, `ModDataMapProvider` if relevant, a survival recipe, lang keys, `ModCreativeModeTabs` (bucket + filled Beaker). Then `runData`.
 
 | Fluid | Look | Notes |
 |---|---|---|
-| **Flux** | thin water-style texture (`thinBucketItem`), tint 0xFFE4EEF0 (pale cool white), viscosity ~1500 | Verify distinct from existing thin fluids. No hazards. |
-| **Dirty Ferrous Pulp** | chunky, same textures as clean, tint 0xFF918D8A | viscosity ~3000, density ~2600 (inert), temp 290, fog = tint |
-| **Dirty Cuprous Pulp** | tint 0xFF815A37 | same FluidType shape |
-| **Dirty Aurous Pulp** | tint 0xFF8F783A | same; Cuprous/Aurous both drift brown, fallback is a faint speckle overlay on dirty versions only |
-| **Luminous Ichor** | chunky bucket, tint 0xFFF0B46A (amber-peach), darker fog of same hue | emissive: light 10 on BOTH the FluidType and the LiquidBlock; viscosity ~2500, density ~1500, temp 310, normal motion scale. Tags: THICK + RADIATION_MILD (not Thermal, not BIOFUELS). |
-| **Nether Ichor** (`nether_ichor`) | chunky bucket; look/tint TBD (flesh-like, reddish-brown; to choose) | Made from Netherrack + Protein Pulp. Untagged proposed (not a heat source, since Soul Silica is made without lava). Consumed in conversions. Not a formal family with Luminous Ichor (user unsure), but "Ichor" = flesh-like. |
+| **Flux** | thin water-style texture (`thinBucketItem`), tint 0xFFB5E4EE (pale ice cyan), color vector (181, 228, 238) | FINAL 2026-11-06. viscosity 1500, density 1500 (inert), temperature 295 (keep near ambient; Thermal reads it), motion scale 0.025. THIN tag. No hazards. The earlier pale white 0xFFE4EEF0 was dropped: it sat within 13 per channel of Ghast Essence (0xFFEDEDE3). |
+| **Dirty Ferrous Pulp** | chunky bucket, SHARED speckle-overlay dirty still/flowing textures (new art, the user will make them), tint 0xFFB5B3B1 | FINAL 2026-11-06 (25% slag mix, shared slag 0x4A423C). viscosity 3000, density 2600 (inert), temperature 290, motion scale 0.012, fog = tint. THICK tag, no hazards. |
+| **Dirty Cuprous Pulp** | tint 0xFF9D6735 | same FluidType values and shared dirty textures as Dirty Ferrous |
+| **Dirty Aurous Pulp** | tint 0xFFB29438 | same FluidType values and shared dirty textures. The old 50% slag tints (0x918D8A, 0x815A37, 0x8F783A) are superseded: Dirty Ferrous fell between Stone and Clay Pulp and Dirty Cuprous sat on F-Stuff, which the speckle overlay now resolves. |
+| **Luminous Ichor** | chunky bucket, tint 0xFFF0B46A (amber-peach), darker fog of same hue | emissive: light 10 on BOTH the FluidType and the LiquidBlock; viscosity ~2500, density ~1500, temp 310, normal motion scale. Fluid tag THICK. Hazard is a FLUID_HAZARD data-map entry, `FluidHazardData.radiation(~50)` (Mild band 1-99), NOT a tag. Not Thermal (temp 310), not BIOFUELS. Adding Biohazard too is an open question (see the backlog). |
+| **Nether Ichor** (`nether_ichor`) | chunky bucket; look/tint TBD (flesh-like, reddish-brown; to choose) | Made from Netherrack + Protein Pulp. Not Thermal (ambient temperature; Soul Silica is made without lava). Hazard OPEN: possibly `FluidHazardData.biohazard(intensity)` in the data map (user is considering Biohazard; see the backlog), otherwise none. Consumed in conversions. Not a formal family with Luminous Ichor (user unsure), but "Ichor" = flesh-like. |
 
 Dirty Pulps have no other uses than the refining forks; their survival reachability is the Masticator route in Phase 5.
 
@@ -198,6 +221,18 @@ All Effluentcer ("effluencing") recipes take exactly two input fluids. Negative 
 
 **Dyes:** all 16 dye Metastasizer duplications flat 10 mB (White Calcium, Black Carbon, Gray Stone, Light Gray C-Stuff, the other 12 Crude Slurry). Craft times unchanged.
 
+**Reagent audit rulings (DECIDED 2026-11-06).** Mechanical rescales by the ingot rule: Golden Apple 540, Golden Carrot and Glistering Melon Slice 60 each, Heavy and Light Weighted Pressure Plate 180, Cauldron 630, Hopper 450, Colored Terracotta (Mutator) 360, Glazed Terracotta (Mutator) 180. Remaining items:
+- **Copper family, fixed to the vanilla ratios** (the old "cut copper = block" price came from missing information). Copper Block 810; Cut Copper 203 (4 blocks make 16, so 202.5 rounded up); Cut Copper Stairs 304 (6 cut make 4, 1.5 cut each); Cut Copper Slab 102 (3 cut make 6); Chiseled Copper 203 (2 cut copper slabs, about 1 cut copper); Copper Grate 810 (4 blocks make 4); Copper Door 180 (6 ingots make 3); Copper Trapdoor 360 (4 ingots make 1; the old 2000 was wrong). Do both directions (Masticator and Metastasizer mirror each other). Craft times: scale by the same ratio to the Copper Block's 90 s, i.e. amount / 9 seconds (user agreed): Cut Copper 22.5 s, Stairs 33.75 s, Slab 11.25 s, Chiseled 22.5 s, Grate 90 s, Door 20 s, Trapdoor 40 s.
+- **Primitive -> Iron tool upgrades (Mutator, ~1465-1477):** REMOVE `mutating_suture_kit` (the kit needs string in the crafting grid; a new Flesh Lab recipe will replace it, to be designed later). Forceps cost matches the crafting-table recipe (4 Iron Ingots + 1 Nugget = 370 mB Ferrous Pulp; forceps do not break, so the higher cost is fine). Scalpel Primitive upgrade: 10 mB Ferrous (crafting from scratch is 3 nuggets = 30, and an upgrade should be cheaper). Syringe Primitive upgrade: 45 mB Ferrous (stays alongside the new Glass Block route below).
+- **New Syringe Mutator route (feasible, to add):** Glass Block + Ferrous Pulp -> Syringe, using `RecipeBuilders.buildMutating` with `Ingredient.of(Tags.Items.GLASS_BLOCKS_CHEAP)` (same tag the crafting recipe uses; the magma block recipe at ~1161 is the tag-ingredient precedent). Cost = the crafting recipe, 1 Iron Ingot + 1 Nugget = 100 mB Ferrous. No {item, fluid} collision with the existing Mutator recipes (stained glass uses dye + Silica).
+- **Fuel Bladder and Charred Fuel Bladder:** 75 Cuprous Pulp each (`mutating_fuel_bladder`, `charred_fuel_bladder_from_charred_bladder_mutating`). The Feeder Bladder (750 Protein) is unchanged.
+- **Leather:** 135 Calcium Pulp with Rotten Flesh (`mutating_leather`), preserving the old 1.5 Bone Meal cost.
+
+**Puddle Craft recipes (DECIDED 2026-11-06).** A puddle recipe converts a whole 1000 mB source block, so its output cannot be rescaled and the output stays as is.
+- REMOVE `calcium_blend_puddle` (4 Bone Meal -> 1000 mB Calcium Pulp, ~line 1201). No early implant recipe consumes Calcium Pulp (grep), so reachability is unaffected; the Masticator makes it. (`calcium_glass_puddle` already removed under the glass family.)
+- KEEP `primitive_catalyst_puddle_coal` / `_charcoal` unchanged. Totals compared per 1000 mB: puddle = 1 coal + 1 Bone + 1 raw meat + a 1000 mB Crude Slurry puddle (about 8 item-equivalents counting Bone as 3 Bone Meal and the extra Crude as ~3 plant food); machine = 2.8 coal + 2.8 Bone Meal + ~1 meat + 250 Crude (about 7.6). Roughly even overall, so no change.
+- KEEP `evolution_catalyst_puddle` (roughly even vs the Ichor route), `bone_puddle` (4 Bone Meal -> 1 Bone = 3 meal, premium kept), `crude_slurry_puddle` and `inert_tumor_puddle` (slurry is not rescaled).
+
 **Stone / Silica / Clay roster recipes (DECIDED 2026-11-05):**
 - The flat roster Masticator recipes (`stone_blend_masticating` ~804, and the silica / clay roster and recycling ones) are DONE AWAY WITH (user: the flat rate was a misunderstanding and is moot after the rescale). Replace with per-tier recipes whose yield mirrors the item's duplicate cost. Suggested tier tags: 360 (Stone, Smooth Stone, Andesite, Diorite, Granite, Deepslate, Calcite, Tuff, Dripstone Block; Sandstone, Red Sandstone; Clay Block; all Terracotta and Glazed), 270 (Cobblestone, Cobbled Deepslate), 90 (Gravel, Pointed Dripstone, Sand, Red Sand, Glass, Clay Ball), 30 (Glass Pane). Brick / Bricks / Flower Pot keep their individual recipes. Masticate times were not discussed; keep the current ones unless changed.
 - The four cross-feed "boosted" recipes (~869-887) are KEPT. Their purpose is pulp-to-pulp conversion between stone, sand and clay; the +25% is a deliberate small gain (low gain = hard to exploit). Needs the per-tier split: solvent (sibling pulp) = the item's own yield, output = yield x 1.25 rounded up (sand 90 -> 113, cobble 270 -> 338, stone 360 -> 450). FYI, not a problem: because the item is consumed and must be re-duplicated at its own yield to recycle it, the real exchange rate is about 4 sibling : 1 own pulp, so there is no loop.
@@ -234,6 +269,8 @@ Rule: dirty and clean of the SAME metal may mix in storage; the result turns dir
 - Carbon / Calcium Pulp used as a REAGENT (not an item proxy) anywhere else, e.g. Protein + catalyst recipes: audit like Synapse's Cuprous.
 - Any remaining reference to the removed Primitive Catalyst volumes (Bone puddle, etc.).
 - Open caveat, not blocking: what "difficult without a guard" does to a Tier 1 machine holding lava (Concentrated Slurry, Quartz route). Revisit when hazard effects are designed. Hazards are soft (no hard blocks).
+- OPEN, possible Biohazard values on the Ichors (2026-11-06): the user is considering giving Nether Ichor (my lean: yes) and/or Luminous Ichor (taste call; already Radiation Mild) a Biohazard intensity via a `FLUID_HAZARD` data-map entry (`FluidHazardData.biohazard(...)`, band 1-100). Not decided. If adopted, the machine effect is a speed and healing slowdown only (x1 to x0.5), and the Silica -> Soul Silica step would involve three families (Biohazard + Thermal + Metaphysical).
+- DEPENDENCY, Biohazard Safety Module: it must be craftable BEFORE the first Biohazard fluid is needed. Its recipe must not use an Ichor-derived item or Evolution Catalyst (Evolution Catalyst needs Luminous Ichor), or the chain is circular. The Safety Module variant recipes are part of the current machine overhaul (only the Safety Module Frame exists in `ModRecipeProvider` today).
 - Hazard rule: the old "at most one hazard per recipe" rule is DROPPED (2026-11-05). Multiple hazards in a recipe are valid unless that recipe says otherwise. Hazards stay soft (no hard blocks).
 - Survival reachability: confirm a real crafting chain for every new tagged or gated fluid (Flux, Dirty Pulps, both Ichors, Amethyst, Soul Silica, Quartz). The Nether Ichor chain needs a Nether trip but is otherwise Tier 1; verify in code.
 

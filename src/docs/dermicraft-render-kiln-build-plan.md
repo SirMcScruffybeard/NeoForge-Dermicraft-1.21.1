@@ -1,5 +1,7 @@
 # Render Kiln — Build Plan
 
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+
 Implementation plan for the Render Kiln machine. Design authority: `dermicraft-machine-notes.md` → Render Kiln entry (concept, decided points, open questions). This doc is the build order — when the two disagree, the machine notes win and this doc should be corrected.
 
 **Template machine: the Metastasizer**, with the pattern slot removed entirely. The Metastasizer is `[fluid] + [non-consumed pattern item] → duplicate of that pattern`; the Kiln collapses that to `[fluid] → fixed default item` — no pattern, no second item input. Structurally it's the Metastasizer's `REAGENT_TANK` + `OUTPUT_SLOT` half only, with the recipe keyed on fluid alone instead of `{fluid, pattern}`.
@@ -48,18 +50,18 @@ New package `screen/custom/render_kiln/`, copied from `metastasizer/`:
 
    | Fluid | Default item | mB | Ticks |
    |---|---|---|---|
-   | Stone Blend | Stone | 1000 | 200 |
-   | Silica Blend | Sand | 750 | 120 |
-   | Clay Blend | Clay Ball | 250 | 50 |
-   | Ferrous Blend | Iron Ingot | 1000 | 200 |
-   | Cuprous Blend | Copper Ingot | 1000 | 200 |
-   | Aurous Blend | Gold Ingot | 1000 | 200 |
-   | Carbon Blend | Coal | 112 | 50 |
-   | Calcium Blend | Bone Meal | 334 | 50 |
-   | Protein Blend | Meat Flavored Meat | 900 | 160 |
+   | Stone Pulp | Stone | 1000 | 200 |
+   | Silica Pulp | Sand | 750 | 120 |
+   | Clay Pulp | Clay Ball | 250 | 50 |
+   | Ferrous Pulp | Iron Ingot | 1000 | 200 |
+   | Cuprous Pulp | Copper Ingot | 1000 | 200 |
+   | Aurous Pulp | Gold Ingot | 1000 | 200 |
+   | Carbon Pulp | Coal | 112 | 50 |
+   | Calcium Pulp | Bone Meal | 334 | 50 |
+   | Protein Pulp | Meat Flavored Meat | 900 | 160 |
    | F-Stuff | MRE | 900 | 160 |
 
-   **Deliberately excluded from launch:** Crude Slurry — confirmed no Kiln recipe (no solid form at all in the design notes, and no single default item was decided). Protein Blend and F-Stuff are now both in, defaulting to their existing Metastasizer duplication targets (Meat Flavored Meat, MRE) rather than any of Protein Blend's other roster items (Inert Tumor, Marred Tumor, Dense Muscle, Nerve Cluster, Eye) — those stay Metastasizer-only, no ambiguity since Meat Flavored Meat/MRE are each fluid's one processed "ration" item.
+   **Deliberately excluded from launch:** Crude Slurry — confirmed no Kiln recipe (no solid form at all in the design notes, and no single default item was decided). Protein Pulp and F-Stuff are now both in, defaulting to their existing Metastasizer duplication targets (Meat Flavored Meat, MRE) rather than any of Protein Pulp's other roster items (Inert Tumor, Marred Tumor, Dense Muscle, Nerve Cluster, Eye) — those stay Metastasizer-only, no ambiguity since Meat Flavored Meat/MRE are each fluid's one processed "ration" item.
 4. **Assets/data:** blockstate + block models, item model, `en_us.json` lang entries (block only — every recipe output is a vanilla item with an existing lang key), loot table, block tags (mirror Metastasizer's), `HAS_SCREEN` tag.
    - **Blockstate = `facing × state` matrix, copied from `masticator.json`'s shape**: 4 facings (`north`/`east`/`south`/`west`, via `y` rotation) × 3 states (`idle`/`running`/`recovering`) = 12 variants. Three block models needed: `render_kiln` (idle/base), `render_kiln_on`, `render_kiln_error` — same three-texture front-face set as the Masticator/Mutator (`_on`/`_error` suffixes), not a Metastasizer-style single static model.
 5. **`./gradlew runData`** — commit the full `src/generated/resources` diff.
@@ -68,7 +70,7 @@ New package `screen/custom/render_kiln/`, copied from `metastasizer/`:
 
 1. Craft path: implant recipe produces the Render Kiln (creative-place is fine for the first pass once the implant recipe exists; otherwise creative-place only for this pass).
 2. Place; GUI opens via Outerface (`HAS_SCREEN`); fuel gauge, input-fluid gauge, output slot render — no pattern slot present.
-3. **Render:** fill input tank with (e.g.) 1000 mB Stone Blend + fuel → Stone appears in output slot after 200 ticks at speed 1.0; input tank drains by exactly 1000 mB.
+3. **Render:** fill input tank with (e.g.) 1000 mB Stone Pulp + fuel → Stone appears in output slot after 200 ticks at speed 1.0; input tank drains by exactly 1000 mB.
 4. **HP:** run unfueled → HP drains during processing (unfueled trickle, not a hard stop); at 0, processing pauses until healed, matching the standard template (not the Furnace/Grafting Table's `NO_HEALTH` behavior).
 5. Automation spot-check: side face accepts fluid input via duct/Node; bottom face drains the output slot; top face accepts fuel.
 6. Confirm no pattern-item slot is exposed anywhere (menu, screen, capabilities, channels) — the one thing that must NOT carry over from the Metastasizer copy.

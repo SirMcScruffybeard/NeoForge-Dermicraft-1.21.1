@@ -1,5 +1,7 @@
 # Dermicraft Tools Notes
 
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+
 Running log of decided design choices for Scalpel, Suture Kit, Forceps, and Syringe — plus the Inert Tumor block chain that ties them together — and the reasoning behind them. Add a new entry per tool/block as decisions get made.
 
 ---
@@ -20,7 +22,7 @@ Scalpel, Suture Kit, Forceps, and Syringe were named in the primer from the star
 
 **What it is:** The base, living block-form that nearly every Machine is built from (and likely will continue to be, going forward). Not made via a machine — assembled directly, the same "puddle" pattern Primitive Catalyst uses.
 
-**Recipe:** 4× raw meat (a common raw-meat item tag — distinct from the custom `MEAT_FOOD` tag Protein Blend uses, since that one deliberately allows cooked/rotten meat and this one is strictly raw) tossed into a 1×1×1 pool of Crude Slurry. Wait, and it forms into the Inert Tumor.
+**Recipe:** 4× raw meat (a common raw-meat item tag — distinct from the custom `MEAT_FOOD` tag Protein Pulp uses, since that one deliberately allows cooked/rotten meat and this one is strictly raw) tossed into a 1×1×1 pool of Crude Slurry. Wait, and it forms into the Inert Tumor.
 
 **Harvesting restriction:** Breaking it the vanilla way **destroys** the block — you never recover the block itself that way. Any items the block was holding drop on the ground. The block is only recoverable with the **Forceps** (or another dedicated tool/Gadget), which hands back the block item; picking a block up still drops its contents on the ground, the same as a break — the Forceps just additionally give you the block. This split — break = contents only, Forceps = contents **plus** the block — applies broadly across the mod's "living" blocks, not just this one; see Forceps below. (One exception so far: the **Craw** keeps its contents *inside* the recovered block item on a Forceps pickup rather than spilling them, so it relocates fully loaded — opt-in via a marker interface; see its entry in `dermicraft-machine-notes.md`.) (Implemented: any item can gain the pickup ability via the `ICollectBlocks` interface; the blocks themselves stay pickup-unaware and only handle their own contents-drop on removal.)
 
@@ -174,9 +176,9 @@ Roster explicitly open-ended — more passive mobs can be added anytime a natura
 
 **Design intent — "cry wolf" tension:** Because hisses during the disrupted window are harmless bluffs and the real danger is the first hiss *after* the effect should have worn off, the player has to learn to read the timing rather than relying on a flat inert/active toggle. This costs nothing extra mechanically — the "fake" swells are just vanilla Creeper AI behaving normally; only the detonation step itself is being suppressed.
 
-**Recipe logic — why C-Stuff, not Primitive Catalyst:** Primitive Catalyst was the original idea, but its recipe carries meat/plant "life" ingredients that have nothing to do with stopping an explosion — they're there because Primitive Catalyst's actual job is birthing Machines. **C-Stuff** (Carbon Blend + Calcium Blend — see `dermicraft-machine-notes.md` Effluentcer entry) isolates exactly the two components that justify the effect: Calcium as a binding agent (gums up/locks the Creeper's internal trigger) and Carbon/charcoal as a purifying/desaturating agent (neutralizes whatever's driving the volatile reaction), without the unrelated life-coded ingredients along for the ride. This also gives C-Stuff its first standalone use beyond being half of the fluid-based Primitive Catalyst shortcut (F-Stuff + C-Stuff → Primitive Catalyst).
+**Recipe logic — why C-Stuff, not Primitive Catalyst:** Primitive Catalyst was the original idea, but its recipe carries meat/plant "life" ingredients that have nothing to do with stopping an explosion — they're there because Primitive Catalyst's actual job is birthing Machines. **C-Stuff** (Carbon Pulp + Calcium Pulp — see `dermicraft-machine-notes.md` Effluentcer entry) isolates exactly the two components that justify the effect: Calcium as a binding agent (gums up/locks the Creeper's internal trigger) and Carbon/charcoal as a purifying/desaturating agent (neutralizes whatever's driving the volatile reaction), without the unrelated life-coded ingredients along for the ride. This also gives C-Stuff its first standalone use beyond being half of the fluid-based Primitive Catalyst shortcut (F-Stuff + C-Stuff → Primitive Catalyst).
 
-**Dependency resolved:** C-Stuff is produced by the **Effluentcer**, which is now fully operational — this Syringe variant can be filled and used in-game today. (Flask of Protein Blend remains blocked on wolf-taming implementation, a separate and still-open dependency.)
+**Dependency resolved:** C-Stuff is produced by the **Effluentcer**, which is now fully operational — this Syringe variant can be filled and used in-game today. (Flask of Protein Pulp remains blocked on wolf-taming implementation, a separate and still-open dependency.)
 
 **Shelved ideas (logged for history, not pursued further right now):**
 - **Log block + Crude Slurry → regrown tree.** Scrapped as the first pass at this idea — felt too easy.

@@ -47,7 +47,7 @@ dermicraft:edible_fluid  ->  {
 - **Grade / Heal-modifier scaling** (the mB-per-hunger table in `dermicraft-slurry-notes.md`) — the flat per-fluid map is v1; grade scaling could layer on later without restructuring.
 
 **Open questions:**
-- Which fluids beyond the first three become edible? (All food-derived Slurries/Blends, or a curated subset?)
+- Which fluids beyond the first three become edible? (All food-derived Slurries/Pulps, or a curated subset?)
 - ~~Does the handheld Feeder Bladder and the suit module share one data map cleanly, or does the suit version need its own cost model?~~ **Resolved by removal (2026-08-29):** there is no suit-integrated Feeder Bladder anymore. The new Feeder Module reuses this same data map directly for its Feeder-Bladder-sourced draw — no separate cost model needed.
 - Should `mbPerDrink` ever vary per fluid, or stay uniform? (Uniform 250 for now — see below.)
 
@@ -55,12 +55,12 @@ dermicraft:edible_fluid  ->  {
 
 ## Edible fluids
 
-**Current roster:** Crude Slurry, Protein Blend, F-Stuff. All three drain **250 mB/drink** to start — Feeder Bladder holds 2000 mB, so 250 mB/sip = **8 drinks per full bladder**, a readable ratio. Uniform sip size is a starting choice, not a rule; the whole point of decoupling mB from hunger is that a fluid can later take a bigger/smaller sip independently.
+**Current roster:** Crude Slurry, Protein Pulp, F-Stuff. All three drain **250 mB/drink** to start — Feeder Bladder holds 2000 mB, so 250 mB/sip = **8 drinks per full bladder**, a readable ratio. Uniform sip size is a starting choice, not a rule; the whole point of decoupling mB from hunger is that a fluid can later take a bigger/smaller sip independently.
 
 | Fluid | mB/drink | Hunger | Saturation | Identity |
 |---|---|---|---|---|
 | Crude Slurry | 250 | 3 | 0.1 | Thin plant filler — keeps you alive, burns off fast |
-| Protein Blend | 250 | 5 | 0.3 | Meat-rich — filling now, less staying power |
+| Protein Pulp | 250 | 5 | 0.3 | Meat-rich — filling now, less staying power |
 | F-Stuff | 250 | 4 | 0.5 | Processed field rations — efficient, long-lasting |
 
 Numbers are starting points to tune in testing; the *structure* is the decision, not the exact ints.
@@ -75,7 +75,7 @@ Numbers are starting points to tune in testing; the *structure* is the decision,
 
 **Why:** Thin plant filler — the cheapest, weakest edible fluid. Low saturation means it doesn't stick with you; it's the "keeps you from starving" tier.
 
-### Protein Blend
+### Protein Pulp
 
 **Status:** Values decided.
 
@@ -89,13 +89,13 @@ Numbers are starting points to tune in testing; the *structure* is the decision,
 
 **Status:** Values decided.
 
-**What it is:** A processed plant+meat byproduct blend — the effluencing recipe combines **250 mB Crude Slurry + 250 mB Protein Blend -> 500 mB F-Stuff** (1:1 volume, no loss).
+**What it is:** A processed plant+meat byproduct blend — the effluencing recipe combines **250 mB Crude Slurry + 250 mB Protein Pulp -> 500 mB F-Stuff** (1:1 volume, no loss).
 
 **Values:** 250 mB/drink, 4 hunger, 0.5 saturation.
 
 **Why — the processing must pay off:** Because F-Stuff is made from equal parts of the other two, setting its hunger at the plain average (4) makes it a **break-even** — 500 mB F-Stuff would carry the exact same total hunger as drinking its 500 mB of raw inputs, so processing would gain you nothing but logistics. That's a dead recipe.
 
-The fix rewards the tech investment through **saturation, not raw hunger.** F-Stuff is deliberately *not* pushed above Protein Blend on hunger — it's a diluted byproduct, and out-filling fresh meat on raw hunger reads wrong. Instead it gets the **best saturation of the three (0.5)**, making it the **liquid field-rations** tier: modest peak hunger, but it stays with you the longest. This mirrors how the MRE item already works (nutrition 6, sat 0.6, "on par with cooked chicken"). Now processing is worth it — you trade a little peak hunger for markedly better staying power plus single-fluid logistics, and F-Stuff becomes the thing you make once you've built the Effluencer, not a pointless sidegrade.
+The fix rewards the tech investment through **saturation, not raw hunger.** F-Stuff is deliberately *not* pushed above Protein Pulp on hunger — it's a diluted byproduct, and out-filling fresh meat on raw hunger reads wrong. Instead it gets the **best saturation of the three (0.5)**, making it the **liquid field-rations** tier: modest peak hunger, but it stays with you the longest. This mirrors how the MRE item already works (nutrition 6, sat 0.6, "on par with cooked chicken"). Now processing is worth it — you trade a little peak hunger for markedly better staying power plus single-fluid logistics, and F-Stuff becomes the thing you make once you've built the Effluencer, not a pointless sidegrade.
 
 **Open questions:** None blocking. Exact hunger/saturation split is tunable; if raw-hunger reward is preferred later, F-Stuff at 5 hunger (beating the input average) is a one-int change — but the saturation version is the starting call.
 

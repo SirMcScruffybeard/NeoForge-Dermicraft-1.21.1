@@ -41,7 +41,7 @@ Which hazards feed Assault's H.E.A.T. (see `one-punch-full-breakdown.md`) is dec
 ## Per-Hazard Effect Design
 
 ### Thermal Hazard — confirmed, no new mechanic needed
-Reuses vanilla lava/fire behavior directly (burning). No custom effect required — every Molten-family fluid inherits this via the family-wide hazard tag rule (see `dermicraft-crafting-notes.md` → Stage 2 Crafting Blends).
+Reuses vanilla lava/fire behavior directly (burning). No custom effect required — every Molten-family fluid inherits this via the family-wide hazard tag rule (see `dermicraft-crafting-notes.md` → Stage 2 Crafting Pulps).
 
 ### Radiation (Mild) — confirmed direction
 **Real-world grounding:** survivable exposure — nausea, fatigue, disorientation, a lingering "something's wrong with me" that doesn't kill but wears the player down over time. Not sharp pain, a creeping wrongness.
@@ -107,14 +107,14 @@ The Mind Rule is **no longer in effect**. Fueled machines are not immune to Meta
 
 **Core rule: Metaphysical hazard only affects things with minds.** Grounded in the genre convention (cosmic horror attacks the mind first — the body later or never; things without minds are inert to it, the way the cultist goes mad while the stone idol just sits there), and mapped onto a boundary the mod *already formally defines*: the **Smart vs. Dumb machine rule** ("smart" = the Brain, or a Brain-derived ingredient, is required in the recipe).
 
-- **Dumb machines are natively immune.** Ordinary machine families (Masticator, Mutator, Metastasizer, Effluentcer, etc. — permanently Brain-free by rule) can contain and process Metaphysical-tagged fluids **with no special protection and at no tier requirement for the Metaphysical tag itself.** Any *other* hazard tags on the fluid still gate normally (e.g. Ender Essence's Thermal Hazard still requires a Tier 2 machine — the Metaphysical Severe tag just passes through the mindless machine like wind through an empty house).
+- **Dumb machines are natively immune.** Ordinary machine families (Masticator, Mutator, Metastasizer, Effluentcer, etc. — permanently Brain-free by rule) can contain and process Metaphysical-tagged fluids **with no special protection and at no tier requirement for the Metaphysical tag itself.** Any *other* hazard tags on the fluid still gate normally (e.g. Ender Colloid's Thermal Hazard still requires a Tier 2 machine — the Metaphysical Severe tag just passes through the mindless machine like wind through an empty house).
 - **Ducts/Nodes are mindless connective tissue** — Metaphysical tags are **exempt from the duct hazard-tier weakest-link filter** (their physical hazard tags still filter normally). Needs the explicit carve-out in the `HazardProfile` check.
 - **Smart structures ARE affected** — the FL (Brain/Core), Gear Worx Stations, and the Imago Engine all have minds and need protection from Metaphysical exposure.
 - **The player is a mind** — nothing changes player-side: hand-in-a-bucket classification, Drinker tier gating, and the two suit Hazard stats all still apply to Metaphysical fluids exactly as before.
 
-**Design consequence — the hazard hierarchy inverts:** every other hazard says "better machine = safer." Metaphysical says **intelligence is the vulnerability** — the dumbest grinder handles Ender Essence without noticing; the factory's crowning brain needs shielding from it. This is the genre's thesis expressed as a mechanic, and it's what un-blocked the Eye of Ender recipe (see machine notes → Mutator).
+**Design consequence — the hazard hierarchy inverts:** every other hazard says "better machine = safer." Metaphysical says **intelligence is the vulnerability** — the dumbest grinder handles Ender Colloid without noticing; the factory's crowning brain needs shielding from it. This is the genre's thesis expressed as a mechanic, and it's what un-blocked the Eye of Ender recipe (see machine notes → Mutator).
 
-**Exposure definition (confirmed): containment, not proximity.** A smart structure is exposed when a Metaphysical-tagged fluid is **contained within the structure or its network** — e.g. a tank attached to the FL's floor network holding Ender Essence exposes the FL. Cheap to compute (the FL already knows its network contents via Knitting/direct access — no proximity scanning), and fair (the player chose to pipe it in).
+**Exposure definition (confirmed): containment, not proximity.** A smart structure is exposed when a Metaphysical-tagged fluid is **contained within the structure or its network** — e.g. a tank attached to the FL's floor network holding Ender Colloid exposes the FL. Cheap to compute (the FL already knows its network contents via Knitting/direct access — no proximity scanning), and fair (the player chose to pipe it in).
 
 **Effect on an exposed, unprotected smart structure (confirmed direction): the GUI glitches out until the hazard is removed.** Madness, not damage — non-destructive, self-resolving on removal of the fluid, instantly legible as "something is wrong with this machine's *mind*," and still a real gate (an unreadable GUI can't be operated). Severity ladder falls out of the existing tags for free: **Mild = visual noise/flicker but usable; Severe = GUI fully illegible until purged.**
 
@@ -133,3 +133,7 @@ The Mind Rule is **no longer in effect**. Fueled machines are not immune to Meta
 - Exact Hazard Resistance/Defense growth curves (how much per suit tier) for Assault and Recon — not numerically set, same deferred-to-tier/equipment-discussion status as the rest of the suits' numbers.
 - Radiation Severe's exact delay duration, stacking-delay length, and dose→severity curve — not numerically set.
 - Naming: "Hazard Defense"/"Hazard Resistance" vs. the unrelated `HazardProfile`/hazard-tag system used by machines risks some reader confusion since both use the word "hazard" for different mechanisms (player mitigation stats vs. machine accept/reject gate) — flagged, not renamed.
+
+## 2026-11 update: fluid hazards and the Ichors
+- Fluid hazards are data-map intensities (`FLUID_HAZARD`), not tags; Thermal comes from the FluidType's temperature. The old "at most one hazard per recipe" rule is dropped.
+- **Luminous Ichor** (Protein Pulp + glowstone) carries Radiation Mild. Whether it and **Nether Ichor** also become Biohazard is an open idea. On machines Biohazard is only a speed and healing slowdown (x1 to x0.5), so the cost of tagging them is low; the dependency to keep clean is that the Biohazard Safety Module must be craftable before the first Biohazard fluid is needed (and not need Evolution Catalyst, which needs Luminous Ichor).

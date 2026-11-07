@@ -1,5 +1,7 @@
 # Mutator — Build Plan
 
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+
 Implementation plan for the Mutator machine. Design authority: `dermicraft-machine-notes.md` → Mutator entry (concept, recipe roster, build spec). This doc is the build order — when the two disagree, the machine notes win and this doc should be corrected.
 
 **Template machine: the Metastasizer.** Block/BE/menu/screen/datagen are all copied from it and modified. Key structural difference: the Mutator **consumes** its input item (Metastasizer's pattern is non-consumed), and it has a second operating mode (fill).
@@ -57,11 +59,11 @@ New package `screen/custom/mutator/`, copied from `metastasizer/`:
 
    | Recipe | Reagent | mB (prov.) | Ticks |
    |---|---|---|---|
-   | Bladder → Fuel Bladder | Cuprous Blend | 750 | 200 |
-   | Bladder → Feeder Bladder | Protein Blend | 750 | 200 |
-   | Eye → Eye Tumor | Protein Blend | 1000 | 200 |
-   | Nerve Cluster → Nerve Tumor | Protein Blend | 1000 | 200 |
-   | Dense Muscle → Muscle Tumor | Protein Blend | 1000 | 200 |
+   | Bladder → Fuel Bladder | Cuprous Pulp | 750 | 200 |
+   | Bladder → Feeder Bladder | Protein Pulp | 750 | 200 |
+   | Eye → Eye Tumor | Protein Pulp | 1000 | 200 |
+   | Nerve Cluster → Nerve Tumor | Protein Pulp | 1000 | 200 |
+   | Dense Muscle → Muscle Tumor | Protein Pulp | 1000 | 200 |
    | Cobblestone → Mossy Cobblestone (+ stairs/wall) | Crude Slurry | 100 | 120 |
    | Cobblestone Slab → Mossy Slab | Crude Slurry | 50 | 50 |
    | Stone Bricks → Mossy Stone Bricks (+ stairs/wall) | Crude Slurry | 100 | 120 |
@@ -69,21 +71,21 @@ New package `screen/custom/mutator/`, copied from `metastasizer/`:
    | String → Vines | Crude Slurry | 400 | 120 |
    | Sugar Cane → Bamboo | Crude Slurry | 500 | 120 |
    | Bamboo → Cactus | Crude Slurry | 500 | 120 |
-   | Dye → Stained Glass (×16) | Silica Blend | 1000 | 200 |
-   | Dye → Stained Glass Pane (×16) | Silica Blend | 500 | 120 |
-   | Dye → Colored Terracotta (×16) | Clay Blend | 1000 | 200 |
-   | Dye → Glazed Terracotta (×16) | Clay Blend | 1250 | 300 |
-   | String → Cobweb | Protein Blend | 750 | 120 |
-   | Rotten Flesh → Leather | Calcium Blend | 500 | 200 |
-   | Apple → Golden Apple | Aurous Blend | 6000 | 200 |
-   | Carrot → Golden Carrot | Aurous Blend | 660 | 120 |
-   | Melon Slice → Glistering Melon | Aurous Blend | 660 | 120 |
-   | Blackstone → Gilded Blackstone | Aurous Blend | 550 | 200 |
+   | Dye → Stained Glass (×16) | Silica Pulp | 1000 | 200 |
+   | Dye → Stained Glass Pane (×16) | Silica Pulp | 500 | 120 |
+   | Dye → Colored Terracotta (×16) | Clay Pulp | 1000 | 200 |
+   | Dye → Glazed Terracotta (×16) | Clay Pulp | 1250 | 300 |
+   | String → Cobweb | Protein Pulp | 750 | 120 |
+   | Rotten Flesh → Leather | Calcium Pulp | 500 | 200 |
+   | Apple → Golden Apple | Aurous Pulp | 6000 | 200 |
+   | Carrot → Golden Carrot | Aurous Pulp | 660 | 120 |
+   | Melon Slice → Glistering Melon | Aurous Pulp | 660 | 120 |
+   | Blackstone → Gilded Blackstone | Aurous Pulp | 550 | 200 |
    | Eye → Spider Eye | Primitive Catalyst | 100 | 50 |
 
    The 16-color families are datagen loops over the dye/output arrays, not hand-written entries. (~75 recipes total.)
    **Deferred to Tier 2:** Magma Block, Tinted Glass, Eye of Ender.
-   **Metastasizer additions riding along in the same datagen pass:** plain Terracotta (Clay Blend 1000/200t), Cobweb (Protein Blend 250/50t), Leather (Protein Blend 1000/200t) duplication recipes.
+   **Metastasizer additions riding along in the same datagen pass:** plain Terracotta (Clay Pulp 1000/200t), Cobweb (Protein Pulp 250/50t), Leather (Protein Pulp 1000/200t) duplication recipes.
 4. **Assets/data:** blockstate + block model (placeholder texture cloned from the Metastasizer's until art exists), item model, `en_us.json` lang entries (block + recipes' new items have none — all outputs are vanilla or existing), loot table, block tags (mirror Metastasizer's), `HAS_SCREEN` tag.
 5. **`./gradlew runData`** — commit the full `src/generated/resources` diff.
 
@@ -91,7 +93,7 @@ New package `screen/custom/mutator/`, copied from `metastasizer/`:
 
 1. Craft path: implant recipe produces the Mutator (creative-place is fine for the first pass; implant verification can ride the existing early-implant flow).
 2. Place; GUI opens via Outerface (`HAS_SCREEN`); fuel gauge, reagent tank, slots render.
-3. **Mutate:** Bladder + Cuprous Blend + fuel → Fuel Bladder appears in output; input shrank by 1; reagent drained by 750.
+3. **Mutate:** Bladder + Cuprous Pulp + fuel → Fuel Bladder appears in output; input shrank by 1; reagent drained by 750.
 4. **Toggle** to fill: button swaps item↔fluid icon; recipe processing stops.
 5. **Fill:** empty Flask in input + Water in reagent tank → flask fills at 250 mB/cycle (rigid-buffer path exercised if the Flask is atomic-fill).
 6. **HP:** run unfueled → HP drains during mutate; at 0, both mutate *and* fill refuse until fully healed.

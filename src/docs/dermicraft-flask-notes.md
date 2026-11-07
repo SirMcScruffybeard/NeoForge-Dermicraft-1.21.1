@@ -1,5 +1,7 @@
 # Dermicraft Flask Notes
 
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+
 Running log of decided design choices for Flasks (Tools sub-family) and the reasoning behind them. Add a new entry per Flask variant as decisions get made — the "why" matters as much as the "what" so later additions stay consistent with earlier logic.
 
 ---
@@ -10,13 +12,13 @@ Running log of decided design choices for Flasks (Tools sub-family) and the reas
 
 **What it is:** A hand-held Tool, sub-family alongside Syringes (see `dermicraft-project-primer.md`). A Flask holds a fluid, and the specific fluid it's filled with defines each variant.
 
-**Naming convention:** `Flask of [Fluid]` (e.g. Flask of Calcium Blend, Flask of Crude Slurry). **Glass Flask** is the one named exception — the empty/unfilled base state, not "Flask of Glass."
+**Naming convention:** `Flask of [Fluid]` (e.g. Flask of Calcium Pulp, Flask of Crude Slurry). **Glass Flask** is the one named exception — the empty/unfilled base state, not "Flask of Glass."
 
 **Capacity:** `250 mB` (millibuckets) — exactly one quarter of a vanilla bucket (1000 mB).
 
 **Primary use:** Fluid transport — the straightforward bucket-like role, at smaller scale than a vanilla bucket.
 
-**Secondary uses:** Multiple confirmed and growing: Glass Flask doubles as an air source, Flask of Calcium Blend acts like bone meal, Flask of Crude Slurry converts dirt/plants crops on farmland, Flask of Lava triggers a drink-based fire mechanic, Flask of Protein Blend is planned to tame wolves (see variant entries below). Pattern so far: each variant's use ties to the real-world/in-game association of the fluid it holds, not picked arbitrarily.
+**Secondary uses:** Multiple confirmed and growing: Glass Flask doubles as an air source, Flask of Calcium Pulp acts like bone meal, Flask of Crude Slurry converts dirt/plants crops on farmland, Flask of Lava triggers a drink-based fire mechanic, Flask of Protein Pulp is planned to tame wolves (see variant entries below). Pattern so far: each variant's use ties to the real-world/in-game association of the fluid it holds, not picked arbitrarily.
 
 **On drunk vs. applied:** Some variants are drunk by the player, others are applied to a block/surface. No need to split these into separate sections — each variant entry just states its **Mode of use** directly.
 
@@ -32,7 +34,7 @@ Running log of decided design choices for Flasks (Tools sub-family) and the reas
 
 ## Flask variants
 
-**Current roster (all variants worked out so far):** Glass Flask, Flask of Calcium Blend, Flask of Crude Slurry, Flask of Lava, Flask of Protein Blend (planned). Logged in the order they were decided.
+**Current roster (all variants worked out so far):** Glass Flask, Flask of Calcium Pulp, Flask of Crude Slurry, Flask of Lava, Flask of Protein Pulp (planned). Logged in the order they were decided.
 
 ### Glass Flask
 
@@ -48,11 +50,11 @@ Running log of decided design choices for Flasks (Tools sub-family) and the reas
 
 **Open questions (resolved):** Restores ~90 air ticks per use (~3 bubbles' worth). **Not** consumed — the same item transitions in place from Glass Flask to Flask of Water (250 mB) and remains usable. The resulting Flask of Water has no special property — functionally identical to a Flask of Water obtained any other way.
 
-### Flask of Calcium Blend
+### Flask of Calcium Pulp
 
 **Status:** Use defined.
 
-**What it is:** Flask filled with Calcium Blend (see Crafting fluids in `dermicraft-project-primer.md`).
+**What it is:** Flask filled with Calcium Pulp (see Crafting fluids in `dermicraft-project-primer.md`).
 
 **Mode of use:** Applied to a block.
 
@@ -93,15 +95,15 @@ Running log of decided design choices for Flasks (Tools sub-family) and the reas
 
 **Open questions (resolved):** Duration is 20 seconds. Damage is custom (not vanilla fire damage) and explicitly routed around Fire Resistance by not being tagged as fire. No separate on-drink damage — only the recurring effect-tick damage applies. Naming convention needed no changes ("Flask of Lava" already fit).
 
-### Flask of Protein Blend
+### Flask of Protein Pulp
 
 **Status:** Planned — use decided, mechanic not yet detailed.
 
-**What it is:** Flask filled with Protein Blend (see Crafting fluids in `dermicraft-project-primer.md`; corresponds to Primitive Catalyst's raw-meat component).
+**What it is:** Flask filled with Protein Pulp (see Crafting fluids in `dermicraft-project-primer.md`; corresponds to Primitive Catalyst's raw-meat component).
 
 **Mode of use:** Applied to a mob (wolf).
 
-**Use(s):** Intended to tame wolves — Protein Blend standing in for vanilla raw meat's taming role, consistent with the Blend's meat-correspondence.
+**Use(s):** Intended to tame wolves — Protein Pulp standing in for vanilla raw meat's taming role, consistent with the Pulp's meat-correspondence.
 
 **Open questions:** Single use per tame, or chance-based like vanilla taming? Does it work on other tameable mobs too, or wolves specifically? Crafted/sourced before this can be tested — depends on the Crafting-fluid machine being defined.
 

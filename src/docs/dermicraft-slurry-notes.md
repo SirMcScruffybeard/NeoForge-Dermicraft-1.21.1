@@ -132,7 +132,7 @@ Step deltas (effective speed/heal): +0.25, +0.50, +0.75, +1.00.
 - Crude Slurry Syringe — forces instant accelerated effects on passive mobs (sheep wool regrowth, baby-mob maturation, chicken egg-laying, cow milk refresh — roster open-ended). See `dermicraft-tools-notes.md`.
 - Marred Tumor healing recipe — raw meat (sutured) + Crude Slurry (injected) heals a Marred Tumor back into a fresh Inert Tumor. See `dermicraft-tools-notes.md`.
 
-**Recipe note:** Can also be produced via the **Masticator** (see `dermicraft-machine-notes.md`) from **water + a plant-based food item** (apple, carrot, bread, etc.) — yield scaled to the food's nutrition/saturation values, the same logic used for Protein Blend and the Drooling Cauldron's food-to-water conversion. Restricted to plant-based items specifically, distinct from Protein Blend's `MEAT_FOOD`-tagged scope — the two food-based recipes split the food-item space cleanly between them (see `dermicraft-crafting-notes.md`).
+**Recipe note:** Can also be produced via the **Masticator** (see `dermicraft-machine-notes.md`) from **water + a plant-based food item** (apple, carrot, bread, etc.) — yield scaled to the food's nutrition/saturation values, the same logic used for Protein Pulp and the Drooling Cauldron's food-to-water conversion. Restricted to plant-based items specifically, distinct from Protein Pulp's `MEAT_FOOD`-tagged scope — the two food-based recipes split the food-item space cleanly between them (see `dermicraft-crafting-notes.md`).
 
 **Puddle-crafting route (confirmed in code):** Crude Slurry can also be puddle-assembled directly — no machine required — from **4× any `plant_food`-tagged item tossed into a 1×1 puddle of water**, 200 ticks. This is the actual earliest-game bootstrap route (predates having a Masticator at all), sitting alongside the Masticator recipe above as a second confirmed way to produce it.
 
@@ -144,9 +144,9 @@ Step deltas (effective speed/heal): +0.25, +0.50, +0.75, +1.00.
 
 **Status:** Fully implemented — recipe, biofuel properties, and FluidType all live in code.
 
-**What it is:** A direct refinement of Crude Slurry — Crude with a minor catalytic addition of Primitive Catalyst (10:1 ratio, a small dose rather than an equal-parts co-ingredient), reinforcing Primitive Catalyst's identity as a general-purpose processing agent reused across families.
+**What it is:** A direct refinement of Crude Slurry — Crude cooked down with Lava (reworked 2026-11; it was a 10:1 Primitive Catalyst addition, dropped because the user dislikes leaning on Primitive Catalyst).
 
-**Recipe (Effluentcer, implemented):** 50 mB Crude Slurry + 5 mB Primitive Catalyst → 50 mB Concentrated Slurry, fixed 50 ticks. Small batch, short cycle by design — see the "steady trickle, not surges" constraint in [[project_concentrated_slurry_recipe]] (Claude Code memory).
+**Recipe (Effluentcer; 2026-11 rework decided, not yet built):** 50 mB Crude Slurry + 25 mB Lava → 50 mB Concentrated Slurry, fixed 50 ticks. A 2:1 starting ratio, tunable; no volume shrink; the lava is consumed. (Implemented version: 50 Crude + 5 Primitive Catalyst → 50.) Small batch, short cycle by design — see the "steady trickle, not surges" constraint in [[project_concentrated_slurry_recipe]] (Claude Code memory).
 
 **Properties:**
 - Speed modifier: effective `1.25` (raw `0.125`)
