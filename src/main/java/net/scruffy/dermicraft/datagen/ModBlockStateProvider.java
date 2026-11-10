@@ -11,16 +11,10 @@ import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.scruffy.dermicraft.block.ModBlocks;
-import net.scruffy.dermicraft.block.custom.EffluentcerBlock;
-import net.scruffy.dermicraft.block.custom.MachineStatus;
-import net.scruffy.dermicraft.block.custom.MasticatorBlock;
-import net.scruffy.dermicraft.block.custom.MetastasizerBlock;
-import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
-import net.scruffy.dermicraft.block.custom.MrShepardBlock;
-import net.scruffy.dermicraft.block.custom.MutatorBlock;
-import net.scruffy.dermicraft.block.custom.RenderFurnaceBlock;
-import net.scruffy.dermicraft.block.custom.RenderKilnBlock;
+import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
+import net.scruffy.dermicraft.datagen.machine.MachineBlockStates;
+import net.scruffy.dermicraft.datagen.machine.MachineLayouts;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -154,9 +148,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc("block/" + ModBlocks.DROOLING_GEODE.getId().getPath()));
 
 
-        masticatorBlockState(skinTankEnd);
-        itemModels().withExistingParent(ModBlocks.MASTICATOR.getId().getPath(),
-                modLoc("block/" + ModBlocks.MASTICATOR.getId().getPath()));
+        masticatorBlockState();
 
         effluentcerBlockState(skinTankEnd);
         itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
@@ -391,43 +383,11 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
-    // Mirrors mutatorBlockState -- 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face), only the
-    // front (north-authored) face texture differs between the three models; skin_tank_end covers
-    // every other face in all three. masticator_face_on is a 2-frame animated texture (see its
-    // .png.mcmeta) so the RUNNING model visibly pulses while the machine is actively crafting.
-    private void masticatorBlockState(String skinTankEnd) {
-        ModelFile idle = models().cube(ModBlocks.MASTICATOR.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator/masticator_face"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/masticator/masticator_face"));
-        ModelFile running = models().cube("masticator_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator/masticator_face_on"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/masticator/masticator_face_on"));
-        ModelFile recovering = models().cube("masticator_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/masticator/masticator_face_error"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/masticator/masticator_face_error"));
-
-        var builder = getVariantBuilder(ModBlocks.MASTICATOR.get());
-        putMasticatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
-        putMasticatorVariant(builder, idle, running, recovering, Direction.EAST, 90);
-        putMasticatorVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
-        putMasticatorVariant(builder, idle, running, recovering, Direction.WEST, 270);
-    }
-
-    private void putMasticatorVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MasticatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
-                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
+    // The Masticator is a multipart: a plate per Overgrowth stage plus the light, mouth and port layers, and its
+    // item model is built alongside (see MachineBlockStates). Nothing about it is hand-authored any more.
+    private void masticatorBlockState() {
+        new MachineBlockStates(this).register(ModBlocks.MASTICATOR.get(), "masticator",
+                MachineLayouts.MASTICATOR, MasticatorBlock.FACING);
     }
 
     // Mirrors masticatorBlockState/mutatorBlockState -- 4 horizontal facings x 3

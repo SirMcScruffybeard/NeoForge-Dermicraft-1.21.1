@@ -109,6 +109,7 @@ public class RenderKilnBlock extends ModBaseEntityBlock implements TieredMachine
     @NotNull
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (tryOpenModuleTab(stack, level, pos, player)) return ItemInteractionResult.SUCCESS;
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
         if (!(level.getBlockEntity(pos) instanceof RenderKilnBlockEntity be)) {

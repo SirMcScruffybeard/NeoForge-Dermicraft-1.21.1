@@ -1,11 +1,13 @@
 package net.scruffy.dermicraft.block.custom;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.scruffy.dermicraft.component.EvolutionStateData;
+import net.scruffy.dermicraft.main.Dermicraft;
 
 /**
  * The block-state mirror of a machine's evolution state, so models can read it: multipart blockstates pick the tier look
@@ -27,6 +29,12 @@ public final class EvolutionBlockProperties {
     /** A small stage derived from the Overgrowth level (0 = none), see {@link #getOvergrowthStage}. It changes the
      * plate, and the first stage starts at O1, since reaching Overgrowth is meant to be a big visible moment. */
     public static final IntegerProperty OVERGROWTH = IntegerProperty.create("overgrowth", 0, 3);
+
+    /** The item-model predicates that mirror {@link #TIER} and {@link #OVERGROWTH} for a machine's item (read from its
+     * EVOLUTION_STATE component, registered client-side in {@code ModItemProperties}), so an inventory icon can show
+     * the same look as the placed block. */
+    public static final ResourceLocation ITEM_TIER = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "tier");
+    public static final ResourceLocation ITEM_OVERGROWTH = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "overgrowth");
 
     /** The Overgrowth level where each further stage begins: stage 1 from O1, stage 2 from O5, stage 3 from O10.
      * Placeholder milestones for stages 2 and 3 (the notes leave them open; stage 3 may be dropped). */

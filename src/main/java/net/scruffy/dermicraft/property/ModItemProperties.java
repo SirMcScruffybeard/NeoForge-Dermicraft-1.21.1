@@ -5,10 +5,13 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.block.custom.EvolutionBlockProperties;
+import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.component.HeldItemData;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
@@ -109,6 +112,19 @@ public class ModItemProperties {
 
         registerModuleFamily(ModuleFamilies.TIER);
         registerModuleFamily(ModuleFamilies.OVERGROWTH);
+
+        // Machines whose inventory icon follows their tier and Overgrowth stage (see MachineBlockStates).
+        registerEvolutionLook(ModBlocks.MASTICATOR.asItem());
+    }
+
+    /** The "tier" and "overgrowth" properties of a machine's item, read from its EVOLUTION_STATE component. Overgrowth
+     * is the same stage the placed block shows, not the raw level. */
+    private static void registerEvolutionLook(Item item) {
+        ItemProperties.register(item, EvolutionBlockProperties.ITEM_TIER,
+                (stack, level, entity, seed) -> getEvolutionState(stack).tier());
+        ItemProperties.register(item, EvolutionBlockProperties.ITEM_OVERGROWTH,
+                (stack, level, entity, seed) -> EvolutionBlockProperties.getOvergrowthStage(
+                        getEvolutionState(stack).overgrowth()));
     }
 
     /** The client "variant" property for a module family: a stack's component picks which variant model shows. */
@@ -140,6 +156,10 @@ public class ModItemProperties {
     //////////////HelperMethods\\\\\\\\\\\\\\
     private static ResourceLocation getResourceLocation(String path) {
         return ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, path);
+    }
+
+    private static EvolutionStateData getEvolutionState(ItemStack stack) {
+        return stack.getOrDefault(ModDataComponentTypes.EVOLUTION_STATE.get(), EvolutionStateData.DEFAULT);
     }
 
     private static DataComponentType<FluidData> getFluidDataType() {

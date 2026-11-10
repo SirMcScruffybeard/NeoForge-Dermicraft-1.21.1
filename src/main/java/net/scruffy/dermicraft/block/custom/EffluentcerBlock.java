@@ -111,6 +111,7 @@ public class EffluentcerBlock extends ModBaseEntityBlock implements TieredMachin
     // for any non-empty stack, which ate the click on an invalid item instead of opening the GUI.
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (tryOpenModuleTab(stack, level, pos, player)) return ItemInteractionResult.SUCCESS;
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
 
         if (!(level.getBlockEntity(pos) instanceof EffluentcerBlockEntity effluentcer)) {
