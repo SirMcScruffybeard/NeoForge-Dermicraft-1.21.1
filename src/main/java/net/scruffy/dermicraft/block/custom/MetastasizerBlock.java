@@ -136,8 +136,13 @@ public class MetastasizerBlock extends ModBaseEntityBlock implements TieredMachi
             return ItemInteractionResult.SUCCESS;
         }
 
-        if (face != Direction.UP && face != Direction.DOWN
-                && stack.getCapability(Capabilities.FluidHandler.ITEM) == null) {
+        // A fluid container the machine couldn't fill from or drain into (wrong fluid, tank full or empty)
+        // opens the GUI, same as the Masticator, rather than silently doing nothing.
+        if (stack.getCapability(Capabilities.FluidHandler.ITEM) != null) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+
+        if (face != Direction.UP && face != Direction.DOWN) {
             int before = stack.getCount();
             ItemStack leftover = be.insertPattern(stack);
             if (leftover.getCount() == before) {

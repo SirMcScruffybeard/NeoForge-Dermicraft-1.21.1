@@ -8,5 +8,6 @@ public class Dirs {
     public static final String LIGHT_DIR = "/light";
     public static final String LIGHT_MOUNT_DIR = "/light_mount";
     public static final String MASTICATOR_DIR = "/masticator";
+    public static final String METASTASIZER_DIR = "/metastasizer";
     public static final String SKIN_TANK_DIR = "/skin_tank";
 }

@@ -155,9 +155,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
 
 
-        metastasizerBlockState(skinTankEnd);
-        itemModels().withExistingParent(ModBlocks.METASTASIZER.getId().getPath(),
-                modLoc("block/" + ModBlocks.METASTASIZER.getId().getPath()));
+        new MachineBlockStates(this).register(ModBlocks.METASTASIZER.get(), "metastasizer",
+                MachineLayouts.METASTASIZER, MetastasizerBlock.FACING);
 
 
         mutatorBlockState(skinTankEnd);
@@ -426,45 +425,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
         builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
                 .modelForState().modelFile(running).rotationY(rotY).addModel();
         builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
-                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
-    }
-
-    // Mirrors effluentcerBlockState/masticatorBlockState -- 4 horizontal facings x 3
-    // MachineStatus values (3 face models for now), only the front (north-authored) face texture differs between
-    // the three models; metastasizer_side covers the other 3 horizontal faces and skinTankEnd
-    // covers top/bottom in all three.
-    private void metastasizerBlockState(String skinTankEnd) {
-        ModelFile idle = models().cube(ModBlocks.METASTASIZER.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/metastasizer/metastasizer_face"),
-                        modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"))
-                .texture("particle", modLoc("block/metastasizer/metastasizer_face"));
-        ModelFile running = models().cube("metastasizer_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/metastasizer/metastasizer_face_on"),
-                        modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"))
-                .texture("particle", modLoc("block/metastasizer/metastasizer_face_on"));
-        ModelFile recovering = models().cube("metastasizer_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/metastasizer/metastasizer_face_error"),
-                        modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"), modLoc("block/metastasizer/metastasizer_side"))
-                .texture("particle", modLoc("block/metastasizer/metastasizer_face_error"));
-
-        var builder = getVariantBuilder(ModBlocks.METASTASIZER.get());
-        putMetastasizerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
-        putMetastasizerVariant(builder, idle, running, recovering, Direction.EAST, 90);
-        putMetastasizerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
-        putMetastasizerVariant(builder, idle, running, recovering, Direction.WEST, 270);
-    }
-
-    private void putMetastasizerVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MetastasizerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
                 .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
