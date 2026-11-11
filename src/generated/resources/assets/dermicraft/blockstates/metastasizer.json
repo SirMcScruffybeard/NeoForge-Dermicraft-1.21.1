@@ -70,7 +70,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1"
+        "model": "dermicraft:block/metastasizer/chamber_l1"
       },
       "when": {
         "facing": "north",
@@ -80,7 +80,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1_moving"
+        "model": "dermicraft:block/metastasizer/chamber_l1_moving"
       },
       "when": {
         "facing": "north",
@@ -90,7 +90,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2"
+        "model": "dermicraft:block/metastasizer/chamber_l2"
       },
       "when": {
         "facing": "north",
@@ -100,7 +100,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2_moving"
+        "model": "dermicraft:block/metastasizer/chamber_l2_moving"
       },
       "when": {
         "facing": "north",
@@ -110,7 +110,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3"
+        "model": "dermicraft:block/metastasizer/chamber_l3"
       },
       "when": {
         "facing": "north",
@@ -120,7 +120,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3_moving"
+        "model": "dermicraft:block/metastasizer/chamber_l3_moving"
       },
       "when": {
         "facing": "north",
@@ -130,7 +130,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4"
+        "model": "dermicraft:block/metastasizer/chamber_l4"
       },
       "when": {
         "facing": "north",
@@ -140,7 +140,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4_moving"
+        "model": "dermicraft:block/metastasizer/chamber_l4_moving"
       },
       "when": {
         "facing": "north",
@@ -270,7 +270,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1",
+        "model": "dermicraft:block/metastasizer/chamber_l1",
         "y": 90
       },
       "when": {
@@ -281,7 +281,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l1_moving",
         "y": 90
       },
       "when": {
@@ -292,7 +292,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2",
+        "model": "dermicraft:block/metastasizer/chamber_l2",
         "y": 90
       },
       "when": {
@@ -303,7 +303,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l2_moving",
         "y": 90
       },
       "when": {
@@ -314,7 +314,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3",
+        "model": "dermicraft:block/metastasizer/chamber_l3",
         "y": 90
       },
       "when": {
@@ -325,7 +325,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l3_moving",
         "y": 90
       },
       "when": {
@@ -336,7 +336,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4",
+        "model": "dermicraft:block/metastasizer/chamber_l4",
         "y": 90
       },
       "when": {
@@ -347,7 +347,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l4_moving",
         "y": 90
       },
       "when": {
@@ -487,7 +487,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1",
+        "model": "dermicraft:block/metastasizer/chamber_l1",
         "y": 180
       },
       "when": {
@@ -498,7 +498,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l1_moving",
         "y": 180
       },
       "when": {
@@ -509,7 +509,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2",
+        "model": "dermicraft:block/metastasizer/chamber_l2",
         "y": 180
       },
       "when": {
@@ -520,7 +520,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l2_moving",
         "y": 180
       },
       "when": {
@@ -531,7 +531,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3",
+        "model": "dermicraft:block/metastasizer/chamber_l3",
         "y": 180
       },
       "when": {
@@ -542,7 +542,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l3_moving",
         "y": 180
       },
       "when": {
@@ -553,7 +553,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4",
+        "model": "dermicraft:block/metastasizer/chamber_l4",
         "y": 180
       },
       "when": {
@@ -564,7 +564,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l4_moving",
         "y": 180
       },
       "when": {
@@ -704,7 +704,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1",
+        "model": "dermicraft:block/metastasizer/chamber_l1",
         "y": 270
       },
       "when": {
@@ -715,7 +715,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l1_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l1_moving",
         "y": 270
       },
       "when": {
@@ -726,7 +726,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2",
+        "model": "dermicraft:block/metastasizer/chamber_l2",
         "y": 270
       },
       "when": {
@@ -737,7 +737,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l2_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l2_moving",
         "y": 270
       },
       "when": {
@@ -748,7 +748,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3",
+        "model": "dermicraft:block/metastasizer/chamber_l3",
         "y": 270
       },
       "when": {
@@ -759,7 +759,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l3_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l3_moving",
         "y": 270
       },
       "when": {
@@ -770,7 +770,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4",
+        "model": "dermicraft:block/metastasizer/chamber_l4",
         "y": 270
       },
       "when": {
@@ -781,7 +781,7 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/metastasizer/printer_l4_moving",
+        "model": "dermicraft:block/metastasizer/chamber_l4_moving",
         "y": 270
       },
       "when": {

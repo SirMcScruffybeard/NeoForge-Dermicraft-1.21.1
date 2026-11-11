@@ -74,7 +74,7 @@ public class PartModels {
     /** The light mount for one tier: {@code <machine>/light_mount_l<tier>}. */
     public BlockModelBuilder buildLightMount(String machine, MachineFaceLayout layout, int tier) {
         return buildDecal(MODEL_DIR + machine + "/light_mount_l" + tier,
-                layout.face(), layout.mountX(), layout.mountY(),
+                layout.face(), layout.lightMountX(), layout.lightMountY(),
                 MachineFaceLayout.MOUNT_SIZE, MachineFaceLayout.MOUNT_SIZE,
                 SIMPLE_MACHINE_DIR + LIGHT_MOUNT_DIR + "/l" + tier, MOUNT_LAYER, 0);
     }
@@ -127,7 +127,7 @@ public class PartModels {
                 .texture("center", provider.modLoc(SIMPLE_MACHINE_DIR + PORT_DIR + "/port_center"));
 
         model.element().from(0, 0, 0).to(16, 16, 16).textureAll("#plate").end();
-        addDecalElement(model, "mount", layout.face(), layout.mountX(), layout.mountY(),
+        addDecalElement(model, "mount", layout.face(), layout.lightMountX(), layout.lightMountY(),
                 MachineFaceLayout.MOUNT_SIZE, MachineFaceLayout.MOUNT_SIZE, MOUNT_LAYER, 0);
         addDecalElement(model, "light", layout.face(), layout.getLightX(), layout.getLightY(),
                 MachineFaceLayout.LIGHT_SIZE, MachineFaceLayout.LIGHT_SIZE, LIGHT_LAYER, 0);

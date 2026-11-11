@@ -159,9 +159,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 MachineLayouts.METASTASIZER, MetastasizerBlock.FACING);
 
 
-        mutatorBlockState(skinTankEnd);
-        itemModels().withExistingParent(ModBlocks.MUTATOR.getId().getPath(),
-                modLoc("block/" + ModBlocks.MUTATOR.getId().getPath()));
+        new MachineBlockStates(this).register(ModBlocks.MUTATOR.get(), "mutator",
+                MachineLayouts.MUTATOR, MutatorBlock.FACING);
 
 
         renderFurnaceBlockState(skinTankEnd);
@@ -266,45 +265,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(off).rotationX(rotX).rotationY(rotY).addModel();
         builder.partialState().with(MrShepardBlock.FACING, facing).with(MrShepardBlock.ACTIVE, true)
                 .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
-    }
-
-    // 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face) -- only the front (north-authored) face
-    // texture differs between the three models; skin_tank_end covers every other face in all three.
-    // Y-rotation per facing matches the standard horizontal-facing convention (same values horizontalBlock
-    // itself would generate): North=identity, East=90, South=180, West=270.
-    private void mutatorBlockState(String skinTankEnd) {
-        ModelFile idle = models().cube(ModBlocks.MUTATOR.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator/mutator_face"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/mutator/mutator_face"));
-        ModelFile running = models().cube("mutator_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator/mutator_face_on"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/mutator/mutator_face_on"));
-        ModelFile recovering = models().cube("mutator_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/mutator/mutator_face_error"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/mutator/mutator_face_error"));
-
-        var builder = getVariantBuilder(ModBlocks.MUTATOR.get());
-        putMutatorVariant(builder, idle, running, recovering, Direction.NORTH, 0);
-        putMutatorVariant(builder, idle, running, recovering, Direction.EAST, 90);
-        putMutatorVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
-        putMutatorVariant(builder, idle, running, recovering, Direction.WEST, 270);
-    }
-
-    private void putMutatorVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(MutatorBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
-                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
     // Same shape as renderKilnBlockState -- 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face), only the front

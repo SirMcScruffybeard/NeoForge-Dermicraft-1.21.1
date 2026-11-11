@@ -20,6 +20,6 @@
   ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "decal": "dermicraft:block/simple_machine/metastasizer/metastasizer_printer_l4"
+    "decal": "dermicraft:block/simple_machine/metastasizer/metastasizer_chamber_l4_moving"
   }
 }

@@ -1,79 +1,883 @@
 {
-  "variants": {
-    "facing=east,status=broken_down": {
-      "model": "dermicraft:block/mutator_error",
-      "y": 90
+  "multipart": [
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o0"
+      },
+      "when": {
+        "overgrowth": "0"
+      }
     },
-    "facing=east,status=idle": {
-      "model": "dermicraft:block/mutator",
-      "y": 90
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o1"
+      },
+      "when": {
+        "overgrowth": "1"
+      }
     },
-    "facing=east,status=running": {
-      "model": "dermicraft:block/mutator_on",
-      "y": 90
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o2"
+      },
+      "when": {
+        "overgrowth": "2"
+      }
     },
-    "facing=east,status=strained_idle": {
-      "model": "dermicraft:block/mutator",
-      "y": 90
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o3"
+      },
+      "when": {
+        "overgrowth": "3"
+      }
     },
-    "facing=east,status=strained_running": {
-      "model": "dermicraft:block/mutator_on",
-      "y": 90
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l1"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "1"
+      }
     },
-    "facing=north,status=broken_down": {
-      "model": "dermicraft:block/mutator_error"
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l2"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "2"
+      }
     },
-    "facing=north,status=idle": {
-      "model": "dermicraft:block/mutator"
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l3"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "3"
+      }
     },
-    "facing=north,status=running": {
-      "model": "dermicraft:block/mutator_on"
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l4"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "4"
+      }
     },
-    "facing=north,status=strained_idle": {
-      "model": "dermicraft:block/mutator"
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1"
+      },
+      "when": {
+        "facing": "north",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "1"
+      }
     },
-    "facing=north,status=strained_running": {
-      "model": "dermicraft:block/mutator_on"
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1_moving"
+      },
+      "when": {
+        "facing": "north",
+        "status": "running|strained_running",
+        "tier": "1"
+      }
     },
-    "facing=south,status=broken_down": {
-      "model": "dermicraft:block/mutator_error",
-      "y": 180
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2"
+      },
+      "when": {
+        "facing": "north",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "2"
+      }
     },
-    "facing=south,status=idle": {
-      "model": "dermicraft:block/mutator",
-      "y": 180
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2_moving"
+      },
+      "when": {
+        "facing": "north",
+        "status": "running|strained_running",
+        "tier": "2"
+      }
     },
-    "facing=south,status=running": {
-      "model": "dermicraft:block/mutator_on",
-      "y": 180
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3"
+      },
+      "when": {
+        "facing": "north",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "3"
+      }
     },
-    "facing=south,status=strained_idle": {
-      "model": "dermicraft:block/mutator",
-      "y": 180
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3_moving"
+      },
+      "when": {
+        "facing": "north",
+        "status": "running|strained_running",
+        "tier": "3"
+      }
     },
-    "facing=south,status=strained_running": {
-      "model": "dermicraft:block/mutator_on",
-      "y": 180
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4"
+      },
+      "when": {
+        "facing": "north",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "4"
+      }
     },
-    "facing=west,status=broken_down": {
-      "model": "dermicraft:block/mutator_error",
-      "y": 270
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4_moving"
+      },
+      "when": {
+        "facing": "north",
+        "status": "running|strained_running",
+        "tier": "4"
+      }
     },
-    "facing=west,status=idle": {
-      "model": "dermicraft:block/mutator",
-      "y": 270
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_off"
+      },
+      "when": {
+        "facing": "north",
+        "status": "idle"
+      }
     },
-    "facing=west,status=running": {
-      "model": "dermicraft:block/mutator_on",
-      "y": 270
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_on"
+      },
+      "when": {
+        "facing": "north",
+        "status": "running"
+      }
     },
-    "facing=west,status=strained_idle": {
-      "model": "dermicraft:block/mutator",
-      "y": 270
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_warning"
+      },
+      "when": {
+        "facing": "north",
+        "status": "strained_idle|strained_running"
+      }
     },
-    "facing=west,status=strained_running": {
-      "model": "dermicraft:block/mutator_on",
-      "y": 270
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_error"
+      },
+      "when": {
+        "facing": "north",
+        "status": "broken_down"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_center"
+      },
+      "when": {
+        "facing": "north"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l1"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l2"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l3"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l4"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l1",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l2",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l3",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l4",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1_moving",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "running|strained_running",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2_moving",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "running|strained_running",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3_moving",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "running|strained_running",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4_moving",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "running|strained_running",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_off",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "idle"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_on",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "running"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_warning",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "strained_idle|strained_running"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_error",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "status": "broken_down"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_center",
+        "y": 90
+      },
+      "when": {
+        "facing": "east"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l1",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l2",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l3",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l4",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l1",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l2",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l3",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l4",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1_moving",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "running|strained_running",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2_moving",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "running|strained_running",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3_moving",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "running|strained_running",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4_moving",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "running|strained_running",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_off",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "idle"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_on",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "running"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_warning",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "strained_idle|strained_running"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_error",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "status": "broken_down"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_center",
+        "y": 180
+      },
+      "when": {
+        "facing": "south"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l1",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l2",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l3",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l4",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l1",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l2",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l3",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_mount_l4",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l1_moving",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "running|strained_running",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l2_moving",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "running|strained_running",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l3_moving",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "running|strained_running",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "idle|strained_idle|broken_down",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/printer_l4_moving",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "running|strained_running",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_off",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "idle"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_on",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "running"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_warning",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "strained_idle|strained_running"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/light_error",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "status": "broken_down"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_center",
+        "y": 270
+      },
+      "when": {
+        "facing": "west"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l1",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l2",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l3",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mutator/ports_l4",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "4"
+      }
     }
-  }
+  ]
 }

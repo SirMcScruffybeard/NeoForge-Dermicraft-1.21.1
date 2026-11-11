@@ -14,11 +14,11 @@ import java.util.List;
  * model is authored on: NORTH for the machines that rotate with their facing, UP for the Grafting Table.
  *
  * @param face     the authored face, NORTH or UP
- * @param mountX   left edge of the light mount
- * @param mountY   bottom edge of the light mount
+ * @param lightMountX   left edge of the light mount
+ * @param lightMountY   bottom edge of the light mount
  * @param features the machine's own parts on the face (the Masticator's mouth); empty for a light-only face
  */
-public record MachineFaceLayout(Direction face, int mountX, int mountY, List<MachineFaceLayout.Feature> features) {
+public record MachineFaceLayout(Direction face, int lightMountX, int lightMountY, List<MachineFaceLayout.Feature> features) {
 
     public static final int FACE_SIZE = 16;
 
@@ -32,7 +32,7 @@ public record MachineFaceLayout(Direction face, int mountX, int mountY, List<Mac
             throw new IllegalArgumentException("A machine face must be NORTH or UP, not " + face);
         }
 
-        requireInside("light mount", mountX, mountY, MOUNT_SIZE, MOUNT_SIZE);
+        requireInside("light mount", lightMountX, lightMountY, MOUNT_SIZE, MOUNT_SIZE);
         features = List.copyOf(features);
         for (Feature feature : features) {
             requireInside(feature.name(), feature.x(), feature.y(), feature.width(), feature.height());
@@ -41,12 +41,12 @@ public record MachineFaceLayout(Direction face, int mountX, int mountY, List<Mac
 
     /** Left edge of the light, inside the mount. */
     public int getLightX() {
-        return mountX + LIGHT_INSET;
+        return lightMountX + LIGHT_INSET;
     }
 
     /** Bottom edge of the light, inside the mount. */
     public int getLightY() {
-        return mountY + LIGHT_INSET;
+        return lightMountY + LIGHT_INSET;
     }
 
     private static void requireInside(String what, int x, int y, int width, int height) {

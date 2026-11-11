@@ -47,12 +47,12 @@
       },
       "from": [
         9,
-        9,
+        1,
         -0.05
       ],
       "to": [
         15,
-        15,
+        7,
         -0.05
       ]
     },
@@ -70,12 +70,12 @@
       },
       "from": [
         10,
-        10,
+        2,
         -0.05
       ],
       "to": [
         14,
-        14,
+        6,
         -0.05
       ]
     },
@@ -228,7 +228,7 @@
   "render_type": "minecraft:cutout",
   "textures": {
     "center": "dermicraft:block/simple_machine/port/port_center",
-    "feature_0": "dermicraft:block/simple_machine/metastasizer/metastasizer_printer_l2",
+    "feature_0": "dermicraft:block/simple_machine/metastasizer/metastasizer_chamber_l2",
     "light": "dermicraft:block/simple_machine/light/light_off",
     "mount": "dermicraft:block/simple_machine/light_mount/l2",
     "plate": "dermicraft:block/tumor_new/tumor_base",
