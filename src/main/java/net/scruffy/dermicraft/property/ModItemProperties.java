@@ -115,6 +115,10 @@ public class ModItemProperties {
 
         // Machines whose inventory icon follows their tier and Overgrowth stage (see MachineBlockStates).
         registerEvolutionLook(ModBlocks.MASTICATOR.asItem());
+        registerEvolutionLook(ModBlocks.METASTASIZER.asItem());
+        registerEvolutionLook(ModBlocks.MUTATOR.asItem());
+        registerEvolutionLook(ModBlocks.EFFLUENTCER.asItem());
+        registerEvolutionLook(ModBlocks.GRAFTING_TABLE.asItem());
     }
 
     /** The "tier" and "overgrowth" properties of a machine's item, read from its EVOLUTION_STATE component. Overgrowth

@@ -10,7 +10,11 @@ import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder
 import net.scruffy.dermicraft.block.custom.EvolutionBlockProperties;
 import net.scruffy.dermicraft.block.custom.MachineStatus;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Builds a face machine's multipart blockstate from the layer models in {@link PartModels}. The stacking order is:
@@ -37,8 +41,10 @@ public class MachineBlockStates {
 
     /**
      * @param machine the model folder name, for example "masticator"
+     * @param facing  the block's facing property, or null for a block with none (the Grafting Table), whose parts are
+     *                then added once, unrotated and without a facing condition
      */
-    public void register(Block block, String machine, MachineFaceLayout layout, Property<Direction> facing) {
+    public void register(Block block, String machine, MachineFaceLayout layout, @Nullable Property<Direction> facing) {
         MultiPartBlockStateBuilder builder = provider.getMultipartBuilder(block);
 
         // The plate is one full-block model per Overgrowth stage, shared by every machine.
@@ -56,15 +62,16 @@ public class MachineBlockStates {
         }
         ModelFile portCenter = parts.buildPortCenter(machine, layout);
 
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            int rotation = getRotationY(direction);
+        List<Direction> directions = facing == null
+                ? Collections.singletonList(null) : Direction.Plane.HORIZONTAL.stream().toList();
+        for (Direction direction : directions) {
+            int rotation = direction == null ? 0 : getRotationY(direction);
 
             addTierParts(builder, mounts, rotation, facing, direction);
             addFeatureParts(builder, machine, layout, rotation, facing, direction);
             addLightParts(builder, machine, layout, rotation, facing, direction);
 
-            builder.part().modelFile(portCenter).rotationY(rotation).addModel()
-                    .condition(facing, direction).end();
+            onFacing(builder.part().modelFile(portCenter).rotationY(rotation).addModel(), facing, direction).end();
             addTierParts(builder, ports, rotation, facing, direction);
         }
 
@@ -93,6 +100,13 @@ public class MachineBlockStates {
         }
     }
 
+    /** Restricts a part to one facing, or leaves it unrestricted for a block with no facing property. */
+    private static MultiPartBlockStateBuilder.PartBuilder onFacing(MultiPartBlockStateBuilder.PartBuilder part,
+                                                                  @Nullable Property<Direction> facing,
+                                                                  @Nullable Direction direction) {
+        return facing == null || direction == null ? part : part.condition(facing, direction);
+    }
+
     /** The blockstate Y rotation that turns a model authored facing north to face {@code direction}. */
     private static int getRotationY(Direction direction) {
         return ((int) direction.toYRot() + 180) % 360;
@@ -100,23 +114,22 @@ public class MachineBlockStates {
 
     /** One part per tier (1 to 4) for a facing, each using that tier's model. */
     private static void addTierParts(MultiPartBlockStateBuilder builder, ModelFile[] models, int rotation,
-                                     Property<Direction> facing, Direction direction) {
+                                     @Nullable Property<Direction> facing, @Nullable Direction direction) {
         for (int tier = 1; tier <= 4; tier++) {
-            builder.part().modelFile(models[tier]).rotationY(rotation).addModel()
-                    .condition(facing, direction)
+            onFacing(builder.part().modelFile(models[tier]).rotationY(rotation).addModel(), facing, direction)
                     .condition(EvolutionBlockProperties.TIER, tier).end();
         }
     }
 
     /** The light in each color, shown for the statuses that map to it. */
     private void addLightParts(MultiPartBlockStateBuilder builder, String machine, MachineFaceLayout layout,
-                               int rotation, Property<Direction> facing, Direction direction) {
+                               int rotation, @Nullable Property<Direction> facing, @Nullable Direction direction) {
         for (PartModels.Lamp lamp : PartModels.Lamp.values()) {
             MachineStatus[] statuses = Arrays.stream(MachineStatus.values())
                     .filter(status -> PartModels.Lamp.forStatus(status) == lamp)
                     .toArray(MachineStatus[]::new);
-            builder.part().modelFile(parts.buildLight(machine, layout, lamp)).rotationY(rotation).addModel()
-                    .condition(facing, direction)
+            onFacing(builder.part().modelFile(parts.buildLight(machine, layout, lamp)).rotationY(rotation).addModel(),
+                    facing, direction)
                     .condition(MachineStatus.PROPERTY, statuses).end();
         }
     }
@@ -127,22 +140,20 @@ public class MachineBlockStates {
      * always.
      */
     private void addFeatureParts(MultiPartBlockStateBuilder builder, String machine, MachineFaceLayout layout,
-                                 int rotation, Property<Direction> facing, Direction direction) {
+                                 int rotation, @Nullable Property<Direction> facing, @Nullable Direction direction) {
         for (MachineFaceLayout.Feature feature : layout.features()) {
             for (int tier = 1; tier <= 4; tier++) {
-                var still = builder.part()
+                var still = onFacing(builder.part()
                         .modelFile(parts.buildFeature(machine, layout, feature, tier, false))
-                        .rotationY(rotation).addModel()
-                        .condition(facing, direction)
+                        .rotationY(rotation).addModel(), facing, direction)
                         .condition(EvolutionBlockProperties.TIER, tier);
                 if (feature.hasMovingTexture()) still.condition(MachineStatus.PROPERTY, NOT_WORKING);
                 still.end();
 
                 if (feature.hasMovingTexture()) {
-                    builder.part()
+                    onFacing(builder.part()
                             .modelFile(parts.buildFeature(machine, layout, feature, tier, true))
-                            .rotationY(rotation).addModel()
-                            .condition(facing, direction)
+                            .rotationY(rotation).addModel(), facing, direction)
                             .condition(EvolutionBlockProperties.TIER, tier)
                             .condition(MachineStatus.PROPERTY, WORKING).end();
                 }

@@ -169,12 +169,15 @@ public class PartModels {
             element.from(16 - (x + width), y, -offset)
                     .to(16 - x, y + height, -offset);
         } else {
-            // The top face, seen from above with north at the top of the view: left is -x, up is -z.
-            element.from(x, 16 + offset, 16 - (y + height))
-                    .to(x + width, 16 + offset, 16 - y);
+            // The top face is read the way a player standing at the front sees it, looking at the back: the art's
+            // left is the model's east (+x), its top is the model's south (+z). That is the texture turned half a
+            // turn, so the pixel position below is mirrored on both axes and the face itself is rotated to match.
+            element.from(16 - (x + width), 16 + offset, y)
+                    .to(16 - x, 16 + offset, y + height);
         }
 
         var faceBuilder = element.face(face).uvs(0, 0, 16, 16).texture("#" + textureKey);
+        if (face == Direction.UP) faceBuilder.rotation(ModelBuilder.FaceRotation.UPSIDE_DOWN);
         if (emissivity > 0) faceBuilder.emissivity(emissivity, emissivity);
         faceBuilder.end().end();
     }

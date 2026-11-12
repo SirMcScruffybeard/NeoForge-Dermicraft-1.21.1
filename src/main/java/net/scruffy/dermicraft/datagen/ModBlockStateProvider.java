@@ -166,13 +166,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
         itemModels().withExistingParent(ModBlocks.RENDER_FURNACE.getId().getPath(),
                 modLoc("block/" + ModBlocks.RENDER_FURNACE.getId().getPath()));
 
-        // No FACING, no ACTIVE state -- only a top texture exists for this one so far, sides/bottom
-        // reuse skin_tank_end like every other machine's placeholder faces.
-        simpleBlockWithItem(ModBlocks.GRAFTING_TABLE.get(), models().cubeBottomTop(
-                ModBlocks.GRAFTING_TABLE.getId().getPath(),
-                modLoc(skinTankEnd),
-                modLoc(skinTankEnd),
-                modLoc("block/grafting_table_top")));
+        // The grid is on the top face; the facing only turns it (and the light mount) about the vertical axis.
+        new MachineBlockStates(this).register(ModBlocks.GRAFTING_TABLE.get(), "grafting_table",
+                MachineLayouts.GRAFTING_TABLE, GraftingTableBlock.FACING);
 
 
         simpleBlockWithItem(ModBlocks.CRAW.get(), models().cubeBottomTop(

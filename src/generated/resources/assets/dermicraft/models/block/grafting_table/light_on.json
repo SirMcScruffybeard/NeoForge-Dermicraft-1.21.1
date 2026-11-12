@@ -1,0 +1,36 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "up": {
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "rotation": 180,
+          "texture": "#decal",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        10,
+        16.05,
+        10
+      ],
+      "to": [
+        14,
+        16.05,
+        14
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "decal": "dermicraft:block/simple_machine/light/light_on"
+  }
+}

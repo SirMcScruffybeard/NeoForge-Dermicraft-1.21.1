@@ -45,4 +45,16 @@ public class MachineLayouts {
                     "mixer", 0, 0, 16, 16,
                     SIMPLE_MACHINE_DIR + EFFLUENTCER_DIR + "/effluentcer_mixer_l%d",
                     SIMPLE_MACHINE_DIR + EFFLUENTCER_DIR + "/effluentcer_mixer_l%d_moving")));
+
+    /**
+     * The only machine whose face is the top: the grid sits on the UP face and turns with the block's facing like the
+     * others. Positions are texture pixels, read upright as a player standing at the front sees the top face; the
+     * light mount is in the upper-left corner (x 1-6, y 9-14). The grid has no moving texture.
+     */
+    public static final MachineFaceLayout GRAFTING_TABLE = new MachineFaceLayout(
+            Direction.UP, 1, 9,
+            List.of(new MachineFaceLayout.Feature(
+                    "grid", 0, 0, 16, 16,
+                    SIMPLE_MACHINE_DIR + GRAFTING_TABLE_DIR + "/grafting_grid_l%d",
+                    null)));
 }

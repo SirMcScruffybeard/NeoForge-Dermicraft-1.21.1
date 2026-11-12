@@ -10,14 +10,19 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -29,13 +34,13 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Grafting Table: an automated, fuel-powered vanilla crafting table, with the standard HP mechanic like every
- * other fueled machine. No FACING property: unlike every other machine, a 3x3 crafting grid
- * has no directional "front" to orient (vanilla's own crafting table doesn't rotate either), so
- * placement is unconditional and automation zoning is UP=fuel, DOWN=output, everything else=grid.
+ * other fueled machine. It has a horizontal FACING, which only orients the art on its top face (the grid and the light
+ * mount turn with it); automation zoning is not facing-relative: UP=fuel, DOWN=output, everything else=grid.
  */
 public class GraftingTableBlock extends ModBaseEntityBlock implements TieredMachine {
 
     public static final MapCodec<GraftingTableBlock> CODEC = simpleCodec(GraftingTableBlock::new);
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     private final MachineTier tier;
 
@@ -54,8 +59,26 @@ public class GraftingTableBlock extends ModBaseEntityBlock implements TieredMach
         return tier;
     }
 
+    @NotNull
+    @Override
+    protected BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @NotNull
+    @Override
+    protected BlockState mirror(BlockState state, Mirror mirror) {
+        return rotate(state, mirror.getRotation(state.getValue(FACING)));
+    }
+
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    }
+
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
         EvolutionBlockProperties.add(builder);
         builder.add(MachineStatus.PROPERTY);
     }

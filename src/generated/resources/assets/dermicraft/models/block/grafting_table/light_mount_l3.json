@@ -1,0 +1,32 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "up": {
+          "rotation": 180,
+          "texture": "#decal",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        9,
+        16.05,
+        9
+      ],
+      "to": [
+        15,
+        16.05,
+        15
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "decal": "dermicraft:block/simple_machine/light_mount/l3"
+  }
+}
