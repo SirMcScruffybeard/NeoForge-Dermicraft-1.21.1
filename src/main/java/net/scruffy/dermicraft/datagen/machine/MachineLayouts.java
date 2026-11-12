@@ -34,4 +34,15 @@ public class MachineLayouts {
                     "printer", 0, 0, 16, 16,
                     SIMPLE_MACHINE_DIR + MUTATOR_DIR + "/mutator_printer_l%d",
                     SIMPLE_MACHINE_DIR + MUTATOR_DIR + "/mutator_printer_l%d_moving")));
+
+    /**
+     * A full-face 16x16 mixer; the light mount sits in the lower-right corner, one pixel in from the bottom and right
+     * edges (x 9-14, y 1-6).
+     */
+    public static final MachineFaceLayout EFFLUENTCER = new MachineFaceLayout(
+            Direction.NORTH, 9, 1,
+            List.of(new MachineFaceLayout.Feature(
+                    "mixer", 0, 0, 16, 16,
+                    SIMPLE_MACHINE_DIR + EFFLUENTCER_DIR + "/effluentcer_mixer_l%d",
+                    SIMPLE_MACHINE_DIR + EFFLUENTCER_DIR + "/effluentcer_mixer_l%d_moving")));
 }

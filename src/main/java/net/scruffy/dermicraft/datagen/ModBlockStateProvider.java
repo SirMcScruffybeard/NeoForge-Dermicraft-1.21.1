@@ -150,9 +150,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         masticatorBlockState();
 
-        effluentcerBlockState(skinTankEnd);
-        itemModels().withExistingParent(ModBlocks.EFFLUENTCER.getId().getPath(),
-                modLoc("block/" + ModBlocks.EFFLUENTCER.getId().getPath()));
+        new MachineBlockStates(this).register(ModBlocks.EFFLUENTCER.get(), "effluentcer",
+                MachineLayouts.EFFLUENTCER, EffluentcerBlock.FACING);
 
 
         new MachineBlockStates(this).register(ModBlocks.METASTASIZER.get(), "metastasizer",
@@ -347,45 +346,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
     private void masticatorBlockState() {
         new MachineBlockStates(this).register(ModBlocks.MASTICATOR.get(), "masticator",
                 MachineLayouts.MASTICATOR, MasticatorBlock.FACING);
-    }
-
-    // Mirrors masticatorBlockState/mutatorBlockState -- 4 horizontal facings x 3
-    // MachineStatus values (3 face models for now), only the front (north-authored) face texture differs between
-    // the three models; effluentcer_side covers the other 3 horizontal faces and skinTankEnd covers
-    // top/bottom in all three.
-    private void effluentcerBlockState(String skinTankEnd) {
-        ModelFile idle = models().cube(ModBlocks.EFFLUENTCER.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer/effluentcer_face"),
-                        modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"))
-                .texture("particle", modLoc("block/effluentcer/effluentcer_face"));
-        ModelFile running = models().cube("effluentcer_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer/effluentcer_face_on"),
-                        modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"))
-                .texture("particle", modLoc("block/effluentcer/effluentcer_face_on"));
-        ModelFile recovering = models().cube("effluentcer_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/effluentcer/effluentcer_face_error"),
-                        modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"), modLoc("block/effluentcer/effluentcer_side"))
-                .texture("particle", modLoc("block/effluentcer/effluentcer_face_error"));
-
-        var builder = getVariantBuilder(ModBlocks.EFFLUENTCER.get());
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.NORTH, 0);
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.EAST, 90);
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
-        putEffluentcerVariant(builder, idle, running, recovering, Direction.WEST, 270);
-    }
-
-    private void putEffluentcerVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                   ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(EffluentcerBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
-                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
     }
 
 

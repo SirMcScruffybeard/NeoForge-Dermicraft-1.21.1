@@ -204,11 +204,18 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         if (face == Direction.UP) return Component.translatable("tooltip.dermicraft.tank.fuel");
         if (face == Direction.DOWN) return Component.translatable("tooltip.dermicraft.tank.result");
 
-        Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
-        if (face == facing || face == facing.getOpposite()) {
-            return Component.translatable("tooltip.dermicraft.tank.input_a");
-        }
+        if (isInputAFace(face)) return Component.translatable("tooltip.dermicraft.tank.input_a");
         return Component.translatable("tooltip.dermicraft.tank.input_b");
+    }
+
+    /**
+     * Input A is served from the front and the model's east side, Input B from the back and the model's west side,
+     * turned with the machine: the front is {@code FACING}, and east (the side on the left as you face the front) is
+     * the face clockwise of it.
+     */
+    private boolean isInputAFace(Direction face) {
+        Direction front = getBlockState().getValue(EffluentcerBlock.FACING);
+        return face == front || face == front.getClockWise();
     }
 
     public IFluidHandler getTank(@Nullable Direction direction) {
@@ -217,10 +224,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         if (direction == Direction.UP) return FUEL_TANK;
         if (direction == Direction.DOWN) return RESULT_TANK;
 
-        Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
-        if (direction == facing || direction == facing.getOpposite()) return INPUT_A_TANK;
-
-        return INPUT_B_TANK;
+        return isInputAFace(direction) ? INPUT_A_TANK : INPUT_B_TANK;
     }
 
     /** See {@link IHasChannels#describeFace} -- mirrors {@link #getTank}/{@link #getItemHandler} literally. */
@@ -229,8 +233,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         if (face == Direction.UP) return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_fuel");
         if (face == Direction.DOWN) return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_result");
 
-        Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
-        if (face == facing || face == facing.getOpposite()) return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_input_a");
+        if (isInputAFace(face)) return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_input_a");
         return Component.translatable("tooltip.dermicraft.idep.face.effluentcer_input_b");
     }
 
@@ -254,10 +257,9 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
      * there's no independent item-ingredient slot like the Masticator's, so only the four fluid
      * tanks need channels.
      *
-     * <p>input_a/input_b's native faces depend on the block's own {@code FACING} state (read fresh
-     * here, same as {@code getTank} does) -- input_a is {@code facing}+{@code facing.getOpposite()},
-     * input_b is the other two horizontals. Each channel is omitted once its native face(s) already
-     * have a direct connection (see {@link #isFaceServiced}).
+     * <p>input_a's native faces are the front and the model's east side, input_b's are the back and the model's west
+     * side, all relative to the block's own {@code FACING} (read fresh here, same as {@code getTank}). Each channel is
+     * omitted once its native face(s) already have a direct connection (see {@link #isFaceServiced}).
      */
     @Override
     public List<Channel> getChannels() {
@@ -267,13 +269,12 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
             channels.add(new Channel.FluidChannel("fuel", Component.literal("Fuel"), Channel.IO.IN, FUEL_TANK));
         }
 
-        Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
-        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, facing, facing.getOpposite())) {
+        Direction front = getBlockState().getValue(EffluentcerBlock.FACING);
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, front, front.getClockWise())) {
             channels.add(new Channel.FluidChannel("input_a", Component.literal("Input A"), Channel.IO.IN, INPUT_A_TANK));
         }
-        Direction otherA = facing.getClockWise();
-        Direction otherB = facing.getCounterClockWise();
-        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, otherA, otherB)) {
+        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID,
+                front.getOpposite(), front.getCounterClockWise())) {
             channels.add(new Channel.FluidChannel("input_b", Component.literal("Input B"), Channel.IO.IN, INPUT_B_TANK));
         }
 
@@ -306,9 +307,7 @@ public class EffluentcerBlockEntity extends AbstractFueledMachineBlockEntity<Eff
         } else if (direction == Direction.DOWN) {
             targetSlot = RESULT_TANK.SLOT;
         } else {
-            Direction facing = getBlockState().getValue(EffluentcerBlock.FACING);
-            targetSlot = (direction == facing || direction == facing.getOpposite())
-                    ? INPUT_A_TANK.SLOT : INPUT_B_TANK.SLOT;
+            targetSlot = isInputAFace(direction) ? INPUT_A_TANK.SLOT : INPUT_B_TANK.SLOT;
         }
 
         return new IItemHandlerModifiable() {
