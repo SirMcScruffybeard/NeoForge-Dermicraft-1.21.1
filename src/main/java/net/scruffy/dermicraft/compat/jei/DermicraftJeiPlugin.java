@@ -108,6 +108,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
     public void registerRecipes(IRecipeRegistration registration) {
         RecipeManager recipeManager = Objects.requireNonNull(Minecraft.getInstance().level).getRecipeManager();
 
+        EvolutionInfo.register(registration);
+
         registration.addRecipes(DermicraftRecipeTypes.DROOLING_CAULDRON, buildDroolingDisplays(recipeManager));
         registration.addRecipes(DermicraftRecipeTypes.DROOLING_CRUCIBLE, buildDroolingCrucibleDisplays(recipeManager));
         registration.addRecipes(DermicraftRecipeTypes.DROOLING_GEODE, buildDroolingGeodeDisplays(recipeManager));

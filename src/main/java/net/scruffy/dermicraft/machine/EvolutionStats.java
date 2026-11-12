@@ -48,6 +48,11 @@ public final class EvolutionStats {
         return Math.max(0, StatTable.toInt(StatConfig.getCurrent().evolutionCountdownSeconds() * TICKS_PER_SECOND));
     }
 
+    /** The percent of a machine's L4 value each Overgrowth level adds to its numeric stats. */
+    public static double getOvergrowthStatPercent() {
+        return StatConfig.getCurrent().overgrowthPercent();
+    }
+
     /** Highest Overgrowth level the config allows (never above the game's own hard limit). */
     public static int getOvergrowthMaxLevel() {
         return StatConfig.getCurrent().overgrowthMaxLevel();
