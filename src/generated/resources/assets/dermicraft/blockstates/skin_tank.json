@@ -34,7 +34,34 @@
     },
     {
       "apply": {
-        "model": "dermicraft:block/skin_tank/interior"
+        "model": "dermicraft:block/skin_tank/interior_o0"
+      },
+      "when": {
+        "overgrowth": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/interior_o1"
+      },
+      "when": {
+        "overgrowth": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/interior_o2"
+      },
+      "when": {
+        "overgrowth": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/interior_o3"
+      },
+      "when": {
+        "overgrowth": "3"
       }
     },
     {

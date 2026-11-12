@@ -159,7 +159,6 @@
   "item.dermicraft.aggregate_module": "Aggregate Module",
   "item.dermicraft.beam_module": "Mining Beam Module",
   "item.dermicraft.fluid_bypass_module": "Fluid Bypass Module",
-  "item.dermicraft.heat_evolution_module": "Thermal Evolution Module",
   "item.dermicraft.evolution_module_frame": "Evolution Module Frame",
   "item.dermicraft.tier_evolution_module": "Tier Evolution Module",
   "item.dermicraft.tier_evolution_module.named": "Tier %s Evolution Module",

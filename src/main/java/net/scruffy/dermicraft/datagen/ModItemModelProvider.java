@@ -75,11 +75,6 @@ public class ModItemModelProvider extends ItemModelProvider {
         moduleItem(ModItems.FLUID_BYPASS_MODULE.get(), "item/module/fluid_module_frame",
                 ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/water_bucket_icon"));
 
-        // Evolution Module family -- same lava bucket icon Thermal Safety Module uses (this is its own
-        // Thermal-flavored variant), on the new Evolution frame background rather than the hazard one,
-        // so the two families read as visually distinct at a glance despite sharing an icon.
-        moduleItem(ModItems.HEAT_EVOLUTION_MODULE.get(), "item/module/evolution_module_frame",
-                ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "item/module/icons/lava_bucket_icon"));
 
         // The Evolution Module Frame -- one layer, no icon. The loaded Evolution Modules are the frame plus
         // an icon layer per variant, chosen by the "variant" property (see ModuleFamilies).

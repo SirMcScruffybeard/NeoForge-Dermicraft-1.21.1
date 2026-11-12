@@ -267,19 +267,19 @@ public class PartModels {
     }
 
     /**
-     * The inside of the tank, seen through the windows: each of the six walls' inner side (four sides, floor and
+     * The inside of the tank for one Overgrowth stage, in that stage's plates, seen through the windows: each of the six walls' inner side (four sides, floor and
      * ceiling) carries the plate with the glass in front of it, all facing in. Whatever the tank holds is drawn between these and the front windows.
      */
-    public BlockModelBuilder buildTankInterior() {
-        return built.computeIfAbsent(TANK_MODEL_DIR + "interior", name -> {
+    public BlockModelBuilder buildTankInterior(int stage) {
+        return built.computeIfAbsent(TANK_MODEL_DIR + "interior_o" + stage, name -> {
             // Cutout, so it is drawn before the fluid (a block entity render): a translucent wall behind the fluid
             // would be depth-rejected by it and vanish.
             BlockModelBuilder model = provider.models().getBuilder(name)
                     .renderType("cutout")
-                    .texture("plate", provider.modLoc(TANK_SIDE_PLATE_TEXTURES[0]))
-                    .texture("particle", provider.modLoc(TANK_SIDE_PLATE_TEXTURES[0]));
+                    .texture("plate", provider.modLoc(TANK_SIDE_PLATE_TEXTURES[stage]))
+                    .texture("particle", provider.modLoc(TANK_SIDE_PLATE_TEXTURES[stage]));
             // The floor and ceiling use the solid end plate: the side plate has the window cut out of it.
-            model.texture("end", provider.modLoc(PLATE_TEXTURES[0]));
+            model.texture("end", provider.modLoc(PLATE_TEXTURES[stage]));
             for (Direction inward : Direction.values()) {
                 addInteriorWall(model, isTankEnd(inward) ? "end" : "plate", inward, 0);
             }

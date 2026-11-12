@@ -248,18 +248,6 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SHATTER_HEAD),
                         new ShatterHeadProperties(TextColor.fromRgb(0xFFCC55), 2, 0.0f, 0.0f, 0.5f, 4, true, 6.0f, 0.0f, 0.0f), false);
 
-        // Thermal Evolution Module: targets lava for a selector consumer (Drooling Cauldron) AND
-        // grants THERMAL for a hazard-gated consumer (Masticator, eventually) -- same physical
-        // item serves either shape depending on which machine's Module slot it sits in. Threshold
-        // is an explicit placeholder (one Minecraft day of continuous active production), not a
-        // tuned number -- see dermicraft-machine-notes.md.
-        this.builder(ModDataMaps.EVOLUTION_MODULE_PROPERTIES)
-                .add(getResourceLocation(ModItems.HEAT_EVOLUTION_MODULE),
-                        new net.scruffy.dermicraft.property.EvolutionModuleProperties(
-                                java.util.Optional.of(net.minecraft.world.level.material.Fluids.LAVA),
-                                List.of(net.scruffy.dermicraft.hazard.HazardFamily.THERMAL),
-                                24000), false)
-                ;
 
         // Hazard modules: every variant's Safety and Evolution item grants the same family and level; what the
         // grant does (temporary tolerance, or a permanent evolution) comes from the item class.

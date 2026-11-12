@@ -15,7 +15,6 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.property.BiofuelProperties;
 import net.scruffy.dermicraft.property.ChainProperties;
 import net.scruffy.dermicraft.property.EdibleFluidProperties;
-import net.scruffy.dermicraft.property.EvolutionModuleProperties;
 import net.scruffy.dermicraft.property.ShatterHeadProperties;
 import net.scruffy.dermicraft.property.CapacityModuleProperties;
 import net.scruffy.dermicraft.property.KeepOnDeathModuleProperties;
@@ -61,17 +60,6 @@ public class ModDataMaps {
                     .build();
 
 /** Which hazard family and level a hazard module item grants -- see {@link HazardModuleData}. Safety and     * Evolution hazard modules share it; what the grant does (temporary tolerance, or a permanent evolution) comes     * from the item class. Synced to clients so tooltips and screens can read it, and editable by a datapack. */    public static final DataMapType<Item, HazardModuleData> HAZARD_MODULE =            DataMapType.builder(                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "hazard_module"),                            Registries.ITEM,                            HazardModuleData.CODEC                    )                    .synced(HazardModuleData.CODEC, true)                    .build();
-    /** Per-item Evolution Module data -- see {@link EvolutionModuleProperties}. Kind (is this an
-     * Evolution Module at all) lives on {@code ModTags.Items.MODULES}; a future sub-tag can narrow
-     * which machine's Module slot accepts it if that turns out to matter. This map is specifically
-     * WHAT a given one does. */
-    public static final DataMapType<Item, EvolutionModuleProperties> EVOLUTION_MODULE_PROPERTIES =
-            DataMapType.builder(
-                            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "evolution_module_properties"),
-                            Registries.ITEM,
-                            EvolutionModuleProperties.CODEC
-                    )
-                    .build();
 
     /** Which mobs can be mechanically decapitated -- scoped for now to mobs that already have a
      * real vanilla head/skull item (Skeleton, Wither Skeleton, Zombie, Creeper, Piglin), per the
@@ -132,7 +120,6 @@ public class ModDataMaps {
         event.register(EDIBLE_FLUID);
         event.register(FLUID_HAZARD);
         event.register(SUNDER_CHAIN_PROPERTIES);
-        event.register(EVOLUTION_MODULE_PROPERTIES);
         event.register(HAZARD_MODULE);
         event.register(DECAPITATION_HEADS);
         event.register(SHATTER_HEAD_PROPERTIES);

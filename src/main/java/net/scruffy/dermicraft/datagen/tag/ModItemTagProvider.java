@@ -98,7 +98,6 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.FLUID_BYPASS_MODULE.get())
                 .add(ModItems.SAFETY_MODULE_FRAME.get())
                 .addTag(ModTags.Items.MODULE_HAZARD_SAFETY)
-                .add(ModItems.HEAT_EVOLUTION_MODULE.get())
                 .add(ModItems.EVOLUTION_MODULE_FRAME.get())
                 .add(ModItems.TIER_EVOLUTION_MODULE.get())
                 .add(ModItems.OVERGROWTH_EVOLUTION_MODULE.get())

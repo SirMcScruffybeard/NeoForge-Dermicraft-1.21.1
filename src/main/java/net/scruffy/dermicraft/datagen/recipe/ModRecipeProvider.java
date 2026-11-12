@@ -1310,13 +1310,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "module_frame_mutating", ModItems.CHASSIS.get(),
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 3000, ModItems.MODULE_FRAME.get(), solidTicks);
 
-        // Old Heat Evolution Module (still used by the machines not yet moved to the component modules): the Thermal
-        // Safety Module + a bucket (1000 mB) of Evolution Catalyst --
-        // same cost tier as Chassis, since it's an upgrade-part item rather than permanent
-        // infrastructure like the Module Frame above.
-        RecipeBuilders.mutate(recipeOutput, "heat_evolution_module_mutating",
-                ModItems.getHazardSafetyModule(HazardModuleVariant.THERMAL),
-                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.HEAT_EVOLUTION_MODULE.get(), solidTicks);
 
         // Hazard Evolution Modules: a Safety Module + a bucket (1000 mB) of Evolution Catalyst gives the Evolution
         // Module of the same variant. One recipe per variant.

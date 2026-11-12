@@ -254,13 +254,6 @@ public class ModItems {
     public static final Map<HazardModuleVariant, DeferredItem<Item>> HAZARD_SAFETY_MODULES =
             registerHazardModules("safety_module", HazardSafetyModuleItem::new);
 
-    // Evolution Module family (dermicraft-progression-notes.md / dermicraft-machine-notes.md,
-    // Drooling Cauldron entry "Evolution Module family") -- item only for now, no mechanics wired
-    // up yet. Not a HazardSafetyModuleItem like the Safety Modules above: that class is what makes
-    // IHaveModules#installedHazardProfile treat an item as granting hazard tolerance, and this
-    // doesn't do that (yet) -- just MODULES, so it can sit in a Module slot.
-    public static final DeferredItem<Item> HEAT_EVOLUTION_MODULE = ITEMS.register("heat_evolution_module",
-            () -> new Item(new Item.Properties()));
 
     // Evolution Modules. The Frame is the inert base (it fits the Evolution slot and does nothing); the
     // loaded modules are each their own item: Tier and Overgrowth stacks carry the level to raise to as a component,

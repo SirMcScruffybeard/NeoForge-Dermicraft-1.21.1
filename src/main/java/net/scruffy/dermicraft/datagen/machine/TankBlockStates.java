@@ -34,7 +34,11 @@ public class TankBlockStates {
                     .condition(EvolutionBlockProperties.OVERGROWTH, stage).end();
         }
 
-        builder.part().modelFile(parts.buildTankInterior()).addModel().end();
+        // The interior follows the stage like the outer plate; its glass is the same at every stage.
+        for (int stage = 0; stage <= 3; stage++) {
+            builder.part().modelFile(parts.buildTankInterior(stage)).addModel()
+                    .condition(EvolutionBlockProperties.OVERGROWTH, stage).end();
+        }
         builder.part().modelFile(parts.buildTankInteriorGlass()).addModel().end();
 
         for (Direction side : Direction.Plane.HORIZONTAL) {
