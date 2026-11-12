@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.screen.custom.craw;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
 
 /**
@@ -55,6 +56,11 @@ public class CrawScreen extends AbstractEvolvingMachineScreen<CrawMenu> {
 
     @Override
     protected void renderMainTabTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y) {
-        // No gauges or named slots to describe.
+        renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y, INPUT_SLOT_X, INPUT_SLOT_Y,
+                menu.BE.INPUT.getStackInSlot(CrawBlockEntity.INPUT_SLOT),
+                Component.translatable("tooltip.dermicraft.slot.input"));
+        renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y, STORAGE_SLOT_X, STORAGE_SLOT_Y,
+                menu.BE.INVENTORY.getStackInSlot(CrawBlockEntity.STORAGE_SLOT),
+                Component.translatable("tooltip.dermicraft.slot.storage"));
     }
 }

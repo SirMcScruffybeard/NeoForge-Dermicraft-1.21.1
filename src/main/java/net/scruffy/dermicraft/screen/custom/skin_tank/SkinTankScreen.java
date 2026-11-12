@@ -4,6 +4,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
 import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
@@ -79,5 +80,13 @@ public class SkinTankScreen extends AbstractEvolvingMachineScreen<SkinTankMenu> 
     protected void renderMainTabTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y) {
         renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.BE.getFluid(),
                 TANK_X + 1, TANK_Y + 1, fluidRenderer);
+
+        // The container slots: the input empties its container into the tank, the output fills one from it.
+        renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y, SkinTankMenu.INPUT_SLOT_X, SkinTankMenu.SLOT_Y,
+                menu.BE.INVENTORY.getStackInSlot(SkinTankBlockEntity.INPUT),
+                Component.translatable("tooltip.dermicraft.slot.input"));
+        renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y, SkinTankMenu.OUTPUT_SLOT_X, SkinTankMenu.SLOT_Y,
+                menu.BE.INVENTORY.getStackInSlot(SkinTankBlockEntity.OUTPUT),
+                Component.translatable("tooltip.dermicraft.slot.output"));
     }
 }

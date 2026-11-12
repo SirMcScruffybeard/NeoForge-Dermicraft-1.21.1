@@ -2,6 +2,7 @@ package net.scruffy.dermicraft.compat.jei;
 
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
+import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.ingredients.subtypes.UidContext;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -18,9 +19,11 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.compat.jei.category.DippingCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCauldronCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCrucibleCategory;
+import net.scruffy.dermicraft.compat.jei.category.DroolingGeodeCategory;
 import net.scruffy.dermicraft.compat.jei.category.EarlyImplantCategory;
 import net.scruffy.dermicraft.compat.jei.category.EarlyIncubatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.EffluencingCategory;
+import net.scruffy.dermicraft.compat.jei.category.GadgetFabricatingCategory;
 import net.scruffy.dermicraft.compat.jei.category.HandShreddingCategory;
 import net.scruffy.dermicraft.compat.jei.category.HarvestingCategory;
 import net.scruffy.dermicraft.compat.jei.category.MasticatingCategory;
@@ -34,6 +37,7 @@ import net.scruffy.dermicraft.item.custom.module.ModuleFamily;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingGeodeRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 
@@ -58,6 +62,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(
                 new DroolingCauldronCategory(gui),
                 new DroolingCrucibleCategory(gui),
+                new DroolingGeodeCategory(gui),
                 new MasticatingCategory(gui),
                 new EffluencingCategory(gui),
                 new MetastasizingCategory(gui),
@@ -68,7 +73,8 @@ public class DermicraftJeiPlugin implements IModPlugin {
                 new EarlyIncubatingCategory(gui),
                 new RenderingCategory(gui),
                 new HarvestingCategory(gui),
-                new HandShreddingCategory(gui)
+                new HandShreddingCategory(gui),
+                new GadgetFabricatingCategory(gui)
         );
     }
 
@@ -104,6 +110,7 @@ public class DermicraftJeiPlugin implements IModPlugin {
 
         registration.addRecipes(DermicraftRecipeTypes.DROOLING_CAULDRON, buildDroolingDisplays(recipeManager));
         registration.addRecipes(DermicraftRecipeTypes.DROOLING_CRUCIBLE, buildDroolingCrucibleDisplays(recipeManager));
+        registration.addRecipes(DermicraftRecipeTypes.DROOLING_GEODE, buildDroolingGeodeDisplays(recipeManager));
         registration.addRecipes(DermicraftRecipeTypes.MASTICATING, buildMasticatingDisplays(recipeManager));
         registration.addRecipes(DermicraftRecipeTypes.EFFLUENCING,
                 recipeManager.getAllRecipesFor(ModRecipes.EFFLUENCING_TYPE.get()));
@@ -124,12 +131,15 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipes(DermicraftRecipeTypes.HARVESTING, buildHarvestDisplays());
         registration.addRecipes(DermicraftRecipeTypes.HAND_SHREDDING,
                 recipeManager.getAllRecipesFor(ModRecipes.HAND_SHREDDING_TYPE.get()));
+        registration.addRecipes(DermicraftRecipeTypes.GADGET_FABRICATING,
+                recipeManager.getAllRecipesFor(ModRecipes.GADGET_FABRICATING_TYPE.get()));
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CAULDRON.get()), DermicraftRecipeTypes.DROOLING_CAULDRON);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CRUCIBLE.get()), DermicraftRecipeTypes.DROOLING_CRUCIBLE);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_GEODE.get()), DermicraftRecipeTypes.DROOLING_GEODE);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.MASTICATOR.get()), DermicraftRecipeTypes.MASTICATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EFFLUENTCER.get()), DermicraftRecipeTypes.EFFLUENCING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.METASTASIZER.get()), DermicraftRecipeTypes.METASTASIZING);
@@ -138,6 +148,10 @@ public class DermicraftJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.CRAW.get()), DermicraftRecipeTypes.EARLY_INCUBATING);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.RENDER_KILN.get()), DermicraftRecipeTypes.RENDERING);
         registration.addRecipeCatalyst(new ItemStack(ModItems.SCALPEL.get()), DermicraftRecipeTypes.HARVESTING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.WORKBENCH.get()), DermicraftRecipeTypes.GADGET_FABRICATING);
+        // Machines that run vanilla recipe types: JEI lists them on the normal smelting and crafting pages.
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.RENDER_FURNACE.get()), RecipeTypes.SMELTING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.GRAFTING_TABLE.get()), RecipeTypes.CRAFTING);
     }
 
     // Drooling Cauldron recipes are always nutrition-scaled (IVagueRecipe) -- expand each
@@ -165,6 +179,23 @@ public class DermicraftJeiPlugin implements IModPlugin {
         List<DynamicRecipeDisplay<VagueDroolingCrucibleRecipe>> displays = new ArrayList<>();
         for (RecipeHolder<VagueDroolingCrucibleRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.VAGUE_DROOLING_CRUCIBLE_TYPE.get())) {
             VagueDroolingCrucibleRecipe recipe = holder.value();
+            for (ItemStack stack : recipe.ingredient().getItems()) {
+                if (!recipe.testIngredient(stack)) continue;
+                int amount = recipe.getCraftingAmount(stack);
+                if (amount <= 0) continue;
+                int ticks = recipe.getCraftingTime(stack);
+                displays.add(new DynamicRecipeDisplay<>(holder, stack.copyWithCount(1),
+                        recipe.getResultFluidStack(amount), ticks));
+            }
+        }
+        return displays;
+    }
+
+    // Sibling of buildDroolingDisplays for the Geode's own recipe type, same per-item expansion.
+    private static List<DynamicRecipeDisplay<VagueDroolingGeodeRecipe>> buildDroolingGeodeDisplays(RecipeManager recipeManager) {
+        List<DynamicRecipeDisplay<VagueDroolingGeodeRecipe>> displays = new ArrayList<>();
+        for (RecipeHolder<VagueDroolingGeodeRecipe> holder : recipeManager.getAllRecipesFor(ModRecipes.VAGUE_DROOLING_GEODE_TYPE.get())) {
+            VagueDroolingGeodeRecipe recipe = holder.value();
             for (ItemStack stack : recipe.ingredient().getItems()) {
                 if (!recipe.testIngredient(stack)) continue;
                 int amount = recipe.getCraftingAmount(stack);

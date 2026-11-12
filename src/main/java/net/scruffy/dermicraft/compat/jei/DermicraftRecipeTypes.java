@@ -5,10 +5,12 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.recipe.dipping.DippingRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingCrucibleRecipe;
+import net.scruffy.dermicraft.recipe.drooling.VagueDroolingGeodeRecipe;
 import net.scruffy.dermicraft.recipe.drooling.VagueDroolingRecipe;
 import net.scruffy.dermicraft.recipe.early_implant.EarlyImplantRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.effluencing.EffluencingRecipe;
+import net.scruffy.dermicraft.recipe.gadget_fabricating.GadgetFabricatingRecipe;
 import net.scruffy.dermicraft.recipe.hand_shredding.HandShreddingRecipe;
 import net.scruffy.dermicraft.recipe.masticating.MasticatingRecipe;
 import net.scruffy.dermicraft.recipe.metastasizing.MetastasizingRecipe;
@@ -28,6 +30,8 @@ public final class DermicraftRecipeTypes {
             RecipeType.create(Dermicraft.MOD_ID, "drooling_cauldron", uncheckedCast(DynamicRecipeDisplay.class));
     public static final RecipeType<DynamicRecipeDisplay<VagueDroolingCrucibleRecipe>> DROOLING_CRUCIBLE =
             RecipeType.create(Dermicraft.MOD_ID, "drooling_crucible", uncheckedCast(DynamicRecipeDisplay.class));
+    public static final RecipeType<DynamicRecipeDisplay<VagueDroolingGeodeRecipe>> DROOLING_GEODE =
+            RecipeType.create(Dermicraft.MOD_ID, "drooling_geode", uncheckedCast(DynamicRecipeDisplay.class));
     public static final RecipeType<DynamicRecipeDisplay<MasticatingRecipe>> MASTICATING =
             RecipeType.create(Dermicraft.MOD_ID, "masticating", uncheckedCast(DynamicRecipeDisplay.class));
     public static final RecipeType<RecipeHolder<EffluencingRecipe>> EFFLUENCING =
@@ -50,6 +54,8 @@ public final class DermicraftRecipeTypes {
             RecipeType.create(Dermicraft.MOD_ID, "harvesting", HarvestDisplay.class);
     public static final RecipeType<RecipeHolder<HandShreddingRecipe>> HAND_SHREDDING =
             RecipeType.create(Dermicraft.MOD_ID, "hand_shredding", uncheckedCast(RecipeHolder.class));
+    public static final RecipeType<RecipeHolder<GadgetFabricatingRecipe>> GADGET_FABRICATING =
+            RecipeType.create(Dermicraft.MOD_ID, "gadget_fabricating", uncheckedCast(RecipeHolder.class));
 
     @SuppressWarnings("unchecked")
     private static <T> Class<T> uncheckedCast(Class<?> clazz) {

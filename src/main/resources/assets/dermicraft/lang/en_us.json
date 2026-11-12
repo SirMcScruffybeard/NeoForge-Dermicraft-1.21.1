@@ -584,6 +584,9 @@
   "tooltip.dermicraft.slot.reagent_container": "Reagent Container",
   "tooltip.dermicraft.slot.result_container": "Result Container",
   "tooltip.dermicraft.slot.input_container": "Input Container",
+  "tooltip.dermicraft.slot.output": "Output",
+  "tooltip.dermicraft.slot.input": "Input",
+  "tooltip.dermicraft.slot.storage": "Storage",
   "tooltip.dermicraft.slot.input_a_container": "Input A Container",
   "tooltip.dermicraft.slot.input_b_container": "Input B Container",
   "tooltip.dermicraft.slot.animal_feed": "Animal Feed",
@@ -600,6 +603,9 @@
   "jei.dermicraft.category.early_implant.description": "Place in Marred Tumor. Sow and Inject.",
   "jei.dermicraft.category.harvesting": "Harvesting",
   "jei.dermicraft.category.hand_shredding": "Hand Shredding",
+  "jei.dermicraft.category.gadget_fabricating": "Gadget Fabricating",
+  "jei.dermicraft.gadget_fabricating.time": "Time: %s s",
+  "jei.dermicraft.gadget_fabricating.tier": "Station tier: %s",
   "jei.dermicraft.category.early_incubating": "Early Incubating",
   "jei.dermicraft.category.early_incubating.description": "Load into a Craw and inject"
 }

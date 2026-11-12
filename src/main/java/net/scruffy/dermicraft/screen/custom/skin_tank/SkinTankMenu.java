@@ -15,6 +15,11 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
  */
 public class SkinTankMenu extends AbstractEvolvingMachineMenu<SkinTankBlockEntity> {
 
+    // The Main tab's two container slots, shared with the screen's tooltips.
+    public static final int INPUT_SLOT_X = 43;
+    public static final int OUTPUT_SLOT_X = 117;
+    public static final int SLOT_Y = 34;
+
     public SkinTankMenu(int containerId, Inventory inventory, FriendlyByteBuf extendData) {
         this(containerId, inventory, inventory.player.level().getBlockEntity(extendData.readBlockPos()));
     }
@@ -23,8 +28,8 @@ public class SkinTankMenu extends AbstractEvolvingMachineMenu<SkinTankBlockEntit
         super(ModMenuTypes.SKIN_TANK_MENU.get(), containerId, inventory, blockEntity,
                 SkinTankBlockEntity.INVENTORY_SIZE, ModBlocks.SKIN_TANK);
 
-        addMainSlot(BE.INVENTORY, SkinTankBlockEntity.INPUT, 43, 34);
-        addMainSlot(BE.INVENTORY, SkinTankBlockEntity.OUTPUT, 117, 34);
+        addMainSlot(BE.INVENTORY, SkinTankBlockEntity.INPUT, INPUT_SLOT_X, SLOT_Y);
+        addMainSlot(BE.INVENTORY, SkinTankBlockEntity.OUTPUT, OUTPUT_SLOT_X, SLOT_Y);
         addModuleTabSlots();
 
         setQuickMoveInputSlots(0, 1); // INPUT only -- skip OUTPUT and the Module slot(s)
