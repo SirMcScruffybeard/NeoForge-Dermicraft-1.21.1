@@ -80,10 +80,10 @@
   ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "base": "dermicraft:block/tumor_new/tumor_base",
-    "bottom": "dermicraft:block/tumor_new/eye_overlay",
-    "particle": "dermicraft:block/tumor_new/tumor_base",
-    "side": "dermicraft:block/tumor_new/eye_overlay",
-    "top": "dermicraft:block/tumor_new/eye_overlay"
+    "base": "dermicraft:block/tumor/tumor_base",
+    "bottom": "dermicraft:block/tumor/eye_overlay",
+    "particle": "dermicraft:block/tumor/tumor_base",
+    "side": "dermicraft:block/tumor/eye_overlay",
+    "top": "dermicraft:block/tumor/eye_overlay"
   }
 }

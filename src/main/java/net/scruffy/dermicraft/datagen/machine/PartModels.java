@@ -32,10 +32,10 @@ public class PartModels {
 
     /** The plate texture for each Overgrowth stage (0 = none). All the tumor base until the O-stage plates exist. */
     private static final String[] PLATE_TEXTURES = {
-            BLOCK_DIR + "/tumor_new/tumor_base",   // stage 0: the plain plate, used by every tier
-            BLOCK_DIR + "/tumor_new/tumor_base",   // stage 1 (O1): replace with the O1 plate
-            BLOCK_DIR + "/tumor_new/tumor_base",   // stage 2 (O5)
-            BLOCK_DIR + "/tumor_new/tumor_base"    // stage 3 (O10)
+            BLOCK_DIR + "/tumor/tumor_base",   // stage 0: the plain plate, used by every tier
+            BLOCK_DIR + "/tumor/tumor_base",   // stage 1 (O1): replace with the O1 plate
+            BLOCK_DIR + "/tumor/tumor_base",   // stage 2 (O5)
+            BLOCK_DIR + "/tumor/tumor_base"    // stage 3 (O10)
     };
 
     private final BlockStateProvider provider;

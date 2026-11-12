@@ -30,64 +30,72 @@ public class ModCreativeModeTabs {
                     .title(Component.translatable("creativetab.dermicraft.dermicraft_blocks"))
                     .displayItems((itemDisplayParameters, output) -> {
 
-                        ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
-                        output.accept(ModBlocks.INERT_TUMOR);
-                        output.accept(ModBlocks.MARRED_TUMOR);
-                        output.accept(ModBlocks.STITCHED_TUMOR);
+                        // Families are grouped and the families themselves, and the blocks inside each, are in
+                        // alphabetical order by display name. "Machines" is the simple machines, tank and craw included;
+                        // multiblock machines (the Workbench so far) are their own family after them; the Beaker family (the empty Beaker, then one per fluid) is one unit.
 
-                        output.accept(ModBlocks.EYE_TUMOR);
-                        output.accept(ModBlocks.MUSCLE_TUMOR);
-                        output.accept(ModBlocks.NERVE_TUMOR);
-                        output.accept(ModBlocks.CHARRED_TUMOR);
-                        output.accept(ModBlocks.HOT_BONE); // no craft recipe yet
+                        ////////////////////Beaker\\\\\\\\\\\\\\\\\\\\
+                        buildBeakerContents(output);
 
-
+                        ////////////////////Calcium Glass\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.CALCIUM_GLASS);
-                        output.accept(ModBlocks.OUTERFACE);
+
+                        ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.ANDESITE_LAB_FLOOR);
+                        output.accept(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR);
+                        output.accept(ModBlocks.COBBLESTONE_LAB_FLOOR);
+                        output.accept(ModBlocks.DEEPSLATE_LAB_FLOOR);
+                        output.accept(ModBlocks.DIORITE_LAB_FLOOR);
+                        output.accept(ModBlocks.GRANITE_LAB_FLOOR);
+                        output.accept(ModBlocks.STONE_LAB_FLOOR);
+
+                        ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.CHARRED_INNARDS_DUCT);
+                        output.accept(ModBlocks.CHARRED_INNARDS_NODE);
+                        output.accept(ModBlocks.INNARDS_DUCT);
+                        output.accept(ModBlocks.INNARDS_NODE);
+
+                        ////////////////////Innards Gate\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.INNARDS_GATE_BUFFER);
+                        output.accept(ModBlocks.INNARDS_GATE_CONTROLLER);
+                        output.accept(ModBlocks.INNARDS_GATE_PORT);
+
+                        ////////////////////Machines\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.BRAIN);
+                        output.accept(ModBlocks.CHARRED_CRAW); // no craft recipe yet
+                        output.accept(ModBlocks.CRAW);
                         output.accept(ModBlocks.DROOLING_CAULDRON);
                         // No craft recipe yet -- standalone-reachable Evolution/Catalyst path isn't
                         // built (dermicraft-machine-notes.md). Visible in creative for testing only.
                         output.accept(ModBlocks.DROOLING_CRUCIBLE);
                         output.accept(ModBlocks.DROOLING_GEODE);
-                        output.accept(ModBlocks.MASTICATOR);
-                        output.accept(ModBlocks.SKIN_TANK);
-                        output.accept(ModBlocks.KNOWLEDGE_VAT);
                         output.accept(ModBlocks.EFFLUENTCER);
-                        output.accept(ModBlocks.METASTASIZER);
-                        output.accept(ModBlocks.MUTATOR);
-                        output.accept(ModBlocks.RENDER_FURNACE);
                         output.accept(ModBlocks.GRAFTING_TABLE);
-                        output.accept(ModBlocks.RENDER_KILN);
-                        output.accept(ModBlocks.CRAW);
-                        output.accept(ModBlocks.CHARRED_CRAW); // no craft recipe yet
+                        output.accept(ModBlocks.KNOWLEDGE_VAT);
+                        output.accept(ModBlocks.MASTICATOR);
+                        output.accept(ModBlocks.METASTASIZER);
                         output.accept(ModBlocks.MR_FARMER);
                         output.accept(ModBlocks.MR_SHEPARD);
-                        output.accept(ModBlocks.BRAIN);
+                        output.accept(ModBlocks.MUTATOR);
+                        output.accept(ModBlocks.OUTERFACE);
+                        output.accept(ModBlocks.RENDER_FURNACE);
+                        output.accept(ModBlocks.RENDER_KILN);
+                        output.accept(ModBlocks.SKIN_TANK);
+
+                        ////////////////////Multiblock Machines\\\\\\\\\\\\\\\\\\\\
                         // WORKBENCH_TOP is deliberately not offered here -- it's not meant to be
                         // placed by hand, WorkbenchBlock#setPlacedBy auto-places it above the bottom.
                         output.accept(ModBlocks.WORKBENCH);
 
-                        ////////////////////Innards Duct\\\\\\\\\\\\\\\\\\\\
-                        output.accept(ModBlocks.INNARDS_DUCT);
-                        output.accept(ModBlocks.CHARRED_INNARDS_DUCT);
-                        output.accept(ModBlocks.INNARDS_NODE);
-                        output.accept(ModBlocks.CHARRED_INNARDS_NODE);
-
-                        ////////////////////Gate\\\\\\\\\\\\\\\\\\\\
-                        output.accept(ModBlocks.INNARDS_GATE_CONTROLLER);
-                        output.accept(ModBlocks.INNARDS_GATE_BUFFER);
-                        output.accept(ModBlocks.INNARDS_GATE_PORT);
-
-                        ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
-                        output.accept(ModBlocks.STONE_LAB_FLOOR);
-                        output.accept(ModBlocks.COBBLESTONE_LAB_FLOOR);
-                        output.accept(ModBlocks.DEEPSLATE_LAB_FLOOR);
-                        output.accept(ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR);
-                        output.accept(ModBlocks.DIORITE_LAB_FLOOR);
-                        output.accept(ModBlocks.ANDESITE_LAB_FLOOR);
-                        output.accept(ModBlocks.GRANITE_LAB_FLOOR);
-
-                        buildBeakerContents(output);
+                        ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
+                        output.accept(ModBlocks.CHARRED_TUMOR);
+                        output.accept(ModBlocks.EYE_TUMOR);
+                        output.accept(ModBlocks.HOT_BONE); // no craft recipe yet
+                        output.accept(ModBlocks.INERT_TUMOR);
+                        output.accept(ModBlocks.MARRED_TUMOR);
+                        output.accept(ModBlocks.MUSCLE_TUMOR);
+                        output.accept(ModBlocks.NERVE_TUMOR);
+                        output.accept(ModBlocks.STITCHED_TUMOR);
 
                     }).build());
 

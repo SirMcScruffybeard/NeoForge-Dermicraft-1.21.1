@@ -118,9 +118,9 @@
   ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "base": "dermicraft:block/tumor_new/tumor_base",
-    "layer0": "dermicraft:block/tumor_new/marred_overlay",
-    "layer1": "dermicraft:block/tumor_new/stitch_overlay",
-    "particle": "dermicraft:block/tumor_new/tumor_base"
+    "base": "dermicraft:block/tumor/tumor_base",
+    "layer0": "dermicraft:block/tumor/marred_overlay",
+    "layer1": "dermicraft:block/tumor/stitch_overlay",
+    "particle": "dermicraft:block/tumor/tumor_base"
   }
 }

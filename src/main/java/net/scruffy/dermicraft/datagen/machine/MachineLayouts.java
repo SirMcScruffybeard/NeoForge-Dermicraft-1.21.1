@@ -57,4 +57,21 @@ public class MachineLayouts {
                     "grid", 0, 0, 16, 16,
                     SIMPLE_MACHINE_DIR + GRAFTING_TABLE_DIR + "/grafting_grid_l%d",
                     null)));
+
+    /** The Kiln and the Furnace share the oven art (16x6) and differ only in which end of the face it is on. */
+    private static final String OVEN_STILL = SIMPLE_MACHINE_DIR + FURNACE_KILN_DIR + "/furnace_kiln_oven_l%d";
+    private static final String OVEN_MOVING = SIMPLE_MACHINE_DIR + FURNACE_KILN_DIR + "/furnace_kiln_oven_l%d_moving";
+
+    /**
+     * The light mount is centred along the bottom, its bottom edge one pixel up (x 5-10, y 1-6); the oven is along the
+     * top, its top edge one pixel down (y 9-14).
+     */
+    public static final MachineFaceLayout RENDER_KILN = new MachineFaceLayout(
+            Direction.NORTH, 5, 1,
+            List.of(new MachineFaceLayout.Feature("oven", 0, 9, 16, 6, OVEN_STILL, OVEN_MOVING)));
+
+    /** The Kiln turned over: the light mount along the top (x 5-10, y 9-14), the oven along the bottom (y 1-6). */
+    public static final MachineFaceLayout RENDER_FURNACE = new MachineFaceLayout(
+            Direction.NORTH, 5, 9,
+            List.of(new MachineFaceLayout.Feature("oven", 0, 1, 16, 6, OVEN_STILL, OVEN_MOVING)));
 }

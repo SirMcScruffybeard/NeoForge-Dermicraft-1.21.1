@@ -58,10 +58,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
         ////////////////////Tumors\\\\\\\\\\\\\\\\\\\\
         // Tumor overhaul: Inert/Eye/Muscle/Nerve are the shared tumor_base plus a transparent overlay.
-        // The textures live in tumor_new/ only while the old tumor/ directory still exists; after the
-        // overhaul, delete tumor/, rename tumor_new/ to tumor/, and update TUMOR_DIR (see
-        // dermicraft-machine-notes.md, Tumor texture redesign).
-        final String TUMOR_DIR = "block/tumor_new/";
+        final String TUMOR_DIR = "block/tumor/";
         ResourceLocation base = modLoc(TUMOR_DIR + "tumor_base");
         // Inert is the only tumor with different art per face (concentric ring below, patch on top).
         tumorOverlayCube(ModBlocks.INERT_TUMOR,
@@ -162,9 +159,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 MachineLayouts.MUTATOR, MutatorBlock.FACING);
 
 
-        renderFurnaceBlockState(skinTankEnd);
-        itemModels().withExistingParent(ModBlocks.RENDER_FURNACE.getId().getPath(),
-                modLoc("block/" + ModBlocks.RENDER_FURNACE.getId().getPath()));
+        new MachineBlockStates(this).register(ModBlocks.RENDER_FURNACE.get(), "render_furnace",
+                MachineLayouts.RENDER_FURNACE, RenderFurnaceBlock.FACING);
 
         // The grid is on the top face; the facing only turns it (and the light mount) about the vertical axis.
         new MachineBlockStates(this).register(ModBlocks.GRAFTING_TABLE.get(), "grafting_table",
@@ -190,9 +186,8 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 modLoc("block/beaker/beaker_top"))
                 .renderType("translucent"));
 
-        renderKilnBlockState(skinTankEnd);
-        itemModels().withExistingParent(ModBlocks.RENDER_KILN.getId().getPath(),
-                modLoc("block/" + ModBlocks.RENDER_KILN.getId().getPath()));
+        new MachineBlockStates(this).register(ModBlocks.RENDER_KILN.get(), "render_kiln",
+                MachineLayouts.RENDER_KILN, RenderKilnBlock.FACING);
 
 
         mrFarmerBlockState();
@@ -262,81 +257,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
     }
 
-    // Same shape as renderKilnBlockState -- 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face), only the front
-    // (north-authored) face texture differs between the three models; skin_tank_end covers every other face.
-    private void renderFurnaceBlockState(String skinTankEnd) {
-        ModelFile idle = models().cube(ModBlocks.RENDER_FURNACE.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_furnace/render_furnace_face"));
-        ModelFile running = models().cube("render_furnace_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face_on"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_furnace/render_furnace_face_on"));
-        ModelFile recovering = models().cube("render_furnace_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_furnace/render_furnace_face_error"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_furnace/render_furnace_face_error"));
-
-        var builder = getVariantBuilder(ModBlocks.RENDER_FURNACE.get());
-        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.NORTH, 0);
-        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.EAST, 90);
-        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
-        putRenderFurnaceVariant(builder, idle, running, recovering, Direction.WEST, 270);
-    }
-
-    private void putRenderFurnaceVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                         ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(RenderFurnaceBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
-                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
-    }
-
-    // Same shape as mutatorBlockState -- 4 horizontal facings x 5 MachineStatus values (3 face models for now: strained shares the idle/running face, broken_down the error face), only
-    // the front (north-authored) face texture differs between the three models; skin_tank_end covers
-    // every other face in all three.
-    private void renderKilnBlockState(String skinTankEnd) {
-        ModelFile idle = models().cube(ModBlocks.RENDER_KILN.getId().getPath(),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln/render_kiln_face"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_kiln/render_kiln_face"));
-        ModelFile running = models().cube("render_kiln_on",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln/render_kiln_face_on"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_kiln/render_kiln_face_on"));
-        ModelFile recovering = models().cube("render_kiln_error",
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc("block/render_kiln/render_kiln_face_error"),
-                        modLoc(skinTankEnd), modLoc(skinTankEnd), modLoc(skinTankEnd))
-                .texture("particle", modLoc("block/render_kiln/render_kiln_face_error"));
-
-        var builder = getVariantBuilder(ModBlocks.RENDER_KILN.get());
-        putRenderKilnVariant(builder, idle, running, recovering, Direction.NORTH, 0);
-        putRenderKilnVariant(builder, idle, running, recovering, Direction.EAST, 90);
-        putRenderKilnVariant(builder, idle, running, recovering, Direction.SOUTH, 180);
-        putRenderKilnVariant(builder, idle, running, recovering, Direction.WEST, 270);
-    }
-
-    private void putRenderKilnVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                      ModelFile idle, ModelFile running, ModelFile recovering, Direction facing, int rotY) {
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_IDLE)
-                .modelForState().modelFile(idle).rotationY(rotY).addModel();
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.STRAINED_RUNNING)
-                .modelForState().modelFile(running).rotationY(rotY).addModel();
-        builder.partialState().with(RenderKilnBlock.FACING, facing).with(MachineStatus.PROPERTY, MachineStatus.BROKEN_DOWN)
-                .modelForState().modelFile(recovering).rotationY(rotY).addModel();
-    }
-
     // The Masticator is a multipart: a plate per Overgrowth stage plus the light, mouth and port layers, and its
     // item model is built alongside (see MachineBlockStates). Nothing about it is hand-authored any more.
     private void masticatorBlockState() {
@@ -357,11 +277,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 net.scruffy.dermicraft.block.custom.EvolutionBlockProperties.OVERGROWTH);
     }
 
-    private void blockWithItem(DeferredBlock<Block> deferredBlock) {
-        simpleBlockWithItem(deferredBlock.get(), models().cubeAll(
-                deferredBlock.getId().getPath(),
-                modLoc("block/tumor/" + deferredBlock.getId().getPath())));
-    }
 
     /**
      * Full cube made of an opaque base layer with a transparent overlay on top, with the overlay
