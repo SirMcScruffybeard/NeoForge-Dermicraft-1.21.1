@@ -251,6 +251,7 @@ public class DermicraftClient {
         event.register(ModMenuTypes.EFFLUENTCER_MENU.get(), EffluentcerScreen::new);
         event.register(ModMenuTypes.METASTASIZER_MENU.get(), MetastasizerScreen::new);
         event.register(ModMenuTypes.CRAW_MENU.get(), CrawScreen::new);
+        event.register(ModMenuTypes.UPGRADE_STICK_MENU.get(), net.scruffy.dermicraft.screen.custom.upgrade_stick.UpgradeStickScreen::new);
         event.register(ModMenuTypes.INNARDS_NODE_MENU.get(), NodeScreen::new);
         event.register(ModMenuTypes.TABBED_INNARDS_NODE_MENU.get(), net.scruffy.dermicraft.screen.custom.node.TabbedNodeScreen::new);
         event.register(ModMenuTypes.MR_FARMER_MENU.get(), MrFarmerScreen::new);

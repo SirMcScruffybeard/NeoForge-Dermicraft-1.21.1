@@ -25,6 +25,17 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         ;
 
+        tag(ModTags.Blocks.UPGRADE_STICK_TARGETS)
+                .add(ModBlocks.MASTICATOR.get())
+                .add(ModBlocks.METASTASIZER.get())
+                .add(ModBlocks.MUTATOR.get())
+                .add(ModBlocks.EFFLUENTCER.get())
+                .add(ModBlocks.GRAFTING_TABLE.get())
+                .add(ModBlocks.RENDER_KILN.get())
+                .add(ModBlocks.RENDER_FURNACE.get())
+                .add(ModBlocks.SKIN_TANK.get())
+                .add(ModBlocks.CRAW.get());
+
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)
                 .add(ModBlocks.DROOLING_CAULDRON.get())

@@ -117,6 +117,10 @@ public class ModItems {
     public static final DeferredItem<Item> EATER = ITEMS.register("eater", () -> new EaterItem(new Item.Properties().durability(EaterItem.MAX_HP)));
 
     // Durability is gadget HP, not wear -- see IGadget. Bare stand-up only -- see AidItem's class javadoc.
+    /** Creative-only: sets a machine's tier, Overgrowth and hazard tolerances outright (see UpgradeStickItem). */
+    public static final DeferredItem<Item> UPGRADE_STICK = ITEMS.register("upgrade_stick",
+            () -> new UpgradeStickItem(new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC)));
+
     public static final DeferredItem<Item> AID = ITEMS.register("aid", () -> new AidItem(new Item.Properties().durability(AidItem.MAX_HP)));
 
     ////////////////////Weapons\\\\\\\\\\\\\\\\\\\\

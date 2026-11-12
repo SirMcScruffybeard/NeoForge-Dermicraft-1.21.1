@@ -71,6 +71,25 @@ public abstract class EvolvingMachineBlockEntity extends MachineBaseBlockEntity 
         return usesEvolutionState() ? SimpleMachineStats.getModuleSlots(getStatKey(), getEvolutionState()) : super.getModuleSlotCount();
     }
 
+    /** Whether this machine has hazard tolerances at all (the Craw does not); the Upgrade Stick gives such a machine its
+     * tier and Overgrowth level only. */
+    public boolean handlesHazards() {
+        MachineStatKey key = getStatKey();
+        return key == null || key.handlesHazards();
+    }
+
+    /**
+     * Sets the evolution state outright (the Upgrade Stick) and resets any evolution progress, so a half-finished
+     * evolution never carries over to the new state. Setting a state the machine already has costs nothing; the reset
+     * still runs. Server side.
+     */
+    public void applyEvolutionState(net.scruffy.dermicraft.component.EvolutionStateData state) {
+        setEvolutionState(state);
+        onEvolutionSlotChanged();
+        setChanged();
+        updateBlock();
+    }
+
     /** The worst intensity of {@code family} among the fluids this machine is processing, for the screen's
      * missing-tolerance warning. 0 by default: a machine that processes no hazardous fluid never warns. */
     public int getHazardIntensity(HazardFamily family) {

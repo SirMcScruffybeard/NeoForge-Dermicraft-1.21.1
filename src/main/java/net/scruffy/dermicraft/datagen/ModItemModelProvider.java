@@ -33,6 +33,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         handheldItem(ModItems.SUTURE_KIT.get());
         handheldItem(ModItems.PRIMITIVE_SUTURE_KIT.get());
         handheldItem(ModItems.FORCEPS.get());
+        handheldItem(ModItems.UPGRADE_STICK.get());
         handheldItem(ModItems.PRIMITIVE_FORCEPS.get());
 
 

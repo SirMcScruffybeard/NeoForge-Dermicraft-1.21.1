@@ -113,6 +113,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.PRIMITIVE_FORCEPS);
                         output.accept(ModItems.IDEP);
                         output.accept(ModItems.SCRENCH);
+                        output.accept(ModItems.UPGRADE_STICK);
                         output.accept(ModItems.DRINKER);
                         output.accept(ModItems.EATER);
                         output.accept(ModItems.SIPPING);

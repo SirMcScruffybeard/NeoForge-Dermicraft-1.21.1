@@ -31,7 +31,7 @@ import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
 import net.scruffy.dermicraft.machine.CrawStats;
-import net.scruffy.dermicraft.main.Config;
+import net.scruffy.dermicraft.machine.StatConfig;
 import net.scruffy.dermicraft.machine.EvolutionEffects;
 import net.scruffy.dermicraft.machine.EvolutionResult;
 import net.scruffy.dermicraft.machine.EvolutionStats;
@@ -139,6 +139,12 @@ public class CrawBlockEntity extends EvolvingMachineBlockEntity
     @Override
     public ItemStackHandler getModuleInventory() {
         return MODULE_INVENTORY;
+    }
+
+    /** A Craw holds items, so it has no hazard tolerances. */
+    @Override
+    public boolean handlesHazards() {
+        return false;
     }
 
     /** The Craw evolves through its own countdown, not the shared gradual progress, so the shared slot fill reads it. */
@@ -346,7 +352,7 @@ public class CrawBlockEntity extends EvolvingMachineBlockEntity
 
     // ---- Click gestures ---------------------------------------------------------------------------------
     // Standing, holding an item: one click deposits one item; a second click with the same item inside the
-    // configured window (Config.CRAW_DOUBLE_CLICK_TICKS) deposits the rest of the held stack. Crouching deposits every
+    // configured window (StatConfig.getCrawDoubleClickTicks()) deposits the rest of the held stack. Crouching deposits every
     // matching stack from the player's inventory (see CrawClickEvents, which catches the crouch click). A held item that
     // exposes an item handler -- the Eater's buffer, another mod's backpack -- is a source: its contents are deposited
     // and the item itself never is. Matching is item plus components; an empty Craw takes the type from what is held.
@@ -366,7 +372,7 @@ public class CrawBlockEntity extends EvolvingMachineBlockEntity
     private boolean isDoubleClick(Player player, ItemStack template, boolean source) {
         LastClick last = lastClicks.get(player.getUUID());
         if (last == null || level == null || last.source() != source) return false;
-        if (level.getGameTime() - last.tick() > Config.CRAW_DOUBLE_CLICK_TICKS.get()) return false;
+        if (level.getGameTime() - last.tick() > StatConfig.getCrawDoubleClickTicks()) return false;
         return source ? last.template().is(template.getItem())
                 : ItemStack.isSameItemSameComponents(last.template(), template);
     }
@@ -381,7 +387,7 @@ public class CrawBlockEntity extends EvolvingMachineBlockEntity
         LastClick last = lastClicks.get(player.getUUID());
         if (last == null || level == null) return false;
         lastClicks.remove(player.getUUID());
-        return level.getGameTime() - last.tick() <= Config.CRAW_DOUBLE_CLICK_TICKS.get();
+        return level.getGameTime() - last.tick() <= StatConfig.getCrawDoubleClickTicks();
     }
 
     /**
@@ -502,7 +508,7 @@ public class CrawBlockEntity extends EvolvingMachineBlockEntity
     // item, a second click inside the double-click window takes a full stack; both go to the player's inventory.
     // Crouching: fills the held item's container (an item with an item handler, such as the Eater) or, with none in
     // hand, the player's inventory, until that is full or the Craw is empty. Holding the click for
-    // Config.CRAW_BREAK_HOLD_TICKS breaks the Craw, in survival (through the block's destroy progress, see
+    // StatConfig.getCrawBreakHoldTicks() breaks the Craw, in survival (through the block's destroy progress, see
     // CrawBlock#getDestroyProgress) and in creative (see onCreativeLeftClick).
 
     /** Player -> game tick of their last standing withdraw click, for the double click. */
@@ -539,7 +545,7 @@ public class CrawBlockEntity extends EvolvingMachineBlockEntity
 
         long now = level.getGameTime();
         Long last = lastWithdrawClicks.get(player.getUUID());
-        boolean isDouble = last != null && now - last <= Config.CRAW_DOUBLE_CLICK_TICKS.get();
+        boolean isDouble = last != null && now - last <= StatConfig.getCrawDoubleClickTicks();
 
         int amount = isDouble ? getStoredStack().getMaxStackSize() : 1;
         IItemHandler container = held.getCount() == 1 ? getSource(held) : null;
@@ -612,7 +618,7 @@ public class CrawBlockEntity extends EvolvingMachineBlockEntity
         }
         holdChains.put(player.getUUID(), chain);
 
-        if (now - chain.startTick() >= Config.CRAW_BREAK_HOLD_TICKS.get()) {
+        if (now - chain.startTick() >= StatConfig.getCrawBreakHoldTicks()) {
             holdChains.remove(player.getUUID());
             player.gameMode.destroyBlock(worldPosition);
         }

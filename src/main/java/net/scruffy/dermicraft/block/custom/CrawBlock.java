@@ -24,7 +24,7 @@ import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
 import net.scruffy.dermicraft.component.FluidData;
 import net.scruffy.dermicraft.interfaces.IInject;
 import net.scruffy.dermicraft.interfaces.IInjectableBlock;
-import net.scruffy.dermicraft.main.Config;
+import net.scruffy.dermicraft.machine.StatConfig;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.util.ToolUtil;
 import org.jetbrains.annotations.NotNull;
@@ -144,12 +144,12 @@ public class CrawBlock extends ModBaseEntityBlock implements IInjectableBlock {
     }
     /**
      * A left click withdraws items, so breaking a Craw takes a held click: survival mining progresses at a fixed rate
-     * that finishes in {@code Config.CRAW_BREAK_HOLD_TICKS}, whatever the tool. Creative skips this (vanilla breaks
+     * that finishes in {@code StatConfig#getCrawBreakHoldTicks}, whatever the tool. Creative skips this (vanilla breaks
      * instantly there) and has its own hold, see {@code CrawBlockEntity#onCreativeLeftClick}.
      */
     @Override
     protected float getDestroyProgress(BlockState state, Player player, BlockGetter level, BlockPos pos) {
-        return 1.0F / Config.CRAW_BREAK_HOLD_TICKS.get();
+        return 1.0F / StatConfig.getCrawBreakHoldTicks();
     }
 
     @Nullable

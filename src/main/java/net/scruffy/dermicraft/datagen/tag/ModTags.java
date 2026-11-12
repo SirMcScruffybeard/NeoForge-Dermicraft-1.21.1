@@ -22,6 +22,8 @@ public class ModTags {
         public static final TagKey<Block> EXTRACTABLE = createTag("harvestable");
         public static final TagKey<Block> INJECTABLE = createTag("injectable");
         public static final TagKey<Block> HAS_SCREEN = createTag("has_screen");
+        /** Machines the Upgrade Stick can set and copy. Add a machine here once it is brought up to the overhauled spec. */
+        public static final TagKey<Block> UPGRADE_STICK_TARGETS = createTag("upgrade_stick_targets");
         public static final TagKey<Block> SUTABLE = createTag("sutable");
         public static final TagKey<Block> TUMORS = createTag("tumors");
         public static final TagKey<Block> DIPPING_TANKS = createTag("dipping_tanks");

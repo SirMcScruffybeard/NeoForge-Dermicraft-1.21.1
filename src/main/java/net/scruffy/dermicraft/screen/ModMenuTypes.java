@@ -95,6 +95,10 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<net.scruffy.dermicraft.screen.custom.aid.AidMenu>> AID_MENU =
             registerMenuType("aid_menu", net.scruffy.dermicraft.screen.custom.aid.AidMenu::new);
 
+    // The Upgrade Stick's selection screen -- item-triggered like ScrenchMenu, with no slots at all.
+    public static final DeferredHolder<MenuType<?>, MenuType<net.scruffy.dermicraft.screen.custom.upgrade_stick.UpgradeStickMenu>> UPGRADE_STICK_MENU =
+            registerMenuType("upgrade_stick_menu", net.scruffy.dermicraft.screen.custom.upgrade_stick.UpgradeStickMenu::new);
+
     public static final DeferredHolder<MenuType<?>, MenuType<WorkbenchMenu>> WORKBENCH_MENU =
             registerMenuType("workbench_menu", WorkbenchMenu::new);
 

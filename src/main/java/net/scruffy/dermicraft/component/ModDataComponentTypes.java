@@ -208,6 +208,12 @@ public class ModDataComponentTypes {
                     .persistent(EvolutionStateData.CODEC)
                     .networkSynchronized(EvolutionStateData.STREAM_CODEC));
 
+    /** The level and hazard tolerances an Upgrade Stick would give a machine; absent means L1 with none. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EvolutionStateData>> UPGRADE_STICK_TARGET =
+            register("upgrade_stick_target", builder -> builder
+                    .persistent(EvolutionStateData.CODEC)
+                    .networkSynchronized(EvolutionStateData.STREAM_CODEC));
+
 
     ///////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\
     public static void register(IEventBus eventBus) {

@@ -32,6 +32,11 @@ public final class StatConfig {
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_PASSIVE_YIELD;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SKIN_TANK_CAPACITY_MB;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> CRAW_STACKS;
+    private static final ModConfigSpec.IntValue CRAW_BREAK_HOLD_TICKS;
+    private static final ModConfigSpec.BooleanValue UPGRADE_STICK_ALLOW_SURVIVAL;
+    private static final int DEFAULT_CRAW_BREAK_HOLD_TICKS = 20;
+    private static final ModConfigSpec.IntValue CRAW_DOUBLE_CLICK_TICKS;
+    private static final int DEFAULT_CRAW_DOUBLE_CLICK_TICKS = 6;
     private static final ModConfigSpec.DoubleValue OVERGROWTH_PERCENT;
     private static final ModConfigSpec.IntValue OVERGROWTH_MAX_LEVEL;
     private static final ModConfigSpec.IntValue HUNGER_DAMAGE_PER_CYCLE;
@@ -94,8 +99,24 @@ public final class StatConfig {
         SKIN_TANK_CAPACITY_MB = tierList("tankCapacityMb", "Skin Tank capacity, in millibuckets (1000 = 1 bucket), per tier.", StatDefaults.SKIN_TANK_CAPACITY_MB, 1, 100000000);
         BUILDER.pop();
 
-        BUILDER.push("craw");
+        BUILDER.comment("The Craw (bulk item storage). Left-clicking a Craw withdraws items instead of breaking it, so breaking one takes a held click.")
+                .push("craw");
         CRAW_STACKS = tierList("stacks", "Craw capacity in stacks per tier; the item limit is this times the stored item's max stack size.", StatDefaults.CRAW_STACKS, 1, 100000);
+        // Read by the client as well as the server (the block's destroy progress), which is why it is in this synced file.
+        CRAW_DOUBLE_CLICK_TICKS = BUILDER.comment("Ticks within which a second Craw click with the same item counts as a double click. 20 ticks = 1 second.",
+                        "A double click deposits the whole held stack (right click) or withdraws a full stack (left click) instead of one item.")
+                .defineInRange("doubleClickTicks", DEFAULT_CRAW_DOUBLE_CLICK_TICKS, 1, 40);
+        CRAW_BREAK_HOLD_TICKS = BUILDER.comment("Ticks a left click must be held on a Craw before it breaks, in survival and creative. 20 ticks = 1 second.",
+                        "A quick click just withdraws an item. This is read by players' clients as well as the server, which is why it lives in this synced file.")
+                .defineInRange("breakHoldTicks", DEFAULT_CRAW_BREAK_HOLD_TICKS, 1, 200);
+        BUILDER.pop();
+
+        BUILDER.comment("The Upgrade Stick: a creative-only item that sets a machine's tier, Overgrowth level and hazard tolerances outright.")
+                .push("upgrade_stick");
+        UPGRADE_STICK_ALLOW_SURVIVAL = BUILDER.comment("Whether the Upgrade Stick works outside creative mode.",
+                        "It can only be obtained in creative (it has no recipe), so turning this on lets a creative player or an operator hand one to a survival player and have it keep working.",
+                        "Off by default: only creative players can use it.")
+                .define("allowSurvival", false);
         BUILDER.pop();
 
         BUILDER.push("overgrowth");
@@ -178,6 +199,21 @@ public final class StatConfig {
         }
         BUILDER.pop();
         SPEC = BUILDER.build();
+    }
+
+    /** Ticks inside which a second Craw click counts as a double click; the default until the config has loaded. */
+    public static int getCrawDoubleClickTicks() {
+        return SPEC.isLoaded() ? CRAW_DOUBLE_CLICK_TICKS.get() : DEFAULT_CRAW_DOUBLE_CLICK_TICKS;
+    }
+
+    /** Ticks a left click must be held to break a Craw; the default until the config has loaded. */
+    public static int getCrawBreakHoldTicks() {
+        return SPEC.isLoaded() ? CRAW_BREAK_HOLD_TICKS.get() : DEFAULT_CRAW_BREAK_HOLD_TICKS;
+    }
+
+    /** Whether the Upgrade Stick works for a player who is not in creative mode; off until the config has loaded. */
+    public static boolean isUpgradeStickAllowedInSurvival() {
+        return SPEC.isLoaded() && UPGRADE_STICK_ALLOW_SURVIVAL.get();
     }
 
     /** A list that is either empty (use the shared values) or exactly {@code size} numbers in {@code [min, max]}. */
