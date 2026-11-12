@@ -5,7 +5,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.scruffy.dermicraft.block.entity.custom.CrawBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MutatorBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.NodeBlockEntity;
@@ -71,13 +70,6 @@ public class ModNetworking {
                     }
                 }));
 
-        registrar.playToServer(CrawAutoPushToggleClickPayload.TYPE, CrawAutoPushToggleClickPayload.STREAM_CODEC,
-                (payload, context) -> context.enqueueWork(() -> {
-                    BlockEntity be = context.player().level().getBlockEntity(payload.pos());
-                    if (be instanceof CrawBlockEntity craw) {
-                        craw.toggleAutoPush();
-                    }
-                }));
 
         registrar.playToServer(AutoDrainToggleClickPayload.TYPE, AutoDrainToggleClickPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(() -> {

@@ -44,7 +44,6 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.GRAFTING_TABLE.get())
                 .add(ModBlocks.RENDER_KILN.get())
                 .add(ModBlocks.CRAW.get())
-                .add(ModBlocks.CHARRED_CRAW.get())
                 .add(ModBlocks.INNARDS_DUCT.get())
                 .add(ModBlocks.CHARRED_INNARDS_DUCT.get())
                 .add(ModBlocks.INNARDS_NODE.get())
@@ -137,7 +136,6 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.GRAFTING_TABLE.get())
                 .add(ModBlocks.RENDER_KILN.get())
                 .add(ModBlocks.CRAW.get())
-                .add(ModBlocks.CHARRED_CRAW.get())
                 .add(ModBlocks.MR_FARMER.get())
                 .add(ModBlocks.MR_SHEPARD.get())
         ;

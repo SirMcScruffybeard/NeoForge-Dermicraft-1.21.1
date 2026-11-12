@@ -35,6 +35,18 @@ public class Config {
             .comment("Cooldown, in seconds, before an Anchor Module can save a gadget from death again. 0 = no cooldown.")
             .defineInRange("anchorModuleCooldownSeconds", 0, 0, Integer.MAX_VALUE);
 
+    // Craw -- how soon after a standing deposit click a second click with the same item counts as a double click
+    // (which deposits the whole held stack instead of one item). 20 ticks = 1 second.
+    public static final ModConfigSpec.IntValue CRAW_DOUBLE_CLICK_TICKS = BUILDER
+            .comment("Ticks within which a second Craw click with the same item counts as a double click. 20 ticks = 1 second.")
+            .defineInRange("crawDoubleClickTicks", 6, 1, 40);
+
+    // Craw -- a left click withdraws items instead of breaking the block, so breaking it takes a held click, in survival
+    // and in creative alike.
+    public static final ModConfigSpec.IntValue CRAW_BREAK_HOLD_TICKS = BUILDER
+            .comment("Ticks a left click must be held on a Craw before it breaks. 20 ticks = 1 second.")
+            .defineInRange("crawBreakHoldTicks", 20, 1, 200);
+
     static final ModConfigSpec SPEC = BUILDER.build();
 
     private static boolean validateItemName(final Object obj) {

@@ -9,7 +9,6 @@ import net.neoforged.neoforge.network.IContainerFactory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.scruffy.dermicraft.main.Dermicraft;
-import net.scruffy.dermicraft.screen.custom.charred_craw.CharredCrawMenu;
 import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.screen.custom.drooling_cauldron.DroolingCauldronMenu;
 import net.scruffy.dermicraft.screen.custom.drooling_crucible.DroolingCrucibleMenu;
@@ -58,8 +57,6 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<CrawMenu>> CRAW_MENU =
             registerMenuType("craw_menu", CrawMenu::new);
 
-    public static final DeferredHolder<MenuType<?>, MenuType<CharredCrawMenu>> CHARRED_CRAW_MENU =
-            registerMenuType("charred_craw_menu", CharredCrawMenu::new);
 
     public static final DeferredHolder<MenuType<?>, MenuType<NodeMenu>> INNARDS_NODE_MENU =
             registerMenuType("innards_node_menu", NodeMenu::new);

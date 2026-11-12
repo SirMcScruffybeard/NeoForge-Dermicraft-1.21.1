@@ -102,10 +102,6 @@ public class ModBusEvents {
 
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 
-        // Charred Craw has its own BlockEntityType (CHARRED_CRAW_BE), so it does NOT inherit
-        // CRAW_BE's capability registration above -- same gap that's bitten every other Charred
-        // variant so far (see the Drooling Crucible comment above).
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.CHARRED_CRAW_BE.get(), CrawBlockEntity::getItemHandler);
 
         // Mr. Farmer: both capabilities on all six faces. Fluid = the fuel tank (biofuel-filtered fill,
         // drain). Items = the automation wrapper (buffer extract-only, fuel slot accepts containers).

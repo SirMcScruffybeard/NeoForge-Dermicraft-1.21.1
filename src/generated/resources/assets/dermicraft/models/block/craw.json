@@ -1,8 +1,0 @@
-{
-  "parent": "minecraft:block/cube_bottom_top",
-  "textures": {
-    "bottom": "dermicraft:block/skin_tank_end",
-    "side": "dermicraft:block/craw_side",
-    "top": "dermicraft:block/skin_tank_end"
-  }
-}

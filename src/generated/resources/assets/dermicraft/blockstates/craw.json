@@ -1,7 +1,73 @@
 {
-  "variants": {
-    "": {
-      "model": "dermicraft:block/craw"
+  "multipart": [
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o0"
+      },
+      "when": {
+        "overgrowth": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o1"
+      },
+      "when": {
+        "overgrowth": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o2"
+      },
+      "when": {
+        "overgrowth": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o3"
+      },
+      "when": {
+        "overgrowth": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/craw/ports_center"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/craw/ports_l1"
+      },
+      "when": {
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/craw/ports_l2"
+      },
+      "when": {
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/craw/ports_l3"
+      },
+      "when": {
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/craw/ports_l4"
+      },
+      "when": {
+        "tier": "4"
+      }
     }
-  }
+  ]
 }

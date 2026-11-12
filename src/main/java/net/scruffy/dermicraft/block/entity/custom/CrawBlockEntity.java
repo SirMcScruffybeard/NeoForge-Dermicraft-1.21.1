@@ -3,9 +3,6 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.DustParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,21 +17,24 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
-import net.scruffy.dermicraft.datagen.datamaps.ModDataMaps;
+import net.scruffy.dermicraft.block.entity.custom.base.EvolvingMachineBlockEntity;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
 import net.scruffy.dermicraft.interfaces.IPreserveContentsOnPickup;
-import net.scruffy.dermicraft.property.EvolutionModuleProperties;
+import net.scruffy.dermicraft.machine.CrawStats;
+import net.scruffy.dermicraft.main.Config;
+import net.scruffy.dermicraft.machine.EvolutionEffects;
+import net.scruffy.dermicraft.machine.EvolutionResult;
+import net.scruffy.dermicraft.machine.EvolutionStats;
 import net.scruffy.dermicraft.recipe.ModRecipes;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipe;
 import net.scruffy.dermicraft.recipe.early_incubating.EarlyIncubatingRecipeInput;
@@ -42,22 +42,18 @@ import net.scruffy.dermicraft.screen.custom.craw.CrawMenu;
 import net.scruffy.dermicraft.util.ModItemUtil;
 import net.scruffy.dermicraft.util.ModMath;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
-public class CrawBlockEntity extends MachineBaseBlockEntity
-        implements MenuProvider, IHaveInventory, IPreserveContentsOnPickup, IHasChannels {
-
-    public static final int STACKS = 10;
-    public static final int CAPACITY = 64 * STACKS; // 640 items of one type
+public class CrawBlockEntity extends EvolvingMachineBlockEntity
+        implements MenuProvider, IHaveInventory, IPreserveContentsOnPickup, IHasChannels, IModuleTabMachine {
 
     public static final int STORAGE_SLOT = 0;
     public static final int INPUT_SLOT = 0; // index within the separate INPUT handler
-    public static final int MODULE_SLOT = 0; // index within the separate MODULE handler
 
     private static final int PUSH_INTERVAL_SECONDS = 1;
     private static final String INCUBATING_RECIPE_KEY = "incubating_recipe_id";
@@ -72,16 +68,19 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     // Single locked storage slot. Locks to whichever item is first inserted and
     // unlocks once it empties -- the item-side twin of SkinTank's fluid-type lock.
     public final ItemStackHandler INVENTORY = new ItemStackHandler(1) {
+        // What is held (or, when empty, a full 64 stack) sets the limit: capacity is counted in stacks.
         @Override
         public int getSlotLimit(int slot) {
-            return capacity();
+            ItemStack stored = getStackInSlot(slot);
+            return capacityFor(stored.isEmpty() ? 64 : stored.getMaxStackSize());
         }
 
         // ItemStackHandler.getStackLimit() normally clamps to the item's max stack size (64),
-        // which would cap bulk storage at one stack -- override it so the slot honours CAPACITY.
+        // which would cap bulk storage at one stack -- override it so the slot honours the capacity,
+        // measured in stacks of the item being inserted.
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
-            return getSlotLimit(slot);
+            return capacityFor(stack.getMaxStackSize());
         }
 
         @Override
@@ -120,163 +119,121 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         }
     };
 
-    // Module slot -- same tab-gated pattern as every other Module-tab machine, but standalone
-    // (like INPUT above) rather than sharing INVENTORY, since INVENTORY's own getSlotLimit/
-    // getStackLimit/isItemValid are all bulk-storage-specific and shouldn't apply to a Module.
-    public final ItemStackHandler MODULE = new ItemStackHandler(1) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            if (level != null && !level.isClientSide) {
-                onModuleChanged();
-                setChanged();
-                updateBlock();
-            }
-        }
+    /** General Module slots, 1 to 4 from the tier and resized when the evolution state changes, see
+     * {@link #onEvolutionStateChanged()}. Kept apart from INVENTORY, whose limit and validity rules are all
+     * bulk-storage-specific. Evolution Modules have their own dedicated slot, so they are refused here. */
+    public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
+            stack -> stack.is(ModTags.Items.MODULES) && !isEvolutionModule(stack));
 
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.is(ModTags.Items.MODULES);
-        }
-    };
+    /** General Module slots, from {@link CrawStats} (the dedicated Evolution slot is separate). */
+    @Override
+    public int getModuleSlotCount() {
+        return CrawStats.getModuleSlots(getEvolutionState());
+    }
 
-    // ---- Evolution (installed Evolution Module -> eventual Charred Craw) ---------------------
-    // Simpler than Masticator/Metastasizer/Effluentcer/Mutator's gradual-progress mechanic, same
-    // shape as Skin Tank -> Charred Tank: Craw holds items, not fluids, so there's no hazard
-    // tolerance to grant here at all -- the Module slot exists purely to hold the Evolution Module
-    // that triggers a flat 5-second countdown straight to the flourish, no progress render.
-    private int flourishTicksRemaining = -1;
-    private static final int FLOURISH_DURATION_TICKS = 100; // 5s
+    @Override
+    protected void onEvolutionStateChanged() {
+        resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
+    }
 
-    /** Whether this instance can still evolve at all -- true for the base Craw, overridden to false
-     * by {@code CharredCrawBlockEntity} (already evolved; installing an Evolution Module there does
-     * nothing, since capacity/throughput are permanently doubled regardless of any Module, and
-     * there's nothing further for it to transform into). */
-    protected boolean canEvolve() {
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    /** The Craw evolves through its own countdown, not the shared gradual progress, so the shared slot fill reads it. */
+    @Override
+    protected boolean usesEvolutionState() {
         return true;
     }
 
-    /** How many items of one type this instance can hold -- {@link #CAPACITY} for the base Craw,
-     * overridden to double that by Charred Craw. */
-    protected int capacity() {
-        return CAPACITY;
+    /** How many items of {@code maxStackSize}-sized stacks this Craw holds: its stack count from {@link CrawStats}. */
+    private int capacityFor(int maxStackSize) {
+        return CrawStats.getStacks(getEvolutionState()) * maxStackSize;
     }
 
-    /** Called whenever the Module slot's contents change at all -- cancels any countdown already
-     * running (covers the Module being pulled back out mid-countdown), then starts a fresh one if
-     * the slot now holds a real Evolution Module. Mirrors SkinTankBlockEntity's identical rule. */
-    private void onModuleChanged() {
+    // ---- Evolution (an Evolution Module in the Evolution slot raises this Craw in place) -------
+    // Storage never processes, so there is no progress to accumulate: installing an Evolution Module that applies
+    // starts a short countdown (EvolutionStats.getCountdownTicks()) with the shared EvolutionEffects particles, and
+    // when it ends the new evolution state is applied in place. The window exists only so the player can pull the
+    // module back out if they did not mean to commit; pulling it cancels the countdown. Same rule as the Skin Tank.
+    private int flourishTicksRemaining = -1;
+    /** The countdown's full length when it started, saved so the progress fraction stays right on the client. */
+    private int flourishTotalTicks = 1;
+
+    @Override
+    public float getGradualEvolutionFraction() {
+        if (flourishTicksRemaining < 0) return 0f;
+        return EvolutionEffects.getProgress(flourishTicksRemaining, flourishTotalTicks);
+    }
+
+    /** Called whenever the Evolution slot's contents change -- cancels any countdown already running (covers the
+     * module being pulled back out), then starts a fresh one if the slot now holds a module that would apply. */
+    @Override
+    protected void onEvolutionSlotChanged() {
+        super.onEvolutionSlotChanged();
         flourishTicksRemaining = -1;
-        if (!canEvolve()) return;
-        ItemStack module = MODULE.getStackInSlot(MODULE_SLOT);
-        if (module.isEmpty()) return;
-        EvolutionModuleProperties evoProps = BuiltInRegistries.ITEM.wrapAsHolder(module.getItem())
-                .getData(ModDataMaps.EVOLUTION_MODULE_PROPERTIES);
-        if (evoProps != null) startEvolutionFlourish();
+        if (getPendingUpgrade().isPresent()) {
+            flourishTotalTicks = EvolutionStats.getCountdownTicks();
+            flourishTicksRemaining = flourishTotalTicks;
+            if (level != null) EvolutionEffects.playDefaultStartSound(level, worldPosition);
+        }
     }
 
-    /** Runs every raw tick -- Craw's own {@link #tick} already runs every tick. Returns true once
-     * the countdown completes and the block swap has fired, so {@link #tick} can stop touching this
-     * now-stale instance. */
-    private boolean tickEvolutionFlourish() {
-        if (flourishTicksRemaining < 0) return false;
+    /** Runs every tick: the cancel window counts down, then the upgrade is applied. */
+    private void tickEvolutionCountdown() {
+        if (flourishTicksRemaining < 0) return;
 
         if (level instanceof ServerLevel serverLevel) {
-            spawnFlourishParticles(serverLevel, flourishTicksRemaining);
+            EvolutionEffects.spawnParticles(serverLevel, worldPosition, getGradualEvolutionFraction(),
+                    flourishTicksRemaining == 0, EvolutionEffects.DEFAULT_TINT, EvolutionEffects.Cadence.TICK);
         }
 
         flourishTicksRemaining--;
         if (flourishTicksRemaining < 0) {
-            completeEvolution(level);
-            return true;
-        }
-        return false;
-    }
-
-    private void startEvolutionFlourish() {
-        flourishTicksRemaining = FLOURISH_DURATION_TICKS;
-        if (level != null) {
-            level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
+            completeEvolution();
+        } else {
+            updateBlock(); // the Evolution slot's fill reads the progress on the client
         }
     }
 
-    private void spawnFlourishParticles(ServerLevel serverLevel, int ticksRemaining) {
-        double cx = worldPosition.getX() + 0.5;
-        double cy = worldPosition.getY() + 0.5;
-        double cz = worldPosition.getZ() + 0.5;
+    /** Applies the module's upgrade in place and consumes it. Evaluated again in case the state changed during the
+     * window; if it no longer applies, the module stays in the slot. The contents are untouched. */
+    private void completeEvolution() {
+        Optional<EvolutionResult.Upgrade> upgrade = getPendingUpgrade();
+        if (upgrade.isEmpty()) return;
 
-        float progress = 1f - (ticksRemaining / (float) FLOURISH_DURATION_TICKS);
-        int dustCount = 4 + Math.round(progress * 10);
-        // Lava-orange, matches every other Charred family flourish's own fallback tint (no target
-        // fluid here to derive a real tint from -- Craw has no tank at all).
-        DustParticleOptions dust = new DustParticleOptions(new Vector3f(1.0F, 70 / 255.0F, 20 / 255.0F), 1.4F);
-        serverLevel.sendParticles(dust, cx, cy, cz, dustCount, 0.3, 0.3, 0.3, 0.03);
-
-        if (ticksRemaining % 4 == 0) {
-            int smokeCount = 2 + Math.round(progress * 6);
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, smokeCount, 0.35, 0.35, 0.35, 0.02);
-        }
-
-        if (ticksRemaining == 0) {
-            serverLevel.sendParticles(dust, cx, cy, cz, 30, 0.5, 0.5, 0.5, 0.06);
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, cx, cy, cz, 16, 0.5, 0.5, 0.5, 0.04);
-            serverLevel.playSound(null, worldPosition, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
-        }
+        EVOLUTION_INVENTORY.setStackInSlot(0, ItemStack.EMPTY);
+        setEvolutionState(upgrade.get().newState());
+        setChanged();
+        updateBlock();
     }
 
-    /**
-     * Transforms this block into a Charred Craw in place, carrying over the storage and input
-     * staging contents -- the Module itself is not carried over, this transform is what consumes
-     * it. No FACING (or any other block state) to preserve -- Craw has none.
-     */
-    private void completeEvolution(Level level) {
-        ItemStack storedItem = getStoredStack().copy();
-        ItemStack inputItem = INPUT.getStackInSlot(INPUT_SLOT);
-        @Nullable RecipeHolder<EarlyIncubatingRecipe> recipeHolder = this.cachedRecipeHolder;
-
-        INVENTORY.setStackInSlot(STORAGE_SLOT, ItemStack.EMPTY);
-        INPUT.setStackInSlot(INPUT_SLOT, ItemStack.EMPTY);
-        MODULE.setStackInSlot(MODULE_SLOT, ItemStack.EMPTY);
-
-        level.setBlock(worldPosition, ModBlocks.CHARRED_CRAW.get().defaultBlockState(), Block.UPDATE_ALL);
-
-        if (level.getBlockEntity(worldPosition) instanceof CrawBlockEntity charred) {
-            charred.INVENTORY.setStackInSlot(STORAGE_SLOT, storedItem);
-            charred.INPUT.setStackInSlot(INPUT_SLOT, inputItem);
-            charred.cachedRecipeHolder = recipeHolder;
-            charred.setChanged();
-            charred.updateBlock();
-        }
-    }
+    /** Items the auto-push may still send this second; fractional rates carry over. Not saved. */
+    private double pushBudget = 0;
 
     public void tick(Level level) {
         if (!level.isClientSide) {
-            processPendingMenuOpens(level);
+            syncEvolutionBlockState();
 
-            // Early-return on a completed swap -- same as SkinTankBlockEntity#tick -- this instance
-            // is now stale, its own storage already cleared by completeEvolution.
-            if (tickEvolutionFlourish()) return;
+            tickEvolutionCountdown();
 
             transferInputToStorage();
-            // Cadence-throttled (once per second) rather than amount-throttled by itself -- storage
-            // has no crafting cycle to piggyback on. Each push is ALSO capped to stacksPerPush() full
-            // stacks (see pushStack's own maxAmount param) -- pushing the entire 640-capacity slot in
-            // one shot was a burst most duct networks can't actually absorb at once; smaller, more
-            // frequent pushes are both more realistic and easier to reason about. Charred Craw
-            // overrides stacksPerPush() for its own doubled throughput -- see that class's javadoc.
-            if (autoPushEnabled && ModMath.Time.hasSecondsPassed(level, PUSH_INTERVAL_SECONDS)) {
+            // Cadence-throttled (once per second), with the stat table's items-per-second rate as a running budget
+            // so a fractional rate still averages out. Pushing the entire slot in one shot was a burst most duct
+            // networks can't absorb at once; smaller, more frequent pushes are more realistic.
+            if (autoDrainEnabled && ModMath.Time.hasSecondsPassed(level, PUSH_INTERVAL_SECONDS)) {
+                double rate = CrawStats.getItemTransferPerSecond(getEvolutionState());
+                pushBudget = Math.min(pushBudget + rate, rate * 2);
                 ItemStack stored = getStoredStack();
-                if (!stored.isEmpty()) {
-                    int maxAmount = stacksPerPush() * stored.getMaxStackSize();
+                int maxAmount = (int) pushBudget;
+                if (!stored.isEmpty() && maxAmount > 0) {
+                    int before = stored.getCount();
                     ModItemUtil.pushItemToBelowTransport(level, worldPosition, INVENTORY, STORAGE_SLOT, maxAmount);
+                    pushBudget -= before - getStoredCount();
                 }
             }
         }
-    }
-
-    /** How many full stacks (of whatever item is currently stored) a single auto-push cycle may
-     * move -- 1 for the base Craw, overridden to 2 by Charred Craw. */
-    protected int stacksPerPush() {
-        return 1;
     }
 
     private void transferInputToStorage() {
@@ -293,40 +250,19 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
     }
 
     public CrawBlockEntity(BlockPos pos, BlockState blockState) {
-        this(ModBlockEntities.CRAW_BE.get(), pos, blockState);
-    }
-
-    // Lets a capability-leap subclass (Charred Craw) register under its own BlockEntityType while
-    // reusing everything else this class provides -- see MachineTier's own javadoc on why a genuine
-    // capability leap (here: doubled capacity/throughput) is a hook override, not a new MachineTier
-    // constant (Craw has no MachineTier concept at all, but the same split applies).
-    protected CrawBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState);
-    }
-
-    // Auto-push (pass-down) toggle -- default ON, matching the existing auto-push-when-a-valid-
-    // transport-target-is-present behavior exactly. Off simply skips the tick()'s own push attempt
-    // entirely; direct player deposit/withdraw and the GUI-only INPUT staging drain are unaffected.
-    private boolean autoPushEnabled = true;
-
-    public boolean isAutoPushEnabled() {
-        return autoPushEnabled;
-    }
-
-    public void toggleAutoPush() {
-        autoPushEnabled = !autoPushEnabled;
-        setChanged();
-        updateBlock();
+        super(ModBlockEntities.CRAW_BE.get(), pos, blockState);
     }
 
     // Which screen tab was last open -- same pattern as every other Module-tab machine, so
     // reopening the screen returns to the tab last viewed.
     private boolean moduleTabActive = false;
 
+    @Override
     public boolean isModuleTabActive() {
         return moduleTabActive;
     }
 
+    @Override
     public void setModuleTabActive(boolean active) {
         this.moduleTabActive = active;
     }
@@ -408,95 +344,150 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         this.level.playSound(null, worldPosition, SoundEvents.CONDUIT_ACTIVATE, SoundSource.BLOCKS, 1.0F, 0.6F);
     }
 
+    // ---- Click gestures ---------------------------------------------------------------------------------
+    // Standing, holding an item: one click deposits one item; a second click with the same item inside the
+    // configured window (Config.CRAW_DOUBLE_CLICK_TICKS) deposits the rest of the held stack. Crouching deposits every
+    // matching stack from the player's inventory (see CrawClickEvents, which catches the crouch click). A held item that
+    // exposes an item handler -- the Eater's buffer, another mod's backpack -- is a source: its contents are deposited
+    // and the item itself never is. Matching is item plus components; an empty Craw takes the type from what is held.
+
+    /** A player's last standing deposit click: when, and a one-count copy of what they held. */
+    private record LastClick(long tick, ItemStack template, boolean source) {}
+
+    private final Map<UUID, LastClick> lastClicks = new HashMap<>();
+
+    /** The held item's item handler if it has one (a source to deposit from), otherwise null. */
+    private static @Nullable IItemHandler getSource(ItemStack stack) {
+        return stack.isEmpty() ? null : stack.getCapability(Capabilities.ItemHandler.ITEM);
+    }
+
+    /** Whether this click follows the player's last one, within the window, with the same item. A source is compared by
+     * item only, since its contents (and so its components) change with every deposit. */
+    private boolean isDoubleClick(Player player, ItemStack template, boolean source) {
+        LastClick last = lastClicks.get(player.getUUID());
+        if (last == null || level == null || last.source() != source) return false;
+        if (level.getGameTime() - last.tick() > Config.CRAW_DOUBLE_CLICK_TICKS.get()) return false;
+        return source ? last.template().is(template.getItem())
+                : ItemStack.isSameItemSameComponents(last.template(), template);
+    }
+
     /**
-     * Deposit the whole held stack (as much as fits). Shrinks and returns the held stack.
-     *
-     * <p>Deliberately not crouch-gated: vanilla's {@code ServerPlayerGameMode.useItemOn} skips
-     * {@code Block.useItemOn} entirely when the player is crouching with an item in hand, so a
-     * crouch-to-insert-a-stack variant is unreachable from the block side. The Craw is bulk storage
-     * (single item type, 640 capacity) rather than a precision inserter, so always taking the full
-     * stack is the better default -- a player wanting to deposit less splits the stack first.
-     * Withdrawal is unaffected by this and uses standing/crouch for its own separate purposes --
-     * see {@link CrawBlock#useWithoutItem}.
+     * Whether an empty-handed standing click is the second half of a double click that began with an item: the player's
+     * last click deposited their last item (a single item, or the rest of a stack) inside the window, so this click finds
+     * an empty hand. It is swallowed rather than opening the GUI, so the gesture finishes the same whatever was held. A
+     * double click that starts empty-handed never gets here, since its first click already opened the GUI.
      */
-    /** Window for the "quickly double click to vacuum" gesture -- see {@link #isDoubleClick} --
-     * 6 ticks (~300ms), a standard double-click threshold. */
-    private static final int DOUBLE_CLICK_WINDOW_TICKS = 6;
-
-    /** Per-player last-interaction game time, tracked here rather than per-hand-state, so the
-     * gesture works across a mixed sequence too (e.g. a held-item click that empties the hand,
-     * immediately followed by an empty-hand click) -- see {@code CrawBlock#useItemOn}/
-     * {@code #useWithoutItem}, both of which call this before deciding their own normal action, and
-     * both suppress that normal action entirely (regardless of what {@link #vacuumFromInventory}
-     * actually finds to do) whenever this returns true. Not persisted -- a fresh map on reload is
-     * fine, it only ever needs to remember the last few hundred milliseconds. */
-    private final Map<UUID, Long> lastInteractGameTime = new HashMap<>();
-
-    public boolean isDoubleClick(Player player) {
-        if (level == null) return false;
-        long now = level.getGameTime();
-        Long last = lastInteractGameTime.put(player.getUUID(), now);
-        return last != null && now - last <= DOUBLE_CLICK_WINDOW_TICKS;
+    public boolean consumeEmptyHandDoubleClick(Player player) {
+        LastClick last = lastClicks.get(player.getUUID());
+        if (last == null || level == null) return false;
+        lastClicks.remove(player.getUUID());
+        return level.getGameTime() - last.tick() <= Config.CRAW_DOUBLE_CLICK_TICKS.get();
     }
 
-    /** Player UUID -> game tick a delayed GUI-open should actually fire. A plain empty-hand click
-     * can't just open the menu immediately, or the double-click gesture becomes unreachable: once a
-     * container screen is open, the client stops sending world right-click packets at all, so a
-     * genuine second click never arrives. {@code CrawBlock#useWithoutItem} schedules this instead of
-     * opening the menu directly; {@link #vacuumFromInventory} cancels it (a real double-click means
-     * the click that would have opened it got reinterpreted as the vacuum's second click instead). */
-    private final Map<UUID, Long> pendingMenuOpenTick = new HashMap<>();
+    /**
+     * A standing right click holding {@code held}: deposits one item, or the held stack on a double click. For a source,
+     * one item (or one slot's worth) from its contents. Returns false when nothing moved, so the click falls through to
+     * the GUI.
+     */
+    public boolean handleStandingClick(Player player, ItemStack held) {
+        if (level == null || level.isClientSide || held.isEmpty()) return false;
 
-    public void schedulePendingMenuOpen(Player player) {
-        if (level == null) return;
-        pendingMenuOpenTick.put(player.getUUID(), level.getGameTime() + DOUBLE_CLICK_WINDOW_TICKS);
-    }
+        IItemHandler source = getSource(held);
+        // A component belongs to the whole stack, so taking from a stack of several gadgets would not stick.
+        if (source != null && held.getCount() > 1) return false;
 
-    /** Opens any pending menu whose delay has elapsed -- called once per tick from {@link #tick}.
-     * Silently drops a pending open if the player logged off or left the level; doesn't bother
-     * re-checking range, since walking away from an open GUI is harmless. */
-    private void processPendingMenuOpens(Level level) {
-        if (pendingMenuOpenTick.isEmpty()) return;
+        ItemStack template = held.copyWithCount(1);
+        boolean isDouble = isDoubleClick(player, template, source != null);
 
-        java.util.Iterator<Map.Entry<UUID, Long>> it = pendingMenuOpenTick.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, Long> entry = it.next();
-            if (level.getGameTime() < entry.getValue()) continue;
-            it.remove();
-
-            if (level.getPlayerByUUID(entry.getKey()) instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-                serverPlayer.openMenu(this, buf -> buf.writeBlockPos(worldPosition));
-            }
+        int moved;
+        if (source != null) {
+            int slot = findSourceSlot(source);
+            moved = slot < 0 ? 0 : moveFromSlot(source, slot, isDouble ? Integer.MAX_VALUE : 1);
+        } else {
+            int amount = isDouble ? held.getCount() : 1;
+            ItemStack leftover = INVENTORY.insertItem(STORAGE_SLOT, held.copyWithCount(amount), false);
+            moved = amount - leftover.getCount();
+            held.shrink(moved);
         }
-    }
+        if (moved <= 0) return false;
 
-    /** Cancels any pending delayed GUI open scheduled by {@link #schedulePendingMenuOpen} for this
-     * player -- shared by both double-click gestures below, since either one means the click that
-     * would have opened the menu got reinterpreted as the gesture's second click instead. */
-    private void cancelPendingMenuOpen(Player player) {
-        pendingMenuOpenTick.remove(player.getUUID());
+        if (isDouble) {
+            lastClicks.remove(player.getUUID());
+        } else {
+            lastClicks.put(player.getUUID(), new LastClick(level.getGameTime(), template, source != null));
+        }
+        return true;
     }
 
     /**
-     * Double-click vacuum (standing) -- pulls every stack matching the Craw's currently-stored item
-     * type out of the player's main inventory (36 slots; armor/offhand not scanned) and deposits as
-     * much as fits. {@code INVENTORY.insertItem}'s existing slot-limit override (see
-     * {@link #capacity()}) already caps each insertion at the Craw's remaining room, so this needs
-     * no separate capacity bookkeeping -- whichever runs out first (the player's matching stock or
-     * the Craw's remaining capacity) naturally stops it. No-op if the Craw isn't holding anything
-     * yet (nothing to match against, per the gesture's own precondition) or the player has none of
-     * it.
+     * A crouching right click: deposits everything matching from a held source (if there is one), then every matching
+     * stack in the player's inventory. The type to match is what the Craw holds, or, when it is empty, the held item.
+     * Returns false when there was nothing to match against (an empty Craw and nothing useful in hand), so the caller
+     * opens the GUI instead.
      */
-    public void vacuumFromInventory(Player player) {
-        cancelPendingMenuOpen(player);
-        if (level == null || level.isClientSide) return;
-        ItemStack stored = getStoredStack();
-        if (stored.isEmpty()) return;
+    public boolean handleCrouchClick(Player player, ItemStack held) {
+        if (level == null || level.isClientSide) return true;
+        lastClicks.remove(player.getUUID());
 
+        IItemHandler source = getSource(held);
+        if (source != null && held.getCount() == 1) pullAllFromSource(source);
+
+        ItemStack type = getStoredStack();
+        if (type.isEmpty() && source == null && !held.isEmpty()) type = held.copyWithCount(1);
+        if (type.isEmpty()) return false;
+
+        vacuumFromInventory(player, type);
+        return true;
+    }
+
+    /** The first slot of {@code source} holding the Craw's type, or, when the Craw is empty, the first non-empty slot. */
+    private int findSourceSlot(IItemHandler source) {
+        ItemStack stored = getStoredStack();
+        for (int i = 0; i < source.getSlots(); i++) {
+            ItemStack inSlot = source.getStackInSlot(i);
+            if (inSlot.isEmpty()) continue;
+            if (stored.isEmpty() || ItemStack.isSameItemSameComponents(inSlot, stored)) return i;
+        }
+        return -1;
+    }
+
+    /** Moves up to {@code amount} from one slot of {@code source} into storage, as much as fits. Returns how many moved. */
+    private int moveFromSlot(IItemHandler source, int slot, int amount) {
+        ItemStack probe = source.extractItem(slot, amount, true);
+        if (probe.isEmpty()) return 0;
+        int fits = probe.getCount() - INVENTORY.insertItem(STORAGE_SLOT, probe, true).getCount();
+        if (fits <= 0) return 0;
+
+        ItemStack taken = source.extractItem(slot, fits, false);
+        if (taken.isEmpty()) return 0;
+        ItemStack leftover = INVENTORY.insertItem(STORAGE_SLOT, taken, false);
+        if (!leftover.isEmpty()) source.insertItem(slot, leftover, false); // not expected after the probe above
+        return taken.getCount() - leftover.getCount();
+    }
+
+    /** Moves everything of the Craw's type out of {@code source}, slot by slot. Returns how many moved. */
+    private int pullAllFromSource(IItemHandler source) {
+        int total = 0;
+        for (int guard = 0; guard < source.getSlots() * 4; guard++) {
+            int slot = findSourceSlot(source);
+            if (slot < 0) break;
+            int moved = moveFromSlot(source, slot, Integer.MAX_VALUE);
+            if (moved <= 0) break;
+            total += moved;
+        }
+        return total;
+    }
+
+    /**
+     * Deposits every stack matching {@code type} out of the player's main inventory (36 slots; armor and offhand are not
+     * scanned). {@code INVENTORY.insertItem}'s slot-limit override (see {@link #capacityFor(int)}) caps each insertion at
+     * the Craw's remaining room, so whichever runs out first, the player's matching stock or the room, stops it.
+     */
+    private void vacuumFromInventory(Player player, ItemStack type) {
         Inventory inv = player.getInventory();
         for (int i = 0; i < inv.items.size(); i++) {
             ItemStack slotStack = inv.items.get(i);
-            if (slotStack.isEmpty() || !ItemStack.isSameItemSameComponents(slotStack, stored)) continue;
+            if (slotStack.isEmpty() || !ItemStack.isSameItemSameComponents(slotStack, type)) continue;
 
             ItemStack remainder = INVENTORY.insertItem(STORAGE_SLOT, slotStack.copy(), false);
             int inserted = slotStack.getCount() - remainder.getCount();
@@ -506,41 +497,159 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         inv.setChanged();
     }
 
-    public ItemStack deposit(ItemStack held) {
-        if (held.isEmpty()) {
-            return held;
+    // ---- Left click: withdrawal -------------------------------------------------------------------------
+    // The mirror of the right-click gestures, and a left click never opens the GUI. Standing: one click takes one
+    // item, a second click inside the double-click window takes a full stack; both go to the player's inventory.
+    // Crouching: fills the held item's container (an item with an item handler, such as the Eater) or, with none in
+    // hand, the player's inventory, until that is full or the Craw is empty. Holding the click for
+    // Config.CRAW_BREAK_HOLD_TICKS breaks the Craw, in survival (through the block's destroy progress, see
+    // CrawBlock#getDestroyProgress) and in creative (see onCreativeLeftClick).
+
+    /** Player -> game tick of their last standing withdraw click, for the double click. */
+    private final Map<UUID, Long> lastWithdrawClicks = new HashMap<>();
+
+    /** A creative player's run of left-click events on this Craw: the last one and the first. */
+    private record HoldChain(long lastTick, long startTick) {}
+
+    private final Map<UUID, HoldChain> holdChains = new HashMap<>();
+
+    // A held attack key in creative re-sends a left click every 6 ticks (the client's destroy delay is 5), so events
+    // that far apart, give or take network jitter, are one hold rather than separate clicks.
+    private static final int HOLD_GAP_MIN_TICKS = 5;
+    private static final int HOLD_GAP_MAX_TICKS = 8;
+
+    /** A left click that starts a withdraw gesture; the caller handles the break hold. Server side only. */
+    public void handleLeftClick(Player player, ItemStack held) {
+        if (level == null || level.isClientSide) return;
+        if (getStoredStack().isEmpty()) {
+            lastWithdrawClicks.remove(player.getUUID());
+            return;
         }
-        int amount = held.getCount();
-        ItemStack toInsert = held.copyWithCount(amount);
-        ItemStack remainder = INVENTORY.insertItem(STORAGE_SLOT, toInsert, false);
-        int inserted = amount - remainder.getCount();
-        held.shrink(inserted);
-        return held;
+
+        if (player.isShiftKeyDown()) {
+            lastWithdrawClicks.remove(player.getUUID());
+            IItemHandler container = getSource(held);
+            if (container != null && held.getCount() == 1) {
+                fillContainerFromStorage(container);
+            } else {
+                fillInventoryFromStorage(player);
+            }
+            return;
+        }
+
+        long now = level.getGameTime();
+        Long last = lastWithdrawClicks.get(player.getUUID());
+        boolean isDouble = last != null && now - last <= Config.CRAW_DOUBLE_CLICK_TICKS.get();
+
+        int amount = isDouble ? getStoredStack().getMaxStackSize() : 1;
+        IItemHandler container = held.getCount() == 1 ? getSource(held) : null;
+        if (container != null) {
+            // A held container (the Eater) takes the withdrawal, and only as much as it can hold: the rest stays in
+            // the Craw. A container that is full or refuses the item moves nothing.
+            ItemStack probe = INVENTORY.extractItem(STORAGE_SLOT, amount, true);
+            ItemStack unplaced = probe.copy();
+            for (int slot = 0; slot < container.getSlots() && !unplaced.isEmpty(); slot++) {
+                unplaced = container.insertItem(slot, unplaced, true);
+            }
+            int fits = probe.getCount() - unplaced.getCount();
+            if (fits <= 0) return;
+
+            ItemStack taken = INVENTORY.extractItem(STORAGE_SLOT, fits, false);
+            for (int slot = 0; slot < container.getSlots() && !taken.isEmpty(); slot++) {
+                taken = container.insertItem(slot, taken, false);
+            }
+            if (!taken.isEmpty()) giveToHandFirst(player, taken); // not expected after the probe above
+        } else {
+            ItemStack taken = INVENTORY.extractItem(STORAGE_SLOT, amount, false);
+            if (taken.isEmpty()) return;
+            giveToHandFirst(player, taken);
+        }
+
+        if (isDouble) {
+            lastWithdrawClicks.remove(player.getUUID());
+        } else {
+            lastWithdrawClicks.put(player.getUUID(), now);
+        }
+    }
+
+    /** Gives {@code stack} to the player's main hand if it is empty or holds the same item with room, and whatever does
+     * not fit there to their inventory (dropping it at their feet if that is full too). */
+    private static void giveToHandFirst(Player player, ItemStack stack) {
+        ItemStack inHand = player.getMainHandItem();
+        if (inHand.isEmpty()) {
+            player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, stack);
+            return;
+        }
+        if (ItemStack.isSameItemSameComponents(inHand, stack)) {
+            int room = inHand.getMaxStackSize() - inHand.getCount();
+            int moved = Math.min(room, stack.getCount());
+            if (moved > 0) {
+                inHand.grow(moved);
+                stack.shrink(moved);
+            }
+        }
+        if (!stack.isEmpty()) player.getInventory().placeItemBackInInventory(stack);
     }
 
     /**
-     * Withdraw a single item from storage -- the standing single-click action.
+     * A creative player's left click. The click is cancelled before vanilla can break the block instantly (see
+     * CrawClickEvents), so this runs the gesture and breaks the Craw once the click has been held long enough: the
+     * server sees a run of events a few ticks apart while the key is down, and the run's length is the hold. Server
+     * side only.
      */
-    public ItemStack withdraw() {
-        ItemStack stored = getStoredStack();
-        if (stored.isEmpty()) {
-            return ItemStack.EMPTY;
+    public void onCreativeLeftClick(net.minecraft.server.level.ServerPlayer player, ItemStack held) {
+        if (level == null) return;
+        long now = level.getGameTime();
+        HoldChain chain = holdChains.get(player.getUUID());
+        long gap = chain == null ? Long.MAX_VALUE : now - chain.lastTick();
+        boolean holding = gap >= HOLD_GAP_MIN_TICKS && gap <= HOLD_GAP_MAX_TICKS;
+
+        if (holding) {
+            chain = new HoldChain(now, chain.startTick());
+        } else {
+            handleLeftClick(player, held); // a fresh click, not the held key repeating
+            chain = new HoldChain(now, now);
         }
-        return INVENTORY.extractItem(STORAGE_SLOT, 1, false);
+        holdChains.put(player.getUUID(), chain);
+
+        if (now - chain.startTick() >= Config.CRAW_BREAK_HOLD_TICKS.get()) {
+            holdChains.remove(player.getUUID());
+            player.gameMode.destroyBlock(worldPosition);
+        }
     }
 
-    /**
-     * Double-click withdraw (crouch) -- pulls a full stack (up to the item's max stack size, or the
-     * remainder if less) out of storage. Cancels the pending GUI open scheduled by the gesture's
-     * first click, same reasoning as {@link #vacuumFromInventory}.
-     */
-    public ItemStack withdrawStack(Player player) {
-        cancelPendingMenuOpen(player);
-        ItemStack stored = getStoredStack();
-        if (stored.isEmpty()) {
-            return ItemStack.EMPTY;
+    /** Moves stored items into {@code container} until it is full or the Craw is empty. */
+    private void fillContainerFromStorage(IItemHandler container) {
+        for (int guard = 0; guard < 4096 && !getStoredStack().isEmpty(); guard++) {
+            ItemStack probe = INVENTORY.extractItem(STORAGE_SLOT, getStoredStack().getMaxStackSize(), true);
+            if (probe.isEmpty()) return;
+
+            ItemStack leftover = probe.copy();
+            for (int slot = 0; slot < container.getSlots() && !leftover.isEmpty(); slot++) {
+                leftover = container.insertItem(slot, leftover, false);
+            }
+            int moved = probe.getCount() - leftover.getCount();
+            if (moved <= 0) return;
+
+            INVENTORY.extractItem(STORAGE_SLOT, moved, false);
+            if (moved < probe.getCount()) return; // the container is full
         }
-        return INVENTORY.extractItem(STORAGE_SLOT, stored.getMaxStackSize(), false);
+    }
+
+    /** Moves stored items into the player's inventory until it is full or the Craw is empty. */
+    private void fillInventoryFromStorage(Player player) {
+        for (int guard = 0; guard < 4096 && !getStoredStack().isEmpty(); guard++) {
+            ItemStack probe = INVENTORY.extractItem(STORAGE_SLOT, getStoredStack().getMaxStackSize(), true);
+            if (probe.isEmpty()) return;
+
+            ItemStack leftover = probe.copy();
+            player.getInventory().add(leftover); // leaves whatever did not fit in leftover
+            int moved = probe.getCount() - leftover.getCount();
+            if (moved <= 0) return;
+
+            INVENTORY.extractItem(STORAGE_SLOT, moved, false);
+            if (moved < probe.getCount()) return; // the inventory is full
+        }
     }
 
     @Override
@@ -559,7 +668,8 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         INVENTORY.setStackInSlot(STORAGE_SLOT, ItemStack.EMPTY);
 
         dropItems(level, INPUT, worldPosition); // input never exceeds one stack, safe as-is
-        dropItems(level, MODULE, worldPosition);
+        dropItems(level, MODULE_INVENTORY, worldPosition);
+        dropItems(level, EVOLUTION_INVENTORY, worldPosition);
     }
 
     @Override
@@ -585,10 +695,10 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
             tag.put("craw_storage", storageTag);
         }
         tag.put("craw_input_inv", INPUT.serializeNBT(registries));
-        tag.put("craw_module_inv", MODULE.serializeNBT(registries));
+        tag.put("craw_module_inv", MODULE_INVENTORY.serializeNBT(registries));
         tag.putBoolean("module_tab_active", moduleTabActive);
-        tag.putBoolean("auto_push_enabled", autoPushEnabled);
         tag.putInt("evolution_flourish_ticks", flourishTicksRemaining);
+        tag.putInt("evolution_flourish_total", flourishTotalTicks);
         if (this.cachedRecipeHolder != null) {
             tag.putString(INCUBATING_RECIPE_KEY, this.cachedRecipeHolder.id().toString());
         }
@@ -608,13 +718,13 @@ public class CrawBlockEntity extends MachineBaseBlockEntity
         }
         INVENTORY.setStackInSlot(STORAGE_SLOT, stored);
         INPUT.deserializeNBT(registries, tag.getCompound("craw_input_inv"));
-        if (tag.contains("craw_module_inv")) MODULE.deserializeNBT(registries, tag.getCompound("craw_module_inv"));
+        if (tag.contains("craw_module_inv")) {
+            loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("craw_module_inv"));
+        }
         moduleTabActive = tag.getBoolean("module_tab_active");
-        // Absent on a world saved before this toggle existed -- default ON so pre-existing setups
-        // keep auto-pushing exactly as before, matching the field's own default.
-        autoPushEnabled = !tag.contains("auto_push_enabled") || tag.getBoolean("auto_push_enabled");
         flourishTicksRemaining = tag.contains("evolution_flourish_ticks")
                 ? tag.getInt("evolution_flourish_ticks") : -1;
+        flourishTotalTicks = Math.max(1, tag.getInt("evolution_flourish_total"));
         if (tag.contains(INCUBATING_RECIPE_KEY, CompoundTag.TAG_STRING)) {
             this.lazyRecipeId = ResourceLocation.parse(tag.getString(INCUBATING_RECIPE_KEY));
         }

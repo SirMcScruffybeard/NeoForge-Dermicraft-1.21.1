@@ -14,6 +14,7 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.datagen.machine.MachineBlockStates;
+import net.scruffy.dermicraft.datagen.machine.CrawBlockStates;
 import net.scruffy.dermicraft.datagen.machine.MachineLayouts;
 import net.scruffy.dermicraft.datagen.machine.TankBlockStates;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -27,7 +28,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
     @Override
     protected void registerStatesAndModels() {
 
-        String skinTankEnd = "block/skin_tank_end";
 
         horizontalBlock(ModBlocks.BRAIN.get(), models().getExistingFile(modLoc("block/brain")));
         itemModels().withExistingParent(ModBlocks.BRAIN.getId().getPath(),
@@ -164,17 +164,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 MachineLayouts.GRAFTING_TABLE, GraftingTableBlock.FACING);
 
 
-        simpleBlockWithItem(ModBlocks.CRAW.get(), models().cubeBottomTop(
-                ModBlocks.CRAW.getId().getPath(),
-                modLoc("block/craw_side"),
-                modLoc(skinTankEnd),
-                modLoc(skinTankEnd)));
-
-        // Charred Machine Port on all 6 faces -- no per-face split, unlike the base Craw's own
-        // side/top-bottom texture split.
-        simpleBlockWithItem(ModBlocks.CHARRED_CRAW.get(), models().cubeAll(
-                ModBlocks.CHARRED_CRAW.getId().getPath(),
-                modLoc("block/charred_machine_port")));
+        new CrawBlockStates(this).register(ModBlocks.CRAW.get(), "craw");
 
         simpleBlock(ModBlocks.BEAKER.get(), models().cubeBottomTop(
                 ModBlocks.BEAKER.getId().getPath(),

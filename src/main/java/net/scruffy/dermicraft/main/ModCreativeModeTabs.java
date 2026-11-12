@@ -62,7 +62,6 @@ public class ModCreativeModeTabs {
 
                         ////////////////////Machines\\\\\\\\\\\\\\\\\\\\
                         output.accept(ModBlocks.BRAIN);
-                        output.accept(ModBlocks.CHARRED_CRAW); // no craft recipe yet
                         output.accept(ModBlocks.CRAW);
                         output.accept(ModBlocks.DROOLING_CAULDRON);
                         // No craft recipe yet -- standalone-reachable Evolution/Catalyst path isn't

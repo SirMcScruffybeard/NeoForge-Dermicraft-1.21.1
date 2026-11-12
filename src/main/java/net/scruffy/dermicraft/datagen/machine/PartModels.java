@@ -386,4 +386,45 @@ public class PartModels {
         }
         element.face(inward).uvs(0, 0, 16, 16).texture("#" + textureKey).end().end();
     }
+
+    // ------------------------------------------------------------------------------------------------------------
+    // The port cube (Craw): no face, no facing and no light. The plate carries the port ring and center on all six
+    // sides, the ring changing with tier.
+    // ------------------------------------------------------------------------------------------------------------
+
+    /** The port ring for one tier on all six sides: {@code <machine>/ports_l<tier>}. */
+    public BlockModelBuilder buildCubePorts(String machine, int tier) {
+        return buildCubePortModel(MODEL_DIR + machine + "/ports_l" + tier,
+                SIMPLE_MACHINE_DIR + PORT_DIR + "/l" + tier + "_port");
+    }
+
+    /** The center that fills the ring's hole, the same at every tier: {@code <machine>/ports_center}. */
+    public BlockModelBuilder buildCubePortCenter(String machine) {
+        return buildCubePortModel(MODEL_DIR + machine + "/ports_center", SIMPLE_MACHINE_DIR + PORT_DIR + "/port_center");
+    }
+
+    /** The inventory model of a port cube at a tier and Overgrowth stage: the plate with the ring and center on every
+     * side. Tier 1 stage 0 is the item's base model; the others are its overrides. */
+    public ItemModelBuilder buildCubeItemModel(String itemName, int tier, int stage) {
+        ItemModelBuilder model = provider.itemModels().withExistingParent(itemName, "block/block")
+                .renderType("cutout")
+                .texture("plate", provider.modLoc(PLATE_TEXTURES[stage]))
+                .texture("ring", provider.modLoc(SIMPLE_MACHINE_DIR + PORT_DIR + "/l" + tier + "_port"))
+                .texture("center", provider.modLoc(SIMPLE_MACHINE_DIR + PORT_DIR + "/port_center"));
+
+        model.element().from(0, 0, 0).to(16, 16, 16).textureAll("#plate").end();
+        addPortElement(model, "ring", side -> true);
+        addPortElement(model, "center", side -> true);
+        return model;
+    }
+
+    private BlockModelBuilder buildCubePortModel(String modelName, String texturePath) {
+        return built.computeIfAbsent(modelName, name -> {
+            BlockModelBuilder model = provider.models().getBuilder(name)
+                    .renderType("cutout")
+                    .texture("port", provider.modLoc(texturePath));
+            addPortElement(model, "port", side -> true);
+            return model;
+        });
+    }
 }
