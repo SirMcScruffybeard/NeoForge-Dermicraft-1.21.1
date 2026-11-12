@@ -15,6 +15,7 @@ import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.datagen.machine.MachineBlockStates;
 import net.scruffy.dermicraft.datagen.machine.MachineLayouts;
+import net.scruffy.dermicraft.datagen.machine.TankBlockStates;
 import net.scruffy.dermicraft.main.Dermicraft;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -95,13 +96,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(ModBlocks.HOT_BONE.get(), models().cubeAll("hot_bone",
                 modLoc("block/hot_bone")));
 
-        // Side texture lives in its own skin_tank/ subdirectory (alongside the retired Charred Tank's
-        // own side texture); end texture stays at the top-level block/ path, unmoved.
-        simpleBlockWithItem(ModBlocks.SKIN_TANK.get(), models().cubeBottomTop(ModBlocks.SKIN_TANK.getId().getPath(),
-                        modLoc("block/skin_tank/skin_tank_side"),
-                        modLoc("block/skin_tank_end"),
-                        modLoc("block/skin_tank_end"))
-                .renderType("translucent"));
+        // The Skin Tank is a multipart: windowed plate, accent and glass on the sides, ports on the top and bottom, and
+        // an interior backing; its item model is built alongside (see TankBlockStates).
+        new TankBlockStates(this).register(ModBlocks.SKIN_TANK.get(), "skin_tank");
 
         // Knowledge Vat -- real dedicated art (2026-08-29): front/back share one texture,
         // left/right another, top/bottom a third -- no tintindex any more (that was only ever

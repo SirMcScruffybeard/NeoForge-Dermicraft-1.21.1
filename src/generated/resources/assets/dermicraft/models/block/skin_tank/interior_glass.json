@@ -1,0 +1,111 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#glass"
+        }
+      },
+      "from": [
+        0,
+        15.15,
+        0
+      ],
+      "to": [
+        16,
+        15.15,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "up": {
+          "texture": "#glass"
+        }
+      },
+      "from": [
+        0,
+        0.85,
+        0
+      ],
+      "to": [
+        16,
+        0.85,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#glass"
+        }
+      },
+      "from": [
+        0,
+        0,
+        15.15
+      ],
+      "to": [
+        16,
+        16,
+        15.15
+      ]
+    },
+    {
+      "faces": {
+        "south": {
+          "texture": "#glass"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0.85
+      ],
+      "to": [
+        16,
+        16,
+        0.85
+      ]
+    },
+    {
+      "faces": {
+        "west": {
+          "texture": "#glass"
+        }
+      },
+      "from": [
+        15.15,
+        0,
+        0
+      ],
+      "to": [
+        15.15,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#glass"
+        }
+      },
+      "from": [
+        0.85,
+        0,
+        0
+      ],
+      "to": [
+        0.85,
+        16,
+        16
+      ]
+    }
+  ],
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "glass": "dermicraft:block/simple_machine/skin_tank/glass",
+    "particle": "dermicraft:block/simple_machine/skin_tank/glass"
+  }
+}

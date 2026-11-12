@@ -275,7 +275,7 @@
     "feature_0": "dermicraft:block/simple_machine/masticator/masticator_mouth_l1",
     "light": "dermicraft:block/simple_machine/light/light_off",
     "mount": "dermicraft:block/simple_machine/light_mount/l1",
-    "plate": "dermicraft:block/tumor/tumor_base",
+    "plate": "dermicraft:block/simple_machine/plate/l_plate",
     "ring": "dermicraft:block/simple_machine/port/l1_port"
   }
 }

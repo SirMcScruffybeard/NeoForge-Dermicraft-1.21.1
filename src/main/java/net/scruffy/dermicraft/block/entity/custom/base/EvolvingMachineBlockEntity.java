@@ -105,8 +105,9 @@ public abstract class EvolvingMachineBlockEntity extends MachineBaseBlockEntity 
         };
     }
 
-    /** Whatever was accrued belongs to the old module, so insert, removal and swap all start over. */
-    private void onEvolutionSlotChanged() {
+    /** Whatever was accrued belongs to the old module, so insert, removal and swap all start over. A machine with its
+     * own evolution timing (the Skin Tank's countdown) overrides this, calling super first. */
+    protected void onEvolutionSlotChanged() {
         gradualProgress = 0;
         gradualFlourishCycles = -1;
         gradualTarget = getPendingUpgrade().map(EvolutionResult.Upgrade::durationTicks).orElse(1);

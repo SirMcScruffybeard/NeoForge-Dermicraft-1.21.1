@@ -121,6 +121,7 @@ public class ModItemProperties {
         registerEvolutionLook(ModBlocks.GRAFTING_TABLE.asItem());
         registerEvolutionLook(ModBlocks.RENDER_KILN.asItem());
         registerEvolutionLook(ModBlocks.RENDER_FURNACE.asItem());
+        registerEvolutionLook(ModBlocks.SKIN_TANK.asItem());
     }
 
     /** The "tier" and "overgrowth" properties of a machine's item, read from its EVOLUTION_STATE component. Overgrowth

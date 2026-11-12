@@ -22,6 +22,10 @@ import net.scruffy.dermicraft.block.entity.custom.SkinTankBlockEntity;
 // Under MIT-License: https://github.com/DaRealTurtyWurty/1.20-Tutorial-Mod?tab=MIT-1-ov-file#readme
 public class SkinTankBlockEntityRenderer extends TankBlockEntityRenderer implements BlockEntityRenderer<SkinTankBlockEntity> {
 
+    /** The window in the tank's side plate, as a fraction of the block height: its bottom edge and its height. */
+    private static final float WINDOW_BOTTOM = 3f / 16f;
+    private static final float WINDOW_HEIGHT = 10f / 16f;
+
     public SkinTankBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         super(context);
     }
@@ -46,7 +50,8 @@ public class SkinTankBlockEntityRenderer extends TankBlockEntityRenderer impleme
         TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(stillTexture);
         int tintColor = fluidTypeExtensions.getTintColor(state, level, pos);
 
-        float height = (((float) pBlockEntity.getTank(null).getFluidInTank(0).getAmount() / pBlockEntity.getTank(null).getTankCapacity(0)) * 0.625f) + 0.25f;
+        // The fluid fills the glass window (y 3 to 13 of 16), so an empty tank shows nothing and a full one fills it exactly.
+        float height = (((float) pBlockEntity.getTank(null).getFluidInTank(0).getAmount() / pBlockEntity.getTank(null).getTankCapacity(0)) * WINDOW_HEIGHT) + WINDOW_BOTTOM;
 
         VertexConsumer builder = pBuffer.getBuffer(ItemBlockRenderTypes.getRenderLayer(state));
 

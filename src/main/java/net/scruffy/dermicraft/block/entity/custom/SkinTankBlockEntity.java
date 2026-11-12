@@ -20,8 +20,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
-import net.scruffy.dermicraft.item.custom.module.EvolutionModuleItem;
+import net.scruffy.dermicraft.block.entity.custom.base.EvolvingMachineBlockEntity;
 import net.scruffy.dermicraft.component.EvolutionStateData;
 import net.scruffy.dermicraft.hazard.HazardFamily;
 import net.scruffy.dermicraft.hazard.HazardProfile;
@@ -44,8 +43,8 @@ import java.util.Optional;
  * one on) -- see {@link IHaveModules#installedHazardProfile(HazardProfile, ItemStack)}, the
  * single-slot overload this reads from in a loop to support more than one slot.
  */
-public class SkinTankBlockEntity extends MachineBaseBlockEntity
-        implements MenuProvider, IHaveInventory, IHasChannels, IPreserveContentsOnPickup {
+public class SkinTankBlockEntity extends EvolvingMachineBlockEntity
+        implements MenuProvider, IHaveInventory, IHasChannels, IPreserveContentsOnPickup, IModuleTabMachine {
 
     public static final int INPUT = 0;
     public static final int OUTPUT = 1;
@@ -62,34 +61,6 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * {@code MachineBaseBlockEntity#createModuleInventory}. */
     public final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
             stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES) && !isEvolutionModule(stack));
-
-    /** The dedicated Evolution Module slot: one slot, Evolution Modules only, so installing one never
-     * disturbs a tuned setup in the general slots. Evolution Modules only. */
-    public final ItemStackHandler EVOLUTION_INVENTORY = new ItemStackHandler(1) {
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            return isEvolutionModule(stack);
-        }
-
-        @Override
-        public int getSlotLimit(int slot) {
-            return 1;
-        }
-
-        @Override
-        protected void onContentsChanged(int slot) {
-            if (level != null && !level.isClientSide) {
-                onEvolutionSlotChanged();
-                setChanged();
-                updateBlock();
-            }
-        }
-    };
-
-    /** Whether a stack is an Evolution Module: an item with real {@code EvolutionModuleProperties} data. */
-    public static boolean isEvolutionModule(ItemStack stack) {
-        return stack.getItem() instanceof EvolutionModuleItem;
-    }
 
     private final VulnerableTank TANK = createTank();
 
@@ -183,28 +154,23 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
      * (which has no server config) and across a config reload. */
     private int flourishTotalTicks = 1;
 
-    /** The upgrade the Evolution slot's module would apply right now, from {@link EvolutionRules}. Empty
-     * for the bare frame, a module this tank's state does not allow (wrong tier, family cap, already
-     * held), or an instance that cannot evolve -- those sit in the slot and do nothing. */
-    private Optional<EvolutionResult.Upgrade> getPendingUpgrade() {
-        return getEvolutionStatus()
-                .filter(EvolutionResult.Upgrade.class::isInstance)
-                .map(EvolutionResult.Upgrade.class::cast);
+    /** The tank evolves through its own countdown, not the shared gradual progress, so the shared slot fill reads it. */
+    @Override
+    protected boolean usesEvolutionState() {
+        return true;
     }
 
-    /** What the Evolution slot's module would do on this tank right now: empty for the bare frame, an empty
-     * slot or an instance that cannot evolve; otherwise the {@link EvolutionRules} answer, an upgrade that
-     * will apply or the reason it is blocked. The slot tooltip reads this. */
-    public Optional<EvolutionResult> getEvolutionStatus() {
-        ItemStack module = EVOLUTION_INVENTORY.getStackInSlot(0);
-        if (!(module.getItem() instanceof EvolutionModuleItem evolutionModule)) return Optional.empty();
-        return evolutionModule.evaluate(null, getEvolutionState(), module);
+    @Override
+    public float getGradualEvolutionFraction() {
+        return getEvolutionProgress();
     }
 
     /** Called whenever the Evolution slot's contents change -- cancels any countdown already running
      * (covers the module being pulled back out), then starts a fresh one if the slot now holds a module
      * that would apply. Insert, remove, and swap all fall out of this one rule. */
-    private void onEvolutionSlotChanged() {
+    @Override
+    protected void onEvolutionSlotChanged() {
+        super.onEvolutionSlotChanged();
         flourishTicksRemaining = -1;
         if (getPendingUpgrade().isPresent()) startEvolutionFlourish();
     }
@@ -260,10 +226,17 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     // reopening this Skin Tank's screen returns to the tab last viewed instead of always resetting.
     private boolean moduleTabActive = false;
 
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    @Override
     public boolean isModuleTabActive() {
         return moduleTabActive;
     }
 
+    @Override
     public void setModuleTabActive(boolean active) {
         this.moduleTabActive = active;
     }
@@ -335,6 +308,8 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
 
     public void tick(Level sLevel) {
         if (!sLevel.isClientSide) {
+            syncEvolutionBlockState();
+
             // Early-return on a completed swap -- same as DroolingMachineBlockEntity#onTickStart --
             // this instance is now stale, its own TANK already drained by completeEvolution.
             tickEvolutionFlourish();
@@ -359,7 +334,6 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         tag.put("skin_tank_inv", INVENTORY.serializeNBT(registries));
         tag.put("skin_tank_module_inv", MODULE_INVENTORY.serializeNBT(registries));
-        tag.put("skin_tank_evolution_inv", EVOLUTION_INVENTORY.serializeNBT(registries));
         tag = TANK.writeToNBT(registries, tag);
         tag.putBoolean("module_tab_active", moduleTabActive);
         tag.putInt("evolution_flourish_ticks", flourishTicksRemaining);
@@ -384,10 +358,6 @@ public class SkinTankBlockEntity extends MachineBaseBlockEntity
             // is gone for good -- see MachineBaseBlockEntity#extractLegacyModuleStack.
             ItemStack legacyModule = extractLegacyModuleStack(registries, oldInventoryTag, 2);
             if (!legacyModule.isEmpty()) MODULE_INVENTORY.setStackInSlot(0, legacyModule);
-        }
-
-        if (tag.contains("skin_tank_evolution_inv")) {
-            loadItemHandler(EVOLUTION_INVENTORY, 1, registries, tag.getCompound("skin_tank_evolution_inv"));
         }
 
         applyCapacityBonus();

@@ -1,7 +1,246 @@
 {
-  "variants": {
-    "": {
-      "model": "dermicraft:block/skin_tank"
+  "multipart": [
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/plate_o0"
+      },
+      "when": {
+        "overgrowth": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/plate_o1"
+      },
+      "when": {
+        "overgrowth": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/plate_o2"
+      },
+      "when": {
+        "overgrowth": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/plate_o3"
+      },
+      "when": {
+        "overgrowth": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/interior"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/interior_glass"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l1"
+      },
+      "when": {
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l2"
+      },
+      "when": {
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l3"
+      },
+      "when": {
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l4"
+      },
+      "when": {
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/glass"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l1",
+        "y": 90
+      },
+      "when": {
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l2",
+        "y": 90
+      },
+      "when": {
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l3",
+        "y": 90
+      },
+      "when": {
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l4",
+        "y": 90
+      },
+      "when": {
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/glass",
+        "y": 90
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l1",
+        "y": 180
+      },
+      "when": {
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l2",
+        "y": 180
+      },
+      "when": {
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l3",
+        "y": 180
+      },
+      "when": {
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l4",
+        "y": 180
+      },
+      "when": {
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/glass",
+        "y": 180
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l1",
+        "y": 270
+      },
+      "when": {
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l2",
+        "y": 270
+      },
+      "when": {
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l3",
+        "y": 270
+      },
+      "when": {
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/accent_l4",
+        "y": 270
+      },
+      "when": {
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/glass",
+        "y": 270
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/ports_l1"
+      },
+      "when": {
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/ports_l2"
+      },
+      "when": {
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/ports_l3"
+      },
+      "when": {
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/ports_l4"
+      },
+      "when": {
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/skin_tank/ports_center"
+      }
     }
-  }
+  ]
 }

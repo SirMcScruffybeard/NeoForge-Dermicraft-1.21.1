@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "dermicraft:block/tumor/tumor_base"
+    "all": "dermicraft:block/simple_machine/plate/o1_plate"
   }
 }
