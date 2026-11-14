@@ -52,9 +52,9 @@ public class ModClientEvents {
         registerFluidTint(event, ModItems.FEEDER_BLADDER.get());
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
-        registerBucketTint(event, ModFluids.CALCIUM_BLEND_BUCKET.get(), ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.CARBON_BLEND_BUCKET.get(), ModFluidTypes.CARBON_BLEND_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.PROTEIN_BLEND_BUCKET.get(), ModFluidTypes.PROTEIN_BLEND_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.CALCIUM_PULP_BUCKET.get(), ModFluidTypes.CALCIUM_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.CARBON_PULP_BUCKET.get(), ModFluidTypes.CARBON_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.PROTEIN_PULP_BUCKET.get(), ModFluidTypes.PROTEIN_PULP_FLUID_TYPE);
 
         registerBucketTint(event, ModFluids.CRUDE_SLURRY_BUCKET.get(), ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE);
         registerBucketTint(event, ModFluids.CONCENTRATED_SLURRY_BUCKET.get(), ModFluidTypes.CONCENTRATED_SLURRY_FLUID_TYPE);
@@ -62,19 +62,19 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.PRIMITIVE_CATALYST_BUCKET.get(), ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE);
         registerBucketTint(event, ModFluids.REINFORCING_CATALYST_BUCKET.get(), ModFluidTypes.REINFORCING_CATALYST_FLUID_TYPE);
         registerBucketTint(event, ModFluids.SYNAPSE_CATALYST_BUCKET.get(), ModFluidTypes.SYNAPSE_CATALYST_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.KNOWLEDGE_ESSENCE_BUCKET.get(), ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.KNOWLEDGE_COLLOID_BUCKET.get(), ModFluidTypes.KNOWLEDGE_COLLOID_FLUID_TYPE);
         registerBucketTint(event, ModFluids.KINETIC_CATALYST_BUCKET.get(), ModFluidTypes.KINETIC_CATALYST_FLUID_TYPE);
         registerBucketTint(event, ModFluids.EVOLUTION_CATALYST_BUCKET.get(), ModFluidTypes.EVOLUTION_CATALYST_FLUID_TYPE);
 
-        registerBucketTint(event, ModFluids.STONE_BLEND_BUCKET.get(), ModFluidTypes.STONE_BLEND_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.SILICA_BLEND_BUCKET.get(), ModFluidTypes.SILICA_BLEND_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.CLAY_BLEND_BUCKET.get(), ModFluidTypes.CLAY_BLEND_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.STONE_PULP_BUCKET.get(), ModFluidTypes.STONE_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.SILICA_PULP_BUCKET.get(), ModFluidTypes.SILICA_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.CLAY_PULP_BUCKET.get(), ModFluidTypes.CLAY_PULP_FLUID_TYPE);
 
-        registerBucketTint(event, ModFluids.FERROUS_BLEND_BUCKET.get(), ModFluidTypes.FERROUS_BLEND_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.CUPROUS_BLEND_BUCKET.get(), ModFluidTypes.CUPROUS_BLEND_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.AUROUS_BLEND_BUCKET.get(), ModFluidTypes.AUROUS_BLEND_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.FERROUS_PULP_BUCKET.get(), ModFluidTypes.FERROUS_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.CUPROUS_PULP_BUCKET.get(), ModFluidTypes.CUPROUS_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.AUROUS_PULP_BUCKET.get(), ModFluidTypes.AUROUS_PULP_FLUID_TYPE);
 
-        registerBucketTint(event, ModFluids.PULP_BLEND_BUCKET.get(), ModFluidTypes.PULP_BLEND_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.CELLULOSE_PULP_BUCKET.get(), ModFluidTypes.CELLULOSE_PULP_FLUID_TYPE);
 
         registerBucketTint(event, ModFluids.F_STUFF_BUCKET.get(), ModFluidTypes.F_STUFF_FLUID_TYPE);
         registerBucketTint(event, ModFluids.C_STUFF_BUCKET.get(), ModFluidTypes.C_STUFF_FLUID_TYPE);
@@ -85,12 +85,12 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.MOLTEN_AMETHYST_BUCKET.get(), ModFluidTypes.MOLTEN_AMETHYST_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_DIAMOND_BUCKET.get(), ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE);        registerBucketTint(event, ModFluids.MOLTEN_LAPIS_BUCKET.get(), ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_EMERALD_BUCKET.get(), ModFluidTypes.MOLTEN_EMERALD_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.MOLTEN_RAW_NETHERITE_SCRAP_BUCKET.get(), ModFluidTypes.MOLTEN_RAW_NETHERITE_SCRAP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.DIRTY_MOLTEN_NETHERITE_BUCKET.get(), ModFluidTypes.DIRTY_MOLTEN_NETHERITE_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_NETHERITE_BUCKET.get(), ModFluidTypes.MOLTEN_NETHERITE_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.BLAZE_ESSENCE_BUCKET.get(), ModFluidTypes.BLAZE_ESSENCE_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.GHAST_ESSENCE_BUCKET.get(), ModFluidTypes.GHAST_ESSENCE_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.WITHER_ESSENCE_BUCKET.get(), ModFluidTypes.WITHER_ESSENCE_FLUID_TYPE);
-        registerBucketTint(event, ModFluids.ENDER_ESSENCE_BUCKET.get(), ModFluidTypes.ENDER_ESSENCE_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.BLAZE_COLLOID_BUCKET.get(), ModFluidTypes.BLAZE_COLLOID_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.GHAST_COLLOID_BUCKET.get(), ModFluidTypes.GHAST_COLLOID_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.WITHER_COLLOID_BUCKET.get(), ModFluidTypes.WITHER_COLLOID_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.ENDER_COLLOID_BUCKET.get(), ModFluidTypes.ENDER_COLLOID_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get(), ModFluidTypes.MOLTEN_SOUL_SILICA_FLUID_TYPE);
 
         ////////////////////Shatter Heads\\\\\\\\\\\\\\\\\\\\
@@ -99,7 +99,7 @@ public class ModClientEvents {
         registerShatterHeadTint(event, ModItems.COPPER_SHATTER_HEAD.get());
         registerShatterHeadTint(event, ModItems.NETHERITE_SHATTER_HEAD.get());
         registerShatterHeadTint(event, ModItems.EMERALD_SHATTER_HEAD.get());
-        registerShatterHeadTint(event, ModItems.BLAZE_ESSENCE_SHATTER_HEAD.get());
+        registerShatterHeadTint(event, ModItems.BLAZE_SHATTER_HEAD.get());
         registerShatterHeadTint(event, ModItems.KNOWLEDGE_SHATTER_HEAD.get());
 
         ////////////////////Sunder Chains\\\\\\\\\\\\\\\\\\\\

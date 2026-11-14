@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_protein_blend",
+  "fluid": "dermicraft:source_protein_pulp",
   "fluid_amount": 169,
   "pattern": {
     "item": "minecraft:mutton"

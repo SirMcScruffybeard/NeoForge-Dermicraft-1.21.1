@@ -7,11 +7,11 @@
     },
     {
       "amount": 500,
-      "id": "dermicraft:source_protein_blend"
+      "id": "dermicraft:source_protein_pulp"
     },
     {
       "amount": 250,
-      "id": "dermicraft:source_silica_blend"
+      "id": "dermicraft:source_silica_pulp"
     }
   ],
   "items": [

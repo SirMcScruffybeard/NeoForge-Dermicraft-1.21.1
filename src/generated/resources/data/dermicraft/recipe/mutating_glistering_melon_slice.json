@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_aurous_blend",
+  "fluid": "dermicraft:source_aurous_pulp",
   "fluid_amount": 660,
   "ingredient": {
     "item": "minecraft:melon_slice"

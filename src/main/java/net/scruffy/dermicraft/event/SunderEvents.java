@@ -108,7 +108,7 @@ public class SunderEvents {
      * of whatever the kill already awards. Mirrors {@link #onLivingDropsLootBonus}'s exact shape
      * (same event, same "roll once per kill" cadence) but grants XP instead of duplicating a drop --
      * see {@link ChainProperties}' own javadoc. Reuses {@link AutoSmeltUtil#awardExperience} (Blaze
-     * Essence's own XP-granting helper) rather than a bespoke orb spawn, same fractional-remainder
+     * Colloid's own XP-granting helper) rather than a bespoke orb spawn, same fractional-remainder
      * rounding.
      */
     @SubscribeEvent
@@ -135,7 +135,7 @@ public class SunderEvents {
      * SAWING felling has its own separate substitution ({@code SunderItem#tickFelling}, driven
      * directly rather than through this event) since it hands out drops as it cuts, not via a real
      * block-break -- this only covers the ordinary path. See {@code ShatterEvents
-     * #onBlockDropsAutoSmelt} for the near-identical Shatter version. Gated on either a Blaze Essence
+     * #onBlockDropsAutoSmelt} for the near-identical Shatter version. Gated on either a Blaze Colloid
      * chain ({@code smeltsLogs}, now covering normal mining too, not just felling) -- free, as always
      * -- or the Smelting Module (see {@code ModTags.Items#MODULE_SMELTING}), which costs {@link
      * AutoSmeltUtil#SMELTING_MODULE_FUEL_PER_ITEM} mB/item from Sunder's own fuel tank (see {@link

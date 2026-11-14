@@ -1,6 +1,6 @@
 # Dermicraft Gear Worx Stations Notes
 
-> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers were renamed to match in the 2026-11-14 rename pass. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
 
 Running log of decided design choices for **Gear Worx Stations** — the set of three blocks (Dock, Workbench, Growth Chamber) that handle suit and gadget maintenance/progression. Companion doc to `dermicraft-suit-notes.md` and `dermicraft-gadget-notes.md`; also ties into `dermicraft-machine-notes.md`'s Flesh Lab (FL) section, since Gear Worx Stations reuse the FL's Floor/Knitting systems.
 

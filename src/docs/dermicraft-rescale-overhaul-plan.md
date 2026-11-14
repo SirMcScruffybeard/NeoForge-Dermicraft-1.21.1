@@ -340,3 +340,13 @@ Phases 3 and 5 are the largest; each can be split by material family or by recip
 - **Fluid transfer rate stays as decided** (1000 / 2000 / 4000 / 8000 mB per second). Revisit only after the rescale, once it can be felt in play. The Masticator peak that justified it drops about 11x with the new Coal Block value.
 - Concerns still to raise one or two at a time: contamination stalls (a blocked-machine look or tooltip), the Safety Module variant recipes and the Biohazard module dependency, Dirty Pulp art (placeholders until drawn), Thermal world thresholds following the config, and whether the backlog moves into `src/docs`.
 - Rulings 2026-11-14 (later): Luminous Ichor Radiation 25, no Biohazard. Nether Ichor renamed **Infernal Ichor** (`infernal_ichor`), Metaphysical 50, ambient 300 K, glow 4, tint 0xFF7A1F3D, viscosity 3500, density 1800, motion scale 0.015 (Phase 4 table). All user-approved; the Infernal Ichor design is closed. The older "OPEN, possible Biohazard" note in Phase 7 is superseded.
+
+---
+
+## Build status (branch `fluid-overhaul`)
+
+- **Phases 0 to 2 DONE 2026-11-14.**
+  - Phase 1: `util/MbScale.java` holds `INGOT` 90, `NUGGET` 10, `BLOCK` 810 and `BLOCK_OF_FOUR` 360, plus `ofIngots`, `ofIngotsShared` and `roundUp` with the rounding and block rules in its class comment. Nothing uses it yet; Phase 3 does.
+  - Phase 2: every code identifier, lang key, registry id, recipe id, tag id and texture file was renamed (Blend to Pulp, Pulp Blend to Cellulose Pulp, Essence to Colloid, Molten Raw Netherite Scrap to Dirty Molten Netherite, and the Blaze Shatter Head and Sunder Chain dropped the word). Animation uses of "blend" and `RenderSystem` blend calls were deliberately left alone. `render_kiln_netherite_scrap` keeps its id because it is about the vanilla scrap item. `src/generated/resources` was deleted and regenerated, so there are no orphans (115 renames, 379 content edits). `./gradlew build` passes.
+  - Not yet verified in game: all buckets render with the right tint and name (the Phase 2 checkpoint).
+- The Old to New table above is history, kept for the record.

@@ -56,13 +56,13 @@ public class ModDataMapProvider extends DataMapProvider {
         this.builder(ModDataMaps.FLUID_HAZARD)
                 .add(getResourceLocation(ModFluids.SOURCE_MOLTEN_GLOWSTONE), FluidHazardData.radiation(50), false)
                 .add(getResourceLocation(ModFluids.SOURCE_MOLTEN_SOUL_SILICA), FluidHazardData.metaphysical(50), false)
-                .add(getResourceLocation(ModFluids.SOURCE_ENDER_ESSENCE), FluidHazardData.metaphysical(150), false)
+                .add(getResourceLocation(ModFluids.SOURCE_ENDER_COLLOID), FluidHazardData.metaphysical(150), false)
                 ;
 
         this.builder(ModDataMaps.EDIBLE_FLUID)
                 .add(getResourceLocation(ModFluids.SOURCE_CRUDE_SLURRY),
                         new EdibleFluidProperties(250, 3, 0.1f), false)
-                .add(getResourceLocation(ModFluids.SOURCE_PROTEIN_BLEND),
+                .add(getResourceLocation(ModFluids.SOURCE_PROTEIN_PULP),
                         new EdibleFluidProperties(250, 5, 0.3f), false)
                 .add(getResourceLocation(ModFluids.SOURCE_F_STUFF),
                         new EdibleFluidProperties(250, 4, 0.5f), false)
@@ -81,7 +81,7 @@ public class ModDataMapProvider extends DataMapProvider {
         //   "broken chain = flat 0%" behavior fall out for free instead of needing an override.
         // - durability 250: matches IRON_SUNDER_CHAIN's own standalone-item durability, itself
         //   anchored to vanilla's iron-tool durability.
-        // - tint #D8D8D8: Ferrous Blend's own tint color (see ModFluidTypes). Tint is deliberately
+        // - tint #D8D8D8: Ferrous Pulp's own tint color (see ModFluidTypes). Tint is deliberately
         //   NOT part of the iron-is-baseline idea -- it's independent per chain, each taking the
         //   tint of its equivalent fluid material, so there's no "base tint" other chains deviate
         //   from. Adjustable toward a more iron-like shade later.
@@ -90,7 +90,7 @@ public class ModDataMapProvider extends DataMapProvider {
         // Numbers are first-pass and untuned -- see the design notes' open questions.
         // Copper/Gold/Diamond (2026-08-03, first pass, untuned) -- all defined relative to Iron's
         // baseline above, tint reused directly from each material's own equivalent fluid (Cuprous/
-        // Aurous/Molten Diamond Blend, see ModFluidTypes) per the same "no independent base tint"
+        // Aurous/Molten Diamond Pulp, see ModFluidTypes) per the same "no independent base tint"
         // rule Iron's own comment explains.
         // - Copper: a below-Iron budget option -- lower damage and durability (softer metal than
         //   iron), but a slight Bleed edge (thin, easily-sharpened, wears fast) rather than being
@@ -118,16 +118,16 @@ public class ModDataMapProvider extends DataMapProvider {
                 // Knowledge -- a Diamond variant, not a toned-down one: every base stat matches
                 // Diamond exactly (same tier, same everything), only the signature trait differs.
                 // Guaranteed +5 XP on every kill -- deliberately NOT chance-based like Gold's own
-                // loot-bonus trait: the mutate recipe costs 3000mB Knowledge Essence (30 Knowledge
+                // loot-bonus trait: the mutate recipe costs 3000mB Knowledge Colloid (30 Knowledge
                 // Vat levels), so a coin-flip for a couple of points would never pay that back in any
                 // reasonable playtime. A flat, always-on +5 makes this a real long-run investment
                 // (a few hundred kills to break even, pure profit after) instead of a rounding error.
-                // Tint matches Knowledge Essence's own fluid color (0x80FF20) -- unlike every other
+                // Tint matches Knowledge Colloid's own fluid color (0x80FF20) -- unlike every other
                 // Sunder chain (each of which gets its own dedicated painted icon), this one's icon
                 // reuses Iron's own texture at runtime via this tint (see ModItemModelProvider/
                 // ModClientEvents), since no dedicated Knowledge chain art exists yet -- the mounted
                 // weapon's face/tail bones already read this same tint regardless. Only reachable by
-                // mutating from the Diamond chain with Knowledge Essence.
+                // mutating from the Diamond chain with Knowledge Colloid.
                 .add(getResourceLocation(ModItems.KNOWLEDGE_SUNDER_CHAIN),
                         new ChainProperties(1.25f, 0.65f, 0.30f, 0.0f, 400,
                                 TextColor.fromRgb(0x80FF20), Optional.empty(), 0.0f, 0, false, 8.0f, 1.0f, 5.0f), false)
@@ -158,15 +158,15 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModItems.EMERALD_SUNDER_CHAIN),
                         new ChainProperties(1.10f, 0.55f, 0.22f, 0.25f, 300,
                                 TextColor.fromRgb(0x50C878), Optional.empty(), 0.0f, 0, false, 7.0f, 0.0f, 0.0f), false)
-                // Blaze Essence -- ignite on hit, same 50%/4s as Shatter's identical trait on
+                // Blaze Colloid -- ignite on hit, same 50%/4s as Shatter's identical trait on
                 // standard hits; SAWING's pulses instead guarantee it every ~15-tick pulse (see
                 // ChainProperties' own javadoc for why that alone gives "burns through the attack
                 // plus 4s after"). smeltsLogs is this material's other trait -- SAWING's tree-felling
                 // drops Charcoal (real SmeltingRecipe lookup, XP included) instead of raw Logs.
                 // Baseline stats match Iron exactly -- mid-tier flavor material, not a power tier.
-                // Tint 0xFFCC55 -- brightened from the Blaze Essence fluid's own 0xFFB13D, which
+                // Tint 0xFFCC55 -- brightened from the Blaze Colloid fluid's own 0xFFB13D, which
                 // read too dark on the chain/head.
-                .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SUNDER_CHAIN),
+                .add(getResourceLocation(ModItems.BLAZE_SUNDER_CHAIN),
                         new ChainProperties(1.0f, 0.50f, 0.20f, 0.0f, 250,
                                 TextColor.fromRgb(0xFFCC55), Optional.empty(), 0.5f, 4, true, 6.0f, 0.0f, 0.0f), false)
 
@@ -216,15 +216,15 @@ public class ModDataMapProvider extends DataMapProvider {
                 // Knowledge -- a Diamond variant, not a toned-down one: every base stat matches
                 // Diamond exactly (same tier, shift, mining speed), only the signature trait differs.
                 // Guaranteed +5 XP on every block -- deliberately NOT chance-based like Gold's loot
-                // bonus: the mutate recipe costs 3000mB Knowledge Essence (30 Knowledge Vat levels),
+                // bonus: the mutate recipe costs 3000mB Knowledge Colloid (30 Knowledge Vat levels),
                 // so a coin-flip for a couple of points would never pay that back in any reasonable
                 // playtime. A flat, always-on +5 makes this a real long-run investment instead of a
                 // rounding error. Universal (not ore-restricted the way Gold's loot bonus is,
                 // matching auto-smelt's own "every block" framing instead) since it's rewarding the
-                // act of mining itself. Tint matches Knowledge Essence's own fluid color (0x80FF20)
+                // act of mining itself. Tint matches Knowledge Colloid's own fluid color (0x80FF20)
                 // on the shared grayscale face/tail texture (see ModItemModelProvider#shatterHeadItem)
                 // -- same technique every metal-treated head already uses, no dedicated art needed.
-                // Only reachable by mutating from the Diamond head with Knowledge Essence.
+                // Only reachable by mutating from the Diamond head with Knowledge Colloid.
                 .add(getResourceLocation(ModItems.KNOWLEDGE_SHATTER_HEAD),
                         new ShatterHeadProperties(TextColor.fromRgb(0x80FF20), 3, 1.0f, 0.0f, 0.0f, 0, false, 8.0f, 1.0f, 5.0f), false)
                 // Netherite -- treated as a metal (tinted shared texture, not its own hand-painted
@@ -239,13 +239,13 @@ public class ModDataMapProvider extends DataMapProvider {
                 // stronger version of Gold's identical 0.20 trait, not a separate specialty.
                 .add(getResourceLocation(ModItems.EMERALD_SHATTER_HEAD),
                         new ShatterHeadProperties(TextColor.fromRgb(0x50C878), 3, 0.5f, 0.25f, 0.0f, 0, false, 7.0f, 0.0f, 0.0f), false)
-                // Blaze Essence -- ignite on hit (50% chance, 4s burn) plus universal auto-smelt (any
+                // Blaze Colloid -- ignite on hit (50% chance, 4s burn) plus universal auto-smelt (any
                 // block with a real SmeltingRecipe drops its smelted result instead, with matching
                 // XP) -- treated as a mid-tier flavor material, not a power tier: baseline stats
                 // match Iron exactly (tier 2, shift 0.0f), the value is entirely in the two special
-                // traits. Tint 0xFFCC55 -- brightened from the Blaze Essence fluid's own 0xFFB13D,
+                // traits. Tint 0xFFCC55 -- brightened from the Blaze Colloid fluid's own 0xFFB13D,
                 // which read too dark on the chain/head.
-                .add(getResourceLocation(ModItems.BLAZE_ESSENCE_SHATTER_HEAD),
+                .add(getResourceLocation(ModItems.BLAZE_SHATTER_HEAD),
                         new ShatterHeadProperties(TextColor.fromRgb(0xFFCC55), 2, 0.0f, 0.0f, 0.5f, 4, true, 6.0f, 0.0f, 0.0f), false);
 
 

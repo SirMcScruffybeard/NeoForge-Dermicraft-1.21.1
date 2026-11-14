@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:rendering",
-  "fluid": "dermicraft:source_ender_essence",
+  "fluid": "dermicraft:source_ender_colloid",
   "fluid_amount": 1000,
   "result": {
     "count": 1,

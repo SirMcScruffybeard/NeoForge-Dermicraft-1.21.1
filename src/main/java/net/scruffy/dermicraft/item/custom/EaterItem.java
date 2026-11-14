@@ -512,7 +512,7 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
      * #routeStack} separately and their consumed counts are summed, so the returned total (which the
      * caller uses to shrink the ORIGINAL raw ground entity) still lines up correctly regardless of how
      * the stack split. Unconditional otherwise (unlike Shatter/Sunder's own module gate): Eater has no
-     * Blaze Essence equivalent to defer to, so the Module is the only source of this trait here, and
+     * Blaze Colloid equivalent to defer to, so the Module is the only source of this trait here, and
      * the only one that ever costs fuel for it. Applies to EVERYTHING routed through here -- plain
      * loose-item vacuuming ({@link #vacuumTick}) and Aggregate/Beam-mined drops ({@link #aggregateTick})
      * alike -- per design, not mining-gated. Skipped entirely under DISPOSAL: the substituted item

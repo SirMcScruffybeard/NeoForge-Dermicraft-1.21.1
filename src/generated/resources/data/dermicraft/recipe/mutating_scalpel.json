@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid": "dermicraft:source_ferrous_pulp",
   "fluid_amount": 250,
   "ingredient": {
     "item": "dermicraft:primitive_scalpel"

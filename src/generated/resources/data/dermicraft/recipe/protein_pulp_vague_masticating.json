@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "tag": "dermicraft:meat_food"
+  },
+  "ingredient_fluid": "minecraft:water",
+  "ingredient_fluid_amount": -1,
+  "item_amount": 1,
+  "modifier": 2.6,
+  "result_fluid": "dermicraft:source_protein_pulp",
+  "result_fluid_amount": -1,
+  "ticks": -25
+}

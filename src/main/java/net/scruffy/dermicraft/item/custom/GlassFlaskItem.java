@@ -87,8 +87,8 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
 
         FluidStack fluidStack = data.fluidStack();
 
-        if (fluidStack.is(ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE.get())) {
-            return new CalciumBlend().useOn(level, player, pos, stack);
+        if (fluidStack.is(ModFluidTypes.CALCIUM_PULP_FLUID_TYPE.get())) {
+            return new CalciumPulp().useOn(level, player, pos, stack);
         }
 
         if (fluidStack.is(ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get())) {
@@ -122,8 +122,8 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
                 return InteractionResultHolder.consume(stack);
             }
 
-            if (fluidStack.is(ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE.get())) {
-                new KnowledgeEssence().startUsing(player, usedHand);
+            if (fluidStack.is(ModFluidTypes.KNOWLEDGE_COLLOID_FLUID_TYPE.get())) {
+                new KnowledgeColloid().startUsing(player, usedHand);
                 return InteractionResultHolder.consume(stack);
             }
         }
@@ -156,8 +156,8 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
                     return stack;
                 }
 
-                if (fluidStack.is(ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE.get())) {
-                    new KnowledgeEssence().finishUsing(level, player, stack);
+                if (fluidStack.is(ModFluidTypes.KNOWLEDGE_COLLOID_FLUID_TYPE.get())) {
+                    new KnowledgeColloid().finishUsing(level, player, stack);
                     return stack;
                 }
             }
@@ -253,12 +253,12 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
     }
 
     /**
-     * Drinking a full Flask (250mB) of Knowledge Essence grants {@link #LEVELS_PER_FLASK} levels --
+     * Drinking a full Flask (250mB) of Knowledge Colloid grants {@link #LEVELS_PER_FLASK} levels --
      * 2.5, matching the same 100mB-per-level rate the Knowledge Vat itself uses (250mB / 100mB =
      * 2.5), so a Flask reads as "a fifth of a Vat's own withdraw pulse cap" rather than an
      * independently-tuned number.
      */
-    protected class KnowledgeEssence {
+    protected class KnowledgeColloid {
 
         private static final float LEVELS_PER_FLASK = 2.5f;
 
@@ -291,7 +291,7 @@ public class GlassFlaskItem extends ToolItem implements IHaveFluidData {
         }
     }
 
-    private class CalciumBlend {
+    private class CalciumPulp {
 
         public InteractionResult useOn(Level level, Player player, BlockPos pos, ItemStack itemStack) {
             if (BoneMealItem.applyBonemeal(itemStack.copy(), level, pos, player)) {

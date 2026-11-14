@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_cuprous_blend",
+  "fluid": "dermicraft:source_cuprous_pulp",
   "fluid_amount": 750,
   "ingredient": {
     "item": "dermicraft:charred_bladder"

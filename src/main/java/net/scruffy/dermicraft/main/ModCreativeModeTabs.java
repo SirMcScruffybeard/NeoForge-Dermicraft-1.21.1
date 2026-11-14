@@ -125,7 +125,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.GOLD_SHATTER_HEAD);
                         output.accept(ModItems.EMERALD_SHATTER_HEAD);
                         output.accept(ModItems.IRON_SHATTER_HEAD);
-                        output.accept(ModItems.BLAZE_ESSENCE_SHATTER_HEAD);
+                        output.accept(ModItems.BLAZE_SHATTER_HEAD);
                         output.accept(ModItems.DIAMOND_SHATTER_HEAD);
                         output.accept(ModItems.KNOWLEDGE_SHATTER_HEAD);
                         output.accept(ModItems.NETHERITE_SHATTER_HEAD);
@@ -136,7 +136,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModItems.FEEDER_BLADDER);
                         output.accept(ModItems.CHARRED_FEEDER_BLADDER);
                         output.accept(ModItems.IRON_SUNDER_CHAIN);
-                        output.accept(ModItems.BLAZE_ESSENCE_SUNDER_CHAIN);
+                        output.accept(ModItems.BLAZE_SUNDER_CHAIN);
                         output.accept(ModItems.COPPER_SUNDER_CHAIN);
                         output.accept(ModItems.GOLD_SUNDER_CHAIN);
                         output.accept(ModItems.EMERALD_SUNDER_CHAIN);
@@ -193,9 +193,9 @@ public class ModCreativeModeTabs {
 
 
                         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
-                        output.accept(ModFluids.CALCIUM_BLEND_BUCKET);
-                        output.accept(ModFluids.CARBON_BLEND_BUCKET);
-                        output.accept(ModFluids.PROTEIN_BLEND_BUCKET);
+                        output.accept(ModFluids.CALCIUM_PULP_BUCKET);
+                        output.accept(ModFluids.CARBON_PULP_BUCKET);
+                        output.accept(ModFluids.PROTEIN_PULP_BUCKET);
                         output.accept(ModFluids.F_STUFF_BUCKET);
                         output.accept(ModFluids.C_STUFF_BUCKET);
 
@@ -207,17 +207,17 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.SYNAPSE_CATALYST_BUCKET);
                         output.accept(ModFluids.KINETIC_CATALYST_BUCKET);
                         output.accept(ModFluids.EVOLUTION_CATALYST_BUCKET);
-                        output.accept(ModFluids.KNOWLEDGE_ESSENCE_BUCKET);
+                        output.accept(ModFluids.KNOWLEDGE_COLLOID_BUCKET);
 
-                        output.accept(ModFluids.STONE_BLEND_BUCKET);
-                        output.accept(ModFluids.SILICA_BLEND_BUCKET);
-                        output.accept(ModFluids.CLAY_BLEND_BUCKET);
+                        output.accept(ModFluids.STONE_PULP_BUCKET);
+                        output.accept(ModFluids.SILICA_PULP_BUCKET);
+                        output.accept(ModFluids.CLAY_PULP_BUCKET);
 
-                        output.accept(ModFluids.FERROUS_BLEND_BUCKET);
-                        output.accept(ModFluids.CUPROUS_BLEND_BUCKET);
-                        output.accept(ModFluids.AUROUS_BLEND_BUCKET);
+                        output.accept(ModFluids.FERROUS_PULP_BUCKET);
+                        output.accept(ModFluids.CUPROUS_PULP_BUCKET);
+                        output.accept(ModFluids.AUROUS_PULP_BUCKET);
 
-                        output.accept(ModFluids.PULP_BLEND_BUCKET);
+                        output.accept(ModFluids.CELLULOSE_PULP_BUCKET);
 
                         output.accept(ModFluids.MOLTEN_REDSTONE_BUCKET);
                         output.accept(ModFluids.MOLTEN_QUARTZ_BUCKET);
@@ -225,12 +225,12 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.MOLTEN_AMETHYST_BUCKET);
                         output.accept(ModFluids.MOLTEN_DIAMOND_BUCKET);                        output.accept(ModFluids.MOLTEN_LAPIS_BUCKET);
                         output.accept(ModFluids.MOLTEN_EMERALD_BUCKET);
-                        output.accept(ModFluids.MOLTEN_RAW_NETHERITE_SCRAP_BUCKET);
+                        output.accept(ModFluids.DIRTY_MOLTEN_NETHERITE_BUCKET);
                         output.accept(ModFluids.MOLTEN_NETHERITE_BUCKET);
-                        output.accept(ModFluids.BLAZE_ESSENCE_BUCKET);
-                        output.accept(ModFluids.GHAST_ESSENCE_BUCKET);
-                        output.accept(ModFluids.WITHER_ESSENCE_BUCKET);
-                        output.accept(ModFluids.ENDER_ESSENCE_BUCKET);
+                        output.accept(ModFluids.BLAZE_COLLOID_BUCKET);
+                        output.accept(ModFluids.GHAST_COLLOID_BUCKET);
+                        output.accept(ModFluids.WITHER_COLLOID_BUCKET);
+                        output.accept(ModFluids.ENDER_COLLOID_BUCKET);
                         output.accept(ModFluids.MOLTEN_SOUL_SILICA_BUCKET);
 
 
@@ -245,7 +245,7 @@ public class ModCreativeModeTabs {
         //output.accept(ModItemUtil.buildSyringeStack(Fluids.WATER));
         //output.accept(ModItemUtil.buildSyringeStack(Fluids.LAVA));
 
-        //output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
+        //output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CALCIUM_PULP.get()));
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 
         output.accept(ModItemUtil.buildSyringeStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get()));
@@ -259,9 +259,9 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(Fluids.WATER));
         output.accept(ModItemUtil.buildBeakerStack(Fluids.LAVA));
 
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CARBON_BLEND.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CALCIUM_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CARBON_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PROTEIN_PULP.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_F_STUFF.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_C_STUFF.get()));
 
@@ -273,17 +273,17 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SYNAPSE_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_KINETIC_CATALYST.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_EVOLUTION_CATALYST.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_KNOWLEDGE_COLLOID.get()));
 
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_BLEND.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SILICA_BLEND.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CLAY_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_STONE_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_SILICA_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CLAY_PULP.get()));
 
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_PULP_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CELLULOSE_PULP.get()));
 
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_FERROUS_BLEND.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CUPROUS_BLEND.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_AUROUS_BLEND.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_FERROUS_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_CUPROUS_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_AUROUS_PULP.get()));
 
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_REDSTONE.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_QUARTZ.get()));
@@ -292,12 +292,12 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_DIAMOND.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_LAPIS.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_EMERALD.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_NETHERITE.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_BLAZE_ESSENCE.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_GHAST_ESSENCE.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_WITHER_ESSENCE.get()));
-        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_ENDER_ESSENCE.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_BLAZE_COLLOID.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_GHAST_COLLOID.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_WITHER_COLLOID.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_ENDER_COLLOID.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get()));
 
     }
@@ -308,9 +308,9 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildFlaskStack(Fluids.WATER));
         output.accept(ModItemUtil.buildFlaskStack(Fluids.LAVA));
 
-        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CALCIUM_BLEND.get()));
-        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CARBON_BLEND.get()));
-        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_BLEND.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CALCIUM_PULP.get()));
+        output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CARBON_PULP.get()));
+        //output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_PROTEIN_PULP.get()));
 
         output.accept(ModItemUtil.buildFlaskStack(ModFluids.SOURCE_CRUDE_SLURRY.get()));
 

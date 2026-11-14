@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_carbon_blend",
+  "fluid": "dermicraft:source_carbon_pulp",
   "fluid_amount": 500,
   "ingredient": {
     "tag": "c:rods/wooden"

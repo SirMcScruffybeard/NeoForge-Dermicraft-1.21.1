@@ -180,7 +180,7 @@ public class ModBlocks {
     public static final DeferredItem<Item> SKIN_TANK_ITEM = ModItems.ITEMS.register("skin_tank",
             () -> new SkinTankBlockItem(SKIN_TANK.get(), new Item.Properties()));
 
-    // Knowledge Vat -- Flesh Lab control block, stores a player's own XP as Knowledge Essence
+    // Knowledge Vat -- Flesh Lab control block, stores a player's own XP as Knowledge Colloid
     // fluid (KnowledgeVatBlockEntity#depositLevel/withdrawLevel). Preserves contents on Forceps
     // pickup the same BLOCK_ENTITY_DATA mechanism as Skin Tank, but with its own item class so the
     // tooltip can show levels alongside mB -- see KnowledgeVatBlockItem.

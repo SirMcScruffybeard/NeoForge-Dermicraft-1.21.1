@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_clay_blend",
+  "fluid": "dermicraft:source_clay_pulp",
   "fluid_amount": 250,
   "pattern": {
     "item": "minecraft:brick"

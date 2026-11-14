@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid": "dermicraft:source_ferrous_pulp",
   "fluid_amount": 2000,
   "pattern": {
     "item": "minecraft:heavy_weighted_pressure_plate"

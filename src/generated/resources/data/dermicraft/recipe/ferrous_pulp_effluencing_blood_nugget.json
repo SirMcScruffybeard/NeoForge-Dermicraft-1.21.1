@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_protein_pulp",
+  "fluid_a_amount": 250,
+  "fluid_b": "dermicraft:source_primitive_catalyst",
+  "fluid_b_amount": 25,
+  "result_fluid": "dermicraft:source_ferrous_pulp",
+  "result_fluid_amount": 25,
+  "ticks": 300
+}

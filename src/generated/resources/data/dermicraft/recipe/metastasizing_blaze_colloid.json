@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_blaze_colloid",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:blaze_powder"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:blaze_powder"
+  },
+  "ticks": 600
+}

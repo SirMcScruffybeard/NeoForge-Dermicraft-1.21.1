@@ -1,6 +1,6 @@
 # Dermicraft Misc Notes
 
-> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers were renamed to match in the 2026-11-14 rename pass. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
 
 Running log of decided design choices for ideas that don't fit cleanly into the other per-category companion docs (Catalysts, Slurries, Crafting, Flask, Beaker, Gadgets, Machines, Tools). Add a new entry per idea as decisions get made — the "why" matters as much as the "what."
 

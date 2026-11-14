@@ -1,6 +1,6 @@
 {
   "values": {
-    "dermicraft:blaze_essence_shatter_head": {
+    "dermicraft:blaze_shatter_head": {
       "auto_smelt": true,
       "ignite_chance": 0.5,
       "ignite_fire_seconds": 4,

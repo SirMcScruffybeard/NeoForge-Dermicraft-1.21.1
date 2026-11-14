@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Knowledge Vat's Forceps-recovered item -- same {@code BLOCK_ENTITY_DATA}-carries-the-tank-home
  * mechanism as {@link SkinTankBlockItem} (see that class's own javadoc), but with its own tooltip.
- * Since Knowledge Essence is now priced at real per-level XP cost rather than one flat mB/level rate
+ * Since Knowledge Colloid is now priced at real per-level XP cost rather than one flat mB/level rate
  * (see {@link KnowledgeVatBlockEntity}'s own class javadoc), a banked amount doesn't correspond to a
  * clean level count on its own -- {@link KnowledgeVatBlockEntity#levelForPoints} answers "what level
  * would this amount of XP get a level-0 player to", which is shown alongside the raw mB instead.

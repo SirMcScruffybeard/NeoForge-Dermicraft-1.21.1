@@ -96,7 +96,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     private static final int FOOD_SLOT_COUNT = 4;
     private static final int BUFFER_SLOT_COUNT = 9;
 
-    // XP-gathering tank -- locked to Knowledge Essence, same fixed-target-fluid lock the Knowledge
+    // XP-gathering tank -- locked to Knowledge Colloid, same fixed-target-fluid lock the Knowledge
     // Vat uses (DroolingTank with a constant supplier, since this tank's target never changes).
     // 1000mB (10 levels at the Vat's own 100mB/level rate) -- a compact catch-tray, not a Vat-sized
     // reservoir; this machine is meant to gather in passing, not act as long-term storage.
@@ -105,7 +105,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     private static final int INVENTORY_SIZE = XP_SLOT_INDEX + 1;
 
     private final FuelTank FUEL_TANK = createFuelTank();
-    private final DroolingTank XP_TANK = createDroolingTank(XP_TANK_CAPACITY, XP_SLOT_INDEX, ModFluids.SOURCE_KNOWLEDGE_ESSENCE::get);
+    private final DroolingTank XP_TANK = createDroolingTank(XP_TANK_CAPACITY, XP_SLOT_INDEX, ModFluids.SOURCE_KNOWLEDGE_COLLOID::get);
     // slot 0 = fuel container, 1..FOOD_SLOT_COUNT = breeding food, next BUFFER_SLOT_COUNT =
     // pickup/wool buffer, last slot = XP tank's own fill/drain container.
     private final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
@@ -362,7 +362,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
             // All-or-nothing per orb, same as a real player pickup -- a nearly-full tank shouldn't
             // split one orb's worth across two work cycles, so this simulates first and skips the
             // orb entirely (leaving it for a later cycle, or a player, to take) if it doesn't fully fit.
-            FluidStack offer = new FluidStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), value * MB_PER_XP_POINT);
+            FluidStack offer = new FluidStack(ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), value * MB_PER_XP_POINT);
             if (XP_TANK.fill(offer, IFluidHandler.FluidAction.SIMULATE) < offer.getAmount()) continue;
 
             XP_TANK.fill(offer, IFluidHandler.FluidAction.EXECUTE);
@@ -658,7 +658,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         if (!fluidServiced) {
             // Last in priority order -- a passive gather buffer, nothing stalls without it, unlike
             // fuel starving the whole machine.
-            channels.add(new Channel.FluidChannel("xp", Component.literal("Knowledge Essence"), Channel.IO.OUT, XP_TANK));
+            channels.add(new Channel.FluidChannel("xp", Component.literal("Knowledge Colloid"), Channel.IO.OUT, XP_TANK));
         }
         return channels;
     }

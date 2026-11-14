@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_protein_blend",
+  "fluid": "dermicraft:source_protein_pulp",
   "fluid_amount": 936,
   "pattern": {
     "item": "minecraft:cooked_porkchop"

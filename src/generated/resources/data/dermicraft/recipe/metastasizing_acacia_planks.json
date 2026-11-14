@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_pulp_blend",
+  "fluid": "dermicraft:source_cellulose_pulp",
   "fluid_amount": 250,
   "pattern": {
     "item": "minecraft:acacia_planks"

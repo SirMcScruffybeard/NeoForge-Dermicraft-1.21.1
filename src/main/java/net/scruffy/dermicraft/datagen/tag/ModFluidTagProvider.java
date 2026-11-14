@@ -35,22 +35,22 @@ public class ModFluidTagProvider extends FluidTagsProvider {
         ;
 
         tag(ModTags.Fluids.THICK)
-                .add(ModFluids.SOURCE_CALCIUM_BLEND.get())
-                .add(ModFluids.SOURCE_CARBON_BLEND.get())
-                .add(ModFluids.SOURCE_PROTEIN_BLEND.get())
+                .add(ModFluids.SOURCE_CALCIUM_PULP.get())
+                .add(ModFluids.SOURCE_CARBON_PULP.get())
+                .add(ModFluids.SOURCE_PROTEIN_PULP.get())
 
                 .add(ModFluids.SOURCE_CRUDE_SLURRY.get())
                 .add(ModFluids.SOURCE_CONCENTRATED_SLURRY.get())
 
-                .add(ModFluids.SOURCE_STONE_BLEND.get())
-                .add(ModFluids.SOURCE_SILICA_BLEND.get())
-                .add(ModFluids.SOURCE_CLAY_BLEND.get())
+                .add(ModFluids.SOURCE_STONE_PULP.get())
+                .add(ModFluids.SOURCE_SILICA_PULP.get())
+                .add(ModFluids.SOURCE_CLAY_PULP.get())
 
-                .add(ModFluids.SOURCE_FERROUS_BLEND.get())
-                .add(ModFluids.SOURCE_CUPROUS_BLEND.get())
-                .add(ModFluids.SOURCE_AUROUS_BLEND.get())
+                .add(ModFluids.SOURCE_FERROUS_PULP.get())
+                .add(ModFluids.SOURCE_CUPROUS_PULP.get())
+                .add(ModFluids.SOURCE_AUROUS_PULP.get())
 
-                .add(ModFluids.SOURCE_PULP_BLEND.get())
+                .add(ModFluids.SOURCE_CELLULOSE_PULP.get())
 
                 .add(ModFluids.SOURCE_MOLTEN_REDSTONE.get())
                 .add(ModFluids.SOURCE_MOLTEN_QUARTZ.get())
@@ -58,7 +58,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_MOLTEN_AMETHYST.get())
                 .add(ModFluids.SOURCE_MOLTEN_DIAMOND.get())                .add(ModFluids.SOURCE_MOLTEN_LAPIS.get())
                 .add(ModFluids.SOURCE_MOLTEN_EMERALD.get())
-                .add(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get())
+                .add(ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get())
                 .add(ModFluids.SOURCE_MOLTEN_NETHERITE.get())
                 .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
         ;
@@ -68,7 +68,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_PRIMITIVE_CATALYST.get())
                 .add(ModFluids.SOURCE_SYNAPSE_CATALYST.get())
                 .add(ModFluids.SOURCE_EVOLUTION_CATALYST.get())
-                .add(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get())
+                .add(ModFluids.SOURCE_KNOWLEDGE_COLLOID.get())
         ;
     }
 

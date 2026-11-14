@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:rendering",
-  "fluid": "dermicraft:source_aurous_blend",
+  "fluid": "dermicraft:source_aurous_pulp",
   "fluid_amount": 1000,
   "result": {
     "count": 1,

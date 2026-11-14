@@ -1,6 +1,6 @@
 # Dermicraft Crafting Notes
 
-> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers were renamed to match in the 2026-11-14 rename pass. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
 
 Running log of decided design choices for the Crafting fluid family and the reasoning behind them. Add a new entry per fluid as decisions get made — the "why" matters as much as the "what" so later additions stay consistent with earlier logic.
 
@@ -207,7 +207,7 @@ Craft time uses the Sediment Pulp's 5 mB/tick rate (matching the existing Cauldr
 
 ## Rescale overhaul (2026-11) — new fluids and changed recipes
 
-**Authority:** `dermicraft-rescale-overhaul-plan.md` holds every amount and the build order; this section records the design. Names changed: Blend → Pulp, Essence → Colloid, Pulp Blend → Cellulose Pulp, Molten Raw Netherite Scrap → Dirty Molten Netherite. Code identifiers keep the old names until the rename pass lands.
+**Authority:** `dermicraft-rescale-overhaul-plan.md` holds every amount and the build order; this section records the design. Names changed: Blend → Pulp, Essence → Colloid, Pulp Blend → Cellulose Pulp, Molten Raw Netherite Scrap → Dirty Molten Netherite. Code identifiers were renamed to match on 2026-11-14.
 
 **Scale:** Ingot 90 mB, Nugget 10, storage Block 810 (9:1 materials) or 360 (4:1 materials: Quartz, Glowstone, Amethyst, Clay). Plain blocks: stone family 360, cobble 270, sand / gravel / netherrack 90; wood Log 360, Plank 90. Slab = half its block, Stairs = 1:1 with their block. Everything rounds up. Protein Pulp, Knowledge Colloid, F-Stuff and the slurries are not rescaled.
 
@@ -294,7 +294,7 @@ Silica Pulp sits as the hub of this relationship — it cross-feeds with *both* 
 **Recycling — crafted/fired derivatives feed back into their source fluid:**
 - **Glass + Water → Silica Pulp** (Glass is sand's fired form, same logic as the Clay-family recycling below).
 - **Clay-family crafted items → Clay Pulp:** Clay Ball, Terracotta (all 16 dyed colors collapse into one roster entry), Glazed Terracotta (same — one entry covering all colors). **Mud Bricks excluded** — made from Mud (already blacklisted) + Wheat, a separate material lineage despite the visual similarity.
-- **Recycling yield — resolved:** Same as raw, not lossy. `silica_blend_recycling_masticating.json` and `clay_blend_recycling_masticating.json` both use 1000 mB Water → **1000 mB** output — identical to the base raw-material recipe, no penalty for the material having already been fired/crafted once.
+- **Recycling yield — resolved:** Same as raw, not lossy. `silica_pulp_recycling_masticating.json` and `clay_pulp_recycling_masticating.json` both use 1000 mB Water → **1000 mB** output — identical to the base raw-material recipe, no penalty for the material having already been fired/crafted once.
 - **Brick, Bricks, and Flower Pot pulled out of the flat-rate recycling tag 2026-07-19** and given individually-tiered recipes instead, mirrored in both directions (Masticator forward and Metastasizer reverse use the same amount, same convention as the Metal Pulps' Ingot/Nugget): **Brick 250 mB (light tier), Bricks 1000 mB (solid tier), Flower Pot 750 mB (aggregate tier)**. Unlike Clay Ball/Terracotta (flat 1000 mB either direction, no relation between forward and reverse cost), these three now follow the mirrored-pricing model instead — a deliberate per-family choice, not a universal rule change for the rest of the Clay recycling tag.
 
 **Hazard / environmental properties — pools act as traps, achieved via FluidType tuning rather than custom mechanics:**

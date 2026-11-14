@@ -1,6 +1,6 @@
 # A.I.D. — Adaptive Intervention Device
 
-> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers were renamed to match in the 2026-11-14 rename pass. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
 
 **Target file for merge:** `dermicraft-gadget-notes.md` — place as a new entry under Known Gadgets, alongside Drinker/Sipper/Eater/Lobber/Grapple/Injection Gun.
 

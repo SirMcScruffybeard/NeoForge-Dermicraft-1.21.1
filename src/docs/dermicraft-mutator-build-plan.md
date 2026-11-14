@@ -1,6 +1,6 @@
 # Mutator — Build Plan
 
-> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers still use the old names until the rename pass lands. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers were renamed to match in the 2026-11-14 rename pass. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
 
 Implementation plan for the Mutator machine. Design authority: `dermicraft-machine-notes.md` → Mutator entry (concept, recipe roster, build spec). This doc is the build order — when the two disagree, the machine notes win and this doc should be corrected.
 

@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:rendering",
-  "fluid": "dermicraft:source_molten_raw_netherite_scrap",
+  "fluid": "dermicraft:source_dirty_molten_netherite",
   "fluid_amount": 1000,
   "result": {
     "count": 1,

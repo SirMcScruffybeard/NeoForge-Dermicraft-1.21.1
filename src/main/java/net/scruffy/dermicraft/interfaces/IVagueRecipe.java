@@ -39,7 +39,7 @@ public interface IVagueRecipe {
      * formula. Using {@code props.saturation()} raw here inflates {@link #getFoodWeight} massively
      * for high-nutrition/high-saturation foods -- confirmed via cooked porkchop (nutrition 8,
      * modifier 0.8): the new field reports 12.8 (=8*0.8*2), which without this fix pushed
-     * protein_blend_vague_masticating's water requirement to 7176 mB, past the Masticator's 5000 mB
+     * protein_pulp_vague_masticating's water requirement to 7176 mB, past the Masticator's 5000 mB
      * tank cap, silently making it impossible to ever craft rather than throwing an error.
      */
     default float getSaturation(ItemStack stack) {

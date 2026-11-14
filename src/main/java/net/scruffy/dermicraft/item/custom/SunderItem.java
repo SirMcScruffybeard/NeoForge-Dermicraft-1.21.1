@@ -326,7 +326,7 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
             target.addEffect(new MobEffectInstance(ModEffects.BLEED, BLEED_DURATION_TICKS));
         }
 
-        // Blaze Essence's ignite-on-hit trait -- standard-hit roll only; SAWING's own guaranteed
+        // Blaze Colloid's ignite-on-hit trait -- standard-hit roll only; SAWING's own guaranteed
         // version lives in tickSawing instead, see ChainProperties' own javadoc for why.
         if (chain != null && chain.igniteChance() > 0.0f
                 && attacker.getRandom().nextFloat() < chain.igniteChance()) {
@@ -525,7 +525,7 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
         }
 
         target.hurt(player.damageSources().playerAttack(player), SAW_PULSE_DAMAGE * speedRatio(stack));
-        // Blaze Essence's ignite-on-hit trait -- guaranteed every pulse while sawing (not a chance
+        // Blaze Colloid's ignite-on-hit trait -- guaranteed every pulse while sawing (not a chance
         // roll like the standard-hit version in hurtEnemy), which is also what gives "burns through
         // the whole attack plus igniteFireSeconds after it ends" for free -- see ChainProperties'
         // own javadoc for why no separate duration tracking is needed.
@@ -690,11 +690,11 @@ public class SunderItem extends Item implements GeoItem, IHaveFluidData, IGadget
             BlockPos cutPos = logs.get(i);
             ItemStack rawDrop = new ItemStack(level.getBlockState(cutPos).getBlock());
 
-            // Blaze Essence's other trait -- SAWING felling drops Charcoal (via a real SmeltingRecipe
+            // Blaze Colloid's other trait -- SAWING felling drops Charcoal (via a real SmeltingRecipe
             // lookup, same as Shatter's auto-smelt) instead of the raw Log, with the recipe's own XP
             // awarded too. Falls back to the raw log if no smelting recipe matches (shouldn't happen
             // for a real log, but safe regardless). The Smelting Module (see ModTags.Items
-            // #MODULE_SMELTING) grants the same substitution without a Blaze Essence chain mounted,
+            // #MODULE_SMELTING) grants the same substitution without a Blaze Colloid chain mounted,
             // but -- unlike the chain's free trait -- costs AutoSmeltUtil.SMELTING_MODULE_FUEL_PER_ITEM
             // mB from Sunder's own tank per log (one log is always exactly 1 unit, so no partial-stack
             // splitting needed here the way the batched BlockDropsEvent version needs); checked only

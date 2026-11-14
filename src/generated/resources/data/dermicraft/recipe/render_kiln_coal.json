@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:rendering",
-  "fluid": "dermicraft:source_carbon_blend",
+  "fluid": "dermicraft:source_carbon_pulp",
   "fluid_amount": 1000,
   "result": {
     "count": 1,

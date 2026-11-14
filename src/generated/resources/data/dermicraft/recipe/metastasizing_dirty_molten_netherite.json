@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_dirty_molten_netherite",
+  "fluid_amount": 1000,
+  "pattern": {
+    "item": "minecraft:netherite_scrap"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:netherite_scrap"
+  },
+  "ticks": 600
+}

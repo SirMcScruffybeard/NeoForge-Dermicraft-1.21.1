@@ -25,7 +25,7 @@ import java.util.Optional;
  * every material fills -- reserved for a small number of special-case materials as a signature
  * trait.
  *
- * <p>{@code igniteChance}/{@code igniteFireSeconds} are Blaze Essence's own signature trait -- a
+ * <p>{@code igniteChance}/{@code igniteFireSeconds} are Blaze Colloid's own signature trait -- a
  * per-hit chance to set the target on fire, 0/0 for every material without it. Standard hits roll
  * against {@code igniteChance} directly (see {@code SunderItem#hurtEnemy}); SAWING's continuous
  * pulses instead treat any nonzero {@code igniteChance} as a guaranteed ignite every pulse (see
@@ -33,21 +33,21 @@ import java.util.Optional;
  * fire duration, never lowers it, so re-applying the same {@code igniteFireSeconds} on every ~15-tick
  * pulse (well under a 4s/80-tick duration) keeps the target continuously refreshed through the whole
  * attack and lets it naturally burn out {@code igniteFireSeconds} after the last pulse, with no
- * separate "attack length" tracking needed. {@code smeltsLogs} is Blaze Essence's other trait --
+ * separate "attack length" tracking needed. {@code smeltsLogs} is Blaze Colloid's other trait --
  * SAWING's tree-felling drops Charcoal (via a real {@code SmeltingRecipe} lookup, granting its XP
  * too) instead of the raw Log, see {@code SunderItem#tickFelling}/{@code AutoSmeltUtil}. Also covers
  * Sunder's ordinary (non-SAWING) mining now, universal like Shatter's {@code autoSmelt} rather than
  * log-restricted -- see {@code SunderEvents#onBlockDropsAutoSmelt}. The Smelting Module (see
  * {@code ModTags.Items#MODULE_SMELTING}) grants this same substitution in both places without a
- * Blaze Essence chain mounted. False for every material without it.
+ * Blaze Colloid chain mounted. False for every material without it.
  *
  * <p>{@code miningSpeed} (2026-08-27, added) mirrors the mounted chain's real vanilla Axe
  * equivalent's own destroy speed exactly -- vanilla tool speed is a per-Tier constant shared across
  * every tool type (Stone 4.0, Iron/Copper 6.0, Diamond 8.0, Netherite 9.0, Gold 12.0 -- fastest of
  * all despite the weakest combat/durability stats), same table {@code ShatterHeadProperties} uses
- * for its own Pickaxe equivalents. Materials with no real vanilla axe (Emerald, Blaze Essence) use
+ * for its own Pickaxe equivalents. Materials with no real vanilla axe (Emerald, Blaze Colloid) use
  * the same values their Shatter counterparts already settled on: Emerald at the Iron/Diamond
- * midpoint (7.0), Blaze Essence matching Iron (6.0). Unlike Shatter, axe-mineable blocks have no
+ * midpoint (7.0), Blaze Colloid matching Iron (6.0). Unlike Shatter, axe-mineable blocks have no
  * real tier gate to mirror (logs/planks/pumpkins all drop regardless of tool), so this is speed-only
  * -- see {@code SunderItem#getDestroySpeed}. Swing (attack) speed is untouched by this -- a
  * completely separate {@code Attributes.ATTACK_SPEED} axis, not this field.

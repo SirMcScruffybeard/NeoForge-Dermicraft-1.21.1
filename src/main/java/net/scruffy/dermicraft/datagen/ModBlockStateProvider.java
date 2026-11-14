@@ -103,7 +103,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         // Knowledge Vat -- real dedicated art (2026-08-29): front/back share one texture,
         // left/right another, top/bottom a third -- no tintindex any more (that was only ever
         // there to recolor the borrowed Skin Tank placeholder; real per-face art renders as
-        // authored, not multiplied by Knowledge Essence's green).
+        // authored, not multiplied by Knowledge Colloid's green).
         simpleBlockWithItem(ModBlocks.KNOWLEDGE_VAT.get(),
                 models().getBuilder(ModBlocks.KNOWLEDGE_VAT.getId().getPath())
                         .texture("front_back", modLoc("block/knowledge_vat/knowledge_vat_front_back"))

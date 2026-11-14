@@ -3,11 +3,11 @@
   "fluids": [
     {
       "amount": 1000,
-      "id": "dermicraft:source_ferrous_blend"
+      "id": "dermicraft:source_ferrous_pulp"
     },
     {
       "amount": 1000,
-      "id": "dermicraft:source_aurous_blend"
+      "id": "dermicraft:source_aurous_pulp"
     }
   ],
   "items": [

@@ -12,7 +12,7 @@
     }
   ],
   "item_amount": 0,
-  "puddle": "dermicraft:source_knowledge_essence",
+  "puddle": "dermicraft:source_knowledge_colloid",
   "result_fluid": "dermicraft:source_evolution_catalyst",
   "result_item": "minecraft:air",
   "ticks": 200

@@ -281,7 +281,7 @@ public class ShatterEvents {
     }
 
     /**
-     * Blaze Essence's ignite-on-hit trait -- fires on {@code LivingDamageEvent.Post} (a hit that
+     * Blaze Colloid's ignite-on-hit trait -- fires on {@code LivingDamageEvent.Post} (a hit that
      * actually landed), same shape as {@link #onArmorBonusWear}. Shatter has no sustained-attack
      * mode the way Sunder's SAWING does, so this always just rolls the plain chance -- see
      * {@link ShatterHeadProperties}'s own javadoc.
@@ -302,7 +302,7 @@ public class ShatterEvents {
     }
 
     /**
-     * Blaze Essence's other trait -- universal auto-smelt, a built-in "furnace enchantment": every
+     * Blaze Colloid's other trait -- universal auto-smelt, a built-in "furnace enchantment": every
      * drop from a block this head mines gets substituted for its real {@link
      * net.minecraft.world.item.crafting.SmeltingRecipe} result (if one exists at all -- a block
      * with no smelting recipe just drops normally), with the recipe's own XP awarded too, same as
@@ -310,7 +310,7 @@ public class ShatterEvents {
      * way Gold's loot bonus is -- see {@link ShatterHeadProperties}'s own javadoc for why this one
      * is meant to be universal. Same origin-block-and-AoE coverage as {@link #onBlockDropsLootBonus}
      * (both fire from the same {@link BlockDropsEvent}). Also granted by the Smelting Module (see
-     * {@code ModTags.Items#MODULE_SMELTING}) with no Blaze Essence head mounted -- but, unlike the
+     * {@code ModTags.Items#MODULE_SMELTING}) with no Blaze Colloid head mounted -- but, unlike the
      * head's free trait, the Module costs {@link AutoSmeltUtil#SMELTING_MODULE_FUEL_PER_ITEM} mB/item
      * from Shatter's own fuel tank (see {@link AutoSmeltUtil#affordableSmeltCount}). Whatever the
      * Module's fuel can't cover falls back to that item's raw drop rather than blocking the break --

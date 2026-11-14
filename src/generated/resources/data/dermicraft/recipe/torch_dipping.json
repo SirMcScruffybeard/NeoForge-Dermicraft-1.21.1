@@ -3,7 +3,7 @@
   "ingredient": {
     "tag": "c:rods/wooden"
   },
-  "ingredient_fluid": "dermicraft:source_carbon_blend",
+  "ingredient_fluid": "dermicraft:source_carbon_pulp",
   "ingredient_fluid_amount": 500,
   "item_amount": 1,
   "result": "minecraft:torch",

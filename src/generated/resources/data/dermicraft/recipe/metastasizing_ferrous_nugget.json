@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid": "dermicraft:source_ferrous_pulp",
   "fluid_amount": 110,
   "pattern": {
     "item": "minecraft:iron_nugget"

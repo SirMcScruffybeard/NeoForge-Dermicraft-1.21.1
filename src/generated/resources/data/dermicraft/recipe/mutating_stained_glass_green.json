@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_silica_blend",
+  "fluid": "dermicraft:source_silica_pulp",
   "fluid_amount": 1000,
   "ingredient": {
     "item": "minecraft:green_dye"

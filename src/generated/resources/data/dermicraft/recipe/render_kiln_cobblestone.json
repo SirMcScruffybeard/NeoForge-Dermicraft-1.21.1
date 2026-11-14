@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:rendering",
-  "fluid": "dermicraft:source_stone_blend",
+  "fluid": "dermicraft:source_stone_pulp",
   "fluid_amount": 900,
   "result": {
     "count": 1,

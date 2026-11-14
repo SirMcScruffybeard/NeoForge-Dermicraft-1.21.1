@@ -25,7 +25,7 @@ public class ModFluidTypes {
             DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, Dermicraft.MOD_ID);
 
     //////////////////////////////Material Fluids\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    public static final Supplier<FluidType> CALCIUM_BLEND_FLUID_TYPE = registerFluidType("calcium_blend_fluid",
+    public static final Supplier<FluidType> CALCIUM_PULP_FLUID_TYPE = registerFluidType("calcium_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFFCE1E4,
                     setColorVector(239, 288, 227),
                     FluidType.Properties.create()
@@ -38,7 +38,7 @@ public class ModFluidTypes {
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)
             ));
 
-    public static final Supplier<FluidType> CARBON_BLEND_FLUID_TYPE = registerFluidType("carbon_blend_fluid",
+    public static final Supplier<FluidType> CARBON_PULP_FLUID_TYPE = registerFluidType("carbon_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF343434,
                     setColorVector(52,52,52),
                     FluidType.Properties.create()
@@ -51,7 +51,7 @@ public class ModFluidTypes {
                             .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.LAVA_EXTINGUISH)
             ));
 
-    public static final Supplier<FluidType> PROTEIN_BLEND_FLUID_TYPE = registerFluidType("protein_blend_fluid",
+    public static final Supplier<FluidType> PROTEIN_PULP_FLUID_TYPE = registerFluidType("protein_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF630606,
                     setColorVector(99, 6, 6),
                     FluidType.Properties.create()
@@ -99,7 +99,7 @@ public class ModFluidTypes {
                             .canHydrate(false)
                             .canConvertToSource(false)));
 
-    // Synapse Catalyst - Cuprous Blend + Primitive Catalyst, the "smart component" reagent
+    // Synapse Catalyst - Cuprous Pulp + Primitive Catalyst, the "smart component" reagent
     // (Proto Brain's Craw injection, Brain Block's Mutator step, Module Frame's Mutator recipe)
     public static final Supplier<FluidType> SYNAPSE_CATALYST_FLUID_TYPE = registerFluidType("synapse_catalyst_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFAA6E37,
@@ -116,13 +116,13 @@ public class ModFluidTypes {
                             .canHydrate(false)
                             .canConvertToSource(false)));
 
-    // Knowledge Essence - drained straight from a player's own XP levels (Knowledge Vat, not a
+    // Knowledge Colloid - drained straight from a player's own XP levels (Knowledge Vat, not a
     // machine recipe -- there's no crafting chain that produces this, only the Vat's own deposit/
     // withdraw interaction). Luminous XP-orb green, deliberately reads as "that's XP" at a glance;
-    // thin/water-like motion (matches the Catalyst family, not a chunky Blend) and glows softly
+    // thin/water-like motion (matches the Catalyst family, not a chunky Pulp) and glows softly
     // (lightLevel 8, same tier as Molten Redstone) since it's meant to look like distilled thought,
     // not an inert reagent.
-    public static final Supplier<FluidType> KNOWLEDGE_ESSENCE_FLUID_TYPE = registerFluidType("knowledge_essence_fluid",
+    public static final Supplier<FluidType> KNOWLEDGE_COLLOID_FLUID_TYPE = registerFluidType("knowledge_colloid_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF80FF20,
                     setColorVector(128, 255, 32),
                     FluidType.Properties.create()
@@ -211,9 +211,9 @@ public class ModFluidTypes {
             ));
 
 
-    //////////////////////////////Sediment Blends\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    //////////////////////////////Sediment Pulps\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     // Placeholder numeric values (density/viscosity/motionScale) - exact balance not yet decided, see crafting notes.
-    public static final Supplier<FluidType> STONE_BLEND_FLUID_TYPE = registerFluidType("stone_blend_fluid",
+    public static final Supplier<FluidType> STONE_PULP_FLUID_TYPE = registerFluidType("stone_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF7D7D7D,
                     setColorVector(125, 125, 125),
                     FluidType.Properties.create()
@@ -229,7 +229,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    public static final Supplier<FluidType> SILICA_BLEND_FLUID_TYPE = registerFluidType("silica_blend_fluid",
+    public static final Supplier<FluidType> SILICA_PULP_FLUID_TYPE = registerFluidType("silica_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFD9C18C,
                     setColorVector(217, 193, 140),
                     FluidType.Properties.create()
@@ -245,7 +245,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    public static final Supplier<FluidType> CLAY_BLEND_FLUID_TYPE = registerFluidType("clay_blend_fluid",
+    public static final Supplier<FluidType> CLAY_PULP_FLUID_TYPE = registerFluidType("clay_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFA1A8AB,
                     setColorVector(161, 168, 171),
                     FluidType.Properties.create()
@@ -262,9 +262,9 @@ public class ModFluidTypes {
             ));
 
 
-    //////////////////////////////Metal Blends\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    // Ferrous Blend - base metal: Iron
-    public static final Supplier<FluidType> FERROUS_BLEND_FLUID_TYPE = registerFluidType("ferrous_blend_fluid",
+    //////////////////////////////Metal Pulps\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    // Ferrous Pulp - base metal: Iron
+    public static final Supplier<FluidType> FERROUS_PULP_FLUID_TYPE = registerFluidType("ferrous_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFD8D8D8,
                     setColorVector(216, 216, 216),
                     FluidType.Properties.create()
@@ -280,8 +280,8 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    // Cuprous Blend - base metal: Copper
-    public static final Supplier<FluidType> CUPROUS_BLEND_FLUID_TYPE = registerFluidType("cuprous_blend_fluid",
+    // Cuprous Pulp - base metal: Copper
+    public static final Supplier<FluidType> CUPROUS_PULP_FLUID_TYPE = registerFluidType("cuprous_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB87333,
                     setColorVector(184, 115, 51),
                     FluidType.Properties.create()
@@ -297,8 +297,8 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    // Aurous Blend - base metal: Gold
-    public static final Supplier<FluidType> AUROUS_BLEND_FLUID_TYPE = registerFluidType("aurous_blend_fluid",
+    // Aurous Pulp - base metal: Gold
+    public static final Supplier<FluidType> AUROUS_PULP_FLUID_TYPE = registerFluidType("aurous_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFD4AF37,
                     setColorVector(212, 175, 55),
                     FluidType.Properties.create()
@@ -316,7 +316,7 @@ public class ModFluidTypes {
 
 
     //////////////////////////////Effluentcer Outputs\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    // F-Stuff - Crude Slurry + Protein Blend, also directly cookable into MRE
+    // F-Stuff - Crude Slurry + Protein Pulp, also directly cookable into MRE
     public static final Supplier<FluidType> F_STUFF_FLUID_TYPE = registerFluidType("f_stuff_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF8B5A2B,
                     setColorVector(139, 90, 43),
@@ -333,7 +333,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    // C-Stuff - Carbon Blend + Calcium Blend, also used in a standalone Syringe on Creepers
+    // C-Stuff - Carbon Pulp + Calcium Pulp, also used in a standalone Syringe on Creepers
     public static final Supplier<FluidType> C_STUFF_FLUID_TYPE = registerFluidType("c_stuff_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF8C7B8A,
                     setColorVector(140, 123, 138),
@@ -351,8 +351,8 @@ public class ModFluidTypes {
             ));
 
 
-    //////////////////////////////Pulp Blend\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    public static final Supplier<FluidType> PULP_BLEND_FLUID_TYPE = registerFluidType("pulp_blend_fluid",
+    //////////////////////////////Cellulose Pulp\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FluidType> CELLULOSE_PULP_FLUID_TYPE = registerFluidType("cellulose_pulp_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFC29D62,
                     setColorVector(194, 157, 98),
                     FluidType.Properties.create()
@@ -483,7 +483,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    public static final Supplier<FluidType> MOLTEN_RAW_NETHERITE_SCRAP_FLUID_TYPE = registerFluidType("molten_raw_netherite_scrap_fluid",
+    public static final Supplier<FluidType> DIRTY_MOLTEN_NETHERITE_FLUID_TYPE = registerFluidType("dirty_molten_netherite_fluid",
             new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF3B2E28,
                     setColorVector(59, 46, 40),
                     FluidType.Properties.create()
@@ -515,7 +515,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    public static final Supplier<FluidType> BLAZE_ESSENCE_FLUID_TYPE = registerFluidType("blaze_essence_fluid",
+    public static final Supplier<FluidType> BLAZE_COLLOID_FLUID_TYPE = registerFluidType("blaze_colloid_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFFFB13D,
                     setColorVector(255, 177, 61),
                     FluidType.Properties.create()
@@ -532,7 +532,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    public static final Supplier<FluidType> GHAST_ESSENCE_FLUID_TYPE = registerFluidType("ghast_essence_fluid",
+    public static final Supplier<FluidType> GHAST_COLLOID_FLUID_TYPE = registerFluidType("ghast_colloid_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFEDEDE3,
                     setColorVector(237, 237, 227),
                     FluidType.Properties.create()
@@ -548,7 +548,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    public static final Supplier<FluidType> WITHER_ESSENCE_FLUID_TYPE = registerFluidType("wither_essence_fluid",
+    public static final Supplier<FluidType> WITHER_COLLOID_FLUID_TYPE = registerFluidType("wither_colloid_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF262A22,
                     setColorVector(38, 42, 34),
                     FluidType.Properties.create()
@@ -564,7 +564,7 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
-    public static final Supplier<FluidType> ENDER_ESSENCE_FLUID_TYPE = registerFluidType("ender_essence_fluid",
+    public static final Supplier<FluidType> ENDER_COLLOID_FLUID_TYPE = registerFluidType("ender_colloid_fluid",
             new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF0F7A63,
                     setColorVector(15, 122, 99),
                     FluidType.Properties.create()

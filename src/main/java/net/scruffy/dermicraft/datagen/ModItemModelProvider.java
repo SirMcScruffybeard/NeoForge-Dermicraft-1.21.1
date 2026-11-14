@@ -119,7 +119,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         // Smelting Module -- plain module_frame background (no dedicated family). Furnace has no
         // flat item/ texture of its own (its item model is the full 3D block, not a 2D icon like
         // bucket/totem/chain), so this borrows Blaze Powder's real flat texture instead -- same
-        // fire/heat identity as the Blaze Essence ingredient in its own recipe.
+        // fire/heat identity as the Blaze Colloid ingredient in its own recipe.
         moduleItem(ModItems.SMELTING_MODULE.get(), "item/module/module_frame",
                 ResourceLocation.withDefaultNamespace("item/blaze_powder"));
 
@@ -138,7 +138,7 @@ public class ModItemModelProvider extends ItemModelProvider {
         singleTextureItem(ModItems.BONE_SUNDER_CHAIN.get(), "item/sunder_chains/bone_sunder_chain");
         singleTextureItem(ModItems.NETHERITE_SUNDER_CHAIN.get(), "item/sunder_chains/netherite_sunder_chain");
         singleTextureItem(ModItems.EMERALD_SUNDER_CHAIN.get(), "item/sunder_chains/emerald_sunder_chain");
-        singleTextureItem(ModItems.BLAZE_ESSENCE_SUNDER_CHAIN.get(), "item/sunder_chains/blaze_essence_sunder_chain");
+        singleTextureItem(ModItems.BLAZE_SUNDER_CHAIN.get(), "item/sunder_chains/blaze_sunder_chain");
 
         ////////////////////Shatter Heads\\\\\\\\\\\\\\\\\\\\
         shatterHeadItem(ModItems.IRON_SHATTER_HEAD.get());
@@ -148,14 +148,14 @@ public class ModItemModelProvider extends ItemModelProvider {
         shatterHeadItem(ModItems.COPPER_SHATTER_HEAD.get());
         shatterHeadItem(ModItems.NETHERITE_SHATTER_HEAD.get());
         shatterHeadItem(ModItems.EMERALD_SHATTER_HEAD.get());
-        shatterHeadItem(ModItems.BLAZE_ESSENCE_SHATTER_HEAD.get());
+        shatterHeadItem(ModItems.BLAZE_SHATTER_HEAD.get());
         shatterHeadItem(ModItems.KNOWLEDGE_SHATTER_HEAD.get());
 
 
         ////////////////////Buckets\\\\\\\\\\\\\\\\\\\\
-        chunkyBucketItem(ModFluids.CALCIUM_BLEND_BUCKET.get());
-        chunkyBucketItem(ModFluids.CARBON_BLEND_BUCKET.get());
-        chunkyBucketItem(ModFluids.PROTEIN_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.CALCIUM_PULP_BUCKET.get());
+        chunkyBucketItem(ModFluids.CARBON_PULP_BUCKET.get());
+        chunkyBucketItem(ModFluids.PROTEIN_PULP_BUCKET.get());
 
         chunkyBucketItem(ModFluids.CRUDE_SLURRY_BUCKET.get());
         chunkyBucketItem(ModFluids.CONCENTRATED_SLURRY_BUCKET.get());
@@ -163,18 +163,18 @@ public class ModItemModelProvider extends ItemModelProvider {
         thinBucketItem(ModFluids.PRIMITIVE_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.REINFORCING_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.SYNAPSE_CATALYST_BUCKET.get());
-        thinBucketItem(ModFluids.KNOWLEDGE_ESSENCE_BUCKET.get());
+        thinBucketItem(ModFluids.KNOWLEDGE_COLLOID_BUCKET.get());
         thinBucketItem(ModFluids.KINETIC_CATALYST_BUCKET.get());
         thinBucketItem(ModFluids.EVOLUTION_CATALYST_BUCKET.get());
 
-        chunkyBucketItem(ModFluids.STONE_BLEND_BUCKET.get());
-        chunkyBucketItem(ModFluids.SILICA_BLEND_BUCKET.get());
-        chunkyBucketItem(ModFluids.CLAY_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.STONE_PULP_BUCKET.get());
+        chunkyBucketItem(ModFluids.SILICA_PULP_BUCKET.get());
+        chunkyBucketItem(ModFluids.CLAY_PULP_BUCKET.get());
 
-        chunkyBucketItem(ModFluids.FERROUS_BLEND_BUCKET.get());
-        chunkyBucketItem(ModFluids.CUPROUS_BLEND_BUCKET.get());
-        chunkyBucketItem(ModFluids.AUROUS_BLEND_BUCKET.get());
-        chunkyBucketItem(ModFluids.PULP_BLEND_BUCKET.get());
+        chunkyBucketItem(ModFluids.FERROUS_PULP_BUCKET.get());
+        chunkyBucketItem(ModFluids.CUPROUS_PULP_BUCKET.get());
+        chunkyBucketItem(ModFluids.AUROUS_PULP_BUCKET.get());
+        chunkyBucketItem(ModFluids.CELLULOSE_PULP_BUCKET.get());
 
         thinBucketItem(ModFluids.F_STUFF_BUCKET.get());
         thinBucketItem(ModFluids.C_STUFF_BUCKET.get());
@@ -185,18 +185,18 @@ public class ModItemModelProvider extends ItemModelProvider {
         chunkyBucketItem(ModFluids.MOLTEN_AMETHYST_BUCKET.get());
         chunkyBucketItem(ModFluids.MOLTEN_DIAMOND_BUCKET.get());        chunkyBucketItem(ModFluids.MOLTEN_LAPIS_BUCKET.get());
         chunkyBucketItem(ModFluids.MOLTEN_EMERALD_BUCKET.get());
-        chunkyBucketItem(ModFluids.MOLTEN_RAW_NETHERITE_SCRAP_BUCKET.get());
+        chunkyBucketItem(ModFluids.DIRTY_MOLTEN_NETHERITE_BUCKET.get());
         chunkyBucketItem(ModFluids.MOLTEN_NETHERITE_BUCKET.get());
 
-        thinBucketItem(ModFluids.BLAZE_ESSENCE_BUCKET.get());
-        thinBucketItem(ModFluids.GHAST_ESSENCE_BUCKET.get());
-        thinBucketItem(ModFluids.WITHER_ESSENCE_BUCKET.get());
-        thinBucketItem(ModFluids.ENDER_ESSENCE_BUCKET.get());
+        thinBucketItem(ModFluids.BLAZE_COLLOID_BUCKET.get());
+        thinBucketItem(ModFluids.GHAST_COLLOID_BUCKET.get());
+        thinBucketItem(ModFluids.WITHER_COLLOID_BUCKET.get());
+        thinBucketItem(ModFluids.ENDER_COLLOID_BUCKET.get());
 
         chunkyBucketItem(ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get());
     }
 
-    // Chunky fluids (blends/slurries) use the chunky fill overlay; layer1 gets tinted at runtime per-fluid.
+    // Chunky fluids (pulps/slurries) use the chunky fill overlay; layer1 gets tinted at runtime per-fluid.
     private ItemModelBuilder chunkyBucketItem(Item item) {
         return bucketItem(item, "item/bucket/bucket_chunky_fluid");
     }

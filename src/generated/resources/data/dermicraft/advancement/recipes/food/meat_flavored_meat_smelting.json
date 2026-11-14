@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_protein_blend_bucket": {
+    "has_protein_pulp_bucket": {
       "conditions": {
         "items": [
           {
-            "items": "dermicraft:protein_blend_bucket"
+            "items": "dermicraft:protein_pulp_bucket"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_protein_blend_bucket"
+      "has_protein_pulp_bucket"
     ]
   ],
   "rewards": {

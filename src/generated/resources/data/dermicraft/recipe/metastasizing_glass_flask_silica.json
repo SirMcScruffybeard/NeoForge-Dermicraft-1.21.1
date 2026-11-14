@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_silica_blend",
+  "fluid": "dermicraft:source_silica_pulp",
   "fluid_amount": 250,
   "pattern": {
     "item": "dermicraft:glass_flask"

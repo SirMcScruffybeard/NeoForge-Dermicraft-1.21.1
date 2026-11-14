@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_ferrous_blend",
+  "fluid": "dermicraft:source_ferrous_pulp",
   "fluid_amount": 5000,
   "ingredient": {
     "item": "minecraft:chest"

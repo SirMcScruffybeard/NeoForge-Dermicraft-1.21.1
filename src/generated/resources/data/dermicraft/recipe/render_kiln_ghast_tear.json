@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:rendering",
-  "fluid": "dermicraft:source_ghast_essence",
+  "fluid": "dermicraft:source_ghast_colloid",
   "fluid_amount": 1000,
   "result": {
     "count": 1,

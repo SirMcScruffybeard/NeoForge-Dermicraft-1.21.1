@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_aurous_blend",
+  "fluid": "dermicraft:source_aurous_pulp",
   "fluid_amount": 1000,
   "pattern": {
     "item": "minecraft:gold_ingot"

@@ -1,6 +1,6 @@
 {
   "values": {
-    "dermicraft:blaze_essence_sunder_chain": {
+    "dermicraft:blaze_sunder_chain": {
       "bleed_chance": 0.5,
       "damage_multiplier": 1.0,
       "decap_chance": 0.2,

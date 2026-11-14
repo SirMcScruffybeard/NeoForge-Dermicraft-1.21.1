@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Drooling Geode -- Stone Blend, per {@link #currentTargetFluid} below. Everything else lives on
+ * Drooling Geode -- Stone Pulp, per {@link #currentTargetFluid} below. Everything else lives on
  * {@link DroolingMachineBlockEntity}, the shared Drooling-family base the Cauldron, Crucible and Geode all extend.
  *
  * <p>Evolves in place like the fueled machines: an Evolution Module in its Evolution slot raises its tier after
@@ -34,7 +34,7 @@ public class DroolingGeodeBlockEntity extends DroolingMachineBlockEntity<VagueDr
 
     @Override
     protected Fluid currentTargetFluid() {
-        return ModFluids.SOURCE_STONE_BLEND.get();
+        return ModFluids.SOURCE_STONE_PULP.get();
     }
 
     @Override

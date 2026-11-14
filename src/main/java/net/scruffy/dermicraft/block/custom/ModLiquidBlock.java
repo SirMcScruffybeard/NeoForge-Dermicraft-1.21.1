@@ -53,7 +53,7 @@ public class ModLiquidBlock extends LiquidBlock {
      * "is this fluid hot" checks can never drift apart. */
     public static final int HOT_THRESHOLD = 400;
     /** Below this, a fluid freezes nearby water and grows snow on nearby ground -- only Ender
-     * Essence (200) currently qualifies; nothing else in the mod is authored colder than
+     * Colloid (200) currently qualifies; nothing else in the mod is authored colder than
      * {@link #NEUTRAL_TEMPERATURE}. */
     private static final int COLD_THRESHOLD = 250;
 

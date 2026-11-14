@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:rendering",
-  "fluid": "dermicraft:source_protein_blend",
+  "fluid": "dermicraft:source_protein_pulp",
   "fluid_amount": 250,
   "result": {
     "count": 1,

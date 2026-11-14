@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Crucible's -- see {@link net.scruffy.dermicraft.block.entity.custom.DroolingMachineBlockEntity}'s
  * class javadoc for why two recipes matching the same ingredient can't share one type. Same
  * FOODS-tag/modifier-2 convention as Cauldron's water and Crucible's lava recipes -- see
- * ModRecipeProvider's "stone_blend_drooling" registration.
+ * ModRecipeProvider's "stone_pulp_drooling" registration.
  */
 public record VagueDroolingGeodeRecipe(Ingredient ingredient, float modifier, Fluid result) implements Recipe<SingleRecipeInput>, IVagueRecipe {
 

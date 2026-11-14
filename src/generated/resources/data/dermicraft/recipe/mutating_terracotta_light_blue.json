@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_clay_blend",
+  "fluid": "dermicraft:source_clay_pulp",
   "fluid_amount": 1000,
   "ingredient": {
     "item": "minecraft:light_blue_dye"

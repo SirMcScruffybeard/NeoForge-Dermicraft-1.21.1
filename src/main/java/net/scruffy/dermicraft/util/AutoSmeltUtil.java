@@ -20,7 +20,7 @@ import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import java.util.Optional;
 
 /**
- * Shared "substitute an item for its smelted result" lookup -- Blaze Essence's signature trait on
+ * Shared "substitute an item for its smelted result" lookup -- Blaze Colloid's signature trait on
  * both weapons (Shatter's universal auto-smelt on any mined block, see {@code ShatterEvents
  * #onBlockDropsAutoSmelt}; Sunder's log-into-charcoal while sawing, see {@code SunderItem
  * #tickFelling}). Reuses the real registered {@link SmeltingRecipe} (result AND experience), same
@@ -72,7 +72,7 @@ public final class AutoSmeltUtil {
     /** Flat base fuel cost (mB) the Smelting Module drains per item it smelts, before fuel-grade
      * scaling (see {@link #affordableSmeltCount}) -- shared by every gadget the module can sit in
      * (Eater/Sunder/Shatter), so it can't drift out of sync between them. NOT charged against Blaze
-     * Essence's own built-in auto-smelt trait (chain {@code smeltsLogs} / head {@code autoSmelt}),
+     * Colloid's own built-in auto-smelt trait (chain {@code smeltsLogs} / head {@code autoSmelt}),
      * which stays fuel-free exactly as it always has -- only the Module costs fuel. */
     public static final int SMELTING_MODULE_FUEL_PER_ITEM = 10;
 

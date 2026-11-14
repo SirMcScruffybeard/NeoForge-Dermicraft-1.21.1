@@ -32,7 +32,7 @@ import java.util.UUID;
 
 /**
  * Knowledge Vat -- Flesh Lab control block that stores the player's OWN experience as Knowledge
- * Essence fluid, 1mB per real XP point (see {@link #xpCostForLevel} -- the same piecewise formula
+ * Colloid fluid, 1mB per real XP point (see {@link #xpCostForLevel} -- the same piecewise formula
  * vanilla uses for {@code Player#getXpNeededForNextLevel}, duplicated here since vanilla only
  * exposes it for the player's own current level, not an arbitrary one). A flat mB-per-LEVEL rate
  * would value a cheap early level and an expensive late level identically, which is the opposite of
@@ -48,7 +48,7 @@ import java.util.UUID;
  * cost tier (e.g. level 14 into 15) correctly charges each level's own real cost, not one flat
  * average. A held fluid container instead gets the standard fill/drain interaction, same as every
  * other tank machine.
- * Locked to Knowledge Essence only (via {@link DroolingTank}'s fixed-target-fluid lock, reused here
+ * Locked to Knowledge Colloid only (via {@link DroolingTank}'s fixed-target-fluid lock, reused here
  * with a constant supplier since this tank's target never changes), 10-bucket capacity -- at 1mB/point
  * that comfortably covers a level-60+ player's entire lifetime XP bank, deliberately left generous
  * (unlike the old flat rate, capacity is no longer the interesting constraint here) so gating the
@@ -73,7 +73,7 @@ public class KnowledgeVatBlockEntity extends MachineBaseBlockEntity implements I
      * repeat rate is ~3.2 real seconds. */
     private static final int PULSES_PER_RAMP_STEP = 4;
 
-    private final DroolingTank TANK = createDroolingTank(CAPACITY, -1, ModFluids.SOURCE_KNOWLEDGE_ESSENCE::get);
+    private final DroolingTank TANK = createDroolingTank(CAPACITY, -1, ModFluids.SOURCE_KNOWLEDGE_COLLOID::get);
 
     // Per-player hold tracking -- purely transient interaction state, deliberately not saved/loaded
     // (a held-down click never survives a chunk unload anyway, and it's harmless to reset on reload).
@@ -143,14 +143,14 @@ public class KnowledgeVatBlockEntity extends MachineBaseBlockEntity implements I
 
         int levels = Math.min(pulseLevels(player), player.experienceLevel);
         int cost = costOfTopLevels(player, levels);
-        while (levels > 0 && TANK.fill(new FluidStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), cost),
+        while (levels > 0 && TANK.fill(new FluidStack(ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), cost),
                 IFluidHandler.FluidAction.SIMULATE) < cost) {
             levels--;
             cost = costOfTopLevels(player, levels);
         }
         if (levels <= 0) return false;
 
-        TANK.fill(new FluidStack(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), cost), IFluidHandler.FluidAction.EXECUTE);
+        TANK.fill(new FluidStack(ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), cost), IFluidHandler.FluidAction.EXECUTE);
         setTotalXpPoints(player, totalXpPoints(player) - cost);
         level.playSound(null, worldPosition, SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.BLOCKS, 1.0F, 0.7F);
         return true;

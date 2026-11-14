@@ -78,7 +78,7 @@ public class ModItems {
 
     // Knowledge -- a Diamond variant (durability matches Diamond's own 400), not a toned-down or
     // capstone material -- see ChainProperties' own data map entry for the actual stat/trait split.
-    // Only reachable by mutating from the Diamond chain with Knowledge Essence.
+    // Only reachable by mutating from the Diamond chain with Knowledge Colloid.
     public static final DeferredItem<Item> KNOWLEDGE_SUNDER_CHAIN = ITEMS.register("knowledge_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(400)));
     public static final DeferredItem<Item> BONE_SUNDER_CHAIN = ITEMS.register("bone_sunder_chain",
@@ -101,10 +101,10 @@ public class ModItems {
     public static final DeferredItem<Item> EMERALD_SUNDER_CHAIN = ITEMS.register("emerald_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(300)));
 
-    // Blaze Essence -- a mid-tier flavor material (baseline stats match Iron exactly), not a power
+    // Blaze Colloid -- a mid-tier flavor material (baseline stats match Iron exactly), not a power
     // tier: the value is entirely in its two signature traits (ignite on hit, log->charcoal while
     // sawing -- see ChainProperties' own javadoc). Only reachable by mutating from the Iron chain.
-    public static final DeferredItem<Item> BLAZE_ESSENCE_SUNDER_CHAIN = ITEMS.register("blaze_essence_sunder_chain",
+    public static final DeferredItem<Item> BLAZE_SUNDER_CHAIN = ITEMS.register("blaze_sunder_chain",
             () -> new SunderChainItem(new Item.Properties().durability(250)));
 
     // Mode/hazard/fluid-buffer game logic not yet implemented -- see SippingItem's class javadoc.
@@ -173,7 +173,7 @@ public class ModItems {
 
     // Knowledge -- a Diamond variant (durability matches Diamond's own 3122), not a toned-down or
     // capstone material -- see ShatterHeadProperties' own data map entry for the actual stat/trait
-    // split. Only reachable by mutating from the Diamond head with Knowledge Essence.
+    // split. Only reachable by mutating from the Diamond head with Knowledge Colloid.
     public static final DeferredItem<Item> KNOWLEDGE_SHATTER_HEAD = ITEMS.register("knowledge_shatter_head",
             () -> new ShatterHeadItem(new Item.Properties().durability(3122)));
 
@@ -185,11 +185,11 @@ public class ModItems {
     public static final DeferredItem<Item> EMERALD_SHATTER_HEAD = ITEMS.register("emerald_shatter_head",
             () -> new ShatterHeadItem(new Item.Properties().durability(1800)));
 
-    // Blaze Essence -- a mid-tier flavor material (baseline stats match Iron exactly, durability
+    // Blaze Colloid -- a mid-tier flavor material (baseline stats match Iron exactly, durability
     // 500 = 2x Iron Pickaxe's 250, same rule every non-capstone material follows), not a power
     // tier: the value is entirely in its two signature traits (ignite on hit, universal auto-smelt
     // -- see ShatterHeadProperties' own javadoc). Only reachable by mutating from the Iron head.
-    public static final DeferredItem<Item> BLAZE_ESSENCE_SHATTER_HEAD = ITEMS.register("blaze_essence_shatter_head",
+    public static final DeferredItem<Item> BLAZE_SHATTER_HEAD = ITEMS.register("blaze_shatter_head",
             () -> new ShatterHeadItem(new Item.Properties().durability(500)));
 
     // Netherite -- the capstone material above Diamond, treated as a metal (shared grayscale
@@ -210,9 +210,9 @@ public class ModItems {
     public static DeferredItem<Item> DENSE_MUSCLE = ITEMS.register("dense_muscle",
             () -> new PartItem(new Item.Properties().food(ModFoodProperties.DENSE_MUSCLE)));
 
-    // Blood Nugget: trace-iron intermediate for the Protein Blend -> Ferrous Blend alternate route
-    // (Metastasizer: Iron Nugget pattern + Protein Blend -> Blood Nugget; Masticator: Blood Nugget +
-    // Primitive Catalyst -> Ferrous Blend). Plain crafting item, not food.
+    // Blood Nugget: trace-iron intermediate for the Protein Pulp -> Ferrous Pulp alternate route
+    // (Metastasizer: Iron Nugget pattern + Protein Pulp -> Blood Nugget; Masticator: Blood Nugget +
+    // Primitive Catalyst -> Ferrous Pulp). Plain crafting item, not food.
     public static final DeferredItem<Item> BLOOD_NUGGET = ITEMS.register("blood_nugget",
             () -> new Item(new Item.Properties()));
 
@@ -286,7 +286,7 @@ public class ModItems {
     public static final DeferredItem<Item> CAPACITY_MODULE = ITEMS.register("capacity_module",
             () -> new Item(new Item.Properties()));
 
-    // Smelting Module -- tagged MODULE_SMELTING. Universal-slot substitute for Blaze Essence's own
+    // Smelting Module -- tagged MODULE_SMELTING. Universal-slot substitute for Blaze Colloid's own
     // auto-smelt trait (Shatter head / Sunder chain), also covers Sunder/Shatter's normal mining
     // (not just SAWING felling) and Eater (any item routed through it, mining or plain vacuum).
     public static final DeferredItem<Item> SMELTING_MODULE = ITEMS.register("smelting_module",

@@ -41,11 +41,11 @@ import net.minecraft.network.chat.TextColor;
  * instead) since it's rewarding the act of mining itself, not any one drop category. See
  * {@code ShatterEvents#onBlockDropsXpBonus}. 0/0 for every material without the trait.
  *
- * <p>{@code igniteChance}/{@code igniteFireSeconds} are Blaze Essence's own signature trait -- a
+ * <p>{@code igniteChance}/{@code igniteFireSeconds} are Blaze Colloid's own signature trait -- a
  * per-hit chance to set the target on fire, mirroring {@code ChainProperties}' identical fields
  * exactly (see that javadoc); Shatter has no sustained-attack mode the way Sunder's SAWING does, so
  * this always rolls the plain chance, no guaranteed-pulse override needed. See
- * {@code ShatterEvents#onIgniteOnHit}. {@code autoSmelt} is Blaze Essence's other trait -- every
+ * {@code ShatterEvents#onIgniteOnHit}. {@code autoSmelt} is Blaze Colloid's other trait -- every
  * block it mines drops its smelted result (via a real {@code SmeltingRecipe} lookup, granting XP
  * too) instead of the raw drop, universal (not ore-restricted the way Gold's loot bonus is) -- a
  * block with no smelting recipe just drops normally. See
@@ -56,9 +56,9 @@ import net.minecraft.network.chat.TextColor;
  * equivalent's own destroy speed exactly (Stone 4.0, Iron/Copper 6.0, Diamond 8.0, Netherite 9.0,
  * Gold 12.0 -- fastest of all despite the lowest mining tier, the same "fast digging, no
  * effectiveness" flavor {@code miningTier} already captures for Gold). Materials with no real
- * vanilla pickaxe (Emerald, Blaze Essence) borrow the nearest equivalent already established
+ * vanilla pickaxe (Emerald, Blaze Colloid) borrow the nearest equivalent already established
  * elsewhere in this data map: Emerald sits at the same Iron/Diamond midpoint (7.0) its
- * {@code damageShift} uses, Blaze Essence matches Iron (6.0) since its baseline stats are Iron's
+ * {@code damageShift} uses, Blaze Colloid matches Iron (6.0) since its baseline stats are Iron's
  * throughout, the value being entirely in its ignite/auto-smelt traits. See
  * {@code ShatterItem#getDestroySpeed} for how this is actually consulted.
  */

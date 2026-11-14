@@ -144,7 +144,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SMELTING_MODULE.get())
         ;
 
-        tag(ModTags.Items.STONE_BLEND_ROSTER)
+        tag(ModTags.Items.STONE_PULP_ROSTER)
                 .add(Items.STONE)
                 .add(Items.SMOOTH_STONE)
                 .add(Items.COBBLESTONE)
@@ -160,18 +160,18 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(Items.POINTED_DRIPSTONE)
         ;
 
-        tag(ModTags.Items.SILICA_BLEND_ROSTER)
+        tag(ModTags.Items.SILICA_PULP_ROSTER)
                 .add(Items.SAND)
                 .add(Items.RED_SAND)
                 .add(Items.SANDSTONE)
                 .add(Items.RED_SANDSTONE)
         ;
 
-        tag(ModTags.Items.CLAY_BLEND_ROSTER)
+        tag(ModTags.Items.CLAY_PULP_ROSTER)
                 .add(Items.CLAY)
         ;
 
-        tag(ModTags.Items.SILICA_BLEND_RECYCLING)
+        tag(ModTags.Items.SILICA_PULP_RECYCLING)
                 .add(Items.GLASS)
                 .add(Items.GLASS_PANE)
         ;
@@ -180,7 +180,7 @@ public class ModItemTagProvider extends ItemTagsProvider {
         // 1000 mB regardless of item), they get individually-priced Masticator recipes mirroring
         // their own Metastasizer duplication costs (see ModRecipeProvider), so they can't also sit
         // in this flat-rate tag without a duplicate/ambiguous-recipe conflict.
-        tag(ModTags.Items.CLAY_BLEND_RECYCLING)
+        tag(ModTags.Items.CLAY_PULP_RECYCLING)
                 .add(Items.CLAY_BALL)
                 .add(Items.TERRACOTTA)
                 .add(Items.WHITE_TERRACOTTA)

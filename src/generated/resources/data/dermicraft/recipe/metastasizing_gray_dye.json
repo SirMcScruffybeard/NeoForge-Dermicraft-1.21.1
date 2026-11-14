@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_stone_blend",
+  "fluid": "dermicraft:source_stone_pulp",
   "fluid_amount": 100,
   "pattern": {
     "item": "minecraft:gray_dye"

@@ -82,12 +82,12 @@ public class ModTags {
 
         public static final TagKey<Item> BIOFUELS = createTag("biofuels");
 
-        public static final TagKey<Item> STONE_BLEND_ROSTER = createTag("stone_blend_roster");
-        public static final TagKey<Item> SILICA_BLEND_ROSTER = createTag("silica_blend_roster");
-        public static final TagKey<Item> CLAY_BLEND_ROSTER = createTag("clay_blend_roster");
+        public static final TagKey<Item> STONE_PULP_ROSTER = createTag("stone_pulp_roster");
+        public static final TagKey<Item> SILICA_PULP_ROSTER = createTag("silica_pulp_roster");
+        public static final TagKey<Item> CLAY_PULP_ROSTER = createTag("clay_pulp_roster");
 
-        public static final TagKey<Item> SILICA_BLEND_RECYCLING = createTag("silica_blend_recycling");
-        public static final TagKey<Item> CLAY_BLEND_RECYCLING = createTag("clay_blend_recycling");
+        public static final TagKey<Item> SILICA_PULP_RECYCLING = createTag("silica_pulp_recycling");
+        public static final TagKey<Item> CLAY_PULP_RECYCLING = createTag("clay_pulp_recycling");
 
         // Gadgets with a genuine onboard fuel tank (biofuel-only capability, same restriction Fuel
         // Bladder uses) -- what Workbench Duty 2's passive auto-refill targets. Deliberately NOT
@@ -142,7 +142,7 @@ public class ModTags {
 
         // "Smelting" family -- generic membership only, no data map needed (unlike Safety/Work Speed/
         // Capacity): the effect is uniform (substitute a real SmeltingRecipe result, same as Blaze
-        // Essence's own auto-smelt trait) with no per-material variation to key off of. Universal
+        // Colloid's own auto-smelt trait) with no per-material variation to key off of. Universal
         // slot -- competes with every other Module for the same slot(s), not a dedicated reservation.
         public static final TagKey<Item> MODULE_SMELTING = createTag("module/smelting");
 

@@ -578,14 +578,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("capacity_module_beaker_crafting_table"));
 
         // Smelting Module -- Furnace (the actual smelting apparatus, same "value the real mechanism"
-        // framing as Aggregate's Shovel/Hopper) over a Bucket of Blaze Essence (fire/heat identity,
-        // mirrors Blaze Essence's own auto-smelt trait on Shatter heads/Sunder chains) over the Frame.
+        // framing as Aggregate's Shovel/Hopper) over a Bucket of Blaze Colloid (fire/heat identity,
+        // mirrors Blaze Colloid's own auto-smelt trait on Shatter heads/Sunder chains) over the Frame.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SMELTING_MODULE.get())
                 .pattern("U")
                 .pattern("P")
                 .pattern("F")
                 .define('U', Items.FURNACE)
-                .define('P', ModFluids.BLAZE_ESSENCE_BUCKET.get())
+                .define('P', ModFluids.BLAZE_COLLOID_BUCKET.get())
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("smelting_module_crafting_table"));
@@ -638,11 +638,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // it per 100 mB of result output, so the value here is "ticks per 100 mB"
         // (450 / (resultAmount / 100)), not a raw tick count.
         RecipeBuilders.buildEffluencing(recipeOutput, "f_stuff_effluencing",
-                ModFluids.SOURCE_CRUDE_SLURRY.get(), 250, ModFluids.SOURCE_PROTEIN_BLEND.get(), 250,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 250, ModFluids.SOURCE_PROTEIN_PULP.get(), 250,
                 ModFluids.SOURCE_F_STUFF.get(), 500, -90);
 
         RecipeBuilders.buildEffluencing(recipeOutput, "c_stuff_effluencing",
-                ModFluids.SOURCE_CARBON_BLEND.get(), 250, ModFluids.SOURCE_CALCIUM_BLEND.get(), 250,
+                ModFluids.SOURCE_CARBON_PULP.get(), 250, ModFluids.SOURCE_CALCIUM_PULP.get(), 250,
                 ModFluids.SOURCE_C_STUFF.get(), 500, -90);
 
         // Primitive Catalyst: 25% faster than the original fixed 45-second craft time -> 33.75s
@@ -668,28 +668,28 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // recipe shape (not a minor addition like Reinforcing Catalyst above) -- the mod's
         // general "smart component" reagent (Proto Brain, Brain Block, the Module Frame).
         RecipeBuilders.buildEffluencing(recipeOutput, "synapse_catalyst_effluencing",
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
         // Kinetic Catalyst: same even-parts 500+500->750/45s shape as Synapse Catalyst above --
-        // Molten Redstone + Molten Quartz instead of Cuprous Blend + Primitive Catalyst. Work Speed
+        // Molten Redstone + Molten Quartz instead of Cuprous Pulp + Primitive Catalyst. Work Speed
         // Module's reagent, Stage 2-reachable (both inputs are Stage 2 "Molten" family fluids).
         RecipeBuilders.buildEffluencing(recipeOutput, "kinetic_catalyst_effluencing",
                 ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 500,
                 ModFluids.SOURCE_KINETIC_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
         // Evolution Catalyst -- second production route alongside evolution_catalyst_puddle (same
-        // Knowledge Essence, this time paired with Kinetic Catalyst instead of the puddle's solid
+        // Knowledge Colloid, this time paired with Kinetic Catalyst instead of the puddle's solid
         // items). Kinetic Catalyst is hot (700 K), so an Effluentcer without a Thermal tolerance loses HP
         // every cycle it runs this and one with the tolerance runs it free. Same even-parts 500+500->750/45s
         // shape as every other two-fluid Effluencing recipe here.
         RecipeBuilders.buildEffluencing(recipeOutput, "evolution_catalyst_effluencing",
-                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 500, ModFluids.SOURCE_KINETIC_CATALYST.get(), 500,
+                ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), 500, ModFluids.SOURCE_KINETIC_CATALYST.get(), 500,
                 ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
         // Zombie/Piglin Head -> Synapse Catalyst -- rarity-gated 1:1 substitute for one full batch
         // of the recipe above (same 750 mB output, same 45s), not a cheaper bypass: the head pays
-        // for the whole Cuprous Blend + Primitive Catalyst cost by being scarce (decapitation
+        // for the whole Cuprous Pulp + Primitive Catalyst cost by being scarce (decapitation
         // chance only), not by being efficient. Zombie/Piglin deliberately identical -- both read
         // as "a head's worth of neural material," same framing as their shared Proto Brain alt
         // route above.
@@ -703,7 +703,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // recipes (Quartz Block/Glowstone/Amethyst Block). Both inputs are hot, so an Effluentcer
         // without a Thermal tolerance loses HP every cycle it runs this.
         RecipeBuilders.buildEffluencing(recipeOutput, "molten_netherite_effluencing",
-                ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 4000, ModFluids.SOURCE_AUROUS_BLEND.get(), 4000,
+                ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), 4000, ModFluids.SOURCE_AUROUS_PULP.get(), 4000,
                 ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(60));
 
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.WATER);
@@ -712,40 +712,40 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Separate recipe type only, not a different ingredient list.
         RecipeBuilders.buildVagueDroolingCrucible(recipeOutput, "lava_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.LAVA);
         // Same convention -- Geode was missing this entirely (passive-only until now).
-        RecipeBuilders.buildVagueDroolingGeode(recipeOutput, "stone_blend_drooling", Ingredient.of(Tags.Items.FOODS), 2,
-                ModFluids.SOURCE_STONE_BLEND.get());
+        RecipeBuilders.buildVagueDroolingGeode(recipeOutput, "stone_pulp_drooling", Ingredient.of(Tags.Items.FOODS), 2,
+                ModFluids.SOURCE_STONE_PULP.get());
 
-        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_masticating", Ingredient.of(Items.BONE), 1,
-                Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1,
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_pulp_bone_masticating", Ingredient.of(Items.BONE), 1,
+                Fluids.WATER, 1000, ModFluids.SOURCE_CALCIUM_PULP.get(), 1000, -1,
                 ModMath.Time.getSecondsToTicks(45));
 
         // 330 mB, not 334 -- lowered (2026-08-27) so 3 singles (990 mB) stay strictly under the new
         // batch-of-3 recipe's clean 1000 mB (Bone's own value); 334x3=1002 would have made batching
         // a downgrade, backwards from the whole point of adding it.
-        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL), 1,
-                Fluids.WATER, 330, ModFluids.SOURCE_CALCIUM_BLEND.get(), 330, -1,
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_pulp_bone_meal_masticating", Ingredient.of(Items.BONE_MEAL), 1,
+                Fluids.WATER, 330, ModFluids.SOURCE_CALCIUM_PULP.get(), 330, -1,
                 ModMath.Time.getSecondsToTicks(15));
         // Batch-of-3 alternate -- real vanilla 3-Bone-Meal-per-Bone ratio, priced at Bone's own clean
         // 1000 mB. Masticating-only, same convention as the Nugget batches above.
-        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_bone_meal_masticating_batch",
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_pulp_bone_meal_masticating_batch",
                 Ingredient.of(Items.BONE_MEAL), 3, Fluids.WATER, 1000,
-                ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
+                ModFluids.SOURCE_CALCIUM_PULP.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Skeleton Skull -- 3x Bone's rate (1000 -> 3000 mB, time scaled proportionally), a real
         // payoff for a decapitation-chance drop rather than parity with grinding plain Bone.
-        RecipeBuilders.buildMasticating(recipeOutput, "calcium_blend_skeleton_skull_masticating", Ingredient.of(Items.SKELETON_SKULL), 1,
-                Fluids.WATER, 3000, ModFluids.SOURCE_CALCIUM_BLEND.get(), 3000, -1,
+        RecipeBuilders.buildMasticating(recipeOutput, "calcium_pulp_skeleton_skull_masticating", Ingredient.of(Items.SKELETON_SKULL), 1,
+                Fluids.WATER, 3000, ModFluids.SOURCE_CALCIUM_PULP.get(), 3000, -1,
                 ModMath.Time.getSecondsToTicks(135));
 
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal_block", Items.COAL_BLOCK, 9000,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_pulp_masticating_coal_block", Items.COAL_BLOCK, 9000,
+                ModFluids.SOURCE_CARBON_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_coal", Items.COAL, 1000,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_pulp_masticating_coal", Items.COAL, 1000,
+                ModFluids.SOURCE_CARBON_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(15));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_blend_masticating_charcoal", Items.CHARCOAL, 1000,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "carbon_pulp_masticating_charcoal", Items.CHARCOAL, 1000,
+                ModFluids.SOURCE_CARBON_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(15));
 
         RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "crude_slurry_vague_masticating", ModTags.Items.PLANT_FOOD, 2.6f,
                 ModFluids.SOURCE_CRUDE_SLURRY.get());
@@ -773,10 +773,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.masticateWithWater(recipeOutput, "crude_slurry_masticating_pumpkin", Items.PUMPKIN, 600,
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 600, 231);
 
-        RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_blend_vague_masticating", ModTags.Items.MEAT_FOOD, 2.6f,
-                ModFluids.SOURCE_PROTEIN_BLEND.get());
+        RecipeBuilders.vagueMasticateWithTagAndWater(recipeOutput, "protein_pulp_vague_masticating", ModTags.Items.MEAT_FOOD, 2.6f,
+                ModFluids.SOURCE_PROTEIN_PULP.get());
 
-        // Protein Blend reverse route -- one Metastasizer duplication recipe per MEAT_FOOD item
+        // Protein Pulp reverse route -- one Metastasizer duplication recipe per MEAT_FOOD item
         // (the vague Masticator recipe's own tag roster: 5 raw meats, 5 cooked meats, Rotten Flesh),
         // each costed by plugging that specific item's vanilla nutrition/saturation into the same
         // vague formula the forward recipe uses (IVagueRecipe: mB = round(25 * modifier * nutrition
@@ -784,106 +784,106 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // already backs "metastasizing_bread" (Crude Slurry family) for a cross-check: nutrition 5,
         // saturation 0.6 -> round(65 * 5 * 1.6) = 520 mB, matching the existing hardcoded value.
         // Ticks use the same formula's craft-time half (baseTicks 25 instead of the 25 mB multiplier).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beef", Items.BEEF, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 98);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_porkchop", Items.PORKCHOP, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 98);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chicken", Items.CHICKEN, ModFluids.SOURCE_PROTEIN_BLEND.get(), 169, 65);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_rabbit", Items.RABBIT, ModFluids.SOURCE_PROTEIN_BLEND.get(), 254, 117);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_mutton", Items.MUTTON, ModFluids.SOURCE_PROTEIN_BLEND.get(), 169, 78);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_beef", Items.COOKED_BEEF, ModFluids.SOURCE_PROTEIN_BLEND.get(), 936, 432);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_porkchop", Items.COOKED_PORKCHOP, ModFluids.SOURCE_PROTEIN_BLEND.get(), 936, 432);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_chicken", Items.COOKED_CHICKEN, ModFluids.SOURCE_PROTEIN_BLEND.get(), 624, 288);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_rabbit", Items.COOKED_RABBIT, ModFluids.SOURCE_PROTEIN_BLEND.get(), 520, 240);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_mutton", Items.COOKED_MUTTON, ModFluids.SOURCE_PROTEIN_BLEND.get(), 702, 324);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_rotten_flesh", Items.ROTTEN_FLESH, ModFluids.SOURCE_PROTEIN_BLEND.get(), 286, 132);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beef", Items.BEEF, ModFluids.SOURCE_PROTEIN_PULP.get(), 254, 98);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_porkchop", Items.PORKCHOP, ModFluids.SOURCE_PROTEIN_PULP.get(), 254, 98);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chicken", Items.CHICKEN, ModFluids.SOURCE_PROTEIN_PULP.get(), 169, 65);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_rabbit", Items.RABBIT, ModFluids.SOURCE_PROTEIN_PULP.get(), 254, 117);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_mutton", Items.MUTTON, ModFluids.SOURCE_PROTEIN_PULP.get(), 169, 78);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_beef", Items.COOKED_BEEF, ModFluids.SOURCE_PROTEIN_PULP.get(), 936, 432);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_porkchop", Items.COOKED_PORKCHOP, ModFluids.SOURCE_PROTEIN_PULP.get(), 936, 432);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_chicken", Items.COOKED_CHICKEN, ModFluids.SOURCE_PROTEIN_PULP.get(), 624, 288);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_rabbit", Items.COOKED_RABBIT, ModFluids.SOURCE_PROTEIN_PULP.get(), 520, 240);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cooked_mutton", Items.COOKED_MUTTON, ModFluids.SOURCE_PROTEIN_PULP.get(), 702, 324);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_rotten_flesh", Items.ROTTEN_FLESH, ModFluids.SOURCE_PROTEIN_PULP.get(), 286, 132);
 
-        // Fluid Bladder -- same Protein Blend duplication family as the meats above, ticks kept on
+        // Fluid Bladder -- same Protein Pulp duplication family as the meats above, ticks kept on
         // the same ~0.4615 ticks-per-mB ratio (e.g. cooked beef: 936 mB / 432 ticks) for consistency.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bladder", ModItems.BLADDER.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 1200, 554);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bladder", ModItems.BLADDER.get(), ModFluids.SOURCE_PROTEIN_PULP.get(), 1200, 554);
 
-        // Placeholder yields - Sediment Blend balance values not yet finalized, see crafting notes.
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating", ModTags.Items.STONE_BLEND_ROSTER, 1000,
-                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        // Placeholder yields - Sediment Pulp balance values not yet finalized, see crafting notes.
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating", ModTags.Items.STONE_PULP_ROSTER, 1000,
+                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         // Slabs of roster blocks -- half value/time each, matching the real 2-slabs-per-block
         // crafting ratio (same precedent as Cut Copper -> Cut Copper Slab: 9000 -> 4500 mB).
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_stone_slab", Items.STONE_SLAB, 500,
-                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobblestone_slab", Items.COBBLESTONE_SLAB, 500,
-                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_andesite_slab", Items.ANDESITE_SLAB, 500,
-                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_diorite_slab", Items.DIORITE_SLAB, 500,
-                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_granite_slab", Items.GRANITE_SLAB, 500,
-                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, 500,
-                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, 500,
-                ModFluids.SOURCE_STONE_BLEND.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_stone_slab", Items.STONE_SLAB, 500,
+                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_slab", Items.COBBLESTONE_SLAB, 500,
+                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_slab", Items.ANDESITE_SLAB, 500,
+                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_slab", Items.DIORITE_SLAB, 500,
+                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_slab", Items.GRANITE_SLAB, 500,
+                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, 500,
+                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, 500,
+                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
 
         // Walls of roster blocks -- full value/time each (not halved like slabs above), matching the
         // real 6-blocks-in/6-walls-out vanilla crafting ratio (1:1, unlike slabs' 1:2). Only the 5
         // roster members with a real vanilla wall get one -- no Stone/Deepslate/Calcite/Tuff Wall
         // exists. Cost/time mirrors each material's own full-block rate above (Cobblestone/Cobbled
         // Deepslate at 900 mB/cobbleTicks, Andesite/Diorite/Granite at 1000 mB/solidTicks).
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobblestone_wall", Items.COBBLESTONE_WALL, 900,
-                ModFluids.SOURCE_STONE_BLEND.get(), 900, ModMath.Time.getSecondsToTicks(8));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_andesite_wall", Items.ANDESITE_WALL, 1000,
-                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(10));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_diorite_wall", Items.DIORITE_WALL, 1000,
-                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(10));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_granite_wall", Items.GRANITE_WALL, 1000,
-                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(10));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, 900,
-                ModFluids.SOURCE_STONE_BLEND.get(), 900, ModMath.Time.getSecondsToTicks(8));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_wall", Items.COBBLESTONE_WALL, 900,
+                ModFluids.SOURCE_STONE_PULP.get(), 900, ModMath.Time.getSecondsToTicks(8));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_wall", Items.ANDESITE_WALL, 1000,
+                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_wall", Items.DIORITE_WALL, 1000,
+                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_wall", Items.GRANITE_WALL, 1000,
+                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, 900,
+                ModFluids.SOURCE_STONE_PULP.get(), 900, ModMath.Time.getSecondsToTicks(8));
 
-        // Stairs of roster blocks -- same 0.375x ratio Pulp Blend uses for wood stairs (375 mB from
+        // Stairs of roster blocks -- same 0.375x ratio Cellulose Pulp uses for wood stairs (375 mB from
         // a 1000 mB full-block base), applied to both amount and time here.
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_stone_stairs", Items.STONE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobblestone_stairs", Items.COBBLESTONE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_andesite_stairs", Items.ANDESITE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_diorite_stairs", Items.DIORITE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_granite_stairs", Items.GRANITE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_blend_masticating_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_stone_stairs", Items.STONE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_stairs", Items.COBBLESTONE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_stairs", Items.ANDESITE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_stairs", Items.DIORITE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_stairs", Items.GRANITE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, 375,
+                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_masticating", ModTags.Items.SILICA_BLEND_ROSTER, 1000,
-                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_masticating", ModTags.Items.SILICA_PULP_ROSTER, 1000,
+                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_masticating", ModTags.Items.CLAY_BLEND_ROSTER, 1000,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating", ModTags.Items.CLAY_PULP_ROSTER, 1000,
+                ModFluids.SOURCE_CLAY_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "silica_blend_recycling_masticating", ModTags.Items.SILICA_BLEND_RECYCLING, 1000,
-                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_recycling_masticating", ModTags.Items.SILICA_PULP_RECYCLING, 1000,
+                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_recycling_masticating", ModTags.Items.CLAY_BLEND_RECYCLING, 1000,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_recycling_masticating", ModTags.Items.CLAY_PULP_RECYCLING, 1000,
+                ModFluids.SOURCE_CLAY_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
         // Cross-feed recipes - sibling-fluid feed instead of water, boosted yield (placeholder +25% over base 1000 mB).
-        // Silica Blend is the hub: cross-feeds with both Stone Blend and Clay Blend.
-        RecipeBuilders.buildMasticating(recipeOutput, "silica_blend_masticating_boosted_with_stone_blend",
-                Ingredient.of(ModTags.Items.SILICA_BLEND_ROSTER), 1,
-                ModFluids.SOURCE_STONE_BLEND.get(), 1000, ModFluids.SOURCE_SILICA_BLEND.get(), 1250, -1,
+        // Silica Pulp is the hub: cross-feeds with both Stone Pulp and Clay Pulp.
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_stone_pulp",
+                Ingredient.of(ModTags.Items.SILICA_PULP_ROSTER), 1,
+                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModFluids.SOURCE_SILICA_PULP.get(), 1250, -1,
                 ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "stone_blend_masticating_boosted_with_silica_blend",
-                Ingredient.of(ModTags.Items.STONE_BLEND_ROSTER), 1,
-                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModFluids.SOURCE_STONE_BLEND.get(), 1250, -1,
+        RecipeBuilders.buildMasticating(recipeOutput, "stone_pulp_masticating_boosted_with_silica_pulp",
+                Ingredient.of(ModTags.Items.STONE_PULP_ROSTER), 1,
+                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModFluids.SOURCE_STONE_PULP.get(), 1250, -1,
                 ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "silica_blend_masticating_boosted_with_clay_blend",
-                Ingredient.of(ModTags.Items.SILICA_BLEND_ROSTER), 1,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, ModFluids.SOURCE_SILICA_BLEND.get(), 1250, -1,
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_clay_pulp",
+                Ingredient.of(ModTags.Items.SILICA_PULP_ROSTER), 1,
+                ModFluids.SOURCE_CLAY_PULP.get(), 1000, ModFluids.SOURCE_SILICA_PULP.get(), 1250, -1,
                 ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "clay_blend_masticating_boosted_with_silica_blend",
-                Ingredient.of(ModTags.Items.CLAY_BLEND_ROSTER), 1,
-                ModFluids.SOURCE_SILICA_BLEND.get(), 1000, ModFluids.SOURCE_CLAY_BLEND.get(), 1250, -1,
+        RecipeBuilders.buildMasticating(recipeOutput, "clay_pulp_masticating_boosted_with_silica_pulp",
+                Ingredient.of(ModTags.Items.CLAY_PULP_ROSTER), 1,
+                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModFluids.SOURCE_CLAY_PULP.get(), 1250, -1,
                 ModMath.Time.getSecondsToTicks(30));
 
         // Metastasizer sediment duplication - one copy of the pattern block, fluid consumed, pattern retained.
@@ -894,147 +894,147 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         int solidTicks = ModMath.Time.getSecondsToTicks(10);
         int lightTicks = ModMath.Time.getSecondsToTicks(2.5f);
 
-        // Brick, Bricks, and Flower Pot -- pulled out of the flat-rate CLAY_BLEND_RECYCLING tag
+        // Brick, Bricks, and Flower Pot -- pulled out of the flat-rate CLAY_PULP_RECYCLING tag
         // (see ModItemTagProvider) and given individually-tiered Masticator recipes that mirror
         // their own Metastasizer duplication costs below, same "forward mirrors reverse" convention
         // as the Ingot/Nugget/Bone families (unlike Clay Ball/Terracotta, which stay on the flat rate).
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_masticating_brick", Items.BRICK, 250,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_masticating_bricks", Items.BRICKS, 1000,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_blend_masticating_flower_pot", Items.FLOWER_POT, 750,
-                ModFluids.SOURCE_CLAY_BLEND.get(), 750, aggregateTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_brick", Items.BRICK, 250,
+                ModFluids.SOURCE_CLAY_PULP.get(), 250, lightTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_bricks", Items.BRICKS, 1000,
+                ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_flower_pot", Items.FLOWER_POT, 750,
+                ModFluids.SOURCE_CLAY_PULP.get(), 750, aggregateTicks);
 
-        // Carbon Blend reverse route -- mirrors each forward recipe's own output amount, same
-        // convention as the Metal Blends' Ingot/Nugget reverse recipes above.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal", Items.COAL, ModFluids.SOURCE_CARBON_BLEND.get(), 1000, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_charcoal", Items.CHARCOAL, ModFluids.SOURCE_CARBON_BLEND.get(), 1000, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal_block", Items.COAL_BLOCK, ModFluids.SOURCE_CARBON_BLEND.get(), 9000, solidTicks);
+        // Carbon Pulp reverse route -- mirrors each forward recipe's own output amount, same
+        // convention as the Metal Pulps' Ingot/Nugget reverse recipes above.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal", Items.COAL, ModFluids.SOURCE_CARBON_PULP.get(), 1000, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_charcoal", Items.CHARCOAL, ModFluids.SOURCE_CARBON_PULP.get(), 1000, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal_block", Items.COAL_BLOCK, ModFluids.SOURCE_CARBON_PULP.get(), 9000, solidTicks);
 
-        // Stone Blend roster
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gravel", Items.GRAVEL, ModFluids.SOURCE_STONE_BLEND.get(), 750, aggregateTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone", Items.COBBLESTONE, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate", Items.COBBLED_DEEPSLATE, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone", Items.STONE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone", Items.SMOOTH_STONE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite", Items.ANDESITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite", Items.DIORITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite", Items.GRANITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_deepslate", Items.DEEPSLATE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcite", Items.CALCITE, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_tuff", Items.TUFF, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_dripstone_block", Items.DRIPSTONE_BLOCK, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_pointed_dripstone", Items.POINTED_DRIPSTONE, ModFluids.SOURCE_STONE_BLEND.get(), 250, lightTicks);
+        // Stone Pulp roster
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gravel", Items.GRAVEL, ModFluids.SOURCE_STONE_PULP.get(), 750, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone", Items.COBBLESTONE, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate", Items.COBBLED_DEEPSLATE, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone", Items.STONE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone", Items.SMOOTH_STONE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite", Items.ANDESITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite", Items.DIORITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite", Items.GRANITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_deepslate", Items.DEEPSLATE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcite", Items.CALCITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_tuff", Items.TUFF, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_dripstone_block", Items.DRIPSTONE_BLOCK, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_pointed_dripstone", Items.POINTED_DRIPSTONE, ModFluids.SOURCE_STONE_PULP.get(), 250, lightTicks);
 
         // Slabs of roster blocks -- reverse of the masticating slab recipes above, same half
         // value/time convention (500 mB / half of solidTicks).
         int slabTicks = ModMath.Time.getSecondsToTicks(5);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone_slab", Items.STONE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_slab", Items.COBBLESTONE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_slab", Items.ANDESITE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_slab", Items.DIORITE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_slab", Items.GRANITE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, ModFluids.SOURCE_STONE_BLEND.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone_slab", Items.STONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_slab", Items.COBBLESTONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_slab", Items.ANDESITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_slab", Items.DIORITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_slab", Items.GRANITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
 
         // Walls of roster blocks -- reverse of the masticating wall recipes above, full value/time
         // each (1:1 vanilla ratio, not halved like slabs).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_wall", Items.COBBLESTONE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_wall", Items.ANDESITE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_wall", Items.DIORITE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_wall", Items.GRANITE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, ModFluids.SOURCE_STONE_BLEND.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_wall", Items.COBBLESTONE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_wall", Items.ANDESITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_wall", Items.DIORITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_wall", Items.GRANITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
 
-        // Silica Blend roster
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_BLEND.get(), 750, aggregateTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sand", Items.RED_SAND, ModFluids.SOURCE_SILICA_BLEND.get(), 750, aggregateTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sandstone", Items.SANDSTONE, ModFluids.SOURCE_SILICA_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sandstone", Items.RED_SANDSTONE, ModFluids.SOURCE_SILICA_BLEND.get(), 1000, solidTicks);
+        // Silica Pulp roster
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_PULP.get(), 750, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sand", Items.RED_SAND, ModFluids.SOURCE_SILICA_PULP.get(), 750, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sandstone", Items.SANDSTONE, ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sandstone", Items.RED_SANDSTONE, ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
 
-        // Clay Blend roster
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay", Items.CLAY, ModFluids.SOURCE_CLAY_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay_ball", Items.CLAY_BALL, ModFluids.SOURCE_CLAY_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_brick", Items.BRICK, ModFluids.SOURCE_CLAY_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bricks", Items.BRICKS, ModFluids.SOURCE_CLAY_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_flower_pot", Items.FLOWER_POT, ModFluids.SOURCE_CLAY_BLEND.get(), 750, aggregateTicks);
+        // Clay Pulp roster
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay", Items.CLAY, ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay_ball", Items.CLAY_BALL, ModFluids.SOURCE_CLAY_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_brick", Items.BRICK, ModFluids.SOURCE_CLAY_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bricks", Items.BRICKS, ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_flower_pot", Items.FLOWER_POT, ModFluids.SOURCE_CLAY_PULP.get(), 750, aggregateTicks);
 
         // MRE - F-Stuff (900 mB) + an existing MRE (non-consumed pattern) -> another MRE.
         RecipeBuilders.duplicate(recipeOutput, "mre_metastasizing", ModItems.MRE.get(), ModFluids.SOURCE_F_STUFF.get(), 900, cobbleTicks);
 
-        // Meat Flavored Meat - same trio as MRE, using Protein Blend as the ingredient instead of F-Stuff.
+        // Meat Flavored Meat - same trio as MRE, using Protein Pulp as the ingredient instead of F-Stuff.
         RecipeBuilders.duplicate(recipeOutput, "meat_flavored_meat_metastasizing", ModItems.MEAT_FLAVORED_MEAT.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 900, cobbleTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 900, cobbleTicks);
 
-        // Tumor/part duplication - all Protein Blend. Inert Tumor at the solid 1000 mB tier, the three
+        // Tumor/part duplication - all Protein Pulp. Inert Tumor at the solid 1000 mB tier, the three
         // tumor-drop parts (Dense Muscle, Nerve Cluster, Eye) at the light 250 mB tier.
-        RecipeBuilders.duplicate(recipeOutput, "inert_tumor_metastasizing", ModBlocks.INERT_TUMOR.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "dense_muscle_metastasizing", ModItems.DENSE_MUSCLE.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "nerve_cluster_metastasizing", ModItems.NERVE_CLUSTER.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "eye_metastasizing", ModItems.EYE.get(), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "inert_tumor_metastasizing", ModBlocks.INERT_TUMOR.get(), ModFluids.SOURCE_PROTEIN_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "dense_muscle_metastasizing", ModItems.DENSE_MUSCLE.get(), ModFluids.SOURCE_PROTEIN_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "nerve_cluster_metastasizing", ModItems.NERVE_CLUSTER.get(), ModFluids.SOURCE_PROTEIN_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "eye_metastasizing", ModItems.EYE.get(), ModFluids.SOURCE_PROTEIN_PULP.get(), 250, lightTicks);
 
-        // Bone/Bone Meal - mirrors the Calcium Blend Masticator recipes above, using the same output fluid amounts.
-        RecipeBuilders.duplicate(recipeOutput, "bone_metastasizing", Items.BONE, ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "bone_meal_metastasizing", Items.BONE_MEAL, ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, lightTicks);
+        // Bone/Bone Meal - mirrors the Calcium Pulp Masticator recipes above, using the same output fluid amounts.
+        RecipeBuilders.duplicate(recipeOutput, "bone_metastasizing", Items.BONE, ModFluids.SOURCE_CALCIUM_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "bone_meal_metastasizing", Items.BONE_MEAL, ModFluids.SOURCE_CALCIUM_PULP.get(), 334, lightTicks);
 
-        // Metal Blends - Ingot/Nugget tiers use Water 1:1; Raw tier uses a flat 250 mB Primitive Catalyst dose for 2000 mB output.
-        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_ingot", Items.IRON_INGOT, 1000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_nugget", Items.IRON_NUGGET, 110,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+        // Metal Pulps - Ingot/Nugget tiers use Water 1:1; Raw tier uses a flat 250 mB Primitive Catalyst dose for 2000 mB output.
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_ingot", Items.IRON_INGOT, 1000,
+                ModFluids.SOURCE_FERROUS_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_nugget", Items.IRON_NUGGET, 110,
+                ModFluids.SOURCE_FERROUS_PULP.get(), 110, ModMath.Time.getSecondsToTicks(30));
         // Iron Bars -- real vanilla 6-Ingot/16-Bar ratio, a clean 375 mB/bar at our standard 1000
         // mB/Ingot rate (6000/16, no fractional remainder, unlike Nugget/Bone Meal's own ratios).
-        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_iron_bars", Items.IRON_BARS, 375,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(17));
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_iron_bars", Items.IRON_BARS, 375,
+                ModFluids.SOURCE_FERROUS_PULP.get(), 375, ModMath.Time.getSecondsToTicks(17));
         // Batch-of-9 alternate -- real vanilla 9-Nugget-per-Ingot ratio, priced at the clean
         // Ingot-equivalent 1000 mB rather than 9x110=990, so it's a genuine (if small) bulk reward
         // over feeding Nuggets one at a time. Masticating-only, deliberately no metastasizing
         // counterpart -- the Metastasizer stays single-item-output only. Uses getRecipeOptional's
         // highest-itemAmount tie-break (see MasticatorBlockEntity) same as Fence's own pair.
-        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_nugget_batch",
+        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_pulp_masticating_nugget_batch",
                 Ingredient.of(Items.IRON_NUGGET), 9, Fluids.WATER, 1000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_raw",
+                ModFluids.SOURCE_FERROUS_PULP.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_pulp_masticating_raw",
                 Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_bucket", Items.BUCKET, 3000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModMath.Time.getSecondsToTicks(45));
+                ModFluids.SOURCE_FERROUS_PULP.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_bucket", Items.BUCKET, 3000,
+                ModFluids.SOURCE_FERROUS_PULP.get(), 3000, ModMath.Time.getSecondsToTicks(45));
 
         // Iron Block -- mirrors the Copper Block family's own vanilla-ratio-anchored 9000 mB (9
-        // Ingots) at the Sediment Blend's 5 mB/tick rate, same convention as Copper Block/Cut Copper.
-        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_iron_block", Items.IRON_BLOCK, 9000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        // Ingots) at the Sediment Pulp's 5 mB/tick rate, same convention as Copper Block/Cut Copper.
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_iron_block", Items.IRON_BLOCK, 9000,
+                ModFluids.SOURCE_FERROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
 
-        // Blood Nugget -- second half of the Protein Blend alternate route (see the Metastasizer's
+        // Blood Nugget -- second half of the Protein Pulp alternate route (see the Metastasizer's
         // metastasizing_blood_nugget). 25 mB/nugget -- well under a plain Iron Nugget's own 110 mB,
         // per the design notes' explicit "should read as trace extraction, not a real iron source"
         // target. Reaching one Ingot-equivalent (1000 mB) costs 40 Blood Nuggets = 10,000 mB Protein
-        // Blend + 1000 mB Primitive Catalyst -- a genuine slow trickle, not a mining replacement.
-        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_blend_masticating_blood_nugget",
+        // Pulp + 1000 mB Primitive Catalyst -- a genuine slow trickle, not a mining replacement.
+        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_pulp_masticating_blood_nugget",
                 Ingredient.of(ModItems.BLOOD_NUGGET.get()), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, -1, ModMath.Time.getSecondsToTicks(20));
+                ModFluids.SOURCE_FERROUS_PULP.get(), 25, -1, ModMath.Time.getSecondsToTicks(20));
 
         // Same trace-extraction identity, Effluentcer route -- skips the Blood Nugget middleman by
         // going straight from its own raw material. Ratio derived from chaining the two existing
-        // recipes: a Blood Nugget itself costs 250 mB Protein Blend (render_kiln_blood_nugget), and
+        // recipes: a Blood Nugget itself costs 250 mB Protein Pulp (render_kiln_blood_nugget), and
         // the masticating recipe above spends 25 mB Primitive Catalyst per Blood Nugget, so the
-        // effective Protein Blend : Primitive Catalyst ratio is 250:25 (10:1) for the same 25 mB
-        // Ferrous Blend output -- an alternate path to the identical result, not a new price point.
-        RecipeBuilders.buildEffluencing(recipeOutput, "ferrous_blend_effluencing_blood_nugget",
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 25, ModMath.Time.getSecondsToTicks(15));
+        // effective Protein Pulp : Primitive Catalyst ratio is 250:25 (10:1) for the same 25 mB
+        // Ferrous Pulp output -- an alternate path to the identical result, not a new price point.
+        RecipeBuilders.buildEffluencing(recipeOutput, "ferrous_pulp_effluencing_blood_nugget",
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 250, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
+                ModFluids.SOURCE_FERROUS_PULP.get(), 25, ModMath.Time.getSecondsToTicks(15));
 
         // Heavy Weighted Pressure Plate -- 2 Iron Ingots' worth (real vanilla recipe cost), so 2000 mB.
         // Craft time stays at Ingot's own 60s rather than doubling -- same precedent as Raw (also
         // 2000 mB, also 60s): one item processed per cycle, regardless of its ingot-equivalent value.
-        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_heavy_weighted_pressure_plate",
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_heavy_weighted_pressure_plate",
                 Items.HEAVY_WEIGHTED_PRESSURE_PLATE, 2000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_FERROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(60));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_ingot", Items.COPPER_INGOT, 1000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.buildMasticating(recipeOutput, "cuprous_blend_masticating_raw",
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_ingot", Items.COPPER_INGOT, 1000,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildMasticating(recipeOutput, "cuprous_pulp_masticating_raw",
                 Ingredient.of(Items.RAW_COPPER), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Copper building block family -- unaffected (fresh) state only, deliberately not covering
         // Exposed/Weathered/Oxidized or Waxed variants (oxidation is a passive weathering effect, not
@@ -1043,103 +1043,103 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Copper Bulb also excluded -- its real recipe (3 Ingot + Blaze Rod + Redstone) doesn't fit
         // the Masticator's one-item-one-fluid shape. Priced by real vanilla crafting ratio relative
         // to Copper Block (9 Ingots = 9000 mB, the anchor), same "vanilla ratio" methodology as the
-        // Pulp Blend wood family -- Cut Copper is a flat 1:1 conversion (no material lost cutting a
+        // Cellulose Pulp wood family -- Cut Copper is a flat 1:1 conversion (no material lost cutting a
         // block into panels, unlike Log -> Planks), not a fractional discount. Craft time at the
-        // Sediment Blend's 5 mB/tick rate (matches the existing Cauldron precedent), not the Metal
-        // Blend family's own slower Ingot rate.
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_copper_block", Items.COPPER_BLOCK, 9000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_cut_copper", Items.CUT_COPPER, 9000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_cut_copper_stairs", Items.CUT_COPPER_STAIRS, 13500,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 13500, ModMath.Time.getSecondsToTicks(135));
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_cut_copper_slab", Items.CUT_COPPER_SLAB, 4500,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 4500, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_chiseled_copper", Items.CHISELED_COPPER, 18000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 18000, ModMath.Time.getSecondsToTicks(180));
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_copper_grate", Items.COPPER_GRATE, 1000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_copper_door", Items.COPPER_DOOR, 2000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(20));
-        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_blend_masticating_copper_trapdoor", Items.COPPER_TRAPDOOR, 2000,
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(20));
+        // Sediment Pulp's 5 mB/tick rate (matches the existing Cauldron precedent), not the Metal
+        // Pulp family's own slower Ingot rate.
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_copper_block", Items.COPPER_BLOCK, 9000,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_cut_copper", Items.CUT_COPPER, 9000,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_cut_copper_stairs", Items.CUT_COPPER_STAIRS, 13500,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 13500, ModMath.Time.getSecondsToTicks(135));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_cut_copper_slab", Items.CUT_COPPER_SLAB, 4500,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 4500, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_chiseled_copper", Items.CHISELED_COPPER, 18000,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 18000, ModMath.Time.getSecondsToTicks(180));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_copper_grate", Items.COPPER_GRATE, 1000,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_copper_door", Items.COPPER_DOOR, 2000,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(20));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_copper_trapdoor", Items.COPPER_TRAPDOOR, 2000,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(20));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_ingot", Items.GOLD_INGOT, 1000,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_nugget", Items.GOLD_NUGGET, 110,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 110, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_pulp_masticating_ingot", Items.GOLD_INGOT, 1000,
+                ModFluids.SOURCE_AUROUS_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_pulp_masticating_nugget", Items.GOLD_NUGGET, 110,
+                ModFluids.SOURCE_AUROUS_PULP.get(), 110, ModMath.Time.getSecondsToTicks(30));
         // Batch-of-9 alternate -- same reasoning as Iron Nugget's own batch above (clean
         // Ingot-equivalent 1000 mB vs 9x110=990, masticating-only).
-        RecipeBuilders.buildMasticating(recipeOutput, "aurous_blend_masticating_nugget_batch",
+        RecipeBuilders.buildMasticating(recipeOutput, "aurous_pulp_masticating_nugget_batch",
                 Ingredient.of(Items.GOLD_NUGGET), 9, Fluids.WATER, 1000,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.buildMasticating(recipeOutput, "aurous_blend_masticating_raw",
+                ModFluids.SOURCE_AUROUS_PULP.get(), 1000, -1, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildMasticating(recipeOutput, "aurous_pulp_masticating_raw",
                 Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
+                ModFluids.SOURCE_AUROUS_PULP.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Light Weighted Pressure Plate -- 2 Gold Ingots' worth, same treatment as its Iron counterpart above.
-        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_light_weighted_pressure_plate",
+        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_pulp_masticating_light_weighted_pressure_plate",
                 Items.LIGHT_WEIGHTED_PRESSURE_PLATE, 2000,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_AUROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(60));
 
         // Gold Block -- mirrors the Copper Block family's own vanilla-ratio-anchored 9000 mB (9
-        // Ingots) at the Sediment Blend's 5 mB/tick rate, same convention as Copper Block/Cut Copper.
-        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_blend_masticating_gold_block", Items.GOLD_BLOCK, 9000,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        // Ingots) at the Sediment Pulp's 5 mB/tick rate, same convention as Copper Block/Cut Copper.
+        RecipeBuilders.masticateWithWater(recipeOutput, "aurous_pulp_masticating_gold_block", Items.GOLD_BLOCK, 9000,
+                ModFluids.SOURCE_AUROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
 
-        // Metal Blends - Metastasizer reverse route (Blend -> Ingot/Nugget), mirroring the Masticator's
+        // Metal Pulps - Metastasizer reverse route (Pulp -> Ingot/Nugget), mirroring the Masticator's
         // Ingot/Nugget fluid amounts above 1:1. No Cuprous Nugget, same reason as the Masticator side.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_BLEND.get(), 110, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_bars", Items.IRON_BARS, ModFluids.SOURCE_FERROUS_BLEND.get(), 375, ModMath.Time.getSecondsToTicks(17));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bucket", Items.BUCKET, ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_block", Items.IRON_BLOCK, ModFluids.SOURCE_FERROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_hopper", Items.HOPPER, ModFluids.SOURCE_FERROUS_BLEND.get(), 5000, ModMath.Time.getSecondsToTicks(50));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_ingot", Items.IRON_INGOT, ModFluids.SOURCE_FERROUS_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ferrous_nugget", Items.IRON_NUGGET, ModFluids.SOURCE_FERROUS_PULP.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_bars", Items.IRON_BARS, ModFluids.SOURCE_FERROUS_PULP.get(), 375, ModMath.Time.getSecondsToTicks(17));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bucket", Items.BUCKET, ModFluids.SOURCE_FERROUS_PULP.get(), 3000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_block", Items.IRON_BLOCK, ModFluids.SOURCE_FERROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_hopper", Items.HOPPER, ModFluids.SOURCE_FERROUS_PULP.get(), 5000, ModMath.Time.getSecondsToTicks(50));
 
-        // Blood Nugget -- alternate trace-iron route from Protein Blend. Iron Nugget is a
-        // non-consumed pattern (same as every other Metastasizer recipe here); Protein Blend is the
-        // real cost. Deliberately weaker than the direct Ferrous Blend family above: this is a
+        // Blood Nugget -- alternate trace-iron route from Protein Pulp. Iron Nugget is a
+        // non-consumed pattern (same as every other Metastasizer recipe here); Protein Pulp is the
+        // real cost. Deliberately weaker than the direct Ferrous Pulp family above: this is a
         // renewable fallback for players without iron access yet, not a replacement for mining.
         RecipeBuilders.buildMetastasizing(recipeOutput, "metastasizing_blood_nugget",
-                Ingredient.of(Items.IRON_NUGGET), ModFluids.SOURCE_PROTEIN_BLEND.get(), 250,
+                Ingredient.of(Items.IRON_NUGGET), ModFluids.SOURCE_PROTEIN_PULP.get(), 250,
                 new ItemStack(ModItems.BLOOD_NUGGET.get()), solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_heavy_weighted_pressure_plate", Items.HEAVY_WEIGHTED_PRESSURE_PLATE,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_FERROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(60));
 
-        // Cauldron via Ferrous Blend -- the Cauldron is metal (unlike the glass items Silica/Calcium
-        // Blend duplicate), so it follows the same 1000 mB/Ingot rate literally against the real
+        // Cauldron via Ferrous Pulp -- the Cauldron is metal (unlike the glass items Silica/Calcium
+        // Pulp duplicate), so it follows the same 1000 mB/Ingot rate literally against the real
         // vanilla recipe cost (7 Iron Ingots). Steep, but deliberately consistent rather than a
         // discounted one-off. Unblocks the Drooling Cauldron's OT-native recipe.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cauldron", Items.CAULDRON, ModFluids.SOURCE_FERROUS_BLEND.get(), 7000, ModMath.Time.getSecondsToTicks(70));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cauldron", Items.CAULDRON, ModFluids.SOURCE_FERROUS_PULP.get(), 7000, ModMath.Time.getSecondsToTicks(70));
 
-        // Forward route back to Ferrous Blend -- matches the reverse metastasizing_cauldron above
+        // Forward route back to Ferrous Pulp -- matches the reverse metastasizing_cauldron above
         // 1:1 (7000 mB, 70s), same convention as every other Masticator/Metastasizer pair.
-        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_blend_masticating_cauldron", Items.CAULDRON, 7000,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 7000, ModMath.Time.getSecondsToTicks(70));
+        RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_cauldron", Items.CAULDRON, 7000,
+                ModFluids.SOURCE_FERROUS_PULP.get(), 7000, ModMath.Time.getSecondsToTicks(70));
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cuprous_ingot", Items.COPPER_INGOT, ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cuprous_ingot", Items.COPPER_INGOT, ModFluids.SOURCE_CUPROUS_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(45));
 
         // Copper building block family -- mirrors the Masticator recipes above 1:1, same convention
-        // as every other Metal/Sediment Blend reverse route. Unaffected state only (see forward
+        // as every other Metal/Sediment Pulp reverse route. Unaffected state only (see forward
         // recipes' comment for the oxidation/waxed/Copper Bulb scoping reasoning).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_block", Items.COPPER_BLOCK, ModFluids.SOURCE_CUPROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cut_copper", Items.CUT_COPPER, ModFluids.SOURCE_CUPROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cut_copper_stairs", Items.CUT_COPPER_STAIRS, ModFluids.SOURCE_CUPROUS_BLEND.get(), 13500, ModMath.Time.getSecondsToTicks(135));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cut_copper_slab", Items.CUT_COPPER_SLAB, ModFluids.SOURCE_CUPROUS_BLEND.get(), 4500, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chiseled_copper", Items.CHISELED_COPPER, ModFluids.SOURCE_CUPROUS_BLEND.get(), 18000, ModMath.Time.getSecondsToTicks(180));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_grate", Items.COPPER_GRATE, ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_door", Items.COPPER_DOOR, ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(20));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_trapdoor", Items.COPPER_TRAPDOOR, ModFluids.SOURCE_CUPROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(20));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_block", Items.COPPER_BLOCK, ModFluids.SOURCE_CUPROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cut_copper", Items.CUT_COPPER, ModFluids.SOURCE_CUPROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cut_copper_stairs", Items.CUT_COPPER_STAIRS, ModFluids.SOURCE_CUPROUS_PULP.get(), 13500, ModMath.Time.getSecondsToTicks(135));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cut_copper_slab", Items.CUT_COPPER_SLAB, ModFluids.SOURCE_CUPROUS_PULP.get(), 4500, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chiseled_copper", Items.CHISELED_COPPER, ModFluids.SOURCE_CUPROUS_PULP.get(), 18000, ModMath.Time.getSecondsToTicks(180));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_grate", Items.COPPER_GRATE, ModFluids.SOURCE_CUPROUS_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_door", Items.COPPER_DOOR, ModFluids.SOURCE_CUPROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(20));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_copper_trapdoor", Items.COPPER_TRAPDOOR, ModFluids.SOURCE_CUPROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(20));
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_ingot", Items.GOLD_INGOT, ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_nugget", Items.GOLD_NUGGET, ModFluids.SOURCE_AUROUS_BLEND.get(), 110, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_ingot", Items.GOLD_INGOT, ModFluids.SOURCE_AUROUS_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_aurous_nugget", Items.GOLD_NUGGET, ModFluids.SOURCE_AUROUS_PULP.get(), 110, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_light_weighted_pressure_plate", Items.LIGHT_WEIGHTED_PRESSURE_PLATE,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 2000, ModMath.Time.getSecondsToTicks(60));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gold_block", Items.GOLD_BLOCK, ModFluids.SOURCE_AUROUS_BLEND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+                ModFluids.SOURCE_AUROUS_PULP.get(), 2000, ModMath.Time.getSecondsToTicks(60));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gold_block", Items.GOLD_BLOCK, ModFluids.SOURCE_AUROUS_PULP.get(), 9000, ModMath.Time.getSecondsToTicks(90));
 
 
         RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
-                ModFluids.SOURCE_CARBON_BLEND.get(), 500, Items.TORCH, 4);
+                ModFluids.SOURCE_CARBON_PULP.get(), 500, Items.TORCH, 4);
 
         // Redstone torch's own dipping recipe -- mirrors vanilla's 1 stick + 1 redstone dust -> 1
         // redstone torch ratio (unlike the plain torch's 4-output). 110 mB Molten Redstone matches
@@ -1151,7 +1151,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // through the Mutator's MUTATE mode instead of a dipping tank. lightTicks matches the same
         // "cheap single-dust-scale conversion" cadence metastasizing_molten_redstone_dust uses.
         RecipeBuilders.buildMutating(recipeOutput, "mutating_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
-                ModFluids.SOURCE_CARBON_BLEND.get(), 500, new ItemStack(Items.TORCH, 4), lightTicks);
+                ModFluids.SOURCE_CARBON_PULP.get(), 500, new ItemStack(Items.TORCH, 4), lightTicks);
         RecipeBuilders.buildMutating(recipeOutput, "mutating_redstone_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
                 ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
 
@@ -1175,26 +1175,26 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(),
                 ModMath.Time.getSecondsToTicks(10));
 
-        // Base fluid updated (2026-08-29) from Synapse Catalyst to Knowledge Essence -- Knowledge is
+        // Base fluid updated (2026-08-29) from Synapse Catalyst to Knowledge Colloid -- Knowledge is
         // a more literal fit for "the reagent behind evolving a machine's capabilities" than a
         // generic smart-component fluid is, now that it exists.
         RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "evolution_catalyst_puddle",
                 List.of(Ingredient.of(Items.PHANTOM_MEMBRANE), Ingredient.of(Items.QUARTZ), Ingredient.of(Items.GLOWSTONE_DUST)),
-                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), ModFluids.SOURCE_EVOLUTION_CATALYST.get(),
+                ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), ModFluids.SOURCE_EVOLUTION_CATALYST.get(),
                 ModMath.Time.getSecondsToTicks(10));
 
         RecipeBuilders.PuddleCraft.MakeItems.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 ModBlocks.INERT_TUMOR.asItem(), 1, ModMath.Time.getSecondsToTicks(10));
 
-        RecipeBuilders.PuddleCraft.MakeItems.makeFromOneItem(recipeOutput, "calcium_glass_puddle", Items.BONE_MEAL, 1, ModFluids.SOURCE_CALCIUM_BLEND.get(),
+        RecipeBuilders.PuddleCraft.MakeItems.makeFromOneItem(recipeOutput, "calcium_glass_puddle", Items.BONE_MEAL, 1, ModFluids.SOURCE_CALCIUM_PULP.get(),
                 ModBlocks.CALCIUM_GLASS.asItem(), 1, ModMath.Time.getSecondsToTicks(20));
 
-        // Bootstrap route to Calcium Blend -- costs 4 Bone Meal for the same 1000 mB the Masticator's
-        // own batch recipe gets from 3 (calcium_blend_bone_meal_masticating_batch above), a real
+        // Bootstrap route to Calcium Pulp -- costs 4 Bone Meal for the same 1000 mB the Masticator's
+        // own batch recipe gets from 3 (calcium_pulp_bone_meal_masticating_batch above), a real
         // premium for skipping the machine, matching every other puddle-vs-machine tradeoff.
-        RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "calcium_blend_puddle",
+        RecipeBuilders.PuddleCraft.MakeFluids.make(recipeOutput, "calcium_pulp_puddle",
                 List.of(Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL), Ingredient.of(Items.BONE_MEAL)),
-                Fluids.WATER, ModFluids.SOURCE_CALCIUM_BLEND.get(), ModMath.Time.getSecondsToTicks(5));
+                Fluids.WATER, ModFluids.SOURCE_CALCIUM_PULP.get(), ModMath.Time.getSecondsToTicks(5));
 
         // Reverses Primitive Catalyst's own bone-as-ingredient recipe (dermicraft-catalyst-notes.md) --
         // Bone Meal pulls a whole Bone back out. Puddle stays Primitive Catalyst rather than
@@ -1218,15 +1218,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_f_stuff_bucket", has(ModFluids.F_STUFF_BUCKET.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("mre_smoking"));
 
-        // Meat Flavored Meat - same trio as MRE, using Protein Blend Bucket as the ingredient instead of F-Stuff.
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModFluids.PROTEIN_BLEND_BUCKET.get()), RecipeCategory.FOOD,
+        // Meat Flavored Meat - same trio as MRE, using Protein Pulp Bucket as the ingredient instead of F-Stuff.
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ModFluids.PROTEIN_PULP_BUCKET.get()), RecipeCategory.FOOD,
                         ModItems.MEAT_FLAVORED_MEAT.get(), 0.35f, ModMath.Time.getSecondsToTicks(10))
-                .unlockedBy("has_protein_blend_bucket", has(ModFluids.PROTEIN_BLEND_BUCKET.get()))
+                .unlockedBy("has_protein_pulp_bucket", has(ModFluids.PROTEIN_PULP_BUCKET.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("meat_flavored_meat_smelting"));
 
-        SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModFluids.PROTEIN_BLEND_BUCKET.get()), RecipeCategory.FOOD,
+        SimpleCookingRecipeBuilder.smoking(Ingredient.of(ModFluids.PROTEIN_PULP_BUCKET.get()), RecipeCategory.FOOD,
                         ModItems.MEAT_FLAVORED_MEAT.get(), 0.35f, ModMath.Time.getSecondsToTicks(5))
-                .unlockedBy("has_protein_blend_bucket", has(ModFluids.PROTEIN_BLEND_BUCKET.get()))
+                .unlockedBy("has_protein_pulp_bucket", has(ModFluids.PROTEIN_PULP_BUCKET.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("meat_flavored_meat_smoking"));
 
         // Mutator - same 8-item implant shape as the Metastasizer's, Chest swapped in as the
@@ -1260,7 +1260,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Mutator recipe roster - all values provisional (functional-not-final, see machine notes),
         // Tier 1 only. Stage 2 (Magma Block, Tinted Glass, Eye of Ender) is deliberately NOT built yet.
         //
-        // Glass family collision fix: dye + Silica Blend can't produce BOTH stained glass and stained
+        // Glass family collision fix: dye + Silica Pulp can't produce BOTH stained glass and stained
         // glass pane from the Mutator -- both would share the same {dye, fluid} input pair, which
         // collides under OneFluidOneItemRecipeInput's fluid-amount "at least" matching (whichever
         // recipe the recipe manager iterates first would win, arbitrarily). Resolved by splitting the
@@ -1274,9 +1274,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Bladder family
         RecipeBuilders.mutate(recipeOutput, "mutating_fuel_bladder", ModItems.BLADDER.get(),
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 750, ModItems.FUEL_BLADDER.get(), solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 750, ModItems.FUEL_BLADDER.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_feeder_bladder", ModItems.BLADDER.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.FEEDER_BLADDER.get(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 750, ModItems.FEEDER_BLADDER.get(), solidTicks);
 
         // Charred (thermal-hazard-tolerant) Bladder -- quenched/hardened in a full bucket of Lava,
         // matching the Charred Duct/Node's own convention.
@@ -1291,14 +1291,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "charred_fuel_bladder_from_fuel_bladder_mutating", ModItems.FUEL_BLADDER.get(),
                 Fluids.LAVA, 1000, ModItems.CHARRED_FUEL_BLADDER.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "charred_fuel_bladder_from_charred_bladder_mutating", ModItems.CHARRED_BLADDER.get(),
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 750, ModItems.CHARRED_FUEL_BLADDER.get(), solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 750, ModItems.CHARRED_FUEL_BLADDER.get(), solidTicks);
 
         RecipeBuilders.mutate(recipeOutput, "charred_feeder_bladder_from_feeder_bladder_mutating", ModItems.FEEDER_BLADDER.get(),
                 Fluids.LAVA, 1000, ModItems.CHARRED_FEEDER_BLADDER.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "charred_feeder_bladder_from_charred_bladder_mutating", ModItems.CHARRED_BLADDER.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, ModItems.CHARRED_FEEDER_BLADDER.get(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 750, ModItems.CHARRED_FEEDER_BLADDER.get(), solidTicks);
 
-        // Chassis: Iron Bars (mechanical scaffold) + Calcium-Blend-derived Reinforcing Catalyst
+        // Chassis: Iron Bars (mechanical scaffold) + Calcium-Pulp-derived Reinforcing Catalyst
         // (skeletal reagent) -- shared structural item across Gadgets and the Module Frame below.
         RecipeBuilders.mutate(recipeOutput, "chassis_mutating", Items.IRON_BARS,
                 ModFluids.SOURCE_REINFORCING_CATALYST.get(), 1000, ModItems.CHASSIS.get(), solidTicks);
@@ -1328,97 +1328,97 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier
         // is 1.5x/2.0x/2.5x of the material's OWN base durability (not compounding). Bone uses
         // Reinforcing Catalyst (same reagent Chassis uses above); the metals each use their own
-        // Blend fluid (Ferrous=Iron, Cuprous=Copper, Aurous=Gold) -- Diamond is deferred until it has
-        // its own Blend fluid (only Molten Diamond exists today, a different fluid family).
+        // Pulp fluid (Ferrous=Iron, Cuprous=Copper, Aurous=Gold) -- Diamond is deferred until it has
+        // its own Pulp fluid (only Molten Diamond exists today, a different fluid family).
         buildPartUpgradeTiers(recipeOutput, "bone_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
                 ModFluids.SOURCE_REINFORCING_CATALYST.get(), 262, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "copper_shatter_head", ModItems.COPPER_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 230, solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 230, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "gold_shatter_head", ModItems.GOLD_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 64, solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 64, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "iron_shatter_head", ModItems.IRON_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 500, solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 500, solidTicks);
 
         // Sunder chain upgrades -- same shared 3-tier ladder, mechanics, and fluid-per-material
-        // mapping as the Shatter heads above (Bone = Reinforcing Catalyst, metals = their own Blend
-        // fluid). Diamond is deferred for the same reason as Shatter's Diamond head: no Diamond Blend
+        // mapping as the Shatter heads above (Bone = Reinforcing Catalyst, metals = their own Pulp
+        // fluid). Diamond is deferred for the same reason as Shatter's Diamond head: no Diamond Pulp
         // fluid exists yet (only Molten Diamond, a different fluid family) -- revisit once it does.
         buildPartUpgradeTiers(recipeOutput, "bone_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
                 ModFluids.SOURCE_REINFORCING_CATALYST.get(), 75, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "copper_sunder_chain", ModItems.COPPER_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 150, solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 150, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "gold_sunder_chain", ModItems.GOLD_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 100, solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 100, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "iron_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 250, solidTicks);
 
-        // Glassmaking family (Silica Blend) - Mutator half: Dye + Silica Blend -> Stained Glass BLOCK
+        // Glassmaking family (Silica Pulp) - Mutator half: Dye + Silica Pulp -> Stained Glass BLOCK
         // only (see the collision note above for why the pane isn't here). Priced at parity with the
-        // plain Glass Block's own (undocumented-in-code, but design-confirmed) 1000 mB Silica Blend
-        // cost - putting Silica Blend to work on its core silica-to-glass identity.
+        // plain Glass Block's own (undocumented-in-code, but design-confirmed) 1000 mB Silica Pulp
+        // cost - putting Silica Pulp to work on its core silica-to-glass identity.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
             RecipeBuilders.mutate(recipeOutput, "mutating_stained_glass_" + c, dyeItem(c),
-                    ModFluids.SOURCE_SILICA_BLEND.get(), 1000, stainedGlassItem(c), solidTicks);
+                    ModFluids.SOURCE_SILICA_PULP.get(), 1000, stainedGlassItem(c), solidTicks);
         }
 
-        // Ceramics family (Clay Blend) - Colored & Glazed Terracotta. Collision fix: Glazed's
+        // Ceramics family (Clay Pulp) - Colored & Glazed Terracotta. Collision fix: Glazed's
         // ingredient is the COLORED TERRACOTTA item itself, not the dye -- Colored and Glazed no
         // longer share an {ingredient, fluid} pair (Colored keys off dye, Glazed keys off the
         // colored-terracotta item), so both can coexist without the ambiguous-match problem the
         // glass family hit. This also happens to be more true to the real process (clay -> terracotta
         // -> dye -> COLORED -> fire again -> GLAZED -- Glazed is made FROM Colored, not from raw dye).
         // Fluid cost follows from the ingredient change: Glazed's input already embeds Colored's own
-        // 1000 mB Clay Blend cost, so the marginal dose for firing-only is priced LOWER than a
+        // 1000 mB Clay Pulp cost, so the marginal dose for firing-only is priced LOWER than a
         // from-scratch estimate would be (500 mB, half of Colored's), while total investment across
         // the two steps together still ends up pricier than Colored alone. Time still runs longer
         // (300 ticks vs. Colored's 200) -- firing takes longer, independent of the ingredient swap.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
             RecipeBuilders.mutate(recipeOutput, "mutating_terracotta_" + c, dyeItem(c),
-                    ModFluids.SOURCE_CLAY_BLEND.get(), 1000, coloredTerracottaItem(c), solidTicks);
+                    ModFluids.SOURCE_CLAY_PULP.get(), 1000, coloredTerracottaItem(c), solidTicks);
             RecipeBuilders.mutate(recipeOutput, "mutating_glazed_terracotta_" + c, coloredTerracottaItem(c),
-                    ModFluids.SOURCE_CLAY_BLEND.get(), 500, glazedTerracottaItem(c), ModMath.Time.getSecondsToTicks(15));
+                    ModFluids.SOURCE_CLAY_PULP.get(), 500, glazedTerracottaItem(c), ModMath.Time.getSecondsToTicks(15));
         }
 
         // Variant tumors - migrated from the Brain's OT-only candidate list (still OT-invokable).
         RecipeBuilders.mutate(recipeOutput, "mutating_eye_tumor", ModItems.EYE.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, ModBlocks.EYE_TUMOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 1000, ModBlocks.EYE_TUMOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_nerve_tumor", ModItems.NERVE_CLUSTER.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, ModBlocks.NERVE_TUMOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 1000, ModBlocks.NERVE_TUMOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_muscle_tumor", ModItems.DENSE_MUSCLE.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, ModBlocks.MUSCLE_TUMOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 1000, ModBlocks.MUSCLE_TUMOR.asItem(), solidTicks);
 
-        // Skeleton Skull -> Zombie Head: grows flesh over bone with a full bucket of Protein Blend.
+        // Skeleton Skull -> Zombie Head: grows flesh over bone with a full bucket of Protein Pulp.
         // Deliberately cheap -- with Sunder's own decapitation farming, either head is easy to come
         // by, so this reads as a convenience trade between two equally-farmable heads, not a source
         // of otherwise-scarce Zombie Heads.
         RecipeBuilders.mutate(recipeOutput, "mutating_zombie_head_from_skeleton_skull", Items.SKELETON_SKULL,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 1000, Items.ZOMBIE_HEAD, solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 1000, Items.ZOMBIE_HEAD, solidTicks);
 
-        // Stitched Tumor - Mutator route: Marred Tumor + Protein Blend, priced at String's own
+        // Stitched Tumor - Mutator route: Marred Tumor + Protein Pulp, priced at String's own
         // Metastasizer cost (100 mB, see metastasizing_string above) since it's the "stitching it back
         // together" step -- same fleshy-fix-up cost as a single strand of thread.
         RecipeBuilders.mutate(recipeOutput, "mutating_stitched_tumor", ModBlocks.MARRED_TUMOR.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 100, ModBlocks.STITCHED_TUMOR.get(), lightTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 100, ModBlocks.STITCHED_TUMOR.get(), lightTicks);
 
-        // Flesh Lab Floor - Mutator route: structural block + 2000 mB Protein Blend -> the matching
+        // Flesh Lab Floor - Mutator route: structural block + 2000 mB Protein Pulp -> the matching
         // Lab Floor variant. Same structural-block-defines-the-variant pattern as the crafting-table
         // recipes, priced at 2x the tumors' flat 1000 mB since it's producing infrastructure, not a print.
         RecipeBuilders.mutate(recipeOutput, "mutating_stone_lab_floor", Items.STONE,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.STONE_LAB_FLOOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2000, ModBlocks.STONE_LAB_FLOOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_cobblestone_lab_floor", Items.COBBLESTONE,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.COBBLESTONE_LAB_FLOOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2000, ModBlocks.COBBLESTONE_LAB_FLOOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_deepslate_lab_floor", Items.DEEPSLATE,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.DEEPSLATE_LAB_FLOOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2000, ModBlocks.DEEPSLATE_LAB_FLOOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_cobbled_deepslate_lab_floor", Items.COBBLED_DEEPSLATE,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2000, ModBlocks.COBBLED_DEEPSLATE_LAB_FLOOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_diorite_lab_floor", Items.DIORITE,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.DIORITE_LAB_FLOOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2000, ModBlocks.DIORITE_LAB_FLOOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_andesite_lab_floor", Items.ANDESITE,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.ANDESITE_LAB_FLOOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2000, ModBlocks.ANDESITE_LAB_FLOOR.asItem(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_granite_lab_floor", Items.GRANITE,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2000, ModBlocks.GRANITE_LAB_FLOOR.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2000, ModBlocks.GRANITE_LAB_FLOOR.asItem(), solidTicks);
 
         // Craw - Mutator alternate route, parallel to craw_implant (not a replacement; the implant's
         // Chest + 2 Dense Muscle + 2 Nerve Cluster + Primitive Catalyst combine stays). Chest is
@@ -1427,47 +1427,47 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // don't (see "Explicit non-fits" in dermicraft-machine-notes.md). Priced above the Lab
         // Floors' flat 2000 mB since the Craw is a functional machine, not a floor tile.
         RecipeBuilders.mutate(recipeOutput, "mutating_craw", Items.CHEST,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.CRAW.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2500, ModBlocks.CRAW.asItem(), solidTicks);
 
-        // Hopper - Chest + Ferrous Blend, same "structural item + Mutator reagent" shape as Craw
+        // Hopper - Chest + Ferrous Pulp, same "structural item + Mutator reagent" shape as Craw
         // above. 5000 mB matches vanilla's own 5 Iron Ingot cost exactly (1000 mB per ingot, the
         // mod's standard rate -- see metastasizing_ferrous_ingot), and mirrors metastasizing_hopper's
         // own 5000 mB duplication cost below.
         RecipeBuilders.mutate(recipeOutput, "mutating_hopper", Items.CHEST,
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 5000, Items.HOPPER, solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 5000, Items.HOPPER, solidTicks);
 
         // Skin Tank - same reasoning and price as the Craw's Mutator route above: simple enough
         // (one structural item, Beaker, no second reagent needed) to fit the Mutator, parallel to
         // (not replacing) skin_tank_implant.
         RecipeBuilders.mutate(recipeOutput, "mutating_skin_tank", ModBlocks.BEAKER_ITEM.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.SKIN_TANK.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2500, ModBlocks.SKIN_TANK.asItem(), solidTicks);
 
         // Knowledge Vat -- alternate route alongside knowledge_vat_implant: an already-built Skin
-        // Tank plus 500 mB Knowledge Essence, same "existing structural item + Mutator reagent"
+        // Tank plus 500 mB Knowledge Colloid, same "existing structural item + Mutator reagent"
         // shape as mutating_skin_tank itself. Cheaper mB cost than the other Mutator recipes here
         // since it's a small conversion, not a from-scratch build.
         RecipeBuilders.mutate(recipeOutput, "mutating_knowledge_vat", ModBlocks.SKIN_TANK.asItem(),
-                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 500, ModBlocks.KNOWLEDGE_VAT.asItem(), solidTicks);
+                ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), 500, ModBlocks.KNOWLEDGE_VAT.asItem(), solidTicks);
 
         // Primitive surgical toolkit -> real Iron tier, Mutator route. Not a progression gate (the
         // Iron tools are already plain crafting-table recipes) -- purely a recycling convenience so a
         // worn Primitive tool doesn't have to be thrown away once Iron access exists. Flat 250 mB
-        // Ferrous Blend across all 4, cheap and fast (quickTicks) to match that "convenience, not a
+        // Ferrous Pulp across all 4, cheap and fast (quickTicks) to match that "convenience, not a
         // real cost" framing.
         RecipeBuilders.mutate(recipeOutput, "mutating_forceps", ModItems.PRIMITIVE_FORCEPS.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.FORCEPS.get(), quickTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 250, ModItems.FORCEPS.get(), quickTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_scalpel", ModItems.PRIMITIVE_SCALPEL.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.SCALPEL.get(), quickTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 250, ModItems.SCALPEL.get(), quickTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_suture_kit", ModItems.PRIMITIVE_SUTURE_KIT.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.SUTURE_KIT.get(), quickTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 250, ModItems.SUTURE_KIT.get(), quickTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_syringe", ModItems.PRIMITIVE_SYRINGE.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 250, ModItems.SYRINGE.get(), quickTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 250, ModItems.SYRINGE.get(), quickTicks);
 
         // Brain Block - FL Tier 1 build (see dermicraft-machine-notes.md, Core -- Tier 1 build).
         // Same price/timing as the Craw/Skin Tank Mutator routes -- the Brain is the FL's control
         // block, at least as significant as either.
         RecipeBuilders.mutate(recipeOutput, "mutating_brain", ModItems.PROTO_BRAIN.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 2500, ModBlocks.BRAIN.asItem(), solidTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 2500, ModBlocks.BRAIN.asItem(), solidTicks);
 
         // Overgrowth family (Crude Slurry as the life/growth agent) - Mossy Cobblestone set. 10 mB
         // flat across the whole family (block/stairs/wall/slab alike) -- other mods gate this behind
@@ -1502,22 +1502,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Cobweb - Mutator half of the bootstrap-to-duplication loop (Metastasizer duplicates thereafter).
         RecipeBuilders.mutate(recipeOutput, "mutating_cobweb", Items.STRING,
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 750, Items.COBWEB, aggregateTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 750, Items.COBWEB, aggregateTicks);
 
-        // Leather - liming (Calcium Blend), Mutator half of its own bootstrap-to-duplication loop.
+        // Leather - liming (Calcium Pulp), Mutator half of its own bootstrap-to-duplication loop.
         RecipeBuilders.mutate(recipeOutput, "mutating_leather", Items.ROTTEN_FLESH,
-                ModFluids.SOURCE_CALCIUM_BLEND.get(), 500, Items.LEATHER, solidTicks);
+                ModFluids.SOURCE_CALCIUM_PULP.get(), 500, Items.LEATHER, solidTicks);
 
-        // Gilding family (Aurous Blend) - golden foods, priced from vanilla's ingot/nugget cost with
+        // Gilding family (Aurous Pulp) - golden foods, priced from vanilla's ingot/nugget cost with
         // the machine-efficiency discount applied (see machine notes for the worked math).
         RecipeBuilders.mutate(recipeOutput, "mutating_golden_apple", Items.APPLE,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 6000, Items.GOLDEN_APPLE, solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 6000, Items.GOLDEN_APPLE, solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_golden_carrot", Items.CARROT,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 660, Items.GOLDEN_CARROT, aggregateTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 660, Items.GOLDEN_CARROT, aggregateTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_glistering_melon_slice", Items.MELON_SLICE,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 660, Items.GLISTERING_MELON_SLICE, aggregateTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 660, Items.GLISTERING_MELON_SLICE, aggregateTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gilded_blackstone", Items.BLACKSTONE,
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 550, Items.GILDED_BLACKSTONE, solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 550, Items.GILDED_BLACKSTONE, solidTicks);
 
         // Sunder Chains (Mutator) - hub-and-spoke, not a linear chain: Bone (crafting-table only,
         // no Mutator recipe of its own -- it's the universal entry point/"Calcium" hub) mutates
@@ -1526,17 +1526,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Molten Diamond, all at the same flat 3000 mB regardless of source material -- Bone itself
         // never mutates directly into Diamond, it has to pass through a metal tier first.
         RecipeBuilders.mutate(recipeOutput, "mutating_iron_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModItems.IRON_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 3000, ModItems.IRON_SUNDER_CHAIN.get(), solidTicks);
 
-        // Blaze Essence -- a direct upgrade from Iron specifically (thematically the best base for
+        // Blaze Colloid -- a direct upgrade from Iron specifically (thematically the best base for
         // the heat, and closest in stats), ONLY reachable this way -- no crafting-table recipe of
         // its own.
-        RecipeBuilders.mutate(recipeOutput, "mutating_blaze_essence_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 3000, ModItems.BLAZE_ESSENCE_SUNDER_CHAIN.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_blaze_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
+                ModFluids.SOURCE_BLAZE_COLLOID.get(), 3000, ModItems.BLAZE_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_copper_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 3000, ModItems.COPPER_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 3000, ModItems.COPPER_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gold_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 3000, ModItems.GOLD_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 3000, ModItems.GOLD_SUNDER_CHAIN.get(), solidTicks);
 
         // Emerald -- a direct upgrade from Gold specifically (not a Bone-hub spoke like the other
         // metals), ONLY reachable this way -- no crafting-table recipe of its own.
@@ -1555,9 +1555,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Knowledge -- a direct upgrade from Diamond specifically (not a Bone-hub spoke), ONLY
         // reachable this way -- no crafting-table recipe of its own, same shape Emerald/Blaze
-        // Essence's own specialty branches use.
+        // Colloid's own specialty branches use.
         RecipeBuilders.mutate(recipeOutput, "mutating_knowledge_sunder_chain", ModItems.DIAMOND_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 3000, ModItems.KNOWLEDGE_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), 3000, ModItems.KNOWLEDGE_SUNDER_CHAIN.get(), solidTicks);
 
         // Netherite -- the capstone above Diamond, ONLY reachable this way (no crafting-table
         // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB
@@ -1569,17 +1569,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // newly built (Shatter previously had no Mutator recipes at all, only independent
         // crafting-table recipes for each material, which are untouched).
         RecipeBuilders.mutate(recipeOutput, "mutating_iron_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_FERROUS_BLEND.get(), 3000, ModItems.IRON_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 3000, ModItems.IRON_SHATTER_HEAD.get(), solidTicks);
 
-        // Blaze Essence -- a direct upgrade from Iron specifically (thematically the best base for
+        // Blaze Colloid -- a direct upgrade from Iron specifically (thematically the best base for
         // the heat, and closest in stats), ONLY reachable this way -- no crafting-table recipe of
         // its own.
-        RecipeBuilders.mutate(recipeOutput, "mutating_blaze_essence_shatter_head", ModItems.IRON_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 3000, ModItems.BLAZE_ESSENCE_SHATTER_HEAD.get(), solidTicks);
+        RecipeBuilders.mutate(recipeOutput, "mutating_blaze_shatter_head", ModItems.IRON_SHATTER_HEAD.get(),
+                ModFluids.SOURCE_BLAZE_COLLOID.get(), 3000, ModItems.BLAZE_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_copper_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_CUPROUS_BLEND.get(), 3000, ModItems.COPPER_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 3000, ModItems.COPPER_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gold_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_AUROUS_BLEND.get(), 3000, ModItems.GOLD_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 3000, ModItems.GOLD_SHATTER_HEAD.get(), solidTicks);
 
         // Emerald -- a direct upgrade from Gold specifically (not a Bone-hub spoke like the other
         // metals), ONLY reachable this way -- no crafting-table recipe of its own.
@@ -1595,9 +1595,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Knowledge -- a direct upgrade from Diamond specifically (not a Bone-hub spoke), ONLY
         // reachable this way -- no crafting-table recipe of its own, same shape Emerald/Blaze
-        // Essence's own specialty branches use.
+        // Colloid's own specialty branches use.
         RecipeBuilders.mutate(recipeOutput, "mutating_knowledge_shatter_head", ModItems.DIAMOND_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), 3000, ModItems.KNOWLEDGE_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), 3000, ModItems.KNOWLEDGE_SHATTER_HEAD.get(), solidTicks);
 
         // Netherite -- the capstone above Diamond, ONLY reachable this way (no crafting-table
         // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB
@@ -1613,16 +1613,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Metastasizer additions riding along in the same pass - plain Terracotta (the ceramics
         // family's plain-duplication half, parallel to the glass family), Cobweb, and Leather
         // duplication (both the steady-state halves of their Mutator bootstrap loops above).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_terracotta", Items.TERRACOTTA, ModFluids.SOURCE_CLAY_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobweb", Items.COBWEB, ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_leather", Items.LEATHER, ModFluids.SOURCE_PROTEIN_BLEND.get(), 900, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_terracotta", Items.TERRACOTTA, ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobweb", Items.COBWEB, ModFluids.SOURCE_PROTEIN_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_leather", Items.LEATHER, ModFluids.SOURCE_PROTEIN_PULP.get(), 900, solidTicks);
 
-        // Wool and String - both animal-product duplication, Protein Blend. Revised down from the
+        // Wool and String - both animal-product duplication, Protein Pulp. Revised down from the
         // initial Leather-tier/Nugget-tier pricing (900/110) to 400/100 -- still solid/light tier
         // timing, just cheaper mB, since both read as too pricey relative to how trivial they are to
         // farm in vanilla.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_wool", Items.WHITE_WOOL, ModFluids.SOURCE_PROTEIN_BLEND.get(), 400, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_string", Items.STRING, ModFluids.SOURCE_PROTEIN_BLEND.get(), 100, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_wool", Items.WHITE_WOOL, ModFluids.SOURCE_PROTEIN_PULP.get(), 400, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_string", Items.STRING, ModFluids.SOURCE_PROTEIN_PULP.get(), 100, lightTicks);
 
         // Dyed glass family - Metastasizer half. Duplication is keyed by the pattern item itself (the
         // specific-colored block/pane), so there's no {ingredient, fluid} collision the way the
@@ -1631,34 +1631,34 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // (half the block, same volume-scaling logic used elsewhere) and the aggregate tier.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
-            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_" + c, stainedGlassItem(c), ModFluids.SOURCE_SILICA_BLEND.get(), 1000, solidTicks);
-            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_pane_" + c, stainedGlassPaneItem(c), ModFluids.SOURCE_SILICA_BLEND.get(), 500, aggregateTicks);
+            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_" + c, stainedGlassItem(c), ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
+            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_pane_" + c, stainedGlassPaneItem(c), ModFluids.SOURCE_SILICA_PULP.get(), 500, aggregateTicks);
         }
 
-        // Plain-glass duplication family (Silica Blend + Calcium Blend, sized by volume) - was
+        // Plain-glass duplication family (Silica Pulp + Calcium Pulp, sized by volume) - was
         // documented as "Confirmed" in the crafting notes but never actually built; added now
         // alongside the dyed-glass work discovering the gap. Real glass draws from both silica (sand)
         // and lime (calcium), so items with both a Silica and Calcium identity get two separate
         // recipes each (Metastasizer already supports multiple recipes per output item - no conflict,
         // since the fluid type itself distinguishes them).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_block", Items.GLASS, ModFluids.SOURCE_SILICA_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_block", Items.GLASS, ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_silica", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_SILICA_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_calcium", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_silica", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_calcium", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), 1000, solidTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_silica", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_SILICA_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_calcium", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_CALCIUM_BLEND.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_silica", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_SILICA_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_calcium", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), 250, lightTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_pane", Items.GLASS_PANE, ModFluids.SOURCE_SILICA_BLEND.get(), 500, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_pane", Items.GLASS_PANE, ModFluids.SOURCE_SILICA_PULP.get(), 500, aggregateTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcium_glass", ModBlocks.CALCIUM_GLASS.get(), ModFluids.SOURCE_CALCIUM_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcium_glass", ModBlocks.CALCIUM_GLASS.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), 1000, solidTicks);
 
-        ////////////////////Pulp Blend\\\\\\\\\\\\\\\\\\\\
+        ////////////////////Cellulose Pulp\\\\\\\\\\\\\\\\\\\\
         // Masticator input deliberately excludes Nether stems/hyphae (LOGS_THAT_BURN, not the
-        // broader LOGS tag) -- mirrors the Sediment Blends' Nether-material deferral, and keeps
+        // broader LOGS tag) -- mirrors the Sediment Pulps' Nether-material deferral, and keeps
         // the Masticator roster consistent with the Metastasizer duplication roster below.
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_masticating", ItemTags.LOGS_THAT_BURN, 1000,
-                ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_masticating", ItemTags.LOGS_THAT_BURN, 1000,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
 
         int halfPlankTicks = ModMath.Time.getSecondsToTicks(1.25f); // Slab/Stick -- 125 mB
         int stairsTicks = ModMath.Time.getSecondsToTicks(3.75f);    // 375 mB
@@ -1666,108 +1666,108 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         int trapdoorTicks = ModMath.Time.getSecondsToTicks(7.5f);   // 750 mB
         int fenceTicks = ModMath.Time.getSecondsToTicks(12.5f);     // 1250 mB -> 3 Fence
 
-        // Crafted derivatives recycle back into Pulp Blend -- same "no penalty for having already
-        // been crafted" convention as the Sediment Blends' recycling recipes (yield matches the
+        // Crafted derivatives recycle back into Cellulose Pulp -- same "no penalty for having already
+        // been crafted" convention as the Sediment Pulps' recycling recipes (yield matches the
         // forward duplication cost exactly, no lossy discount). Tag-based, so species-agnostic and
         // picks up any other mod's wood set that follows the vanilla tag convention for free.
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_planks", ItemTags.PLANKS, 250,
-                ModFluids.SOURCE_PULP_BLEND.get(), 250, lightTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_slabs", ItemTags.WOODEN_SLABS, 125,
-                ModFluids.SOURCE_PULP_BLEND.get(), 125, halfPlankTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_stairs", ItemTags.WOODEN_STAIRS, 375,
-                ModFluids.SOURCE_PULP_BLEND.get(), 375, stairsTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_doors", ItemTags.WOODEN_DOORS, 500,
-                ModFluids.SOURCE_PULP_BLEND.get(), 500, doorTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_trapdoors", ItemTags.WOODEN_TRAPDOORS, 750,
-                ModFluids.SOURCE_PULP_BLEND.get(), 750, trapdoorTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_fence_gates", ItemTags.FENCE_GATES, 1000,
-                ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_stick", Items.STICK, 125,
-                ModFluids.SOURCE_PULP_BLEND.get(), 125, halfPlankTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_planks", ItemTags.PLANKS, 250,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_slabs", ItemTags.WOODEN_SLABS, 125,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_stairs", ItemTags.WOODEN_STAIRS, 375,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 375, stairsTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_doors", ItemTags.WOODEN_DOORS, 500,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_trapdoors", ItemTags.WOODEN_TRAPDOORS, 750,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 750, trapdoorTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_fence_gates", ItemTags.FENCE_GATES, 1000,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_stick", Items.STICK, 125,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
         // Bow -- 3 Sticks' worth (3 x 125 mB), same per-stick rate as recycling a Stick directly.
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_bow", Items.BOW, 375,
-                ModFluids.SOURCE_PULP_BLEND.get(), 375, stairsTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_bow", Items.BOW, 375,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 375, stairsTicks);
         // Pressure Plate (2 Planks -> 1) and Button (1 Plank -> 1), same real-vanilla-ratio
         // derivation as the rest of this family -- Pressure Plate costs Door's own 500 mB/100
         // ticks (also a 2-Plank item), Button costs Planks' own 250 mB/50 ticks exactly (it's
         // one whole Plank, no further processing).
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_pressure_plates", ItemTags.WOODEN_PRESSURE_PLATES, 500,
-                ModFluids.SOURCE_PULP_BLEND.get(), 500, doorTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_buttons", ItemTags.WOODEN_BUTTONS, 250,
-                ModFluids.SOURCE_PULP_BLEND.get(), 250, lightTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_pressure_plates", ItemTags.WOODEN_PRESSURE_PLATES, 500,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_buttons", ItemTags.WOODEN_BUTTONS, 250,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
 
         // Fence recycles at itemAmount=3 to match its own 1250 mB-for-3 forward ratio -- the first
         // real use of the Masticator's itemAmount fix outside Bone Meal's originally-blocked case.
-        RecipeBuilders.buildMasticating(recipeOutput, "pulp_blend_recycling_fence",
+        RecipeBuilders.buildMasticating(recipeOutput, "cellulose_pulp_recycling_fence",
                 Ingredient.of(ItemTags.WOODEN_FENCES), 3, Fluids.WATER, 1250,
-                ModFluids.SOURCE_PULP_BLEND.get(), 1250, -1, fenceTicks);
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1250, -1, fenceTicks);
 
         // Single-fence convenience alternate -- deliberately under a clean 1/3 split of the batch-3
         // recipe above (400/1250 = 32%, vs. an even 416.67 mB third) so processing one at a time is
         // never as efficient as batching 3, same anti-cheese shape as the mod's other bulk discounts.
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_fence_single", ItemTags.WOODEN_FENCES, 400,
-                ModFluids.SOURCE_PULP_BLEND.get(), 400, ModMath.Time.getSecondsToTicks(4));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_fence_single", ItemTags.WOODEN_FENCES, 400,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 400, ModMath.Time.getSecondsToTicks(4));
 
         // Species covered so far -- Nether Stems/Hyphae and Bamboo deferred, same "not yet
-        // designed" status as the Sediment Blends' own deferred materials.
+        // designed" status as the Sediment Pulps' own deferred materials.
         String[] woodSpecies = {"oak", "spruce", "birch", "jungle", "acacia", "dark_oak", "mangrove", "cherry"};
 
         for (String species : woodSpecies) {
             // Log-tier items -- Log itself, the all-bark Wood form, and both Stripped variants.
             // Same cost as Log across all four; they're alternate forms of the same material tier,
-            // not a different vanilla crafting ratio (same principle as Stone Blend duplicating
+            // not a different vanilla crafting ratio (same principle as Stone Pulp duplicating
             // Andesite/Granite/Diorite individually despite sharing one tier).
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_log",
-                    woodItem(species, "log"), ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
+                    woodItem(species, "log"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_wood",
-                    woodItem(species, "wood"), ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
+                    woodItem(species, "wood"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_stripped_" + species + "_log",
-                    woodItem("stripped_" + species, "log"), ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
+                    woodItem("stripped_" + species, "log"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_stripped_" + species + "_wood",
-                    woodItem("stripped_" + species, "wood"), ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
+                    woodItem("stripped_" + species, "wood"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
 
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_planks",
-                    woodItem(species, "planks"), ModFluids.SOURCE_PULP_BLEND.get(), 250, lightTicks);
+                    woodItem(species, "planks"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_slab",
-                    woodItem(species, "slab"), ModFluids.SOURCE_PULP_BLEND.get(), 125, halfPlankTicks);
+                    woodItem(species, "slab"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_stairs",
-                    woodItem(species, "stairs"), ModFluids.SOURCE_PULP_BLEND.get(), 375, stairsTicks);
+                    woodItem(species, "stairs"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 375, stairsTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_door",
-                    woodItem(species, "door"), ModFluids.SOURCE_PULP_BLEND.get(), 500, doorTicks);
+                    woodItem(species, "door"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_trapdoor",
-                    woodItem(species, "trapdoor"), ModFluids.SOURCE_PULP_BLEND.get(), 750, trapdoorTicks);
+                    woodItem(species, "trapdoor"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 750, trapdoorTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_fence_gate",
-                    woodItem(species, "fence_gate"), ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
+                    woodItem(species, "fence_gate"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_pressure_plate",
-                    woodItem(species, "pressure_plate"), ModFluids.SOURCE_PULP_BLEND.get(), 500, doorTicks);
+                    woodItem(species, "pressure_plate"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_button",
-                    woodItem(species, "button"), ModFluids.SOURCE_PULP_BLEND.get(), 250, lightTicks);
+                    woodItem(species, "button"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
 
             // Fence is the one item whose vanilla yield (3 per craft) doesn't divide evenly into
             // a per-item mB cost -- built as an explicit 3-count result rather than through the
             // duplicate() helper. Relies on the Metastasizer's existing support for a multi-count
             // result ItemStack (no engine change needed, unlike the Masticator's item-input side).
             RecipeBuilders.buildMetastasizing(recipeOutput, "metastasizing_" + species + "_fence",
-                    Ingredient.of(woodItem(species, "fence")), ModFluids.SOURCE_PULP_BLEND.get(), 1250,
+                    Ingredient.of(woodItem(species, "fence")), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1250,
                     new ItemStack(woodItem(species, "fence"), 3), fenceTicks);
         }
 
         // Stick is species-agnostic in vanilla (one item regardless of source wood), so it gets a
         // single shared recipe rather than one per species.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stick", Items.STICK, ModFluids.SOURCE_PULP_BLEND.get(), 125, halfPlankTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stick", Items.STICK, ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
 
         // Chest (8 Planks = 2000 mB) and Crafting Table (4 Planks = 1000 mB) -- also
         // species-agnostic in vanilla, same real-ratio treatment as everything else in the family.
         int chestTicks = ModMath.Time.getSecondsToTicks(20); // 2000 mB
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chest", Items.CHEST, ModFluids.SOURCE_PULP_BLEND.get(), 2000, chestTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_chest", Items.CHEST, 2000,
-                ModFluids.SOURCE_PULP_BLEND.get(), 2000, chestTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chest", Items.CHEST, ModFluids.SOURCE_CELLULOSE_PULP.get(), 2000, chestTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_chest", Items.CHEST, 2000,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 2000, chestTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_crafting_table", Items.CRAFTING_TABLE, ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "pulp_blend_recycling_crafting_table", Items.CRAFTING_TABLE, 1000,
-                ModFluids.SOURCE_PULP_BLEND.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_crafting_table", Items.CRAFTING_TABLE, ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_crafting_table", Items.CRAFTING_TABLE, 1000,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
 
-        ////////////////////Leaves Duplication (Crude Slurry -- living, not Pulp Blend)\\\\\\\\\\\\\\\\\\\\
+        ////////////////////Leaves Duplication (Crude Slurry -- living, not Cellulose Pulp)\\\\\\\\\\\\\\\\\\\\
         // Deliberately priced below the Metastasizer's existing lowest bracket (250 mB) -- Leaves
         // are purely decorative and more trivially renewable than anything else duplicated so far
         // (no digging required, just natural decay off any tree). Every overworld species has a
@@ -1778,7 +1778,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                     woodItem(species, "leaves"), ModFluids.SOURCE_CRUDE_SLURRY.get(), 100, lightTicks);
         }
 
-        ////////////////////Sapling Duplication (Crude Slurry -- living, not Pulp Blend)\\\\\\\\\\\\\\\\\\\\
+        ////////////////////Sapling Duplication (Crude Slurry -- living, not Cellulose Pulp)\\\\\\\\\\\\\\\\\\\\
         // Same cheap bracket as Leaves' own Crude Slurry duplication recipe (100 mB / 50 ticks --
         // lightTicks) -- Saplings are low-stakes wood-family items by the same reasoning.
         String[] saplingSpecies = {"oak", "spruce", "birch", "jungle", "acacia", "dark_oak", "cherry"};
@@ -1889,25 +1889,25 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.LAPIS_BLOCK), 1, Fluids.LAVA, 9000,
                 ModFluids.SOURCE_MOLTEN_LAPIS.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "molten_raw_netherite_scrap_masticating",
+        RecipeBuilders.buildMasticating(recipeOutput, "dirty_molten_netherite_masticating",
                 Ingredient.of(Items.NETHERITE_SCRAP), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "blaze_essence_masticating",
+        RecipeBuilders.buildMasticating(recipeOutput, "blaze_colloid_masticating",
                 Ingredient.of(Items.BLAZE_POWDER), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_BLAZE_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_BLAZE_COLLOID.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "ghast_essence_masticating",
+        RecipeBuilders.buildMasticating(recipeOutput, "ghast_colloid_masticating",
                 Ingredient.of(Items.GHAST_TEAR), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_GHAST_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_GHAST_COLLOID.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "wither_essence_masticating",
+        RecipeBuilders.buildMasticating(recipeOutput, "wither_colloid_masticating",
                 Ingredient.of(Items.WITHER_SKELETON_SKULL), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_WITHER_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_WITHER_COLLOID.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "ender_essence_masticating",
+        RecipeBuilders.buildMasticating(recipeOutput, "ender_colloid_masticating",
                 Ingredient.of(Items.ENDER_PEARL), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_ENDER_ESSENCE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                ModFluids.SOURCE_ENDER_COLLOID.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_soul_silica_masticating",
                 Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, 1000,
@@ -1945,20 +1945,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.LAPIS_LAZULI, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_lapis_block",
                 Items.LAPIS_BLOCK, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 9000, ModMath.Time.getSecondsToTicks(90));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_raw_netherite_scrap",
-                Items.NETHERITE_SCRAP, ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_dirty_molten_netherite",
+                Items.NETHERITE_SCRAP, ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         // Pattern is Netherite Ingot, not Scrap -- Molten Netherite is the refined-stage fluid
-        // (Scrap + Aurous Blend via Effluencing), so its duplication pattern mirrors that stage.
+        // (Scrap + Aurous Pulp via Effluencing), so its duplication pattern mirrors that stage.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_netherite",
                 Items.NETHERITE_INGOT, ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(60));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_essence",
-                Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ghast_essence",
-                Items.GHAST_TEAR, ModFluids.SOURCE_GHAST_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_wither_essence",
-                Items.WITHER_SKELETON_SKULL, ModFluids.SOURCE_WITHER_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ender_essence",
-                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_ESSENCE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_colloid",
+                Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_COLLOID.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ghast_colloid",
+                Items.GHAST_TEAR, ModFluids.SOURCE_GHAST_COLLOID.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_wither_colloid",
+                Items.WITHER_SKELETON_SKULL, ModFluids.SOURCE_WITHER_COLLOID.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_ender_colloid",
+                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_COLLOID.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_soul_silica",
                 Items.SOUL_SAND, ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
@@ -2036,7 +2036,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Matches Dense Muscle's own Metastasizer price exactly -- the duct is just shaped muscle.
         RecipeBuilders.duplicate(recipeOutput, "innards_duct_metastasizing", ModBlocks.INNARDS_DUCT.get(),
-                ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, lightTicks);
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 250, lightTicks);
 
         // Charred (thermal-hazard-tolerant) Duct -- a Tier 1 Duct quenched/hardened in 100mB Lava.
         RecipeBuilders.mutate(recipeOutput, "charred_innards_duct_mutating", ModBlocks.INNARDS_DUCT.get(),
@@ -2105,13 +2105,13 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
-        RecipeBuilders.render(recipeOutput, "render_kiln_cobblestone", ModFluids.SOURCE_STONE_BLEND.get(), 900, Items.COBBLESTONE, cobbleTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_sand", ModFluids.SOURCE_SILICA_BLEND.get(), 750, Items.SAND, aggregateTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_clay_ball", ModFluids.SOURCE_CLAY_BLEND.get(), 250, Items.CLAY_BALL, lightTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_iron_ingot", ModFluids.SOURCE_FERROUS_BLEND.get(), 1000, Items.IRON_INGOT, solidTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_copper_ingot", ModFluids.SOURCE_CUPROUS_BLEND.get(), 1000, Items.COPPER_INGOT, solidTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_gold_ingot", ModFluids.SOURCE_AUROUS_BLEND.get(), 1000, Items.GOLD_INGOT, solidTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_coal", ModFluids.SOURCE_CARBON_BLEND.get(), 1000, Items.COAL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_cobblestone", ModFluids.SOURCE_STONE_PULP.get(), 900, Items.COBBLESTONE, cobbleTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_sand", ModFluids.SOURCE_SILICA_PULP.get(), 750, Items.SAND, aggregateTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_clay_ball", ModFluids.SOURCE_CLAY_PULP.get(), 250, Items.CLAY_BALL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_iron_ingot", ModFluids.SOURCE_FERROUS_PULP.get(), 1000, Items.IRON_INGOT, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_copper_ingot", ModFluids.SOURCE_CUPROUS_PULP.get(), 1000, Items.COPPER_INGOT, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_gold_ingot", ModFluids.SOURCE_AUROUS_PULP.get(), 1000, Items.GOLD_INGOT, solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_coal", ModFluids.SOURCE_CARBON_PULP.get(), 1000, Items.COAL, lightTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_redstone_dust", ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000,
                 Items.REDSTONE, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_quartz", ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000,
@@ -2128,28 +2128,28 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.AMETHYST_SHARD, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_lapis_lazuli", ModFluids.SOURCE_MOLTEN_LAPIS.get(), 1000,
                 Items.LAPIS_LAZULI, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_netherite_scrap", ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_netherite_scrap", ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), 1000,
                 Items.NETHERITE_SCRAP, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_netherite_ingot", ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000,
                 Items.NETHERITE_INGOT, ModMath.Time.getSecondsToTicks(60));
-        RecipeBuilders.render(recipeOutput, "render_kiln_blaze_powder", ModFluids.SOURCE_BLAZE_ESSENCE.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_blaze_powder", ModFluids.SOURCE_BLAZE_COLLOID.get(), 1000,
                 Items.BLAZE_POWDER, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_ghast_tear", ModFluids.SOURCE_GHAST_ESSENCE.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_ghast_tear", ModFluids.SOURCE_GHAST_COLLOID.get(), 1000,
                 Items.GHAST_TEAR, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_wither_skeleton_skull", ModFluids.SOURCE_WITHER_ESSENCE.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_wither_skeleton_skull", ModFluids.SOURCE_WITHER_COLLOID.get(), 1000,
                 Items.WITHER_SKELETON_SKULL, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_ender_pearl", ModFluids.SOURCE_ENDER_ESSENCE.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_ender_pearl", ModFluids.SOURCE_ENDER_COLLOID.get(), 1000,
                 Items.ENDER_PEARL, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_BLEND.get(), 334, Items.BONE_MEAL, lightTicks);
-        // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Blend, solidTicks) --
+        RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_PULP.get(), 334, Items.BONE_MEAL, lightTicks);
+        // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Pulp, solidTicks) --
         // same amount/timing, no pattern item since the Render Kiln is fluid-only input.
-        RecipeBuilders.render(recipeOutput, "render_kiln_blood_nugget", ModFluids.SOURCE_PROTEIN_BLEND.get(), 250, ModItems.BLOOD_NUGGET.get(), solidTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_blood_nugget", ModFluids.SOURCE_PROTEIN_PULP.get(), 250, ModItems.BLOOD_NUGGET.get(), solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_mre", ModFluids.SOURCE_F_STUFF.get(), 900, ModItems.MRE.get(), 160);
         // Deliberately excluded: Crude Slurry (no solid form defined anywhere in the design notes).
 
         ////////////////////Gadget Fabricating\\\\\\\\\\\\\\\\\\\\
         // Both Tier 1 Workbench -- every current gadget is Tier 1. No Suture Kit on either: these
-        // are machine-fabricated, not hand-stitched. Protein Blend on both represents the organic
+        // are machine-fabricated, not hand-stitched. Protein Pulp on both represents the organic
         // tissue binding around the Chassis frame (same fluid family Bladder's own Fuel/Feeder
         // mutations draw from); Primitive Catalyst is the standard final-assembly trigger fluid.
         RecipeBuilders.fabricateGadget(recipeOutput, "sipping_fabricating",
@@ -2159,10 +2159,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new ItemStack(ModItems.BLADDER.get())),
                 List.of(
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250),
-                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 250)),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_PULP.get(), 250)),
                 ModItems.SIPPING.get(), ModMath.Time.getSecondsToTicks(15), 1);
 
-        // Silica Blend (250 mB, a quarter of the Glass Block's own 1000 mB Mutator cost) is the
+        // Silica Pulp (250 mB, a quarter of the Glass Block's own 1000 mB Mutator cost) is the
         // screen glass for the target-scan display -- Eye justifies the eye_mount/screen lore.
         RecipeBuilders.fabricateGadget(recipeOutput, "drinker_fabricating",
                 List.of(
@@ -2172,15 +2172,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new ItemStack(ModItems.BLADDER.get())),
                 List.of(
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_SILICA_BLEND.get(), 250)),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_PULP.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_SILICA_PULP.get(), 250)),
                 ModItems.DRINKER.get(), ModMath.Time.getSecondsToTicks(30), 1);
 
-        // Eater: same 2-Chassis Primitive Catalyst/Protein Blend rate as Drinker (both scale with
+        // Eater: same 2-Chassis Primitive Catalyst/Protein Pulp rate as Drinker (both scale with
         // Chassis count, not overall item complexity). No Eye/Bladder -- Eater's buffer is
         // item-based, not fluid-based, so neither applies. Craw x4 supplies the item-handling guts
         // (Eater's whole identity), Hopper is the intake justification (no invented lore needed --
-        // a Hopper's vanilla function already is "sucks items in"), Silica Blend covers the 4
+        // a Hopper's vanilla function already is "sucks items in"), Silica Pulp covers the 4
         // screen bones but isn't a literal 4x of Drinker's single gauge -- Eater's screens are
         // small item-icon windows, not a full target-scan display assembly.
         RecipeBuilders.fabricateGadget(recipeOutput, "eater_fabricating",
@@ -2191,8 +2191,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new ItemStack(ModItems.PROTO_BRAIN.get())),
                 List.of(
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_SILICA_BLEND.get(), 500)),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_PULP.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_SILICA_PULP.get(), 500)),
                 ModItems.EATER.get(), ModMath.Time.getSecondsToTicks(30), 1);
 
         // A.I.D.: a full craft-up of the four base tools it replaces, per the design notes (see
@@ -2203,8 +2203,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // surgical functions to perform on a given click, which justifies the processor the same way
         // Sipping/Drinker/Eater's target-scan/routing logic does. 90 seconds reflects Eater's own
         // complexity tier -- four distinct mode-gated behaviors, not a single-purpose gadget. Ferrous
-        // + Aurous Blend (1000 mB each, "a bucket of gold and iron blend") stand in for the shared
-        // metal housing all four tools get folded into; no Protein Blend -- unlike the sensor/buffer
+        // + Aurous Pulp (1000 mB each, "a bucket of gold and iron pulp") stand in for the shared
+        // metal housing all four tools get folded into; no Protein Pulp -- unlike the sensor/buffer
         // gadgets, there's no new organic tissue being introduced, just four existing tools recombined.
         RecipeBuilders.fabricateGadget(recipeOutput, "aid_fabricating",
                 List.of(
@@ -2215,8 +2215,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new ItemStack(ModItems.SUTURE_KIT.get()),
                         new ItemStack(ModItems.SYRINGE.get())),
                 List.of(
-                        new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 1000),
-                        new FluidStack(ModFluids.SOURCE_AUROUS_BLEND.get(), 1000)),
+                        new FluidStack(ModFluids.SOURCE_FERROUS_PULP.get(), 1000),
+                        new FluidStack(ModFluids.SOURCE_AUROUS_PULP.get(), 1000)),
                 ModItems.AID.get(), ModMath.Time.getSecondsToTicks(90), 1);
 
         // Sunder: no Proto Brain, deliberately -- unlike Sipping/Drinker/Eater, Sunder isn't a smart
@@ -2224,8 +2224,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // attack key while revved (see SunderItem's own class javadoc), not because the weapon
         // itself is making decisions -- the player is still the one aiming it. Fuel Bladder, not the
         // plain Bladder every other gadget uses -- Sunder's own tank is explicitly a fuel tank, not a
-        // general buffer. Protein Blend held at the same 500 mB as everything else -- "there isn't
-        // much meat to it" compared to a full sensor/buffer gadget. Ferrous Blend bumped hard to
+        // general buffer. Protein Pulp held at the same 500 mB as everything else -- "there isn't
+        // much meat to it" compared to a full sensor/buffer gadget. Ferrous Pulp bumped hard to
         // 2500 mB (by far the largest single fluid line in the roster) and no separate Iron Ingots --
         // this is what actually builds the bar/housing/guards, no raw-ingot component needed on top
         // of it. Comes out chainless, same as every other path that produces a Sunder -- mounted
@@ -2237,14 +2237,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new ItemStack(ModItems.FUEL_BLADDER.get())),
                 List.of(
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 2500)),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_PULP.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_FERROUS_PULP.get(), 2500)),
                 ModItems.SUNDER.get(), ModMath.Time.getSecondsToTicks(30), 1);
 
         // Shatter -- mirrors Sunder's own recipe exactly (same "not a smart device, no Proto Brain"
         // reasoning, same Fuel Bladder rather than a general buffer, same chainless/headless-on-
         // completion rule -- the head is mounted afterward via Scrench, not baked into the recipe).
-        // Only difference: Ferrous Blend bumped from Sunder's 2500 to 3000 mB, to account for the
+        // Only difference: Ferrous Pulp bumped from Sunder's 2500 to 3000 mB, to account for the
         // extra mass of the piston hammer head housing itself.
         RecipeBuilders.fabricateGadget(recipeOutput, "shatter_fabricating",
                 List.of(
@@ -2252,8 +2252,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         new ItemStack(ModItems.FUEL_BLADDER.get())),
                 List.of(
                         new FluidStack(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_PROTEIN_BLEND.get(), 500),
-                        new FluidStack(ModFluids.SOURCE_FERROUS_BLEND.get(), 3000)),
+                        new FluidStack(ModFluids.SOURCE_PROTEIN_PULP.get(), 500),
+                        new FluidStack(ModFluids.SOURCE_FERROUS_PULP.get(), 3000)),
                 ModItems.SHATTER.get(), ModMath.Time.getSecondsToTicks(30), 1);
     }
 
@@ -2279,11 +2279,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     // Dye Metastasizer duplication -- per-color fluid, chosen by real source material rather than
     // one blanket fluid for all 16:
-    // - White: Calcium Blend, mirroring the vanilla Bone Meal -> White Dye craft (Calcium Blend
-    //   already duplicates Bone Meal itself -- see calcium_blend_bone_meal_masticating).
-    // - Black: Carbon Blend -- soot/charcoal-black identity.
-    // - Gray: Stone Blend -- literal stone-gray.
-    // - Light Gray: C-Stuff (Carbon Blend + Calcium Blend, via the Effluentcer) -- a lighter tone
+    // - White: Calcium Pulp, mirroring the vanilla Bone Meal -> White Dye craft (Calcium Pulp
+    //   already duplicates Bone Meal itself -- see calcium_pulp_bone_meal_masticating).
+    // - Black: Carbon Pulp -- soot/charcoal-black identity.
+    // - Gray: Stone Pulp -- literal stone-gray.
+    // - Light Gray: C-Stuff (Carbon Pulp + Calcium Pulp, via the Effluentcer) -- a lighter tone
     //   than plain Gray, so the carbon+calcium mix reads as "Gray diluted by White," matching the
     //   fluid's own composition.
     // - Every other color: Crude Slurry (living plant material) -- the flower/plant-derived
@@ -2291,9 +2291,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     //   common enough in reality -- lilac, violet, lavender -- to fit the same bucket).
     private static Fluid dyeFluid(DyeColor color) {
         return switch (color) {
-            case WHITE -> ModFluids.SOURCE_CALCIUM_BLEND.get();
-            case BLACK -> ModFluids.SOURCE_CARBON_BLEND.get();
-            case GRAY -> ModFluids.SOURCE_STONE_BLEND.get();
+            case WHITE -> ModFluids.SOURCE_CALCIUM_PULP.get();
+            case BLACK -> ModFluids.SOURCE_CARBON_PULP.get();
+            case GRAY -> ModFluids.SOURCE_STONE_PULP.get();
             case LIGHT_GRAY -> ModFluids.SOURCE_C_STUFF.get();
             default -> ModFluids.SOURCE_CRUDE_SLURRY.get();
         };

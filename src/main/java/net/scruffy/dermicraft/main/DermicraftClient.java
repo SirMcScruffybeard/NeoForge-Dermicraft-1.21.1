@@ -60,9 +60,9 @@ public class DermicraftClient {
             // so those pixels render as fully see-through rather than opaque black/magenta.
             ItemBlockRenderTypes.setRenderLayer(ModBlocks.BRAIN.get(), RenderType.cutout());
 
-            renderTranslucentFluid(ModFluids.SOURCE_CALCIUM_BLEND.get(), ModFluids.FLOWING_CALCIUM_BLEND.get());
-            renderTranslucentFluid(ModFluids.SOURCE_CARBON_BLEND.get(), ModFluids.FLOWING_CARBON_BLEND.get());
-            renderTranslucentFluid(ModFluids.SOURCE_PROTEIN_BLEND.get(), ModFluids.FLOWING_PROTEIN_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CALCIUM_PULP.get(), ModFluids.FLOWING_CALCIUM_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CARBON_PULP.get(), ModFluids.FLOWING_CARBON_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_PROTEIN_PULP.get(), ModFluids.FLOWING_PROTEIN_PULP.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_CRUDE_SLURRY.get(), ModFluids.FLOWING_CRUDE_SLURRY.get());
             renderTranslucentFluid(ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), ModFluids.FLOWING_CONCENTRATED_SLURRY.get());
@@ -70,22 +70,22 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), ModFluids.FLOWING_PRIMITIVE_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_REINFORCING_CATALYST.get(), ModFluids.FLOWING_REINFORCING_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_SYNAPSE_CATALYST.get(), ModFluids.FLOWING_SYNAPSE_CATALYST.get());
-            renderTranslucentFluid(ModFluids.SOURCE_KNOWLEDGE_ESSENCE.get(), ModFluids.FLOWING_KNOWLEDGE_ESSENCE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), ModFluids.FLOWING_KNOWLEDGE_COLLOID.get());
             renderTranslucentFluid(ModFluids.SOURCE_KINETIC_CATALYST.get(), ModFluids.FLOWING_KINETIC_CATALYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_EVOLUTION_CATALYST.get(), ModFluids.FLOWING_EVOLUTION_CATALYST.get());
 
-            renderTranslucentFluid(ModFluids.SOURCE_STONE_BLEND.get(), ModFluids.FLOWING_STONE_BLEND.get());
-            renderTranslucentFluid(ModFluids.SOURCE_SILICA_BLEND.get(), ModFluids.FLOWING_SILICA_BLEND.get());
-            renderTranslucentFluid(ModFluids.SOURCE_CLAY_BLEND.get(), ModFluids.FLOWING_CLAY_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_STONE_PULP.get(), ModFluids.FLOWING_STONE_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_SILICA_PULP.get(), ModFluids.FLOWING_SILICA_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CLAY_PULP.get(), ModFluids.FLOWING_CLAY_PULP.get());
 
-            renderTranslucentFluid(ModFluids.SOURCE_FERROUS_BLEND.get(), ModFluids.FLOWING_FERROUS_BLEND.get());
-            renderTranslucentFluid(ModFluids.SOURCE_CUPROUS_BLEND.get(), ModFluids.FLOWING_CUPROUS_BLEND.get());
-            renderTranslucentFluid(ModFluids.SOURCE_AUROUS_BLEND.get(), ModFluids.FLOWING_AUROUS_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_FERROUS_PULP.get(), ModFluids.FLOWING_FERROUS_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CUPROUS_PULP.get(), ModFluids.FLOWING_CUPROUS_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_AUROUS_PULP.get(), ModFluids.FLOWING_AUROUS_PULP.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_F_STUFF.get(), ModFluids.FLOWING_F_STUFF.get());
             renderTranslucentFluid(ModFluids.SOURCE_C_STUFF.get(), ModFluids.FLOWING_C_STUFF.get());
 
-            renderTranslucentFluid(ModFluids.SOURCE_PULP_BLEND.get(), ModFluids.FLOWING_PULP_BLEND.get());
+            renderTranslucentFluid(ModFluids.SOURCE_CELLULOSE_PULP.get(), ModFluids.FLOWING_CELLULOSE_PULP.get());
 
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_REDSTONE.get(), ModFluids.FLOWING_MOLTEN_REDSTONE.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_QUARTZ.get(), ModFluids.FLOWING_MOLTEN_QUARTZ.get());
@@ -93,21 +93,21 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_AMETHYST.get(), ModFluids.FLOWING_MOLTEN_AMETHYST.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_DIAMOND.get(), ModFluids.FLOWING_MOLTEN_DIAMOND.get());            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_LAPIS.get(), ModFluids.FLOWING_MOLTEN_LAPIS.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_EMERALD.get(), ModFluids.FLOWING_MOLTEN_EMERALD.get());
-            renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_RAW_NETHERITE_SCRAP.get(), ModFluids.FLOWING_MOLTEN_RAW_NETHERITE_SCRAP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), ModFluids.FLOWING_DIRTY_MOLTEN_NETHERITE.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_NETHERITE.get(), ModFluids.FLOWING_MOLTEN_NETHERITE.get());
-            renderTranslucentFluid(ModFluids.SOURCE_BLAZE_ESSENCE.get(), ModFluids.FLOWING_BLAZE_ESSENCE.get());
-            renderTranslucentFluid(ModFluids.SOURCE_GHAST_ESSENCE.get(), ModFluids.FLOWING_GHAST_ESSENCE.get());
-            renderTranslucentFluid(ModFluids.SOURCE_WITHER_ESSENCE.get(), ModFluids.FLOWING_WITHER_ESSENCE.get());
-            renderTranslucentFluid(ModFluids.SOURCE_ENDER_ESSENCE.get(), ModFluids.FLOWING_ENDER_ESSENCE.get());
+            renderTranslucentFluid(ModFluids.SOURCE_BLAZE_COLLOID.get(), ModFluids.FLOWING_BLAZE_COLLOID.get());
+            renderTranslucentFluid(ModFluids.SOURCE_GHAST_COLLOID.get(), ModFluids.FLOWING_GHAST_COLLOID.get());
+            renderTranslucentFluid(ModFluids.SOURCE_WITHER_COLLOID.get(), ModFluids.FLOWING_WITHER_COLLOID.get());
+            renderTranslucentFluid(ModFluids.SOURCE_ENDER_COLLOID.get(), ModFluids.FLOWING_ENDER_COLLOID.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), ModFluids.FLOWING_MOLTEN_SOUL_SILICA.get());
         });
     }
 
     @SubscribeEvent
     public static void onClientExtensions(RegisterClientExtensionsEvent event) {
-        registerFluidType(event, ModFluidTypes.CALCIUM_BLEND_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.CARBON_BLEND_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.PROTEIN_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CALCIUM_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CARBON_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.PROTEIN_PULP_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.CRUDE_SLURRY_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.CONCENTRATED_SLURRY_FLUID_TYPE.get());
@@ -115,22 +115,22 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.PRIMITIVE_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.REINFORCING_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.SYNAPSE_CATALYST_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.KNOWLEDGE_ESSENCE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.KNOWLEDGE_COLLOID_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.KINETIC_CATALYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.EVOLUTION_CATALYST_FLUID_TYPE.get());
 
-        registerFluidType(event, ModFluidTypes.STONE_BLEND_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.SILICA_BLEND_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.CLAY_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.STONE_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.SILICA_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CLAY_PULP_FLUID_TYPE.get());
 
-        registerFluidType(event, ModFluidTypes.FERROUS_BLEND_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.CUPROUS_BLEND_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.AUROUS_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.FERROUS_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CUPROUS_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.AUROUS_PULP_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.F_STUFF_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.C_STUFF_FLUID_TYPE.get());
 
-        registerFluidType(event, ModFluidTypes.PULP_BLEND_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.CELLULOSE_PULP_FLUID_TYPE.get());
 
         registerFluidType(event, ModFluidTypes.MOLTEN_REDSTONE_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_QUARTZ_FLUID_TYPE.get());
@@ -138,12 +138,12 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.MOLTEN_AMETHYST_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_DIAMOND_FLUID_TYPE.get());        registerFluidType(event, ModFluidTypes.MOLTEN_LAPIS_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_EMERALD_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.MOLTEN_RAW_NETHERITE_SCRAP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.DIRTY_MOLTEN_NETHERITE_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_NETHERITE_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.BLAZE_ESSENCE_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.GHAST_ESSENCE_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.WITHER_ESSENCE_FLUID_TYPE.get());
-        registerFluidType(event, ModFluidTypes.ENDER_ESSENCE_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.BLAZE_COLLOID_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.GHAST_COLLOID_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.WITHER_COLLOID_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.ENDER_COLLOID_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_SOUL_SILICA_FLUID_TYPE.get());
 
         event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {

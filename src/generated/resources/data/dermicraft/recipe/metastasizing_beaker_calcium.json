@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:metastasizing",
-  "fluid": "dermicraft:source_calcium_blend",
+  "fluid": "dermicraft:source_calcium_pulp",
   "fluid_amount": 1000,
   "pattern": {
     "item": "dermicraft:beaker"

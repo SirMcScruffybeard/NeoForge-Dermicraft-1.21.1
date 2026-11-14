@@ -1,6 +1,6 @@
 {
   "type": "dermicraft:mutating",
-  "fluid": "dermicraft:source_aurous_blend",
+  "fluid": "dermicraft:source_aurous_pulp",
   "fluid_amount": 3000,
   "ingredient": {
     "item": "dermicraft:bone_shatter_head"
