@@ -521,9 +521,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.ofIngots(8), ModItems.SAFETY_MODULE_FRAME.get(), ModMath.Time.getSecondsToTicks(10));
 
         // Thermal Safety Module: a Safety Module Frame in the middle of four lava, which may be four Lava Buckets or four
-        // full Lava Beakers (the empties come back, see BeakerItem), or the Mutator route, the Frame plus 400 mB of lava.
-        // The four buckets or beakers are 4000 mB of lava, ten times the Mutator's cost, so the hand routes are the expensive
-        // ones; they only need the Frame and no machine.
+        // full Lava Beakers (the empties come back, see BeakerItem), or the Mutator route, the Frame plus 4000 mB of lava, the same as the four containers.
+        // All three routes cost the same 4000 mB of lava; the hand routes need no machine, just the Frame.
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.getHazardSafetyModule(HazardModuleVariant.THERMAL))
                 .pattern(" L ")
                 .pattern("LFL")
@@ -543,7 +542,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_safety_module_frame", has(ModItems.SAFETY_MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("thermal_safety_module_crafting_table_beakers"));
         RecipeBuilders.mutate(recipeOutput, "thermal_safety_module_mutating", ModItems.SAFETY_MODULE_FRAME.get(),
-                Fluids.LAVA, 400, ModItems.getHazardSafetyModule(HazardModuleVariant.THERMAL),
+                Fluids.LAVA, 4000, ModItems.getHazardSafetyModule(HazardModuleVariant.THERMAL),
                 ModMath.Time.getSecondsToTicks(10));
 
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +

@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "minecraft:lava",
-  "fluid_amount": 400,
+  "fluid_amount": 4000,
   "ingredient": {
     "item": "dermicraft:safety_module_frame"
   },
