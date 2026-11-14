@@ -585,6 +585,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_INFERNAL_ICHOR.get(), 4000,
                 ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_MILD), ModMath.Time.getSecondsToTicks(10));
 
+        // Metaphysical (Severe) Safety Module: a Safety Module Frame in the middle of four Ender Pearls, or the Mutator route,
+        // the Frame plus 4000 mB of Ender Colloid (a pearl is 1000 mB, so four pearls' worth).
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_SEVERE))
+                .pattern(" E ")
+                .pattern("EFE")
+                .pattern(" E ")
+                .define('E', Items.ENDER_PEARL)
+                .define('F', ModItems.SAFETY_MODULE_FRAME.get())
+                .unlockedBy("has_safety_module_frame", has(ModItems.SAFETY_MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_severe_safety_module_crafting_table"));
+        RecipeBuilders.mutate(recipeOutput, "metaphysical_severe_safety_module_mutating", ModItems.SAFETY_MODULE_FRAME.get(),
+                ModFluids.SOURCE_ENDER_COLLOID.get(), 4000,
+                ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_SEVERE), ModMath.Time.getSecondsToTicks(10));
+
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
         // an identity item + the fluid's own bucket + Module Frame). Sugar stands in for the
         // "speed" identity, mirroring Ender Pearl/Magma Block's role -- real vanilla precedent

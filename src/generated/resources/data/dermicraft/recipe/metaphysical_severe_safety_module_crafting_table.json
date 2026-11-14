@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "F": {
+      "item": "dermicraft:safety_module_frame"
+    }
+  },
+  "pattern": [
+    " E ",
+    "EFE",
+    " E "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:metaphysical_severe_safety_module"
+  }
+}
