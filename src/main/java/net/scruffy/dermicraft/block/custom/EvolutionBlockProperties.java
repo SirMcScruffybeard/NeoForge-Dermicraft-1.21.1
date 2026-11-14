@@ -36,9 +36,9 @@ public final class EvolutionBlockProperties {
     public static final ResourceLocation ITEM_TIER = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "tier");
     public static final ResourceLocation ITEM_OVERGROWTH = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "overgrowth");
 
-    /** The Overgrowth level where each further stage begins: stage 1 from O1, stage 2 from O5, stage 3 from O10.
-     * Placeholder milestones for stages 2 and 3 (the notes leave them open; stage 3 may be dropped). */
-    private static final int[] OVERGROWTH_STAGE_STARTS = {1, 5, 10};
+    /** The Overgrowth level where each further stage begins: stage 1 from O1, stage 2 from O10, stage 3 from O20
+     * (set 2026-11-14; the 45 cap and the cost curve still wait for the rescaling overhaul). */
+    private static final int[] OVERGROWTH_STAGE_STARTS = {1, 10, 20};
 
     /** The Overgrowth stage (0 to 3) a level falls in. */
     public static int getOvergrowthStage(int overgrowthLevel) {
