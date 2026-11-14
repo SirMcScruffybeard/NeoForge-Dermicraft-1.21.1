@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:safety_module_frame"
+    },
+    "I": {
+      "type": "neoforge:components",
+      "components": {
+        "dermicraft:contained_fluid_data": {
+          "ingredientFluid": {
+            "amount": 1000,
+            "id": "dermicraft:source_infernal_ichor"
+          }
+        }
+      },
+      "items": "dermicraft:beaker"
+    }
+  },
+  "pattern": [
+    " I ",
+    "IFI",
+    " I "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:metaphysical_mild_safety_module"
+  }
+}

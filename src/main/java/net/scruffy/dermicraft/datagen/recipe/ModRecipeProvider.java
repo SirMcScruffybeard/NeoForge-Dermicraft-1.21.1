@@ -559,6 +559,32 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.BLOCK_OF_FOUR * 4,
                 ModItems.getHazardSafetyModule(HazardModuleVariant.RADIATION_MILD), ModMath.Time.getSecondsToTicks(10));
 
+        // Metaphysical (Mild) Safety Module: a Safety Module Frame in the middle of four Infernal Ichor, which may be four
+        // Infernal Ichor Buckets or four full Infernal Ichor Beakers (the empties come back), or the Mutator route, the Frame
+        // plus 4000 mB of Infernal Ichor. All three cost the same 4000 mB. Pricier than the other Mild modules (about 45
+        // Netherrack and 4000 mB of Protein Pulp), but Netherrack and meat are easy to come by.
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_MILD))
+                .pattern(" I ")
+                .pattern("IFI")
+                .pattern(" I ")
+                .define('I', ModFluids.INFERNAL_ICHOR_BUCKET.get())
+                .define('F', ModItems.SAFETY_MODULE_FRAME.get())
+                .unlockedBy("has_safety_module_frame", has(ModItems.SAFETY_MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_mild_safety_module_crafting_table_buckets"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_MILD))
+                .pattern(" I ")
+                .pattern("IFI")
+                .pattern(" I ")
+                .define('I', DataComponentIngredient.of(false, ModDataComponentTypes.FLUID_DATA.get(),
+                        net.scruffy.dermicraft.component.FluidData.createData(ModFluids.SOURCE_INFERNAL_ICHOR.get(),
+                                net.scruffy.dermicraft.item.custom.BeakerItem.CAPACITY), ModBlocks.BEAKER_ITEM.get()))
+                .define('F', ModItems.SAFETY_MODULE_FRAME.get())
+                .unlockedBy("has_safety_module_frame", has(ModItems.SAFETY_MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_mild_safety_module_crafting_table_beakers"));
+        RecipeBuilders.mutate(recipeOutput, "metaphysical_mild_safety_module_mutating", ModItems.SAFETY_MODULE_FRAME.get(),
+                ModFluids.SOURCE_INFERNAL_ICHOR.get(), 4000,
+                ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_MILD), ModMath.Time.getSecondsToTicks(10));
+
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
         // an identity item + the fluid's own bucket + Module Frame). Sugar stands in for the
         // "speed" identity, mirroring Ender Pearl/Magma Block's role -- real vanilla precedent
