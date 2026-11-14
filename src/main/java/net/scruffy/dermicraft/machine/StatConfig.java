@@ -50,6 +50,7 @@ public final class StatConfig {
     private static final ModConfigSpec.DoubleValue THERMAL_DAMAGE_MODIFIER;
     private static final ModConfigSpec.IntValue THERMAL_REFERENCE_TEMPERATURE;
     private static final ModConfigSpec.IntValue THERMAL_SAFE_RANGE;
+    private static final ModConfigSpec.IntValue WORLD_FREEZE_AT_OR_BELOW, WORLD_BURN_AT_OR_ABOVE;
     private static final ModConfigSpec.IntValue RADIATION_MILD_START, RADIATION_SEVERE_START, RADIATION_MAX;
     private static final ModConfigSpec.DoubleValue RADIATION_EFFECT_MODIFIER, BIOHAZARD_EFFECT_MODIFIER, METAPHYSICAL_EFFECT_MODIFIER;
     private static final ModConfigSpec.IntValue BIOHAZARD_START, BIOHAZARD_MAX;
@@ -149,6 +150,10 @@ public final class StatConfig {
                 .defineInRange("thermalReferenceTemperature", StatDefaults.THERMAL_REFERENCE_TEMPERATURE, 0, 100000);
         THERMAL_SAFE_RANGE = BUILDER.comment("Kelvin either side of the reference temperature that does no Thermal damage (water is 300, so the default 50 means 250 to 350 is harmless). Past the range, damage grows with the distance beyond it.")
                 .defineInRange("thermalSafeRange", StatDefaults.THERMAL_SAFE_RANGE, 0, 100000);
+        WORLD_FREEZE_AT_OR_BELOW = BUILDER.comment("What a placed Dermicraft fluid does to the world: at or below this temperature in kelvin it freezes adjacent water and grows snow on nearby ground. The temperature is the one machines use, so a fluid_hazard thermal override counts. Defaults to the lower edge of the default safe range.")
+                .defineInRange("worldFreezeAtOrBelow", StatDefaults.WORLD_FREEZE_AT_OR_BELOW, 0, 100000);
+        WORLD_BURN_AT_OR_ABOVE = BUILDER.comment("At or above this temperature in kelvin a placed Dermicraft fluid melts adjacent ice and snow, scorches nearby blocks and sets entities in it alight. Vanilla lava and other mods' fluids are not affected by this.")
+                .defineInRange("worldBurnAtOrAbove", StatDefaults.WORLD_BURN_AT_OR_ABOVE, 0, 100000);
         // Intensity thresholds for the numeric hazards. A fluid's intensity (from the fluid_hazard data map) below the
         // mild start is harmless, from there to the severe start is Mild, from the severe start up is Severe. Tanks,
         // ducts and nodes refuse a fluid whose band is above their tolerance, and effects grow across their band.
@@ -204,6 +209,16 @@ public final class StatConfig {
     /** Ticks inside which a second Craw click counts as a double click; the default until the config has loaded. */
     public static int getCrawDoubleClickTicks() {
         return SPEC.isLoaded() ? CRAW_DOUBLE_CLICK_TICKS.get() : DEFAULT_CRAW_DOUBLE_CLICK_TICKS;
+    }
+
+    /** The temperature in kelvin at or below which a placed Dermicraft fluid freezes its surroundings; the default until the config has loaded. */
+    public static int getWorldFreezeAtOrBelow() {
+        return SPEC.isLoaded() ? WORLD_FREEZE_AT_OR_BELOW.get() : StatDefaults.WORLD_FREEZE_AT_OR_BELOW;
+    }
+
+    /** The temperature in kelvin at or above which a placed Dermicraft fluid burns its surroundings; the default until the config has loaded. */
+    public static int getWorldBurnAtOrAbove() {
+        return SPEC.isLoaded() ? WORLD_BURN_AT_OR_ABOVE.get() : StatDefaults.WORLD_BURN_AT_OR_ABOVE;
     }
 
     /** Ticks a left click must be held to break a Craw; the default until the config has loaded. */
@@ -285,6 +300,7 @@ public final class StatConfig {
                 EVOLUTION_OVERGROWTH_SECONDS.get(), EVOLUTION_OVERGROWTH_GROWTH_PERCENT.get(),
                 EVOLUTION_COUNTDOWN_SECONDS.get(),
                 THERMAL_DAMAGE_MODIFIER.get(), THERMAL_REFERENCE_TEMPERATURE.get(), THERMAL_SAFE_RANGE.get(),
+                WORLD_FREEZE_AT_OR_BELOW.get(), WORLD_BURN_AT_OR_ABOVE.get(),
                 new HazardBand(RADIATION_MILD_START.get(), RADIATION_SEVERE_START.get(), RADIATION_MAX.get()),
                 new HazardBand(BIOHAZARD_START.get(), BIOHAZARD_MAX.get(), BIOHAZARD_MAX.get()),
                 new HazardBand(METAPHYSICAL_MILD_START.get(), METAPHYSICAL_SEVERE_START.get(), METAPHYSICAL_MAX.get()),

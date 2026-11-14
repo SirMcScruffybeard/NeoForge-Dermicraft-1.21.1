@@ -50,6 +50,8 @@ final class StatDefaults {
     static final double THERMAL_DAMAGE_MODIFIER = 0.5;                     // HP per cycle = this x |fluid temperature - reference| / 100
     static final int THERMAL_REFERENCE_TEMPERATURE = 300;                  // the temperature of an ordinary fluid (water), in kelvin
     static final int THERMAL_SAFE_RANGE = 50;                              // kelvin either side of the reference that does no damage
+    static final int WORLD_FREEZE_AT_OR_BELOW = 250;                       // a placed Dermicraft fluid at or below this (kelvin) freezes water and grows snow
+    static final int WORLD_BURN_AT_OR_ABOVE = 400;                         // a placed Dermicraft fluid at or above this melts ice and snow, scorches blocks and ignites entities
     // Intensity bands for the numeric hazards: mild runs mildStart to severeStart, severe runs severeStart to max.
     static final HazardBand RADIATION_BAND = new HazardBand(1, 100, 200);
     static final double RADIATION_EFFECT_MODIFIER = 1.0;                   // scales the Radiation fuel surcharge and HP loss; 0 turns it off
@@ -68,6 +70,7 @@ final class StatDefaults {
             EVOLUTION_TIER_SECONDS, EVOLUTION_HAZARD_NEW_SECONDS, EVOLUTION_HAZARD_UPGRADE_SECONDS,
             EVOLUTION_OVERGROWTH_SECONDS, EVOLUTION_OVERGROWTH_GROWTH_PERCENT, EVOLUTION_COUNTDOWN_SECONDS,
             THERMAL_DAMAGE_MODIFIER, THERMAL_REFERENCE_TEMPERATURE, THERMAL_SAFE_RANGE,
+            WORLD_FREEZE_AT_OR_BELOW, WORLD_BURN_AT_OR_ABOVE,
             RADIATION_BAND, BIOHAZARD_BAND, METAPHYSICAL_BAND,
             RADIATION_EFFECT_MODIFIER, BIOHAZARD_EFFECT_MODIFIER, METAPHYSICAL_EFFECT_MODIFIER,
             java.util.Map.of(), java.util.Map.of());

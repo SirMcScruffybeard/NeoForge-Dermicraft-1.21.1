@@ -31,6 +31,11 @@ public final class FluidHazards {
         return override != FluidHazardData.USE_FLUID_TEMPERATURE ? override : fluid.getFluidType().getTemperature(fluid);
     }
 
+    /** The same temperature for a bare fluid (no stack), for world code that has a placed fluid rather than a stack in hand. */
+    public static int getTemperature(net.minecraft.world.level.material.Fluid fluid) {
+        return getTemperature(new FluidStack(fluid, 1000));
+    }
+
     /** Kelvin beyond the safe range around the reference temperature, hot or cold; 0 inside the range. */
     public static int getThermalExcess(FluidStack fluid) {
         StatValues values = StatConfig.getCurrent();

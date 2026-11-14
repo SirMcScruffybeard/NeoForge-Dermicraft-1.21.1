@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluids;
+import net.scruffy.dermicraft.machine.FluidHazards;
+import net.scruffy.dermicraft.machine.StatConfig;
 
 /**
  * Plain {@link LiquidBlock} with two differences from vanilla:
@@ -44,27 +46,19 @@ public class ModLiquidBlock extends LiquidBlock {
 
     private final FlowingFluid fluid;
 
-    /** Vanilla water's own baseline (see every vanilla {@code FluidType.Properties} default) --
-     * neutral point the hot/cold thresholds below are measured against, not an invented number. */
-    private static final int NEUTRAL_TEMPERATURE = 300;
-    /** Above this, a fluid melts nearby ice/snow -- only the Molten family (500-1600) currently
-     * qualifies; every non-Molten fluid sits at 280-310, comfortably below this. Public --
-     * {@code FluidHazardEvents} reuses this exact number for entity-ignite purposes, so the two
-     * "is this fluid hot" checks can never drift apart. */
-    public static final int HOT_THRESHOLD = 400;
-    /** Below this, a fluid freezes nearby water and grows snow on nearby ground -- only Ender
-     * Colloid (200) currently qualifies; nothing else in the mod is authored colder than
-     * {@link #NEUTRAL_TEMPERATURE}. */
-    private static final int COLD_THRESHOLD = 250;
-
-    /** Whether {@code type} is one of THIS mod's own fluids AND hot enough to melt/scorch/ignite --
-     * the {@code instanceof BaseFluidType} check is what keeps this from also matching vanilla Lava
-     * (a real temperature of 1300, well past {@link #HOT_THRESHOLD}) or another mod's hot fluid,
-     * either of which would otherwise double up with vanilla's own existing lava-contact handling
+    /** Whether {@code fluid} is one of THIS mod's own fluids AND hot enough to melt, scorch and ignite -- at or above the
+     * configured burn temperature ({@code worldBurnAtOrAbove}, 400 K by default). The temperature is the one the machine
+     * hazard rules use ({@link FluidHazards#getTemperature}), so a {@code fluid_hazard} thermal override counts here too.
+     * The {@code instanceof BaseFluidType} check is what keeps this from also matching vanilla Lava (a real temperature of
+     * 1300) or another mod's hot fluid, either of which would otherwise double up with vanilla's own lava-contact handling
      * (or reach outside this mod entirely) -- every fluid registered in {@code ModFluidTypes} uses
-     * {@link net.scruffy.dermicraft.fluid.BaseFluidType} specifically, so this is exclusive to us. */
-    public static boolean isHotDermicraftFluid(net.neoforged.neoforge.fluids.FluidType type) {
-        return type instanceof net.scruffy.dermicraft.fluid.BaseFluidType && type.getTemperature() >= HOT_THRESHOLD;
+     * {@link net.scruffy.dermicraft.fluid.BaseFluidType} specifically, so this is exclusive to us. Public --
+     * {@code FluidHazardEvents} reuses it for entity-ignite purposes, so the two "is this fluid hot" checks never drift apart. */
+    public static boolean isHotDermicraftFluid(net.minecraft.world.level.material.Fluid fluid) {
+        if (!(fluid.getFluidType() instanceof net.scruffy.dermicraft.fluid.BaseFluidType)) return false;
+        // The flowing variant has no data map entry of its own, so read the source fluid.
+        net.minecraft.world.level.material.Fluid source = fluid instanceof FlowingFluid flowing ? flowing.getSource() : fluid;
+        return FluidHazards.getTemperature(source) >= StatConfig.getWorldBurnAtOrAbove();
     }
 
     public ModLiquidBlock(FlowingFluid fluid, BlockBehaviour.Properties properties) {
@@ -84,11 +78,11 @@ public class ModLiquidBlock extends LiquidBlock {
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        int temperature = fluid.getFluidType().getTemperature(state.getFluidState(), level, pos);
-        if (temperature >= HOT_THRESHOLD) {
+        int temperature = FluidHazards.getTemperature(fluid);
+        if (temperature >= StatConfig.getWorldBurnAtOrAbove()) {
             meltNearby(level, pos);
             scorchSpread(level, pos, random);
-        } else if (temperature <= COLD_THRESHOLD) {
+        } else if (temperature <= StatConfig.getWorldFreezeAtOrBelow()) {
             freezeNearby(level, pos);
             frostSpread(level, pos, random);
         }
