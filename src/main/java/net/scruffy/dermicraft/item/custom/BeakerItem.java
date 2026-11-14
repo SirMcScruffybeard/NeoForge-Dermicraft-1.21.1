@@ -46,6 +46,17 @@ public class BeakerItem extends BlockItem implements IHaveFluidData {
         return !stack.has(getDataType()) ? 16 : 1;
     }
 
+    /** A filled Beaker used in a crafting recipe gives back an empty one, the way a bucket gives back a bucket. */
+    @Override
+    public boolean hasCraftingRemainingItem(ItemStack stack) {
+        return stack.has(getDataType());
+    }
+
+    @Override
+    public ItemStack getCraftingRemainingItem(ItemStack stack) {
+        return new ItemStack(this);
+    }
+
     @Override
     public Component getName(ItemStack stack) {
         FluidData data = stack.getOrDefault(getDataType(), FluidData.EMPTY);

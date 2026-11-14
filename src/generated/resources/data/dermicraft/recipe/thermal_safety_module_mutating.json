@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "minecraft:lava",
+  "fluid_amount": 400,
+  "ingredient": {
+    "item": "dermicraft:safety_module_frame"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:thermal_safety_module"
+  },
+  "ticks": 200
+}

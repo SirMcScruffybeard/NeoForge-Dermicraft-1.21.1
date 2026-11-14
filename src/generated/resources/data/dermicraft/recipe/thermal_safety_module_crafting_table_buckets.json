@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:safety_module_frame"
+    },
+    "L": {
+      "item": "minecraft:lava_bucket"
+    }
+  },
+  "pattern": [
+    " L ",
+    "LFL",
+    " L "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:thermal_safety_module"
+  }
+}
