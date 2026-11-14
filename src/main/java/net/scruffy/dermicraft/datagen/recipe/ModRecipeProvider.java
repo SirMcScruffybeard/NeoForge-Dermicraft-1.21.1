@@ -2024,6 +2024,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.BLAZE_POWDER), 1, Fluids.LAVA, MbScale.INGOT,
                 ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
+        RecipeBuilders.buildMasticating(recipeOutput, "blaze_rod_colloid_masticating",
+                Ingredient.of(Items.BLAZE_ROD), 1, Fluids.LAVA, MbScale.ofIngots(2),
+                ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.ofIngots(2), -1, ModMath.Time.getSecondsToTicks(30));
+
         RecipeBuilders.buildMasticating(recipeOutput, "ghast_colloid_masticating",
                 Ingredient.of(Items.GHAST_TEAR), 1, Fluids.LAVA, MbScale.INGOT,
                 ModFluids.SOURCE_GHAST_COLLOID.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
@@ -2186,6 +2190,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.NETHERITE_BLOCK, ModFluids.SOURCE_MOLTEN_NETHERITE.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(120));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_colloid",
                 Items.BLAZE_POWDER, ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_blaze_rod",
+                Items.BLAZE_ROD, ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.ofIngots(2), ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ghast_colloid",
                 Items.GHAST_TEAR, ModFluids.SOURCE_GHAST_COLLOID.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_wither_colloid",
@@ -2369,6 +2375,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.NETHERITE_BLOCK, ModMath.Time.getSecondsToTicks(120));
         RecipeBuilders.render(recipeOutput, "render_kiln_blaze_powder", ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.INGOT,
                 Items.BLAZE_POWDER, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.render(recipeOutput, "render_kiln_blaze_rod", ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.ofIngots(2),
+                Items.BLAZE_ROD, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_ghast_tear", ModFluids.SOURCE_GHAST_COLLOID.get(), MbScale.INGOT,
                 Items.GHAST_TEAR, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_wither_skeleton_skull", ModFluids.SOURCE_WITHER_COLLOID.get(), MbScale.BLOCK,

@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_blaze_colloid",
+  "fluid_amount": 180,
+  "result": {
+    "count": 1,
+    "id": "minecraft:blaze_rod"
+  },
+  "ticks": 600
+}
