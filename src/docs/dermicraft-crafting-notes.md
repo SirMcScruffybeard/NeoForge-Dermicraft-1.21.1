@@ -233,9 +233,9 @@ Craft time uses the Sediment Pulp's 5 mB/tick rate (matching the existing Cauldr
 - **Evolution Catalyst:** 500 Knowledge Colloid + 500 Luminous Ichor → 1000. The Kinetic-based recipe is gone.
 - **Molten Amethyst:** 90 Molten Quartz + 10 Luminous Ichor → 90 (Effluentcer, 15 s), alternate Masticator 1 Nether Quartz + 10 Ichor → 68. It keeps Thermal only; the Evolution Catalyst gate is removed on purpose (shards are renewable from a geode).
 
-### Nether Ichor and the Silica → Molten Quartz route
-- **Nether Ichor** (`nether_ichor`): flesh-like netherrack. Masticator 1 Netherrack + 90 Protein Pulp → 90, consumed in conversions; it can be turned back into netherrack (Render Kiln). Whether the Ichors become Biohazard is open.
-- **Route (no Nether-free quartz):** Silica Pulp + Nether Ichor → Molten Soul Silica (180 + 10 → 180, no lava), then Molten Soul Silica + Lava → Molten Quartz (180 + 90 → 90). Times are 45 s placeholders.
+### Infernal Ichor and the Silica → Molten Quartz route
+- **Infernal Ichor** (`infernal_ichor`): flesh-like netherrack. Masticator 1 Netherrack + 90 Protein Pulp → 90, consumed in conversions; it can be turned back into netherrack (Render Kiln). Whether the Ichors become Biohazard is open.
+- **Route (no Nether-free quartz):** Silica Pulp + Infernal Ichor → Molten Soul Silica (180 + 10 → 180, no lava), then Molten Soul Silica + Lava → Molten Quartz (180 + 90 → 90). Times are 45 s placeholders.
 
 ### Hazard rules
 - The "at most one hazard per recipe" rule is dropped; multiple hazards are valid unless a recipe says otherwise.
