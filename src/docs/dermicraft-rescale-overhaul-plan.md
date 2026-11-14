@@ -254,6 +254,8 @@ All Effluentcer ("effluencing") recipes take exactly two input fluids. Negative 
 
 ## Phase 6: Contamination logic (player container path only)
 
+**DROPPED 2026-11-14 by the user: do not build this. The Dirty Pulps stay ordinary fluids that never mix with their clean versions (tanks and ducts refuse the mix, as with any mismatched fluid). If contamination is wanted later the user will ask for it. The read of the interaction path (13 blocks plus the Bladder call `FluidUtil.interactWithFluidHandler`, the slot path in `ModFluidUtil.transferFluidToTank`, and the silent machine stall through `hasCraftingOutputRoom`) is kept below as background only.**
+
 Rule: dirty and clean of the SAME metal may mix in storage; the result turns dirty.
 - Applies only when a PLAYER moves fluid with a container (bucket, Beaker, Glass Flask etc.).
 - Automation (ducts, Nodes, machine auto-push, recipe outputs) never contaminates; it simply refuses to mix, like any mismatched fluid. A machine outputting Dirty Pulp into a tank holding clean Pulp stalls.
@@ -369,3 +371,4 @@ Phases 3 and 5 are the largest; each can be split by material family or by recip
   - The stale "tagged THERMAL" comment in `EaterItem` was fixed.
   - OPEN decision: the world thresholds (freeze at 250 K or below, burn at 400 K or above) are hard-coded and ignore the config reference temperature, the safe range and the `FLUID_HAZARD` thermal override, while the machine path uses all three. By default the cold side happens to match (300 - 50 = 250) but the hot side does not (machines suffer from 350 K, the world burns from 400 K). No fluid sits between 350 and 399 K today, so nothing disagrees yet.
 - **Phase 7 Thermal decision DONE 2026-11-14.** The world freeze and burn temperatures are now server config values (`worldFreezeAtOrBelow`, default 250 K, and `worldBurnAtOrAbove`, default 400 K, in the hazards section of `dermicraft-server.toml`) and the world reads the same temperature as the machines, including a `FLUID_HAZARD` thermal override (`FluidHazards.getTemperature(Fluid)`). Entity ignition now checks the placed fluid in the entity's box instead of the bare fluid type, so the override and the config apply there too. Nothing changes by default. Phase 7 is complete.
+- **Phase 6 DROPPED 2026-11-14** (contamination, by the user). Nothing was built. Remaining: Phase 8 (in-game verification and `runGameTestServer`) and Phase 9 (the doc updates).
