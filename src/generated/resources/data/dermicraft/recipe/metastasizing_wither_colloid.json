@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_wither_colloid",
-  "fluid_amount": 1000,
+  "fluid_amount": 810,
   "pattern": {
     "item": "minecraft:wither_skeleton_skull"
   },

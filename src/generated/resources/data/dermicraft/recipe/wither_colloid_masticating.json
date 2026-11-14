@@ -4,10 +4,10 @@
     "item": "minecraft:wither_skeleton_skull"
   },
   "ingredient_fluid": "minecraft:lava",
-  "ingredient_fluid_amount": 1000,
+  "ingredient_fluid_amount": 810,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_wither_colloid",
-  "result_fluid_amount": 1000,
+  "result_fluid_amount": 810,
   "ticks": 600
 }
