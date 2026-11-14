@@ -14,12 +14,17 @@ import java.util.function.Supplier;
 
 public class ModFluidTypes {
 
-    public static final ResourceLocation WATER_STILL_RL = ResourceLocation.parse("block/water_still");
-    public static final ResourceLocation WATER_FLOWING_RL = ResourceLocation.parse("block/water_flow");
     public static final ResourceLocation WATER_OVERLAY_RL = ResourceLocation.parse("block/water_overlay");
 
-    public static final ResourceLocation CHUNKY_FLUID_STILL_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/chunky_fluid_still");
-    public static final ResourceLocation CHUNKY_FLUID_FLOWING_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/chunky_fluid_flow");
+    public static final ResourceLocation CHUNKY_FLUID_STILL_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/fluid/chunky_fluid_still");
+    public static final ResourceLocation CHUNKY_FLUID_FLOWING_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/fluid/chunky_fluid_flow");
+
+    public static final ResourceLocation DIRTY_CHUNKY_FLUID_STILL_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/fluid/dirty_chunky_fluid_still");
+    public static final ResourceLocation DIRTY_CHUNKY_FLUID_FLOWING_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/fluid/dirty_chunky_fluid_flow");
+
+    public static final ResourceLocation THIN_FLUID_STILL_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/fluid/thin_fluid_still");
+    public static final ResourceLocation THIN_FLUID_FLOWING_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/fluid/thin_fluid_flow");
+    public static final ResourceLocation THIN_FLUID_OVERLAY_RL = ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "block/fluid/thin_fluid_overlay");
 
     public static final DeferredRegister<FluidType> FLUID_TYPES =
             DeferredRegister.create(NeoForgeRegistries.Keys.FLUID_TYPES, Dermicraft.MOD_ID);
@@ -69,7 +74,7 @@ public class ModFluidTypes {
 
     //////////////////////////////Catalysts\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static final Supplier<FluidType> PRIMITIVE_CATALYST_FLUID_TYPE = registerFluidType("primitive_catalyst_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF5C4A30,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFF5C4A30,
                     setColorVector(92,74, 48),
                     FluidType.Properties.create()
                             .viscosity(1500)
@@ -85,7 +90,7 @@ public class ModFluidTypes {
 
     // Reinforcing Catalyst - C-Stuff + Primitive Catalyst (minor addition), Chassis's reagent
     public static final Supplier<FluidType> REINFORCING_CATALYST_FLUID_TYPE = registerFluidType("reinforcing_catalyst_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF806E76,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFF806E76,
                     setColorVector(128, 110, 118),
                     FluidType.Properties.create()
                             .viscosity(1500)
@@ -102,7 +107,7 @@ public class ModFluidTypes {
     // Synapse Catalyst - Cuprous Pulp + Primitive Catalyst, the "smart component" reagent
     // (Proto Brain's Craw injection, Brain Block's Mutator step, Module Frame's Mutator recipe)
     public static final Supplier<FluidType> SYNAPSE_CATALYST_FLUID_TYPE = registerFluidType("synapse_catalyst_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFAA6E37,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFFAA6E37,
                     setColorVector(170, 110, 55),
                     FluidType.Properties.create()
                             .viscosity(1500)
@@ -123,7 +128,7 @@ public class ModFluidTypes {
     // (lightLevel 8, same tier as Molten Redstone) since it's meant to look like distilled thought,
     // not an inert reagent.
     public static final Supplier<FluidType> KNOWLEDGE_COLLOID_FLUID_TYPE = registerFluidType("knowledge_colloid_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF80FF20,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFF80FF20,
                     setColorVector(128, 255, 32),
                     FluidType.Properties.create()
                             .viscosity(1500)
@@ -144,7 +149,7 @@ public class ModFluidTypes {
     // ABOVE both parents and double Synapse Catalyst's own 0.025 -- the fluid visibly flows faster
     // in-world, a small fiction touch reinforcing "kinetic" beyond just the name.
     public static final Supplier<FluidType> KINETIC_CATALYST_FLUID_TYPE = registerFluidType("kinetic_catalyst_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFE61414,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFFE61414,
                     setColorVector(230, 20, 20),
                     FluidType.Properties.create()
                             .viscosity(1500)
@@ -161,7 +166,7 @@ public class ModFluidTypes {
     // Evolution Catalyst - Synapse Catalyst + Phantom Membrane + Nether Quartz + Glowstone Dust (or Living
     // Glowstone, late-Stage-2 variant), the Evolution Module reagent (matching Safety Module + this, Mutator)
     public static final Supplier<FluidType> EVOLUTION_CATALYST_FLUID_TYPE = registerFluidType("evolution_catalyst_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFE0B83C,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFFE0B83C,
                     setColorVector(224, 184, 60),
                     FluidType.Properties.create()
                             .viscosity(1500)
@@ -318,7 +323,7 @@ public class ModFluidTypes {
     //////////////////////////////Effluentcer Outputs\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     // F-Stuff - Crude Slurry + Protein Pulp, also directly cookable into MRE
     public static final Supplier<FluidType> F_STUFF_FLUID_TYPE = registerFluidType("f_stuff_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF8B5A2B,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFF8B5A2B,
                     setColorVector(139, 90, 43),
                     FluidType.Properties.create()
                             .viscosity(3250)
@@ -335,7 +340,7 @@ public class ModFluidTypes {
 
     // C-Stuff - Carbon Pulp + Calcium Pulp, also used in a standalone Syringe on Creepers
     public static final Supplier<FluidType> C_STUFF_FLUID_TYPE = registerFluidType("c_stuff_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF8C7B8A,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFF8C7B8A,
                     setColorVector(140, 123, 138),
                     FluidType.Properties.create()
                             .viscosity(2750)
@@ -516,7 +521,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> BLAZE_COLLOID_FLUID_TYPE = registerFluidType("blaze_colloid_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFFFB13D,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFFFFB13D,
                     setColorVector(255, 177, 61),
                     FluidType.Properties.create()
                             .viscosity(5000)
@@ -533,7 +538,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> GHAST_COLLOID_FLUID_TYPE = registerFluidType("ghast_colloid_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFEDEDE3,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFFEDEDE3,
                     setColorVector(237, 237, 227),
                     FluidType.Properties.create()
                             .viscosity(4500)
@@ -549,7 +554,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> WITHER_COLLOID_FLUID_TYPE = registerFluidType("wither_colloid_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF262A22,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFF262A22,
                     setColorVector(38, 42, 34),
                     FluidType.Properties.create()
                             .viscosity(5500)
@@ -565,7 +570,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> ENDER_COLLOID_FLUID_TYPE = registerFluidType("ender_colloid_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFF0F7A63,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFF0F7A63,
                     setColorVector(15, 122, 99),
                     FluidType.Properties.create()
                             .viscosity(2000)
@@ -598,7 +603,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> FLUX_FLUID_TYPE = registerFluidType("flux_fluid",
-            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB5E4EE,
+            new BaseFluidType(THIN_FLUID_STILL_RL, THIN_FLUID_FLOWING_RL, THIN_FLUID_OVERLAY_RL, 0xFFB5E4EE,
                     setColorVector(181, 228, 238),
                     FluidType.Properties.create()
                             .viscosity(1500)
@@ -614,7 +619,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> DIRTY_FERROUS_PULP_FLUID_TYPE = registerFluidType("dirty_ferrous_pulp_fluid",
-            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB5B3B1,
+            new BaseFluidType(DIRTY_CHUNKY_FLUID_STILL_RL, DIRTY_CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB5B3B1,
                     setColorVector(181, 179, 177),
                     FluidType.Properties.create()
                             .viscosity(3000)
@@ -630,7 +635,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> DIRTY_CUPROUS_PULP_FLUID_TYPE = registerFluidType("dirty_cuprous_pulp_fluid",
-            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF9D6735,
+            new BaseFluidType(DIRTY_CHUNKY_FLUID_STILL_RL, DIRTY_CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF9D6735,
                     setColorVector(157, 103, 53),
                     FluidType.Properties.create()
                             .viscosity(3000)
@@ -646,7 +651,7 @@ public class ModFluidTypes {
             ));
 
     public static final Supplier<FluidType> DIRTY_AUROUS_PULP_FLUID_TYPE = registerFluidType("dirty_aurous_pulp_fluid",
-            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB29438,
+            new BaseFluidType(DIRTY_CHUNKY_FLUID_STILL_RL, DIRTY_CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB29438,
                     setColorVector(178, 148, 56),
                     FluidType.Properties.create()
                             .viscosity(3000)
