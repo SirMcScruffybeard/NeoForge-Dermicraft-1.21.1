@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_stone_pulp",
+  "fluid_amount": 360,
+  "pattern": {
+    "item": "minecraft:stone_stairs"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:stone_stairs"
+  },
+  "ticks": 200
+}

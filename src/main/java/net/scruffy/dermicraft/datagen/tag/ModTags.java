@@ -82,7 +82,10 @@ public class ModTags {
 
         public static final TagKey<Item> BIOFUELS = createTag("biofuels");
 
-        public static final TagKey<Item> STONE_PULP_ROSTER = createTag("stone_pulp_roster");
+        /** Stone Pulp items by the amount they are worth: the four-unit blocks (360), the cobble class (270) and the single-unit aggregates (90). */
+        public static final TagKey<Item> STONE_PULP_SOLID = createTag("stone_pulp_solid");
+        public static final TagKey<Item> STONE_PULP_COBBLE = createTag("stone_pulp_cobble");
+        public static final TagKey<Item> STONE_PULP_AGGREGATE = createTag("stone_pulp_aggregate");
         public static final TagKey<Item> SILICA_PULP_ROSTER = createTag("silica_pulp_roster");
         public static final TagKey<Item> CLAY_PULP_ROSTER = createTag("clay_pulp_roster");
 

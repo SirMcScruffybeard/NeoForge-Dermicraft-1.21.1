@@ -2,16 +2,12 @@
   "values": [
     "minecraft:stone",
     "minecraft:smooth_stone",
-    "minecraft:cobblestone",
     "minecraft:andesite",
     "minecraft:diorite",
     "minecraft:granite",
     "minecraft:deepslate",
-    "minecraft:cobbled_deepslate",
     "minecraft:calcite",
     "minecraft:tuff",
-    "minecraft:gravel",
-    "minecraft:dripstone_block",
-    "minecraft:pointed_dripstone"
+    "minecraft:dripstone_block"
   ]
 }

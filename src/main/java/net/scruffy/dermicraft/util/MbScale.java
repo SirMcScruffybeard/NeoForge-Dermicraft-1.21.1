@@ -25,6 +25,8 @@ public final class MbScale {
     public static final int NUGGET = 10;
     /** A 9:1 storage block (iron, gold, copper, coal, diamond and the like). */
     public static final int BLOCK = 810;
+    /** A cobblestone-class block (cobblestone, cobbled deepslate and their walls), three units of {@value #INGOT}. */
+    public static final int COBBLE = 270;
     /** A 4:1 storage block (quartz, glowstone, amethyst, and the stone family's four-unit blocks). */
     public static final int BLOCK_OF_FOUR = 360;
 
@@ -38,6 +40,11 @@ public final class MbScale {
     /** {@code value} rounded up to the next whole millibucket, the rounding rule for costs and yields. */
     public static int roundUp(double value) {
         return (int) Math.ceil(value - 1.0E-9);
+    }
+
+    /** Half of {@code amount}, rounded up: a slab is half the block it is made from. */
+    public static int half(int amount) {
+        return roundUp(amount / 2.0);
     }
 
     /** {@code ingots} ingots' worth for a recipe whose crafting yields several items, shared out and rounded up

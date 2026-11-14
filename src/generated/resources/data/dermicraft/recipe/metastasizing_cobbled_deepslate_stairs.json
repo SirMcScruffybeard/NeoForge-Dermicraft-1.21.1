@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_stone_pulp",
+  "fluid_amount": 270,
+  "pattern": {
+    "item": "minecraft:cobbled_deepslate_stairs"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:cobbled_deepslate_stairs"
+  },
+  "ticks": 160
+}

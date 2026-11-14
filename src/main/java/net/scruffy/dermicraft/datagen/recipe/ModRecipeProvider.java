@@ -797,57 +797,62 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // the same ~0.4615 ticks-per-mB ratio (e.g. cooked beef: 936 mB / 432 ticks) for consistency.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_bladder", ModItems.BLADDER.get(), ModFluids.SOURCE_PROTEIN_PULP.get(), 1200, 554);
 
-        // Placeholder yields - Sediment Pulp balance values not yet finalized, see crafting notes.
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating", ModTags.Items.STONE_PULP_ROSTER, 1000,
-                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        // Stone Pulp by tier, each worth what its Metastasizer duplicate costs: four-unit blocks 360, cobble class 270,
+        // single-unit aggregates 90. (Replaces the one flat roster recipe.)
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_solid", ModTags.Items.STONE_PULP_SOLID, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobble", ModTags.Items.STONE_PULP_COBBLE, MbScale.COBBLE,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_aggregate", ModTags.Items.STONE_PULP_AGGREGATE, MbScale.INGOT,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
 
         // Slabs of roster blocks -- half value/time each, matching the real 2-slabs-per-block
-        // crafting ratio (same precedent as Cut Copper -> Cut Copper Slab: 9000 -> 4500 mB).
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_stone_slab", Items.STONE_SLAB, 500,
-                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_slab", Items.COBBLESTONE_SLAB, 500,
-                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_slab", Items.ANDESITE_SLAB, 500,
-                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_slab", Items.DIORITE_SLAB, 500,
-                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_slab", Items.GRANITE_SLAB, 500,
-                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, 500,
-                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, 500,
-                ModFluids.SOURCE_STONE_PULP.get(), 500, ModMath.Time.getSecondsToTicks(15));
+        // crafting ratio (180 for the stone family, 135 for the cobble class).
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_stone_slab", Items.STONE_SLAB, MbScale.half(MbScale.BLOCK_OF_FOUR),
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_slab", Items.COBBLESTONE_SLAB, MbScale.half(MbScale.COBBLE),
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.COBBLE), ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_slab", Items.ANDESITE_SLAB, MbScale.half(MbScale.BLOCK_OF_FOUR),
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_slab", Items.DIORITE_SLAB, MbScale.half(MbScale.BLOCK_OF_FOUR),
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_slab", Items.GRANITE_SLAB, MbScale.half(MbScale.BLOCK_OF_FOUR),
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, MbScale.half(MbScale.COBBLE),
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.COBBLE), ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, MbScale.half(MbScale.BLOCK_OF_FOUR),
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), ModMath.Time.getSecondsToTicks(15));
 
         // Walls of roster blocks -- full value/time each (not halved like slabs above), matching the
         // real 6-blocks-in/6-walls-out vanilla crafting ratio (1:1, unlike slabs' 1:2). Only the 5
         // roster members with a real vanilla wall get one -- no Stone/Deepslate/Calcite/Tuff Wall
         // exists. Cost/time mirrors each material's own full-block rate above (Cobblestone/Cobbled
-        // Deepslate at 900 mB/cobbleTicks, Andesite/Diorite/Granite at 1000 mB/solidTicks).
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_wall", Items.COBBLESTONE_WALL, 900,
-                ModFluids.SOURCE_STONE_PULP.get(), 900, ModMath.Time.getSecondsToTicks(8));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_wall", Items.ANDESITE_WALL, 1000,
-                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(10));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_wall", Items.DIORITE_WALL, 1000,
-                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(10));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_wall", Items.GRANITE_WALL, 1000,
-                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(10));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, 900,
-                ModFluids.SOURCE_STONE_PULP.get(), 900, ModMath.Time.getSecondsToTicks(8));
+        // Deepslate at 270 mB/cobbleTicks, Andesite/Diorite/Granite at 360 mB/solidTicks).
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_wall", Items.COBBLESTONE_WALL, MbScale.COBBLE,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, ModMath.Time.getSecondsToTicks(8));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_wall", Items.ANDESITE_WALL, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_wall", Items.DIORITE_WALL, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_wall", Items.GRANITE_WALL, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, MbScale.COBBLE,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, ModMath.Time.getSecondsToTicks(8));
 
-        // Stairs of roster blocks -- same 0.375x ratio Cellulose Pulp uses for wood stairs (375 mB from
-        // a 1000 mB full-block base), applied to both amount and time here.
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_stone_stairs", Items.STONE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_stairs", Items.COBBLESTONE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_stairs", Items.ANDESITE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_stairs", Items.DIORITE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_stairs", Items.GRANITE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
-        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, 375,
-                ModFluids.SOURCE_STONE_PULP.get(), 375, ModMath.Time.getSecondsToTicks(11.25f));
+        // Stairs of roster blocks -- 1:1 with the block they are made from (the stonecutter rule), with the
+        // wall times (8 s for the cobble class, 10 s for the solid blocks).
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_stone_stairs", Items.STONE_STAIRS, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobblestone_stairs", Items.COBBLESTONE_STAIRS, MbScale.COBBLE,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, ModMath.Time.getSecondsToTicks(8));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_andesite_stairs", Items.ANDESITE_STAIRS, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_diorite_stairs", Items.DIORITE_STAIRS, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_granite_stairs", Items.GRANITE_STAIRS, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(10));
+        RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, MbScale.COBBLE,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, ModMath.Time.getSecondsToTicks(8));
 
         RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_masticating", ModTags.Items.SILICA_PULP_ROSTER, 1000,
                 ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
@@ -868,9 +873,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_STONE_PULP.get(), 1000, ModFluids.SOURCE_SILICA_PULP.get(), 1250, -1,
                 ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "stone_pulp_masticating_boosted_with_silica_pulp",
-                Ingredient.of(ModTags.Items.STONE_PULP_ROSTER), 1,
-                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModFluids.SOURCE_STONE_PULP.get(), 1250, -1,
+        // The stone side of the cross-feed, split by tier: the solvent is the item's own yield and the output is that
+        // yield plus 25%, rounded up (360 -> 450, 270 -> 338, 90 -> 113). The silica side is in the silica block below.
+        RecipeBuilders.buildMasticating(recipeOutput, "stone_pulp_masticating_boosted_with_silica_pulp_solid",
+                Ingredient.of(ModTags.Items.STONE_PULP_SOLID), 1,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.roundUp(MbScale.BLOCK_OF_FOUR * 1.25), -1,
+                ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.buildMasticating(recipeOutput, "stone_pulp_masticating_boosted_with_silica_pulp_cobble",
+                Ingredient.of(ModTags.Items.STONE_PULP_COBBLE), 1,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.COBBLE,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.roundUp(MbScale.COBBLE * 1.25), -1,
+                ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.buildMasticating(recipeOutput, "stone_pulp_masticating_boosted_with_silica_pulp_aggregate",
+                Ingredient.of(ModTags.Items.STONE_PULP_AGGREGATE), 1,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.roundUp(MbScale.INGOT * 1.25), -1,
                 ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_clay_pulp",
@@ -909,38 +927,46 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_coal_block", Items.COAL_BLOCK, ModFluids.SOURCE_CARBON_PULP.get(), MbScale.BLOCK, solidTicks);
 
         // Stone Pulp roster
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gravel", Items.GRAVEL, ModFluids.SOURCE_STONE_PULP.get(), 750, aggregateTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone", Items.COBBLESTONE, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate", Items.COBBLED_DEEPSLATE, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone", Items.STONE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone", Items.SMOOTH_STONE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite", Items.ANDESITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite", Items.DIORITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite", Items.GRANITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_deepslate", Items.DEEPSLATE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcite", Items.CALCITE, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_tuff", Items.TUFF, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_dripstone_block", Items.DRIPSTONE_BLOCK, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_pointed_dripstone", Items.POINTED_DRIPSTONE, ModFluids.SOURCE_STONE_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_gravel", Items.GRAVEL, ModFluids.SOURCE_STONE_PULP.get(), MbScale.INGOT, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone", Items.COBBLESTONE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate", Items.COBBLED_DEEPSLATE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone", Items.STONE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone", Items.SMOOTH_STONE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite", Items.ANDESITE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite", Items.DIORITE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite", Items.GRANITE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_deepslate", Items.DEEPSLATE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcite", Items.CALCITE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_tuff", Items.TUFF, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_dripstone_block", Items.DRIPSTONE_BLOCK, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_pointed_dripstone", Items.POINTED_DRIPSTONE, ModFluids.SOURCE_STONE_PULP.get(), MbScale.INGOT, lightTicks);
 
         // Slabs of roster blocks -- reverse of the masticating slab recipes above, same half
-        // value/time convention (500 mB / half of solidTicks).
+        // value/time convention (half the block's amount, half of solidTicks).
         int slabTicks = ModMath.Time.getSecondsToTicks(5);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone_slab", Items.STONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_slab", Items.COBBLESTONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_slab", Items.ANDESITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_slab", Items.DIORITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_slab", Items.GRANITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), 500, slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone_slab", Items.STONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_slab", Items.COBBLESTONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.COBBLE), slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_slab", Items.ANDESITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_slab", Items.DIORITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_slab", Items.GRANITE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_slab", Items.COBBLED_DEEPSLATE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.COBBLE), slabTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_smooth_stone_slab", Items.SMOOTH_STONE_SLAB, ModFluids.SOURCE_STONE_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), slabTicks);
 
         // Walls of roster blocks -- reverse of the masticating wall recipes above, full value/time
         // each (1:1 vanilla ratio, not halved like slabs).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_wall", Items.COBBLESTONE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_wall", Items.ANDESITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_wall", Items.DIORITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_wall", Items.GRANITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, ModFluids.SOURCE_STONE_PULP.get(), 900, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_wall", Items.COBBLESTONE_WALL, ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_wall", Items.ANDESITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_wall", Items.DIORITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_wall", Items.GRANITE_WALL, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_wall", Items.COBBLED_DEEPSLATE_WALL, ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, cobbleTicks);
+
+        // Stairs of roster blocks -- the reverse of the masticating stair recipes, 1:1 with the block they are made from.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stone_stairs", Items.STONE_STAIRS, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobblestone_stairs", Items.COBBLESTONE_STAIRS, ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, cobbleTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_andesite_stairs", Items.ANDESITE_STAIRS, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_diorite_stairs", Items.DIORITE_STAIRS, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_granite_stairs", Items.GRANITE_STAIRS, ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, cobbleTicks);
 
         // Silica Pulp roster
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_PULP.get(), 750, aggregateTicks);

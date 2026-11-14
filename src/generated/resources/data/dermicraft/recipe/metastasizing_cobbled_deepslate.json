@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_stone_pulp",
-  "fluid_amount": 900,
+  "fluid_amount": 270,
   "pattern": {
     "item": "minecraft:cobbled_deepslate"
   },

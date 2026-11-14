@@ -144,19 +144,25 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.SMELTING_MODULE.get())
         ;
 
-        tag(ModTags.Items.STONE_PULP_ROSTER)
+        tag(ModTags.Items.STONE_PULP_SOLID)
                 .add(Items.STONE)
                 .add(Items.SMOOTH_STONE)
-                .add(Items.COBBLESTONE)
                 .add(Items.ANDESITE)
                 .add(Items.DIORITE)
                 .add(Items.GRANITE)
                 .add(Items.DEEPSLATE)
-                .add(Items.COBBLED_DEEPSLATE)
                 .add(Items.CALCITE)
                 .add(Items.TUFF)
-                .add(Items.GRAVEL)
                 .add(Items.DRIPSTONE_BLOCK)
+        ;
+
+        tag(ModTags.Items.STONE_PULP_COBBLE)
+                .add(Items.COBBLESTONE)
+                .add(Items.COBBLED_DEEPSLATE)
+        ;
+
+        tag(ModTags.Items.STONE_PULP_AGGREGATE)
+                .add(Items.GRAVEL)
                 .add(Items.POINTED_DRIPSTONE)
         ;
 
