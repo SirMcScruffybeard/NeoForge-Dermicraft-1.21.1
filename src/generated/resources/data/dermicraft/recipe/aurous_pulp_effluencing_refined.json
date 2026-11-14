@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_dirty_aurous_pulp",
+  "fluid_a_amount": 90,
+  "fluid_b": "dermicraft:source_flux",
+  "fluid_b_amount": 45,
+  "result_fluid": "dermicraft:source_aurous_pulp",
+  "result_fluid_amount": 180,
+  "ticks": 900
+}

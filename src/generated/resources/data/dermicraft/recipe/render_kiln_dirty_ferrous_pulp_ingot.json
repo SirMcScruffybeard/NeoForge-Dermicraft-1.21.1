@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_dirty_ferrous_pulp",
+  "fluid_amount": 68,
+  "result": {
+    "count": 1,
+    "id": "minecraft:iron_ingot"
+  },
+  "ticks": 200
+}

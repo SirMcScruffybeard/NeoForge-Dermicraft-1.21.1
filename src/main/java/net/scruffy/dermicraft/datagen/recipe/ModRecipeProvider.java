@@ -1031,7 +1031,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "bone_meal_metastasizing", Items.BONE_MEAL, ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "bone_block_metastasizing", Items.BONE_BLOCK, ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(90));
 
-        // Metal Pulps - Ingot/Nugget tiers use Water 1:1; Raw tier uses a flat 250 mB Primitive Catalyst dose for 2000 mB output.
+        // Metal Pulps - Ingot/Nugget tiers use Water 1:1; raw ore goes through Flux and the Dirty Pulps (see the refining chain below).
         // Metal amounts derived from the ingot (90) and block (810) rates, see MbScale. Iron Bars: 6 ingots make 16 bars.
         // Cut Copper: 4 blocks make 16 (202.5, rounded up), Stairs: 6 cut make 4, Slab: 3 cut make 6 (both off the
         // unrounded Cut Copper), Chiseled Copper is about one Cut Copper.
@@ -1054,9 +1054,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "ferrous_pulp_masticating_nugget_batch",
                 Ingredient.of(Items.IRON_NUGGET), 9, Fluids.WATER, MbScale.INGOT,
                 ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_pulp_masticating_raw",
-                Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_FERROUS_PULP.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_bucket", Items.BUCKET, MbScale.ofIngots(3),
                 ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.ofIngots(3), ModMath.Time.getSecondsToTicks(45));
 
@@ -1064,25 +1061,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Ingots), same convention as Copper Block/Cut Copper.
         RecipeBuilders.masticateWithWater(recipeOutput, "ferrous_pulp_masticating_iron_block", Items.IRON_BLOCK, MbScale.BLOCK,
                 ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(90));
-
-        // Blood Nugget -- second half of the Protein Pulp alternate route (see the Metastasizer's
-        // metastasizing_blood_nugget). 25 mB/nugget -- well under a plain Iron Nugget's own 110 mB,
-        // per the design notes' explicit "should read as trace extraction, not a real iron source"
-        // target. Reaching one Ingot-equivalent (1000 mB) costs 40 Blood Nuggets = 10,000 mB Protein
-        // Pulp + 1000 mB Primitive Catalyst -- a genuine slow trickle, not a mining replacement.
-        RecipeBuilders.buildMasticating(recipeOutput, "ferrous_pulp_masticating_blood_nugget",
-                Ingredient.of(ModItems.BLOOD_NUGGET.get()), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
-                ModFluids.SOURCE_FERROUS_PULP.get(), 25, -1, ModMath.Time.getSecondsToTicks(20));
-
-        // Same trace-extraction identity, Effluentcer route -- skips the Blood Nugget middleman by
-        // going straight from its own raw material. Ratio derived from chaining the two existing
-        // recipes: a Blood Nugget itself costs 250 mB Protein Pulp (render_kiln_blood_nugget), and
-        // the masticating recipe above spends 25 mB Primitive Catalyst per Blood Nugget, so the
-        // effective Protein Pulp : Primitive Catalyst ratio is 250:25 (10:1) for the same 25 mB
-        // Ferrous Pulp output -- an alternate path to the identical result, not a new price point.
-        RecipeBuilders.buildEffluencing(recipeOutput, "ferrous_pulp_effluencing_blood_nugget",
-                ModFluids.SOURCE_PROTEIN_PULP.get(), 250, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 25,
-                ModFluids.SOURCE_FERROUS_PULP.get(), 25, ModMath.Time.getSecondsToTicks(15));
 
         // Heavy Weighted Pressure Plate -- 2 Iron Ingots' worth (real vanilla recipe cost), so 180 mB.
         // Craft time stays at Ingot's own 60s rather than doubling -- same precedent as Raw (also
@@ -1093,9 +1071,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         RecipeBuilders.masticateWithWater(recipeOutput, "cuprous_pulp_masticating_ingot", Items.COPPER_INGOT, MbScale.INGOT,
                 ModFluids.SOURCE_CUPROUS_PULP.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.buildMasticating(recipeOutput, "cuprous_pulp_masticating_raw",
-                Ingredient.of(Items.RAW_COPPER), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_CUPROUS_PULP.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Copper building block family -- unaffected (fresh) state only, deliberately not covering
         // Exposed/Weathered/Oxidized or Waxed variants (oxidation is a passive weathering effect, not
@@ -1134,9 +1109,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "aurous_pulp_masticating_nugget_batch",
                 Ingredient.of(Items.GOLD_NUGGET), 9, Fluids.WATER, MbScale.INGOT,
                 ModFluids.SOURCE_AUROUS_PULP.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(45));
-        RecipeBuilders.buildMasticating(recipeOutput, "aurous_pulp_masticating_raw",
-                Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 250,
-                ModFluids.SOURCE_AUROUS_PULP.get(), 2000, -1, ModMath.Time.getSecondsToTicks(45));
 
         // Light Weighted Pressure Plate -- 2 Gold Ingots' worth, same treatment as its Iron counterpart above.
         RecipeBuilders.masticateWithWater(recipeOutput, "aurous_pulp_masticating_light_weighted_pressure_plate",
@@ -1157,13 +1129,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_iron_block", Items.IRON_BLOCK, ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_hopper", Items.HOPPER, ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.ofIngots(5), ModMath.Time.getSecondsToTicks(50));
 
-        // Blood Nugget -- alternate trace-iron route from Protein Pulp. Iron Nugget is a
-        // non-consumed pattern (same as every other Metastasizer recipe here); Protein Pulp is the
-        // real cost. Deliberately weaker than the direct Ferrous Pulp family above: this is a
-        // renewable fallback for players without iron access yet, not a replacement for mining.
-        RecipeBuilders.buildMetastasizing(recipeOutput, "metastasizing_blood_nugget",
-                Ingredient.of(Items.IRON_NUGGET), ModFluids.SOURCE_PROTEIN_PULP.get(), 250,
-                new ItemStack(ModItems.BLOOD_NUGGET.get()), solidTicks);
+        // Blood Nugget (now a food, see ModFoodProperties): a plain duplicate with the nugget itself as the non-consumed
+        // pattern, 250 mB Protein Pulp in 96 ticks. 96 is the vague formula's own time for it, which is also why it
+        // masticates back to exactly 250 mB.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_blood_nugget", ModItems.BLOOD_NUGGET.get(),
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 250, 96);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_heavy_weighted_pressure_plate", Items.HEAVY_WEIGHTED_PRESSURE_PLATE,
                 ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.ofIngots(2), ModMath.Time.getSecondsToTicks(60));
 
@@ -2007,7 +1977,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_C_STUFF.get(), 180, ModFluids.SOURCE_SILICA_PULP.get(), 180,
                 ModFluids.SOURCE_FLUX.get(), 360, ModMath.Time.getSecondsToTicks(15));
 
-        // Dirty Pulps: one raw ore plus 25 Flux makes 90 of the metal's dirty pulp (the clean-up forks come in Phase 5).
+        // Dirty Pulps: one raw ore plus 25 Flux makes 90 of the metal's dirty pulp (45 s); the forks that clean it are just below.
         RecipeBuilders.buildMasticating(recipeOutput, "dirty_ferrous_pulp_masticating_raw",
                 Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_FLUX.get(), 25,
                 ModFluids.SOURCE_DIRTY_FERROUS_PULP.get(), 90, -1, ModMath.Time.getSecondsToTicks(45));
@@ -2017,6 +1987,29 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "dirty_aurous_pulp_masticating_raw",
                 Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_FLUX.get(), 25,
                 ModFluids.SOURCE_DIRTY_AUROUS_PULP.get(), 90, -1, ModMath.Time.getSecondsToTicks(45));
+
+        // Refining chain, the forks. Quick fork (Render Kiln): 68 Dirty Pulp -> 1 Ingot in 200 ticks (a 1.32 ingots-per-raw
+        // route, since the dirty step makes 90). Patient fork (Effluentcer): 90 Dirty Pulp + 45 Flux -> 180 clean Pulp in a
+        // fixed 900 ticks (2 ingots per raw, 70 Flux in all). The clean Pulp then follows the ordinary ingot recipes.
+        RecipeBuilders.render(recipeOutput, "render_kiln_dirty_ferrous_pulp_ingot", ModFluids.SOURCE_DIRTY_FERROUS_PULP.get(), 68, Items.IRON_INGOT, 200);
+        RecipeBuilders.render(recipeOutput, "render_kiln_dirty_cuprous_pulp_ingot", ModFluids.SOURCE_DIRTY_CUPROUS_PULP.get(), 68, Items.COPPER_INGOT, 200);
+        RecipeBuilders.render(recipeOutput, "render_kiln_dirty_aurous_pulp_ingot", ModFluids.SOURCE_DIRTY_AUROUS_PULP.get(), 68, Items.GOLD_INGOT, 200);
+        RecipeBuilders.buildEffluencing(recipeOutput, "ferrous_pulp_effluencing_refined",
+                ModFluids.SOURCE_DIRTY_FERROUS_PULP.get(), MbScale.INGOT, ModFluids.SOURCE_FLUX.get(), MbScale.INGOT / 2,
+                ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.INGOT * 2, 900);
+        RecipeBuilders.buildEffluencing(recipeOutput, "cuprous_pulp_effluencing_refined",
+                ModFluids.SOURCE_DIRTY_CUPROUS_PULP.get(), MbScale.INGOT, ModFluids.SOURCE_FLUX.get(), MbScale.INGOT / 2,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), MbScale.INGOT * 2, 900);
+        RecipeBuilders.buildEffluencing(recipeOutput, "aurous_pulp_effluencing_refined",
+                ModFluids.SOURCE_DIRTY_AUROUS_PULP.get(), MbScale.INGOT, ModFluids.SOURCE_FLUX.get(), MbScale.INGOT / 2,
+                ModFluids.SOURCE_AUROUS_PULP.get(), MbScale.INGOT * 2, 900);
+
+        // Ferrous Blood: iron from protein, Effluentcer only. 900 Protein Pulp + 25 Flux -> 90 Dirty Ferrous Pulp in 900
+        // ticks (45 s), iron only (no copper or gold version). It reuses the two forks above unchanged, so a viable
+        // replacement for mining iron, not a better one.
+        RecipeBuilders.buildEffluencing(recipeOutput, "dirty_ferrous_pulp_effluencing_blood",
+                ModFluids.SOURCE_PROTEIN_PULP.get(), 900, ModFluids.SOURCE_FLUX.get(), 25,
+                ModFluids.SOURCE_DIRTY_FERROUS_PULP.get(), MbScale.INGOT, 900);
 
         // Luminous Ichor: glowstone diluted with Protein Pulp (the Protein is the solvent and the yield). Times are
         // placeholders to tune in playtest.
@@ -2302,9 +2295,9 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.ENDER_PEARL, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT, Items.BONE_MEAL, lightTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_bone", ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.ofIngots(3), Items.BONE, solidTicks);
-        // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Pulp, solidTicks) --
-        // same amount/timing, no pattern item since the Render Kiln is fluid-only input.
-        RecipeBuilders.render(recipeOutput, "render_kiln_blood_nugget", ModFluids.SOURCE_PROTEIN_PULP.get(), 250, ModItems.BLOOD_NUGGET.get(), solidTicks);
+        // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Pulp, 96 ticks), no pattern item since the
+        // Render Kiln is fluid-only input.
+        RecipeBuilders.render(recipeOutput, "render_kiln_blood_nugget", ModFluids.SOURCE_PROTEIN_PULP.get(), 250, ModItems.BLOOD_NUGGET.get(), 96);
         RecipeBuilders.render(recipeOutput, "render_kiln_mre", ModFluids.SOURCE_F_STUFF.get(), 900, ModItems.MRE.get(), 160);
         // Deliberately excluded: Crude Slurry (no solid form defined anywhere in the design notes).
 

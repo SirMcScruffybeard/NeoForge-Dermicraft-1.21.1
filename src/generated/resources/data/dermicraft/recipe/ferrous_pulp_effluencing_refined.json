@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_dirty_ferrous_pulp",
+  "fluid_a_amount": 90,
+  "fluid_b": "dermicraft:source_flux",
+  "fluid_b_amount": 45,
+  "result_fluid": "dermicraft:source_ferrous_pulp",
+  "result_fluid_amount": 180,
+  "ticks": 900
+}

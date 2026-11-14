@@ -3,11 +3,11 @@
   "fluid": "dermicraft:source_protein_pulp",
   "fluid_amount": 250,
   "pattern": {
-    "item": "minecraft:iron_nugget"
+    "item": "dermicraft:blood_nugget"
   },
   "result": {
     "count": 1,
     "id": "dermicraft:blood_nugget"
   },
-  "ticks": 200
+  "ticks": 96
 }

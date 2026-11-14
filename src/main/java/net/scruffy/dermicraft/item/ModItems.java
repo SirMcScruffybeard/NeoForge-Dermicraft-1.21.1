@@ -210,11 +210,10 @@ public class ModItems {
     public static DeferredItem<Item> DENSE_MUSCLE = ITEMS.register("dense_muscle",
             () -> new PartItem(new Item.Properties().food(ModFoodProperties.DENSE_MUSCLE)));
 
-    // Blood Nugget: trace-iron intermediate for the Protein Pulp -> Ferrous Pulp alternate route
-    // (Metastasizer: Iron Nugget pattern + Protein Pulp -> Blood Nugget; Masticator: Blood Nugget +
-    // Primitive Catalyst -> Ferrous Pulp). Plain crafting item, not food.
+    // Blood Nugget: a food (see ModFoodProperties) that masticates and duplicates through Protein Pulp, so it stays the
+    // renewable form of protein.
     public static final DeferredItem<Item> BLOOD_NUGGET = ITEMS.register("blood_nugget",
-            () -> new Item(new Item.Properties()));
+            () -> new Item(new Item.Properties().food(ModFoodProperties.BLOOD_NUGGET)));
 
     // Proto Brain: immature Brain-derived tissue, grown from Nerve Cluster via Craw injection.
     // Shared crafting ingredient across Gadgets and (eventually) Brain Block -- plain crafting

@@ -36,6 +36,13 @@ public class ModFoodProperties {
             .saturationModifier(0.6f) //Final Saturation is calculated nutrition * saturationModifier * 2 -- on par with cooked chicken
             .build();
 
+    /** Nutrition 3 and a saturation modifier of 0.283 (a final saturation of about 1.7): the vague masticate formula then
+     * gives exactly 250 mB Protein Pulp (25 x 2.6 x 3 x 1.283) over 96 ticks, matching its duplicate and Render Kiln recipes. */
+    public static final FoodProperties BLOOD_NUGGET = new FoodProperties.Builder()
+            .nutrition(3)
+            .saturationModifier(0.283f)
+            .build();
+
     public static final FoodProperties MEAT_FLAVORED_MEAT = new FoodProperties.Builder()
             .nutrition(5)
             .saturationModifier(0.5f) //Final Saturation is calculated nutrition * saturationModifier * 2

@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_dirty_cuprous_pulp",
+  "fluid_amount": 68,
+  "result": {
+    "count": 1,
+    "id": "minecraft:copper_ingot"
+  },
+  "ticks": 200
+}
