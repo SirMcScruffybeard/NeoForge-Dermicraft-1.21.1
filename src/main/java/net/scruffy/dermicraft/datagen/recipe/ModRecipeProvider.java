@@ -2180,7 +2180,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.render(recipeOutput, "render_kiln_ender_pearl", ModFluids.SOURCE_ENDER_COLLOID.get(), 1000,
                 Items.ENDER_PEARL, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT, Items.BONE_MEAL, lightTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_bone_block", ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.BLOCK, Items.BONE_BLOCK, ModMath.Time.getSecondsToTicks(90));
+        RecipeBuilders.render(recipeOutput, "render_kiln_bone", ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.ofIngots(3), Items.BONE, solidTicks);
         // Mirrors the Metastasizer's metastasizing_blood_nugget (250 mB Protein Pulp, solidTicks) --
         // same amount/timing, no pattern item since the Render Kiln is fluid-only input.
         RecipeBuilders.render(recipeOutput, "render_kiln_blood_nugget", ModFluids.SOURCE_PROTEIN_PULP.get(), 250, ModItems.BLOOD_NUGGET.get(), solidTicks);
