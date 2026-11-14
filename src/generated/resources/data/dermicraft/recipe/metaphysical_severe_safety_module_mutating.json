@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_ender_colloid",
-  "fluid_amount": 4000,
+  "fluid_amount": 360,
   "ingredient": {
     "item": "dermicraft:safety_module_frame"
   },

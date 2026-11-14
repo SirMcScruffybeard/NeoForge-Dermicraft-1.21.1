@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_ender_colloid",
-  "fluid_amount": 1000,
+  "fluid_amount": 90,
   "pattern": {
     "item": "minecraft:ender_pearl"
   },

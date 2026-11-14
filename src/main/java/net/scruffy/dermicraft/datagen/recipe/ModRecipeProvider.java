@@ -586,7 +586,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_MILD), ModMath.Time.getSecondsToTicks(10));
 
         // Metaphysical (Severe) Safety Module: a Safety Module Frame in the middle of four Ender Pearls, or the Mutator route,
-        // the Frame plus 4000 mB of Ender Colloid (a pearl is 1000 mB, so four pearls' worth).
+        // the Frame plus 360 mB of Ender Colloid (a pearl is one unit, 90 mB, so four pearls' worth).
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_SEVERE))
                 .pattern(" E ")
                 .pattern("EFE")
@@ -596,7 +596,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_safety_module_frame", has(ModItems.SAFETY_MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("metaphysical_severe_safety_module_crafting_table"));
         RecipeBuilders.mutate(recipeOutput, "metaphysical_severe_safety_module_mutating", ModItems.SAFETY_MODULE_FRAME.get(),
-                ModFluids.SOURCE_ENDER_COLLOID.get(), 4000,
+                ModFluids.SOURCE_ENDER_COLLOID.get(), MbScale.ofIngots(4),
                 ModItems.getHazardSafetyModule(HazardModuleVariant.METAPHYSICAL_SEVERE), ModMath.Time.getSecondsToTicks(10));
 
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
@@ -2033,8 +2033,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_WITHER_COLLOID.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "ender_colloid_masticating",
-                Ingredient.of(Items.ENDER_PEARL), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_ENDER_COLLOID.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.ENDER_PEARL), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_ENDER_COLLOID.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_soul_silica_masticating",
                 Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, MbScale.BLOCK,
@@ -2191,7 +2191,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_wither_colloid",
                 Items.WITHER_SKELETON_SKULL, ModFluids.SOURCE_WITHER_COLLOID.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ender_colloid",
-                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_COLLOID.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_COLLOID.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_soul_silica",
                 Items.SOUL_SAND, ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(30));
 
@@ -2373,7 +2373,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Items.GHAST_TEAR, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_wither_skeleton_skull", ModFluids.SOURCE_WITHER_COLLOID.get(), 1000,
                 Items.WITHER_SKELETON_SKULL, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_ender_pearl", ModFluids.SOURCE_ENDER_COLLOID.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_ender_pearl", ModFluids.SOURCE_ENDER_COLLOID.get(), MbScale.INGOT,
                 Items.ENDER_PEARL, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_bone_meal", ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT, Items.BONE_MEAL, lightTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_bone", ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.ofIngots(3), Items.BONE, solidTicks);
