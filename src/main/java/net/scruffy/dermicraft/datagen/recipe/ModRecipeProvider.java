@@ -642,15 +642,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 250, ModFluids.SOURCE_PROTEIN_PULP.get(), 250,
                 ModFluids.SOURCE_F_STUFF.get(), 500, -90);
 
+        // C-Stuff: three routes, all 200 ticks, each 90 + 90 into 180 (the plan's even 1:1, nothing lost). The Effluentcer
+        // mixes the two pulps; the Masticator takes the coal or the bone meal as the item and the other pulp as the fluid.
         RecipeBuilders.buildEffluencing(recipeOutput, "c_stuff_effluencing",
-                ModFluids.SOURCE_CARBON_PULP.get(), 250, ModFluids.SOURCE_CALCIUM_PULP.get(), 250,
-                ModFluids.SOURCE_C_STUFF.get(), 500, -90);
+                ModFluids.SOURCE_CARBON_PULP.get(), MbScale.INGOT, ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT,
+                ModFluids.SOURCE_C_STUFF.get(), MbScale.INGOT * 2, 200);
+        RecipeBuilders.buildMasticating(recipeOutput, "c_stuff_masticating_coal",
+                Ingredient.of(Items.COAL, Items.CHARCOAL), 1, ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT,
+                ModFluids.SOURCE_C_STUFF.get(), MbScale.INGOT * 2, -1, 200);
+        RecipeBuilders.buildMasticating(recipeOutput, "c_stuff_masticating_bone_meal",
+                Ingredient.of(Items.BONE_MEAL), 1, ModFluids.SOURCE_CARBON_PULP.get(), MbScale.INGOT,
+                ModFluids.SOURCE_C_STUFF.get(), MbScale.INGOT * 2, -1, 200);
 
-        // Primitive Catalyst: 25% faster than the original fixed 45-second craft time -> 33.75s
-        // (positive ticks are used directly by EffluencingRecipe.getCraftingTime()).
+        // Primitive Catalyst: 180 F-Stuff + 180 C-Stuff -> 360 in 15 s (300 ticks, positive ticks are used directly by
+        // EffluencingRecipe.getCraftingTime()).
         RecipeBuilders.buildEffluencing(recipeOutput, "primitive_catalyst_effluencing",
-                ModFluids.SOURCE_F_STUFF.get(), 500, ModFluids.SOURCE_C_STUFF.get(), 500,
-                ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(33.75f));
+                ModFluids.SOURCE_F_STUFF.get(), 180, ModFluids.SOURCE_C_STUFF.get(), 180,
+                ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 360, ModMath.Time.getSecondsToTicks(15));
 
         // Concentrated Slurry: fixed 50-tick craft time (steady-trickle design -- small batch,
         // short cycle, see dermicraft-slurry-notes.md). 10:1 Crude:Catalyst, a minor catalytic
@@ -659,34 +667,32 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_CRUDE_SLURRY.get(), 50, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 5,
                 ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), 50, 50);
 
-        // Reinforcing Catalyst: same fixed 50-tick, 10:1-minor-addition shape as Concentrated
-        // Slurry, same exact numbers -- Chassis's reagent (see dermicraft's gadget-chassis notes).
+        // Reinforcing Catalyst: 180 C-Stuff + 18 Primitive Catalyst -> 180 in 180 ticks (9 s), a 10:1 minor addition like
+        // Concentrated Slurry. Chassis's reagent; the Chassis cost (Iron Bars + 1000 mB) is unchanged.
         RecipeBuilders.buildEffluencing(recipeOutput, "reinforcing_catalyst_effluencing",
-                ModFluids.SOURCE_C_STUFF.get(), 50, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 5,
-                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 50, 50);
+                ModFluids.SOURCE_C_STUFF.get(), 180, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 18,
+                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 180, 180);
 
-        // Synapse Catalyst: even-parts mix mirroring Primitive Catalyst's own fixed 45-second
+        // Synapse Catalyst: 45 Cuprous Pulp + 45 Primitive Catalyst -> 750 in 45 s, a mix mirroring Primitive Catalyst's own fixed
         // recipe shape (not a minor addition like Reinforcing Catalyst above) -- the mod's
         // general "smart component" reagent (Proto Brain, Brain Block, the Module Frame).
         RecipeBuilders.buildEffluencing(recipeOutput, "synapse_catalyst_effluencing",
-                ModFluids.SOURCE_CUPROUS_PULP.get(), 500, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 500,
+                ModFluids.SOURCE_CUPROUS_PULP.get(), MbScale.INGOT / 2, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), MbScale.INGOT / 2,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
-        // Kinetic Catalyst: same even-parts 500+500->750/45s shape as Synapse Catalyst above --
+        // Kinetic Catalyst: 45 + 45 -> 750 in 45 s, the same shape as Synapse Catalyst above --
         // Molten Redstone + Molten Quartz instead of Cuprous Pulp + Primitive Catalyst. Work Speed
         // Module's reagent, Stage 2-reachable (both inputs are Stage 2 "Molten" family fluids).
         RecipeBuilders.buildEffluencing(recipeOutput, "kinetic_catalyst_effluencing",
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 500,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.INGOT / 2, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.INGOT / 2,
                 ModFluids.SOURCE_KINETIC_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
-        // Evolution Catalyst -- second production route alongside evolution_catalyst_puddle (same
-        // Knowledge Colloid, this time paired with Kinetic Catalyst instead of the puddle's solid
-        // items). Kinetic Catalyst is hot (700 K), so an Effluentcer without a Thermal tolerance loses HP
-        // every cycle it runs this and one with the tolerance runs it free. Same even-parts 500+500->750/45s
-        // shape as every other two-fluid Effluencing recipe here.
+        // Evolution Catalyst: 500 Knowledge Colloid + 500 Luminous Ichor -> 1000 (the old Kinetic Catalyst route is gone).
+        // Luminous Ichor is Radiation 25, so an Effluentcer with no Radiation tolerance pays a small fuel surcharge while it
+        // runs this. The 45 s time is a placeholder to tune; the puddle route (`evolution_catalyst_puddle`) is unchanged.
         RecipeBuilders.buildEffluencing(recipeOutput, "evolution_catalyst_effluencing",
-                ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), 500, ModFluids.SOURCE_KINETIC_CATALYST.get(), 500,
-                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
+                ModFluids.SOURCE_KNOWLEDGE_COLLOID.get(), 500, ModFluids.SOURCE_LUMINOUS_ICHOR.get(), 500,
+                ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModMath.Time.getSecondsToTicks(45));
 
         // Zombie/Piglin Head -> Synapse Catalyst -- rarity-gated 1:1 substitute for one full batch
         // of the recipe above (same 750 mB output, same 45s), not a cheaper bypass: the head pays

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:bone_meal"
+  },
+  "ingredient_fluid": "dermicraft:source_carbon_pulp",
+  "ingredient_fluid_amount": 90,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_c_stuff",
+  "result_fluid_amount": 180,
+  "ticks": 200
+}
