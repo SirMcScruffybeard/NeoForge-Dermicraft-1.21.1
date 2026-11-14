@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_silica_pulp",
-  "fluid_amount": 750,
+  "fluid_amount": 90,
   "pattern": {
     "item": "minecraft:red_sand"
   },

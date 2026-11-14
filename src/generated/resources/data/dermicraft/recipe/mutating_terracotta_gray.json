@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_clay_pulp",
-  "fluid_amount": 1000,
+  "fluid_amount": 360,
   "ingredient": {
     "item": "minecraft:gray_dye"
   },

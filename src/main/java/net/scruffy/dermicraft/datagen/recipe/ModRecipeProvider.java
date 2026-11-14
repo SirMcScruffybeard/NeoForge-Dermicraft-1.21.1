@@ -854,23 +854,53 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.masticateWithWater(recipeOutput, "stone_pulp_masticating_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, MbScale.COBBLE,
                 ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, ModMath.Time.getSecondsToTicks(8));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_masticating", ModTags.Items.SILICA_PULP_ROSTER, 1000,
-                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        // Silica Pulp by tier: sandstones are four units (360), sand and red sand one unit (90). Glass is one unit,
+        // the Pane and the Bottle a third of one. (Replaces the flat roster and recycling recipes.)
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_masticating_solid", ModTags.Items.SILICA_PULP_SOLID, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_masticating_aggregate", ModTags.Items.SILICA_PULP_AGGREGATE, MbScale.INGOT,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_recycling_masticating_glass", Items.GLASS, MbScale.INGOT,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_recycling_masticating_glass_pane", Items.GLASS_PANE, MbScale.INGOT / 3,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT / 3, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_recycling_masticating_glass_bottle", Items.GLASS_BOTTLE, MbScale.INGOT / 3,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT / 3, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating", ModTags.Items.CLAY_PULP_ROSTER, 1000,
-                ModFluids.SOURCE_CLAY_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "silica_pulp_recycling_masticating", ModTags.Items.SILICA_PULP_RECYCLING, 1000,
-                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_recycling_masticating", ModTags.Items.CLAY_PULP_RECYCLING, 1000,
-                ModFluids.SOURCE_CLAY_PULP.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+        // Clay Pulp: Clay Block and every terracotta are four units (360), the Clay Ball one unit (90).
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_solid", ModTags.Items.CLAY_PULP_SOLID, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(30));
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_clay_ball", Items.CLAY_BALL, MbScale.INGOT,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
 
         // Cross-feed recipes - sibling-fluid feed instead of water, boosted yield (placeholder +25% over base 1000 mB).
         // Silica Pulp is the hub: cross-feeds with both Stone Pulp and Clay Pulp.
-        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_stone_pulp",
-                Ingredient.of(ModTags.Items.SILICA_PULP_ROSTER), 1,
-                ModFluids.SOURCE_STONE_PULP.get(), 1000, ModFluids.SOURCE_SILICA_PULP.get(), 1250, -1,
+        // The silica side of the cross-feed, split by tier like the stone side: the solvent is the item's own yield and the
+        // output is that yield plus 25%, rounded up (360 -> 450, 90 -> 113). Silica Pulp is the hub: it cross-feeds with both.
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_stone_pulp_solid",
+                Ingredient.of(ModTags.Items.SILICA_PULP_SOLID), 1,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.roundUp(MbScale.BLOCK_OF_FOUR * 1.25), -1,
+                ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_stone_pulp_aggregate",
+                Ingredient.of(ModTags.Items.SILICA_PULP_AGGREGATE), 1,
+                ModFluids.SOURCE_STONE_PULP.get(), MbScale.INGOT,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.roundUp(MbScale.INGOT * 1.25), -1,
+                ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_clay_pulp_solid",
+                Ingredient.of(ModTags.Items.SILICA_PULP_SOLID), 1,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.roundUp(MbScale.BLOCK_OF_FOUR * 1.25), -1,
+                ModMath.Time.getSecondsToTicks(30));
+
+        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_clay_pulp_aggregate",
+                Ingredient.of(ModTags.Items.SILICA_PULP_AGGREGATE), 1,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.INGOT,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.roundUp(MbScale.INGOT * 1.25), -1,
                 ModMath.Time.getSecondsToTicks(30));
 
         // The stone side of the cross-feed, split by tier: the solvent is the item's own yield and the output is that
@@ -891,18 +921,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_STONE_PULP.get(), MbScale.roundUp(MbScale.INGOT * 1.25), -1,
                 ModMath.Time.getSecondsToTicks(30));
 
-        RecipeBuilders.buildMasticating(recipeOutput, "silica_pulp_masticating_boosted_with_clay_pulp",
-                Ingredient.of(ModTags.Items.SILICA_PULP_ROSTER), 1,
-                ModFluids.SOURCE_CLAY_PULP.get(), 1000, ModFluids.SOURCE_SILICA_PULP.get(), 1250, -1,
-                ModMath.Time.getSecondsToTicks(30));
-
         RecipeBuilders.buildMasticating(recipeOutput, "clay_pulp_masticating_boosted_with_silica_pulp",
-                Ingredient.of(ModTags.Items.CLAY_PULP_ROSTER), 1,
-                ModFluids.SOURCE_SILICA_PULP.get(), 1000, ModFluids.SOURCE_CLAY_PULP.get(), 1250, -1,
+                Ingredient.of(Items.CLAY), 1,
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.roundUp(MbScale.BLOCK_OF_FOUR * 1.25), -1,
                 ModMath.Time.getSecondsToTicks(30));
 
         // Metastasizer sediment duplication - one copy of the pattern block, fluid consumed, pattern retained.
-        // Cost by tier: aggregate 750, cobble 900, solid 1000, small/light 250. Craft time by metaphorical
+        // Cost by tier: aggregate 90, cobble 270, solid 360, plus the per-item rates for the metals, gems and glass. Craft time by metaphorical
         // density of the result (lighter = faster; solid blocks = 10s), see crafting notes.
         int aggregateTicks = ModMath.Time.getSecondsToTicks(6);
         int cobbleTicks = ModMath.Time.getSecondsToTicks(8);
@@ -913,12 +939,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // (see ModItemTagProvider) and given individually-tiered Masticator recipes that mirror
         // their own Metastasizer duplication costs below, same "forward mirrors reverse" convention
         // as the Ingot/Nugget/Bone families (unlike Clay Ball/Terracotta, which stay on the flat rate).
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_brick", Items.BRICK, 250,
-                ModFluids.SOURCE_CLAY_PULP.get(), 250, lightTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_bricks", Items.BRICKS, 1000,
-                ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_flower_pot", Items.FLOWER_POT, 750,
-                ModFluids.SOURCE_CLAY_PULP.get(), 750, aggregateTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_brick", Items.BRICK, MbScale.INGOT,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.INGOT, lightTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_bricks", Items.BRICKS, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "clay_pulp_masticating_flower_pot", Items.FLOWER_POT, MbScale.COBBLE,
+                ModFluids.SOURCE_CLAY_PULP.get(), MbScale.COBBLE, aggregateTicks);
 
         // Carbon Pulp reverse route -- mirrors each forward recipe's own output amount, same
         // convention as the Metal Pulps' Ingot/Nugget reverse recipes above.
@@ -969,17 +995,17 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobbled_deepslate_stairs", Items.COBBLED_DEEPSLATE_STAIRS, ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, cobbleTicks);
 
         // Silica Pulp roster
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_PULP.get(), 750, aggregateTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sand", Items.RED_SAND, ModFluids.SOURCE_SILICA_PULP.get(), 750, aggregateTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sandstone", Items.SANDSTONE, ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sandstone", Items.RED_SANDSTONE, ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sand", Items.SAND, ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sand", Items.RED_SAND, ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_sandstone", Items.SANDSTONE, ModFluids.SOURCE_SILICA_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_red_sandstone", Items.RED_SANDSTONE, ModFluids.SOURCE_SILICA_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
 
         // Clay Pulp roster
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay", Items.CLAY, ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay_ball", Items.CLAY_BALL, ModFluids.SOURCE_CLAY_PULP.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_brick", Items.BRICK, ModFluids.SOURCE_CLAY_PULP.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bricks", Items.BRICKS, ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_flower_pot", Items.FLOWER_POT, ModFluids.SOURCE_CLAY_PULP.get(), 750, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay", Items.CLAY, ModFluids.SOURCE_CLAY_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_clay_ball", Items.CLAY_BALL, ModFluids.SOURCE_CLAY_PULP.get(), MbScale.INGOT, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_brick", Items.BRICK, ModFluids.SOURCE_CLAY_PULP.get(), MbScale.INGOT, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_bricks", Items.BRICKS, ModFluids.SOURCE_CLAY_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_flower_pot", Items.FLOWER_POT, ModFluids.SOURCE_CLAY_PULP.get(), MbScale.COBBLE, aggregateTicks);
 
         // MRE - F-Stuff (900 mB) + an existing MRE (non-consumed pattern) -> another MRE.
         RecipeBuilders.duplicate(recipeOutput, "mre_metastasizing", ModItems.MRE.get(), ModFluids.SOURCE_F_STUFF.get(), 900, cobbleTicks);
@@ -1216,9 +1242,6 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.PuddleCraft.MakeItems.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 ModBlocks.INERT_TUMOR.asItem(), 1, ModMath.Time.getSecondsToTicks(10));
 
-        RecipeBuilders.PuddleCraft.MakeItems.makeFromOneItem(recipeOutput, "calcium_glass_puddle", Items.BONE_MEAL, 1, ModFluids.SOURCE_CALCIUM_PULP.get(),
-                ModBlocks.CALCIUM_GLASS.asItem(), 1, ModMath.Time.getSecondsToTicks(20));
-
         // Reverses Primitive Catalyst's own bone-as-ingredient recipe (dermicraft-catalyst-notes.md) --
         // Bone Meal pulls a whole Bone back out. Puddle stays Primitive Catalyst rather than
         // downgrading to its Crude Slurry base (unlike Calcium Glass/Inert Tumor's consume-to-air
@@ -1377,12 +1400,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
         // Glassmaking family (Silica Pulp) - Mutator half: Dye + Silica Pulp -> Stained Glass BLOCK
         // only (see the collision note above for why the pane isn't here). Priced at parity with the
-        // plain Glass Block's own (undocumented-in-code, but design-confirmed) 1000 mB Silica Pulp
+        // plain Glass Block's own 90 mB Silica Pulp
         // cost - putting Silica Pulp to work on its core silica-to-glass identity.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
             RecipeBuilders.mutate(recipeOutput, "mutating_stained_glass_" + c, dyeItem(c),
-                    ModFluids.SOURCE_SILICA_PULP.get(), 1000, stainedGlassItem(c), solidTicks);
+                    ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, stainedGlassItem(c), solidTicks);
         }
 
         // Ceramics family (Clay Pulp) - Colored & Glazed Terracotta. Collision fix: Glazed's
@@ -1392,16 +1415,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // glass family hit. This also happens to be more true to the real process (clay -> terracotta
         // -> dye -> COLORED -> fire again -> GLAZED -- Glazed is made FROM Colored, not from raw dye).
         // Fluid cost follows from the ingredient change: Glazed's input already embeds Colored's own
-        // 1000 mB Clay Pulp cost, so the marginal dose for firing-only is priced LOWER than a
-        // from-scratch estimate would be (500 mB, half of Colored's), while total investment across
+        // 360 mB Clay Pulp cost, so the marginal dose for firing-only is priced LOWER than a
+        // from-scratch estimate would be (180 mB, half of Colored's), while total investment across
         // the two steps together still ends up pricier than Colored alone. Time still runs longer
         // (300 ticks vs. Colored's 200) -- firing takes longer, independent of the ingredient swap.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
             RecipeBuilders.mutate(recipeOutput, "mutating_terracotta_" + c, dyeItem(c),
-                    ModFluids.SOURCE_CLAY_PULP.get(), 1000, coloredTerracottaItem(c), solidTicks);
+                    ModFluids.SOURCE_CLAY_PULP.get(), MbScale.BLOCK_OF_FOUR, coloredTerracottaItem(c), solidTicks);
             RecipeBuilders.mutate(recipeOutput, "mutating_glazed_terracotta_" + c, coloredTerracottaItem(c),
-                    ModFluids.SOURCE_CLAY_PULP.get(), 500, glazedTerracottaItem(c), ModMath.Time.getSecondsToTicks(15));
+                    ModFluids.SOURCE_CLAY_PULP.get(), MbScale.half(MbScale.BLOCK_OF_FOUR), glazedTerracottaItem(c), ModMath.Time.getSecondsToTicks(15));
         }
 
         // Variant tumors - migrated from the Brain's OT-only candidate list (still OT-invokable).
@@ -1635,7 +1658,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Metastasizer additions riding along in the same pass - plain Terracotta (the ceramics
         // family's plain-duplication half, parallel to the glass family), Cobweb, and Leather
         // duplication (both the steady-state halves of their Mutator bootstrap loops above).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_terracotta", Items.TERRACOTTA, ModFluids.SOURCE_CLAY_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_terracotta", Items.TERRACOTTA, ModFluids.SOURCE_CLAY_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_cobweb", Items.COBWEB, ModFluids.SOURCE_PROTEIN_PULP.get(), 250, lightTicks);
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_leather", Items.LEATHER, ModFluids.SOURCE_PROTEIN_PULP.get(), 900, solidTicks);
 
@@ -1649,12 +1672,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Dyed glass family - Metastasizer half. Duplication is keyed by the pattern item itself (the
         // specific-colored block/pane), so there's no {ingredient, fluid} collision the way the
         // Mutator's dye-keyed recipes would have -- this is why panes live here instead. Glass Block
-        // at the solid tier (1000 mB), matching the Mutator's stained-glass-block cost; Pane at 500 mB
-        // (half the block, same volume-scaling logic used elsewhere) and the aggregate tier.
+        // at 90 mB, matching the Mutator's stained-glass-block cost; Pane at 30 mB
+        // (a third of the block) and the aggregate tier.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_" + c, stainedGlassItem(c), ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
-            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_pane_" + c, stainedGlassPaneItem(c), ModFluids.SOURCE_SILICA_PULP.get(), 500, aggregateTicks);
+            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_pane_" + c, stainedGlassPaneItem(c), ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT / 3, aggregateTicks);
         }
 
         // Plain-glass duplication family (Silica Pulp + Calcium Pulp, sized by volume) - was
@@ -1663,17 +1686,26 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // and lime (calcium), so items with both a Silica and Calcium identity get two separate
         // recipes each (Metastasizer already supports multiple recipes per output item - no conflict,
         // since the fluid type itself distinguishes them).
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_block", Items.GLASS, ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_block", Items.GLASS, ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, solidTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_silica", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_calcium", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_silica", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_beaker_calcium", ModBlocks.BEAKER_ITEM.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT, solidTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_silica", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_SILICA_PULP.get(), 250, lightTicks);
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_calcium", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), 250, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_silica", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_SILICA_PULP.get(), 20, lightTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_flask_calcium", ModItems.GLASS_FLASK.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), 20, lightTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_pane", Items.GLASS_PANE, ModFluids.SOURCE_SILICA_PULP.get(), 500, aggregateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_pane", Items.GLASS_PANE, ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT / 3, aggregateTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcium_glass", ModBlocks.CALCIUM_GLASS.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), 1000, solidTicks);
+        // Glass Bottle (vanilla), new: a third of a unit, the same as the Pane.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_glass_bottle", Items.GLASS_BOTTLE, ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT / 3, aggregateTicks);
+
+        // Calcium Glass made from a plain Glass Block (the Glass Block is the non-consumed pattern), the same 90 as plain
+        // glass. Replaces the old Bone Meal puddle recipe.
+        RecipeBuilders.buildMetastasizing(recipeOutput, "metastasizing_calcium_glass_from_glass",
+                Ingredient.of(Items.GLASS), ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT,
+                new ItemStack(ModBlocks.CALCIUM_GLASS.get()), solidTicks);
+
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_calcium_glass", ModBlocks.CALCIUM_GLASS.get(), ModFluids.SOURCE_CALCIUM_PULP.get(), MbScale.INGOT, solidTicks);
 
         ////////////////////Cellulose Pulp\\\\\\\\\\\\\\\\\\\\
         // Masticator input deliberately excludes Nether stems/hyphae (LOGS_THAT_BURN, not the
@@ -2169,8 +2201,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModBlocks.RENDER_KILN.asItem());
 
         RecipeBuilders.render(recipeOutput, "render_kiln_cobblestone", ModFluids.SOURCE_STONE_PULP.get(), 900, Items.COBBLESTONE, cobbleTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_sand", ModFluids.SOURCE_SILICA_PULP.get(), 750, Items.SAND, aggregateTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_clay_ball", ModFluids.SOURCE_CLAY_PULP.get(), 250, Items.CLAY_BALL, lightTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_sand", ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, Items.SAND, aggregateTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_clay_ball", ModFluids.SOURCE_CLAY_PULP.get(), MbScale.INGOT, Items.CLAY_BALL, lightTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_iron_ingot", ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.INGOT, Items.IRON_INGOT, solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_copper_ingot", ModFluids.SOURCE_CUPROUS_PULP.get(), MbScale.INGOT, Items.COPPER_INGOT, solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_gold_ingot", ModFluids.SOURCE_AUROUS_PULP.get(), MbScale.INGOT, Items.GOLD_INGOT, solidTicks);

@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_silica_pulp",
+  "fluid_amount": 30,
+  "pattern": {
+    "item": "minecraft:glass_bottle"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:glass_bottle"
+  },
+  "ticks": 120
+}

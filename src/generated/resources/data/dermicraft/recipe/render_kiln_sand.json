@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_silica_pulp",
-  "fluid_amount": 750,
+  "fluid_amount": 90,
   "result": {
     "count": 1,
     "id": "minecraft:sand"

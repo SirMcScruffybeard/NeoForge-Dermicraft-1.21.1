@@ -166,28 +166,20 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(Items.POINTED_DRIPSTONE)
         ;
 
-        tag(ModTags.Items.SILICA_PULP_ROSTER)
-                .add(Items.SAND)
-                .add(Items.RED_SAND)
+        tag(ModTags.Items.SILICA_PULP_SOLID)
                 .add(Items.SANDSTONE)
                 .add(Items.RED_SANDSTONE)
         ;
 
-        tag(ModTags.Items.CLAY_PULP_ROSTER)
+        tag(ModTags.Items.SILICA_PULP_AGGREGATE)
+                .add(Items.SAND)
+                .add(Items.RED_SAND)
+        ;
+
+        // The four-unit clay items: the Clay Block and every plain and glazed terracotta, 360 mB each. Brick, Bricks, Flower Pot
+        // and Clay Ball deliberately stay out (different amounts), so they have their own Masticator recipes in ModRecipeProvider.
+        tag(ModTags.Items.CLAY_PULP_SOLID)
                 .add(Items.CLAY)
-        ;
-
-        tag(ModTags.Items.SILICA_PULP_RECYCLING)
-                .add(Items.GLASS)
-                .add(Items.GLASS_PANE)
-        ;
-
-        // Brick, Bricks, and Flower Pot deliberately excluded -- unlike the rest of this tag (flat
-        // 1000 mB regardless of item), they get individually-priced Masticator recipes mirroring
-        // their own Metastasizer duplication costs (see ModRecipeProvider), so they can't also sit
-        // in this flat-rate tag without a duplicate/ambiguous-recipe conflict.
-        tag(ModTags.Items.CLAY_PULP_RECYCLING)
-                .add(Items.CLAY_BALL)
                 .add(Items.TERRACOTTA)
                 .add(Items.WHITE_TERRACOTTA)
                 .add(Items.ORANGE_TERRACOTTA)

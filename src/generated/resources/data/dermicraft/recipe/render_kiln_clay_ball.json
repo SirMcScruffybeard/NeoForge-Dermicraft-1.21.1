@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_clay_pulp",
-  "fluid_amount": 250,
+  "fluid_amount": 90,
   "result": {
     "count": 1,
     "id": "minecraft:clay_ball"

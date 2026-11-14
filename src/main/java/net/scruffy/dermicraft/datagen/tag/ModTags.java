@@ -86,11 +86,10 @@ public class ModTags {
         public static final TagKey<Item> STONE_PULP_SOLID = createTag("stone_pulp_solid");
         public static final TagKey<Item> STONE_PULP_COBBLE = createTag("stone_pulp_cobble");
         public static final TagKey<Item> STONE_PULP_AGGREGATE = createTag("stone_pulp_aggregate");
-        public static final TagKey<Item> SILICA_PULP_ROSTER = createTag("silica_pulp_roster");
-        public static final TagKey<Item> CLAY_PULP_ROSTER = createTag("clay_pulp_roster");
+        public static final TagKey<Item> SILICA_PULP_SOLID = createTag("silica_pulp_solid");
+        public static final TagKey<Item> SILICA_PULP_AGGREGATE = createTag("silica_pulp_aggregate");
 
-        public static final TagKey<Item> SILICA_PULP_RECYCLING = createTag("silica_pulp_recycling");
-        public static final TagKey<Item> CLAY_PULP_RECYCLING = createTag("clay_pulp_recycling");
+        public static final TagKey<Item> CLAY_PULP_SOLID = createTag("clay_pulp_solid");
 
         // Gadgets with a genuine onboard fuel tank (biofuel-only capability, same restriction Fuel
         // Bladder uses) -- what Workbench Duty 2's passive auto-refill targets. Deliberately NOT

@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_clay_pulp",
-  "fluid_amount": 250,
+  "fluid_amount": 90,
   "pattern": {
     "item": "minecraft:clay_ball"
   },
