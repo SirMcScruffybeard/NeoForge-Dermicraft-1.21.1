@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_molten_glowstone",
+  "fluid_amount": 1440,
+  "ingredient": {
+    "item": "dermicraft:safety_module_frame"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:radiation_mild_safety_module"
+  },
+  "ticks": 200
+}

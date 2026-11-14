@@ -545,6 +545,20 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Fluids.LAVA, 4000, ModItems.getHazardSafetyModule(HazardModuleVariant.THERMAL),
                 ModMath.Time.getSecondsToTicks(10));
 
+        // Radiation (Mild) Safety Module: a Safety Module Frame in the middle of four Glowstone blocks, or the Mutator route,
+        // the Frame plus 1440 mB of Molten Glowstone (four blocks' worth at 360 mB each).
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.getHazardSafetyModule(HazardModuleVariant.RADIATION_MILD))
+                .pattern(" G ")
+                .pattern("GFG")
+                .pattern(" G ")
+                .define('G', Items.GLOWSTONE)
+                .define('F', ModItems.SAFETY_MODULE_FRAME.get())
+                .unlockedBy("has_safety_module_frame", has(ModItems.SAFETY_MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("radiation_mild_safety_module_crafting_table"));
+        RecipeBuilders.mutate(recipeOutput, "radiation_mild_safety_module_mutating", ModItems.SAFETY_MODULE_FRAME.get(),
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.BLOCK_OF_FOUR * 4,
+                ModItems.getHazardSafetyModule(HazardModuleVariant.RADIATION_MILD), ModMath.Time.getSecondsToTicks(10));
+
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
         // an identity item + the fluid's own bucket + Module Frame). Sugar stands in for the
         // "speed" identity, mirroring Ender Pearl/Magma Block's role -- real vanilla precedent
