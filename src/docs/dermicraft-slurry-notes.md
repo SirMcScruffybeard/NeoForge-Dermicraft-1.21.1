@@ -146,7 +146,7 @@ Step deltas (effective speed/heal): +0.25, +0.50, +0.75, +1.00.
 
 **What it is:** A direct refinement of Crude Slurry — Crude cooked down with Lava (reworked 2026-11; it was a 10:1 Primitive Catalyst addition, dropped because the user dislikes leaning on Primitive Catalyst).
 
-**Recipe (Effluentcer; 2026-11 rework decided, not yet built):** 50 mB Crude Slurry + 25 mB Lava → 50 mB Concentrated Slurry, fixed 50 ticks. A 2:1 starting ratio, tunable; no volume shrink; the lava is consumed. (Implemented version: 50 Crude + 5 Primitive Catalyst → 50.) Small batch, short cycle by design — see the "steady trickle, not surges" constraint in [[project_concentrated_slurry_recipe]] (Claude Code memory).
+**Recipe (Effluentcer; 2026-11 rework, built 2026-11-14):** 50 mB Crude Slurry + 25 mB Lava → 50 mB Concentrated Slurry, fixed 50 ticks. A 2:1 starting ratio, tunable; no volume shrink; the lava is consumed. (Implemented version: 50 Crude + 5 Primitive Catalyst → 50.) Small batch, short cycle by design — see the "steady trickle, not surges" constraint in [[project_concentrated_slurry_recipe]] (Claude Code memory).
 
 **Properties:**
 - Speed modifier: effective `1.25` (raw `0.125`)

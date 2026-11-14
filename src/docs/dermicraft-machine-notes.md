@@ -1,6 +1,6 @@
 # Dermicraft Machine Notes
 
-> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers were renamed to match in the 2026-11-14 rename pass. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+> **Rescale notice (updated 2026-11-14):** the game now runs on the new scale (Ingot 90 mB, Nugget 10, Block 810) and the code identifiers match the new names, but amounts quoted in this document may still be the old 1000 mB-per-ingot values wherever a family was rescaled. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`; the "Rescale overhaul" section of `dermicraft-crafting-notes.md` records the final design.
 
 Running log of decided design choices for Machines and the reasoning behind them. Add a new entry per machine as decisions get made.
 
@@ -604,7 +604,7 @@ All 16 share flat pricing — **100 mB / 50 ticks**, the same cheap/decorative b
 
 **New, built 2026-07-19 — Wooden Pressure Plate and Button, added to the Cellulose Pulp wood family.** Same per-species mirrored treatment as the rest of the family (`woodSpecies` loop, all 8 species) plus the matching Masticator recycling recipes (`ItemTags.WOODEN_PRESSURE_PLATES`/`WOODEN_BUTTONS`, tag-based like Planks/Slabs/etc.): Pressure Plate costs Door's own rate (500 mB / 100 ticks — both are a 2-Plank item), Button costs exactly one Plank's worth (250 mB / 50 ticks, no further processing beyond the Plank itself).
 
-**Still a concept, not yet implemented — Blood Nugget:** Protein Pulp (consumed) + an **Iron Nugget** (non-consumed pattern) → **Blood Nugget**, feeding into a Masticator recipe (Blood Nugget + Primitive Catalyst → Ferrous Pulp). This remains the one designed-but-unimplemented recipe on this machine, and would be the first real example of the Metastasizer's output *not* being a duplicate of its pattern item — no longer blocked on the machine existing, just on the Blood Nugget item/recipe itself being built. See `dermicraft-crafting-notes.md` for the full chain and "low but fair" yield reasoning.
+**Blood Nugget (built, reworked in the 2026-11 rescale overhaul):** the Metastasizer duplicates it like any other item, the Blood Nugget itself being the non-consumed pattern (250 mB Protein Pulp, 96 ticks). It is now a food (nutrition 3, saturation modifier 0.283) and no longer part of any iron recipe: iron from protein is the Effluentcer route 900 mB Protein Pulp + 25 mB Flux into 90 mB Dirty Ferrous Pulp, refined by the same two forks as ore. See `dermicraft-crafting-notes.md`, "Rescale overhaul".
 
 **Open questions:** What counts as a valid pattern item beyond "simple item" now that the Calcium Glass recipe (a plain Glass Block pattern making a different item, planned in the 2026-11 rescale) shows the output doesn't have to be a duplicate at all — is there still any restriction on pattern items, or is it purely whatever a defined recipe specifies?
 

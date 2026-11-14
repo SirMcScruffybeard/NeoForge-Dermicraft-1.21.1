@@ -1,6 +1,6 @@
 # Dermicraft Crafting Notes
 
-> **Rescale notice (2026-11-06):** fluid names in this document were updated (Blend → Pulp, Essence → Colloid, and so on), but fluid AMOUNTS may still be on the old 1000 mB-per-ingot scale, and code identifiers were renamed to match in the 2026-11-14 rename pass. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`.
+> **Rescale notice (updated 2026-11-14):** the game now runs on the new scale (Ingot 90 mB, Nugget 10, Block 810) and the code identifiers match the new names, but amounts quoted in this document may still be the old 1000 mB-per-ingot values wherever a family was rescaled. The authority for current amounts and names is `dermicraft-rescale-overhaul-plan.md`; the "Rescale overhaul" section of `dermicraft-crafting-notes.md` records the final design.
 
 Running log of decided design choices for the Crafting fluid family and the reasoning behind them. Add a new entry per fluid as decisions get made — the "why" matters as much as the "what" so later additions stay consistent with earlier logic.
 
@@ -146,13 +146,13 @@ Four tiers per metal are designed — **Ore, Ingot, Raw, Nugget** — but only *
 
 ### Ferrous Pulp — alternate route (Protein → Dirty Ferrous Pulp; the Blood Nugget is now a food)
 
-**Status:** Reworked in the 2026-11 rescale overhaul (decided 2026-11-02, not yet built). The Blood Nugget is no longer part of any iron route. The earlier design (Iron Nugget pattern, Primitive Catalyst, a 25 mB-per-nugget "trace" trickle) is superseded.
+**Status:** Reworked in the 2026-11 rescale overhaul (decided 2026-11-02, built 2026-11-14). The Blood Nugget is no longer part of any iron route. The earlier design (Iron Nugget pattern, Primitive Catalyst, a 25 mB-per-nugget "trace" trickle) is superseded.
 
 **Purpose:** a viable mining replacement for iron, **not a superior method.** Protein Pulp carries a blood component, and blood's oxygen-carrying function depends on iron (hemoglobin), so the route mirrors the ore refining chain (see "Rescale overhaul" below) instead of hiding behind a trace yield.
 
 **Route:** Effluentcer, **900 mB Protein Pulp + 25 mB Flux → 90 mB Dirty Ferrous Pulp, 45 s.** The time matches the ore Masticator step because Protein needs its own Masticator step first. Refining then reuses the ore chain's two forks unchanged: Render Kiln 68 mB Dirty Ferrous → 1 Iron Ingot (quick), or Effluentcer 90 mB Dirty Ferrous + 45 mB Flux → 180 mB Ferrous Pulp (patient). Iron only (no copper or gold analog). Fully renewable, no hazards. Flux itself is C-Stuff (coal or charcoal + bone meal) + Silica Pulp (sand).
 
-**Blood Nugget (kept as a food):** nutrition 3, saturation 1.7, tuned so masticating it returns exactly 250 mB Protein Pulp (it sits in the `MEAT_FOOD` tag, like every other meat food). Metastasizer: a plain duplicate (Blood Nugget as the non-consumed pattern, 250 mB Protein Pulp, 96 ticks). Render Kiln: 250 mB Protein Pulp → Blood Nugget, 96 ticks (the bootstrap). Both of the old iron recipes (the Iron Nugget pattern route and the two Primitive Catalyst Ferrous recipes) are deleted. Protein ↔ Nugget is a 1:1 round trip, the same convention as every other `MEAT_FOOD` item.
+**Blood Nugget (kept as a food):** nutrition 3, saturation 1.7 (a saturation modifier of 0.283), tuned so masticating it returns exactly 250 mB Protein Pulp (it sits in the `MEAT_FOOD` tag, like every other meat food). Metastasizer: a plain duplicate (Blood Nugget as the non-consumed pattern, 250 mB Protein Pulp, 96 ticks). Render Kiln: 250 mB Protein Pulp → Blood Nugget, 96 ticks (the bootstrap). Both of the old iron recipes (the Iron Nugget pattern route and the two Primitive Catalyst Ferrous recipes) are deleted. Protein ↔ Nugget is a 1:1 round trip, the same convention as every other `MEAT_FOOD` item.
 
 ### Cuprous Pulp (Copper)
 
@@ -207,39 +207,44 @@ Craft time uses the Sediment Pulp's 5 mB/tick rate (matching the existing Cauldr
 
 ## Rescale overhaul (2026-11) — new fluids and changed recipes
 
-**Authority:** `dermicraft-rescale-overhaul-plan.md` holds every amount and the build order; this section records the design. Names changed: Blend → Pulp, Essence → Colloid, Pulp Blend → Cellulose Pulp, Molten Raw Netherite Scrap → Dirty Molten Netherite. Code identifiers were renamed to match on 2026-11-14.
+**Status: BUILT 2026-11-14** (branch `fluid-overhaul`). **Authority:** `dermicraft-rescale-overhaul-plan.md` holds every amount, the build log and the rulings; this section records the design as built. Names changed: Blend → Pulp, Essence → Colloid, Pulp Blend → Cellulose Pulp, Molten Raw Netherite Scrap → Dirty Molten Netherite. The amounts quoted in the older sections of this document that sit under a "Rescale notice" are still the old 1000 mB scale unless this section or the plan says otherwise.
 
-**Scale:** Ingot 90 mB, Nugget 10, storage Block 810 (9:1 materials) or 360 (4:1 materials: Quartz, Glowstone, Amethyst, Clay). Plain blocks: stone family 360, cobble 270, sand / gravel / netherrack 90; wood Log 360, Plank 90. Slab = half its block, Stairs = 1:1 with their block. Everything rounds up. Protein Pulp, Knowledge Colloid, F-Stuff and the slurries are not rescaled.
+**Scale:** Ingot 90 mB, Nugget 10, storage Block 810 (9:1 materials) or 360 (4:1 materials: Quartz, Glowstone, Amethyst, Clay). Plain blocks: the stone family 360, cobble 270, sand / gravel / netherrack 90; wood Log 360, Plank 90, Slab and Stick 45; Paper 30. Slab = half its block, Stairs and Walls = 1:1 with their block, Glass 90 and Glass Pane 30. Everything rounds up. Protein Pulp, Knowledge Colloid, F-Stuff and the slurries are not rescaled. Dyes are a flat 10 mB and the torches 45 mB. The constants live in `util/MbScale`.
 
 ### Ore refining chain (replaces the one-step Primitive Catalyst Raw recipe)
 1. **Flux** (Effluentcer): 180 C-Stuff + 180 Silica Pulp → 360 Flux, 15 s.
 2. **Masticate** (Masticator): 1 Raw Iron / Copper / Gold + 25 Flux → 90 Dirty [metal] Pulp, 45 s.
 3. **Quick fork** (Render Kiln): 68 Dirty Pulp → 1 Ingot, 200 ticks (about 1.32 ingots per Raw).
-4. **Patient fork** (Effluentcer): 90 Dirty Pulp + 45 Flux → 180 clean Pulp, 900 ticks (2 ingots per Raw).
+4. **Patient fork** (Effluentcer): 90 Dirty Pulp + 45 Flux → 180 clean Pulp, 900 ticks (2 ingots per Raw, 70 Flux in all).
 
 ### Flux and the Dirty Pulps
-- **Flux:** a generic Crafting fluid, thin water-style texture, tint `0xFFB5E4EE` (pale ice cyan), viscosity 1500, temperature 295, THIN. No hazards.
-- **Dirty Ferrous / Cuprous / Aurous Pulp:** three separate registered fluids with buckets and placeable blocks, shared speckle-overlay textures, tints `0xFFB5B3B1` / `0xFF9D6735` / `0xFFB29438`, viscosity 3000, THICK. They have no other use than the two forks.
-- **Contamination:** a PLAYER pouring dirty into clean (same metal) turns the whole tank dirty; clean into dirty just joins the dirty tank. Automation (ducts, Nodes, auto-push, recipe outputs) never contaminates, it simply refuses to mix. Gadgets cannot contaminate. A dirty bucket placed and re-picked stays dirty.
+- **Flux:** a generic Crafting fluid, thin textures, tint `0xFFB5E4EE` (pale ice cyan), viscosity 1500, temperature 295, THIN. No hazards.
+- **Dirty Ferrous / Cuprous / Aurous Pulp:** three separate registered fluids with buckets and placeable blocks, the `dirty_chunky_fluid_*` textures (a speck overlay on the chunky ones), tints `0xFFB5B3B1` / `0xFF9D6735` / `0xFFB29438`, viscosity 3000, temperature 290, THICK. They have no use other than the two forks.
+- **No contamination (ruled 2026-11-14).** The idea of a player mixing dirty into clean turning the tank dirty was dropped; the Dirty Pulps simply never mix with their clean versions, like any mismatched fluid. It can be added later if wanted.
+- **Ferrous Blood:** Effluentcer, 900 Protein Pulp + 25 Flux → 90 Dirty Ferrous Pulp, 45 s. Iron only. The Blood Nugget is a food (nutrition 3, saturation modifier 0.283) that masticates to exactly 250 mB Protein Pulp over 96 ticks; its duplicate and Render Kiln recipes match.
 
 ### Catalyst and reagent recipes
 - **C-Stuff:** 90 Carbon + 90 Calcium → 180 (Effluentcer), plus Masticator shortcuts Coal or Charcoal + 90 Calcium and Bone Meal + 90 Carbon, 200 ticks each.
-- **Primitive Catalyst:** 180 F-Stuff + 180 C-Stuff → 360, 15 s. **Reinforcing:** 180 C-Stuff + 18 Primitive Catalyst → 180, 9 s. **Synapse:** 45 Cuprous + 45 Primitive Catalyst → 750, 45 s. **Kinetic:** 45 Molten Redstone + 45 Molten Quartz → 750, 45 s (its only consumer is the Work Speed Module).
+- **Primitive Catalyst:** 180 F-Stuff + 180 C-Stuff → 360, 15 s. **Reinforcing:** 180 C-Stuff + 18 Primitive Catalyst → 180, 9 s. **Synapse:** 45 Cuprous + 45 Primitive Catalyst → 750, 45 s. **Kinetic:** 45 Molten Redstone + 45 Molten Quartz → 750, 45 s (its only consumer is the Work Speed Module). Synapse and Kinetic turn 90 mB into 750, about 8 to 1, by the plan's choice; every other recipe is roughly lossless.
 - **Molten Netherite:** 360 Dirty Molten Netherite + 360 Aurous → 90, 60 s.
 - **Concentrated Slurry:** 50 Crude + 25 Lava → 50, 50 ticks (no Primitive Catalyst; the lava is consumed).
 
 ### Luminous Ichor and the new Evolution Catalyst recipe
-- **Luminous Ichor:** Protein Pulp + glowstone. Masticator: 1 Glowstone Dust + 90 Protein → 135, or Effluentcer: 90 Molten Glowstone + 90 Protein → 180 (both 15 s, placeholders). Tint `0xFFF0B46A`, emissive (light 10 on the FluidType and the block). Radiation Mild via a `FLUID_HAZARD` data-map entry (not a tag).
-- **Evolution Catalyst:** 500 Knowledge Colloid + 500 Luminous Ichor → 1000. The Kinetic-based recipe is gone.
-- **Molten Amethyst:** 90 Molten Quartz + 10 Luminous Ichor → 90 (Effluentcer, 15 s), alternate Masticator 1 Nether Quartz + 10 Ichor → 68. It keeps Thermal only; the Evolution Catalyst gate is removed on purpose (shards are renewable from a geode).
+- **Luminous Ichor:** Protein Pulp + glowstone. Masticator: 1 Glowstone Dust + 90 Protein → 135, or Effluentcer: 90 Molten Glowstone + 90 Protein → 180 (both 15 s, placeholders). Tint `0xFFF0B46A`, emissive (light 10 on the FluidType and the block). **Radiation 25** (Mild band, half of Molten Glowstone's 50 because it is that glowstone diluted 1:1), via a `FLUID_HAZARD` data-map entry. **No Biohazard (ruled).** Recipes charge the Radiation fuel surcharge for output fluids as well as inputs, so the Masticator route pays it too.
+- **Evolution Catalyst:** 500 Knowledge Colloid + 500 Luminous Ichor → 1000 (45 s, a placeholder). The Kinetic-based recipe is gone; the puddle route is unchanged.
+- **Molten Amethyst:** 90 Molten Quartz + 10 Luminous Ichor → 90 (Effluentcer, 15 s), alternate Masticator 1 Nether Quartz + 10 Ichor → 90. It keeps Thermal only; the Evolution Catalyst gate is removed on purpose (shards are renewable from a geode).
 
 ### Infernal Ichor and the Silica → Molten Quartz route
-- **Infernal Ichor** (`infernal_ichor`): flesh-like netherrack. Masticator 1 Netherrack + 90 Protein Pulp → 90, consumed in conversions; it can be turned back into netherrack (Render Kiln). Whether the Ichors become Biohazard is open.
+- **Infernal Ichor** (`infernal_ichor`, renamed from Nether Ichor): wine-crimson (tint `0xFF7A1F3D`), emissive at light 4, viscosity 3500, density 1800, temperature 300 (ambient, so no Thermal and no world frost or burn), THICK. **Metaphysical 50** (Mild, matching Molten Soul Silica, so one Mild Metaphysical tolerance covers the Nether chain). Biohazard was considered and rejected: Metaphysical keeps the chain at two hazard families instead of three and matches the name.
+- **Recipes:** Masticator 1 Netherrack + 90 Protein Pulp → 90, consumed in conversions; it can be turned back into Netherrack (Render Kiln) or duplicated from it. The whole Nether Brick family (bricks, bricks block, slab, stairs, wall, fence, and the Red, Chiseled and Cracked variants) masticates into it and duplicates back from it.
 - **Route (no Nether-free quartz):** Silica Pulp + Infernal Ichor → Molten Soul Silica (180 + 10 → 180, no lava), then Molten Soul Silica + Lava → Molten Quartz (180 + 90 → 90). Times are 45 s placeholders.
 
 ### Hazard rules
 - The "at most one hazard per recipe" rule is dropped; multiple hazards are valid unless a recipe says otherwise.
-- Fluid hazards are data-map intensities (`FLUID_HAZARD`), not tags; Thermal reads the fluid's temperature.
+- Fluid hazards are data-map intensities (`FLUID_HAZARD`), not tags; Thermal reads the fluid's temperature. A recipe's hazards count both its input and its output fluids.
+- The world effect of a placed fluid uses the same temperature, override included: at or below `worldFreezeAtOrBelow` (250 K) it freezes adjacent water and grows snow, at or above `worldBurnAtOrAbove` (400 K) it melts ice, scorches blocks and ignites entities. Both are server config values.
+- Known gap: the hazard Safety Module variant recipes do not exist yet (only the Frame does), so no hazard tolerance is reachable in survival; machines pay only the soft penalties.
+
 
 ---
 
