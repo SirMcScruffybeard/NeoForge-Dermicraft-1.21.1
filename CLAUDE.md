@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Dermicraft is a NeoForge mod for Minecraft 1.21.1 (Neo version 21.1.228, Java 21). It's a body-horror/biology-themed tech mod: tumors that are harvested for organic parts, fluids (blends, slurries, catalysts) processed through custom machines (Drooling Cauldron, Masticator, Skin Tank), and surgical tools (scalpel, forceps, suture kit, syringe) used to interact with tumor blocks and entities.
+Dermicraft is a NeoForge mod for Minecraft 1.21.1 (Neo version 21.1.228, Java 21). It's a body-horror/biology-themed tech mod: tumors that are harvested for organic parts, fluids (pulps, slurries, catalysts) processed through custom machines (Drooling Cauldron, Masticator, Skin Tank), and surgical tools (scalpel, forceps, suture kit, syringe) used to interact with tumor blocks and entities.
 
 Mod id: `dermicraft`. Base package: `net.scruffy.dermicraft`.
 
@@ -31,7 +31,7 @@ Every registry (`ModBlocks`, `ModItems`, `ModBlockEntities`, `ModFluids`, `ModFl
 
 Fluids are more involved: each fluid defines a source `FlowingFluid`, a flowing `FlowingFluid`, a `LiquidBlock`, a bucket item, and a `BaseFlowingFluid.Properties` tying them together (see `ModFluids.java`). The fluid's rendering (`FluidType`/render layer) is registered separately client-side in `DermicraftClient`, and the `FluidType` itself lives in `ModFluidTypes`/`BaseFluidType`.
 
-Bucket items do **not** get a dedicated texture per fluid. `ModItemModelProvider` builds a two-layer item model for every bucket: `layer0` is the untinted vanilla `minecraft:item/bucket`, and `layer1` is one of two shared fill overlays (`bucket_chunky_fluid` for blends/slurries, `bucket_fluid_thin` for thin/water-like fluids like catalysts and Stuff outputs) picked via `chunkyBucketItem`/`thinBucketItem`. The fill layer is tinted per-fluid at runtime by a `registerBucketTint` call in `ModClientEvents`, which reads the fluid's `getTintColor()`. When adding a new fluid, add its bucket to both `ModItemModelProvider` (pick chunky or thin) and `ModClientEvents.registerItemColors` — don't paint a new bucket texture.
+Bucket items do **not** get a dedicated texture per fluid. `ModItemModelProvider` builds a two-layer item model for every bucket: `layer0` is the untinted vanilla `minecraft:item/bucket`, and `layer1` is one of two shared fill overlays (`bucket_chunky_fluid` for pulps/slurries, `bucket_fluid_thin` for thin/water-like fluids like catalysts and Stuff outputs) picked via `chunkyBucketItem`/`thinBucketItem`. The fill layer is tinted per-fluid at runtime by a `registerBucketTint` call in `ModClientEvents`, which reads the fluid's `getTintColor()`. When adding a new fluid, add its bucket to both `ModItemModelProvider` (pick chunky or thin) and `ModClientEvents.registerItemColors` — don't paint a new bucket texture.
 
 `Dermicraft.java` (common) vs `DermicraftClient.java` (`@Mod(..., dist = Dist.CLIENT)`) — keep client-only concerns (block entity renderers, screens, render layers, item color/property handlers) out of the common class.
 
