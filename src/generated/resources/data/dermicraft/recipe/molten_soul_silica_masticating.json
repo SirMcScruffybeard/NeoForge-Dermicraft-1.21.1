@@ -4,10 +4,10 @@
     "item": "minecraft:soul_sand"
   },
   "ingredient_fluid": "minecraft:lava",
-  "ingredient_fluid_amount": 1000,
+  "ingredient_fluid_amount": 810,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_molten_soul_silica",
-  "result_fluid_amount": 1000,
+  "result_fluid_amount": 810,
   "ticks": 600
 }

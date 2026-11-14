@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_molten_lapis",
-  "fluid_amount": 1000,
+  "fluid_amount": 90,
   "result": {
     "count": 1,
     "id": "minecraft:lapis_lazuli"

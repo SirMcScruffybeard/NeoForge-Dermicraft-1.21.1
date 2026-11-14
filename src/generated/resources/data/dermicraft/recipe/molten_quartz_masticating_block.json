@@ -4,10 +4,10 @@
     "item": "minecraft:quartz_block"
   },
   "ingredient_fluid": "minecraft:lava",
-  "ingredient_fluid_amount": 4000,
+  "ingredient_fluid_amount": 360,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_molten_quartz",
-  "result_fluid_amount": 4000,
+  "result_fluid_amount": 360,
   "ticks": 1200
 }

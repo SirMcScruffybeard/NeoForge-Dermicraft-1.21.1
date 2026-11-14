@@ -1814,40 +1814,40 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // later, the goal right now is reachability for testing. Molten Redstone is the one member
         // with real confirmed numbers (Redstone Block -> 1000 mB, loose Dust -> 110 mB).
         RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_block",
-                Ingredient.of(Items.REDSTONE_BLOCK), 1, Fluids.LAVA, 9000,
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 9000, -1, ModMath.Time.getSecondsToTicks(45));
+                Ingredient.of(Items.REDSTONE_BLOCK), 1, Fluids.LAVA, MbScale.BLOCK,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.BLOCK, -1, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.buildMasticating(recipeOutput, "molten_redstone_masticating_dust",
-                Ingredient.of(Items.REDSTONE), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.REDSTONE), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_quartz_masticating",
-                Ingredient.of(Items.QUARTZ), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.QUARTZ), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Quartz Block -- real vanilla ratio is 4 Quartz (unlike Coal/Redstone/the metal blocks'
         // 9:1), so 4000 mB at double the item's own time, same "block ~2x item time" convention.
         RecipeBuilders.buildMasticating(recipeOutput, "molten_quartz_masticating_block",
-                Ingredient.of(Items.QUARTZ_BLOCK), 1, Fluids.LAVA, 4000,
-                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 4000, -1, ModMath.Time.getSecondsToTicks(60));
+                Ingredient.of(Items.QUARTZ_BLOCK), 1, Fluids.LAVA, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.BLOCK_OF_FOUR, -1, ModMath.Time.getSecondsToTicks(60));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_glowstone_masticating",
-                Ingredient.of(Items.GLOWSTONE_DUST), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.GLOWSTONE_DUST), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Glowstone (the block) -- real vanilla ratio is 4 Glowstone Dust, same reasoning as Quartz
         // Block above.
         RecipeBuilders.buildMasticating(recipeOutput, "molten_glowstone_masticating_block",
-                Ingredient.of(Items.GLOWSTONE), 1, Fluids.LAVA, 4000,
-                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 4000, -1, ModMath.Time.getSecondsToTicks(60));
+                Ingredient.of(Items.GLOWSTONE), 1, Fluids.LAVA, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.BLOCK_OF_FOUR, -1, ModMath.Time.getSecondsToTicks(60));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_amethyst_masticating",
-                Ingredient.of(Items.AMETHYST_SHARD), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.AMETHYST_SHARD), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Block of Amethyst -- real 4:1 vanilla ratio, same convention as Quartz Block/Glowstone.
         RecipeBuilders.buildMasticating(recipeOutput, "molten_amethyst_masticating_block",
-                Ingredient.of(Items.AMETHYST_BLOCK), 1, Fluids.LAVA, 4000,
-                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 4000, -1, ModMath.Time.getSecondsToTicks(60));
+                Ingredient.of(Items.AMETHYST_BLOCK), 1, Fluids.LAVA, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.BLOCK_OF_FOUR, -1, ModMath.Time.getSecondsToTicks(60));
 
         // Molten Quartz -> Molten Amethyst: a real conversion route past needing to find a geode,
         // deliberately NOT cheap -- Evolution Catalyst (the mod's own "spend real progression
@@ -1859,31 +1859,31 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 1000, ModMath.Time.getSecondsToTicks(45));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating",
-                Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Diamond Block -- real 9:1 vanilla ratio, same convention as Coal/Redstone/the metal blocks.
         RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating_block",
-                Ingredient.of(Items.DIAMOND_BLOCK), 1, Fluids.LAVA, 9000,
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
+                Ingredient.of(Items.DIAMOND_BLOCK), 1, Fluids.LAVA, MbScale.BLOCK,
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.BLOCK, -1, ModMath.Time.getSecondsToTicks(90));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_emerald_masticating",
-                Ingredient.of(Items.EMERALD), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.EMERALD), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Emerald Block -- real 9:1 vanilla ratio, same convention as Diamond/Coal/Redstone/the metal blocks.
         RecipeBuilders.buildMasticating(recipeOutput, "molten_emerald_masticating_block",
-                Ingredient.of(Items.EMERALD_BLOCK), 1, Fluids.LAVA, 9000,
-                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
+                Ingredient.of(Items.EMERALD_BLOCK), 1, Fluids.LAVA, MbScale.BLOCK,
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), MbScale.BLOCK, -1, ModMath.Time.getSecondsToTicks(90));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_lapis_masticating",
-                Ingredient.of(Items.LAPIS_LAZULI), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_LAPIS.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.LAPIS_LAZULI), 1, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_LAPIS.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(30));
 
         // Lapis Block -- real 9:1 vanilla ratio, same convention as Coal/Redstone/Diamond/Emerald.
         RecipeBuilders.buildMasticating(recipeOutput, "molten_lapis_masticating_block",
-                Ingredient.of(Items.LAPIS_BLOCK), 1, Fluids.LAVA, 9000,
-                ModFluids.SOURCE_MOLTEN_LAPIS.get(), 9000, -1, ModMath.Time.getSecondsToTicks(90));
+                Ingredient.of(Items.LAPIS_BLOCK), 1, Fluids.LAVA, MbScale.BLOCK,
+                ModFluids.SOURCE_MOLTEN_LAPIS.get(), MbScale.BLOCK, -1, ModMath.Time.getSecondsToTicks(90));
 
         RecipeBuilders.buildMasticating(recipeOutput, "dirty_molten_netherite_masticating",
                 Ingredient.of(Items.NETHERITE_SCRAP), 1, Fluids.LAVA, MbScale.INGOT,
@@ -1914,8 +1914,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_ENDER_COLLOID.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_soul_silica_masticating",
-                Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, 1000,
-                ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
+                Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, MbScale.BLOCK,
+                ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), MbScale.BLOCK, -1, ModMath.Time.getSecondsToTicks(30));
 
         // ---- Production recipes for the Phase 4 fluids (rescale overhaul, amounts already on the new scale) ----
         // Flux: the refining flux that replaces Primitive Catalyst in the ore chain. Even 1:1, nothing lost.
@@ -1953,33 +1953,33 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // the Ingot/Nugget/Coal/Stone families elsewhere in this file. Needs Charred Metastasizer
         // since these fluids all carry Thermal Hazard, same reachability logic as the forward route.
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_block",
-                Items.REDSTONE_BLOCK, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 9000, ModMath.Time.getSecondsToTicks(45));
+                Items.REDSTONE_BLOCK, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(45));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_redstone_dust",
-                Items.REDSTONE, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.REDSTONE, ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_quartz",
-                Items.QUARTZ, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.QUARTZ, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_quartz_block",
-                Items.QUARTZ_BLOCK, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 4000, ModMath.Time.getSecondsToTicks(60));
+                Items.QUARTZ_BLOCK, ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_glowstone",
-                Items.GLOWSTONE_DUST, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.GLOWSTONE_DUST, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_glowstone_block",
-                Items.GLOWSTONE, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 4000, ModMath.Time.getSecondsToTicks(60));
+                Items.GLOWSTONE, ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_amethyst",
-                Items.AMETHYST_SHARD, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.AMETHYST_SHARD, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_amethyst_block",
-                Items.AMETHYST_BLOCK, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 4000, ModMath.Time.getSecondsToTicks(60));
+                Items.AMETHYST_BLOCK, ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.BLOCK_OF_FOUR, ModMath.Time.getSecondsToTicks(60));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond",
-                Items.DIAMOND, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.DIAMOND, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_diamond_block",
-                Items.DIAMOND_BLOCK, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+                Items.DIAMOND_BLOCK, ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_emerald",
-                Items.EMERALD, ModFluids.SOURCE_MOLTEN_EMERALD.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.EMERALD, ModFluids.SOURCE_MOLTEN_EMERALD.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_emerald_block",
-                Items.EMERALD_BLOCK, ModFluids.SOURCE_MOLTEN_EMERALD.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+                Items.EMERALD_BLOCK, ModFluids.SOURCE_MOLTEN_EMERALD.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_lapis",
-                Items.LAPIS_LAZULI, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.LAPIS_LAZULI, ModFluids.SOURCE_MOLTEN_LAPIS.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_lapis_block",
-                Items.LAPIS_BLOCK, ModFluids.SOURCE_MOLTEN_LAPIS.get(), 9000, ModMath.Time.getSecondsToTicks(90));
+                Items.LAPIS_BLOCK, ModFluids.SOURCE_MOLTEN_LAPIS.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(90));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_dirty_molten_netherite",
                 Items.NETHERITE_SCRAP, ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(30));
         // Pattern is Netherite Ingot, not Scrap -- Molten Netherite is the refined-stage fluid
@@ -1997,7 +1997,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_ender_colloid",
                 Items.ENDER_PEARL, ModFluids.SOURCE_ENDER_COLLOID.get(), 1000, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.duplicate(recipeOutput, "metastasizing_molten_soul_silica",
-                Items.SOUL_SAND, ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 1000, ModMath.Time.getSecondsToTicks(30));
+                Items.SOUL_SAND, ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), MbScale.BLOCK, ModMath.Time.getSecondsToTicks(30));
 
         ////////////////////Render Kiln\\\\\\\\\\\\\\\\\\\\
         // Fluid alone -> a fixed default item, no pattern/no ingredient item -- see machine notes and
@@ -2149,21 +2149,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.render(recipeOutput, "render_kiln_copper_ingot", ModFluids.SOURCE_CUPROUS_PULP.get(), MbScale.INGOT, Items.COPPER_INGOT, solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_gold_ingot", ModFluids.SOURCE_AUROUS_PULP.get(), MbScale.INGOT, Items.GOLD_INGOT, solidTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_coal", ModFluids.SOURCE_CARBON_PULP.get(), MbScale.INGOT, Items.COAL, lightTicks);
-        RecipeBuilders.render(recipeOutput, "render_kiln_redstone_dust", ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_redstone_dust", ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.INGOT,
                 Items.REDSTONE, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_quartz", ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_quartz", ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.INGOT,
                 Items.QUARTZ, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_glowstone_dust", ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_glowstone_dust", ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.INGOT,
                 Items.GLOWSTONE_DUST, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_diamond", ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_diamond", ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.INGOT,
                 Items.DIAMOND, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_emerald", ModFluids.SOURCE_MOLTEN_EMERALD.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_emerald", ModFluids.SOURCE_MOLTEN_EMERALD.get(), MbScale.INGOT,
                 Items.EMERALD, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_soul_sand", ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_soul_sand", ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), MbScale.BLOCK,
                 Items.SOUL_SAND, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_amethyst_shard", ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_amethyst_shard", ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.INGOT,
                 Items.AMETHYST_SHARD, ModMath.Time.getSecondsToTicks(30));
-        RecipeBuilders.render(recipeOutput, "render_kiln_lapis_lazuli", ModFluids.SOURCE_MOLTEN_LAPIS.get(), 1000,
+        RecipeBuilders.render(recipeOutput, "render_kiln_lapis_lazuli", ModFluids.SOURCE_MOLTEN_LAPIS.get(), MbScale.INGOT,
                 Items.LAPIS_LAZULI, ModMath.Time.getSecondsToTicks(30));
         RecipeBuilders.render(recipeOutput, "render_kiln_netherite_scrap", ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), MbScale.INGOT,
                 Items.NETHERITE_SCRAP, ModMath.Time.getSecondsToTicks(30));

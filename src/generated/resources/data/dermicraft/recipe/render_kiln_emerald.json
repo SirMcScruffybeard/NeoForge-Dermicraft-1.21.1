@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_molten_emerald",
-  "fluid_amount": 1000,
+  "fluid_amount": 90,
   "result": {
     "count": 1,
     "id": "minecraft:emerald"

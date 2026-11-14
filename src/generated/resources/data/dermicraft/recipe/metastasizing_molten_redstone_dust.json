@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_molten_redstone",
-  "fluid_amount": 1000,
+  "fluid_amount": 90,
   "pattern": {
     "item": "minecraft:redstone"
   },
