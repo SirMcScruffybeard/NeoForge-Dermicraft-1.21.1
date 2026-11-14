@@ -11,6 +11,19 @@ import net.neoforged.neoforge.fluids.FluidType;
 
 public record FluidData(FluidStack fluidStack) {
 
+    /** Equal when the fluid, amount and components match. A FluidStack has no equals of its own, so the record default compared
+     * references and no two separately built FluidData were ever equal, which broke every component test on a filled
+     * container (a crafting ingredient asking for a lava-filled Beaker never matched one). */
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof FluidData data && FluidStack.matches(fluidStack, data.fluidStack);
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * FluidStack.hashFluidAndComponents(fluidStack) + fluidStack.getAmount();
+    }
+
     ////////////////CODECS\\\\\\\\\\\\\\\\
     public static final Codec<FluidData> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(

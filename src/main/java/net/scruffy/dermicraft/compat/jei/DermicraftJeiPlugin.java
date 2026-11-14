@@ -10,12 +10,15 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.scruffy.dermicraft.block.ModBlocks;
+import net.scruffy.dermicraft.component.FluidData;
+import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.compat.jei.category.DippingCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCauldronCategory;
 import net.scruffy.dermicraft.compat.jei.category.DroolingCrucibleCategory;
@@ -87,6 +90,30 @@ public class DermicraftJeiPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registerModuleFamily(registration, ModuleFamilies.TIER);
         registerModuleFamily(registration, ModuleFamilies.OVERGROWTH);
+        registerBeaker(registration);
+    }
+
+
+    /**
+     * A Beaker is the same item whatever it holds, so JEI would collapse a lava-filled Beaker and an empty one into a
+     * single ingredient: a recipe asking for four full lava Beakers would show (and be filled in with) any Beaker. The
+     * contained fluid and amount are the subtype, so each filled Beaker is its own ingredient.
+     */
+    private static void registerBeaker(ISubtypeRegistration registration) {
+        registration.registerSubtypeInterpreter(ModBlocks.BEAKER_ITEM.get(), new ISubtypeInterpreter<ItemStack>() {
+            @Override
+            public Object getSubtypeData(ItemStack stack, UidContext context) {
+                FluidData data = stack.get(ModDataComponentTypes.FLUID_DATA.get());
+                if (data == null || data.isFluidEmpty()) return null;
+                return BuiltInRegistries.FLUID.getKey(data.getFluid()) + "@" + data.getFluidAmount();
+            }
+
+            @Override
+            public String getLegacyStringSubtypeInfo(ItemStack stack, UidContext context) {
+                Object data = getSubtypeData(stack, context);
+                return data == null ? "" : data.toString();
+            }
+        });
     }
 
     private static <D> void registerModuleFamily(ISubtypeRegistration registration, ModuleFamily<D> family) {
