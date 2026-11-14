@@ -22,6 +22,7 @@ import net.neoforged.neoforge.common.crafting.DataComponentIngredient;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.component.AidModeData;
 import net.scruffy.dermicraft.item.custom.module.HazardModuleVariant;
+import net.scruffy.dermicraft.item.custom.module.ModuleFamilies;
 import net.scruffy.dermicraft.component.ModDataComponentTypes;
 import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.scruffy.dermicraft.fluid.ModFluids;
@@ -1474,6 +1475,18 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_ENDER_COLLOID.get(), MbScale.ofIngots(4),
                 ModItems.getHazardEvolutionModule(HazardModuleVariant.METAPHYSICAL_SEVERE), ModMath.Time.getSecondsToTicks(10));
 
+        // Tier 2 Evolution Module, crafting table only for now (no Mutator route, on purpose; a Flesh Lab route comes with
+        // the Flesh Lab): the Evolution Module Frame in the middle of four Reinforcing Catalyst (four Buckets or four full
+        // Beakers, 4000 mB) with an Iron Block in each corner. The result is the Tier module with level 2 on it.
+        // Tier 3 and Tier 4 wait for their ingredients (Dragon's Milk, and an undefined Tier 4) and stay creative-only.
+        ItemStack tierTwo = ModuleFamilies.TIER.createStacks().get(1);
+        buildTierModule(recipeOutput, "tier_2_evolution_module_crafting_table_buckets", tierTwo,
+                Ingredient.of(ModFluids.REINFORCING_CATALYST_BUCKET.get()));
+        buildTierModule(recipeOutput, "tier_2_evolution_module_crafting_table_beakers", tierTwo,
+                DataComponentIngredient.of(false, ModDataComponentTypes.FLUID_DATA.get(),
+                        net.scruffy.dermicraft.component.FluidData.createData(ModFluids.SOURCE_REINFORCING_CATALYST.get(),
+                                net.scruffy.dermicraft.item.custom.BeakerItem.CAPACITY), ModBlocks.BEAKER_ITEM.get()));
+
         // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
         // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier
         // is 1.5x/2.0x/2.5x of the material's OWN base durability (not compounding). Bone uses
@@ -2608,6 +2621,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     private static Item woodItem(String species, String suffix) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(species + "_" + suffix));
+    }
+
+    /** A shaped Tier Evolution Module recipe: the Evolution Module Frame in the middle, four of {@code catalyst} around it
+     *  and an Iron Block in each corner; {@code result} carries the level, so the recipe is built directly (the vanilla
+     *  builder only makes plain items). */
+    private static void buildTierModule(RecipeOutput recipeOutput, String id, ItemStack result, Ingredient catalyst) {
+        ShapedRecipePattern pattern = ShapedRecipePattern.of(java.util.Map.of(
+                'I', Ingredient.of(Items.IRON_BLOCK),
+                'R', catalyst,
+                'E', Ingredient.of(ModItems.EVOLUTION_MODULE_FRAME.get())),
+                "IRI", "RER", "IRI");
+        recipeOutput.accept(RecipeBuilders.getResourceLocation(id),
+                new ShapedRecipe("", CraftingBookCategory.MISC, pattern, result), null);
     }
 
     /** The plus-shaped hand recipe for a hazard Evolution Module: the Evolution Module Frame in the middle of four of

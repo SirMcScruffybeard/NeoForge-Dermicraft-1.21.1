@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "dermicraft:evolution_module_frame"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "R": {
+      "type": "neoforge:components",
+      "components": {
+        "dermicraft:contained_fluid_data": {
+          "ingredientFluid": {
+            "amount": 1000,
+            "id": "dermicraft:source_reinforcing_catalyst"
+          }
+        }
+      },
+      "items": "dermicraft:beaker"
+    }
+  },
+  "pattern": [
+    "IRI",
+    "RER",
+    "IRI"
+  ],
+  "result": {
+    "components": {
+      "dermicraft:level_module_data": {
+        "level": 2
+      }
+    },
+    "count": 1,
+    "id": "dermicraft:tier_evolution_module"
+  }
+}

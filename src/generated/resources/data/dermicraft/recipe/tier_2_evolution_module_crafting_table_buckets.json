@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "dermicraft:evolution_module_frame"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "R": {
+      "item": "dermicraft:reinforcing_catalyst_bucket"
+    }
+  },
+  "pattern": [
+    "IRI",
+    "RER",
+    "IRI"
+  ],
+  "result": {
+    "components": {
+      "dermicraft:level_module_data": {
+        "level": 2
+      }
+    },
+    "count": 1,
+    "id": "dermicraft:tier_evolution_module"
+  }
+}
