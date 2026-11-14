@@ -2,8 +2,8 @@
   "type": "dermicraft:effluencing",
   "fluid_a": "dermicraft:source_crude_slurry",
   "fluid_a_amount": 50,
-  "fluid_b": "dermicraft:source_primitive_catalyst",
-  "fluid_b_amount": 5,
+  "fluid_b": "minecraft:lava",
+  "fluid_b_amount": 25,
   "result_fluid": "dermicraft:source_concentrated_slurry",
   "result_fluid_amount": 50,
   "ticks": 50

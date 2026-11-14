@@ -660,11 +660,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModFluids.SOURCE_F_STUFF.get(), 180, ModFluids.SOURCE_C_STUFF.get(), 180,
                 ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 360, ModMath.Time.getSecondsToTicks(15));
 
-        // Concentrated Slurry: fixed 50-tick craft time (steady-trickle design -- small batch,
-        // short cycle, see dermicraft-slurry-notes.md). 10:1 Crude:Catalyst, a minor catalytic
-        // addition rather than an equal-parts ingredient.
+        // Concentrated Slurry: 50 Crude Slurry + 25 Lava -> 50 Concentrated Slurry in a fixed 50 ticks (steady-trickle
+        // design, see dermicraft-slurry-notes.md). The lava is consumed and replaces the old Primitive Catalyst dose;
+        // the output stays untagged.
         RecipeBuilders.buildEffluencing(recipeOutput, "concentrated_slurry_effluencing",
-                ModFluids.SOURCE_CRUDE_SLURRY.get(), 50, ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 5,
+                ModFluids.SOURCE_CRUDE_SLURRY.get(), 50, Fluids.LAVA, 25,
                 ModFluids.SOURCE_CONCENTRATED_SLURRY.get(), 50, 50);
 
         // Reinforcing Catalyst: 180 C-Stuff + 18 Primitive Catalyst -> 180 in 180 ticks (9 s), a 10:1 minor addition like
@@ -705,13 +705,12 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.masticateWithWater(recipeOutput, "synapse_catalyst_masticating_piglin_head", Items.PIGLIN_HEAD, 750,
                 ModFluids.SOURCE_SYNAPSE_CATALYST.get(), 750, ModMath.Time.getSecondsToTicks(45));
 
-        // Molten Netherite: mirrors the real 4 Scrap + 4 Gold Ingot -> 1 Netherite Ingot vanilla
-        // smithing ratio (each fluid is 1000 mB per item). 60s matches the mod's other 4:1-ratio
-        // recipes (Quartz Block/Glowstone/Amethyst Block). Both inputs are hot, so an Effluentcer
-        // without a Thermal tolerance loses HP every cycle it runs this.
+        // Molten Netherite: the real 4 Scrap + 4 Gold Ingot -> 1 Netherite Ingot smithing ratio, 360 Dirty Molten Netherite +
+        // 360 Aurous Pulp -> 90 Molten Netherite in 60 s. Both inputs are hot, so an Effluentcer without a Thermal tolerance
+        // loses HP every cycle it runs this.
         RecipeBuilders.buildEffluencing(recipeOutput, "molten_netherite_effluencing",
-                ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), 4000, ModFluids.SOURCE_AUROUS_PULP.get(), 4000,
-                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 1000, ModMath.Time.getSecondsToTicks(60));
+                ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get(), MbScale.BLOCK_OF_FOUR, ModFluids.SOURCE_AUROUS_PULP.get(), MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(60));
 
         RecipeBuilders.buildVagueDrooling(recipeOutput, "water_drooling", Ingredient.of(Tags.Items.FOODS), 2, Fluids.WATER);
         // Same ingredient/modifier as Cauldron's own -- "they produce what they produce regardless
@@ -1920,14 +1919,15 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.AMETHYST_BLOCK), 1, Fluids.LAVA, MbScale.BLOCK_OF_FOUR,
                 ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.BLOCK_OF_FOUR, -1, ModMath.Time.getSecondsToTicks(60));
 
-        // Molten Quartz -> Molten Amethyst: a real conversion route past needing to find a geode,
-        // deliberately NOT cheap -- Evolution Catalyst (the mod's own "spend real progression
-        // currency to jump a rarity tier" reagent, same role it plays in evolution_catalyst_effluencing)
-        // pays for the rarity gap instead of a steep raw ratio. Flat bucket-for-bucket (1000 mB each
-        // way), same 45s as Evolution Catalyst's own production.
+        // Molten Amethyst: Molten Quartz plus a little Luminous Ichor, 90 + 10 -> 90 in 15 s (placeholder time). Molten
+        // Amethyst carries Thermal only; the Ichor's radiation is used up in the conversion. The Masticator route takes a
+        // Nether Quartz item instead of the Molten Quartz and gives the same 90.
         RecipeBuilders.buildEffluencing(recipeOutput, "molten_amethyst_effluencing",
-                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), 1000, ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000,
-                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), 1000, ModMath.Time.getSecondsToTicks(45));
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.INGOT, ModFluids.SOURCE_LUMINOUS_ICHOR.get(), MbScale.NUGGET,
+                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.buildMasticating(recipeOutput, "molten_amethyst_masticating_nether_quartz",
+                Ingredient.of(Items.QUARTZ), 1, ModFluids.SOURCE_LUMINOUS_ICHOR.get(), MbScale.NUGGET,
+                ModFluids.SOURCE_MOLTEN_AMETHYST.get(), MbScale.INGOT, -1, ModMath.Time.getSecondsToTicks(15));
 
         RecipeBuilders.buildMasticating(recipeOutput, "molten_diamond_masticating",
                 Ingredient.of(Items.DIAMOND), 1, Fluids.LAVA, MbScale.INGOT,
@@ -1987,6 +1987,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.buildMasticating(recipeOutput, "molten_soul_silica_masticating",
                 Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, MbScale.BLOCK,
                 ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), MbScale.BLOCK, -1, ModMath.Time.getSecondsToTicks(30));
+
+        // Silica -> Soul Silica -> Quartz (the only route to Molten Quartz that skips mined quartz, and it is gated by the
+        // Nether through Infernal Ichor). No lava in the first step: 180 Silica Pulp + 10 Infernal Ichor -> 180 Molten
+        // Soul Silica in 45 s, the Ichor consumed, the output mirroring the Silica amount (the Molten Amethyst precedent).
+        // Then 180 Molten Soul Silica + 90 Lava -> 90 Molten Quartz in 45 s, the lava consumed. Times are placeholders.
+        // Soul Silica is Thermal and Metaphysical (Mild) and Infernal Ichor is Metaphysical, so a machine without a
+        // Metaphysical tolerance sees a speed wobble on both steps.
+        RecipeBuilders.buildEffluencing(recipeOutput, "molten_soul_silica_effluencing",
+                ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT * 2, ModFluids.SOURCE_INFERNAL_ICHOR.get(), MbScale.NUGGET,
+                ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), MbScale.INGOT * 2, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildEffluencing(recipeOutput, "molten_quartz_effluencing",
+                ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), MbScale.INGOT * 2, Fluids.LAVA, MbScale.INGOT,
+                ModFluids.SOURCE_MOLTEN_QUARTZ.get(), MbScale.INGOT, ModMath.Time.getSecondsToTicks(45));
 
         // ---- Production recipes for the Phase 4 fluids (rescale overhaul, amounts already on the new scale) ----
         // Flux: the refining flux that replaces Primitive Catalyst in the ore chain. Even 1:1, nothing lost.

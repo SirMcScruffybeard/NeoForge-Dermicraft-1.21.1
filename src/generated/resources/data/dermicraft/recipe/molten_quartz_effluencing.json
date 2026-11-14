@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_molten_soul_silica",
+  "fluid_a_amount": 180,
+  "fluid_b": "minecraft:lava",
+  "fluid_b_amount": 90,
+  "result_fluid": "dermicraft:source_molten_quartz",
+  "result_fluid_amount": 90,
+  "ticks": 900
+}

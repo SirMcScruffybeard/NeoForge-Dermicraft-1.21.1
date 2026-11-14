@@ -1,10 +1,10 @@
 {
   "type": "dermicraft:effluencing",
   "fluid_a": "dermicraft:source_dirty_molten_netherite",
-  "fluid_a_amount": 4000,
+  "fluid_a_amount": 360,
   "fluid_b": "dermicraft:source_aurous_pulp",
-  "fluid_b_amount": 4000,
+  "fluid_b_amount": 360,
   "result_fluid": "dermicraft:source_molten_netherite",
-  "result_fluid_amount": 1000,
+  "result_fluid_amount": 90,
   "ticks": 1200
 }

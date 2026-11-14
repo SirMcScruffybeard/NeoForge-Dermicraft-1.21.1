@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_silica_pulp",
+  "fluid_a_amount": 180,
+  "fluid_b": "dermicraft:source_infernal_ichor",
+  "fluid_b_amount": 10,
+  "result_fluid": "dermicraft:source_molten_soul_silica",
+  "result_fluid_amount": 180,
+  "ticks": 900
+}

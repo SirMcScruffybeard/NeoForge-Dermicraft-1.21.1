@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:quartz"
+  },
+  "ingredient_fluid": "dermicraft:source_luminous_ichor",
+  "ingredient_fluid_amount": 10,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_molten_amethyst",
+  "result_fluid_amount": 90,
+  "ticks": 300
+}
