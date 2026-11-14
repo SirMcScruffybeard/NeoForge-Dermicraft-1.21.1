@@ -2027,6 +2027,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 ModMath.Time.getSecondsToTicks(30), solidTicks);
         buildInfernalItem(recipeOutput, "nether_brick_fence", Items.NETHER_BRICK_FENCE, MbScale.ofIngotsShared(12, 6),
                 ModMath.Time.getSecondsToTicks(15), aggregateTicks);
+        // The Nether Brick variants. Red, Chiseled (two slabs, so one block) and Cracked (smelted from the block) all cost a
+        // four-unit block, 360; the Nether Wart in Red Nether Bricks is not counted. Red slab, stairs and wall follow the same
+        // block, slab and stairs rules as the plain ones.
+        buildInfernalItem(recipeOutput, "red_nether_bricks", Items.RED_NETHER_BRICKS, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
+        buildInfernalItem(recipeOutput, "red_nether_brick_slab", Items.RED_NETHER_BRICK_SLAB, MbScale.half(MbScale.BLOCK_OF_FOUR),
+                ModMath.Time.getSecondsToTicks(15), slabTicks);
+        buildInfernalItem(recipeOutput, "red_nether_brick_stairs", Items.RED_NETHER_BRICK_STAIRS, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
+        buildInfernalItem(recipeOutput, "red_nether_brick_wall", Items.RED_NETHER_BRICK_WALL, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
+        buildInfernalItem(recipeOutput, "chiseled_nether_bricks", Items.CHISELED_NETHER_BRICKS, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
+        buildInfernalItem(recipeOutput, "cracked_nether_bricks", Items.CRACKED_NETHER_BRICKS, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
 
         // Reverse route (Charred Metastasizer, pattern-based duplication) -- mirrors every Molten
         // Masticating recipe above 1:1 on item and mB, same "forward mirrors reverse" convention as

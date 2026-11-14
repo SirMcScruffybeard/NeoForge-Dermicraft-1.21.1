@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_infernal_ichor",
+  "fluid_amount": 360,
+  "pattern": {
+    "item": "minecraft:red_nether_brick_stairs"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:red_nether_brick_stairs"
+  },
+  "ticks": 200
+}
