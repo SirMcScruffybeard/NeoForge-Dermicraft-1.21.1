@@ -212,8 +212,9 @@ Scope: simple fueled machines with a face texture (Masticator, Effluentcer, Meta
 - **L2:** a bit more hardened, still mostly organic. This is where Thermal originally came in; the existing Charred cream bone ring/mount art is a natural L2 candidate, and the Charred dark-flesh look could become the Thermal hazard accent instead.
 - **L3:** things shift to living metals.
 - **L4:** main theme not settled; leaning magic, explicitly not cosmic horror.
-- **Overgrowth stages** (O1-4, O5-9, O10+): themes not decided; the name suggests runaway growth.
+- **Overgrowth stages** (O1-4, O5-9, O10+): **themes CLOSED (2026-11-14)**: the shared plate textures `o1_plate`, `o2_plate` and `o3_plate` (and the Skin Tank's `plate_o1` to `plate_o3`) are the look, built and in use.
 - Tier changes the machine-specific parts (feature part and light mount) and the Overgrowth stage looks; with a 16px budget, tiers must read by material, color and silhouette, not detail.
+- **Overgrowth scar accents: DROPPED (closed 2026-11-14)**, superseded by the 2026-11-08 decision that no hazard accents are drawn. The rest of this bullet is history.
 - **L1 light mount will be redesigned** (new fleshy mount); **L2 keeps the cream bone mount**. **Overgrowth may get completely new textures**, including its own **scar-like hazard accents** (a second accent set that replaces the standard set at Overgrowth stages). Reasoning to keep in mind: a machine can reach Overgrowth without holding every hazard (tier and hazards are independent), so Overgrowth accents are what keep a machine's hazards visible in the world. The scars will most likely be **one set shared by all three Overgrowth stages** (6 textures: four hazards plus the Severe extras).
 
 **Other machine types (decided so far, 2026-10)**
