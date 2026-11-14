@@ -1170,21 +1170,21 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
 
         RecipeBuilders.simpleDipping(recipeOutput, "torch_dipping", Tags.Items.RODS_WOODEN, 1,
-                ModFluids.SOURCE_CARBON_PULP.get(), 500, Items.TORCH, 4);
+                ModFluids.SOURCE_CARBON_PULP.get(), MbScale.INGOT / 2, Items.TORCH, 4);
 
         // Redstone torch's own dipping recipe -- mirrors vanilla's 1 stick + 1 redstone dust -> 1
-        // redstone torch ratio (unlike the plain torch's 4-output). 110 mB Molten Redstone matches
-        // the same "1 dust" rate metastasizing_molten_redstone_dust already uses below.
+        // redstone torch ratio (unlike the plain torch's 4-output). 45 mB Molten Redstone, half a dust's 90 (a torch is half a dust of redstone, the
+        // same way a stick is half a plank).
         RecipeBuilders.simpleDipping(recipeOutput, "redstone_torch_dipping", Tags.Items.RODS_WOODEN, 1,
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, Items.REDSTONE_TORCH, 1);
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.INGOT / 2, Items.REDSTONE_TORCH, 1);
 
         // Mutator copies of both dipping recipes above -- same ingredient/fluid/amount, just routed
         // through the Mutator's MUTATE mode instead of a dipping tank. lightTicks matches the same
         // "cheap single-dust-scale conversion" cadence metastasizing_molten_redstone_dust uses.
         RecipeBuilders.buildMutating(recipeOutput, "mutating_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
-                ModFluids.SOURCE_CARBON_PULP.get(), 500, new ItemStack(Items.TORCH, 4), lightTicks);
+                ModFluids.SOURCE_CARBON_PULP.get(), MbScale.INGOT / 2, new ItemStack(Items.TORCH, 4), lightTicks);
         RecipeBuilders.buildMutating(recipeOutput, "mutating_redstone_torch", Ingredient.of(Tags.Items.RODS_WOODEN),
-                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), 500, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
+                ModFluids.SOURCE_MOLTEN_REDSTONE.get(), MbScale.INGOT / 2, new ItemStack(Items.REDSTONE_TORCH, 1), lightTicks);
 
         // Magma Block: any c:stones-tagged block baked in Lava. solidTicks matches the mod's usual
         // "whole block, real transformation" cadence rather than the lighter dust-scale conversions
@@ -1839,11 +1839,11 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // 16 dyes come from genuinely different source categories, so this deliberately splits them
         // across fluids by what each color is *actually* made from, rather than forcing all 16 onto
         // one fluid (see dyeFluid() below for the per-color mapping and reasoning). All 16 share the
-        // same cheap/decorative pricing as Leaves (100 mB / 50 ticks -- lightTicks) regardless of
+        // same cheap/decorative flat 10 mB (a nugget's worth, 50 ticks -- lightTicks) regardless of
         // fluid, since every route here is just as trivially renewable as a flower or a bonemeal.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
-            RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + c + "_dye", dyeItem(c), dyeFluid(color), 100, lightTicks);
+            RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + c + "_dye", dyeItem(c), dyeFluid(color), MbScale.NUGGET, lightTicks);
         }
 
         ////////////////////Molten Family (Stage 2, Charred Masticator only)\\\\\\\\\\\\\\\\\\\\

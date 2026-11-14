@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_calcium_pulp",
-  "fluid_amount": 100,
+  "fluid_amount": 10,
   "pattern": {
     "item": "minecraft:white_dye"
   },

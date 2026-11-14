@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_crude_slurry",
-  "fluid_amount": 100,
+  "fluid_amount": 10,
   "pattern": {
     "item": "minecraft:blue_dye"
   },
