@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.screen;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -12,6 +13,7 @@ import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.network.AutoDrainToggleClickPayload;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +107,29 @@ public abstract class AbstractEvolvingMachineScreen<M extends AbstractEvolvingMa
         tabs = List.of(
                 new Tab(Component.translatable("screen.dermicraft." + screenName + ".main_tab"), TAB_TEXT_COLOR),
                 new Tab(Component.translatable("screen.dermicraft." + screenName + ".module_tab"), TAB_TEXT_COLOR));
+    }
+
+    @Override
+    public Rect2i getTabStripArea() {
+        return getStackedTabArea(2);
+    }
+
+    /** Where the Main tab's progress arrow sits, relative to the screen's top-left, so JEI can offer the machine's recipes
+     * when the arrow is clicked. Null for a machine with no recipe arrow of its own. */
+    protected @Nullable Rect2i getRecipeArrowArea() {
+        return null;
+    }
+
+    /** {@link #getRecipeArrowArea} made absolute, and null on the Module tab where the arrow is not drawn. */
+    public @Nullable Rect2i getRecipeClickArea() {
+        Rect2i arrow = getRecipeArrowArea();
+        if (arrow == null || menu.getActiveTab() != AbstractEvolvingMachineMenu.MAIN_TAB) return null;
+        return new Rect2i(leftPos + arrow.getX(), topPos + arrow.getY(), arrow.getWidth(), arrow.getHeight());
+    }
+
+    /** The arrow's own footprint at a Main-tab position, for a machine's {@link #getRecipeArrowArea}. */
+    protected static Rect2i arrowAt(int arrowX, int arrowY) {
+        return new Rect2i(arrowX, arrowY, ARROW_WIDTH, ARROW_HEIGHT);
     }
 
     // ---- What a machine supplies -------------------------------------------------------------

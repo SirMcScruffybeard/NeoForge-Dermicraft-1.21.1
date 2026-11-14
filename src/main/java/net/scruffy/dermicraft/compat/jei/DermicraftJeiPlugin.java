@@ -138,6 +138,11 @@ public class DermicraftJeiPlugin implements IModPlugin {
     }
 
     @Override
+    public void registerGuiHandlers(mezz.jei.api.registration.IGuiHandlerRegistration registration) {
+        ScreenAreas.register(registration);
+    }
+
+    @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CAULDRON.get()), DermicraftRecipeTypes.DROOLING_CAULDRON);
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.DROOLING_CRUCIBLE.get()), DermicraftRecipeTypes.DROOLING_CRUCIBLE);

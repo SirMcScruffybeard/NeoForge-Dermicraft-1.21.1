@@ -24,6 +24,11 @@ public abstract class DroolingMachineScreen<M extends DroolingMachineMenu<?>> ex
 
     private FluidTankRenderer fluidRenderer;
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(61, 37);
+    }
+
     protected DroolingMachineScreen(M menu, Inventory playerInventory, Component title, String screenName) {
         super(menu, playerInventory, title, screenName, "auto_drain");
     }

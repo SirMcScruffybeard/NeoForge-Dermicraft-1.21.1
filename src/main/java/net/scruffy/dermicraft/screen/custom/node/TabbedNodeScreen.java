@@ -378,6 +378,14 @@ public class TabbedNodeScreen extends AbstractModScreen<TabbedNodeMenu> {
     }
 
     @Override
+    public net.minecraft.client.renderer.Rect2i getTabStripArea() {
+        int count = connectedLegIndices().size();
+        if (count == 0) return null;
+        return new net.minecraft.client.renderer.Rect2i(leftPos + TAB_X, topPos + TAB_FIRST_Y, TAB_SIZE,
+                count * TAB_SIZE + (count - 1) * TAB_GAP);
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int x = leftPos;
         int y = topPos;

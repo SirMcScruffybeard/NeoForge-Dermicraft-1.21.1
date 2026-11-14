@@ -15,6 +15,11 @@ import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
  * is the one genuinely new layout element in the mod -- nine item_slot tiles instead of the usual 1-2 slots. */
 public class GraftingTableScreen extends AbstractEvolvingMachineScreen<GraftingTableMenu> {
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(ARROW_X, ARROW_Y);
+    }
+
     private static final String SLOTS_DIR = "textures/gui/slots/";
 
     private static final ResourceLocation GHOST_WASH_TEXTURE =

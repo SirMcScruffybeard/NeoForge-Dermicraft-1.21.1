@@ -9,6 +9,11 @@ import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
 
 public class MasticatorScreen extends AbstractEvolvingMachineScreen<MasticatorMenu> {
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(95, 38);
+    }
+
     private FluidTankRenderer fuelRenderer;
     private FluidTankRenderer ingredientRenderer;
     private FluidTankRenderer resultRenderer;

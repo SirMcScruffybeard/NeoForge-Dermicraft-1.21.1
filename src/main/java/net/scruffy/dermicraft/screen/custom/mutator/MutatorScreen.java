@@ -14,6 +14,11 @@ import net.scruffy.dermicraft.util.MouseUtil;
 
 public class MutatorScreen extends AbstractEvolvingMachineScreen<MutatorMenu> {
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(ARROW_X, ARROW_Y);
+    }
+
     private static final String BUTTONS_DIR = "textures/gui/buttons/";
 
     // Mode toggle -- reuses the Node's existing item/fluid button pair. MUTATE shows the item icon

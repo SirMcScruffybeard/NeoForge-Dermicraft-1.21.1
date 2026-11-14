@@ -249,6 +249,18 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
         }
     }
 
+    /** The screen area its tab strip covers, in absolute GUI coordinates, or null when it has no tabs. JEI reads it to keep its
+     * own lists (the bookmark list on the left) from overlapping the tabs. */
+    public @org.jetbrains.annotations.Nullable net.minecraft.client.renderer.Rect2i getTabStripArea() {
+        return null;
+    }
+
+    /** The area of {@code tabCount} stacked tabs drawn by {@link #renderTabs}. */
+    protected net.minecraft.client.renderer.Rect2i getStackedTabArea(int tabCount) {
+        int height = tabCount * TAB_HEIGHT + (tabCount - 1) * TAB_GAP;
+        return new net.minecraft.client.renderer.Rect2i(leftPos + TAB_X, topPos + TAB_FIRST_Y, TAB_WIDTH, height);
+    }
+
     /** Which tab (if any) sits under {@code (mouseX, mouseY)} -- same geometry {@link #renderTabs}
      * draws against, so the two can never disagree about where a tab actually is. -1 for no hit. */
     protected int tabClickedAt(double mouseX, double mouseY, int x, int y, int tabCount) {

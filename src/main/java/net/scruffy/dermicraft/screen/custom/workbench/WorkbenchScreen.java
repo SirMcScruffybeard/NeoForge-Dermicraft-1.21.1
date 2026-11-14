@@ -841,6 +841,12 @@ public class WorkbenchScreen extends AbstractModScreen<WorkbenchMenu> {
         }
     }
 
+    @Override
+    public net.minecraft.client.renderer.Rect2i getTabStripArea() {
+        return new net.minecraft.client.renderer.Rect2i(leftPos + MOD_TAB_X, topPos + MOD_TAB_Y, TAB_WIDTH,
+                2 * TAB_HEIGHT + (FABRICATION_TAB_Y - MOD_TAB_Y - TAB_HEIGHT));
+    }
+
     // Grab the thumb to drag it; otherwise a classic scrollbar-track click (above the thumb pages
     // up, below pages down).
     @Override

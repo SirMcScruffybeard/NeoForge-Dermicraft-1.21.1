@@ -9,6 +9,11 @@ import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
 
 public class RenderKilnScreen extends AbstractEvolvingMachineScreen<RenderKilnMenu> {
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(ARROW_X, ARROW_Y);
+    }
+
     // No pattern slot on the Kiln -- HP (far left) and Fuel (far right) stay pinned to the edges
     // (same "inline pair" convention as the Effluentcer screen), while input/arrow/output cluster
     // together near center instead of spreading across the Metastasizer's original 4-column spacing.

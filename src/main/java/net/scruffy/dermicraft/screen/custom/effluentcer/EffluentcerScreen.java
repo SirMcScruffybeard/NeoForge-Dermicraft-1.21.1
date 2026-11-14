@@ -8,6 +8,11 @@ import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
 
 public class EffluentcerScreen extends AbstractEvolvingMachineScreen<EffluentcerMenu> {
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(ARROW_X, ARROW_Y);
+    }
+
     // "Inline pair" layout: HP far-left, fuel far-right, the two ingredient tanks together
     // left of center, a single progress arrow right of center, result beyond it.
     private static final int INPUT_A_X = 40;

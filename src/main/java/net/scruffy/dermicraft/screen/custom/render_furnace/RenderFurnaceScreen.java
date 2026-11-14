@@ -11,6 +11,11 @@ import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
  * fuel tank (paired with its own bucket-fill slot) on the far right, HP bar on the far left. */
 public class RenderFurnaceScreen extends AbstractEvolvingMachineScreen<RenderFurnaceMenu> {
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(ARROW_X, ARROW_Y);
+    }
+
     private static final int INPUT_X = 60;
     private static final int ARROW_X = 90;
     private static final int OUTPUT_X = 120;

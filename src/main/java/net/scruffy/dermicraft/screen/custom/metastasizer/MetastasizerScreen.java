@@ -9,6 +9,11 @@ import net.scruffy.dermicraft.screen.AbstractEvolvingMachineScreen;
 
 public class MetastasizerScreen extends AbstractEvolvingMachineScreen<MetastasizerMenu> {
 
+    @Override
+    protected net.minecraft.client.renderer.Rect2i getRecipeArrowArea() {
+        return arrowAt(ARROW_X, ARROW_Y);
+    }
+
     private static final int REAGENT_X = 30;
     private static final int PATTERN_X = 60;
     private static final int ARROW_X = 90;
