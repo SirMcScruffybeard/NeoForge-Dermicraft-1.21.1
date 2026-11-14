@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_infernal_ichor",
+  "fluid_amount": 90,
+  "result": {
+    "count": 1,
+    "id": "minecraft:netherrack"
+  },
+  "ticks": 120
+}

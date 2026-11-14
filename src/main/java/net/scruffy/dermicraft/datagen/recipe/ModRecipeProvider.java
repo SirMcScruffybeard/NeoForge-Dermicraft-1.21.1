@@ -2006,6 +2006,28 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.NETHERRACK), 1, ModFluids.SOURCE_PROTEIN_PULP.get(), 90,
                 ModFluids.SOURCE_INFERNAL_ICHOR.get(), 90, -1, ModMath.Time.getSecondsToTicks(15));
 
+        // Netherrack family (Infernal Ichor). Netherrack is one unit (90), it smelts to the Nether Brick item (90), four
+        // bricks make Nether Bricks (360), a slab is half (180), stairs and the wall are 1:1 with the block (360), and a
+        // fence is a sixth of the 1080 it is crafted from (180). Each item masticates in Protein Pulp (solvent = yield) and
+        // can be duplicated back from Infernal Ichor; Netherrack also renders back. Every mB of Infernal Ichor starts as mined
+        // Netherrack, so the gate is a Nether trip that keeps recurring. Times are placeholders.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_netherrack", Items.NETHERRACK,
+                ModFluids.SOURCE_INFERNAL_ICHOR.get(), MbScale.INGOT, aggregateTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_netherrack", ModFluids.SOURCE_INFERNAL_ICHOR.get(), MbScale.INGOT,
+                Items.NETHERRACK, aggregateTicks);
+        buildInfernalItem(recipeOutput, "nether_brick", Items.NETHER_BRICK, MbScale.INGOT,
+                ModMath.Time.getSecondsToTicks(15), aggregateTicks);
+        buildInfernalItem(recipeOutput, "nether_bricks", Items.NETHER_BRICKS, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
+        buildInfernalItem(recipeOutput, "nether_brick_slab", Items.NETHER_BRICK_SLAB, MbScale.half(MbScale.BLOCK_OF_FOUR),
+                ModMath.Time.getSecondsToTicks(15), slabTicks);
+        buildInfernalItem(recipeOutput, "nether_brick_stairs", Items.NETHER_BRICK_STAIRS, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
+        buildInfernalItem(recipeOutput, "nether_brick_wall", Items.NETHER_BRICK_WALL, MbScale.BLOCK_OF_FOUR,
+                ModMath.Time.getSecondsToTicks(30), solidTicks);
+        buildInfernalItem(recipeOutput, "nether_brick_fence", Items.NETHER_BRICK_FENCE, MbScale.ofIngotsShared(12, 6),
+                ModMath.Time.getSecondsToTicks(15), aggregateTicks);
+
         // Reverse route (Charred Metastasizer, pattern-based duplication) -- mirrors every Molten
         // Masticating recipe above 1:1 on item and mB, same "forward mirrors reverse" convention as
         // the Ingot/Nugget/Coal/Stone families elsewhere in this file. Needs Charred Metastasizer
@@ -2415,6 +2437,16 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     private static Item woodItem(String species, String suffix) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(species + "_" + suffix));
+    }
+
+    /** The Masticator recipe (the item in Protein Pulp, solvent = yield, into Infernal Ichor) and the Metastasizer duplicate
+     * (the item as the pattern, Infernal Ichor consumed) for one Netherrack-family item, both at {@code amount} mB. */
+    private static void buildInfernalItem(RecipeOutput recipeOutput, String id, ItemLike item, int amount,
+                                          int masticateTicks, int duplicateTicks) {
+        RecipeBuilders.buildMasticating(recipeOutput, "infernal_ichor_masticating_" + id, Ingredient.of(item), 1,
+                ModFluids.SOURCE_PROTEIN_PULP.get(), amount, ModFluids.SOURCE_INFERNAL_ICHOR.get(), amount, -1, masticateTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + id, item, ModFluids.SOURCE_INFERNAL_ICHOR.get(), amount,
+                duplicateTicks);
     }
 
     private static void buildLabFloorRecipe(RecipeOutput recipeOutput, String name, ItemLike structuralBlock, ItemLike result) {

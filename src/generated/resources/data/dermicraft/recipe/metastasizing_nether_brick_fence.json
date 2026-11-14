@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_infernal_ichor",
+  "fluid_amount": 180,
+  "pattern": {
+    "item": "minecraft:nether_brick_fence"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:nether_brick_fence"
+  },
+  "ticks": 120
+}

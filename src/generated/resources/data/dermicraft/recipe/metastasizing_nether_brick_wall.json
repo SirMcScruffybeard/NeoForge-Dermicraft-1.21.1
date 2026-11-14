@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_infernal_ichor",
+  "fluid_amount": 360,
+  "pattern": {
+    "item": "minecraft:nether_brick_wall"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:nether_brick_wall"
+  },
+  "ticks": 200
+}

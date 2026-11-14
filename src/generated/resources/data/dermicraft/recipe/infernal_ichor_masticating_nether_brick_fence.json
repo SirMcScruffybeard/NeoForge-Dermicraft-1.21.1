@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:nether_brick_fence"
+  },
+  "ingredient_fluid": "dermicraft:source_protein_pulp",
+  "ingredient_fluid_amount": 180,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_infernal_ichor",
+  "result_fluid_amount": 180,
+  "ticks": 300
+}
