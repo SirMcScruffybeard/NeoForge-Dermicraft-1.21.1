@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:rendering",
+  "fluid": "dermicraft:source_calcium_pulp",
+  "fluid_amount": 810,
+  "result": {
+    "count": 1,
+    "id": "minecraft:bone_block"
+  },
+  "ticks": 1800
+}

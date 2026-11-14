@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_calcium_pulp",
+  "fluid_amount": 810,
+  "pattern": {
+    "item": "minecraft:bone_block"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:bone_block"
+  },
+  "ticks": 1800
+}

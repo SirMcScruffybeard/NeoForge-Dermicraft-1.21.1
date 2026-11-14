@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_carbon_pulp",
-  "fluid_amount": 9000,
+  "fluid_amount": 810,
   "pattern": {
     "item": "minecraft:coal_block"
   },

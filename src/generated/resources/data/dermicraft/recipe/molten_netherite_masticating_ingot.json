@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:netherite_ingot"
+  },
+  "ingredient_fluid": "minecraft:lava",
+  "ingredient_fluid_amount": 90,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_molten_netherite",
+  "result_fluid_amount": 90,
+  "ticks": 1200
+}
