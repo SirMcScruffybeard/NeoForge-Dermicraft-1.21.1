@@ -506,16 +506,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("fluid_bypass_module_crafting_table"));
 
-        // Safety Module Frame: the Module Frame cased in 6 Iron Ingots, the same housing weight the old
-        // Safety Modules used, minus the hazard core. Placeholder until the Safety Module recipes are redesigned.
+        // Safety Module Frame: the Module Frame cased in 8 Iron Ingots, a full ring, the housing every Safety Module is built
+        // on. Two routes, both ending in the same item: the crafting table here, and the Mutator below (a Module Frame plus the
+        // same 8 ingots' worth of Ferrous Pulp, 720 mB).
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.SAFETY_MODULE_FRAME.get())
-                .pattern("I I")
+                .pattern("III")
                 .pattern("IFI")
-                .pattern("I I")
+                .pattern("III")
                 .define('I', Items.IRON_INGOT)
                 .define('F', ModItems.MODULE_FRAME.get())
                 .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
                 .save(recipeOutput, RecipeBuilders.getResourceLocation("safety_module_frame_crafting_table"));
+        RecipeBuilders.mutate(recipeOutput, "safety_module_frame_mutating", ModItems.MODULE_FRAME.get(),
+                ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.ofIngots(8), ModItems.SAFETY_MODULE_FRAME.get(), ModMath.Time.getSecondsToTicks(10));
 
         // Work Speed Module -- same weight/shape as the Safety Modules above (6 Iron Ingot casing +
         // an identity item + the fluid's own bucket + Module Frame). Sugar stands in for the

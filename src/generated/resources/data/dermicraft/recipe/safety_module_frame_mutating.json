@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_ferrous_pulp",
+  "fluid_amount": 720,
+  "ingredient": {
+    "item": "dermicraft:module_frame"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:safety_module_frame"
+  },
+  "ticks": 200
+}
