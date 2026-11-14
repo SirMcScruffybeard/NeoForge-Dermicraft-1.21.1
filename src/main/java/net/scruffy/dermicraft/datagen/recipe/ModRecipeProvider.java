@@ -1217,8 +1217,8 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.PuddleCraft.MakeItems.makeFromTag(recipeOutput, "inert_tumor_puddle", ModTags.Items.ANIMAL_MEATS, 4, ModFluids.SOURCE_CRUDE_SLURRY.get(),
                 ModBlocks.INERT_TUMOR.asItem(), 1, ModMath.Time.getSecondsToTicks(10));
 
-        // Reverses Primitive Catalyst's own bone-as-ingredient recipe (dermicraft-catalyst-notes.md) --
-        // Bone Meal pulls a whole Bone back out. Puddle stays Primitive Catalyst rather than
+        // Four Bone Meal make one Bone in the puddle (a Bone is three meal, so a deliberate premium for skipping the
+        // machine, since Bone Meal masticates to Calcium Pulp and duplicates back). Puddle stays Primitive Catalyst rather than
         // downgrading to its Crude Slurry base (unlike Calcium Glass/Inert Tumor's consume-to-air
         // convention above) -- dropping a tier on top of the Bone Meal cost would price this Bone at
         // more than double what it's actually worth.

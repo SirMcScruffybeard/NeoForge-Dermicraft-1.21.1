@@ -829,8 +829,8 @@ public class EaterItem extends Item implements GeoItem, IGadget, IHaveFluidData,
 
     /** Whether every fluid block between {@code from} and {@code to} is tolerated by
      * {@code profile} -- Fluid Bypass alone (an empty, {@link HazardProfile#TIER_1}-shaped profile)
-     * passes through non-hazardous fluid like water, but a hazardous one (lava, tagged
-     * {@code THERMAL}) still blocks the ray unless a Safety Module granting that hazard is also
+     * passes through non-hazardous fluid like water, but a hazardous one (lava, whose temperature makes it
+     * Thermal) still blocks the ray unless a Safety Module granting that hazard is also
      * installed. Samples along the segment rather than reusing a single {@code ClipContext} call
      * since vanilla's fluid clipping has no per-hazard granularity to ask for directly. */
     private static boolean fluidPathTolerated(Level level, Vec3 from, Vec3 to, HazardProfile profile) {
