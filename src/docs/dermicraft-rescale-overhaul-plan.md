@@ -1,6 +1,6 @@
 # Fluid Rescale and Rename Overhaul: Implementation Plan
 
-Written 2026-11-05. Design is SETTLED; this document is the build order for the code pass (done in a separate session, user writes the code). Source of truth for the reasoning is the memory file `project_idea_backlog.md` (items 5, 6, 7 and the DECIDED sections). If this file and a later user ruling disagree, the ruling wins.
+Written 2026-11-05. Design is SETTLED; this document is the build order for the code pass (Claude writes the code; the user steps in when they want a more direct hand, ruled 2026-11-14). Source of truth for the reasoning is the memory file `project_idea_backlog.md` (items 5, 6, 7 and the DECIDED sections). If this file and a later user ruling disagree, the ruling wins.
 
 No old-world compatibility: no migration, aliasing or legacy ids. The user starts a new world after this.
 
@@ -184,11 +184,11 @@ All Effluentcer ("effluencing") recipes take exactly two input fluids. Negative 
 - Effluencing: 90 Molten Glowstone + 90 Protein Pulp -> 180 Ichor, 15 s.
 - Times are placeholders; tune in playtest.
 
-**Evolution Catalyst (rewritten):** 500 Knowledge Colloid + 500 Luminous Ichor -> 1000 Evolution Catalyst. The old Kinetic-based recipe is removed. Consumers (Anchor / Heat Evolution / Safety Modules, Evolution Module Frame, all 1000 mB) are unchanged. The Knowledge+EC recipe near line ~1190 must be re-checked.
+**Evolution Catalyst (rewritten):** 500 Knowledge Colloid + 500 Luminous Ichor -> 1000 Evolution Catalyst. The old Kinetic-based recipe is removed. Consumers (Anchor Module, the hazard Evolution Modules and the Evolution Module Frame, all 1000 mB) are unchanged. (The Heat Evolution Module was deleted 2026-11-14.) The Knowledge+EC recipe near line ~1190 must be re-checked.
 
 **Molten Amethyst (rewritten):**
 - Effluencing: 90 Molten Quartz + 10 Luminous Ichor -> 90 Molten Amethyst, 15 s. Delete the stale "deliberately NOT cheap / Evolution Catalyst pays for rarity" comment.
-- Masticator alternate: 1 Nether Quartz + 10 Ichor -> 68, same time.
+- Masticator alternate: 1 Nether Quartz + 10 Ichor -> 90 (RULED 2026-11-14: both routes yield 90; the earlier 68 is dropped), same time.
 - Molten Amethyst gets Thermal only (no Radiation Mild); in-fiction the radiation is used up. The Effluencing route has Thermal + Radiation Mild inputs, which is fine now that the one-hazard rule is dropped.
 
 **Molten Netherite:** 360 Dirty Molten Netherite + 360 Aurous Pulp -> 90 Molten Netherite, 60 s.
@@ -269,12 +269,25 @@ Rule: dirty and clean of the SAME metal may mix in storage; the result turns dir
 - Carbon / Calcium Pulp used as a REAGENT (not an item proxy) anywhere else, e.g. Protein + catalyst recipes: audit like Synapse's Cuprous.
 - Any remaining reference to the removed Primitive Catalyst volumes (Bone puddle, etc.).
 - Open caveat, not blocking: what "difficult without a guard" does to a Tier 1 machine holding lava (Concentrated Slurry, Quartz route). Revisit when hazard effects are designed. Hazards are soft (no hard blocks).
-- OPEN, possible Biohazard values on the Ichors (2026-11-06): the user is considering giving Nether Ichor (my lean: yes) and/or Luminous Ichor (taste call; already Radiation Mild) a Biohazard intensity via a `FLUID_HAZARD` data-map entry (`FluidHazardData.biohazard(...)`, band 1-100). Not decided. If adopted, the machine effect is a speed and healing slowdown only (x1 to x0.5), and the Silica -> Soul Silica step would involve three families (Biohazard + Thermal + Metaphysical).
+- RULED 2026-11-14: **Luminous Ichor does NOT get Biohazard** (stays Radiation Mild only). **Nether Ichor is HELD**: do not add or touch its hazard until the user says it is fleshed out. Original note (2026-11-06): the user is considering giving Nether Ichor (my lean: yes) and/or Luminous Ichor (taste call; already Radiation Mild) a Biohazard intensity via a `FLUID_HAZARD` data-map entry (`FluidHazardData.biohazard(...)`, band 1-100). Not decided. If adopted, the machine effect is a speed and healing slowdown only (x1 to x0.5), and the Silica -> Soul Silica step would involve three families (Biohazard + Thermal + Metaphysical).
 - DEPENDENCY, Biohazard Safety Module: it must be craftable BEFORE the first Biohazard fluid is needed. Its recipe must not use an Ichor-derived item or Evolution Catalyst (Evolution Catalyst needs Luminous Ichor), or the chain is circular. The Safety Module variant recipes are part of the current machine overhaul (only the Safety Module Frame exists in `ModRecipeProvider` today).
 - Hazard rule: the old "at most one hazard per recipe" rule is DROPPED (2026-11-05). Multiple hazards in a recipe are valid unless that recipe says otherwise. Hazards stay soft (no hard blocks).
 - Survival reachability: confirm a real crafting chain for every new tagged or gated fluid (Flux, Dirty Pulps, both Ichors, Amethyst, Soul Silica, Quartz). The Nether Ichor chain needs a Nether trip but is otherwise Tier 1; verify in code.
 
 ---
+
+## Phase 7 addendum: Thermal has a world effect, so temperatures matter (found 2026-11-14)
+
+Thermal runs on **numbers**, not tags, in two separate places:
+
+- **Machines, tanks, ducts, tooltips:** `FluidHazards.getTemperature` reads the FluidType temperature (or a `FLUID_HAZARD` thermal override). The excess beyond the config reference temperature and safe range sets the damage.
+- **World (`ModLiquidBlock.randomTick`, `FluidHazardEvents`):** a placed Dermicraft fluid at **250 K or below** freezes adjacent water sources to ice and grows snow on nearby ground. At **400 K or above** it melts adjacent ice and snow and scorches nearby blocks, and entities standing in it are set alight via `lavaHurt()`. The thresholds are hard-coded constants (`COLD_THRESHOLD`, `HOT_THRESHOLD`), only apply to `BaseFluidType` fluids, and ignore the `FLUID_HAZARD` thermal override. Ender Colloid (200) is the only fluid that is cold today.
+
+Checklist for the code pass:
+- [ ] Give every new fluid an honest FluidType temperature (Flux, the Dirty Pulps, Nether Ichor, Luminous Ichor). Below 250 it frosts its surroundings, at 400 or above it burns them.
+- [ ] Confirm Molten Soul Silica, Molten Quartz and Dirty Molten Netherite are authored at 400 or above.
+- [ ] Decide whether the world thresholds should read the config reference and safe range, and whether a `FLUID_HAZARD` thermal override should count in the world. Today the machine and world paths can disagree for a fluid with an override.
+- [ ] Stale comment in `EaterItem` (about line 833) still says lava is "tagged THERMAL".
 
 ## Phase 8: Data generation and verification
 
@@ -316,3 +329,13 @@ Each is independently buildable and testable; stop at the checkpoint after each.
 6. Phase 7 + 8 + 9 (audit, datagen, verification, docs).
 
 Phases 3 and 5 are the largest; each can be split by material family or by recipe group if a single session runs long.
+
+---
+
+## Rulings log (2026-11-14, at the start of the branch `fluid-overhaul`)
+
+- Claude writes the code for this overhaul; the user will say when they want a more direct hand.
+- Nether Ichor is not touched yet (look, hazard and recipes wait until the user says it is fleshed out). Luminous Ichor gets no Biohazard.
+- Molten Amethyst: both routes yield 90.
+- **Fluid transfer rate stays as decided** (1000 / 2000 / 4000 / 8000 mB per second). Revisit only after the rescale, once it can be felt in play. The Masticator peak that justified it drops about 11x with the new Coal Block value.
+- Concerns still to raise one or two at a time: contamination stalls (a blocked-machine look or tooltip), the Safety Module variant recipes and the Biohazard module dependency, Dirty Pulp art (placeholders until drawn), Thermal world thresholds following the config, and whether the backlog moves into `src/docs`.
