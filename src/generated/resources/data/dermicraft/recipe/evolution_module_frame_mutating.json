@@ -3,7 +3,7 @@
   "fluid": "dermicraft:source_evolution_catalyst",
   "fluid_amount": 1000,
   "ingredient": {
-    "item": "dermicraft:safety_module_frame"
+    "item": "dermicraft:module_frame"
   },
   "result": {
     "count": 1,

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "dermicraft:module_frame"
+    },
+    {
+      "item": "dermicraft:evolution_catalyst_bucket"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:evolution_module_frame"
+  }
+}

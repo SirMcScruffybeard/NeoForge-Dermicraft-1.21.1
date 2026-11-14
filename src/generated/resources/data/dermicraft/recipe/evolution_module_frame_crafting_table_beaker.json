@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    {
+      "item": "dermicraft:module_frame"
+    },
+    {
+      "type": "neoforge:components",
+      "components": {
+        "dermicraft:contained_fluid_data": {
+          "ingredientFluid": {
+            "amount": 1000,
+            "id": "dermicraft:source_evolution_catalyst"
+          }
+        }
+      },
+      "items": "dermicraft:beaker"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:evolution_module_frame"
+  }
+}

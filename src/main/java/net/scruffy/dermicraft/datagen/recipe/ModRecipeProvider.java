@@ -1422,9 +1422,22 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                     ModItems.getHazardEvolutionModule(variant), solidTicks);
         }
 
-        // Evolution Module Frame: a Safety Module Frame + a bucket (1000 mB) of Evolution Catalyst, the frame
-        // counterpart of the six variant recipes above.
-        RecipeBuilders.mutate(recipeOutput, "evolution_module_frame_mutating", ModItems.SAFETY_MODULE_FRAME.get(),
+        // Evolution Module Frame: a plain Module Frame (not a Safety Module Frame) + a bucket (1000 mB) of Evolution Catalyst.
+        // By hand that is the Frame with an Evolution Catalyst Bucket or a full Evolution Catalyst Beaker (the empty comes
+        // back), or the Mutator route, the Frame plus 1000 mB of Evolution Catalyst.
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.EVOLUTION_MODULE_FRAME.get())
+                .requires(ModItems.MODULE_FRAME.get())
+                .requires(ModFluids.EVOLUTION_CATALYST_BUCKET.get())
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("evolution_module_frame_crafting_table_bucket"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ModItems.EVOLUTION_MODULE_FRAME.get())
+                .requires(ModItems.MODULE_FRAME.get())
+                .requires(DataComponentIngredient.of(false, ModDataComponentTypes.FLUID_DATA.get(),
+                        net.scruffy.dermicraft.component.FluidData.createData(ModFluids.SOURCE_EVOLUTION_CATALYST.get(),
+                                net.scruffy.dermicraft.item.custom.BeakerItem.CAPACITY), ModBlocks.BEAKER_ITEM.get()))
+                .unlockedBy("has_module_frame", has(ModItems.MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation("evolution_module_frame_crafting_table_beaker"));
+        RecipeBuilders.mutate(recipeOutput, "evolution_module_frame_mutating", ModItems.MODULE_FRAME.get(),
                 ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.EVOLUTION_MODULE_FRAME.get(), solidTicks);
 
         // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
