@@ -1440,6 +1440,40 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         RecipeBuilders.mutate(recipeOutput, "evolution_module_frame_mutating", ModItems.MODULE_FRAME.get(),
                 ModFluids.SOURCE_EVOLUTION_CATALYST.get(), 1000, ModItems.EVOLUTION_MODULE_FRAME.get(), solidTicks);
 
+        // Hazard Evolution Modules, hand and Mutator routes: the same as the Safety Module recipes of each variant, with the
+        // Evolution Module Frame in place of the Safety Module Frame (Radiation Severe and Biohazard wait on their fluids).
+        // The Safety Module + 1000 mB Evolution Catalyst route in the loop above stays as well.
+        evolutionModulePlus(recipeOutput, HazardModuleVariant.THERMAL, "thermal_evolution_module_crafting_table_buckets",
+                Ingredient.of(Items.LAVA_BUCKET));
+        evolutionModulePlus(recipeOutput, HazardModuleVariant.THERMAL, "thermal_evolution_module_crafting_table_beakers",
+                DataComponentIngredient.of(false, ModDataComponentTypes.FLUID_DATA.get(),
+                        net.scruffy.dermicraft.component.FluidData.createData(Fluids.LAVA,
+                                net.scruffy.dermicraft.item.custom.BeakerItem.CAPACITY), ModBlocks.BEAKER_ITEM.get()));
+        RecipeBuilders.mutate(recipeOutput, "thermal_evolution_module_frame_mutating", ModItems.EVOLUTION_MODULE_FRAME.get(),
+                Fluids.LAVA, 4000, ModItems.getHazardEvolutionModule(HazardModuleVariant.THERMAL), ModMath.Time.getSecondsToTicks(10));
+
+        evolutionModulePlus(recipeOutput, HazardModuleVariant.RADIATION_MILD, "radiation_mild_evolution_module_crafting_table",
+                Ingredient.of(Items.GLOWSTONE));
+        RecipeBuilders.mutate(recipeOutput, "radiation_mild_evolution_module_frame_mutating", ModItems.EVOLUTION_MODULE_FRAME.get(),
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), MbScale.BLOCK_OF_FOUR * 4,
+                ModItems.getHazardEvolutionModule(HazardModuleVariant.RADIATION_MILD), ModMath.Time.getSecondsToTicks(10));
+
+        evolutionModulePlus(recipeOutput, HazardModuleVariant.METAPHYSICAL_MILD, "metaphysical_mild_evolution_module_crafting_table_buckets",
+                Ingredient.of(ModFluids.INFERNAL_ICHOR_BUCKET.get()));
+        evolutionModulePlus(recipeOutput, HazardModuleVariant.METAPHYSICAL_MILD, "metaphysical_mild_evolution_module_crafting_table_beakers",
+                DataComponentIngredient.of(false, ModDataComponentTypes.FLUID_DATA.get(),
+                        net.scruffy.dermicraft.component.FluidData.createData(ModFluids.SOURCE_INFERNAL_ICHOR.get(),
+                                net.scruffy.dermicraft.item.custom.BeakerItem.CAPACITY), ModBlocks.BEAKER_ITEM.get()));
+        RecipeBuilders.mutate(recipeOutput, "metaphysical_mild_evolution_module_frame_mutating", ModItems.EVOLUTION_MODULE_FRAME.get(),
+                ModFluids.SOURCE_INFERNAL_ICHOR.get(), 4000,
+                ModItems.getHazardEvolutionModule(HazardModuleVariant.METAPHYSICAL_MILD), ModMath.Time.getSecondsToTicks(10));
+
+        evolutionModulePlus(recipeOutput, HazardModuleVariant.METAPHYSICAL_SEVERE, "metaphysical_severe_evolution_module_crafting_table",
+                Ingredient.of(Items.ENDER_PEARL));
+        RecipeBuilders.mutate(recipeOutput, "metaphysical_severe_evolution_module_frame_mutating", ModItems.EVOLUTION_MODULE_FRAME.get(),
+                ModFluids.SOURCE_ENDER_COLLOID.get(), MbScale.ofIngots(4),
+                ModItems.getHazardEvolutionModule(HazardModuleVariant.METAPHYSICAL_SEVERE), ModMath.Time.getSecondsToTicks(10));
+
         // Shatter head upgrades (see project_shatter_head_upgrade_design) -- 3 tiers max, durability
         // only. Cost escalates by a full bucket per tier (1000/2000/3000 mB); durability multiplier
         // is 1.5x/2.0x/2.5x of the material's OWN base durability (not compounding). Bone uses
@@ -2574,6 +2608,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
 
     private static Item woodItem(String species, String suffix) {
         return BuiltInRegistries.ITEM.get(ResourceLocation.withDefaultNamespace(species + "_" + suffix));
+    }
+
+    /** The plus-shaped hand recipe for a hazard Evolution Module: the Evolution Module Frame in the middle of four of
+     *  {@code ingredient}, the Evolution Module counterpart of that variant's Safety Module recipe. */
+    private static void evolutionModulePlus(RecipeOutput recipeOutput, HazardModuleVariant variant, String id, Ingredient ingredient) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ModItems.getHazardEvolutionModule(variant))
+                .pattern(" X ")
+                .pattern("XFX")
+                .pattern(" X ")
+                .define('X', ingredient)
+                .define('F', ModItems.EVOLUTION_MODULE_FRAME.get())
+                .unlockedBy("has_evolution_module_frame", has(ModItems.EVOLUTION_MODULE_FRAME.get()))
+                .save(recipeOutput, RecipeBuilders.getResourceLocation(id));
     }
 
     /** The Masticator recipe (the item in Protein Pulp, solvent = yield, into Infernal Ichor) and the Metastasizer duplicate

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:evolution_module_frame"
+    },
+    "X": {
+      "type": "neoforge:components",
+      "components": {
+        "dermicraft:contained_fluid_data": {
+          "ingredientFluid": {
+            "amount": 1000,
+            "id": "minecraft:lava"
+          }
+        }
+      },
+      "items": "dermicraft:beaker"
+    }
+  },
+  "pattern": [
+    " X ",
+    "XFX",
+    " X "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:thermal_evolution_module"
+  }
+}

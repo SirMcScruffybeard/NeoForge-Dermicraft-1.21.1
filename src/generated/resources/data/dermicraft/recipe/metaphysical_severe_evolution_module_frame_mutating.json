@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:mutating",
+  "fluid": "dermicraft:source_ender_colloid",
+  "fluid_amount": 360,
+  "ingredient": {
+    "item": "dermicraft:evolution_module_frame"
+  },
+  "result": {
+    "count": 1,
+    "id": "dermicraft:metaphysical_severe_evolution_module"
+  },
+  "ticks": 200
+}

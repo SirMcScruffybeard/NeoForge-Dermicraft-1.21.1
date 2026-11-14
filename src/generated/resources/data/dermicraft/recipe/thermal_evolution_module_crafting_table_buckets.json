@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:evolution_module_frame"
+    },
+    "X": {
+      "item": "minecraft:lava_bucket"
+    }
+  },
+  "pattern": [
+    " X ",
+    "XFX",
+    " X "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:thermal_evolution_module"
+  }
+}

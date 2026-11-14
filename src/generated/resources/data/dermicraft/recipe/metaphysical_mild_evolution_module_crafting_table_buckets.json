@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "F": {
+      "item": "dermicraft:evolution_module_frame"
+    },
+    "X": {
+      "item": "dermicraft:infernal_ichor_bucket"
+    }
+  },
+  "pattern": [
+    " X ",
+    "XFX",
+    " X "
+  ],
+  "result": {
+    "count": 1,
+    "id": "dermicraft:metaphysical_mild_evolution_module"
+  }
+}
