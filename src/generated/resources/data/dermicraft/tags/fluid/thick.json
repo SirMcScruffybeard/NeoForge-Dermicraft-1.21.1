@@ -21,6 +21,11 @@
     "dermicraft:source_molten_emerald",
     "dermicraft:source_dirty_molten_netherite",
     "dermicraft:source_molten_netherite",
-    "dermicraft:source_molten_soul_silica"
+    "dermicraft:source_molten_soul_silica",
+    "dermicraft:source_dirty_ferrous_pulp",
+    "dermicraft:source_dirty_cuprous_pulp",
+    "dermicraft:source_dirty_aurous_pulp",
+    "dermicraft:source_luminous_ichor",
+    "dermicraft:source_infernal_ichor"
   ]
 }

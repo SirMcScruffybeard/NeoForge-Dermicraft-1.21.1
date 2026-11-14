@@ -92,6 +92,12 @@ public class ModClientEvents {
         registerBucketTint(event, ModFluids.WITHER_COLLOID_BUCKET.get(), ModFluidTypes.WITHER_COLLOID_FLUID_TYPE);
         registerBucketTint(event, ModFluids.ENDER_COLLOID_BUCKET.get(), ModFluidTypes.ENDER_COLLOID_FLUID_TYPE);
         registerBucketTint(event, ModFluids.MOLTEN_SOUL_SILICA_BUCKET.get(), ModFluidTypes.MOLTEN_SOUL_SILICA_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.FLUX_BUCKET.get(), ModFluidTypes.FLUX_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.DIRTY_FERROUS_PULP_BUCKET.get(), ModFluidTypes.DIRTY_FERROUS_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.DIRTY_CUPROUS_PULP_BUCKET.get(), ModFluidTypes.DIRTY_CUPROUS_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.DIRTY_AUROUS_PULP_BUCKET.get(), ModFluidTypes.DIRTY_AUROUS_PULP_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.LUMINOUS_ICHOR_BUCKET.get(), ModFluidTypes.LUMINOUS_ICHOR_FLUID_TYPE);
+        registerBucketTint(event, ModFluids.INFERNAL_ICHOR_BUCKET.get(), ModFluidTypes.INFERNAL_ICHOR_FLUID_TYPE);
 
         ////////////////////Shatter Heads\\\\\\\\\\\\\\\\\\\\
         registerShatterHeadTint(event, ModItems.IRON_SHATTER_HEAD.get());

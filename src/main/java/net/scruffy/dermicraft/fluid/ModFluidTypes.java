@@ -597,6 +597,104 @@ public class ModFluidTypes {
                             .canConvertToSource(false)
             ));
 
+    public static final Supplier<FluidType> FLUX_FLUID_TYPE = registerFluidType("flux_fluid",
+            new BaseFluidType(WATER_STILL_RL, WATER_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB5E4EE,
+                    setColorVector(181, 228, 238),
+                    FluidType.Properties.create()
+                            .viscosity(1500)
+                            .density(1500)
+                            .temperature(295)
+                            .motionScale(0.025)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> DIRTY_FERROUS_PULP_FLUID_TYPE = registerFluidType("dirty_ferrous_pulp_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB5B3B1,
+                    setColorVector(181, 179, 177),
+                    FluidType.Properties.create()
+                            .viscosity(3000)
+                            .density(2600)
+                            .temperature(290)
+                            .motionScale(0.012)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> DIRTY_CUPROUS_PULP_FLUID_TYPE = registerFluidType("dirty_cuprous_pulp_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF9D6735,
+                    setColorVector(157, 103, 53),
+                    FluidType.Properties.create()
+                            .viscosity(3000)
+                            .density(2600)
+                            .temperature(290)
+                            .motionScale(0.012)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> DIRTY_AUROUS_PULP_FLUID_TYPE = registerFluidType("dirty_aurous_pulp_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFB29438,
+                    setColorVector(178, 148, 56),
+                    FluidType.Properties.create()
+                            .viscosity(3000)
+                            .density(2600)
+                            .temperature(290)
+                            .motionScale(0.012)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> LUMINOUS_ICHOR_FLUID_TYPE = registerFluidType("luminous_ichor_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFFF0B46A,
+                    setColorVector(170, 125, 70),
+                    FluidType.Properties.create()
+                            .viscosity(2500)
+                            .density(1500)
+                            .temperature(310)
+                            .motionScale(0.014)
+                            .lightLevel(10)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
+    public static final Supplier<FluidType> INFERNAL_ICHOR_FLUID_TYPE = registerFluidType("infernal_ichor_fluid",
+            new BaseFluidType(CHUNKY_FLUID_STILL_RL, CHUNKY_FLUID_FLOWING_RL, WATER_OVERLAY_RL, 0xFF7A1F3D,
+                    setColorVector(122, 31, 61),
+                    FluidType.Properties.create()
+                            .viscosity(3500)
+                            .density(1800)
+                            .temperature(300)
+                            .motionScale(0.015)
+                            .lightLevel(4)
+                            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+                            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+                            .sound(SoundActions.FLUID_VAPORIZE, SoundEvents.FIRE_EXTINGUISH)
+                            .canExtinguish(false)
+                            .canHydrate(false)
+                            .canConvertToSource(false)
+            ));
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     private static Vector3f setColorVector(float r, float g, float b) {
         return new Vector3f(r/255f, g/255f, b/255f);

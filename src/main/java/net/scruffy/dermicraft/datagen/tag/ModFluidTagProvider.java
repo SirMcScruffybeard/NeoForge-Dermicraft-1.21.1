@@ -61,6 +61,11 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_DIRTY_MOLTEN_NETHERITE.get())
                 .add(ModFluids.SOURCE_MOLTEN_NETHERITE.get())
                 .add(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get())
+                .add(ModFluids.SOURCE_DIRTY_FERROUS_PULP.get())
+                .add(ModFluids.SOURCE_DIRTY_CUPROUS_PULP.get())
+                .add(ModFluids.SOURCE_DIRTY_AUROUS_PULP.get())
+                .add(ModFluids.SOURCE_LUMINOUS_ICHOR.get())
+                .add(ModFluids.SOURCE_INFERNAL_ICHOR.get())
         ;
 
         tag(ModTags.Fluids.THIN)
@@ -68,6 +73,7 @@ public class ModFluidTagProvider extends FluidTagsProvider {
                 .add(ModFluids.SOURCE_PRIMITIVE_CATALYST.get())
                 .add(ModFluids.SOURCE_SYNAPSE_CATALYST.get())
                 .add(ModFluids.SOURCE_EVOLUTION_CATALYST.get())
+                .add(ModFluids.SOURCE_FLUX.get())
                 .add(ModFluids.SOURCE_KNOWLEDGE_COLLOID.get())
         ;
     }

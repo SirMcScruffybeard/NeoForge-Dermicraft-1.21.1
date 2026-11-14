@@ -100,6 +100,12 @@ public class DermicraftClient {
             renderTranslucentFluid(ModFluids.SOURCE_WITHER_COLLOID.get(), ModFluids.FLOWING_WITHER_COLLOID.get());
             renderTranslucentFluid(ModFluids.SOURCE_ENDER_COLLOID.get(), ModFluids.FLOWING_ENDER_COLLOID.get());
             renderTranslucentFluid(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), ModFluids.FLOWING_MOLTEN_SOUL_SILICA.get());
+            renderTranslucentFluid(ModFluids.SOURCE_FLUX.get(), ModFluids.FLOWING_FLUX.get());
+            renderTranslucentFluid(ModFluids.SOURCE_DIRTY_FERROUS_PULP.get(), ModFluids.FLOWING_DIRTY_FERROUS_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_DIRTY_CUPROUS_PULP.get(), ModFluids.FLOWING_DIRTY_CUPROUS_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_DIRTY_AUROUS_PULP.get(), ModFluids.FLOWING_DIRTY_AUROUS_PULP.get());
+            renderTranslucentFluid(ModFluids.SOURCE_LUMINOUS_ICHOR.get(), ModFluids.FLOWING_LUMINOUS_ICHOR.get());
+            renderTranslucentFluid(ModFluids.SOURCE_INFERNAL_ICHOR.get(), ModFluids.FLOWING_INFERNAL_ICHOR.get());
         });
     }
 
@@ -145,6 +151,12 @@ public class DermicraftClient {
         registerFluidType(event, ModFluidTypes.WITHER_COLLOID_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.ENDER_COLLOID_FLUID_TYPE.get());
         registerFluidType(event, ModFluidTypes.MOLTEN_SOUL_SILICA_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.FLUX_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.DIRTY_FERROUS_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.DIRTY_CUPROUS_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.DIRTY_AUROUS_PULP_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.LUMINOUS_ICHOR_FLUID_TYPE.get());
+        registerFluidType(event, ModFluidTypes.INFERNAL_ICHOR_FLUID_TYPE.get());
 
         event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
             private final net.scruffy.dermicraft.item.custom.SippingItemRenderer renderer =

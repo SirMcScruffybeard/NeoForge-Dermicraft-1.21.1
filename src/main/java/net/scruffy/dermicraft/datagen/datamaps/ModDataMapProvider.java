@@ -57,6 +57,8 @@ public class ModDataMapProvider extends DataMapProvider {
                 .add(getResourceLocation(ModFluids.SOURCE_MOLTEN_GLOWSTONE), FluidHazardData.radiation(50), false)
                 .add(getResourceLocation(ModFluids.SOURCE_MOLTEN_SOUL_SILICA), FluidHazardData.metaphysical(50), false)
                 .add(getResourceLocation(ModFluids.SOURCE_ENDER_COLLOID), FluidHazardData.metaphysical(150), false)
+                .add(getResourceLocation(ModFluids.SOURCE_LUMINOUS_ICHOR), FluidHazardData.radiation(25), false)
+                .add(getResourceLocation(ModFluids.SOURCE_INFERNAL_ICHOR), FluidHazardData.metaphysical(50), false)
                 ;
 
         this.builder(ModDataMaps.EDIBLE_FLUID)

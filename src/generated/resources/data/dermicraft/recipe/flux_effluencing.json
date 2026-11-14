@@ -1,0 +1,10 @@
+{
+  "type": "dermicraft:effluencing",
+  "fluid_a": "dermicraft:source_c_stuff",
+  "fluid_a_amount": 180,
+  "fluid_b": "dermicraft:source_silica_pulp",
+  "fluid_b_amount": 180,
+  "result_fluid": "dermicraft:source_flux",
+  "result_fluid_amount": 360,
+  "ticks": 300
+}

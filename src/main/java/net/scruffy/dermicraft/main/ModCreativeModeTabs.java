@@ -232,6 +232,12 @@ public class ModCreativeModeTabs {
                         output.accept(ModFluids.WITHER_COLLOID_BUCKET);
                         output.accept(ModFluids.ENDER_COLLOID_BUCKET);
                         output.accept(ModFluids.MOLTEN_SOUL_SILICA_BUCKET);
+                        output.accept(ModFluids.FLUX_BUCKET);
+                        output.accept(ModFluids.DIRTY_FERROUS_PULP_BUCKET);
+                        output.accept(ModFluids.DIRTY_CUPROUS_PULP_BUCKET);
+                        output.accept(ModFluids.DIRTY_AUROUS_PULP_BUCKET);
+                        output.accept(ModFluids.LUMINOUS_ICHOR_BUCKET);
+                        output.accept(ModFluids.INFERNAL_ICHOR_BUCKET);
 
 
                     }).build());
@@ -299,6 +305,12 @@ public class ModCreativeModeTabs {
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_WITHER_COLLOID.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_ENDER_COLLOID.get()));
         output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_FLUX.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_DIRTY_FERROUS_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_DIRTY_CUPROUS_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_DIRTY_AUROUS_PULP.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_LUMINOUS_ICHOR.get()));
+        output.accept(ModItemUtil.buildBeakerStack(ModFluids.SOURCE_INFERNAL_ICHOR.get()));
 
     }
 

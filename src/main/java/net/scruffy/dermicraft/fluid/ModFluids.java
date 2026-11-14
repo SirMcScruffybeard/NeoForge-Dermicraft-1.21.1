@@ -649,6 +649,122 @@ public class ModFluids {
             .block(ModFluids.MOLTEN_SOUL_SILICA_BLOCK)
             .bucket(ModFluids.MOLTEN_SOUL_SILICA_BUCKET);
 
+    //////////////////////////////Flux\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_FLUX = FLUIDS.register("source_flux",
+            () -> new BaseFlowingFluid.Source(ModFluids.FLUX_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_FLUX = FLUIDS.register("flowing_flux",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.FLUX_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> FLUX_BLOCK = ModBlocks.BLOCKS.register("flux_block",
+            () -> new ModLiquidBlock(ModFluids.SOURCE_FLUX.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .noLootTable()));
+
+    public static final DeferredItem<Item> FLUX_BUCKET = getBucket("flux_bucket", ModFluids.SOURCE_FLUX);
+
+    public static final BaseFlowingFluid.Properties FLUX_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.FLUX_FLUID_TYPE, SOURCE_FLUX, FLOWING_FLUX)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.FLUX_BLOCK)
+            .bucket(ModFluids.FLUX_BUCKET);
+
+    //////////////////////////////Dirty Ferrous Pulp\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_DIRTY_FERROUS_PULP = FLUIDS.register("source_dirty_ferrous_pulp",
+            () -> new BaseFlowingFluid.Source(ModFluids.DIRTY_FERROUS_PULP_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_DIRTY_FERROUS_PULP = FLUIDS.register("flowing_dirty_ferrous_pulp",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.DIRTY_FERROUS_PULP_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> DIRTY_FERROUS_PULP_BLOCK = ModBlocks.BLOCKS.register("dirty_ferrous_pulp_block",
+            () -> new ModLiquidBlock(ModFluids.SOURCE_DIRTY_FERROUS_PULP.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .noLootTable()));
+
+    public static final DeferredItem<Item> DIRTY_FERROUS_PULP_BUCKET = getBucket("dirty_ferrous_pulp_bucket", ModFluids.SOURCE_DIRTY_FERROUS_PULP);
+
+    public static final BaseFlowingFluid.Properties DIRTY_FERROUS_PULP_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.DIRTY_FERROUS_PULP_FLUID_TYPE, SOURCE_DIRTY_FERROUS_PULP, FLOWING_DIRTY_FERROUS_PULP)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.DIRTY_FERROUS_PULP_BLOCK)
+            .bucket(ModFluids.DIRTY_FERROUS_PULP_BUCKET);
+
+    //////////////////////////////Dirty Cuprous Pulp\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_DIRTY_CUPROUS_PULP = FLUIDS.register("source_dirty_cuprous_pulp",
+            () -> new BaseFlowingFluid.Source(ModFluids.DIRTY_CUPROUS_PULP_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_DIRTY_CUPROUS_PULP = FLUIDS.register("flowing_dirty_cuprous_pulp",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.DIRTY_CUPROUS_PULP_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> DIRTY_CUPROUS_PULP_BLOCK = ModBlocks.BLOCKS.register("dirty_cuprous_pulp_block",
+            () -> new ModLiquidBlock(ModFluids.SOURCE_DIRTY_CUPROUS_PULP.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .noLootTable()));
+
+    public static final DeferredItem<Item> DIRTY_CUPROUS_PULP_BUCKET = getBucket("dirty_cuprous_pulp_bucket", ModFluids.SOURCE_DIRTY_CUPROUS_PULP);
+
+    public static final BaseFlowingFluid.Properties DIRTY_CUPROUS_PULP_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.DIRTY_CUPROUS_PULP_FLUID_TYPE, SOURCE_DIRTY_CUPROUS_PULP, FLOWING_DIRTY_CUPROUS_PULP)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.DIRTY_CUPROUS_PULP_BLOCK)
+            .bucket(ModFluids.DIRTY_CUPROUS_PULP_BUCKET);
+
+    //////////////////////////////Dirty Aurous Pulp\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_DIRTY_AUROUS_PULP = FLUIDS.register("source_dirty_aurous_pulp",
+            () -> new BaseFlowingFluid.Source(ModFluids.DIRTY_AUROUS_PULP_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_DIRTY_AUROUS_PULP = FLUIDS.register("flowing_dirty_aurous_pulp",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.DIRTY_AUROUS_PULP_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> DIRTY_AUROUS_PULP_BLOCK = ModBlocks.BLOCKS.register("dirty_aurous_pulp_block",
+            () -> new ModLiquidBlock(ModFluids.SOURCE_DIRTY_AUROUS_PULP.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .noLootTable()));
+
+    public static final DeferredItem<Item> DIRTY_AUROUS_PULP_BUCKET = getBucket("dirty_aurous_pulp_bucket", ModFluids.SOURCE_DIRTY_AUROUS_PULP);
+
+    public static final BaseFlowingFluid.Properties DIRTY_AUROUS_PULP_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.DIRTY_AUROUS_PULP_FLUID_TYPE, SOURCE_DIRTY_AUROUS_PULP, FLOWING_DIRTY_AUROUS_PULP)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.DIRTY_AUROUS_PULP_BLOCK)
+            .bucket(ModFluids.DIRTY_AUROUS_PULP_BUCKET);
+
+    //////////////////////////////Luminous Ichor\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_LUMINOUS_ICHOR = FLUIDS.register("source_luminous_ichor",
+            () -> new BaseFlowingFluid.Source(ModFluids.LUMINOUS_ICHOR_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_LUMINOUS_ICHOR = FLUIDS.register("flowing_luminous_ichor",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.LUMINOUS_ICHOR_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> LUMINOUS_ICHOR_BLOCK = ModBlocks.BLOCKS.register("luminous_ichor_block",
+            () -> new ModLiquidBlock(ModFluids.SOURCE_LUMINOUS_ICHOR.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .lightLevel(state -> 10)
+                    .noLootTable()));
+
+    public static final DeferredItem<Item> LUMINOUS_ICHOR_BUCKET = getBucket("luminous_ichor_bucket", ModFluids.SOURCE_LUMINOUS_ICHOR);
+
+    public static final BaseFlowingFluid.Properties LUMINOUS_ICHOR_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.LUMINOUS_ICHOR_FLUID_TYPE, SOURCE_LUMINOUS_ICHOR, FLOWING_LUMINOUS_ICHOR)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.LUMINOUS_ICHOR_BLOCK)
+            .bucket(ModFluids.LUMINOUS_ICHOR_BUCKET);
+
+    //////////////////////////////Infernal Ichor\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public static final Supplier<FlowingFluid> SOURCE_INFERNAL_ICHOR = FLUIDS.register("source_infernal_ichor",
+            () -> new BaseFlowingFluid.Source(ModFluids.INFERNAL_ICHOR_PROPERTIES));
+
+    public static final Supplier<FlowingFluid> FLOWING_INFERNAL_ICHOR = FLUIDS.register("flowing_infernal_ichor",
+            () -> new BaseFlowingFluid.Flowing(ModFluids.INFERNAL_ICHOR_PROPERTIES));
+
+    public static final DeferredBlock<LiquidBlock> INFERNAL_ICHOR_BLOCK = ModBlocks.BLOCKS.register("infernal_ichor_block",
+            () -> new ModLiquidBlock(ModFluids.SOURCE_INFERNAL_ICHOR.get(), BlockBehaviour.Properties.ofFullCopy(Blocks.WATER)
+                    .lightLevel(state -> 4)
+                    .noLootTable()));
+
+    public static final DeferredItem<Item> INFERNAL_ICHOR_BUCKET = getBucket("infernal_ichor_bucket", ModFluids.SOURCE_INFERNAL_ICHOR);
+
+    public static final BaseFlowingFluid.Properties INFERNAL_ICHOR_PROPERTIES = new BaseFlowingFluid.Properties(
+            ModFluidTypes.INFERNAL_ICHOR_FLUID_TYPE, SOURCE_INFERNAL_ICHOR, FLOWING_INFERNAL_ICHOR)
+            .slopeFindDistance(2).levelDecreasePerBlock(1)
+            .block(ModFluids.INFERNAL_ICHOR_BLOCK)
+            .bucket(ModFluids.INFERNAL_ICHOR_BUCKET);
+
     //////////////////////////////Helper Methods\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public static void register(IEventBus eventBus) {
         FLUIDS.register(eventBus);

@@ -3,6 +3,12 @@
     "dermicraft:source_ender_colloid": {
       "metaphysical": 150
     },
+    "dermicraft:source_infernal_ichor": {
+      "metaphysical": 50
+    },
+    "dermicraft:source_luminous_ichor": {
+      "radiation": 25
+    },
     "dermicraft:source_molten_glowstone": {
       "radiation": 50
     },

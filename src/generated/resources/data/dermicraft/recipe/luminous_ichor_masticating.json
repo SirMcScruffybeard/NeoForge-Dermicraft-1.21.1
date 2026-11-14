@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:masticating",
+  "ingredient": {
+    "item": "minecraft:glowstone_dust"
+  },
+  "ingredient_fluid": "dermicraft:source_protein_pulp",
+  "ingredient_fluid_amount": 90,
+  "item_amount": 1,
+  "modifier": -1.0,
+  "result_fluid": "dermicraft:source_luminous_ichor",
+  "result_fluid_amount": 135,
+  "ticks": 300
+}

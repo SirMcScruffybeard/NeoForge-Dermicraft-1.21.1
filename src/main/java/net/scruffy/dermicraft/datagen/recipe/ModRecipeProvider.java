@@ -1913,6 +1913,37 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 Ingredient.of(Items.SOUL_SAND), 1, Fluids.LAVA, 1000,
                 ModFluids.SOURCE_MOLTEN_SOUL_SILICA.get(), 1000, -1, ModMath.Time.getSecondsToTicks(30));
 
+        // ---- Production recipes for the Phase 4 fluids (rescale overhaul, amounts already on the new scale) ----
+        // Flux: the refining flux that replaces Primitive Catalyst in the ore chain. Even 1:1, nothing lost.
+        RecipeBuilders.buildEffluencing(recipeOutput, "flux_effluencing",
+                ModFluids.SOURCE_C_STUFF.get(), 180, ModFluids.SOURCE_SILICA_PULP.get(), 180,
+                ModFluids.SOURCE_FLUX.get(), 360, ModMath.Time.getSecondsToTicks(15));
+
+        // Dirty Pulps: one raw ore plus 25 Flux makes 90 of the metal's dirty pulp (the clean-up forks come in Phase 5).
+        RecipeBuilders.buildMasticating(recipeOutput, "dirty_ferrous_pulp_masticating_raw",
+                Ingredient.of(Items.RAW_IRON), 1, ModFluids.SOURCE_FLUX.get(), 25,
+                ModFluids.SOURCE_DIRTY_FERROUS_PULP.get(), 90, -1, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildMasticating(recipeOutput, "dirty_cuprous_pulp_masticating_raw",
+                Ingredient.of(Items.RAW_COPPER), 1, ModFluids.SOURCE_FLUX.get(), 25,
+                ModFluids.SOURCE_DIRTY_CUPROUS_PULP.get(), 90, -1, ModMath.Time.getSecondsToTicks(45));
+        RecipeBuilders.buildMasticating(recipeOutput, "dirty_aurous_pulp_masticating_raw",
+                Ingredient.of(Items.RAW_GOLD), 1, ModFluids.SOURCE_FLUX.get(), 25,
+                ModFluids.SOURCE_DIRTY_AUROUS_PULP.get(), 90, -1, ModMath.Time.getSecondsToTicks(45));
+
+        // Luminous Ichor: glowstone diluted with Protein Pulp (the Protein is the solvent and the yield). Times are
+        // placeholders to tune in playtest.
+        RecipeBuilders.buildMasticating(recipeOutput, "luminous_ichor_masticating",
+                Ingredient.of(Items.GLOWSTONE_DUST), 1, ModFluids.SOURCE_PROTEIN_PULP.get(), 90,
+                ModFluids.SOURCE_LUMINOUS_ICHOR.get(), 135, -1, ModMath.Time.getSecondsToTicks(15));
+        RecipeBuilders.buildEffluencing(recipeOutput, "luminous_ichor_effluencing",
+                ModFluids.SOURCE_MOLTEN_GLOWSTONE.get(), 90, ModFluids.SOURCE_PROTEIN_PULP.get(), 90,
+                ModFluids.SOURCE_LUMINOUS_ICHOR.get(), 180, ModMath.Time.getSecondsToTicks(15));
+
+        // Infernal Ichor: Netherrack dissolved in Protein Pulp (solvent = yield). The Nether trip gates it. Time is a placeholder.
+        RecipeBuilders.buildMasticating(recipeOutput, "infernal_ichor_masticating",
+                Ingredient.of(Items.NETHERRACK), 1, ModFluids.SOURCE_PROTEIN_PULP.get(), 90,
+                ModFluids.SOURCE_INFERNAL_ICHOR.get(), 90, -1, ModMath.Time.getSecondsToTicks(15));
+
         // Reverse route (Charred Metastasizer, pattern-based duplication) -- mirrors every Molten
         // Masticating recipe above 1:1 on item and mB, same "forward mirrors reverse" convention as
         // the Ingot/Nugget/Coal/Stone families elsewhere in this file. Needs Charred Metastasizer
