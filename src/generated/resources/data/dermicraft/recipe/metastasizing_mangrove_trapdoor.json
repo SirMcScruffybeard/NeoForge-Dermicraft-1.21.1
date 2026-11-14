@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cellulose_pulp",
-  "fluid_amount": 750,
+  "fluid_amount": 270,
   "pattern": {
     "item": "minecraft:mangrove_trapdoor"
   },

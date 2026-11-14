@@ -4,10 +4,10 @@
     "item": "minecraft:stick"
   },
   "ingredient_fluid": "minecraft:water",
-  "ingredient_fluid_amount": 125,
+  "ingredient_fluid_amount": 45,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_cellulose_pulp",
-  "result_fluid_amount": 125,
+  "result_fluid_amount": 45,
   "ticks": 25
 }

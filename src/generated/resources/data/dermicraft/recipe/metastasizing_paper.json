@@ -1,0 +1,13 @@
+{
+  "type": "dermicraft:metastasizing",
+  "fluid": "dermicraft:source_cellulose_pulp",
+  "fluid_amount": 30,
+  "pattern": {
+    "item": "minecraft:paper"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:paper"
+  },
+  "ticks": 25
+}

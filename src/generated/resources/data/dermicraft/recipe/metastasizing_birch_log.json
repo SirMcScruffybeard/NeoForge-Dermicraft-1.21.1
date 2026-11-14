@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cellulose_pulp",
-  "fluid_amount": 1000,
+  "fluid_amount": 360,
   "pattern": {
     "item": "minecraft:birch_log"
   },

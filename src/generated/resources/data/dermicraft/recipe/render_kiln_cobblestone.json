@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:rendering",
   "fluid": "dermicraft:source_stone_pulp",
-  "fluid_amount": 900,
+  "fluid_amount": 270,
   "result": {
     "count": 1,
     "id": "minecraft:cobblestone"

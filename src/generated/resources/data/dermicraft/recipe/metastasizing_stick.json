@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cellulose_pulp",
-  "fluid_amount": 125,
+  "fluid_amount": 45,
   "pattern": {
     "item": "minecraft:stick"
   },

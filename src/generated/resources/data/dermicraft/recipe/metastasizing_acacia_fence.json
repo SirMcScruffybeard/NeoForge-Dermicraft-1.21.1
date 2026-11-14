@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cellulose_pulp",
-  "fluid_amount": 1250,
+  "fluid_amount": 450,
   "pattern": {
     "item": "minecraft:acacia_fence"
   },

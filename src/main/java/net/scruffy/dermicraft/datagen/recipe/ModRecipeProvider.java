@@ -1676,7 +1676,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // (a third of the block) and the aggregate tier.
         for (DyeColor color : DyeColor.values()) {
             String c = color.getName();
-            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_" + c, stainedGlassItem(c), ModFluids.SOURCE_SILICA_PULP.get(), 1000, solidTicks);
+            RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_" + c, stainedGlassItem(c), ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_stained_glass_pane_" + c, stainedGlassPaneItem(c), ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT / 3, aggregateTicks);
         }
 
@@ -1711,56 +1711,57 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Masticator input deliberately excludes Nether stems/hyphae (LOGS_THAT_BURN, not the
         // broader LOGS tag) -- mirrors the Sediment Pulps' Nether-material deferral, and keeps
         // the Masticator roster consistent with the Metastasizer duplication roster below.
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_masticating", ItemTags.LOGS_THAT_BURN, 1000,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_masticating", ItemTags.LOGS_THAT_BURN, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
 
-        int halfPlankTicks = ModMath.Time.getSecondsToTicks(1.25f); // Slab/Stick -- 125 mB
-        int stairsTicks = ModMath.Time.getSecondsToTicks(3.75f);    // 375 mB
-        int doorTicks = ModMath.Time.getSecondsToTicks(5);          // 500 mB
-        int trapdoorTicks = ModMath.Time.getSecondsToTicks(7.5f);   // 750 mB
-        int fenceTicks = ModMath.Time.getSecondsToTicks(12.5f);     // 1250 mB -> 3 Fence
+        int halfPlankTicks = ModMath.Time.getSecondsToTicks(1.25f); // Slab/Stick -- 45 mB
+        int stairsTicks = lightTicks;                               // 90 mB, a plank's own time
+        int bowTicks = ModMath.Time.getSecondsToTicks(3.75f);       // 135 mB, three sticks' worth
+        int doorTicks = ModMath.Time.getSecondsToTicks(5);          // 180 mB
+        int trapdoorTicks = ModMath.Time.getSecondsToTicks(7.5f);   // 270 mB
+        int fenceTicks = ModMath.Time.getSecondsToTicks(12.5f);     // 450 mB -> 3 Fence
 
         // Crafted derivatives recycle back into Cellulose Pulp -- same "no penalty for having already
         // been crafted" convention as the Sediment Pulps' recycling recipes (yield matches the
         // forward duplication cost exactly, no lossy discount). Tag-based, so species-agnostic and
         // picks up any other mod's wood set that follows the vanilla tag convention for free.
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_planks", ItemTags.PLANKS, 250,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_slabs", ItemTags.WOODEN_SLABS, 125,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_stairs", ItemTags.WOODEN_STAIRS, 375,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 375, stairsTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_doors", ItemTags.WOODEN_DOORS, 500,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_trapdoors", ItemTags.WOODEN_TRAPDOORS, 750,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 750, trapdoorTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_fence_gates", ItemTags.FENCE_GATES, 1000,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_stick", Items.STICK, 125,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
-        // Bow -- 3 Sticks' worth (3 x 125 mB), same per-stick rate as recycling a Stick directly.
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_bow", Items.BOW, 375,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 375, stairsTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_planks", ItemTags.PLANKS, MbScale.INGOT,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT, lightTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_slabs", ItemTags.WOODEN_SLABS, MbScale.half(MbScale.INGOT),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.half(MbScale.INGOT), halfPlankTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_stairs", ItemTags.WOODEN_STAIRS, MbScale.INGOT,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT, stairsTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_doors", ItemTags.WOODEN_DOORS, MbScale.ofIngots(2),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(2), doorTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_trapdoors", ItemTags.WOODEN_TRAPDOORS, MbScale.ofIngots(3),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(3), trapdoorTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_fence_gates", ItemTags.FENCE_GATES, MbScale.BLOCK_OF_FOUR,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_stick", Items.STICK, MbScale.half(MbScale.INGOT),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.half(MbScale.INGOT), halfPlankTicks);
+        // Bow -- 3 Sticks' worth (3 x 45 mB), same per-stick rate as recycling a Stick directly.
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_bow", Items.BOW, MbScale.half(MbScale.ofIngots(3)),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.half(MbScale.ofIngots(3)), bowTicks);
         // Pressure Plate (2 Planks -> 1) and Button (1 Plank -> 1), same real-vanilla-ratio
         // derivation as the rest of this family -- Pressure Plate costs Door's own 500 mB/100
         // ticks (also a 2-Plank item), Button costs Planks' own 250 mB/50 ticks exactly (it's
         // one whole Plank, no further processing).
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_pressure_plates", ItemTags.WOODEN_PRESSURE_PLATES, 500,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_buttons", ItemTags.WOODEN_BUTTONS, 250,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_pressure_plates", ItemTags.WOODEN_PRESSURE_PLATES, MbScale.ofIngots(2),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(2), doorTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_buttons", ItemTags.WOODEN_BUTTONS, MbScale.INGOT,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT, lightTicks);
 
         // Fence recycles at itemAmount=3 to match its own 1250 mB-for-3 forward ratio -- the first
         // real use of the Masticator's itemAmount fix outside Bone Meal's originally-blocked case.
         RecipeBuilders.buildMasticating(recipeOutput, "cellulose_pulp_recycling_fence",
-                Ingredient.of(ItemTags.WOODEN_FENCES), 3, Fluids.WATER, 1250,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1250, -1, fenceTicks);
+                Ingredient.of(ItemTags.WOODEN_FENCES), 3, Fluids.WATER, MbScale.ofIngots(5),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(5), -1, fenceTicks);
 
         // Single-fence convenience alternate -- deliberately under a clean 1/3 split of the batch-3
         // recipe above (400/1250 = 32%, vs. an even 416.67 mB third) so processing one at a time is
         // never as efficient as batching 3, same anti-cheese shape as the mod's other bulk discounts.
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_fence_single", ItemTags.WOODEN_FENCES, 400,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 400, ModMath.Time.getSecondsToTicks(4));
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_fence_single", ItemTags.WOODEN_FENCES, 140,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), 140, ModMath.Time.getSecondsToTicks(4));
 
         // Species covered so far -- Nether Stems/Hyphae and Bamboo deferred, same "not yet
         // designed" status as the Sediment Pulps' own deferred materials.
@@ -1772,54 +1773,60 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
             // not a different vanilla crafting ratio (same principle as Stone Pulp duplicating
             // Andesite/Granite/Diorite individually despite sharing one tier).
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_log",
-                    woodItem(species, "log"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+                    woodItem(species, "log"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_wood",
-                    woodItem(species, "wood"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+                    woodItem(species, "wood"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_stripped_" + species + "_log",
-                    woodItem("stripped_" + species, "log"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+                    woodItem("stripped_" + species, "log"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_stripped_" + species + "_wood",
-                    woodItem("stripped_" + species, "wood"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+                    woodItem("stripped_" + species, "wood"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
 
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_planks",
-                    woodItem(species, "planks"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
+                    woodItem(species, "planks"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT, lightTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_slab",
-                    woodItem(species, "slab"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
+                    woodItem(species, "slab"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.half(MbScale.INGOT), halfPlankTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_stairs",
-                    woodItem(species, "stairs"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 375, stairsTicks);
+                    woodItem(species, "stairs"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT, stairsTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_door",
-                    woodItem(species, "door"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
+                    woodItem(species, "door"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(2), doorTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_trapdoor",
-                    woodItem(species, "trapdoor"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 750, trapdoorTicks);
+                    woodItem(species, "trapdoor"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(3), trapdoorTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_fence_gate",
-                    woodItem(species, "fence_gate"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+                    woodItem(species, "fence_gate"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.BLOCK_OF_FOUR, solidTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_pressure_plate",
-                    woodItem(species, "pressure_plate"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 500, doorTicks);
+                    woodItem(species, "pressure_plate"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(2), doorTicks);
             RecipeBuilders.duplicate(recipeOutput, "metastasizing_" + species + "_button",
-                    woodItem(species, "button"), ModFluids.SOURCE_CELLULOSE_PULP.get(), 250, lightTicks);
+                    woodItem(species, "button"), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT, lightTicks);
 
             // Fence is the one item whose vanilla yield (3 per craft) doesn't divide evenly into
             // a per-item mB cost -- built as an explicit 3-count result rather than through the
             // duplicate() helper. Relies on the Metastasizer's existing support for a multi-count
             // result ItemStack (no engine change needed, unlike the Masticator's item-input side).
             RecipeBuilders.buildMetastasizing(recipeOutput, "metastasizing_" + species + "_fence",
-                    Ingredient.of(woodItem(species, "fence")), ModFluids.SOURCE_CELLULOSE_PULP.get(), 1250,
+                    Ingredient.of(woodItem(species, "fence")), ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(5),
                     new ItemStack(woodItem(species, "fence"), 3), fenceTicks);
         }
 
         // Stick is species-agnostic in vanilla (one item regardless of source wood), so it gets a
         // single shared recipe rather than one per species.
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stick", Items.STICK, ModFluids.SOURCE_CELLULOSE_PULP.get(), 125, halfPlankTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_stick", Items.STICK, ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.half(MbScale.INGOT), halfPlankTicks);
 
-        // Chest (8 Planks = 2000 mB) and Crafting Table (4 Planks = 1000 mB) -- also
+        // Paper: three paper make a plank's worth, so 30 mB. Sugar cane is not wood, but other mods make
+        // paper from wood, and a recipe in the wood family keeps it simple. Decorative-cheap, at a half plank's time.
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_paper", Items.PAPER, ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT / 3, halfPlankTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_paper", Items.PAPER, MbScale.INGOT / 3,
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.INGOT / 3, halfPlankTicks);
+
+        // Chest (8 Planks = 720 mB) and Crafting Table (4 Planks = 360 mB) -- also
         // species-agnostic in vanilla, same real-ratio treatment as everything else in the family.
         int chestTicks = ModMath.Time.getSecondsToTicks(20); // 2000 mB
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chest", Items.CHEST, ModFluids.SOURCE_CELLULOSE_PULP.get(), 2000, chestTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_chest", Items.CHEST, 2000,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 2000, chestTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_chest", Items.CHEST, ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(8), chestTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_chest", Items.CHEST, MbScale.ofIngots(8),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(8), chestTicks);
 
-        RecipeBuilders.duplicate(recipeOutput, "metastasizing_crafting_table", Items.CRAFTING_TABLE, ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
-        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_crafting_table", Items.CRAFTING_TABLE, 1000,
-                ModFluids.SOURCE_CELLULOSE_PULP.get(), 1000, solidTicks);
+        RecipeBuilders.duplicate(recipeOutput, "metastasizing_crafting_table", Items.CRAFTING_TABLE, ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(4), solidTicks);
+        RecipeBuilders.masticateWithWater(recipeOutput, "cellulose_pulp_recycling_crafting_table", Items.CRAFTING_TABLE, MbScale.ofIngots(4),
+                ModFluids.SOURCE_CELLULOSE_PULP.get(), MbScale.ofIngots(4), solidTicks);
 
         ////////////////////Leaves Duplication (Crude Slurry -- living, not Cellulose Pulp)\\\\\\\\\\\\\\\\\\\\
         // Deliberately priced below the Metastasizer's existing lowest bracket (250 mB) -- Leaves
@@ -2237,7 +2244,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.RENDER_KILN.asItem());
 
-        RecipeBuilders.render(recipeOutput, "render_kiln_cobblestone", ModFluids.SOURCE_STONE_PULP.get(), 900, Items.COBBLESTONE, cobbleTicks);
+        RecipeBuilders.render(recipeOutput, "render_kiln_cobblestone", ModFluids.SOURCE_STONE_PULP.get(), MbScale.COBBLE, Items.COBBLESTONE, cobbleTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_sand", ModFluids.SOURCE_SILICA_PULP.get(), MbScale.INGOT, Items.SAND, aggregateTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_clay_ball", ModFluids.SOURCE_CLAY_PULP.get(), MbScale.INGOT, Items.CLAY_BALL, lightTicks);
         RecipeBuilders.render(recipeOutput, "render_kiln_iron_ingot", ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.INGOT, Items.IRON_INGOT, solidTicks);
