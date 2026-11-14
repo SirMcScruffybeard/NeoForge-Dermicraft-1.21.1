@@ -4,10 +4,10 @@
     "item": "minecraft:cut_copper"
   },
   "ingredient_fluid": "minecraft:water",
-  "ingredient_fluid_amount": 9000,
+  "ingredient_fluid_amount": 203,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_cuprous_pulp",
-  "result_fluid_amount": 9000,
-  "ticks": 1800
+  "result_fluid_amount": 203,
+  "ticks": 450
 }

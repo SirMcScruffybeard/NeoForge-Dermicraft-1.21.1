@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cuprous_pulp",
-  "fluid_amount": 1000,
+  "fluid_amount": 810,
   "pattern": {
     "item": "minecraft:copper_grate"
   },
@@ -9,5 +9,5 @@
     "count": 1,
     "id": "minecraft:copper_grate"
   },
-  "ticks": 200
+  "ticks": 1800
 }

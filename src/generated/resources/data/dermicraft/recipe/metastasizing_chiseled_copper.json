@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cuprous_pulp",
-  "fluid_amount": 18000,
+  "fluid_amount": 203,
   "pattern": {
     "item": "minecraft:chiseled_copper"
   },
@@ -9,5 +9,5 @@
     "count": 1,
     "id": "minecraft:chiseled_copper"
   },
-  "ticks": 3600
+  "ticks": 450
 }

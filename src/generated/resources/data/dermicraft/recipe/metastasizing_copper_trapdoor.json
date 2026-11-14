@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cuprous_pulp",
-  "fluid_amount": 2000,
+  "fluid_amount": 360,
   "pattern": {
     "item": "minecraft:copper_trapdoor"
   },
@@ -9,5 +9,5 @@
     "count": 1,
     "id": "minecraft:copper_trapdoor"
   },
-  "ticks": 400
+  "ticks": 800
 }

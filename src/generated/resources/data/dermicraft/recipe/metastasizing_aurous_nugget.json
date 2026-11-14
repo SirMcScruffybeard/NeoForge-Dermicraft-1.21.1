@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_aurous_pulp",
-  "fluid_amount": 110,
+  "fluid_amount": 10,
   "pattern": {
     "item": "minecraft:gold_nugget"
   },

@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_aurous_pulp",
-  "fluid_amount": 6000,
+  "fluid_amount": 540,
   "ingredient": {
     "item": "minecraft:apple"
   },

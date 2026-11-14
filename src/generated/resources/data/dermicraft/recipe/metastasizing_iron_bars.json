@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_ferrous_pulp",
-  "fluid_amount": 375,
+  "fluid_amount": 34,
   "pattern": {
     "item": "minecraft:iron_bars"
   },

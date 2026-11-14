@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:metastasizing",
   "fluid": "dermicraft:source_cuprous_pulp",
-  "fluid_amount": 2000,
+  "fluid_amount": 180,
   "pattern": {
     "item": "minecraft:copper_door"
   },

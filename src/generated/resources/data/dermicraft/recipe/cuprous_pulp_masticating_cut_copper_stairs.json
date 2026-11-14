@@ -4,10 +4,10 @@
     "item": "minecraft:cut_copper_stairs"
   },
   "ingredient_fluid": "minecraft:water",
-  "ingredient_fluid_amount": 13500,
+  "ingredient_fluid_amount": 304,
   "item_amount": 1,
   "modifier": -1.0,
   "result_fluid": "dermicraft:source_cuprous_pulp",
-  "result_fluid_amount": 13500,
-  "ticks": 2700
+  "result_fluid_amount": 304,
+  "ticks": 675
 }
