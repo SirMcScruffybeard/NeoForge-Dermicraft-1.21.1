@@ -1182,6 +1182,8 @@ So once a player has a Mutator they'd realistically never hand-craft these again
 
 Four related ideas from early planning, sharing a personified-name pattern (Mr. Farmer, Mr. Shepard, Mr. Logger, Mr. Hunter) and the same status: preserved for future consideration, not committed as finished concepts, placement within the mod's Stage/Tier timeline undecided for all four.
 
+**The overhaul of this family (GUI, fuel mechanic, models, adding Mr. Logger and Mr. Hunter) is planned in `dermicraft-farm-machines-overhaul-notes.md`, which is newer than this section.**
+
 ### Shared mechanics (starting point, not locked)
 
 - **Visual design:** shared body model with per-block textures to begin with; individual models later.
