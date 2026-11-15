@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_cuprous_pulp",
-  "fluid_amount": 3000,
+  "fluid_amount": 270,
   "ingredient": {
     "item": "dermicraft:copper_sunder_chain"
   },

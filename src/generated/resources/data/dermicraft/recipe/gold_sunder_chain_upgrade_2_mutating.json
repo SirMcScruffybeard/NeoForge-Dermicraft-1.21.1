@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_aurous_pulp",
-  "fluid_amount": 2000,
+  "fluid_amount": 180,
   "ingredient": {
     "item": "dermicraft:gold_sunder_chain"
   },

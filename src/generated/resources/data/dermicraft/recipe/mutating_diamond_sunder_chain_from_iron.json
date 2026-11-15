@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_molten_diamond",
-  "fluid_amount": 3000,
+  "fluid_amount": 270,
   "ingredient": {
     "item": "dermicraft:iron_sunder_chain"
   },

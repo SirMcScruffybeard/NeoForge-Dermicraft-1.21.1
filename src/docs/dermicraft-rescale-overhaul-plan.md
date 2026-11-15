@@ -245,8 +245,8 @@ All Effluentcer ("effluencing") recipes take exactly two input fluids. Negative 
 - Times unchanged.
 
 **Left ALONE by decision (do not touch):**
-- All Sunder chain / Shatter head upgrade costs: the 3000 mB material transitions and the 1000/2000/3000 durability ladder (`buildPartUpgradeTiers`).
-- Gadget fabrication recipes (Shatter 3000 Ferrous, Sunder ~2500).
+- All Sunder chain / Shatter head upgrade costs: the 3000 mB material transitions and the 1000/2000/3000 durability ladder (`buildPartUpgradeTiers`). **Rescaled 2026-11-14 in the upgrade-cost pass:** the metal and molten transitions (and Blaze) are 270 mB (3 ingots), the metal ladders are 90/180/270, while the Knowledge transition (XP scale) and the Bone ladders (Reinforcing Catalyst) keep 3000 and 1000/2000/3000.
+- Gadget fabrication recipes (Shatter 3000 Ferrous, Sunder ~2500). Still untouched: they wait for the Workbench and gadget overhaul.
 - The user accepts that these become ~11x pricier in real materials until the gadget overhaul.
 - Refined / Enriched / Superior slurry recipes (those fluids are not in the game yet).
 

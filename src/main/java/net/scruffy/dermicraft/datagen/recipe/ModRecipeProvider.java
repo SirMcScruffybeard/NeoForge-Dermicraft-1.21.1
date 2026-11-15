@@ -1494,26 +1494,26 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Pulp fluid (Ferrous=Iron, Cuprous=Copper, Aurous=Gold) -- Diamond is deferred until it has
         // its own Pulp fluid (only Molten Diamond exists today, a different fluid family).
         buildPartUpgradeTiers(recipeOutput, "bone_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 262, solidTicks);
+                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 262, 1000, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "copper_shatter_head", ModItems.COPPER_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_CUPROUS_PULP.get(), 230, solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 230, MbScale.INGOT, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "gold_shatter_head", ModItems.GOLD_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_AUROUS_PULP.get(), 64, solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 64, MbScale.INGOT, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "iron_shatter_head", ModItems.IRON_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_FERROUS_PULP.get(), 500, solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 500, MbScale.INGOT, solidTicks);
 
         // Sunder chain upgrades -- same shared 3-tier ladder, mechanics, and fluid-per-material
         // mapping as the Shatter heads above (Bone = Reinforcing Catalyst, metals = their own Pulp
         // fluid). Diamond is deferred for the same reason as Shatter's Diamond head: no Diamond Pulp
         // fluid exists yet (only Molten Diamond, a different fluid family) -- revisit once it does.
         buildPartUpgradeTiers(recipeOutput, "bone_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 75, solidTicks);
+                ModFluids.SOURCE_REINFORCING_CATALYST.get(), 75, 1000, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "copper_sunder_chain", ModItems.COPPER_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_CUPROUS_PULP.get(), 150, solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), 150, MbScale.INGOT, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "gold_sunder_chain", ModItems.GOLD_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_AUROUS_PULP.get(), 100, solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), 100, MbScale.INGOT, solidTicks);
         buildPartUpgradeTiers(recipeOutput, "iron_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_FERROUS_PULP.get(), 250, solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), 250, MbScale.INGOT, solidTicks);
 
         // Glassmaking family (Silica Pulp) - Mutator half: Dye + Silica Pulp -> Stained Glass BLOCK
         // only (see the collision note above for why the pane isn't here). Priced at parity with the
@@ -1688,32 +1688,32 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // Molten Diamond, all at the same flat 3000 mB regardless of source material -- Bone itself
         // never mutates directly into Diamond, it has to pass through a metal tier first.
         RecipeBuilders.mutate(recipeOutput, "mutating_iron_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_FERROUS_PULP.get(), 3000, ModItems.IRON_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.ofIngots(3), ModItems.IRON_SUNDER_CHAIN.get(), solidTicks);
 
         // Blaze Colloid -- a direct upgrade from Iron specifically (thematically the best base for
         // the heat, and closest in stats), ONLY reachable this way -- no crafting-table recipe of
         // its own.
         RecipeBuilders.mutate(recipeOutput, "mutating_blaze_sunder_chain", ModItems.IRON_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_BLAZE_COLLOID.get(), 3000, ModItems.BLAZE_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.ofIngots(3), ModItems.BLAZE_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_copper_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_CUPROUS_PULP.get(), 3000, ModItems.COPPER_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), MbScale.ofIngots(3), ModItems.COPPER_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gold_sunder_chain", ModItems.BONE_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_AUROUS_PULP.get(), 3000, ModItems.GOLD_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), MbScale.ofIngots(3), ModItems.GOLD_SUNDER_CHAIN.get(), solidTicks);
 
         // Emerald -- a direct upgrade from Gold specifically (not a Bone-hub spoke like the other
         // metals), ONLY reachable this way -- no crafting-table recipe of its own.
         RecipeBuilders.mutate(recipeOutput, "mutating_emerald_sunder_chain", ModItems.GOLD_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 3000, ModItems.EMERALD_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), MbScale.ofIngots(3), ModItems.EMERALD_SUNDER_CHAIN.get(), solidTicks);
         // Diamond's fluid (Molten Diamond) has no production recipe of its own yet (see the crafting
         // notes) -- built anyway, matching the rest of the Molten family's current state (registered,
         // no recipe yet) rather than introducing a one-off special case; unreachable in survival
         // until Molten Diamond gets a real recipe.
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain_from_iron", ModItems.IRON_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.ofIngots(3), ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain_from_copper", ModItems.COPPER_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.ofIngots(3), ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_sunder_chain_from_gold", ModItems.GOLD_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.ofIngots(3), ModItems.DIAMOND_SUNDER_CHAIN.get(), solidTicks);
 
         // Knowledge -- a direct upgrade from Diamond specifically (not a Bone-hub spoke), ONLY
         // reachable this way -- no crafting-table recipe of its own, same shape Emerald/Blaze
@@ -1725,35 +1725,35 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB
         // Molten Netherite, same flat cost every other Diamond-tier transition in this chain uses.
         RecipeBuilders.mutate(recipeOutput, "mutating_netherite_sunder_chain", ModItems.DIAMOND_SUNDER_CHAIN.get(),
-                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 3000, ModItems.NETHERITE_SUNDER_CHAIN.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), MbScale.ofIngots(3), ModItems.NETHERITE_SUNDER_CHAIN.get(), solidTicks);
 
         // Shatter Heads (Mutator) -- identical hub-and-spoke shape as the Sunder Chains above,
         // newly built (Shatter previously had no Mutator recipes at all, only independent
         // crafting-table recipes for each material, which are untouched).
         RecipeBuilders.mutate(recipeOutput, "mutating_iron_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_FERROUS_PULP.get(), 3000, ModItems.IRON_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_FERROUS_PULP.get(), MbScale.ofIngots(3), ModItems.IRON_SHATTER_HEAD.get(), solidTicks);
 
         // Blaze Colloid -- a direct upgrade from Iron specifically (thematically the best base for
         // the heat, and closest in stats), ONLY reachable this way -- no crafting-table recipe of
         // its own.
         RecipeBuilders.mutate(recipeOutput, "mutating_blaze_shatter_head", ModItems.IRON_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_BLAZE_COLLOID.get(), 3000, ModItems.BLAZE_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_BLAZE_COLLOID.get(), MbScale.ofIngots(3), ModItems.BLAZE_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_copper_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_CUPROUS_PULP.get(), 3000, ModItems.COPPER_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_CUPROUS_PULP.get(), MbScale.ofIngots(3), ModItems.COPPER_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_gold_shatter_head", ModItems.BONE_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_AUROUS_PULP.get(), 3000, ModItems.GOLD_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_AUROUS_PULP.get(), MbScale.ofIngots(3), ModItems.GOLD_SHATTER_HEAD.get(), solidTicks);
 
         // Emerald -- a direct upgrade from Gold specifically (not a Bone-hub spoke like the other
         // metals), ONLY reachable this way -- no crafting-table recipe of its own.
         RecipeBuilders.mutate(recipeOutput, "mutating_emerald_shatter_head", ModItems.GOLD_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_MOLTEN_EMERALD.get(), 3000, ModItems.EMERALD_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_EMERALD.get(), MbScale.ofIngots(3), ModItems.EMERALD_SHATTER_HEAD.get(), solidTicks);
 
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_iron", ModItems.IRON_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.ofIngots(3), ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_copper", ModItems.COPPER_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.ofIngots(3), ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
         RecipeBuilders.mutate(recipeOutput, "mutating_diamond_shatter_head_from_gold", ModItems.GOLD_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), 3000, ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_DIAMOND.get(), MbScale.ofIngots(3), ModItems.DIAMOND_SHATTER_HEAD.get(), solidTicks);
 
         // Knowledge -- a direct upgrade from Diamond specifically (not a Bone-hub spoke), ONLY
         // reachable this way -- no crafting-table recipe of its own, same shape Emerald/Blaze
@@ -1765,7 +1765,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
         // recipe of its own, unlike every material below it). Diamond -> Netherite via 3000 mB
         // Molten Netherite, matching the Sunder chain's own identical treatment above.
         RecipeBuilders.mutate(recipeOutput, "mutating_netherite_shatter_head", ModItems.DIAMOND_SHATTER_HEAD.get(),
-                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), 3000, ModItems.NETHERITE_SHATTER_HEAD.get(), solidTicks);
+                ModFluids.SOURCE_MOLTEN_NETHERITE.get(), MbScale.ofIngots(3), ModItems.NETHERITE_SHATTER_HEAD.get(), solidTicks);
 
         // Spider Eye - species rewrite via Primitive Catalyst (identity-change, not material-addition
         // -- see the reagent doctrine in the machine notes), the roster's first de-escalating recipe.
@@ -2565,13 +2565,14 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
     // Fixed 3-tier ladder shared by every upgradeable equipment part (Shatter heads, Sunder chains)
     // -- see project_shatter_head_upgrade_design. Multiplier is stepped (1.5x/2.0x/2.5x of the
     // material's OWN base durability), not compounding; cost escalates 1 bucket per tier
-    // (1000/2000/3000 mB).
+    // (1000/2000/3000 mB for the catalyst-fed Bone parts, 90/180/270 mB, one to three
+    // ingots, for the metal parts: {@code tierStep} is the first tier's cost).
     private static final float[] PART_UPGRADE_MULTIPLIERS = {1.5f, 2.0f, 2.5f};
 
     private static void buildPartUpgradeTiers(RecipeOutput recipeOutput, String idPrefix, ItemLike partItem,
-                                              Fluid fluid, int baseDurability, int ticks) {
+                                              Fluid fluid, int baseDurability, int tierStep, int ticks) {
         for (int tier = 0; tier < PART_UPGRADE_MULTIPLIERS.length; tier++) {
-            int fluidAmount = (tier + 1) * 1000;
+            int fluidAmount = (tier + 1) * tierStep;
             RecipeBuilders.equipmentPartUpgrade(recipeOutput, idPrefix + "_upgrade_" + (tier + 1) + "_mutating",
                     partItem, fluid, fluidAmount, tier, baseDurability, PART_UPGRADE_MULTIPLIERS[tier], ticks);
         }

@@ -1,7 +1,7 @@
 {
   "type": "dermicraft:mutating",
   "fluid": "dermicraft:source_ferrous_pulp",
-  "fluid_amount": 1000,
+  "fluid_amount": 90,
   "ingredient": {
     "item": "dermicraft:iron_shatter_head"
   },
