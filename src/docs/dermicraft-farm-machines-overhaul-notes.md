@@ -104,12 +104,44 @@ XP pickup, shearing, breeding, food slots, the XP tank and the population cap an
 Also noted: the Farmer walks the field in ring-by-ring or row-by-row waves from a single `range`, and the Shepherd scans a box
 from the same `range`. Both have to be converted to a width and a length. See the open geometry questions below.
 
-## Open (geometry and fuel, before the build)
+## Decisions (user, 2026-11-14)
 
-- Field geometry: is the field centered on the machine, or offset in front of it (the Farmer today works rows in front when
-  the machine faces sideways, rings when it faces up or down)? With independent width and length, an even size cannot be
-  centered, so either only odd sizes are allowed or even sizes shift to one side.
-- What happens at no fuel: today an unfueled machine reaches only its own block. With the field set by the player, does an
-  unfueled machine do nothing, work at a tiny default, or keep working a 1 x 1 field?
-- What fuel tier means now that it no longer sets the range (the cost formula is deferred, per the earlier ruling).
-- Whether the population cap is on the Field tab or its own tab.
+- **Odd field sizes only**, 1 to 9 each way (a stepper step is 2 blocks), so a field can always be centered on the machine.
+- **An unfueled machine does nothing.** The field size shown does not change with fuel: the displayed field stays what the
+  player set. Getting away from fuel deciding the field size is a main goal of this overhaul.
+- **Fuel use and speed effects stay exactly as they are** (fuel burned per step with real work, fuel speed paces the work).
+  The fuel tier no longer has any effect on the field.
+- **Population cap gets its own tab** on Mr. Shepherd (Home, Field, Population).
+
+## Built (2026-11-14, not yet tested in game)
+
+- `AbstractFarmBlock`, `AbstractFarmBlockEntity` (block/entity/custom/base), `AbstractFarmMenu`, `AbstractFarmScreen` and
+  `FarmLayout` (screen package, pure constants shared by the menu and the screen). Mr. Farmer and Mr. Shepherd now extend them;
+  the Farmer's block entity went from about 990 lines to about 765 and the Shepherd's from about 780 to about 580, with the
+  block classes down to codec, block entity and block entity type.
+- The field (`fieldWidth`, `fieldLength`, default 3 x 3, saved) lives on the base block entity, with `setFieldSize` (snaps to an
+  odd 1 to 9), `stepFieldWidth` and `stepFieldLength`. `getRange()` is gone.
+- Farmer geometry: horizontal facing works rows in front, `length` deep and `width` wide, centered; vertical facing works a
+  `width` (X) by `length` (Z) rectangle centered under or over the machine, swept as concentric rings clipped to the rectangle.
+- Shepherd geometry: horizontal facing covers the machine's own row through `length` ahead and `width` across; vertical facing
+  uses the older offset box with width along X and length along Z.
+- Screens: Home (field readout, fuel slot and gauge, output buffer; the Shepherd adds the feed row and an XP row above the fuel
+  row) and Field (Width and Length steppers with hold-to-repeat, and the preview grid at 6 pixel cells inside a faint 9 x 9
+  outline). The Shepherd's XP side strip is gone. Steppers are registered per tab, so the Population tab reuses them.
+- Menu button ids: width and length 10 to 13, the Shepherd's cap 0 and 1 (all below the tab ids from 200).
+
+## To check in game
+
+- The Shepherd's three tabs are 184 pixels tall (3 tabs of 56 plus gaps) against a 166 pixel panel, so the tab strip hangs about
+  18 pixels below the panel. It may need shorter tabs.
+- Whether the Field tab layout reads well (label positions, grid size), and whether the XP row sits right above the fuel row.
+- A vertically facing machine has no "sideways", so width is world X and length is world Z there; confirm that feels acceptable.
+- The Shepherd's automation extract used to allow pulling the XP container slot out; the shared handler now only extracts from
+  the output buffer (all container slots are player-only).
+- The default field is 3 x 3 and nothing migrates old saves.
+
+## Open (fuel mechanic, still to settle)
+
+- The fuel cost formula (the earlier ruling: fuel cost adapts to the field size; the formula is deferred). Right now cost is the
+  same per step with real work, so a bigger field costs more only because it has more steps.
+- Where Mr. Logger and Mr. Hunter sit in the stage and tier timeline, and whether Hunter uses a field at all.

@@ -25,6 +25,7 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
     private static final ResourceLocation GRID_SQUARE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/patterns/grid_square.png");
     private static final int GRID_CELL = 3;
+    private static final int FIELD_OUTLINE_COLOR = 0x66FFFFFF;
 
     // screen_background is now a blank panel (no baked-in inventory art), so every screen needs
     // these drawn on top, near the coordinates AbstractModMenu.addPlayerInventory/addPlayerHotbar
@@ -88,12 +89,19 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
         super(menu, playerInventory, title);
     }
 
-    /** Draws an n x n grid of the shared grid_square tile, top-left anchored at (x, y). Range display for farmers. */
-    protected void renderRangeGrid(GuiGraphics guiGraphics, int x, int y, int n) {
-        for (int row = 0; row < n; row++) {
-            for (int col = 0; col < n; col++) {
-                guiGraphics.blit(GRID_SQUARE, x + col * GRID_CELL, y + row * GRID_CELL, 0, 0,
-                        GRID_CELL, GRID_CELL, GRID_CELL, GRID_CELL);
+    /**
+     * Draws a field of {@code width} x {@code length} cells of the shared grid_square tile (the 3 pixel tile scaled to
+     * {@code cell} pixels), centered inside a faint outline of the largest field, {@code maxSize} x {@code maxSize} cells,
+     * with the outline's top-left at (x, y). The farm machines' Field tab uses it to show the field the player set.
+     */
+    protected void renderFieldGrid(GuiGraphics guiGraphics, int x, int y, int width, int length, int maxSize, int cell) {
+        guiGraphics.renderOutline(x - 1, y - 1, maxSize * cell + 2, maxSize * cell + 2, FIELD_OUTLINE_COLOR);
+        int originX = x + (maxSize - width) * cell / 2;
+        int originY = y + (maxSize - length) * cell / 2;
+        for (int row = 0; row < length; row++) {
+            for (int col = 0; col < width; col++) {
+                guiGraphics.blit(GRID_SQUARE, originX + col * cell, originY + row * cell, cell, cell,
+                        0, 0, GRID_CELL, GRID_CELL, GRID_CELL, GRID_CELL);
             }
         }
     }

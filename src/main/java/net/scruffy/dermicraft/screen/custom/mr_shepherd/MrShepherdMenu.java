@@ -2,36 +2,25 @@ package net.scruffy.dermicraft.screen.custom.mr_shepherd;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.items.SlotItemHandler;
-import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.custom.MrShepherdBlockEntity;
-import net.scruffy.dermicraft.screen.AbstractModMenu;
+import net.scruffy.dermicraft.screen.AbstractFarmMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
 
-public class MrShepherdMenu extends AbstractModMenu {
+/**
+ * Mr. Shepherd's menu: the shared farm menu's Home and Field tabs, the feed row and the XP container on Home, and a
+ * Population tab for the breeding-stock cap.
+ */
+public class MrShepherdMenu extends AbstractFarmMenu<MrShepherdBlockEntity> {
 
-    public final MrShepherdBlockEntity BE;
-    private final Level level;
+    public static final int POPULATION_TAB = 2;
 
-    private static final int FOOD_SLOT_COUNT = 4;
-    private static final int FOOD_ROW_X = 98;
-    private static final int FOOD_ROW_Y = 45;
-    private static final int BUFFER_SLOT_COUNT = 9;
-    private static final int BUFFER_ROW_X = 8;
-    private static final int BUFFER_ROW_Y = 65;
-    private static final int FUEL_SLOT_X = 8;
-    private static final int FUEL_SLOT_Y = 45;
-
-    // XP tank+slot column sits on the side strip, alongside the main panel -- see MrShepherdScreen's
-    // own XP_STRIP_X/XP_COLUMN_X for how this position was derived (18-wide tank_and_slot column
-    // centered in the 31-wide strip, 1px inset matching the tank/slot art's own border). Y is flush
-    // with the buffer row's own top -- the slot half of the column is what should visually line up
-    // with it, not the tank half above it (see MrShepherdScreen's XP_COLUMN_Y for the same call).
-    private static final int XP_SLOT_X = 187;
-    private static final int XP_SLOT_Y = BUFFER_ROW_Y;
+    /** Backdrop positions: the feed row sits on the fuel row, right of the gauge; the XP container above the fuel one. */
+    public static final int FOOD_ROW_X = 97;
+    public static final int FOOD_ROW_Y = 44;
+    public static final int FOOD_SLOT_COUNT = 4;
+    public static final int XP_SLOT_X = 7;
+    public static final int XP_SLOT_Y = 24;
 
     // clickMenuButton ids, mirrors vanilla's loom/enchant-table button convention.
     public static final int BUTTON_CAP_UP = 0;
@@ -42,54 +31,27 @@ public class MrShepherdMenu extends AbstractModMenu {
     }
 
     public MrShepherdMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.MR_SHEPHERD_MENU.get(), containerId, 1 + FOOD_SLOT_COUNT + BUFFER_SLOT_COUNT + 1);
-        this.BE = (MrShepherdBlockEntity) blockEntity;
-        this.level = inv.player.level();
+        super(ModMenuTypes.MR_SHEPHERD_MENU.get(), containerId, inv, blockEntity,
+                ((MrShepherdBlockEntity) blockEntity).getInventorySize());
 
-        addPlayerInventory(inv);
-        addPlayerHotbar(inv);
-
-        this.addSlot(new SlotItemHandler(BE.getItemHandler(null), BE.getFuelTank().SLOT, FUEL_SLOT_X, FUEL_SLOT_Y));
-
+        addFuelSlot();
         for (int i = 0; i < FOOD_SLOT_COUNT; i++) {
-            this.addSlot(new SlotItemHandler(BE.getItemHandler(null), 1 + i, FOOD_ROW_X + i * 18, FOOD_ROW_Y));
+            addHomeSlot(1 + i, FOOD_ROW_X + i * 18, FOOD_ROW_Y);
         }
-
-        for (int i = 0; i < BUFFER_SLOT_COUNT; i++) {
-            this.addSlot(new SlotItemHandler(BE.getItemHandler(null), 1 + FOOD_SLOT_COUNT + i,
-                    BUFFER_ROW_X + i * 18, BUFFER_ROW_Y));
-        }
-
-        this.addSlot(new SlotItemHandler(BE.getItemHandler(null), BE.getXpTank().SLOT, XP_SLOT_X, XP_SLOT_Y));
+        addBufferSlots();
+        addHomeSlot(BE.getXpTank().SLOT, XP_SLOT_X, XP_SLOT_Y);
     }
 
     @Override
-    public boolean stillValid(Player player) {
-        return super.stillValid(level, player, ModBlocks.MR_SHEPHERD, BE);
-    }
-
-    @Override
-    public boolean clickMenuButton(Player player, int id) {
-        if (level.isClientSide) return true;
+    protected boolean clickExtraButton(int id) {
         switch (id) {
             case BUTTON_CAP_UP -> BE.changePopulationCap(1);
             case BUTTON_CAP_DOWN -> BE.changePopulationCap(-1);
-            default -> { return false; }
+            default -> {
+                return false;
+            }
         }
         return true;
-    }
-
-    // Closing the GUI kicks off the ~30s footprint guide so the player can site their pen.
-    @Override
-    public void removed(Player player) {
-        super.removed(player);
-        if (!player.level().isClientSide) {
-            BE.startRangePreview();
-        }
-    }
-
-    public int getRange() {
-        return BE.getRange();
     }
 
     public int getPopulationCap() {

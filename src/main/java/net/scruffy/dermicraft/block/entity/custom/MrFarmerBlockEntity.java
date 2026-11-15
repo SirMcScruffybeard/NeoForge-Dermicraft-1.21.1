@@ -3,7 +3,6 @@ package net.scruffy.dermicraft.block.entity.custom;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -12,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Containers;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -26,23 +24,10 @@ import net.minecraft.world.level.block.StemBlock;
 import net.minecraft.world.level.block.FarmBlock;
 import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
-import net.scruffy.dermicraft.block.custom.MrFarmerBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
-import net.scruffy.dermicraft.interfaces.IHasChannels;
-import net.scruffy.dermicraft.interfaces.IHaveInventory;
-import net.scruffy.dermicraft.util.SlotRangeItemHandler;
-import net.scruffy.dermicraft.machine.MachineTier;
 import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerMenu;
-import net.scruffy.dermicraft.tank.FuelTank;
-import net.scruffy.dermicraft.util.ModFluidUtil;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -53,12 +38,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class MrFarmerBlockEntity extends MachineBaseBlockEntity
-        implements MenuProvider, IHaveInventory, IHasChannels {
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 
-    // Shared per-tier ring formula (see Shared mechanics in dermicraft-machine-notes.md):
-    // unfueled = 1 block, fuel tier 1..4 = 3x3..9x9, capped at tier 4.
-    private static final int MAX_RANGE_TIER = 4;
+/**
+ * Mr. Farmer: tends a field of farmland (hydrates, lights, accelerates growth, harvests and replants). The shared farm
+ * machinery (fuel, field size, buffer, preview timer, automation, channels, saving) is in {@link AbstractFarmBlockEntity}.
+ * Fuel speed paces the sweep and fuel is burned per step with real work; an unfueled Farmer does nothing.
+ */
+public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
 
     // --- Range/wave geometry (see the "Range shape & wave" spec in dermicraft-machine-notes.md) ---
     private static final int VERTICAL_Y_REACH = 5;       // up/down: scan this many blocks along the facing axis
@@ -80,31 +68,14 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
     // covers every crop within this many blocks. Used to place a minimal covering set, not one-per-cell.
     private static final int LIGHT_REACH = LIGHT_LEVEL - 9; // = 6
 
-    // --- Wave sweep pacing --- (shared by the real farming wave AND the free preview sweep)
-    // WAVE_STEP_TICKS_BASE is the delay between rows/rings at fuel speed 1.0 (Crude Slurry);
-    // currentWaveStepTicks() scales it down for faster fuel so the wave visibly speeds up.
-    private static final int WAVE_STEP_TICKS_BASE = 40; // 2s at speed 1.0
     private static final int WAVE_COOLDOWN_TICKS = 40;  // pause between full sweeps (not fuel-speed-scaled)
-    private static final float MIN_SPEED_FOR_PACING = 0.1f; // floor so a near-zero speed can't divide-by-near-zero
-
-    // --- Range preview (particle visualization, triggered on GUI close) ---
-    private static final int PREVIEW_DURATION_TICKS = 600; // ~30s the preview stays active after closing the GUI
-    private static final int PREVIEW_FADE_TICKS = 100;     // over the last ~5s, taper particle density to fade out
     private static final int PREVIEW_PARTICLES_PER_TARGET = 3;
 
-    private final FuelTank FUEL_TANK = createFuelTank();
-    private final ItemStackHandler INVENTORY = createItemHandler(10); // slot 0 = fuel container, 1-9 = output buffer
-
-    // Drain-only view of buffer slots 1-9 for the Gate's harvest channel (see getChannels). The
-    // fuel container slot is excluded, staying player-only just as the automation handler enforces.
-    private final IItemHandler BUFFER_CHANNEL = new SlotRangeItemHandler(INVENTORY, 1, 9, false, true);
-
-    private boolean isTransferringFluids = false;
+    private static final int BUFFER_SLOT_COUNT = 9; // slot 0 = fuel container, 1-9 = output buffer
 
     // Transient preview state -- a sweep is a list of ordered steps (rows or rings); not persisted.
     // Runs only while previewTicksRemaining > 0 (set by startRangePreview() on GUI close), looping
     // the sweep to show the working area, then fading out.
-    private int previewTicksRemaining = 0;
     private List<List<BlockPos>> previewWaveSteps = null;
     private int previewWaveCursor = 0;
     private int previewWaveTimer = 0;
@@ -130,46 +101,24 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
     private final Map<Block, Integer> seedReserve = new HashMap<>();
 
     public MrFarmerBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.MR_FARMER_BE.get(), pos, blockState);
+        super(ModBlockEntities.MR_FARMER_BE.get(), pos, blockState, 1 + BUFFER_SLOT_COUNT, 1, BUFFER_SLOT_COUNT);
     }
 
     @Override
-    public boolean hasTank() {
-        return true;
+    public DeferredBlock<Block> getFarmBlock() {
+        return ModBlocks.MR_FARMER;
     }
 
-    public FuelTank getFuelTank() {
-        return FUEL_TANK;
+    @Override
+    protected String getMachineName() {
+        return "mr_farmer";
     }
 
-    /** Working range as a side length (3, 5, 7, or 9), derived live from the fuel tank's tier. Unfueled = 1 (just this block). */
-    public int getRange() {
-        int tier = FUEL_TANK.getFuelTier();
-        if (tier <= 0) return 1;
-        int cappedTier = Math.min(tier, MAX_RANGE_TIER);
-        return 1 + 2 * cappedTier;
-    }
-
-    private Direction getFacing() {
-        return getBlockState().getValue(MrFarmerBlock.FACING);
-    }
-
-    /** Flips the ACTIVE blockstate (on/off texture) only when it actually changes; keeps the same BE. */
-    private void setActive(Level level, boolean active) {
-        BlockState state = getBlockState();
-        if (state.getValue(MrFarmerBlock.ACTIVE) != active) {
-            level.setBlock(worldPosition, state.setValue(MrFarmerBlock.ACTIVE, active), Block.UPDATE_CLIENTS);
-        }
-    }
-
-    /** Fuel speed ratio, floored so pacing math never divides by (near) zero. */
-    private float pacingSpeed() {
-        return Math.max(MIN_SPEED_FOR_PACING, FUEL_TANK.getSpeed());
-    }
-
-    /** Delay between wave steps -- BASE at fuel speed 1.0, faster with better fuel. */
-    private int currentWaveStepTicks() {
-        return Math.max(1, Math.round(WAVE_STEP_TICKS_BASE / pacingSpeed()));
+    // A change to the field restarts the sweep and the preview against the new field.
+    @Override
+    protected void onFieldChanged() {
+        farmWaveSteps = null;
+        previewWaveSteps = null;
     }
 
     /** How long a ripe crop sits before harvest -- BASE at fuel speed 1.0, shorter with better fuel. */
@@ -177,30 +126,17 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         return Math.max(1, Math.round(MATURE_GRACE_TICKS_BASE / pacingSpeed()));
     }
 
-    // ---- Tick -------------------------------------------------------------------------------
+    // ---- Farming wave (fuel-gated real work) -------------------------------------------------
 
-    public void tick(Level level) {
-        if (level.isClientSide) return;
-
-        tickRangePreview(level);
-        tickFarming(level);
+    @Override
+    protected void onOutOfFuel(Level level) {
+        // No fuel -> idle, forget the sweep and extinguish lights.
+        farmWaveSteps = null;
+        clearAllLights(level);
     }
 
-    // ---- Farming wave (fuel-gated real work; slice 1 = skeleton, no block work yet) ----------
-
-    private int fuelPerStep() {
-        return Math.max(1, FUEL_TANK.getUseRate());
-    }
-
-    private void tickFarming(Level level) {
-        // No fuel -> idle, forget the sweep, extinguish lights, and show the "off" texture.
-        if (!FUEL_TANK.hasEnoughFuel(fuelPerStep())) {
-            farmWaveSteps = null;
-            clearAllLights(level);
-            setActive(level, false);
-            return;
-        }
-        setActive(level, true); // fueled -> "on" texture
+    @Override
+    protected void tickFarmWork(Level level) {
 
         if (farmWaveTimer > 0) {
             farmWaveTimer--;
@@ -411,7 +347,7 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
 
     /** Per-crop-type reserve cap = ceil(field cells * 1.1) -- a full replant plus a 10% bumper. */
     private int seedCap() {
-        int cells = getRange() * getRange();
+        int cells = getFieldWidth() * getFieldLength();
         return (int) Math.ceil(cells * 1.1);
     }
 
@@ -473,15 +409,6 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
     }
 
     // ---- Buffer helpers ---------------------------------------------------------------------
-
-    /** Inserts a stack into the buffer slots (1-9); returns whatever didn't fit. */
-    private ItemStack insertIntoBuffer(ItemStack stack) {
-        ItemStack remaining = stack;
-        for (int slot = FUEL_TANK.SLOT + 1; slot < INVENTORY.getSlots() && !remaining.isEmpty(); slot++) {
-            remaining = INVENTORY.insertItem(slot, remaining, false);
-        }
-        return remaining;
-    }
 
     /** Inserts up to `count` of an item into the buffer; returns how many were actually inserted. */
     private int insertCountIntoBuffer(Item item, int count) {
@@ -593,21 +520,17 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         return level.getBlockState(pos).is(Blocks.FARMLAND);
     }
 
-    /** Starts (or restarts) the ~30s range-preview visualization. Called on GUI close; see MrFarmerMenu. */
-    public void startRangePreview() {
-        previewTicksRemaining = PREVIEW_DURATION_TICKS;
-        previewWaveSteps = null;   // recompute against the current fuel-tier range
-        previewWaveCursor = 0;
-        previewWaveTimer = 0;      // begin sweeping immediately
-        setChanged();
-    }
-
     // ---- Range preview (particle-only; loops the sweep, then fades) --------------------------
 
-    private void tickRangePreview(Level level) {
-        if (previewTicksRemaining <= 0) return;
-        previewTicksRemaining--;
+    @Override
+    protected void onPreviewStarted() {
+        previewWaveSteps = null;   // recompute against the current field
+        previewWaveCursor = 0;
+        previewWaveTimer = 0;      // begin sweeping immediately
+    }
 
+    @Override
+    protected void tickPreview(Level level) {
         if (previewWaveTimer > 0) {
             previewWaveTimer--;
             return;
@@ -616,7 +539,7 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         // (Re)start the sweep, looping it for the duration of the preview window.
         if (previewWaveSteps == null || previewWaveCursor >= previewWaveSteps.size()) {
             // Preview marks any ground surface (not just farmland) so the player can see which
-            // cells still need tilling. Farming logic will pass a strict farmland test instead.
+            // cells still need tilling. Farming logic passes a strict farmland test instead.
             previewWaveSteps = resolveWaveSteps(level, this::isGroundSurface);
             previewWaveCursor = 0;
             if (previewWaveSteps.isEmpty()) {
@@ -626,7 +549,8 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
             }
         }
 
-        emitPreviewParticles(level, previewWaveSteps.get(previewWaveCursor));
+        emitPreviewParticles(level, previewWaveSteps.get(previewWaveCursor),
+                previewParticleCount(PREVIEW_PARTICLES_PER_TARGET));
         previewWaveCursor++;
 
         if (previewWaveCursor >= previewWaveSteps.size()) {
@@ -637,28 +561,11 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         }
     }
 
-    private void emitPreviewParticles(Level level, List<BlockPos> step) {
-        if (!(level instanceof ServerLevel serverLevel)) return;
-        int count = previewParticleCount();
-        if (count <= 0) return;
-        for (BlockPos p : step) {
-            serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER,
-                    p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5,
-                    count, 0.25, 0.25, 0.25, 0.0);
-        }
-    }
-
-    /** Full density until the fade window, then a linear taper to 0 so the preview visibly fades out. */
-    private int previewParticleCount() {
-        if (previewTicksRemaining >= PREVIEW_FADE_TICKS) return PREVIEW_PARTICLES_PER_TARGET;
-        return Math.round((float) PREVIEW_PARTICLES_PER_TARGET * previewTicksRemaining / PREVIEW_FADE_TICKS);
-    }
-
     // ---- Target resolution -------------------------------------------------------------------
     // Returns the sweep as an ordered list of steps; each step is the set of crop positions (the
     // block directly above a qualifying ground block) processed together in one wave tick. The
     // ground test decides what counts as a valid base -- any surface for the preview, farmland
-    // for actual farming.
+    // for actual farming. The field is the player's width x length (both odd, see AbstractFarmBlockEntity).
 
     @FunctionalInterface
     private interface GroundTest {
@@ -667,21 +574,20 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
 
     private List<List<BlockPos>> resolveWaveSteps(Level level, GroundTest ground) {
         Direction facing = getFacing();
-        int range = getRange();
         if (facing.getAxis().isVertical()) {
-            return resolveVerticalRings(level, facing, range, ground);
+            return resolveVerticalRings(level, facing, ground);
         }
-        return resolveHorizontalRows(level, facing, range, ground);
+        return resolveHorizontalRows(level, facing, ground);
     }
 
-    // Horizontal facing: N wide x N deep field projected in front, swept row by row (nearest first).
+    // Horizontal facing: a width-wide x length-deep field projected in front, swept row by row (nearest first).
     // Each column scans ±HORIZONTAL_Y_TOLERANCE around the machine's own plane for the topmost ground.
-    private List<List<BlockPos>> resolveHorizontalRows(Level level, Direction facing, int range, GroundTest ground) {
-        int half = (range - 1) / 2;
+    private List<List<BlockPos>> resolveHorizontalRows(Level level, Direction facing, GroundTest ground) {
+        int half = getHalfWidth();
         Direction side = facing.getClockWise();
         List<List<BlockPos>> steps = new ArrayList<>();
 
-        for (int depth = 1; depth <= range; depth++) {
+        for (int depth = 1; depth <= getFieldLength(); depth++) {
             List<BlockPos> row = new ArrayList<>();
             for (int s = -half; s <= half; s++) {
                 BlockPos columnBase = worldPosition.relative(facing, depth).relative(side, s);
@@ -693,10 +599,12 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         return steps;
     }
 
-    // Vertical facing: N x N field centered under/over the machine on the first qualifying plane found
-    // within VERTICAL_Y_REACH along the facing axis, swept as concentric square rings (center first).
-    private List<List<BlockPos>> resolveVerticalRings(Level level, Direction facing, int range, GroundTest ground) {
-        int half = (range - 1) / 2;
+    // Vertical facing: a width (X) x length (Z) field centered under/over the machine on the first qualifying plane
+    // found within VERTICAL_Y_REACH along the facing axis, swept as concentric square rings clipped to the field
+    // (center first).
+    private List<List<BlockPos>> resolveVerticalRings(Level level, Direction facing, GroundTest ground) {
+        int halfWidth = getHalfWidth();
+        int halfLength = getHalfLength();
 
         BlockPos center = null;
         for (int d = 1; d <= VERTICAL_Y_REACH; d++) {
@@ -709,9 +617,9 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         if (center == null) return List.of();
 
         List<List<BlockPos>> steps = new ArrayList<>();
-        for (int r = 0; r <= half; r++) {
+        for (int r = 0; r <= Math.max(halfWidth, halfLength); r++) {
             List<BlockPos> ring = new ArrayList<>();
-            for (BlockPos p : ringPositions(center, r)) {
+            for (BlockPos p : ringPositions(center, r, halfWidth, halfLength)) {
                 if (ground.test(level, p.below())) ring.add(p);
             }
             steps.add(ring);
@@ -731,8 +639,9 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         return null;
     }
 
-    /** Crop positions on the horizontal plane at exactly Chebyshev distance r from center (r=0 is the center). */
-    private List<BlockPos> ringPositions(BlockPos center, int r) {
+    /** Crop positions on the horizontal plane at exactly Chebyshev distance r from center (r=0 is the center),
+     *  clipped to the field's rectangle (halfWidth along X, halfLength along Z). */
+    private List<BlockPos> ringPositions(BlockPos center, int r, int halfWidth, int halfLength) {
         List<BlockPos> ring = new ArrayList<>();
         if (r == 0) {
             ring.add(center);
@@ -740,6 +649,7 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         }
         for (int x = -r; x <= r; x++) {
             for (int z = -r; z <= r; z++) {
+                if (Math.abs(x) > halfWidth || Math.abs(z) > halfLength) continue; // outside the field
                 if (Math.max(Math.abs(x), Math.abs(z)) == r) {
                     ring.add(center.offset(x, 0, z));
                 }
@@ -757,79 +667,27 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         return state.isFaceSturdy(level, pos, Direction.UP) || state.is(Blocks.FARMLAND);
     }
 
-    public IFluidHandler getTank(@Nullable Direction direction) {
-        return FUEL_TANK;
-    }
-
-    /** Full-access handler used by the GUI (both slots, insert + extract). */
-    public IItemHandler getItemHandler(@Nullable Direction direction) {
-        return INVENTORY;
-    }
+    // ---- Gate integration ---------------------------------------------------------------------------
 
     /**
-     * Automation-facing item handler (all faces identical): buffer slots (1-9) are extract-only so
-     * harvest can be piped out but nothing can be pushed in. The fuel slot (0) is player-only -- no
-     * automated insert or extract -- so fuel containers can't be shuttled in/out by pipes; automated
-     * fueling goes through the FluidHandler capability instead.
-     */
-    public IItemHandler getAutomationItemHandler(@Nullable Direction direction) {
-        return AUTOMATION_HANDLER;
-    }
-
-    private final IItemHandler AUTOMATION_HANDLER = new IItemHandler() {
-        @Override public int getSlots() { return INVENTORY.getSlots(); }
-        @Override public ItemStack getStackInSlot(int slot) { return INVENTORY.getStackInSlot(slot); }
-        @Override public int getSlotLimit(int slot) { return INVENTORY.getSlotLimit(slot); }
-
-        @Override public boolean isItemValid(int slot, ItemStack stack) { return false; } // automation never inserts
-
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return stack; // buffer is output-only; fuel slot is player-only
-        }
-
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot == FUEL_TANK.SLOT) return ItemStack.EMPTY; // fuel slot player-only
-            return INVENTORY.extractItem(slot, amount, simulate); // harvest out
-        }
-    };
-
-
-    // ---- Gate integration (IHasChannels) --------------------------------------------------------
-
-    /** See {@link IHasChannels#describeFace} -- every face routes identically on this machine. */
-    @Override
-    public Component describeFace(Direction face) {
-        return Component.translatable("tooltip.dermicraft.idep.face.mr_farmer");
-    }
-
-    /** See {@link IHasChannels#describeFluidFace} -- getTank ignores the face; it's always the fuel tank. */
-    @Override
-    public Component describeFluidFace(Direction face) {
-        return Component.translatable("tooltip.dermicraft.tank.fuel");
-    }
-
-    /**
-     * Self-described channels for the Gate. Both are exposed on all six faces, since both
-     * capabilities are registered face-agnostically. Order is the Gate's priority order, so fuel
-     * (machine stops dead without it) comes before the harvest buffer (which only backs up). The
-     * hidden seed reserve is deliberately NOT a channel -- it's internal replant stock, not storage,
-     * and surplus above its cap already flows into the buffer where automation can reach it.
+     * Both channels are exposed on all six faces. Order is the Gate's priority order, so fuel (machine stops dead without
+     * it) comes before the harvest buffer (which only backs up). The hidden seed reserve is deliberately NOT a channel --
+     * it's internal replant stock, not storage, and surplus above its cap already flows into the buffer where automation
+     * can reach it.
      */
     @Override
-    public List<Channel> getChannels() {
-        List<Channel> channels = new ArrayList<>();
-        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.values())) {
-            channels.add(new Channel.FluidChannel("fuel", Component.literal("Fuel"), Channel.IO.IN, FUEL_TANK));
+    protected void addChannels(List<Channel> channels, boolean exposeFluid, boolean exposeItem) {
+        if (exposeFluid) {
+            channels.add(fuelChannel());
         }
-        if (level == null || !isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.values())) {
+        if (exposeItem) {
             channels.add(new Channel.ItemChannel("harvest", Component.literal("Harvest"), Channel.IO.OUT, BUFFER_CHANNEL));
         }
-        return channels;
     }
 
     @Override
-    public void drops() {
-        super.drops(INVENTORY);
+    protected void dropExtras() {
+        extinguishLights();
         dropSeedReserve();
     }
 
@@ -850,98 +708,9 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
         seedReserve.clear();
     }
 
-    private FuelTank createFuelTank() {
-        return new FuelTank(MachineTier.BASIC.tankCapacity(), 0) {
-            @Override
-            protected void onContentsChanged() {
-                if (level != null && !level.isClientSide) {
-                    setChanged();
-                    updateBlock();
-                }
-            }
-        };
-    }
-
-    private ItemStackHandler createItemHandler(int size) {
-        return new ItemStackHandler(size) {
-            @Override
-            protected void onContentsChanged(int slot) {
-                if (level != null && !level.isClientSide()) {
-                    if (slot == FUEL_TANK.SLOT && !isTransferringFluids) {
-                        biDirectionalFluidTransfer();
-                        isTransferringFluids = false;
-                    }
-                    setChanged();
-                    updateBlock();
-                }
-            }
-
-            private void biDirectionalFluidTransfer() {
-                if (FUEL_TANK.hasFluidHandlerInSlot(this, FUEL_TANK.SLOT)) {
-                    isTransferringFluids = true;
-                    FUEL_TANK.transferFluidToTank(this, FUEL_TANK.SLOT);
-                } else {
-                    transferToHandler();
-                }
-            }
-
-            private void transferToHandler() {
-                if (FUEL_TANK.hasEmptyFluidHandlerInSlot(this, FUEL_TANK.SLOT)) {
-                    isTransferringFluids = true;
-
-                    ItemStack stack = getStackInSlot(FUEL_TANK.SLOT);
-                    if (stack.isEmpty()) return;
-
-                    // Defensive fallback only -- getSlotLimit now caps this slot to 1 unconditionally,
-                    // so count > 1 shouldn't be reachable via normal insertion. Kept in case something
-                    // ever forces a multi-count stack into the slot directly (NBT load, a command, etc.).
-                    if (ModFluidUtil.hasEmptyFluidHandlerInSlot(this, FUEL_TANK.SLOT) && stack.getCount() > 1) {
-                        ItemStack extra = stack.copy();
-                        extra.shrink(1);
-
-                        stack.setCount(1);
-                        setStackInSlot(FUEL_TANK.SLOT, stack);
-
-                        Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY() + 1, worldPosition.getZ(), extra);
-                    } else {
-                        setStackInSlot(FUEL_TANK.SLOT, stack);
-                    }
-                    FUEL_TANK.transferFluidFromTankToHandler(this, FUEL_TANK.SLOT);
-                }
-            }
-
-            // FUEL_TANK.SLOT holds exactly one container at a time, unconditionally -- not just once
-            // already occupied. The old condition (`hasEmptyFluidHandlerInSlot`, which inspects the
-            // slot's CURRENT contents) never fires on a slot that starts empty, so a whole stack of
-            // empty containers could be inserted in one shot; the auto-fill transfer then only ever
-            // fills and returns a single container, with the rest previously getting dropped on the
-            // ground by the defensive fallback above rather than being properly rejected at insert
-            // time. Capping unconditionally means vanilla's own insertItem correctly accepts just 1
-            // and returns the remainder, so the custom insertItem override below is no longer needed.
-            @Override
-            public int getSlotLimit(int slot) {
-                return slot == FUEL_TANK.SLOT ? 1 : super.getSlotLimit(slot);
-            }
-
-            // The fuel slot only takes fluid containers. Without this, quickMoveStack walks the
-            // machine's slots in registration order -- fuel first -- so shift-clicking seeds or
-            // produce from the player's inventory would drop one item into the fuel slot before the
-            // rest reached the buffer. Slot.mayPlace() routes through here, covering shift-click too.
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                if (slot == FUEL_TANK.SLOT) {
-                    return stack.getCapability(Capabilities.FluidHandler.ITEM) != null;
-                }
-                return super.isItemValid(slot, stack);
-            }
-        };
-    }
-
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.put("inventory", INVENTORY.serializeNBT(registries));
-        tag.put("fuel", FUEL_TANK.writeToNBT(registries, new CompoundTag()));
         long[] lights = new long[placedLights.size()];
         int i = 0;
         for (BlockPos p : placedLights) lights[i++] = p.asLong();
@@ -961,8 +730,6 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        if (tag.contains("inventory")) INVENTORY.deserializeNBT(registries, tag.getCompound("inventory"));
-        if (tag.contains("fuel")) FUEL_TANK.readFromNBT(registries, tag.getCompound("fuel"));
         placedLights.clear();
         for (long l : tag.getLongArray("lights")) placedLights.add(BlockPos.of(l));
 
@@ -973,12 +740,6 @@ public class MrFarmerBlockEntity extends MachineBaseBlockEntity
             Block b = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(entry.getString("block")));
             if (b != Blocks.AIR) seedReserve.put(b, entry.getInt("count"));
         }
-    }
-
-    @NotNull
-    @Override
-    public Component getDisplayName() {
-        return getDisplayName(ModBlocks.MR_FARMER);
     }
 
     @Nullable

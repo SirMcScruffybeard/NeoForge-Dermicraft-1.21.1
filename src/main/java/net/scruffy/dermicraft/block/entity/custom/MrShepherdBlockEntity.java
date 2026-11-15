@@ -2,7 +2,6 @@ package net.scruffy.dermicraft.block.entity.custom;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -26,49 +25,39 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
-import net.scruffy.dermicraft.block.custom.MrShepherdBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
-import net.scruffy.dermicraft.interfaces.IHasChannels;
-import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.util.SlotRangeItemHandler;
 import net.scruffy.dermicraft.fluid.ModFluids;
-import net.scruffy.dermicraft.machine.MachineTier;
 import net.scruffy.dermicraft.screen.custom.mr_shepherd.MrShepherdMenu;
 import net.scruffy.dermicraft.tank.DroolingTank;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import net.minecraft.world.MenuProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.neoforged.neoforge.registries.DeferredBlock;
+import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 
 /**
  * Livestock counterpart to Mr. Farmer -- see dermicraft-machine-notes.md -> Mr. Shepherd.
  * Unlike Farmer's block-position wave (crops don't move), Shepherd scans a live AABB each work
- * cycle since animals move freely -- no wave-stepping needed for a first pass.
+ * cycle since animals move freely -- no wave-stepping needed for a first pass. The shared farm
+ * machinery (fuel, field size, buffer, preview timer, automation, channels, saving) is in
+ * {@link AbstractFarmBlockEntity}; an unfueled Shepherd does nothing.
  */
-public class MrShepherdBlockEntity extends MachineBaseBlockEntity
-        implements MenuProvider, IHaveInventory, IHasChannels {
+public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
-    private static final int MAX_RANGE_TIER = 4; // shared tier->range formula, see Mr. Farmer
 
     private static final int VERTICAL_REACH = 4; // AABB extends this far above/below the machine's plane
     private static final int PICKUP_MARGIN = 1;  // pickup-only overreach on each horizontal side
-
-    private static final int WAVE_STEP_TICKS_BASE = 40; // 2s at fuel speed 1.0, same idiom as Mr. Farmer
-    private static final float MIN_SPEED_FOR_PACING = 0.1f;
 
     // --- Population cap ---
     // The cap is the BREEDING STOCK (adults maintained), not the total population -- a total-population
@@ -88,8 +77,6 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
     private static final float GROWTH_SECONDS_PER_HEAL = 1.0f;
 
     // --- Range preview (static footprint guide, shown on GUI close) ---
-    private static final int PREVIEW_DURATION_TICKS = 600; // ~30s
-    private static final int PREVIEW_FADE_TICKS = 100;     // taper density over the last ~5s
     private static final int PREVIEW_EMIT_INTERVAL = 10;   // re-emit twice a second
     private static final int PREVIEW_PARTICLES_PER_CELL = 2;
 
@@ -104,23 +91,17 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
     private static final int XP_SLOT_INDEX = 1 + FOOD_SLOT_COUNT + BUFFER_SLOT_COUNT;
     private static final int INVENTORY_SIZE = XP_SLOT_INDEX + 1;
 
-    private final FuelTank FUEL_TANK = createFuelTank();
     private final DroolingTank XP_TANK = createDroolingTank(XP_TANK_CAPACITY, XP_SLOT_INDEX, ModFluids.SOURCE_KNOWLEDGE_COLLOID::get);
     // slot 0 = fuel container, 1..FOOD_SLOT_COUNT = breeding food, next BUFFER_SLOT_COUNT =
     // pickup/wool buffer, last slot = XP tank's own fill/drain container.
-    private final ItemStackHandler INVENTORY = createItemHandler(INVENTORY_SIZE);
 
     // Per-channel views for the Gate (see getChannels). Feed only accepts pushes, the buffer is
     // drain-only -- the fuel container slot is deliberately in neither, staying player-only.
     private final IItemHandler FEED_CHANNEL =
             new SlotRangeItemHandler(INVENTORY, 1, FOOD_SLOT_COUNT, true, false);
-    private final IItemHandler BUFFER_CHANNEL =
-            new SlotRangeItemHandler(INVENTORY, 1 + FOOD_SLOT_COUNT, BUFFER_SLOT_COUNT, false, true);
 
-    private boolean isTransferringFluids = false;
     private int waveTimer = 0;
     private int populationCap = DEFAULT_POPULATION_CAP;
-    private int previewTicksRemaining = 0;
 
     // Last real fuel's heal value, and which fluid it came from. FuelTank.getHeal() returns 0.0 on an
     // EMPTY tank, which would collapse the max cap to the minimum and destructively clamp the player's
@@ -131,16 +112,24 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
     private Fluid rememberedFuel = Fluids.EMPTY;
 
     public MrShepherdBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.MR_SHEPHERD_BE.get(), pos, blockState);
+        super(ModBlockEntities.MR_SHEPHERD_BE.get(), pos, blockState,
+                INVENTORY_SIZE, 1 + FOOD_SLOT_COUNT, BUFFER_SLOT_COUNT);
     }
 
     @Override
-    public boolean hasTank() {
-        return true;
+    public DeferredBlock<Block> getFarmBlock() {
+        return ModBlocks.MR_SHEPHERD;
     }
 
-    public FuelTank getFuelTank() {
-        return FUEL_TANK;
+    @Override
+    protected String getMachineName() {
+        return "mr_shepherd";
+    }
+
+    /** Picks up a fuel swap; an empty tank keeps the last fuel's numbers. */
+    @Override
+    protected void onFuelContentsChanged() {
+        refreshFuelMemory();
     }
 
     public DroolingTank getXpTank() {
@@ -184,49 +173,10 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
         setChanged();
     }
 
-    public int getRange() {
-        int tier = FUEL_TANK.getFuelTier();
-        if (tier <= 0) return 1;
-        int cappedTier = Math.min(tier, MAX_RANGE_TIER);
-        return 1 + 2 * cappedTier;
-    }
+    // ---- Work ---------------------------------------------------------------------------------
 
-    private Direction getFacing() {
-        return getBlockState().getValue(MrShepherdBlock.FACING);
-    }
-
-    private void setActive(Level level, boolean active) {
-        BlockState state = getBlockState();
-        if (state.getValue(MrShepherdBlock.ACTIVE) != active) {
-            level.setBlock(worldPosition, state.setValue(MrShepherdBlock.ACTIVE, active), Block.UPDATE_CLIENTS);
-        }
-    }
-
-    private float pacingSpeed() {
-        return Math.max(MIN_SPEED_FOR_PACING, FUEL_TANK.getSpeed());
-    }
-
-    private int currentWaveStepTicks() {
-        return Math.max(1, Math.round(WAVE_STEP_TICKS_BASE / pacingSpeed()));
-    }
-
-    private int fuelPerStep() {
-        return Math.max(1, FUEL_TANK.getUseRate());
-    }
-
-    // ---- Tick ---------------------------------------------------------------------------------
-
-    public void tick(Level level) {
-        if (level.isClientSide) return;
-
-        tickRangePreview(level); // free, runs unfueled -- it's a siting guide, not machine work
-
-        if (!FUEL_TANK.hasEnoughFuel(fuelPerStep())) {
-            setActive(level, false);
-            return;
-        }
-        setActive(level, true);
-
+    @Override
+    protected void tickFarmWork(Level level) {
         if (waveTimer > 0) {
             waveTimer--;
             return;
@@ -278,29 +228,30 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
     }
 
     /**
-     * The working volume. Horizontal mounts cover the machine's OWN row through {@code range} blocks
-     * ahead; vertical mounts still use the older offset-centre box pending their rework.
+     * The working volume, the player's field. Horizontal mounts cover the machine's OWN row through {@code length}
+     * blocks ahead and {@code width} blocks across, centered on the machine; vertical mounts still use the older
+     * offset-centre box pending their rework (width along X, length along Z).
      */
     private AABB workArea() {
-        int range = getRange();
-        int half = (range - 1) / 2;
+        int halfWidth = getHalfWidth();
+        int halfLength = getHalfLength();
         Direction facing = getFacing();
 
         if (facing.getAxis().isVertical()) {
             // Unchanged pending the vertical-facing rework -- this box bleeds past the machine's own
             // plane (see the divergence note in dermicraft-machine-notes.md).
-            BlockPos center = worldPosition.relative(facing, half + 1);
+            BlockPos center = worldPosition.relative(facing, Math.max(halfWidth, halfLength) + 1);
             return new AABB(
-                    center.getX() - half, center.getY() - VERTICAL_REACH, center.getZ() - half,
-                    center.getX() + half + 1, center.getY() + VERTICAL_REACH + 1, center.getZ() + half + 1);
+                    center.getX() - halfWidth, center.getY() - VERTICAL_REACH, center.getZ() - halfLength,
+                    center.getX() + halfWidth + 1, center.getY() + VERTICAL_REACH + 1, center.getZ() + halfLength + 1);
         }
 
         // Depth starts at 0 -- the machine's own row -- not 1 block ahead like Mr. Farmer's. A Shepherd
         // set into a fence or wall line is flush with the pen, so items dropped directly beside it sit
         // in the machine's own plane; starting a block ahead would leave them permanently uncollected.
         Direction side = facing.getClockWise();
-        AABB box = new AABB(worldPosition.relative(side, -half))
-                .minmax(new AABB(worldPosition.relative(facing, range).relative(side, half)));
+        AABB box = new AABB(worldPosition.relative(side, -halfWidth))
+                .minmax(new AABB(worldPosition.relative(facing, getFieldLength()).relative(side, halfWidth)));
         return box.inflate(0, VERTICAL_REACH, 0);
     }
 
@@ -502,61 +453,41 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
     // the question it answers is "where do I build the pen walls?" -- and at 9x9 that's 32 edge cells
     // instead of 81 filled ones, so it reads as a wall line rather than particle soup.
 
-    /** Starts (or restarts) the ~30s footprint guide. Called on GUI close; see MrShepherdMenu. */
-    public void startRangePreview() {
-        previewTicksRemaining = PREVIEW_DURATION_TICKS;
-        setChanged();
-    }
-
-    private void tickRangePreview(Level level) {
-        if (previewTicksRemaining <= 0) return;
-        previewTicksRemaining--;
-        if (previewTicksRemaining % PREVIEW_EMIT_INTERVAL != 0) return;
-        if (!(level instanceof ServerLevel serverLevel)) return;
-
-        int count = previewParticleCount();
-        if (count <= 0) return;
-        for (BlockPos p : footprintPerimeter()) {
-            serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER,
-                    p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5,
-                    count, 0.25, 0.25, 0.25, 0.0);
-        }
-    }
-
-    /** Full density until the fade window, then a linear taper so the guide visibly fades out. */
-    private int previewParticleCount() {
-        if (previewTicksRemaining >= PREVIEW_FADE_TICKS) return PREVIEW_PARTICLES_PER_CELL;
-        return Math.round((float) PREVIEW_PARTICLES_PER_CELL * previewTicksRemaining / PREVIEW_FADE_TICKS);
+    @Override
+    protected void tickPreview(Level level) {
+        if (getPreviewTicksRemaining() % PREVIEW_EMIT_INTERVAL != 0) return;
+        emitPreviewParticles(level, footprintPerimeter(), previewParticleCount(PREVIEW_PARTICLES_PER_CELL));
     }
 
     /** The edge cells of the working footprint -- mirrors {@link #workArea()}'s placement exactly. */
     private List<BlockPos> footprintPerimeter() {
-        int range = getRange();
-        int half = (range - 1) / 2;
+        int halfWidth = getHalfWidth();
+        int halfLength = getHalfLength();
         Direction facing = getFacing();
         List<BlockPos> cells = new ArrayList<>();
 
         if (facing.getAxis().isVertical()) {
-            BlockPos center = worldPosition.relative(facing, half + 1);
-            if (range <= 1) { // unfueled -- the machine only reaches its own spot
+            BlockPos center = worldPosition.relative(facing, Math.max(halfWidth, halfLength) + 1);
+            if (halfWidth == 0 && halfLength == 0) { // a 1 x 1 field -- the machine only reaches its own spot
                 cells.add(center);
                 return cells;
             }
-            for (int dx = -half; dx <= half; dx++) {
-                for (int dz = -half; dz <= half; dz++) {
-                    if (Math.max(Math.abs(dx), Math.abs(dz)) != half) continue; // interior, skip
+            for (int dx = -halfWidth; dx <= halfWidth; dx++) {
+                for (int dz = -halfLength; dz <= halfLength; dz++) {
+                    if (Math.abs(dx) != halfWidth && Math.abs(dz) != halfLength) continue; // interior, skip
                     cells.add(center.offset(dx, 0, dz));
                 }
             }
             return cells;
         }
 
-        // Horizontal: outline the (range+1) deep x range wide field, starting at the machine's own row
+        // Horizontal: outline the (length+1) deep x width wide field, starting at the machine's own row
         // so the guide shows the pen wall running through the machine rather than in front of it.
         Direction side = facing.getClockWise();
-        for (int depth = 0; depth <= range; depth++) {
-            for (int lateral = -half; lateral <= half; lateral++) {
-                boolean edge = depth == 0 || depth == range || lateral == -half || lateral == half;
+        int length = getFieldLength();
+        for (int depth = 0; depth <= length; depth++) {
+            for (int lateral = -halfWidth; lateral <= halfWidth; lateral++) {
+                boolean edge = depth == 0 || depth == length || lateral == -halfWidth || lateral == halfWidth;
                 if (!edge) continue;
                 BlockPos cell = worldPosition.relative(facing, depth).relative(side, lateral);
                 if (cell.equals(worldPosition)) continue; // no particles inside the machine itself
@@ -574,175 +505,47 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
         return map;
     }
 
-    // ---- Buffer helpers ---------------------------------------------------------------------------
+    // ---- Slots, automation and Gate integration -----------------------------------------------
 
-    private ItemStack insertIntoBuffer(ItemStack stack) {
-        ItemStack remaining = stack;
-        for (int slot = 1 + FOOD_SLOT_COUNT; slot < INVENTORY.getSlots() && !remaining.isEmpty(); slot++) {
-            remaining = INVENTORY.insertItem(slot, remaining, false);
-        }
-        return remaining;
-    }
-
-    // ---- Capabilities / GUI -------------------------------------------------------------------
-
-    public IFluidHandler getTank(@Nullable Direction direction) {
-        return FUEL_TANK;
-    }
-
-    public IItemHandler getItemHandler(@Nullable Direction direction) {
-        return INVENTORY;
-    }
-
-    /** Automation: buffer slots extract-only, food slots insert-only, fuel slot player-only (mirrors Mr. Farmer). */
-    public IItemHandler getAutomationItemHandler(@Nullable Direction direction) {
-        return AUTOMATION_HANDLER;
-    }
-
-    private final IItemHandler AUTOMATION_HANDLER = new IItemHandler() {
-        @Override public int getSlots() { return INVENTORY.getSlots(); }
-        @Override public ItemStack getStackInSlot(int slot) { return INVENTORY.getStackInSlot(slot); }
-        @Override public int getSlotLimit(int slot) { return INVENTORY.getSlotLimit(slot); }
-
-        @Override public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= 1 && slot <= FOOD_SLOT_COUNT && INVENTORY.isItemValid(slot, stack);
-        }
-
-        @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot < 1 || slot > FOOD_SLOT_COUNT) return stack; // only food slots accept automated input
-            return INVENTORY.insertItem(slot, stack, simulate);
-        }
-
-        @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            if (slot <= FOOD_SLOT_COUNT) return ItemStack.EMPTY; // fuel + food slots not automation-extractable
-            return INVENTORY.extractItem(slot, amount, simulate);
-        }
-    };
-
-    // ---- Gate integration (IHasChannels) --------------------------------------------------------
-
-    /** See {@link IHasChannels#describeFace} -- every face routes identically on this machine. */
+    // The XP tank's own container slot is a second fluid-container slot beside the fuel one.
+    @Nullable
     @Override
-    public Component describeFace(Direction face) {
-        return Component.translatable("tooltip.dermicraft.idep.face.mr_shepherd");
+    protected ModFluidTank getTankForSlot(int slot) {
+        return slot == XP_TANK.SLOT ? XP_TANK : super.getTankForSlot(slot);
     }
 
-    /** See {@link IHasChannels#describeFluidFace} -- getTank ignores the face; it's always the fuel tank. */
+    /** Automation: only the food slots take input (the feed channel); the buffer is extract-only, and the fuel and XP
+     * container slots are player-only. */
     @Override
-    public Component describeFluidFace(Direction face) {
-        return Component.translatable("tooltip.dermicraft.tank.fuel");
+    protected boolean canAutomationInsert(int slot, ItemStack stack) {
+        return slot >= 1 && slot <= FOOD_SLOT_COUNT;
     }
 
     /**
-     * Self-described channels for the Gate. All three are exposed on all six faces, since both
-     * capabilities are registered face-agnostically. Order is the Gate's priority order, so the
-     * convention is starvation-risk-first: fuel (machine stops dead without it), then feed (breeding
-     * stalls without it), then the output buffer (only backs up). The fuel *container* slot is never
-     * a channel -- it stays player-only, exactly as the automation handler already enforces.
+     * Self-described channels for the Gate. All are exposed on all six faces, since both capabilities are registered
+     * face-agnostically. Order is the Gate's priority order, so the convention is starvation-risk-first: fuel (machine
+     * stops dead without it), then feed (breeding stalls without it), then the output buffer (only backs up). The fuel
+     * *container* slot is never a channel -- it stays player-only, exactly as the automation handler already enforces.
      */
     @Override
-    public List<Channel> getChannels() {
-        List<Channel> channels = new ArrayList<>();
-        boolean fluidServiced = level != null
-                && isFaceServiced(level, worldPosition, Channel.Kind.FLUID, Direction.values());
-        boolean itemServiced = level != null
-                && isFaceServiced(level, worldPosition, Channel.Kind.ITEM, Direction.values());
-
-        if (!fluidServiced) {
-            channels.add(new Channel.FluidChannel("fuel", Component.literal("Fuel"), Channel.IO.IN, FUEL_TANK));
+    protected void addChannels(List<Channel> channels, boolean exposeFluid, boolean exposeItem) {
+        if (exposeFluid) {
+            channels.add(fuelChannel());
         }
-        if (!itemServiced) {
+        if (exposeItem) {
             channels.add(new Channel.ItemChannel("feed", Component.literal("Animal Feed"), Channel.IO.IN, FEED_CHANNEL));
             channels.add(new Channel.ItemChannel("output", Component.literal("Output Buffer"), Channel.IO.OUT, BUFFER_CHANNEL));
         }
-        if (!fluidServiced) {
+        if (exposeFluid) {
             // Last in priority order -- a passive gather buffer, nothing stalls without it, unlike
             // fuel starving the whole machine.
             channels.add(new Channel.FluidChannel("xp", Component.literal("Knowledge Colloid"), Channel.IO.OUT, XP_TANK));
         }
-        return channels;
-    }
-
-    @Override
-    public void drops() {
-        super.drops(INVENTORY);
-    }
-
-    private FuelTank createFuelTank() {
-        return new FuelTank(MachineTier.BASIC.tankCapacity(), 0) {
-            @Override
-            protected void onContentsChanged() {
-                if (level != null && !level.isClientSide) {
-                    refreshFuelMemory(); // picks up a fuel swap; empty keeps the last fuel's numbers
-                    setChanged();
-                    updateBlock();
-                }
-            }
-        };
-    }
-
-    private ItemStackHandler createItemHandler(int size) {
-        return new ItemStackHandler(size) {
-            @Override
-            protected void onContentsChanged(int slot) {
-                if (level != null && !level.isClientSide()) {
-                    if (slot == FUEL_TANK.SLOT && !isTransferringFluids) {
-                        biDirectionalFluidTransfer(FUEL_TANK, FUEL_TANK.SLOT);
-                        isTransferringFluids = false;
-                    } else if (slot == XP_TANK.SLOT && !isTransferringFluids) {
-                        biDirectionalFluidTransfer(XP_TANK, XP_TANK.SLOT);
-                        isTransferringFluids = false;
-                    }
-                    setChanged();
-                    updateBlock();
-                }
-            }
-
-            // Shared by both fuel and XP-tank slots -- same tank-agnostic ModFluidTank API either way.
-            private void biDirectionalFluidTransfer(ModFluidTank tank, int slot) {
-                if (tank.hasFluidHandlerInSlot(this, slot)) {
-                    isTransferringFluids = true;
-                    tank.transferFluidToTank(this, slot);
-                } else {
-                    transferToHandler(tank, slot);
-                }
-            }
-
-            private void transferToHandler(ModFluidTank tank, int slot) {
-                if (tank.hasEmptyFluidHandlerInSlot(this, slot)) {
-                    isTransferringFluids = true;
-                    ItemStack stack = getStackInSlot(slot);
-                    if (stack.isEmpty()) return;
-                    setStackInSlot(slot, stack);
-                    tank.transferFluidFromTankToHandler(this, slot);
-                }
-            }
-
-            @Override
-            public int getSlotLimit(int slot) {
-                return slot == FUEL_TANK.SLOT || slot == XP_TANK.SLOT ? 1 : super.getSlotLimit(slot);
-            }
-
-            // The fuel and XP-tank slots only take fluid containers. Without this, quickMoveStack
-            // walks the machine's slots in registration order -- fuel first -- so shift-clicking feed
-            // from the player's inventory would drop one wheat into the fuel slot before the rest
-            // reached the feed row. Slot.mayPlace() routes through here, so this fixes insertion and
-            // shift-click.
-            @Override
-            public boolean isItemValid(int slot, ItemStack stack) {
-                if (slot == FUEL_TANK.SLOT || slot == XP_TANK.SLOT) {
-                    return stack.getCapability(Capabilities.FluidHandler.ITEM) != null;
-                }
-                return super.isItemValid(slot, stack);
-            }
-        };
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.put("inventory", INVENTORY.serializeNBT(registries));
-        tag.put("fuel", FUEL_TANK.writeToNBT(registries, new CompoundTag()));
         tag.put("xp_tank", XP_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("populationCap", populationCap);
         // Persisted so an empty tank still remembers its last fuel's cap across a reload.
@@ -753,24 +556,12 @@ public class MrShepherdBlockEntity extends MachineBaseBlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        // NOT a plain INVENTORY.deserializeNBT -- a Mr. Shepherd saved before the XP tank's own slot
-        // existed carries Size=14 and would shrink this handler back down, crashing on world load
-        // (the Menu adds a slot at index 14 that would no longer exist). Same gotcha documented on
-        // SkinTankBlockEntity/DroolingMachineBlockEntity's own loadAdditional.
-        if (tag.contains("inventory")) loadItemHandler(INVENTORY, INVENTORY_SIZE, registries, tag.getCompound("inventory"));
-        if (tag.contains("fuel")) FUEL_TANK.readFromNBT(registries, tag.getCompound("fuel"));
         if (tag.contains("xp_tank")) XP_TANK.readFromNBT(registries, tag.getCompound("xp_tank"));
         if (tag.contains("populationCap")) populationCap = tag.getInt("populationCap");
         if (tag.contains("rememberedHeal")) rememberedHeal = tag.getFloat("rememberedHeal");
         if (tag.contains("rememberedFuel")) {
             rememberedFuel = BuiltInRegistries.FLUID.get(ResourceLocation.parse(tag.getString("rememberedFuel")));
         }
-    }
-
-    @NotNull
-    @Override
-    public Component getDisplayName() {
-        return getDisplayName(ModBlocks.MR_SHEPHERD);
     }
 
     @Nullable

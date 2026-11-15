@@ -1,0 +1,41 @@
+package net.scruffy.dermicraft.screen;
+
+/**
+ * Where things sit on a farm machine's screen, shared by the menu (which places the slots) and the screen (which draws
+ * the backdrops). Pure constants, so the server can load the menu without ever touching a client class. Coordinates are
+ * the backdrop's top-left inside the 176 x 166 main panel; a slot sits one pixel in from its backdrop.
+ */
+public final class FarmLayout {
+
+    private FarmLayout() {}
+
+    public static final int SLOT_SIZE = 18;
+
+    // ---- Home tab ----
+    /** The "Field: W x L" readout at the top. */
+    public static final int READOUT_X = 7;
+    public static final int READOUT_Y = 8;
+
+    /** The fuel row: the container slot, then the horizontal gauge just right of it. */
+    public static final int FUEL_SLOT_X = 7;
+    public static final int FUEL_SLOT_Y = 44;
+    public static final int FUEL_GAUGE_X = 26;
+    public static final int FUEL_GAUGE_Y = 44;
+
+    /** The output buffer row, nine slots across. */
+    public static final int BUFFER_ROW_X = 7;
+    public static final int BUFFER_ROW_Y = 64;
+
+    // ---- Field tab ----
+    /** The two stepper rows: a label on the left, a minus and a plus button on the right. */
+    public static final int FIELD_LABEL_X = 7;
+    public static final int FIELD_MINUS_X = 62;
+    public static final int FIELD_PLUS_X = 82;
+    public static final int FIELD_WIDTH_ROW_Y = 16;
+    public static final int FIELD_LENGTH_ROW_Y = 38;
+
+    /** The preview grid: a 9 x 9 box of 6 pixel cells (the tile art doubled). */
+    public static final int FIELD_GRID_X = 108;
+    public static final int FIELD_GRID_Y = 14;
+    public static final int FIELD_GRID_CELL = 6;
+}
