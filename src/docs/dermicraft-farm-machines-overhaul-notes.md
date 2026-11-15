@@ -148,9 +148,10 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
 
 - **Mr. Farmer:** pays per farmland cell actually worked in a step; a 3-cell row is one fuel step. A 3 x 3 field therefore costs what
   it did before, a wider field costs proportionally more, and an unplanted or unfarmable field costs nothing.
-- **Mr. Shepherd:** pays by field area once per work cycle (that does something); a 3 x 3 field (9 cells) is one fuel step.
+- **Mr. Shepherd (revised, user ruling):** pays per work, not per field area. Each kind of work that did something in a cycle (item pick-up, XP pick-up, shearing, growing babies, breeding, culling) costs a third of a fuel step, so a typical cycle of about three kinds costs one step, as a cycle with any work did before, and a busy one costs up to two. The 3 is `WORK_KINDS_PER_STEP`, my calibration, to tune in play.
 - Both go through `burnFuel(steps)` on the shared block entity, which carries a fractional step over to the next burn and never burns
   more than the tank holds. The "enough fuel for one step" gate and the fuel speed pacing are unchanged.
 - Fuel tier (`BiofuelProperties.tier`) now does nothing to the field, and nothing else uses it yet. It stays unused for now.
-- Open: the Shepherd could instead scale with the animals it handles; area was chosen because its work is not per cell. Whether
+- **Rule per machine (user, 2026-11-14): Mr. Farmer and Mr. Logger pay per cell, Mr. Shepherd and Mr. Hunter pay per work.** Mr. Logger and Mr. Hunter are not built yet; when they are, follow this.
+- Open: where Mr. Logger and Mr. Hunter sit in the stage and tier timeline, and whether Hunter uses a field at all.
   Mr. Logger and Mr. Hunter use the same per-work rule, and where they sit in the stage and tier timeline.

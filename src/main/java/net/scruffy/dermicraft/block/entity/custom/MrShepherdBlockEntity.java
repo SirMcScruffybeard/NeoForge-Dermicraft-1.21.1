@@ -59,7 +59,9 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
     private static final int VERTICAL_REACH = 4; // AABB extends this far above/below the machine's plane
     private static final int PICKUP_MARGIN = 1;  // pickup-only overreach on each horizontal side
-    private static final int BASELINE_FIELD_CELLS = 9; // the 3 x 3 field: the area one cycle's fuel step pays for
+    // A fuel step pays for this many kinds of work in one cycle (pick-up, XP, shearing, growing, breeding, culling are the six
+    // kinds), so a typical cycle of about three costs one step, as it did when a cycle with any work cost a whole step.
+    private static final int WORK_KINDS_PER_STEP = 3;
 
     // --- Population cap ---
     // The cap is the BREEDING STOCK (adults maintained), not the total population -- a total-population
@@ -192,16 +194,16 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         // Shearing runs before culling so a sheep can never be harvested with its wool still on.
         // cullOverpopulation() also guards this explicitly, so the guarantee doesn't depend on order.
         AABB area = workArea();
-        boolean didWork = false;
-        didWork |= collectItems(serverLevel, pickupArea()); // wider than the rest -- see pickupArea()
-        didWork |= collectXp(serverLevel, pickupArea()); // same area, same cadence as item pickup
-        didWork |= shearSheep(serverLevel, area);
-        didWork |= growBabies(serverLevel, area);
-        didWork |= breedAnimals(serverLevel, area);
-        didWork |= cullOverpopulation(serverLevel, area);
+        int kindsOfWork = 0; // fuel follows the work: each kind of work that did something this cycle is paid for
+        if (collectItems(serverLevel, pickupArea())) kindsOfWork++; // wider than the rest -- see pickupArea()
+        if (collectXp(serverLevel, pickupArea())) kindsOfWork++; // same area, same cadence as item pickup
+        if (shearSheep(serverLevel, area)) kindsOfWork++;
+        if (growBabies(serverLevel, area)) kindsOfWork++;
+        if (breedAnimals(serverLevel, area)) kindsOfWork++;
+        if (cullOverpopulation(serverLevel, area)) kindsOfWork++;
 
-        if (didWork) {
-            burnFuel(getFieldWidth() * getFieldLength() / (float) BASELINE_FIELD_CELLS); // by field area, a 3 x 3 field being one step
+        if (kindsOfWork > 0) {
+            burnFuel(kindsOfWork / (float) WORK_KINDS_PER_STEP);
             setChanged();
         }
     }
