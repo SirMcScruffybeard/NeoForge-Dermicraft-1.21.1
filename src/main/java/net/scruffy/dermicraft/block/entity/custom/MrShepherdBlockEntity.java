@@ -31,6 +31,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.Channel;
+import net.scruffy.dermicraft.util.DrainOnlyFluidHandler;
 import net.scruffy.dermicraft.util.SlotRangeItemHandler;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.screen.custom.mr_shepherd.MrShepherdMenu;
@@ -92,6 +93,8 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     private static final int INVENTORY_SIZE = XP_SLOT_INDEX + 1;
 
     private final DroolingTank XP_TANK = createDroolingTank(XP_TANK_CAPACITY, XP_SLOT_INDEX, ModFluids.SOURCE_KNOWLEDGE_COLLOID::get);
+    // The bottom face is an output: the XP tank as a drain-only view (see getTank).
+    private final IFluidHandler XP_DRAIN = new DrainOnlyFluidHandler(XP_TANK);
     // slot 0 = fuel container, 1..FOOD_SLOT_COUNT = breeding food, next BUFFER_SLOT_COUNT =
     // pickup/wool buffer, last slot = XP tank's own fill/drain container.
 
@@ -512,6 +515,33 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     @Override
     protected ModFluidTank getTankForSlot(int slot) {
         return slot == XP_TANK.SLOT ? XP_TANK : super.getTankForSlot(slot);
+    }
+
+    // The bottom face is an output only: Knowledge Colloid out of the XP tank and the output buffer out, nothing in
+    // (not the fuel, not the feed). Every other face is as before: the fuel tank, and the food slots and buffer.
+    @Override
+    public IFluidHandler getTank(@Nullable Direction direction) {
+        return direction == Direction.DOWN ? XP_DRAIN : super.getTank(direction);
+    }
+
+    @Override
+    public IItemHandler getAutomationItemHandler(@Nullable Direction direction) {
+        return direction == Direction.DOWN ? BUFFER_CHANNEL : super.getAutomationItemHandler(direction);
+    }
+
+    // The Gate describes each face from these, so they mirror the capabilities above.
+    @Override
+    public Component describeFace(Direction face) {
+        return face == Direction.DOWN
+                ? Component.translatable("tooltip.dermicraft.idep.face.mr_shepherd.bottom")
+                : super.describeFace(face);
+    }
+
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return face == Direction.DOWN
+                ? Component.translatable("tooltip.dermicraft.gauge.xp")
+                : super.describeFluidFace(face);
     }
 
     /** Automation: only the food slots take input (the feed channel); the buffer is extract-only, and the fuel and XP

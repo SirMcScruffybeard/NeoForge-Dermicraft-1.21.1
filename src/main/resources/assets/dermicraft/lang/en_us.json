@@ -500,6 +500,7 @@
 
   "tooltip.dermicraft.idep.face.mr_farmer": "Fuel tank (+ harvest buffer)",
   "tooltip.dermicraft.idep.face.mr_shepherd": "Fuel tank (+ feed slots and output buffer)",
+  "tooltip.dermicraft.idep.face.mr_shepherd.bottom": "Knowledge Colloid drain + output buffer (drain only)",
 
   "block.dermicraft.beaker": "Beaker",
   "item.dermicraft.beaker.filled": "Beaker of %s",

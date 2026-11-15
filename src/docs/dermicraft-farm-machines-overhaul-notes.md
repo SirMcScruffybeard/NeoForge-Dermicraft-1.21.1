@@ -136,7 +136,8 @@ from the same `range`. Both have to be converted to a width and a length. See th
   18 pixels below the panel. It may need shorter tabs.
 - Whether the Field tab layout reads well (label positions, grid size), and whether the XP row sits right above the fuel row.
 - A vertically facing machine has no "sideways", so width is world X and length is world Z there; confirm that feels acceptable.
-- The Shepherd's automation extract used to allow pulling the XP container slot out; the shared handler now only extracts from
+- The Shepherd's automation extract used to allow pulling the XP container slot out; the shared handler now only extracts from the output buffer (all container slots are player-only).
+- **Mr. Shepherd's bottom face is an output only (user, 2026-11-14):** the XP tank (Knowledge Colloid) as a drain-only fluid view and the output buffer as an extract-only item view; nothing can be inserted there (no fuel, no feed). Every other face is as before. The Gate's xp channel stays, and the Gate face descriptions mirror the bottom face.
   the output buffer (all container slots are player-only).
 - The default field is 3 x 3 and nothing migrates old saves.
 
