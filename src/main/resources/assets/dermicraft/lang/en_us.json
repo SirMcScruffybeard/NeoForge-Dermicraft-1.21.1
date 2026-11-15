@@ -499,6 +499,8 @@
   "tooltip.dermicraft.idep.face.craw_storage": "Bulk storage",
 
   "tooltip.dermicraft.idep.face.mr_farmer": "Fuel tank (+ harvest buffer)",
+  "tooltip.dermicraft.idep.face.mr_farmer.bottom": "Harvest buffer (drain only)",
+  "tooltip.dermicraft.idep.face.no_fluid": "No fluid access",
   "tooltip.dermicraft.idep.face.mr_shepherd": "Fuel tank (+ feed slots and output buffer)",
   "tooltip.dermicraft.idep.face.mr_shepherd.bottom": "Knowledge Colloid drain + output buffer (drain only)",
 

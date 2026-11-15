@@ -28,6 +28,8 @@ import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.screen.custom.mr_farmer.MrFarmerMenu;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -665,6 +667,34 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         BlockState state = level.getBlockState(pos);
         if (state.isAir() || !state.getFluidState().isEmpty()) return false;
         return state.isFaceSturdy(level, pos, Direction.UP) || state.is(Blocks.FARMLAND);
+    }
+
+    // The bottom face is an output only: the harvest buffer out, nothing in. The Farmer's only tank is the fuel tank, so the
+    // bottom has no fluid access at all (no fuel in). Every other face is as before: the fuel tank, and the buffer out.
+    @Nullable
+    @Override
+    public IFluidHandler getTank(@Nullable Direction direction) {
+        return direction == Direction.DOWN ? null : super.getTank(direction);
+    }
+
+    @Override
+    public IItemHandler getAutomationItemHandler(@Nullable Direction direction) {
+        return direction == Direction.DOWN ? BUFFER_CHANNEL : super.getAutomationItemHandler(direction);
+    }
+
+    // The Gate describes each face from these, so they mirror the capabilities above.
+    @Override
+    public Component describeFace(Direction face) {
+        return face == Direction.DOWN
+                ? Component.translatable("tooltip.dermicraft.idep.face.mr_farmer.bottom")
+                : super.describeFace(face);
+    }
+
+    @Override
+    public Component describeFluidFace(Direction face) {
+        return face == Direction.DOWN
+                ? Component.translatable("tooltip.dermicraft.idep.face.no_fluid")
+                : super.describeFluidFace(face);
     }
 
     // ---- Gate integration ---------------------------------------------------------------------------

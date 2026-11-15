@@ -138,6 +138,7 @@ from the same `range`. Both have to be converted to a width and a length. See th
 - A vertically facing machine has no "sideways", so width is world X and length is world Z there; confirm that feels acceptable.
 - The Shepherd's automation extract used to allow pulling the XP container slot out; the shared handler now only extracts from the output buffer (all container slots are player-only).
 - **Mr. Shepherd's bottom face is an output only (user, 2026-11-14):** the XP tank (Knowledge Colloid) as a drain-only fluid view and the output buffer as an extract-only item view; nothing can be inserted there (no fuel, no feed). Every other face is as before. The Gate's xp channel stays, and the Gate face descriptions mirror the bottom face.
+- **Mr. Farmer's bottom face is an output only (user, 2026-11-14):** the harvest buffer as an extract-only item view, and no fluid access at all (its only tank is the fuel tank, so nothing goes in). Other faces as before; the Gate channels (fuel in, harvest out) stay.
   the output buffer (all container slots are player-only).
 - The default field is 3 x 3 and nothing migrates old saves.
 
