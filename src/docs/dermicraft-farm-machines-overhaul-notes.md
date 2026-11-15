@@ -132,8 +132,7 @@ from the same `range`. Both have to be converted to a width and a length. See th
 
 ## To check in game
 
-- The Shepherd's three tabs are 184 pixels tall (3 tabs of 56 plus gaps) against a 166 pixel panel, so the tab strip hangs about
-  18 pixels below the panel. It may need shorter tabs.
+- (Resolved 2026-11-14) The tabs are now the 24 pixel tabs the Innards Node uses, stacked flush with the panel's top, each marked with an initial (H, F, P, from lang keys so a translation can pick its own) and showing the full name when hovered. Three of them are 80 pixels, so they no longer hang below the panel. The helper (`renderSmallTabs`, `smallTabClickedAt`, `getStackedSmallTabArea`) is in `AbstractModScreen`, shared by any screen.
 - Whether the Field tab layout reads well (label positions, grid size), and whether the XP row sits right above the fuel row.
 - A vertically facing machine has no "sideways", so width is world X and length is world Z there; confirm that feels acceptable.
 - The Shepherd's automation extract used to allow pulling the XP container slot out; the shared handler now only extracts from the output buffer (all container slots are player-only).

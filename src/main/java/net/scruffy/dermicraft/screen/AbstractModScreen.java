@@ -281,6 +281,53 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
         return -1;
     }
 
+    // Small tabs -- the 24 px tab art the Innards Node's screen uses, stacked down the left edge flush with the panel's
+    // top, each marked with a short label (usually one initial) instead of the tall tab's rotated word. Use these for a
+    // screen with several tabs, where the tall tabs would run past the panel's bottom.
+    private static final ResourceLocation SMALL_TAB_OPEN_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/backgrounds/tab_24_open.png");
+    private static final ResourceLocation SMALL_TAB_CLOSED_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/backgrounds/tab_24_closed.png");
+    protected static final int SMALL_TAB_SIZE = 24;
+    private static final int SMALL_TAB_X = -SMALL_TAB_SIZE + 1;
+    private static final int SMALL_TAB_GAP = 4;
+    private static final int SMALL_TAB_FIRST_Y = 0;
+    private static final int SMALL_TAB_STEP = SMALL_TAB_SIZE + SMALL_TAB_GAP;
+
+    /**
+     * Draws every tab in {@code tabs} as a small tab with its label centered on it: open art for {@code activeIndex},
+     * closed art for the rest. {@code (x, y)} is the screen origin, as for {@link #renderTabs}.
+     */
+    protected void renderSmallTabs(GuiGraphics guiGraphics, int x, int y, List<Tab> tabs, int activeIndex) {
+        for (int i = 0; i < tabs.size(); i++) {
+            Tab tab = tabs.get(i);
+            int tabX = x + SMALL_TAB_X;
+            int tabY = y + SMALL_TAB_FIRST_Y + i * SMALL_TAB_STEP;
+            guiGraphics.blit(i == activeIndex ? SMALL_TAB_OPEN_TEXTURE : SMALL_TAB_CLOSED_TEXTURE, tabX, tabY, 0, 0,
+                    SMALL_TAB_SIZE, SMALL_TAB_SIZE, SMALL_TAB_SIZE, SMALL_TAB_SIZE);
+            guiGraphics.drawString(font, tab.label(), tabX + (SMALL_TAB_SIZE - font.width(tab.label())) / 2,
+                    tabY + (SMALL_TAB_SIZE - font.lineHeight) / 2 + 1, tab.textColor(), false);
+        }
+    }
+
+    /** The area of {@code tabCount} small tabs drawn by {@link #renderSmallTabs}, for JEI to keep clear. */
+    protected net.minecraft.client.renderer.Rect2i getStackedSmallTabArea(int tabCount) {
+        int height = tabCount * SMALL_TAB_SIZE + (tabCount - 1) * SMALL_TAB_GAP;
+        return new net.minecraft.client.renderer.Rect2i(leftPos + SMALL_TAB_X, topPos + SMALL_TAB_FIRST_Y, SMALL_TAB_SIZE, height);
+    }
+
+    /** Which small tab (if any) sits under {@code (mouseX, mouseY)}, against the same geometry
+     * {@link #renderSmallTabs} draws. -1 for no hit. */
+    protected int smallTabClickedAt(double mouseX, double mouseY, int x, int y, int tabCount) {
+        for (int i = 0; i < tabCount; i++) {
+            int tabY = y + SMALL_TAB_FIRST_Y + i * SMALL_TAB_STEP;
+            if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + SMALL_TAB_X, tabY, SMALL_TAB_SIZE, SMALL_TAB_SIZE)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     /** Draws text at a smaller size than the font's native scale -- see {@link #blitFlippedX} for
      * the identical pose-stack approach, scaling uniformly instead of mirroring. x/y are the position
      * the text should visually appear at; dividing by scale before drawing compensates for the

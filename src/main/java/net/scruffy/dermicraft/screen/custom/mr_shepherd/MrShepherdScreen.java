@@ -37,8 +37,8 @@ public class MrShepherdScreen extends AbstractFarmScreen<MrShepherdMenu> {
     }
 
     @Override
-    protected List<Tab> createExtraTabs() {
-        return List.of(new Tab(Component.translatable("screen.dermicraft.farm.population_tab"), TEXT_COLOR));
+    protected List<FarmTab> createExtraTabs() {
+        return List.of(farmTab("population"));
     }
 
     @Override

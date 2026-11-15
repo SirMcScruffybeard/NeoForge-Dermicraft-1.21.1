@@ -83,7 +83,8 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
     private int heldButton = -1; // -1 = nothing held, else the menu button id being held
     private int holdTicks = 0;
 
-    private List<Tab> tabs = List.of();
+    private List<FarmTab> farmTabs = List.of();
+    private List<Tab> tabs = List.of(); // the same tabs as the small-tab bar draws them: each one's initial
     protected FluidTankRenderer fuelRenderer;
 
     protected AbstractFarmScreen(M menu, Inventory playerInventory, Component title) {
@@ -100,8 +101,17 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
 
     // ---- What a machine supplies -------------------------------------------------------------------
 
+    /** A tab as the player sees it: a short mark on the tab itself (usually the initial) and its full name, shown on hover. */
+    protected record FarmTab(Component initial, Component name) {}
+
+    /** A tab whose texts are the lang keys {@code screen.dermicraft.farm.<id>_tab} (the name) and {@code ...<id>_tab.initial}. */
+    protected static FarmTab farmTab(String id) {
+        return new FarmTab(Component.translatable("screen.dermicraft.farm." + id + "_tab.initial"),
+                Component.translatable("screen.dermicraft.farm." + id + "_tab"));
+    }
+
     /** The tabs after Home and Field (their content is the machine's own, see {@link #renderExtraTabBg}). */
-    protected List<Tab> createExtraTabs() {
+    protected List<FarmTab> createExtraTabs() {
         return List.of();
     }
 
@@ -153,17 +163,18 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
     @Override
     protected void init() {
         super.init();
-        List<Tab> all = new ArrayList<>();
-        all.add(new Tab(Component.translatable("screen.dermicraft.farm.home_tab"), TEXT_COLOR));
-        all.add(new Tab(Component.translatable("screen.dermicraft.farm.field_tab"), TEXT_COLOR));
+        List<FarmTab> all = new ArrayList<>();
+        all.add(farmTab("home"));
+        all.add(farmTab("field"));
         all.addAll(createExtraTabs());
-        tabs = all;
+        farmTabs = all;
+        tabs = all.stream().map(tab -> new Tab(tab.initial(), TEXT_COLOR)).toList();
         fuelRenderer = createGaugeRenderer(menu.BE.getFuelTank().getCapacity());
     }
 
     @Override
     public Rect2i getTabStripArea() {
-        return tabs.isEmpty() ? null : getStackedTabArea(tabs.size());
+        return tabs.isEmpty() ? null : getStackedSmallTabArea(tabs.size());
     }
 
     /** Counts down the press flash, and runs the value while a stepper is held past the delay. */
@@ -185,7 +196,7 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        int clickedTab = tabClickedAt(mouseX, mouseY, x, y, tabs.size());
+        int clickedTab = smallTabClickedAt(mouseX, mouseY, x, y, tabs.size());
         if (clickedTab >= 0 && clickedTab != menu.getActiveTab()) {
             menu.setActiveTab(clickedTab);
             minecraft.gameMode.handleInventoryButtonClick(menu.containerId, AbstractModMenu.TAB_BUTTON_BASE + clickedTab);
@@ -229,7 +240,7 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
         guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, imageWidth, imageHeight,
                 BACKGROUND_TEXTURE_SIZE, BACKGROUND_TEXTURE_SIZE);
         renderPlayerInventoryBackdrop(guiGraphics, x, y);
-        renderTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
+        renderSmallTabs(guiGraphics, x, y, tabs, menu.getActiveTab());
 
         int tab = menu.getActiveTab();
         if (tab == AbstractFarmMenu.HOME_TAB) {
@@ -266,6 +277,12 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
         int tab = menu.getActiveTab();
+
+        // The tabs carry only an initial, so hovering one shows its full name.
+        int hovered = smallTabClickedAt(mouseX, mouseY, x, y, farmTabs.size());
+        if (hovered >= 0) {
+            guiGraphics.renderTooltip(this.font, farmTabs.get(hovered).name(), mouseX - x, mouseY - y);
+        }
 
         if (tab == AbstractFarmMenu.HOME_TAB) {
             guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.farm.field",
