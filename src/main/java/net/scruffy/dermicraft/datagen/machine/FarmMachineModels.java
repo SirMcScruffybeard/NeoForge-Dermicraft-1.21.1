@@ -23,6 +23,9 @@ public class FarmMachineModels {
     /** The front: the light mount centered across the top with its top edge 4 pixels down (x 5 to 10, y 6 to 11). */
     public static final MachineFaceLayout FRONT = new MachineFaceLayout(Direction.NORTH, 5, 6, List.of());
 
+    /** Mr. Shepherd's front: the mount 4 pixels down and 2 in from the right edge (x 8 to 13, y 6 to 11). */
+    public static final MachineFaceLayout SHEPHERD_FRONT = new MachineFaceLayout(Direction.NORTH, 8, 6, List.of());
+
     private static final String FARM_MACHINE_DIR = BLOCK_DIR + "/farm_machine";
     private static final String PLATE = SIMPLE_MACHINE_DIR + "/plate/l_plate";
     private static final String MOUNT = SIMPLE_MACHINE_DIR + LIGHT_MOUNT_DIR + "/l1";
@@ -47,6 +50,11 @@ public class FarmMachineModels {
      * once per state: the provider hands back the same builder for a name it already has.
      */
     public BlockModelBuilder build(String machine, boolean lit) {
+        return build(machine, lit, FRONT);
+    }
+
+    /** As {@link #build(String, boolean)}, with the light mount placed by {@code front}. */
+    public BlockModelBuilder build(String machine, boolean lit, MachineFaceLayout front) {
         String textures = FARM_MACHINE_DIR + "/" + machine + "/" + machine;
         BlockModelBuilder model = provider.models().getBuilder(MODEL_DIR + machine + (lit ? "_on" : ""))
                 .parent(provider.models().getExistingFile(provider.mcLoc("block/block")))
@@ -78,7 +86,7 @@ public class FarmMachineModels {
         faces.face(Direction.UP).uvs(0, 0, 16, 16).texture("#top").cullface(Direction.UP).end();
         faces.end();
 
-        parts.addLightMountAndLight(model, FRONT, "mount", "light", lit);
+        parts.addLightMountAndLight(model, front, "mount", "light", lit);
         parts.addPortSides(model, "ring", side -> side == Direction.DOWN);
         parts.addPortSides(model, "center", side -> side == Direction.DOWN);
         return model;

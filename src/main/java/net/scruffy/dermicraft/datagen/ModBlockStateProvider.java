@@ -227,8 +227,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
     // Mirrors mrFarmerBlockState() exactly -- same 6-way facing convention, same on/off swap.
     private void mrShepherdBlockState() {
-        ModelFile off = models().getExistingFile(ModBlocks.MR_SHEPHERD.getId());
-        ModelFile on = models().getExistingFile(modLoc("block/mr_shepherd_on"));
+        FarmMachineModels farmModels = new FarmMachineModels(this);
+        ModelFile off = farmModels.build("mr_shepherd", false, FarmMachineModels.SHEPHERD_FRONT);
+        ModelFile on = farmModels.build("mr_shepherd", true, FarmMachineModels.SHEPHERD_FRONT);
         var builder = getVariantBuilder(ModBlocks.MR_SHEPHERD.get());
 
         putShepherdVariant(builder, off, on, Direction.UP, 270, 0);
