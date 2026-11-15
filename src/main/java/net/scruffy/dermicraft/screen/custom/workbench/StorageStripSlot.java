@@ -16,7 +16,7 @@ import java.util.function.IntSupplier;
  * 9 on-screen Slot objects can be re-pointed at a different row just by the row changing, with no
  * slots added/removed and no extra client-server sync beyond what already keeps that row value
  * consistent (see {@code WorkbenchBlockEntity#scrollRow}, kept in sync the same way
- * {@code MrShepardBlockEntity}'s population cap is -- BE data sync, not a menu DataSlot).
+ * {@code MrShepherdBlockEntity}'s population cap is -- BE data sync, not a menu DataSlot).
  */
 public class StorageStripSlot extends Slot {
 

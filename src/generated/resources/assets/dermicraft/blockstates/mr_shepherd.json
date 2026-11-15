@@ -1,49 +1,49 @@
 {
   "variants": {
     "facing=down,lit=false": {
-      "model": "dermicraft:block/mr_shepard",
+      "model": "dermicraft:block/mr_shepherd",
       "x": 90
     },
     "facing=down,lit=true": {
-      "model": "dermicraft:block/mr_shepard_on",
+      "model": "dermicraft:block/mr_shepherd_on",
       "x": 90
     },
     "facing=east,lit=false": {
-      "model": "dermicraft:block/mr_shepard",
+      "model": "dermicraft:block/mr_shepherd",
       "y": 90
     },
     "facing=east,lit=true": {
-      "model": "dermicraft:block/mr_shepard_on",
+      "model": "dermicraft:block/mr_shepherd_on",
       "y": 90
     },
     "facing=north,lit=false": {
-      "model": "dermicraft:block/mr_shepard"
+      "model": "dermicraft:block/mr_shepherd"
     },
     "facing=north,lit=true": {
-      "model": "dermicraft:block/mr_shepard_on"
+      "model": "dermicraft:block/mr_shepherd_on"
     },
     "facing=south,lit=false": {
-      "model": "dermicraft:block/mr_shepard",
+      "model": "dermicraft:block/mr_shepherd",
       "y": 180
     },
     "facing=south,lit=true": {
-      "model": "dermicraft:block/mr_shepard_on",
+      "model": "dermicraft:block/mr_shepherd_on",
       "y": 180
     },
     "facing=up,lit=false": {
-      "model": "dermicraft:block/mr_shepard",
+      "model": "dermicraft:block/mr_shepherd",
       "x": 270
     },
     "facing=up,lit=true": {
-      "model": "dermicraft:block/mr_shepard_on",
+      "model": "dermicraft:block/mr_shepherd_on",
       "x": 270
     },
     "facing=west,lit=false": {
-      "model": "dermicraft:block/mr_shepard",
+      "model": "dermicraft:block/mr_shepherd",
       "y": 270
     },
     "facing=west,lit=true": {
-      "model": "dermicraft:block/mr_shepard_on",
+      "model": "dermicraft:block/mr_shepherd_on",
       "y": 270
     }
   }

@@ -92,7 +92,7 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
     };
 
     // Saved/loaded purely to ride the existing BE-sync pathway (see saveAdditional), same "no
-    // DataSlot" convention MrShepardBlockEntity's population cap already uses in this codebase --
+    // DataSlot" convention MrShepherdBlockEntity's population cap already uses in this codebase --
     // not because a UI scroll position is meaningful long-term world state.
     private int scrollRow = 0;
 
@@ -148,7 +148,7 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
      * away at it -- repair magnitude scales with the loaded fuel's Heal modifier (same "BASE * heal"
      * shape {@code AbstractFueledMachineBlockEntity#getHealAmount} uses for machine healing), cost
      * scales with its Use-rate modifier (mod-wide cost convention, see
-     * {@code MrShepardBlockEntity#fuelPerStep}). {@link IGadget} items are included: they already
+     * {@code MrShepherdBlockEntity#fuelPerStep}). {@link IGadget} items are included: they already
      * reuse vanilla damage as their own HP stat and heal for free over time while carried (see
      * {@link net.scruffy.dermicraft.event.GadgetEvents}) -- Duty 3 just trades that idle time for
      * material, healing a stored gadget faster at the cost of fuel instead of waiting it out in a
@@ -517,7 +517,7 @@ public class WorkbenchBlockEntity extends MachineBaseBlockEntity implements Menu
         tag.put("output", OUTPUT.serializeNBT(registries));
         // scrollRow isn't meaningfully "world state" (it's a UI scroll position), but this
         // save/load pathway IS how the client-side BE mirror gets kept in sync in this codebase
-        // (see MrShepardBlockEntity's populationCap) -- skipping it here means the server value
+        // (see MrShepherdBlockEntity's populationCap) -- skipping it here means the server value
         // changes but the client never finds out, so the thumb/visible slots never update.
         tag.putInt("scrollRow", scrollRow);
         // Same rationale as scrollRow above -- keeps a late-joining client's "screen" bone in the

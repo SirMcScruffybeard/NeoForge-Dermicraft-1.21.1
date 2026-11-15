@@ -86,7 +86,7 @@ public class WorkbenchMenu extends AbstractModMenu {
     public static final int HEAD_SLOT_INDEX = PANEL_SLOTS_START_INDEX;
 
     // clickMenuButton ids, mirrors vanilla's loom/enchant-table button convention (already used
-    // in this codebase by MrShepardMenu's population-cap buttons). Absolute row-set ids and the
+    // in this codebase by MrShepherdMenu's population-cap buttons). Absolute row-set ids and the
     // fill-from-pool id are offset well past the two fixed scroll ids so they can't collide --
     // row ids grow with capacity (see setRowButtonId), so fill-from-pool gets a fixed high id
     // instead of sitting right after them.

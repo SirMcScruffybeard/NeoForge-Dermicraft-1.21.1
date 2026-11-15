@@ -220,8 +220,8 @@ public class ModBlocks {
     public static final DeferredBlock<Block> MR_FARMER = registerBlock("mr_farmer",
             () -> new MrFarmerBlock(machineProperties()));
 
-    public static final DeferredBlock<Block> MR_SHEPARD = registerBlock("mr_shepard",
-            () -> new net.scruffy.dermicraft.block.custom.MrShepardBlock(machineProperties()));
+    public static final DeferredBlock<Block> MR_SHEPHERD = registerBlock("mr_shepherd",
+            () -> new net.scruffy.dermicraft.block.custom.MrShepherdBlock(machineProperties()));
 
     // Ducts and Nodes are the exception to the "destroyed on normal break" rule: they drop
     // themselves (see ModBlockLootTableProvider) so players aren't punished for pipe re-fiddling.

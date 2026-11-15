@@ -84,7 +84,7 @@ public class MrFarmerScreen extends AbstractModScreen<MrFarmerMenu> {
                 menu.BE.getFuelTank().getFluid(), GAUGE_INTERIOR_X, GAUGE_INTERIOR_Y, fuelRenderer,
                 Component.translatable("tooltip.dermicraft.gauge.fuel"));
 
-        // Slot role labels, matching Mr. Shepard. Only shown while a slot is empty; once it holds an
+        // Slot role labels, matching Mr. Shepherd. Only shown while a slot is empty; once it holds an
         // item vanilla's own item tooltip covers it.
         renderItemSlotTooltipArea(guiGraphics, pMouseX, pMouseY, x, y, FUEL_SLOT_X + 1, FUEL_SLOT_Y + 1,
                 menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getFuelTank().SLOT),

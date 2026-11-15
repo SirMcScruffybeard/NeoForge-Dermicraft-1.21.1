@@ -30,21 +30,21 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
-import net.scruffy.dermicraft.block.entity.custom.MrShepardBlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.MrShepherdBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 // Mirrors MrFarmerBlock's shape/interaction pattern exactly -- same 6-way facing, same on/off
 // texture swap, same fluid-container-fills-fuel-tank interaction. See dermicraft-machine-notes.md
-// -> Farming automation concepts -> Mr. Shepard.
-public class MrShepardBlock extends ModBaseEntityBlock {
+// -> Farming automation concepts -> Mr. Shepherd.
+public class MrShepherdBlock extends ModBaseEntityBlock {
 
-    public static final MapCodec<MrShepardBlock> CODEC = simpleCodec(MrShepardBlock::new);
+    public static final MapCodec<MrShepherdBlock> CODEC = simpleCodec(MrShepherdBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty ACTIVE = BlockStateProperties.LIT;
 
     // Collision extends a full 24px up -- deliberately matching a vanilla fence rather than the
-    // model's own ~22px hat. A Shepard is set INTO the pen's fence line, so a plain full-cube block
+    // model's own ~22px hat. A Shepherd is set INTO the pen's fence line, so a plain full-cube block
     // would be a 1-block-tall gap in an otherwise 1.5-tall wall: an escape hatch animals could jump.
     // Blocks can still be placed on top; placement only checks the target position for replaceability
     // and entities, never a neighbour's collision shape (same as placing a block atop a fence).
@@ -56,7 +56,7 @@ public class MrShepardBlock extends ModBaseEntityBlock {
     // so it can't tell which way a given pen's wall actually runs.
     private static final VoxelShape COLLISION_SHAPE = Block.box(-4, 0, -4, 20, 24, 20);
 
-    public MrShepardBlock(Properties properties) {
+    public MrShepherdBlock(Properties properties) {
         super(properties.noLootTable());
         this.registerDefaultState(this.stateDefinition.any().setValue(ACTIVE, false));
     }
@@ -100,13 +100,13 @@ public class MrShepardBlock extends ModBaseEntityBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-        return new MrShepardBlockEntity(blockPos, blockState);
+        return new MrShepherdBlockEntity(blockPos, blockState);
     }
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(type, ModBlockEntities.MR_SHEPARD_BE.get(),
+        return createTickerHelper(type, ModBlockEntities.MR_SHEPHERD_BE.get(),
                 (lvl, pos, st, be) -> be.tick(lvl));
     }
 
@@ -114,7 +114,7 @@ public class MrShepardBlock extends ModBaseEntityBlock {
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!level.isClientSide) {
             if (state.getBlock() != newState.getBlock()) {
-                if (level.getBlockEntity(pos) instanceof MrShepardBlockEntity be) {
+                if (level.getBlockEntity(pos) instanceof MrShepherdBlockEntity be) {
                     be.drops();
                 }
             }
@@ -125,7 +125,7 @@ public class MrShepardBlock extends ModBaseEntityBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.getCapability(Capabilities.FluidHandler.ITEM) != null) {
-            if (!level.isClientSide && level.getBlockEntity(pos) instanceof MrShepardBlockEntity be
+            if (!level.isClientSide && level.getBlockEntity(pos) instanceof MrShepherdBlockEntity be
                     && FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection())) {
                 be.setChanged();
                 be.updateBlock();

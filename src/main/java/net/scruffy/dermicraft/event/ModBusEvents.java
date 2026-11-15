@@ -108,11 +108,11 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MR_FARMER_BE.get(), MrFarmerBlockEntity::getTank);
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_FARMER_BE.get(), MrFarmerBlockEntity::getAutomationItemHandler);
 
-        // Mr. Shepard: same shape as Mr. Farmer -- fuel tank fluid handler, automation-restricted item handler.
-        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MR_SHEPARD_BE.get(),
-                net.scruffy.dermicraft.block.entity.custom.MrShepardBlockEntity::getTank);
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_SHEPARD_BE.get(),
-                net.scruffy.dermicraft.block.entity.custom.MrShepardBlockEntity::getAutomationItemHandler);
+        // Mr. Shepherd: same shape as Mr. Farmer -- fuel tank fluid handler, automation-restricted item handler.
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MR_SHEPHERD_BE.get(),
+                net.scruffy.dermicraft.block.entity.custom.MrShepherdBlockEntity::getTank);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_SHEPHERD_BE.get(),
+                net.scruffy.dermicraft.block.entity.custom.MrShepherdBlockEntity::getAutomationItemHandler);
 
         // Node: item automation is exposed via getItemHandler(Direction), which restricts any
         // direction-based (capability) query to the transport buffer slot only -- the GUI-only

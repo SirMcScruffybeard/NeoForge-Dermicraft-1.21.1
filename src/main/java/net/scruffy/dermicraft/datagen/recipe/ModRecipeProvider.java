@@ -2297,10 +2297,10 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_FARMER.asItem());
 
-        ////////////////////Mr. Shepard\\\\\\\\\\\\\\\\\\\\
+        ////////////////////Mr. Shepherd\\\\\\\\\\\\\\\\\\\\
         // Shears as the structural/defining item (matches the shearing duty), same 5-item implant shape.
         // Proto Brain in place of the Nerve Cluster -- see Mr. Farmer's note above, same reasoning.
-        RecipeBuilders.buildEarlyImplant(recipeOutput, "mr_shepard_implant",
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "mr_shepherd_implant",
                 List.of(
                         Ingredient.of(Items.CARVED_PUMPKIN),
                         Ingredient.of(Items.SHEARS),
@@ -2308,7 +2308,7 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                         Ingredient.of(ModItems.DENSE_MUSCLE.get()),
                         Ingredient.of(ModItems.PROTO_BRAIN.get())),
                 RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
-                ModBlocks.MR_SHEPARD.asItem());
+                ModBlocks.MR_SHEPHERD.asItem());
 
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
         // Crafting-table roster: structural block in the center, Nerve Cluster on the four edge-middles

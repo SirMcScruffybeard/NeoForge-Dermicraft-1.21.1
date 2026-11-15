@@ -63,7 +63,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.INNARDS_GATE_BUFFER.get())
                 .add(ModBlocks.INNARDS_GATE_PORT.get())
                 .add(ModBlocks.MR_FARMER.get())
-                .add(ModBlocks.MR_SHEPARD.get())
+                .add(ModBlocks.MR_SHEPHERD.get())
                 .addTag(ModTags.Blocks.LAB_FLOOR)
                 // Bottom half only -- the top is a purely visual companion with no item of its own
                 // worth recovering; WorkbenchBlock's own onRemove already takes it with the bottom.
@@ -148,7 +148,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.RENDER_KILN.get())
                 .add(ModBlocks.CRAW.get())
                 .add(ModBlocks.MR_FARMER.get())
-                .add(ModBlocks.MR_SHEPARD.get())
+                .add(ModBlocks.MR_SHEPHERD.get())
         ;
 
         tag(ModTags.Blocks.INJECTABLE)

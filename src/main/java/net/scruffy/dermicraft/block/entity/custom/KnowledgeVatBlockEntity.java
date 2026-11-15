@@ -37,7 +37,7 @@ import java.util.UUID;
  * exposes it for the player's own current level, not an arbitrary one). A flat mB-per-LEVEL rate
  * would value a cheap early level and an expensive late level identically, which is the opposite of
  * "vanilla-accurate" -- pricing by real point cost means a level's fluid cost actually scales the
- * way vanilla's own XP curve does. {@link MrShepardBlockEntity}'s own orb-collecting tank fills the
+ * way vanilla's own XP curve does. {@link MrShepherdBlockEntity}'s own orb-collecting tank fills the
  * same fluid at the same 1mB/point rate -- they must match, or fluid moved between the two would
  * silently inflate or deflate a player's real XP on conversion.
  *

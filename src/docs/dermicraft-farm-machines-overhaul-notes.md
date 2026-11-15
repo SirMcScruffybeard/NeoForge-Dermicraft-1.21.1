@@ -1,11 +1,11 @@
-# Farm machines overhaul (Mr. Farmer, Mr. Shepard, Mr. Logger, Mr. Hunter)
+# Farm machines overhaul (Mr. Farmer, Mr. Shepherd, Mr. Logger, Mr. Hunter)
 
 Started 2026-11-14. This is the planning doc for the overhaul of the farming automation family. Only the goal list is
 settled so far; goals 1 and 2 get detailed in later sessions (the user is going into them next). Nothing here is built.
 
 The older design material for the family is in `dermicraft-machine-notes.md` under "Farming automation concepts (early
-planning)" (shared mechanics, Mr. Farmer, Mr. Shepard, Mr. Logger, Mr. Hunter). Where this doc and that section disagree,
-this doc is newer. Mr. Farmer and Mr. Shepard are built in code today; Mr. Logger and Mr. Hunter are not.
+planning)" (shared mechanics, Mr. Farmer, Mr. Shepherd, Mr. Logger, Mr. Hunter). Where this doc and that section disagree,
+this doc is newer. Mr. Farmer and Mr. Shepherd are built in code today; Mr. Logger and Mr. Hunter are not.
 
 ## Goals (user, 2026-11-14)
 
@@ -50,5 +50,5 @@ From the machine notes, as the starting point for goal 4:
 - Fuel: the cost formula, what fuel tier means once it no longer sets the range, and whether the fuel-optional/HP pattern
   applies to this family (the machine notes say this family's fuel-driven range "replaces" it).
 - Models: what the new models should look like, one shared body or one per machine.
-- Naming: the code and docs use "Mr. Shepard". The user wrote "Shepherd" once; confirm whether a rename is intended.
+- Naming: renamed from "Mr. Shepard" to "Mr. Shepherd" on 2026-11-14 (code, registry ids, files, lang and docs); the user confirmed the correct spelling.
 - Where Mr. Logger and Mr. Hunter sit in the stage and tier timeline (undecided for all four).

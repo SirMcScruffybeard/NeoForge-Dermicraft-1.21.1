@@ -1,4 +1,4 @@
-package net.scruffy.dermicraft.screen.custom.mr_shepard;
+package net.scruffy.dermicraft.screen.custom.mr_shepherd;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,7 +12,7 @@ import net.scruffy.dermicraft.screen.AbstractModScreen;
 import net.scruffy.dermicraft.util.MouseUtil;
 import org.jetbrains.annotations.NotNull;
 
-public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
+public class MrShepherdScreen extends AbstractModScreen<MrShepherdMenu> {
 
     private static final String BACKGROUNDS_DIR = "textures/gui/backgrounds/";
     private static final String TANKS_DIR = "textures/gui/tanks/";
@@ -126,7 +126,7 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
     private FluidTankRenderer fuelRenderer;
     private FluidTankRenderer xpRenderer;
 
-    public MrShepardScreen(MrShepardMenu menu, Inventory playerInventory, Component title) {
+    public MrShepherdScreen(MrShepherdMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = XP_STRIP_X + XP_STRIP_WIDTH;
         this.imageHeight = Math.max(MAIN_PANEL_HEIGHT, XP_STRIP_Y + XP_STRIP_HEIGHT);
@@ -162,12 +162,12 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
 
         if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + CAP_BUTTON_UP_X, y + CAP_BUTTON_Y,
                 CAP_BUTTON_SIZE, CAP_BUTTON_SIZE)) {
-            beginHold(MrShepardMenu.BUTTON_CAP_UP);
+            beginHold(MrShepherdMenu.BUTTON_CAP_UP);
             return true;
         }
         if (MouseUtil.isMouseOver((int) mouseX, (int) mouseY, x + CAP_BUTTON_DOWN_X, y + CAP_BUTTON_Y,
                 CAP_BUTTON_SIZE, CAP_BUTTON_SIZE)) {
-            beginHold(MrShepardMenu.BUTTON_CAP_DOWN);
+            beginHold(MrShepherdMenu.BUTTON_CAP_DOWN);
             return true;
         }
 
@@ -190,7 +190,7 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
 
     private void pressCapButton(int buttonId) {
         minecraft.gameMode.handleInventoryButtonClick(menu.containerId, buttonId);
-        if (buttonId == MrShepardMenu.BUTTON_CAP_UP) {
+        if (buttonId == MrShepherdMenu.BUTTON_CAP_UP) {
             plusPressTicks = CAP_PRESS_FLASH_TICKS;
         } else {
             minusPressTicks = CAP_PRESS_FLASH_TICKS;
@@ -235,9 +235,9 @@ public class MrShepardScreen extends AbstractModScreen<MrShepardMenu> {
                     Component.translatable("tooltip.dermicraft.slot.output_buffer"));
         }
 
-        guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.mr_shepard.range", menu.getRange()),
+        guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.mr_shepherd.range", menu.getRange()),
                 RANGE_TEXT_X, RANGE_TEXT_Y, RANGE_TEXT_COLOR, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.mr_shepard.cap", menu.getPopulationCap()),
+        guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.mr_shepherd.cap", menu.getPopulationCap()),
                 CAP_TEXT_X, CAP_TEXT_Y, RANGE_TEXT_COLOR, false);
     }
 

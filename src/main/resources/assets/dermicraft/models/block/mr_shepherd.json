@@ -3,8 +3,8 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [128, 128],
 	"textures": {
-		"0": "dermicraft:block/mr_shepard_on",
-		"particle": "dermicraft:block/mr_shepard_on"
+		"0": "dermicraft:block/mr_shepherd",
+		"particle": "dermicraft:block/mr_shepherd"
 	},
 	"elements": [
 		{
@@ -75,15 +75,15 @@
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"gui": {
-			"rotation": [0, 180, 0],
-			"translation": [0, -1.75, 0],
-			"scale": [0.65, 0.65, 0.5]
+			"rotation": [0, -172, 0],
+			"translation": [0, -1.75, -1.25],
+			"scale": [0.65, 0.65, 0.74]
 		},
 		"fixed": {
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"on_shelf": {
-			"rotation": [0, 180, 0],
+			"rotation": [0, -180, 0],
 			"scale": [0.9, 0.9, 0.9]
 		}
 	},

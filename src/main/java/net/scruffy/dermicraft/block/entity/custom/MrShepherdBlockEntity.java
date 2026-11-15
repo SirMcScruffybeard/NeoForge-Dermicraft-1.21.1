@@ -32,7 +32,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.scruffy.dermicraft.block.ModBlocks;
-import net.scruffy.dermicraft.block.custom.MrShepardBlock;
+import net.scruffy.dermicraft.block.custom.MrShepherdBlock;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
 import net.scruffy.dermicraft.block.entity.custom.base.MachineBaseBlockEntity;
 import net.scruffy.dermicraft.interfaces.Channel;
@@ -41,7 +41,7 @@ import net.scruffy.dermicraft.interfaces.IHaveInventory;
 import net.scruffy.dermicraft.util.SlotRangeItemHandler;
 import net.scruffy.dermicraft.fluid.ModFluids;
 import net.scruffy.dermicraft.machine.MachineTier;
-import net.scruffy.dermicraft.screen.custom.mr_shepard.MrShepardMenu;
+import net.scruffy.dermicraft.screen.custom.mr_shepherd.MrShepherdMenu;
 import net.scruffy.dermicraft.tank.DroolingTank;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
@@ -55,11 +55,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Livestock counterpart to Mr. Farmer -- see dermicraft-machine-notes.md -> Mr. Shepard.
- * Unlike Farmer's block-position wave (crops don't move), Shepard scans a live AABB each work
+ * Livestock counterpart to Mr. Farmer -- see dermicraft-machine-notes.md -> Mr. Shepherd.
+ * Unlike Farmer's block-position wave (crops don't move), Shepherd scans a live AABB each work
  * cycle since animals move freely -- no wave-stepping needed for a first pass.
  */
-public class MrShepardBlockEntity extends MachineBaseBlockEntity
+public class MrShepherdBlockEntity extends MachineBaseBlockEntity
         implements MenuProvider, IHaveInventory, IHasChannels {
 
     private static final int MAX_RANGE_TIER = 4; // shared tier->range formula, see Mr. Farmer
@@ -130,8 +130,8 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     private float rememberedHeal = 1.0f;
     private Fluid rememberedFuel = Fluids.EMPTY;
 
-    public MrShepardBlockEntity(BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.MR_SHEPARD_BE.get(), pos, blockState);
+    public MrShepherdBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.MR_SHEPHERD_BE.get(), pos, blockState);
     }
 
     @Override
@@ -192,13 +192,13 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     }
 
     private Direction getFacing() {
-        return getBlockState().getValue(MrShepardBlock.FACING);
+        return getBlockState().getValue(MrShepherdBlock.FACING);
     }
 
     private void setActive(Level level, boolean active) {
         BlockState state = getBlockState();
-        if (state.getValue(MrShepardBlock.ACTIVE) != active) {
-            level.setBlock(worldPosition, state.setValue(MrShepardBlock.ACTIVE, active), Block.UPDATE_CLIENTS);
+        if (state.getValue(MrShepherdBlock.ACTIVE) != active) {
+            level.setBlock(worldPosition, state.setValue(MrShepherdBlock.ACTIVE, active), Block.UPDATE_CLIENTS);
         }
     }
 
@@ -295,7 +295,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
                     center.getX() + half + 1, center.getY() + VERTICAL_REACH + 1, center.getZ() + half + 1);
         }
 
-        // Depth starts at 0 -- the machine's own row -- not 1 block ahead like Mr. Farmer's. A Shepard
+        // Depth starts at 0 -- the machine's own row -- not 1 block ahead like Mr. Farmer's. A Shepherd
         // set into a fence or wall line is flush with the pen, so items dropped directly beside it sit
         // in the machine's own plane; starting a block ahead would leave them permanently uncollected.
         Direction side = facing.getClockWise();
@@ -323,7 +323,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, area, ItemEntity::isAlive)) {
             // Never take a player's own belongings. ItemEntity#getOwner() (TraceableEntity) returns
             // whoever threw the stack, and Player#drop sets it -- for both deliberate throws and death
-            // drops -- so this is what actually stops Shepard hoovering up your inventory when you die
+            // drops -- so this is what actually stops Shepherd hoovering up your inventory when you die
             // inside the pen. Machine output and mob loot both have a null thrower and pass through.
             if (itemEntity.getOwner() instanceof Player) continue;
 
@@ -502,7 +502,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     // the question it answers is "where do I build the pen walls?" -- and at 9x9 that's 32 edge cells
     // instead of 81 filled ones, so it reads as a wall line rather than particle soup.
 
-    /** Starts (or restarts) the ~30s footprint guide. Called on GUI close; see MrShepardMenu. */
+    /** Starts (or restarts) the ~30s footprint guide. Called on GUI close; see MrShepherdMenu. */
     public void startRangePreview() {
         previewTicksRemaining = PREVIEW_DURATION_TICKS;
         setChanged();
@@ -624,7 +624,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     /** See {@link IHasChannels#describeFace} -- every face routes identically on this machine. */
     @Override
     public Component describeFace(Direction face) {
-        return Component.translatable("tooltip.dermicraft.idep.face.mr_shepard");
+        return Component.translatable("tooltip.dermicraft.idep.face.mr_shepherd");
     }
 
     /** See {@link IHasChannels#describeFluidFace} -- getTank ignores the face; it's always the fuel tank. */
@@ -753,7 +753,7 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        // NOT a plain INVENTORY.deserializeNBT -- a Mr. Shepard saved before the XP tank's own slot
+        // NOT a plain INVENTORY.deserializeNBT -- a Mr. Shepherd saved before the XP tank's own slot
         // existed carries Size=14 and would shrink this handler back down, crashing on world load
         // (the Menu adds a slot at index 14 that would no longer exist). Same gotcha documented on
         // SkinTankBlockEntity/DroolingMachineBlockEntity's own loadAdditional.
@@ -770,12 +770,12 @@ public class MrShepardBlockEntity extends MachineBaseBlockEntity
     @NotNull
     @Override
     public Component getDisplayName() {
-        return getDisplayName(ModBlocks.MR_SHEPARD);
+        return getDisplayName(ModBlocks.MR_SHEPHERD);
     }
 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new MrShepardMenu(containerId, playerInventory, this);
+        return new MrShepherdMenu(containerId, playerInventory, this);
     }
 }

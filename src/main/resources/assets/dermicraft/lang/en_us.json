@@ -410,8 +410,8 @@
   "block.dermicraft.mr_farmer": "Mr. Farmer",
   "blockEntity.dermicraft.mr_farmer_be": "Mr. Farmer",
 
-  "block.dermicraft.mr_shepard": "Mr. Shepard",
-  "blockEntity.dermicraft.mr_shepard_be": "Mr. Shepard",
+  "block.dermicraft.mr_shepherd": "Mr. Shepherd",
+  "blockEntity.dermicraft.mr_shepherd_be": "Mr. Shepherd",
 
   "block.dermicraft.innards_duct": "Innards Duct",
   "block.dermicraft.innards_duct_arm": "Innards Duct Arm",
@@ -499,7 +499,7 @@
   "tooltip.dermicraft.idep.face.craw_storage": "Bulk storage",
 
   "tooltip.dermicraft.idep.face.mr_farmer": "Fuel tank (+ harvest buffer)",
-  "tooltip.dermicraft.idep.face.mr_shepard": "Fuel tank (+ feed slots and output buffer)",
+  "tooltip.dermicraft.idep.face.mr_shepherd": "Fuel tank (+ feed slots and output buffer)",
 
   "block.dermicraft.beaker": "Beaker",
   "item.dermicraft.beaker.filled": "Beaker of %s",
@@ -524,8 +524,8 @@
   "tooltip.dermicraft.knowledge_vat.levels": "≈ Level %s (from empty)",
 
   "gui.dermicraft.mr_farmer.range": "Range: %1$sx%1$s",
-  "gui.dermicraft.mr_shepard.range": "Range: %1$sx%1$s",
-  "gui.dermicraft.mr_shepard.cap": "Cap: %s",
+  "gui.dermicraft.mr_shepherd.range": "Range: %1$sx%1$s",
+  "gui.dermicraft.mr_shepherd.cap": "Cap: %s",
   "tooltip.dermicraft.hold_shift_for_amount": "Hold Shift for fluid amount",
   "tooltip.dermicraft.hold_shift_for_stats": "Hold Shift for stats",
   "tooltip.dermicraft.sunder_chain.damage": "Damage: %s%%",

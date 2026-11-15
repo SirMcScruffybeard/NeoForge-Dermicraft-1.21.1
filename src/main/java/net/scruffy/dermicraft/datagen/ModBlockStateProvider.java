@@ -182,9 +182,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
                 .texture("layer0", modLoc("item/mr_farmer_icon"));
 
-        mrShepardBlockState();
-        itemModels().withExistingParent(ModBlocks.MR_SHEPARD.getId().getPath(),
-                modLoc("block/" + ModBlocks.MR_SHEPARD.getId().getPath()));
+        mrShepherdBlockState();
+        itemModels().withExistingParent(ModBlocks.MR_SHEPHERD.getId().getPath(),
+                modLoc("block/" + ModBlocks.MR_SHEPHERD.getId().getPath()));
 
         ////////////////////Innards Gate\\\\\\\\\\\\\\\\\\\\
         simpleBlockWithItem(ModBlocks.INNARDS_GATE_CONTROLLER.get(), models().cubeAll("innards_gate_controller",
@@ -223,24 +223,24 @@ public class ModBlockStateProvider extends BlockStateProvider {
     }
 
     // Mirrors mrFarmerBlockState() exactly -- same 6-way facing convention, same on/off swap.
-    private void mrShepardBlockState() {
-        ModelFile off = models().getExistingFile(ModBlocks.MR_SHEPARD.getId());
-        ModelFile on = models().getExistingFile(modLoc("block/mr_shepard_on"));
-        var builder = getVariantBuilder(ModBlocks.MR_SHEPARD.get());
+    private void mrShepherdBlockState() {
+        ModelFile off = models().getExistingFile(ModBlocks.MR_SHEPHERD.getId());
+        ModelFile on = models().getExistingFile(modLoc("block/mr_shepherd_on"));
+        var builder = getVariantBuilder(ModBlocks.MR_SHEPHERD.get());
 
-        putShepardVariant(builder, off, on, Direction.UP, 270, 0);
-        putShepardVariant(builder, off, on, Direction.DOWN, 90, 0);
-        putShepardVariant(builder, off, on, Direction.NORTH, 0, 0);
-        putShepardVariant(builder, off, on, Direction.SOUTH, 0, 180);
-        putShepardVariant(builder, off, on, Direction.EAST, 0, 90);
-        putShepardVariant(builder, off, on, Direction.WEST, 0, 270);
+        putShepherdVariant(builder, off, on, Direction.UP, 270, 0);
+        putShepherdVariant(builder, off, on, Direction.DOWN, 90, 0);
+        putShepherdVariant(builder, off, on, Direction.NORTH, 0, 0);
+        putShepherdVariant(builder, off, on, Direction.SOUTH, 0, 180);
+        putShepherdVariant(builder, off, on, Direction.EAST, 0, 90);
+        putShepherdVariant(builder, off, on, Direction.WEST, 0, 270);
     }
 
-    private void putShepardVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
+    private void putShepherdVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
                                    ModelFile off, ModelFile on, Direction facing, int rotX, int rotY) {
-        builder.partialState().with(MrShepardBlock.FACING, facing).with(MrShepardBlock.ACTIVE, false)
+        builder.partialState().with(MrShepherdBlock.FACING, facing).with(MrShepherdBlock.ACTIVE, false)
                 .modelForState().modelFile(off).rotationX(rotX).rotationY(rotY).addModel();
-        builder.partialState().with(MrShepardBlock.FACING, facing).with(MrShepardBlock.ACTIVE, true)
+        builder.partialState().with(MrShepherdBlock.FACING, facing).with(MrShepherdBlock.ACTIVE, true)
                 .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
     }
 
