@@ -155,3 +155,17 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
 - **Rule per machine (user, 2026-11-14): Mr. Farmer and Mr. Logger pay per cell, Mr. Shepherd and Mr. Hunter pay per work.** Mr. Logger and Mr. Hunter are not built yet; when they are, follow this.
 - Open: where Mr. Logger and Mr. Hunter sit in the stage and tier timeline, and whether Hunter uses a field at all.
   Mr. Logger and Mr. Hunter use the same per-work rule, and where they sit in the stage and tier timeline.
+
+## Models and textures (2026-11-14)
+
+- Textures go in `textures/block/farm_machine/<machine>/`, named `<machine>_front`, `_back`, `_left`, `_right`, `_top`. Left and
+  right are as seen looking at the front. The machines share the simple machines' L-tier plate, the l1 light mount, the on and off
+  light, and the l1 port ring and center (the bottom face), referenced in place from `simple_machine/`.
+- **Mr. Farmer is built** (`FarmMachineModels`, generated into `models/block/mr_farmer.json` and `mr_farmer_on.json`, replacing the
+  hand-authored models): the plate as a base cube, the machine's faces over it, the light mount on the front centered across with
+  its top edge 4 pixels down (x 5 to 10, y 6 to 11), the light inside it (off, or lit and emissive when the machine runs), the port
+  ring and center on the bottom. The model is authored with its front on the north face and the existing blockstate turns it to
+  the facing. The item model now parents to the block model; the old flat icon, the old `mr_farmer.png` and `mr_farmer_on.png`
+  textures and the old icon are no longer referenced.
+- Mr. Shepherd still uses its hand-authored models until its textures exist; `FarmMachineModels` takes the machine name, so it is
+  one call per state once they do.

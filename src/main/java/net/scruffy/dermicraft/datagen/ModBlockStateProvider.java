@@ -15,6 +15,7 @@ import net.scruffy.dermicraft.block.custom.*;
 import net.scruffy.dermicraft.block.custom.tumor.MarredTumorBlock;
 import net.scruffy.dermicraft.datagen.machine.MachineBlockStates;
 import net.scruffy.dermicraft.datagen.machine.CrawBlockStates;
+import net.scruffy.dermicraft.datagen.machine.FarmMachineModels;
 import net.scruffy.dermicraft.datagen.machine.MachineLayouts;
 import net.scruffy.dermicraft.datagen.machine.TankBlockStates;
 import net.scruffy.dermicraft.main.Dermicraft;
@@ -178,9 +179,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
 
 
         mrFarmerBlockState();
-        itemModels().getBuilder(ModBlocks.MR_FARMER.getId().getPath())
-                .parent(new ModelFile.UncheckedModelFile("item/generated"))
-                .texture("layer0", modLoc("item/mr_farmer_icon"));
+        // The item is the block model itself, like every other machine (the old flat icon is no longer used).
+        itemModels().withExistingParent(ModBlocks.MR_FARMER.getId().getPath(),
+                modLoc("block/" + ModBlocks.MR_FARMER.getId().getPath()));
 
         mrShepherdBlockState();
         itemModels().withExistingParent(ModBlocks.MR_SHEPHERD.getId().getPath(),
@@ -202,8 +203,10 @@ public class ModBlockStateProvider extends BlockStateProvider {
     // Model faces north by default, so the four horizontal mounts stay upright and just spin around Y
     // (same convention as a vanilla furnace); only up/down tip the head to look up or down.
     private void mrFarmerBlockState() {
-        ModelFile off = models().getExistingFile(ModBlocks.MR_FARMER.getId());
-        ModelFile on = models().getExistingFile(modLoc("block/mr_farmer_on"));
+        // The plate, the machine's faces, the light and the bottom ports, built per state (see FarmMachineModels).
+        FarmMachineModels farmModels = new FarmMachineModels(this);
+        ModelFile off = farmModels.build("mr_farmer", false);
+        ModelFile on = farmModels.build("mr_farmer", true);
         var builder = getVariantBuilder(ModBlocks.MR_FARMER.get());
 
         putFarmerVariant(builder, off, on, Direction.UP, 270, 0);     // floor mount: face tips up

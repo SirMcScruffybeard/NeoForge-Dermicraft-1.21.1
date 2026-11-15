@@ -1,6 +1,3 @@
 {
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "dermicraft:item/mr_farmer_icon"
-  }
+  "parent": "dermicraft:block/mr_farmer"
 }

@@ -144,6 +144,23 @@ public class PartModels {
         return model;
     }
 
+    /**
+     * Adds the light mount and the light inside it to any model, on the layout's face. A lit light is emissive, so it
+     * glows in the dark. Used by the farm machines, whose models are one piece per state rather than stacked layers.
+     */
+    public <T extends ModelBuilder<T>> void addLightMountAndLight(T model, MachineFaceLayout layout, String mountKey,
+                                                                  String lightKey, boolean lit) {
+        addDecalElement(model, mountKey, layout.face(), layout.lightMountX(), layout.lightMountY(),
+                MachineFaceLayout.MOUNT_SIZE, MachineFaceLayout.MOUNT_SIZE, MOUNT_LAYER, 0);
+        addDecalElement(model, lightKey, layout.face(), layout.getLightX(), layout.getLightY(),
+                MachineFaceLayout.LIGHT_SIZE, MachineFaceLayout.LIGHT_SIZE, LIGHT_LAYER, lit ? 15 : 0);
+    }
+
+    /** Adds a slightly oversize box carrying a port texture on the sides {@code include} accepts, to any model. */
+    public <T extends ModelBuilder<T>> void addPortSides(T model, String textureKey, Predicate<Direction> include) {
+        addPortElement(model, textureKey, include);
+    }
+
     /** One flat quad on the face, as its own block model. */
     private BlockModelBuilder buildDecal(String modelName, Direction face, int x, int y, int width, int height,
                                          String texturePath, int layer, int emissivity) {
