@@ -141,8 +141,16 @@ from the same `range`. Both have to be converted to a width and a length. See th
   the output buffer (all container slots are player-only).
 - The default field is 3 x 3 and nothing migrates old saves.
 
-## Open (fuel mechanic, still to settle)
+## Fuel cost follows the work (user, 2026-11-14, built, untested)
 
-- The fuel cost formula (the earlier ruling: fuel cost adapts to the field size; the formula is deferred). Right now cost is the
-  same per step with real work, so a bigger field costs more only because it has more steps.
-- Where Mr. Logger and Mr. Hunter sit in the stage and tier timeline, and whether Hunter uses a field at all.
+Why: before this, the Farmer burned one fuel step per wave step with any work (a whole row, so width was free) and the Shepherd one
+step per cycle whatever the field, so with fuel no longer setting the field the cheapest play was always the widest field.
+
+- **Mr. Farmer:** pays per farmland cell actually worked in a step; a 3-cell row is one fuel step. A 3 x 3 field therefore costs what
+  it did before, a wider field costs proportionally more, and an unplanted or unfarmable field costs nothing.
+- **Mr. Shepherd:** pays by field area once per work cycle (that does something); a 3 x 3 field (9 cells) is one fuel step.
+- Both go through `burnFuel(steps)` on the shared block entity, which carries a fractional step over to the next burn and never burns
+  more than the tank holds. The "enough fuel for one step" gate and the fuel speed pacing are unchanged.
+- Fuel tier (`BiofuelProperties.tier`) now does nothing to the field, and nothing else uses it yet. It stays unused for now.
+- Open: the Shepherd could instead scale with the animals it handles; area was chosen because its work is not per cell. Whether
+  Mr. Logger and Mr. Hunter use the same per-work rule, and where they sit in the stage and tier timeline.

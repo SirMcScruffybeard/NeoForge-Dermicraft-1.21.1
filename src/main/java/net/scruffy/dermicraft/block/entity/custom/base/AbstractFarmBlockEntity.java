@@ -81,6 +81,7 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
     private int fieldWidth = DEFAULT_FIELD_SIZE;
     private int fieldLength = DEFAULT_FIELD_SIZE;
     private int previewTicksRemaining = 0;
+    private float fuelOwed = 0f; // the fractional part of the fuel a burn owes, carried to the next burn (not saved)
 
     /**
      * @param inventorySize   total slots: the fuel container slot (0), the machine's own slots, the output buffer, and
@@ -243,6 +244,20 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
 
     protected int fuelPerStep() {
         return Math.max(1, FUEL_TANK.getUseRate());
+    }
+
+    /**
+     * Burns {@code steps} fuel steps' worth of fuel (a step costs {@link #fuelPerStep}); a fractional step is carried over to
+     * the next burn, so a field a third of a step's work doesn't round up to a whole step every time. Fuel cost follows the
+     * work: a machine reports how much it did, in steps, and the 3 x 3 field is the baseline where that is one step per
+     * row (Farmer) or per cycle (Shepherd), the cost before the field was the player's to set.
+     */
+    protected void burnFuel(float steps) {
+        fuelOwed += fuelPerStep() * steps;
+        int whole = Math.min((int) fuelOwed, FUEL_TANK.getFluidAmount());
+        if (whole <= 0) return;
+        FUEL_TANK.useFuel(whole);
+        fuelOwed -= whole;
     }
 
     // ---- Tick ---------------------------------------------------------------------------------------

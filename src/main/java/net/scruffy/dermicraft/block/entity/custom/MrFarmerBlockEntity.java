@@ -71,6 +71,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     private static final int LIGHT_REACH = LIGHT_LEVEL - 9; // = 6
 
     private static final int WAVE_COOLDOWN_TICKS = 40;  // pause between full sweeps (not fuel-speed-scaled)
+    private static final int BASELINE_ROW_CELLS = 3; // cells in the 3 x 3 field's row: the work one fuel step pays for
     private static final int PREVIEW_PARTICLES_PER_TARGET = 3;
 
     private static final int BUFFER_SLOT_COUNT = 9; // slot 0 = fuel container, 1-9 = output buffer
@@ -167,7 +168,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         List<BlockPos> step = farmWaveSteps.get(farmWaveCursor);
         if (!step.isEmpty()) {
             processFarmStep(level, step);
-            FUEL_TANK.useFuel(fuelPerStep()); // only burn fuel on steps that had real work
+            burnFuel(step.size() / (float) BASELINE_ROW_CELLS); // fuel follows the work: only farmland cells actually worked, a 3-cell row being one step
         }
         farmWaveCursor++;
 

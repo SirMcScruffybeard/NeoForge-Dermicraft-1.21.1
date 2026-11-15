@@ -59,6 +59,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
     private static final int VERTICAL_REACH = 4; // AABB extends this far above/below the machine's plane
     private static final int PICKUP_MARGIN = 1;  // pickup-only overreach on each horizontal side
+    private static final int BASELINE_FIELD_CELLS = 9; // the 3 x 3 field: the area one cycle's fuel step pays for
 
     // --- Population cap ---
     // The cap is the BREEDING STOCK (adults maintained), not the total population -- a total-population
@@ -200,7 +201,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         didWork |= cullOverpopulation(serverLevel, area);
 
         if (didWork) {
-            FUEL_TANK.useFuel(fuelPerStep());
+            burnFuel(getFieldWidth() * getFieldLength() / (float) BASELINE_FIELD_CELLS); // by field area, a 3 x 3 field being one step
             setChanged();
         }
     }
