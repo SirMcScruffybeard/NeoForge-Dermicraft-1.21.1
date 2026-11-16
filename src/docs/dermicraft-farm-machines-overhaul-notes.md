@@ -169,3 +169,22 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
   textures and the old icon are no longer referenced.
 - Mr. Shepherd still uses its hand-authored models until its textures exist; `FarmMachineModels` takes the machine name, so it is
   one call per state once they do.
+
+## Mr. Logger decisions (user, 2026-11-16)
+
+- **Detection: scan route.** Each cycle Logger scans its field for grown trees and fells them. No growth event (`BlockGrowFeatureEvent`
+  is dropped), so existing forests work too.
+- **Leaves: a toggle.** Clearing leaves is a player toggle, on by default (clear them). With it off, leaves are left for vanilla decay.
+  Open: the user said "clearing and harvesting a toggle"; recorded as one toggle covering the leaf pass and what leaves drop
+  (saplings, sticks, apples). Confirm whether harvesting is meant to be a separate toggle from clearing.
+- **Saplings: same split as Mr. Farmer's carrots and potatoes.** Of the saplings a felled tree and its leaves drop, the greater half
+  (rounded up) goes to the output buffer and the rest to the hidden reserve, which replanting draws from.
+- **Planting: fill the whole field** as long as enough saplings are stored. No spacing rule. User testing with bonemeal showed
+  single-sapling trees grow clustered or staggered and 2x2 trees (jungle, dark oak) also grow clustered, so neither is a problem.
+- **Light: the status light like Mr. Farmer**, on the front, centered in both directions (mount x 5, y 5 on the 16-pixel front).
+- **Field size: starts 3 x 3 like the others, maximum 15 x 15** (the shared maximum is 9, so Logger needs its own maximum; odd sizes only).
+- **Fuel only, no tool slot.** Per cell, per the family rule above.
+- **Output: items only,** no fluid output. Bottom face output-only like Mr. Farmer.
+- **Personified** like the other two.
+- **Blocked on: field geometry for all four machines.** The user has noticed problems with how fields are laid out and wants them worked
+  out as a whole before Logger (or Hunter) is built. Details to come from the user.
