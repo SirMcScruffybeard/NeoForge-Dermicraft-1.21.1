@@ -188,3 +188,17 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
 - **Personified** like the other two.
 - **Blocked on: field geometry for all four machines.** The user has noticed problems with how fields are laid out and wants them worked
   out as a whole before Logger (or Hunter) is built. Details to come from the user.
+- **Leaf toggle, clarified (2026-11-16):** gathering items (saplings, sticks, apples) is always on. The toggle only decides whether
+  leaves get broken (harvested); it is not two toggles. This replaces the "Open" note above.
+
+## Field geometry problems found by the user (2026-11-16, not yet fixed)
+
+- **Vertical facing does not work for Mr. Farmer.** Every farm machine is meant to tend its field when turned up or down. Exact
+  symptom still to be pinned down (code review notes: Farmer's vertical field is found by probing 1 to 5 blocks along the facing axis
+  for the first farmland, with the crop plane above it, so farmland directly next to the machine puts the crop cell on the machine).
+- **Vertical field distance depends on field size (Mr. Shepherd).** Its vertical box is centered `max(halfWidth, halfLength) + 1` blocks
+  out, so a bigger field also moves away from the machine. Seen via the preview particles. (Mr. Farmer's vertical field distance is
+  found by probing and does not use the size.)
+- **Idea (user): a distance ticker on the Field tab** for the distance from the machine, with room for it. Thoughts recorded in the
+  chat; nothing built.
+- Field geometry for all four machines gets worked out as a whole before Mr. Logger or Mr. Hunter is built.
