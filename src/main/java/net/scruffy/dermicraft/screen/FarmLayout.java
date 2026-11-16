@@ -27,12 +27,13 @@ public final class FarmLayout {
     public static final int BUFFER_ROW_Y = 64;
 
     // ---- Field tab ----
-    /** The two stepper rows: a label on the left, a minus and a plus button on the right. */
+    /** The three stepper rows: a label on the left, a minus and a plus button on the right. */
     public static final int FIELD_LABEL_X = 7;
     public static final int FIELD_MINUS_X = 62;
     public static final int FIELD_PLUS_X = 82;
     public static final int FIELD_WIDTH_ROW_Y = 16;
     public static final int FIELD_LENGTH_ROW_Y = 38;
+    public static final int FIELD_DISTANCE_ROW_Y = 60;
 
     /** The preview grid: a 9 x 9 box of 6 pixel cells (the tile art doubled). */
     public static final int FIELD_GRID_X = 108;

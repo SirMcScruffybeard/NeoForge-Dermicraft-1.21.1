@@ -234,9 +234,10 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     }
 
     /**
-     * The working volume, the player's field. Horizontal mounts cover the machine's OWN row through {@code length}
-     * blocks ahead and {@code width} blocks across, centered on the machine; vertical mounts still use the older
-     * offset-centre box pending their rework (width along X, length along Z).
+     * The working volume, the player's field. Horizontal mounts cover from {@code distance - 1} blocks ahead (the machine's
+     * OWN row at the default distance of 1) through {@code length} blocks further, {@code width} blocks across, centered on
+     * the machine. Vertical mounts cover a width (X) x length (Z) box centered {@code distance} blocks out along the facing,
+     * the layer the animals stand on, reaching {@code VERTICAL_REACH} above and below it.
      */
     private AABB workArea() {
         int halfWidth = getHalfWidth();
@@ -244,9 +245,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         Direction facing = getFacing();
 
         if (facing.getAxis().isVertical()) {
-            // Unchanged pending the vertical-facing rework -- this box bleeds past the machine's own
-            // plane (see the divergence note in dermicraft-machine-notes.md).
-            BlockPos center = worldPosition.relative(facing, Math.max(halfWidth, halfLength) + 1);
+            BlockPos center = worldPosition.relative(facing, getFieldDistance());
             return new AABB(
                     center.getX() - halfWidth, center.getY() - VERTICAL_REACH, center.getZ() - halfLength,
                     center.getX() + halfWidth + 1, center.getY() + VERTICAL_REACH + 1, center.getZ() + halfLength + 1);
@@ -256,8 +255,9 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         // set into a fence or wall line is flush with the pen, so items dropped directly beside it sit
         // in the machine's own plane; starting a block ahead would leave them permanently uncollected.
         Direction side = facing.getClockWise();
-        AABB box = new AABB(worldPosition.relative(side, -halfWidth))
-                .minmax(new AABB(worldPosition.relative(facing, getFieldLength()).relative(side, halfWidth)));
+        int start = getFieldDistance() - 1;
+        AABB box = new AABB(worldPosition.relative(facing, start).relative(side, -halfWidth))
+                .minmax(new AABB(worldPosition.relative(facing, start + getFieldLength()).relative(side, halfWidth)));
         return box.inflate(0, VERTICAL_REACH, 0);
     }
 
@@ -473,7 +473,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         List<BlockPos> cells = new ArrayList<>();
 
         if (facing.getAxis().isVertical()) {
-            BlockPos center = worldPosition.relative(facing, Math.max(halfWidth, halfLength) + 1);
+            BlockPos center = worldPosition.relative(facing, getFieldDistance());
             if (halfWidth == 0 && halfLength == 0) { // a 1 x 1 field -- the machine only reaches its own spot
                 cells.add(center);
                 return cells;
@@ -490,10 +490,11 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         // Horizontal: outline the (length+1) deep x width wide field, starting at the machine's own row
         // so the guide shows the pen wall running through the machine rather than in front of it.
         Direction side = facing.getClockWise();
-        int length = getFieldLength();
-        for (int depth = 0; depth <= length; depth++) {
+        int start = getFieldDistance() - 1;
+        int end = start + getFieldLength();
+        for (int depth = start; depth <= end; depth++) {
             for (int lateral = -halfWidth; lateral <= halfWidth; lateral++) {
-                boolean edge = depth == 0 || depth == length || lateral == -halfWidth || lateral == halfWidth;
+                boolean edge = depth == start || depth == end || lateral == -halfWidth || lateral == halfWidth;
                 if (!edge) continue;
                 BlockPos cell = worldPosition.relative(facing, depth).relative(side, lateral);
                 if (cell.equals(worldPosition)) continue; // no particles inside the machine itself

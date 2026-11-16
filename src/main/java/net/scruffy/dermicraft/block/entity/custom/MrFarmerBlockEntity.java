@@ -51,7 +51,6 @@ import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
 
     // --- Range/wave geometry (see the "Range shape & wave" spec in dermicraft-machine-notes.md) ---
-    private static final int VERTICAL_Y_REACH = 5;       // up/down: scan this many blocks along the facing axis
     private static final int HORIZONTAL_Y_TOLERANCE = 2; // forward: ±this many Y around the machine's own plane
 
     private static final int MAX_MOISTURE = 7; // FarmBlock.MOISTURE range is 0-7; 7 = fully hydrated
@@ -583,14 +582,15 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         return resolveHorizontalRows(level, facing, ground);
     }
 
-    // Horizontal facing: a width-wide x length-deep field projected in front, swept row by row (nearest first).
+    // Horizontal facing: a width-wide x length-deep field projected in front, starting {distance} blocks out and swept row by row
+    // (nearest first).
     // Each column scans ±HORIZONTAL_Y_TOLERANCE around the machine's own plane for the topmost ground.
     private List<List<BlockPos>> resolveHorizontalRows(Level level, Direction facing, GroundTest ground) {
         int half = getHalfWidth();
         Direction side = facing.getClockWise();
         List<List<BlockPos>> steps = new ArrayList<>();
 
-        for (int depth = 1; depth <= getFieldLength(); depth++) {
+        for (int depth = getFieldDistance(); depth < getFieldDistance() + getFieldLength(); depth++) {
             List<BlockPos> row = new ArrayList<>();
             for (int s = -half; s <= half; s++) {
                 BlockPos columnBase = worldPosition.relative(facing, depth).relative(side, s);
@@ -602,22 +602,15 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         return steps;
     }
 
-    // Vertical facing: a width (X) x length (Z) field centered under/over the machine on the first qualifying plane
-    // found within VERTICAL_Y_REACH along the facing axis, swept as concentric square rings clipped to the field
-    // (center first).
+    // Vertical facing: a width (X) x length (Z) field centered under/over the machine on the work layer exactly {distance}
+    // blocks along the facing axis (the block right above the ground: the crop cells), swept as concentric square rings
+    // clipped to the field (center first). The distance is the player's setting; the machine does not search for the ground,
+    // so a field with no farmland on that layer simply has nothing to work.
     private List<List<BlockPos>> resolveVerticalRings(Level level, Direction facing, GroundTest ground) {
         int halfWidth = getHalfWidth();
         int halfLength = getHalfLength();
 
-        BlockPos center = null;
-        for (int d = 1; d <= VERTICAL_Y_REACH; d++) {
-            BlockPos probe = worldPosition.relative(facing, d);
-            if (ground.test(level, probe)) {
-                center = probe.above(); // crop position on that plane
-                break;
-            }
-        }
-        if (center == null) return List.of();
+        BlockPos center = worldPosition.relative(facing, getFieldDistance());
 
         List<List<BlockPos>> steps = new ArrayList<>();
         for (int r = 0; r <= Math.max(halfWidth, halfLength); r++) {

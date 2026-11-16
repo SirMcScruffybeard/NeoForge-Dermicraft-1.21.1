@@ -202,3 +202,17 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
 - **Idea (user): a distance ticker on the Field tab** for the distance from the machine, with room for it. Thoughts recorded in the
   chat; nothing built.
 - Field geometry for all four machines gets worked out as a whole before Mr. Logger or Mr. Hunter is built.
+
+## Field distance (built 2026-11-16)
+
+- Every farm machine has a **Distance** setting, 1 to 8 (default 1), a third stepper row on the Field tab under Width and Length
+  (`AbstractFarmBlockEntity.fieldDistance`, saved, menu buttons 14 and 15).
+- **Vertical facing:** distance is the number of blocks from the machine to the work layer, the block right above the ground (the
+  crop cells for Mr. Farmer; the layer the animals stand on for Mr. Shepherd). 1 is the block touching the machine. It no longer
+  depends on the field size (Shepherd's old `max(halfWidth, halfLength) + 1` offset is gone), and Mr. Farmer no longer searches 1 to
+  5 blocks for farmland: the layer is exactly where the setting says. A Farmer facing UP therefore needs a distance of at least 2,
+  since the farmland sits under its crop layer.
+- **Horizontal facing:** distance is where the field starts. Farmer's first row is `distance` blocks out (was always 1). Shepherd's
+  box starts `distance - 1` blocks out, so the default still includes the machine's own row.
+- Fuel cost does not use the distance.
+- Mr. Logger (later) will use the same setting; its maximum may be higher, and for it the distance is where the work starts.

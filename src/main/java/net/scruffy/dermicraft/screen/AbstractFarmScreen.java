@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * The screen shared by the farm machines: a Home tab (the "Field: W x L" readout, the fuel slot and gauge, the output
- * buffer, and whatever a machine adds through {@link #renderHomeExtras}) and a Field tab (the width and length steppers
+ * buffer, and whatever a machine adds through {@link #renderHomeExtras}) and a Field tab (the width, length and distance steppers
  * and the preview of the field), plus any tabs a machine adds. The tabs are the shared tab bar on the screen's left edge.
  *
  * <p>Plus and minus buttons are registered per tab with {@link #addStepper}; a click fires once at once and, held past a
@@ -97,6 +97,10 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
                 FarmLayout.FIELD_MINUS_X, FarmLayout.FIELD_LENGTH_ROW_Y);
         addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_LENGTH_UP, true,
                 FarmLayout.FIELD_PLUS_X, FarmLayout.FIELD_LENGTH_ROW_Y);
+        addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_DISTANCE_DOWN, false,
+                FarmLayout.FIELD_MINUS_X, FarmLayout.FIELD_DISTANCE_ROW_Y);
+        addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_DISTANCE_UP, true,
+                FarmLayout.FIELD_PLUS_X, FarmLayout.FIELD_DISTANCE_ROW_Y);
     }
 
     // ---- What a machine supplies -------------------------------------------------------------------
@@ -309,6 +313,8 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
                     FarmLayout.FIELD_WIDTH_ROW_Y);
             drawRowLabel(guiGraphics, Component.translatable("gui.dermicraft.farm.length", menu.BE.getFieldLength()),
                     FarmLayout.FIELD_LENGTH_ROW_Y);
+            drawRowLabel(guiGraphics, Component.translatable("gui.dermicraft.farm.distance", menu.BE.getFieldDistance()),
+                    FarmLayout.FIELD_DISTANCE_ROW_Y);
         } else {
             renderExtraTabLabels(guiGraphics, tab);
         }

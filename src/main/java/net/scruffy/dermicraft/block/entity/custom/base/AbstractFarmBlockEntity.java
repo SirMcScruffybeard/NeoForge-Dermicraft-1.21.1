@@ -54,6 +54,9 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
     public static final int MIN_FIELD_SIZE = 1;
     public static final int MAX_FIELD_SIZE = 9;
     public static final int DEFAULT_FIELD_SIZE = 3;
+    /** How far the field sits from the machine, in blocks (see {@link #getFieldDistance}). */
+    public static final int MIN_FIELD_DISTANCE = 1;
+    public static final int MAX_FIELD_DISTANCE = 8;
 
     // --- Wave sweep pacing --- (WAVE_STEP_TICKS_BASE is the delay between steps at fuel speed 1.0 (Crude Slurry);
     // currentWaveStepTicks() scales it down for faster fuel so the work visibly speeds up.)
@@ -80,6 +83,7 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
 
     private int fieldWidth = DEFAULT_FIELD_SIZE;
     private int fieldLength = DEFAULT_FIELD_SIZE;
+    private int fieldDistance = MIN_FIELD_DISTANCE;
     private int previewTicksRemaining = 0;
     private float fuelOwed = 0f; // the fractional part of the fuel a burn owes, carried to the next burn (not saved)
 
@@ -228,6 +232,30 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
     /** One step longer (positive) or shorter (negative); a step is two blocks, so the length stays odd. */
     public void stepFieldLength(int direction) {
         setFieldSize(fieldWidth, fieldLength + 2 * Integer.signum(direction));
+    }
+
+    /**
+     * How far the field sits from the machine along its facing, 1 to 8. Facing up or down it is the number of blocks from
+     * the machine to the field's work layer (the block right above the ground: the crop cells for Mr. Farmer), so 1 is the
+     * block touching the machine. Facing sideways it is where the field starts: 1 is the first block in front.
+     */
+    public int getFieldDistance() {
+        return fieldDistance;
+    }
+
+    /** Sets the field's distance from the machine, clamped to 1 to 8. */
+    public void setFieldDistance(int distance) {
+        int newDistance = Math.max(MIN_FIELD_DISTANCE, Math.min(MAX_FIELD_DISTANCE, distance));
+        if (newDistance == fieldDistance) return;
+        fieldDistance = newDistance;
+        onFieldChanged();
+        setChanged();
+        updateBlock();
+    }
+
+    /** One block further out (positive) or closer in (negative). */
+    public void stepFieldDistance(int direction) {
+        setFieldDistance(fieldDistance + Integer.signum(direction));
     }
 
     // ---- Pacing -----------------------------------------------------------------------------------
@@ -498,6 +526,7 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
         tag.put("fuel", FUEL_TANK.writeToNBT(registries, new CompoundTag()));
         tag.putInt("fieldWidth", fieldWidth);
         tag.putInt("fieldLength", fieldLength);
+        tag.putInt("fieldDistance", fieldDistance);
     }
 
     @Override
@@ -510,6 +539,9 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
         if (tag.contains("fuel")) FUEL_TANK.readFromNBT(registries, tag.getCompound("fuel"));
         if (tag.contains("fieldWidth")) fieldWidth = snapFieldSize(tag.getInt("fieldWidth"));
         if (tag.contains("fieldLength")) fieldLength = snapFieldSize(tag.getInt("fieldLength"));
+        if (tag.contains("fieldDistance")) {
+            fieldDistance = Math.max(MIN_FIELD_DISTANCE, Math.min(MAX_FIELD_DISTANCE, tag.getInt("fieldDistance")));
+        }
     }
 
     @NotNull

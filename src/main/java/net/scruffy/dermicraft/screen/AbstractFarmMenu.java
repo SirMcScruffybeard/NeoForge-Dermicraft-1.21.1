@@ -11,7 +11,7 @@ import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 
 /**
  * The menu shared by the farm machines (Mr. Farmer, Mr. Shepherd and the ones that follow): two tabs, Home (the fuel
- * slot, the machine's own slots and the output buffer) and Field (the width and length steppers), plus any tabs a machine
+ * slot, the machine's own slots and the output buffer) and Field (the width, length and distance steppers), plus any tabs a machine
  * adds after them. Home slots are only active while Home is showing. The field buttons change the block entity on the
  * server, which clamps them; the screen reads the result back from its own copy of the block entity.
  *
@@ -28,6 +28,8 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
     public static final int BUTTON_WIDTH_DOWN = 11;
     public static final int BUTTON_LENGTH_UP = 12;
     public static final int BUTTON_LENGTH_DOWN = 13;
+    public static final int BUTTON_DISTANCE_UP = 14;
+    public static final int BUTTON_DISTANCE_DOWN = 15;
 
     private static final int PLAYER_SLOT_COUNT = 36;
 
@@ -81,6 +83,8 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
             case BUTTON_WIDTH_DOWN -> BE.stepFieldWidth(-1);
             case BUTTON_LENGTH_UP -> BE.stepFieldLength(1);
             case BUTTON_LENGTH_DOWN -> BE.stepFieldLength(-1);
+            case BUTTON_DISTANCE_UP -> BE.stepFieldDistance(1);
+            case BUTTON_DISTANCE_DOWN -> BE.stepFieldDistance(-1);
             default -> {
                 return clickExtraButton(id);
             }
