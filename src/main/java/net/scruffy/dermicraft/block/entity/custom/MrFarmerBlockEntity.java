@@ -148,7 +148,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         // Start a new sweep if we don't have one (or the previous one finished). Farming uses the
         // strict farmland test -- only actual farmland is worked, unlike the permissive preview.
         if (farmWaveSteps == null || farmWaveCursor >= farmWaveSteps.size()) {
-            farmWaveSteps = resolveWaveSteps(level, this::isFarmland);
+            farmWaveSteps = resolveWaveSteps(level, this::isFarmland, false);
             farmWaveCursor = 0;
             if (isAllEmpty(farmWaveSteps)) {
                 farmWaveSteps = null;
@@ -542,7 +542,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         if (previewWaveSteps == null || previewWaveCursor >= previewWaveSteps.size()) {
             // Preview marks any ground surface (not just farmland) so the player can see which
             // cells still need tilling. Farming logic passes a strict farmland test instead.
-            previewWaveSteps = resolveWaveSteps(level, this::isGroundSurface);
+            previewWaveSteps = resolveWaveSteps(level, this::isGroundSurface, true);
             previewWaveCursor = 0;
             if (previewWaveSteps.isEmpty()) {
                 previewWaveSteps = null;
@@ -574,18 +574,21 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         boolean test(Level level, BlockPos groundPos);
     }
 
-    private List<List<BlockPos>> resolveWaveSteps(Level level, GroundTest ground) {
+    /** {@code showWholeField}: keep a cell even where there is no qualifying ground (the preview, so the field's boundary shows
+     *  wherever it is; the work passes false and only ever gets real ground). */
+    private List<List<BlockPos>> resolveWaveSteps(Level level, GroundTest ground, boolean showWholeField) {
         Direction facing = getFacing();
         if (facing.getAxis().isVertical()) {
-            return resolveVerticalRings(level, facing, ground);
+            return resolveVerticalRings(level, facing, ground, showWholeField);
         }
-        return resolveHorizontalRows(level, facing, ground);
+        return resolveHorizontalRows(level, facing, ground, showWholeField);
     }
 
     // Horizontal facing: a width-wide x length-deep field projected in front, starting {distance} blocks out and swept row by row
     // (nearest first).
     // Each column scans ±HORIZONTAL_Y_TOLERANCE around the machine's own plane for the topmost ground.
-    private List<List<BlockPos>> resolveHorizontalRows(Level level, Direction facing, GroundTest ground) {
+    private List<List<BlockPos>> resolveHorizontalRows(Level level, Direction facing, GroundTest ground,
+                                                          boolean showWholeField) {
         int half = getHalfWidth();
         Direction side = facing.getClockWise();
         List<List<BlockPos>> steps = new ArrayList<>();
@@ -595,6 +598,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
             for (int s = -half; s <= half; s++) {
                 BlockPos columnBase = worldPosition.relative(facing, depth).relative(side, s);
                 BlockPos target = scanColumnForGround(level, columnBase, HORIZONTAL_Y_TOLERANCE, ground);
+                if (target == null && showWholeField) target = columnBase; // no ground: mark the machine's own plane
                 if (target != null) row.add(target);
             }
             steps.add(row); // keep empty rows so the wave keeps a uniform cadence
@@ -606,7 +610,8 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     // blocks along the facing axis (the block right above the ground: the crop cells), swept as concentric square rings
     // clipped to the field (center first). The distance is the player's setting; the machine does not search for the ground,
     // so a field with no farmland on that layer simply has nothing to work.
-    private List<List<BlockPos>> resolveVerticalRings(Level level, Direction facing, GroundTest ground) {
+    private List<List<BlockPos>> resolveVerticalRings(Level level, Direction facing, GroundTest ground,
+                                                         boolean showWholeField) {
         int halfWidth = getHalfWidth();
         int halfLength = getHalfLength();
 
@@ -616,7 +621,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         for (int r = 0; r <= Math.max(halfWidth, halfLength); r++) {
             List<BlockPos> ring = new ArrayList<>();
             for (BlockPos p : ringPositions(center, r, halfWidth, halfLength)) {
-                if (ground.test(level, p.below())) ring.add(p);
+                if (showWholeField || ground.test(level, p.below())) ring.add(p);
             }
             steps.add(ring);
         }
