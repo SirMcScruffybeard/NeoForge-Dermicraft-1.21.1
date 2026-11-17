@@ -216,3 +216,28 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
   box starts `distance - 1` blocks out, so the default still includes the machine's own row.
 - Fuel cost does not use the distance.
 - Mr. Logger (later) will use the same setting, with the same maximums as the others (1 to 8); for it the distance is where the work starts.
+
+## Farm machine tiers and modules (direction, 2026-11-17)
+
+User decisions: the farm machines get a **Module tab** and use the **same Evolution Modules as the processing machines**; their
+evolution **follows what the processing machines do** (in-place evolution state: tier, Overgrowth, hazard levels, the dedicated
+Evolution slot, gradual progress from real work, the creeping progress overlay, the Upgrade Stick, the `EVOLUTION_STATE` item
+component). Their stats become **configurable like the rest** (a `MachineStatKey` section each, family fallback, `StatConfig`).
+New textures come later: reuse the shared parts and fill in the tier accents with the textures that exist now.
+
+Not decided: which stats a tier changes, and whether the farm machines get hazard-gated block variants (Charred-style).
+
+Build order agreed in chat: tiers and modules first, then Mr. Logger, then Mr. Hunter (needs a design pass), then playtest.
+
+Plan (code, in order):
+1. `AbstractFarmBlockEntity` moves from `MachineBaseBlockEntity` to `EvolvingMachineBlockEntity`, opts in with
+   `usesEvolutionState()`, returns a `MachineStatKey`. Mr. Farmer and Mr. Shepherd get keys (and a `FARM` family so the two, and
+   Logger and Hunter later, share a table with per-machine overrides).
+2. Stats read through `SimpleMachineStats`/`StatConfig`: speed and fuel use reuse the existing tier tables; **max field size** and
+   **max field distance** become per-tier stats, replacing `MAX_FIELD_SIZE` and `MAX_FIELD_DISTANCE`. Saved sizes clamp through the
+   tier's maximum, so a machine that loses tier (module removed, config change) shrinks its field safely.
+3. A Module tab in the shared farm menu and screen: the Evolution slot and the general Module slots (count from the stat table),
+   following the processing machines' Module tab.
+4. Gradual evolution progress from real work (Farmer: a step that worked farmland; Shepherd: a cycle that did work), the shared
+   overlay renderer, Upgrade Stick support, the `EVOLUTION_STATE` component on the block items.
+5. Placeholder tier accents on the existing shared parts; real textures later.
