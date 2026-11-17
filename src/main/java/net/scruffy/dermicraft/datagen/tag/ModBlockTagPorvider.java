@@ -34,7 +34,9 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.RENDER_KILN.get())
                 .add(ModBlocks.RENDER_FURNACE.get())
                 .add(ModBlocks.SKIN_TANK.get())
-                .add(ModBlocks.CRAW.get());
+                .add(ModBlocks.CRAW.get())
+                .add(ModBlocks.MR_FARMER.get())
+                .add(ModBlocks.MR_SHEPHERD.get());
 
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)

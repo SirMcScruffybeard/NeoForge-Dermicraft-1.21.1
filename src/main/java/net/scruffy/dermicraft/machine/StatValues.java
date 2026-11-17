@@ -13,7 +13,7 @@ record StatValues(
         double[] itemTransfer, double[] fluidTransfer, int[] moduleSlots,
         double[] simpleMachineSpeed, double[] simpleMachineFuelUse,
         double[] simpleMachineMaxHealth, double[] simpleMachineTankCapacityMb, double[] simpleMachinePassiveYield,
-        double[] skinTankCapacityMb, double[] crawStacks,
+        double[] skinTankCapacityMb, double[] crawStacks, double[] fieldSize, double[] fieldDistance,
         double overgrowthPercent, int overgrowthMaxLevel,
         int hungerDamagePerCycle, float unfueledSpeed,
         double[] evolutionTierSeconds, double evolutionHazardNewSeconds, double evolutionHazardUpgradeSeconds,
@@ -68,6 +68,24 @@ record StatValues(
         int[] own = overrides(machine).moduleSlots();
         if (own == null) own = family(machine).moduleSlots();
         return own != null ? own : moduleSlots;
+    }
+
+    double[] fieldSizeFor(@Nullable MachineStatKey machine) {
+        int[] own = overrides(machine).fieldSize();
+        if (own == null) own = family(machine).fieldSize();
+        if (own == null) return fieldSize;
+        double[] out = new double[own.length];
+        for (int i = 0; i < out.length; i++) out[i] = own[i];
+        return out;
+    }
+
+    double[] fieldDistanceFor(@Nullable MachineStatKey machine) {
+        int[] own = overrides(machine).fieldDistance();
+        if (own == null) own = family(machine).fieldDistance();
+        if (own == null) return fieldDistance;
+        double[] out = new double[own.length];
+        for (int i = 0; i < out.length; i++) out[i] = own[i];
+        return out;
     }
 
     double[] evolutionTierSecondsFor(@Nullable MachineStatKey machine) {

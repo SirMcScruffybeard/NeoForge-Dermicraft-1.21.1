@@ -530,6 +530,8 @@
   "gui.dermicraft.farm.width": "Width: %s",
   "gui.dermicraft.farm.length": "Length: %s",
   "gui.dermicraft.farm.distance": "Distance: %s",
+  "screen.dermicraft.farm.module_tab": "Module",
+  "screen.dermicraft.farm.module_tab.initial": "M",
   "screen.dermicraft.farm.home_tab": "Home",
   "screen.dermicraft.farm.home_tab.initial": "H",
   "screen.dermicraft.farm.field_tab": "Field",

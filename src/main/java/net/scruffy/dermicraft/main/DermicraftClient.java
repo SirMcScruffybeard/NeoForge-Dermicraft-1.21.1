@@ -251,6 +251,10 @@ public class DermicraftClient {
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.RENDER_FURNACE_BE.get(),
                 net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.MR_FARMER_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.MR_SHEPHERD_BE.get(),
+                net.scruffy.dermicraft.renderer.EvolutionOverlayBlockEntityRenderer::new);
     }
 
     @SubscribeEvent

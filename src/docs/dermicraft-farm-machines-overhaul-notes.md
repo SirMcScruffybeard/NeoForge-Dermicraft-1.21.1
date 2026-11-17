@@ -241,3 +241,31 @@ Plan (code, in order):
 4. Gradual evolution progress from real work (Farmer: a step that worked farmland; Shepherd: a cycle that did work), the shared
    overlay renderer, Upgrade Stick support, the `EVOLUTION_STATE` component on the block items.
 5. Placeholder tier accents on the existing shared parts; real textures later.
+
+## Tiers and modules built (2026-11-17)
+
+User decisions this session: all four machines share the same field maximums, **9 / 13 / 17 / 21** by default (9 x 9 is the standard
+tier 1 field in other mods); **no HP** for now (the plain fuel gate stays); **no hazards** (no tolerances; if ever added they would
+follow the processing machines); the tier and Overgrowth texture accents come later, using the shared parts.
+
+Built for Mr. Farmer and Mr. Shepherd (Logger and Hunter will inherit it):
+- `AbstractFarmBlockEntity` now extends `EvolvingMachineBlockEntity` (in-place evolution state, the Evolution slot, gradual progress,
+  the end flourish, the `EVOLUTION_STATE` item component, the Upgrade Stick, which now lists both blocks as targets) and implements
+  `IEvolvingMachine`, so the creeping progress overlay is registered for both block entities.
+- **Stats:** new `FARM` machine family and keys `MR_FARMER`, `MR_SHEPHERD` (`MachineFamily`/`MachineStatKey` gained separate
+  fuel/HP flags and a field flag, so the config offers `fuelUseMultiplier` but not `maxHealth`, and no hazard times, for them).
+  Speed, fuel use, tank capacity (the fuel tank), Module slots and evolution times use the existing tier tables; the new per-tier tables
+  are **`farm.fieldSize` {9, 13, 17, 21}** and **`farm.fieldDistance` {8, 12, 16, 20}** (my default for the distance, the user gave none),
+  each overridable per family or machine. Overgrowth adds no field size or distance.
+- **Field limits:** the width, length and distance clamp to the tier's maximums, including when a tier changes and when a world loads.
+  The Field tab's grid scales its cells (54 pixels across) so the biggest field fits.
+- **Speed and fuel:** the wave pace is fuel speed x tier speed x Work Speed Modules; fuel use per step gets the tier's multiplier. With the
+  shared defaults (speed 1/2/4/8, fuel use 1/1.5/2.25/3.375) a higher tier works faster and spends more fuel per cell: the numbers are
+  config and wait for playtesting.
+- **Production for evolving:** Farmer, a wave step that worked farmland; Shepherd, a cycle that did work. Each adds its step time to the
+  pending evolution. Work freezes during the flourish (one step per 10 ticks, 4 steps).
+- **Module tab:** a third small tab (M) on every farm machine, after Home and Field and before a machine's own tabs (Shepherd's Population
+  is now tab 3). It has the Evolution slot with its progress bar, the Module slots (count from the stat table) and the tier icon, at the
+  same coordinates as the processing machines. The general Module slots accept **Work Speed Modules only** for now, since nothing else
+  does anything on a farm machine yet (no Capacity, no Safety). Shift-click from the player's inventory only reaches the Home slots.
+- Not done: the block-state tier/Overgrowth properties and their textures (accents later), Capacity Modules, Flesh Lab routes.

@@ -1,5 +1,6 @@
 package net.scruffy.dermicraft.block.entity.custom;
 
+import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -116,6 +117,11 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         return "mr_farmer";
     }
 
+    @Override
+    protected MachineStatKey getStatKey() {
+        return MachineStatKey.MR_FARMER;
+    }
+
     // A change to the field restarts the sweep and the preview against the new field.
     @Override
     protected void onFieldChanged() {
@@ -168,6 +174,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         if (!step.isEmpty()) {
             processFarmStep(level, step);
             burnFuel(step.size() / (float) BASELINE_ROW_CELLS); // fuel follows the work: only farmland cells actually worked, a 3-cell row being one step
+            tickGradualProgress(currentWaveStepTicks()); // a step that worked farmland is real production toward an evolution
         }
         farmWaveCursor++;
 

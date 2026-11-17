@@ -62,6 +62,17 @@ public final class SimpleMachineStats {
         return StatConfig.getCurrent().moduleSlotsFor(machine)[state.tier() - 1];
     }
 
+    /** The largest width or length a farm machine's field may have at this tier: odd, and Overgrowth adds none (past L4 it
+     * stays at the L4 value, since the Field tab draws the field and an unbounded size would not fit). */
+    public static int getMaxFieldSize(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return StatTable.toInt(StatConfig.getCurrent().fieldSizeFor(machine)[state.tier() - 1]) | 1;
+    }
+
+    /** The furthest a farm machine's field may sit from it at this tier; Overgrowth adds none. */
+    public static int getMaxFieldDistance(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return Math.max(1, StatTable.toInt(StatConfig.getCurrent().fieldDistanceFor(machine)[state.tier() - 1]));
+    }
+
     /** HP a processing machine loses per 10-tick cycle with no fuel; flat, does not scale with tier. */
     public static int getHungerDamagePerCycle() {
         return StatConfig.getCurrent().hungerDamagePerCycle();

@@ -25,6 +25,8 @@ public final class StatConfig {
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> ITEM_TRANSFER;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> FLUID_TRANSFER;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> MODULE_SLOTS;
+    private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_SIZE;
+    private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_DISTANCE;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_SPEED;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_FUEL_USE;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_MAX_HEALTH;
@@ -68,7 +70,9 @@ public final class StatConfig {
             ModConfigSpec.DoubleValue evolutionHazardNewSeconds,
             ModConfigSpec.DoubleValue evolutionHazardUpgradeSeconds,
             ModConfigSpec.DoubleValue evolutionOvergrowthSeconds,
-            ModConfigSpec.DoubleValue evolutionOvergrowthGrowthPercent) {}
+            ModConfigSpec.DoubleValue evolutionOvergrowthGrowthPercent,
+            ModConfigSpec.ConfigValue<List<? extends Number>> fieldSize,
+            ModConfigSpec.ConfigValue<List<? extends Number>> fieldDistance) {}
 
     private static final Map<MachineStatKey, MachineSection> MACHINE_SECTIONS = new EnumMap<>(MachineStatKey.class);
     private static final Map<MachineFamily, MachineSection> FAMILY_SECTIONS = new EnumMap<>(MachineFamily.class);
@@ -94,6 +98,12 @@ public final class StatConfig {
                 .defineInRange("hungerDamagePerCycle", StatDefaults.HUNGER_DAMAGE_PER_CYCLE, 0, 1000);
         UNFUELED_SPEED = BUILDER.comment("Processing speed with no fuel (flat, independent of tier).")
                 .defineInRange("unfueledSpeed", (double) StatDefaults.UNFUELED_SPEED, 0.0, 1.0);
+        BUILDER.pop();
+
+        BUILDER.comment("The farm machines (Mr. Farmer, Mr. Shepherd and the ones that follow): the field they work.")
+                .push("farm");
+        FIELD_SIZE = tierList("fieldSize", "Largest width or length of a farm machine's field per tier. Odd numbers (an even one rounds up). Overgrowth adds none.", StatDefaults.FIELD_SIZE, 1, 99);
+        FIELD_DISTANCE = tierList("fieldDistance", "Furthest a farm machine's field may sit from it, in blocks, per tier. Overgrowth adds none.", StatDefaults.FIELD_DISTANCE, 1, 99);
         BUILDER.pop();
 
         BUILDER.push("skin_tank");
@@ -187,7 +197,8 @@ public final class StatConfig {
         for (MachineFamily family : MachineFamily.values()) {
             BUILDER.comment("Shared overrides for the " + family.getSectionName() + " family. They replace the global values for these machines, and a machine's own section replaces them in turn. Leave a list empty (or a number at -1) to use the global value.")
                     .push(family.getSectionName());
-            FAMILY_SECTIONS.put(family, buildSection(family.usesFuelAndHealth(), family.handlesHazards(), family.usesPassiveYield()));
+            FAMILY_SECTIONS.put(family, buildSection(family.usesFuel(), family.usesHealth(), family.handlesHazards(),
+                    family.usesPassiveYield(), family.usesField()));
             BUILDER.pop();
         }
 
@@ -199,7 +210,8 @@ public final class StatConfig {
                 .push("machines");
         for (MachineStatKey machine : MachineStatKey.values()) {
             BUILDER.push(machine.getSectionName());
-            MACHINE_SECTIONS.put(machine, buildSection(machine.usesFuelAndHealth(), machine.handlesHazards(), machine.usesPassiveYield()));
+            MACHINE_SECTIONS.put(machine, buildSection(machine.usesFuel(), machine.usesHealth(), machine.handlesHazards(),
+                    machine.usesPassiveYield(), machine.usesField()));
             BUILDER.pop();
         }
         BUILDER.pop();
@@ -293,6 +305,7 @@ public final class StatConfig {
                 table(SIMPLE_MACHINE_PASSIVE_YIELD, StatDefaults.SIMPLE_MACHINE_PASSIVE_YIELD),
                 table(SKIN_TANK_CAPACITY_MB, StatDefaults.SKIN_TANK_CAPACITY_MB),
                 table(CRAW_STACKS, StatDefaults.CRAW_STACKS),
+                table(FIELD_SIZE, StatDefaults.FIELD_SIZE), table(FIELD_DISTANCE, StatDefaults.FIELD_DISTANCE),
                 OVERGROWTH_PERCENT.get(), OVERGROWTH_MAX_LEVEL.get(),
                 HUNGER_DAMAGE_PER_CYCLE.get(), UNFUELED_SPEED.get().floatValue(),
                 table(EVOLUTION_TIER_SECONDS, StatDefaults.EVOLUTION_TIER_SECONDS),
@@ -310,11 +323,12 @@ public final class StatConfig {
 
 
     /** One section of optional overrides (a family's or a machine's), with only the keys the flags say apply. */
-    private static MachineSection buildSection(boolean usesFuelAndHealth, boolean handlesHazards, boolean usesPassiveYield) {
+    private static MachineSection buildSection(boolean usesFuel, boolean usesHealth, boolean handlesHazards,
+                                               boolean usesPassiveYield, boolean usesField) {
         return new MachineSection(
                 overrideList("speedMultiplier", usesPassiveYield ? "Craft speed multiplier per tier. For the food-boost craft only; the no-input trickle is passiveYield." : "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
-                usesFuelAndHealth ? overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4") : null,
-                usesFuelAndHealth ? overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4") : null,
+                usesFuel ? overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4") : null,
+                usesHealth ? overrideList("maxHealth", "Maximum machine health per tier.", 1, 1000000, TIERS, "L1 to L4") : null,
                 overrideList("tankCapacityMb", "Capacity of each tank, in millibuckets, per tier.", 1, 100000000, TIERS, "L1 to L4"),
                 usesPassiveYield ? overrideList("passiveYield", "Millibuckets per second made with no input, per tier.", 0.1, 1000000, TIERS, "L1 to L4") : null,
                 overrideList("generalModuleSlots", "General Module slots per tier (0 to 4).", 0, 4, TIERS, "L1 to L4"),
@@ -322,7 +336,9 @@ public final class StatConfig {
                 handlesHazards ? overrideNumber("hazardNewSeconds", "Seconds to add a hazard family the machine does not hold yet.", 10000000) : null,
                 handlesHazards ? overrideNumber("hazardUpgradeSeconds", "Seconds to raise a held hazard family from Mild to Severe.", 10000000) : null,
                 overrideNumber("overgrowthSeconds", "Seconds to reach Overgrowth level 1.", 10000000),
-                overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000));
+                overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000),
+                usesField ? overrideList("fieldSize", "Largest width or length of the field per tier (odd).", 1, 99, TIERS, "L1 to L4") : null,
+                usesField ? overrideList("fieldDistance", "Furthest the field may sit from the machine per tier, in blocks.", 1, 99, TIERS, "L1 to L4") : null);
     }
 
     private static MachineOverrides toOverrides(MachineSection section) {
@@ -337,7 +353,9 @@ public final class StatConfig {
                 optionalNumber(section.evolutionHazardNewSeconds()),
                 optionalNumber(section.evolutionHazardUpgradeSeconds()),
                 optionalNumber(section.evolutionOvergrowthSeconds()),
-                optionalNumber(section.evolutionOvergrowthGrowthPercent()));
+                optionalNumber(section.evolutionOvergrowthGrowthPercent()),
+                optionalSlots(section.fieldSize()),
+                optionalSlots(section.fieldDistance()));
     }
 
     private static Map<MachineFamily, MachineOverrides> buildFamilyOverrides() {

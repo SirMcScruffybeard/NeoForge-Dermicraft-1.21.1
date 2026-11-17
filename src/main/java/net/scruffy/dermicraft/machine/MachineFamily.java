@@ -8,18 +8,26 @@ package net.scruffy.dermicraft.machine;
  */
 public enum MachineFamily {
     /** Cauldron, Crucible, Geode: they make fluid with no input, burn no fuel, have no HP and handle no hazards. */
-    DROOLING("drooling", false, false, true);
+    DROOLING("drooling", false, false, false, true, false),
+    /** Mr. Farmer, Mr. Shepherd and the ones that follow: they burn fuel but have no HP, handle no hazards, make no passive
+     * fluid, and work a field whose largest size and distance are per-tier stats. */
+    FARM("farm", false, true, false, false, true);
 
     private final String SECTION_NAME;
     private final boolean HANDLES_HAZARDS;
-    private final boolean USES_FUEL_AND_HEALTH;
+    private final boolean USES_FUEL;
+    private final boolean USES_HEALTH;
     private final boolean USES_PASSIVE_YIELD;
+    private final boolean USES_FIELD;
 
-    MachineFamily(String sectionName, boolean handlesHazards, boolean usesFuelAndHealth, boolean usesPassiveYield) {
+    MachineFamily(String sectionName, boolean handlesHazards, boolean usesFuel, boolean usesHealth,
+                  boolean usesPassiveYield, boolean usesField) {
         SECTION_NAME = sectionName;
         HANDLES_HAZARDS = handlesHazards;
-        USES_FUEL_AND_HEALTH = usesFuelAndHealth;
+        USES_FUEL = usesFuel;
+        USES_HEALTH = usesHealth;
         USES_PASSIVE_YIELD = usesPassiveYield;
+        USES_FIELD = usesField;
     }
 
     /** The family's section name in the config file. */
@@ -31,8 +39,16 @@ public enum MachineFamily {
         return HANDLES_HAZARDS;
     }
 
-    public boolean usesFuelAndHealth() {
-        return USES_FUEL_AND_HEALTH;
+    public boolean usesFuel() {
+        return USES_FUEL;
+    }
+
+    public boolean usesHealth() {
+        return USES_HEALTH;
+    }
+
+    public boolean usesField() {
+        return USES_FIELD;
     }
 
     public boolean usesPassiveYield() {

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 import net.scruffy.dermicraft.main.Dermicraft;
 import net.scruffy.dermicraft.renderer.gui.FluidTankRenderer;
@@ -82,6 +83,9 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
     private final Map<Integer, Integer> pressFlash = new HashMap<>(); // button id -> ticks of pressed art left
     private int heldButton = -1; // -1 = nothing held, else the menu button id being held
     private int holdTicks = 0;
+
+    /** Where the Evolution slot, tier icon and label go on the Module tab; set in init() once the font is known. */
+    private EvolutionPanel.Layout panelLayout;
 
     private List<FarmTab> farmTabs = List.of();
     private List<Tab> tabs = List.of(); // the same tabs as the small-tab bar draws them: each one's initial
@@ -170,10 +174,12 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
         List<FarmTab> all = new ArrayList<>();
         all.add(farmTab("home"));
         all.add(farmTab("field"));
+        all.add(farmTab("module"));
         all.addAll(createExtraTabs());
         farmTabs = all;
         tabs = all.stream().map(tab -> new Tab(tab.initial(), TEXT_COLOR)).toList();
         fuelRenderer = createGaugeRenderer(menu.BE.getFuelTank().getCapacity());
+        panelLayout = EvolutionPanel.Layout.of(font, AbstractEvolvingMachineMenu.EVOLUTION_SLOT_X, false);
     }
 
     @Override
@@ -256,9 +262,12 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
                     x + FarmLayout.FUEL_GAUGE_X, y + FarmLayout.FUEL_GAUGE_Y);
             renderHomeExtras(guiGraphics, x, y);
         } else if (tab == AbstractFarmMenu.FIELD_TAB) {
+            int maxSize = menu.BE.getMaxFieldSize();
             renderFieldGrid(guiGraphics, x + FarmLayout.FIELD_GRID_X, y + FarmLayout.FIELD_GRID_Y,
                     menu.BE.getFieldWidth(), menu.BE.getFieldLength(),
-                    AbstractFarmBlockEntity.MAX_FIELD_SIZE, FarmLayout.FIELD_GRID_CELL);
+                    maxSize, Math.max(1, FarmLayout.FIELD_GRID_PIXELS / maxSize));
+        } else if (tab == AbstractFarmMenu.MODULE_TAB) {
+            renderModuleTab(guiGraphics, x, y);
         } else {
             renderExtraTabBg(guiGraphics, x, y, tab);
         }
@@ -315,9 +324,41 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
                     FarmLayout.FIELD_LENGTH_ROW_Y);
             drawRowLabel(guiGraphics, Component.translatable("gui.dermicraft.farm.distance", menu.BE.getFieldDistance()),
                     FarmLayout.FIELD_DISTANCE_ROW_Y);
+        } else if (tab == AbstractFarmMenu.MODULE_TAB) {
+            if (EvolutionPanel.isEvolutionSlot(hoveredSlot, menu.BE.EVOLUTION_INVENTORY) && !hoveredSlot.hasItem()) {
+                guiGraphics.renderComponentTooltip(this.font, EvolutionPanel.getEmptySlotTooltip(), mouseX - x, mouseY - y);
+            }
+            EvolutionPanel.renderTooltip(guiGraphics, font, mouseX - x, mouseY - y, getEvolutionPanelCells());
         } else {
             renderExtraTabLabels(guiGraphics, tab);
         }
+    }
+
+    /** The icons under the slots on the Module tab: this machine's tier (a farm machine handles no hazards, so no tolerances). */
+    private List<EvolutionPanel.Cell> getEvolutionPanelCells() {
+        return EvolutionPanel.getCells(panelLayout, menu.BE.getEvolutionState(), menu.BE.getModuleInventory(),
+                menu.BE.EVOLUTION_INVENTORY, menu.BE::getHazardIntensity);
+    }
+
+    /** The Evolution slot's tooltip carries what its module would do right now. */
+    @Override
+    protected List<Component> getTooltipFromContainerItem(ItemStack stack) {
+        List<Component> lines = super.getTooltipFromContainerItem(stack);
+        if (!EvolutionPanel.isEvolutionSlot(hoveredSlot, menu.BE.EVOLUTION_INVENTORY)) return lines;
+        List<Component> withStatus = new ArrayList<>(lines);
+        withStatus.addAll(EvolutionPanel.getStatusLines(menu.BE.getEvolutionStatus()));
+        return withStatus;
+    }
+
+    /** The Module slots' backdrops, the Evolution slot with its progress bar, and the tier panel. */
+    private void renderModuleTab(GuiGraphics guiGraphics, int x, int y) {
+        EvolutionPanel.renderSlot(guiGraphics, x, y, panelLayout, menu.BE.getGradualEvolutionFraction());
+        for (int i = 0; i < menu.BE.getModuleSlotCount(); i++) {
+            guiGraphics.blit(MODULE_SLOT_TEXTURE,
+                    x + AbstractEvolvingMachineMenu.MODULE_SLOT_X + i * AbstractEvolvingMachineMenu.MODULE_SLOT_SPACING,
+                    y + AbstractEvolvingMachineMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
+        }
+        EvolutionPanel.render(guiGraphics, font, x, y, panelLayout, getEvolutionPanelCells());
     }
 
     /** A text label vertically centered against a stepper row. */

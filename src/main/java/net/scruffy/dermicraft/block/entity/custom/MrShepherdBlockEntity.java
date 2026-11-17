@@ -1,5 +1,6 @@
 package net.scruffy.dermicraft.block.entity.custom;
 
+import net.scruffy.dermicraft.machine.MachineStatKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -132,6 +133,11 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         return "mr_shepherd";
     }
 
+    @Override
+    protected MachineStatKey getStatKey() {
+        return MachineStatKey.MR_SHEPHERD;
+    }
+
     /** Picks up a fuel swap; an empty tank keeps the last fuel's numbers. */
     @Override
     protected void onFuelContentsChanged() {
@@ -204,6 +210,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
         if (kindsOfWork > 0) {
             burnFuel(kindsOfWork / (float) WORK_KINDS_PER_STEP);
+            tickGradualProgress(currentWaveStepTicks()); // a cycle that did work is real production toward an evolution
             setChanged();
         }
     }

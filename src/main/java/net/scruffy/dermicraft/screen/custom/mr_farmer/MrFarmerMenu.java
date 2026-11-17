@@ -20,5 +20,6 @@ public class MrFarmerMenu extends AbstractFarmMenu<MrFarmerBlockEntity> {
 
         addFuelSlot();
         addBufferSlots();
+        addModuleTabSlots();
     }
 }

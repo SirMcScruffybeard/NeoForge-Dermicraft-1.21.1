@@ -30,6 +30,8 @@ final class StatDefaults {
     // ---- Storage ----
     static final double[] SKIN_TANK_CAPACITY_MB = {10000, 20000, 40000, 80000};
     static final double[] CRAW_STACKS = {10, 20, 40, 80};
+    static final double[] FIELD_SIZE = {9, 13, 17, 21};          // largest width or length of a farm machine's field, odd, per tier (Overgrowth adds none)
+    static final double[] FIELD_DISTANCE = {8, 12, 16, 20};      // furthest a farm machine's field may sit from it, per tier
 
     // ---- Single values ----
     static final double OVERGROWTH_PERCENT = 5;                  // of the L4 value, per level, for every numeric stat
@@ -64,7 +66,7 @@ final class StatDefaults {
             ITEM_TRANSFER, FLUID_TRANSFER, MODULE_SLOTS,
             SIMPLE_MACHINE_SPEED, SIMPLE_MACHINE_FUEL_USE,
             SIMPLE_MACHINE_MAX_HEALTH, SIMPLE_MACHINE_TANK_CAPACITY_MB, SIMPLE_MACHINE_PASSIVE_YIELD,
-            SKIN_TANK_CAPACITY_MB, CRAW_STACKS,
+            SKIN_TANK_CAPACITY_MB, CRAW_STACKS, FIELD_SIZE, FIELD_DISTANCE,
             OVERGROWTH_PERCENT, OVERGROWTH_MAX_LEVEL,
             HUNGER_DAMAGE_PER_CYCLE, UNFUELED_SPEED,
             EVOLUTION_TIER_SECONDS, EVOLUTION_HAZARD_NEW_SECONDS, EVOLUTION_HAZARD_UPGRADE_SECONDS,

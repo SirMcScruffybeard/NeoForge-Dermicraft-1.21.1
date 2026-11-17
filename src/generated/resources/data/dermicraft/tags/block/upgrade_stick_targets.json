@@ -8,6 +8,8 @@
     "dermicraft:render_kiln",
     "dermicraft:render_furnace",
     "dermicraft:skin_tank",
-    "dermicraft:craw"
+    "dermicraft:craw",
+    "dermicraft:mr_farmer",
+    "dermicraft:mr_shepherd"
   ]
 }

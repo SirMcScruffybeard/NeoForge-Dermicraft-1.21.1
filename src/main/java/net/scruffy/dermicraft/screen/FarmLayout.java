@@ -35,8 +35,9 @@ public final class FarmLayout {
     public static final int FIELD_LENGTH_ROW_Y = 38;
     public static final int FIELD_DISTANCE_ROW_Y = 60;
 
-    /** The preview grid: a 9 x 9 box of 6 pixel cells (the tile art doubled). */
+    /** The preview grid: a box 54 pixels across (9 cells of 6 pixels at the smallest tier), each cell shrinking as the tier's
+     * largest field grows so the same box always fits it. */
+    public static final int FIELD_GRID_PIXELS = 54;
     public static final int FIELD_GRID_X = 108;
     public static final int FIELD_GRID_Y = 14;
-    public static final int FIELD_GRID_CELL = 6;
 }

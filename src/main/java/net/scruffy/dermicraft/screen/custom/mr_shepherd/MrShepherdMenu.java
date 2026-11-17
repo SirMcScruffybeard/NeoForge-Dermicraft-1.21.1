@@ -13,7 +13,7 @@ import net.scruffy.dermicraft.screen.ModMenuTypes;
  */
 public class MrShepherdMenu extends AbstractFarmMenu<MrShepherdBlockEntity> {
 
-    public static final int POPULATION_TAB = 2;
+    public static final int POPULATION_TAB = FIRST_EXTRA_TAB;
 
     /** Backdrop positions: the feed row sits on the fuel row, right of the gauge; the XP container above the fuel one. */
     public static final int FOOD_ROW_X = 97;
@@ -40,6 +40,7 @@ public class MrShepherdMenu extends AbstractFarmMenu<MrShepherdBlockEntity> {
         }
         addBufferSlots();
         addHomeSlot(BE.getXpTank().SLOT, XP_SLOT_X, XP_SLOT_Y);
+        addModuleTabSlots();
     }
 
     @Override

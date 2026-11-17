@@ -11,8 +11,9 @@ record MachineOverrides(
         @Nullable double[] tankCapacityMb, @Nullable double[] passiveYield, @Nullable int[] moduleSlots,
         @Nullable double[] evolutionTierSeconds, @Nullable Double evolutionHazardNewSeconds,
         @Nullable Double evolutionHazardUpgradeSeconds, @Nullable Double evolutionOvergrowthSeconds,
-        @Nullable Double evolutionOvergrowthGrowthPercent) {
+        @Nullable Double evolutionOvergrowthGrowthPercent,
+        @Nullable int[] fieldSize, @Nullable int[] fieldDistance) {
 
     /** No overrides: everything comes from the shared values. */
-    static final MachineOverrides NONE = new MachineOverrides(null, null, null, null, null, null, null, null, null, null, null);
+    static final MachineOverrides NONE = new MachineOverrides(null, null, null, null, null, null, null, null, null, null, null, null, null);
 }

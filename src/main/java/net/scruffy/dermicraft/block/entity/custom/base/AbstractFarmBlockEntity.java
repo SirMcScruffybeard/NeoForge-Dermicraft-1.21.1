@@ -23,6 +23,10 @@ import net.scruffy.dermicraft.block.custom.AbstractFarmBlock;
 import net.scruffy.dermicraft.interfaces.Channel;
 import net.scruffy.dermicraft.interfaces.IHasChannels;
 import net.scruffy.dermicraft.interfaces.IHaveInventory;
+import net.scruffy.dermicraft.interfaces.IHaveModules;
+import net.scruffy.dermicraft.interfaces.IModuleTabMachine;
+import net.scruffy.dermicraft.machine.MachineStatKey;
+import net.scruffy.dermicraft.machine.SimpleMachineStats;
 import net.scruffy.dermicraft.machine.MachineTier;
 import net.scruffy.dermicraft.tank.FuelTank;
 import net.scruffy.dermicraft.tank.ModFluidTank;
@@ -48,15 +52,17 @@ import java.util.List;
  * away from it. For a machine facing up or down there is no sideways, so the width runs along the world's X axis and the
  * length along Z.
  */
-public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
-        implements MenuProvider, IHaveInventory, IHasChannels {
+public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
+        implements MenuProvider, IHaveInventory, IHasChannels, IModuleTabMachine,
+        net.scruffy.dermicraft.interfaces.IEvolvingMachine {
 
     public static final int MIN_FIELD_SIZE = 1;
-    public static final int MAX_FIELD_SIZE = 9;
     public static final int DEFAULT_FIELD_SIZE = 3;
     /** How far the field sits from the machine, in blocks (see {@link #getFieldDistance}). */
     public static final int MIN_FIELD_DISTANCE = 1;
-    public static final int MAX_FIELD_DISTANCE = 8;
+
+    /** An evolution's flourish lands one step per this many ticks (the 10 tick cycle of the processing machines). */
+    private static final int EVOLUTION_FLOURISH_PERIOD_TICKS = 10;
 
     // --- Wave sweep pacing --- (WAVE_STEP_TICKS_BASE is the delay between steps at fuel speed 1.0 (Crude Slurry);
     // currentWaveStepTicks() scales it down for faster fuel so the work visibly speeds up.)
@@ -85,6 +91,12 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
     private int fieldLength = DEFAULT_FIELD_SIZE;
     private int fieldDistance = MIN_FIELD_DISTANCE;
     private int previewTicksRemaining = 0;
+    // General Module slots: their own handler, sized by the tier (see EvolvingMachineBlockEntity#getModuleSlotCount). Only
+    // Work Speed Modules do anything on a farm machine today, so they are the only ones the slots take. Evolution Modules
+    // go in the dedicated Evolution slot (EVOLUTION_INVENTORY, in the engine).
+    protected final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
+            stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULE_WORK_SPEED));
+    private boolean moduleTabActive = false;
     private float fuelOwed = 0f; // the fractional part of the fuel a burn owes, carried to the next burn (not saved)
 
     /**
@@ -103,6 +115,10 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
     }
 
     // ---- What a machine supplies ------------------------------------------------------------------
+
+    /** The machine's key in the stat config (its section of overrides). */
+    @Override
+    protected abstract MachineStatKey getStatKey();
 
     /** The machine's block, for its display name and the menu's range check. */
     public abstract DeferredBlock<Block> getFarmBlock();
@@ -149,6 +165,66 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
     @Nullable
     protected ModFluidTank getTankForSlot(int slot) {
         return slot == FUEL_TANK.SLOT ? FUEL_TANK : null;
+    }
+
+    // ---- Evolution: tier, Evolution slot and Module slots ---------------------------------------------
+
+    @Override
+    protected boolean usesEvolutionState() {
+        return true;
+    }
+
+    @Override
+    public ItemStackHandler getModuleInventory() {
+        return MODULE_INVENTORY;
+    }
+
+    @Override
+    public boolean isModuleTabActive() {
+        return moduleTabActive;
+    }
+
+    @Override
+    public void setModuleTabActive(boolean active) {
+        moduleTabActive = active;
+    }
+
+    /** A new tier can change the Module slot count, the fuel tank's size and the field's largest size and distance, so the
+     * slots are resized and the field is clamped to what this tier allows (a field never outgrows its machine). */
+    @Override
+    protected void onEvolutionStateChanged() {
+        super.onEvolutionStateChanged();
+        resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
+        FUEL_TANK.setCapacity(SimpleMachineStats.getTankCapacityMb(getStatKey(), getEvolutionState()));
+        fieldWidth = snapFieldSize(fieldWidth);
+        fieldLength = snapFieldSize(fieldLength);
+        fieldDistance = snapFieldDistance(fieldDistance);
+    }
+
+    /** Work Speed Module bonus across the Module slots, with the diminishing-return stacking rule of
+     * {@link IHaveModules#workSpeedMultiplier}. */
+    protected float workSpeedMultiplier() {
+        List<ItemStack> modules = new ArrayList<>();
+        for (int slot = 0; slot < MODULE_INVENTORY.getSlots(); slot++) {
+            modules.add(MODULE_INVENTORY.getStackInSlot(slot));
+        }
+        return IHaveModules.workSpeedMultiplier(modules);
+    }
+
+    /** The tier's speed multiplier, which multiplies with the fuel's speed and the Work Speed Modules. */
+    protected float getTierSpeedMultiplier() {
+        return SimpleMachineStats.getSpeedMultiplier(getStatKey(), getEvolutionState());
+    }
+
+    /** The tier's multiplier on fuel spent for the same work. */
+    protected float getTierFuelUseMultiplier() {
+        return SimpleMachineStats.getFuelUseMultiplier(getStatKey(), getEvolutionState());
+    }
+
+    /** How far along the pending evolution is, 0 to 1, for the creeping overlay (see IEvolvingMachine). */
+    @Override
+    public float getEvolutionProgressFraction() {
+        return getGradualEvolutionFraction();
     }
 
     // ---- Basics ---------------------------------------------------------------------------------
@@ -207,12 +283,27 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
         return (fieldLength - 1) / 2;
     }
 
-    /** Snaps a requested size to what a field can be: 1 to 9, odd (an even size rounds up to the next odd one). */
-    public static int snapFieldSize(int size) {
-        return Math.max(MIN_FIELD_SIZE, Math.min(MAX_FIELD_SIZE, size)) | 1;
+    /** The largest width or length this machine's tier allows (odd). */
+    public int getMaxFieldSize() {
+        return SimpleMachineStats.getMaxFieldSize(getStatKey(), getEvolutionState());
     }
 
-    /** Sets the field's size, snapped to an odd 1 to 9 each way. updateBlock() so the GUI readout changes live. */
+    /** The furthest this machine's tier lets the field sit from it. */
+    public int getMaxFieldDistance() {
+        return SimpleMachineStats.getMaxFieldDistance(getStatKey(), getEvolutionState());
+    }
+
+    /** Snaps a requested size to what a field can be: 1 up to the tier's largest, odd (an even size rounds up to the next
+     * odd one, and the largest is odd, so the result never passes it). */
+    public int snapFieldSize(int size) {
+        return Math.max(MIN_FIELD_SIZE, Math.min(getMaxFieldSize(), size)) | 1;
+    }
+
+    private int snapFieldDistance(int distance) {
+        return Math.max(MIN_FIELD_DISTANCE, Math.min(getMaxFieldDistance(), distance));
+    }
+
+    /** Sets the field's size, snapped to an odd 1 up to the tier's largest each way. updateBlock() so the GUI readout changes live. */
     public void setFieldSize(int width, int length) {
         int newWidth = snapFieldSize(width);
         int newLength = snapFieldSize(length);
@@ -243,9 +334,9 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
         return fieldDistance;
     }
 
-    /** Sets the field's distance from the machine, clamped to 1 to 8. */
+    /** Sets the field's distance from the machine, clamped to 1 up to the tier's furthest. */
     public void setFieldDistance(int distance) {
-        int newDistance = Math.max(MIN_FIELD_DISTANCE, Math.min(MAX_FIELD_DISTANCE, distance));
+        int newDistance = snapFieldDistance(distance);
         if (newDistance == fieldDistance) return;
         fieldDistance = newDistance;
         onFieldChanged();
@@ -260,9 +351,10 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
 
     // ---- Pacing -----------------------------------------------------------------------------------
 
-    /** Fuel speed ratio, floored so pacing math never divides by (near) zero. */
+    /** The fuel's speed ratio times the tier's and the Work Speed Modules', floored so pacing math never divides by (near)
+     * zero. */
     protected float pacingSpeed() {
-        return Math.max(MIN_SPEED_FOR_PACING, FUEL_TANK.getSpeed());
+        return Math.max(MIN_SPEED_FOR_PACING, FUEL_TANK.getSpeed() * getTierSpeedMultiplier() * workSpeedMultiplier());
     }
 
     /** Delay between work steps: BASE at fuel speed 1.0, faster with better fuel. */
@@ -281,7 +373,7 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
      * row (Farmer) or per cycle (Shepherd), the cost before the field was the player's to set.
      */
     protected void burnFuel(float steps) {
-        fuelOwed += fuelPerStep() * steps;
+        fuelOwed += fuelPerStep() * steps * getTierFuelUseMultiplier();
         int whole = Math.min((int) fuelOwed, FUEL_TANK.getFluidAmount());
         if (whole <= 0) return;
         FUEL_TANK.useFuel(whole);
@@ -301,6 +393,12 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
             return;
         }
         setActive(level, true); // fueled: "on" texture
+
+        // Work is frozen while an evolution's flourish plays, so the new tier never lands mid-sweep.
+        if (isEvolutionFlourishing()) {
+            if (level.getGameTime() % EVOLUTION_FLOURISH_PERIOD_TICKS == 0) tickGradualFlourish();
+            return;
+        }
         tickFarmWork(level);
     }
 
@@ -426,13 +524,15 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
     @Override
     public void drops() {
         super.drops(INVENTORY);
+        super.drops(MODULE_INVENTORY);
+        super.drops(EVOLUTION_INVENTORY);
         dropExtras();
     }
 
     // ---- Tank and inventory factories -----------------------------------------------------------------
 
     private FuelTank createFuelTank() {
-        return new FuelTank(MachineTier.BASIC.tankCapacity(), 0) {
+        return new FuelTank(SimpleMachineStats.getTankCapacityMb(getStatKey(), getEvolutionState()), 0) {
             @Override
             protected void onContentsChanged() {
                 if (level != null && !level.isClientSide) {
@@ -527,6 +627,7 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
         tag.putInt("fieldWidth", fieldWidth);
         tag.putInt("fieldLength", fieldLength);
         tag.putInt("fieldDistance", fieldDistance);
+        tag.put("module_inventory", MODULE_INVENTORY.serializeNBT(registries));
     }
 
     @Override
@@ -539,8 +640,9 @@ public abstract class AbstractFarmBlockEntity extends MachineBaseBlockEntity
         if (tag.contains("fuel")) FUEL_TANK.readFromNBT(registries, tag.getCompound("fuel"));
         if (tag.contains("fieldWidth")) fieldWidth = snapFieldSize(tag.getInt("fieldWidth"));
         if (tag.contains("fieldLength")) fieldLength = snapFieldSize(tag.getInt("fieldLength"));
-        if (tag.contains("fieldDistance")) {
-            fieldDistance = Math.max(MIN_FIELD_DISTANCE, Math.min(MAX_FIELD_DISTANCE, tag.getInt("fieldDistance")));
+        if (tag.contains("fieldDistance")) fieldDistance = snapFieldDistance(tag.getInt("fieldDistance"));
+        if (tag.contains("module_inventory")) {
+            loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("module_inventory"));
         }
     }
 

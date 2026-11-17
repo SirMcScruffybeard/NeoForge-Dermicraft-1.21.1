@@ -23,6 +23,9 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
 
     public static final int HOME_TAB = 0;
     public static final int FIELD_TAB = 1;
+    public static final int MODULE_TAB = 2;
+    /** The first tab a machine adds of its own (Mr. Shepherd's Population tab). */
+    public static final int FIRST_EXTRA_TAB = 3;
 
     public static final int BUTTON_WIDTH_UP = 10;
     public static final int BUTTON_WIDTH_DOWN = 11;
@@ -38,7 +41,7 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
 
     @SuppressWarnings("unchecked")
     protected AbstractFarmMenu(MenuType<?> menuType, int containerId, Inventory inv, BlockEntity blockEntity, int blockEntitySlots) {
-        super(menuType, containerId, blockEntitySlots);
+        super(menuType, containerId, blockEntitySlots + ((AbstractFarmBlockEntity) blockEntity).getModuleSlotCount() + 1);
         this.BE = (B) blockEntity;
         this.level = inv.player.level();
 
@@ -54,6 +57,34 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
                 return getActiveTab() == HOME_TAB;
             }
         });
+    }
+
+    /**
+     * The general Module slots, then the Evolution slot last, both active only on the Module tab, at the same screen
+     * coordinates as the processing machines' Module tab. Call it after the machine's own Home slots; it also limits
+     * shift-click from the player's inventory to the Home slots, so nothing lands in a hidden Module or Evolution slot.
+     */
+    protected void addModuleTabSlots() {
+        for (int i = 0; i < BE.getModuleSlotCount(); i++) {
+            this.addSlot(new SlotItemHandler(BE.getModuleInventory(), i,
+                    AbstractEvolvingMachineMenu.MODULE_SLOT_X + 1 + i * AbstractEvolvingMachineMenu.MODULE_SLOT_SPACING,
+                    AbstractEvolvingMachineMenu.MODULE_SLOT_Y + 1) {
+                @Override
+                public boolean isActive() {
+                    return getActiveTab() == MODULE_TAB;
+                }
+            });
+        }
+
+        this.addSlot(new SlotItemHandler(BE.EVOLUTION_INVENTORY, 0,
+                AbstractEvolvingMachineMenu.EVOLUTION_SLOT_X + 1, EvolutionPanel.SLOT_Y + 1) {
+            @Override
+            public boolean isActive() {
+                return getActiveTab() == MODULE_TAB;
+            }
+        });
+
+        setQuickMoveInputSlots(0, BE.getInventorySize());
     }
 
     protected void addFuelSlot() {
