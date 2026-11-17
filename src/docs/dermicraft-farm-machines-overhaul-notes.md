@@ -182,7 +182,7 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
 - **Planting: fill the whole field** as long as enough saplings are stored. No spacing rule. User testing with bonemeal showed
   single-sapling trees grow clustered or staggered and 2x2 trees (jungle, dark oak) also grow clustered, so neither is a problem.
 - **Light: the status light like Mr. Farmer**, on the front, centered in both directions (mount x 5, y 5 on the 16-pixel front).
-- **Field size: starts 3 x 3 like the others, maximum 15 x 15** (the shared maximum is 9, so Logger needs its own maximum; odd sizes only).
+- **Field size: starts 3 x 3 like the others, maximum 9 x 9 like the others** (revised 2026-11-17; it was 15 x 15). The user is considering tier-ups for the farm machines alongside the processing machines, not decided, so field maximums may later grow with tier.
 - **Fuel only, no tool slot.** Per cell, per the family rule above.
 - **Output: items only,** no fluid output. Bottom face output-only like Mr. Farmer.
 - **Personified** like the other two.
@@ -215,4 +215,4 @@ step per cycle whatever the field, so with fuel no longer setting the field the 
 - **Horizontal facing:** distance is where the field starts. Farmer's first row is `distance` blocks out (was always 1). Shepherd's
   box starts `distance - 1` blocks out, so the default still includes the machine's own row.
 - Fuel cost does not use the distance.
-- Mr. Logger (later) will use the same setting; its maximum may be higher, and for it the distance is where the work starts.
+- Mr. Logger (later) will use the same setting, with the same maximums as the others (1 to 8); for it the distance is where the work starts.
