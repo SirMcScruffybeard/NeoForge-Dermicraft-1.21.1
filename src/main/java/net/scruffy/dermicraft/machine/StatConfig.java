@@ -27,6 +27,7 @@ public final class StatConfig {
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> MODULE_SLOTS;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_SIZE;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_DISTANCE;
+    private static final ModConfigSpec.ConfigValue<List<? extends Number>> INPUT_SLOTS;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_SPEED;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_FUEL_USE;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_MAX_HEALTH;
@@ -72,7 +73,8 @@ public final class StatConfig {
             ModConfigSpec.DoubleValue evolutionOvergrowthSeconds,
             ModConfigSpec.DoubleValue evolutionOvergrowthGrowthPercent,
             ModConfigSpec.ConfigValue<List<? extends Number>> fieldSize,
-            ModConfigSpec.ConfigValue<List<? extends Number>> fieldDistance) {}
+            ModConfigSpec.ConfigValue<List<? extends Number>> fieldDistance,
+            ModConfigSpec.ConfigValue<List<? extends Number>> inputSlots) {}
 
     private static final Map<MachineStatKey, MachineSection> MACHINE_SECTIONS = new EnumMap<>(MachineStatKey.class);
     private static final Map<MachineFamily, MachineSection> FAMILY_SECTIONS = new EnumMap<>(MachineFamily.class);
@@ -104,6 +106,7 @@ public final class StatConfig {
                 .push("farm");
         FIELD_SIZE = tierList("fieldSize", "Largest width or length of a farm machine's field per tier. Odd numbers (an even one rounds up). Overgrowth adds none.", StatDefaults.FIELD_SIZE, 1, 99);
         FIELD_DISTANCE = tierList("fieldDistance", "Furthest a farm machine's field may sit from it, in blocks, per tier. Overgrowth adds none.", StatDefaults.FIELD_DISTANCE, 1, 99);
+        INPUT_SLOTS = tierList("inputSlots", "Slots in a farm machine's input row (seeds, saplings or feed) per tier, 0 to 12 (three rows of four). Overgrowth adds none.", StatDefaults.INPUT_SLOTS, 0, 12);
         BUILDER.pop();
 
         BUILDER.push("skin_tank");
@@ -306,6 +309,7 @@ public final class StatConfig {
                 table(SKIN_TANK_CAPACITY_MB, StatDefaults.SKIN_TANK_CAPACITY_MB),
                 table(CRAW_STACKS, StatDefaults.CRAW_STACKS),
                 table(FIELD_SIZE, StatDefaults.FIELD_SIZE), table(FIELD_DISTANCE, StatDefaults.FIELD_DISTANCE),
+                table(INPUT_SLOTS, StatDefaults.INPUT_SLOTS),
                 OVERGROWTH_PERCENT.get(), OVERGROWTH_MAX_LEVEL.get(),
                 HUNGER_DAMAGE_PER_CYCLE.get(), UNFUELED_SPEED.get().floatValue(),
                 table(EVOLUTION_TIER_SECONDS, StatDefaults.EVOLUTION_TIER_SECONDS),
@@ -338,7 +342,8 @@ public final class StatConfig {
                 overrideNumber("overgrowthSeconds", "Seconds to reach Overgrowth level 1.", 10000000),
                 overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000),
                 usesField ? overrideList("fieldSize", "Largest width or length of the field per tier (odd).", 1, 99, TIERS, "L1 to L4") : null,
-                usesField ? overrideList("fieldDistance", "Furthest the field may sit from the machine per tier, in blocks.", 1, 99, TIERS, "L1 to L4") : null);
+                usesField ? overrideList("fieldDistance", "Furthest the field may sit from the machine per tier, in blocks.", 1, 99, TIERS, "L1 to L4") : null,
+                usesField ? overrideList("inputSlots", "Slots in the input row (seeds, saplings or feed) per tier (0 to 12).", 0, 12, TIERS, "L1 to L4") : null);
     }
 
     private static MachineOverrides toOverrides(MachineSection section) {
@@ -355,7 +360,8 @@ public final class StatConfig {
                 optionalNumber(section.evolutionOvergrowthSeconds()),
                 optionalNumber(section.evolutionOvergrowthGrowthPercent()),
                 optionalSlots(section.fieldSize()),
-                optionalSlots(section.fieldDistance()));
+                optionalSlots(section.fieldDistance()),
+                optionalSlots(section.inputSlots()));
     }
 
     private static Map<MachineFamily, MachineOverrides> buildFamilyOverrides() {

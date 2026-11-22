@@ -15,10 +15,7 @@ public class MrShepherdMenu extends AbstractFarmMenu<MrShepherdBlockEntity> {
 
     public static final int POPULATION_TAB = FIRST_EXTRA_TAB;
 
-    /** Backdrop positions: the feed row sits on the fuel row, right of the gauge; the XP container above the fuel one. */
-    public static final int FOOD_ROW_X = 97;
-    public static final int FOOD_ROW_Y = 44;
-    public static final int FOOD_SLOT_COUNT = 4;
+    /** Backdrop position of the XP container, above the fuel one (the feed row is the shared input row). */
     public static final int XP_SLOT_X = 7;
     public static final int XP_SLOT_Y = 24;
 
@@ -35,11 +32,9 @@ public class MrShepherdMenu extends AbstractFarmMenu<MrShepherdBlockEntity> {
                 ((MrShepherdBlockEntity) blockEntity).getInventorySize());
 
         addFuelSlot();
-        for (int i = 0; i < FOOD_SLOT_COUNT; i++) {
-            addHomeSlot(1 + i, FOOD_ROW_X + i * 18, FOOD_ROW_Y);
-        }
         addBufferSlots();
         addHomeSlot(BE.getXpTank().SLOT, XP_SLOT_X, XP_SLOT_Y);
+        addInputSlots();
         addModuleTabSlots();
     }
 

@@ -22,6 +22,22 @@ public final class FarmLayout {
     public static final int FUEL_GAUGE_X = 26;
     public static final int FUEL_GAUGE_Y = 44;
 
+    /** The input row (seeds, saplings, feed): up to three rows of four slots right of the fuel gauge. The first row is level with
+     * the fuel gauge and each later row sits above it, so a tier's new slots appear on top. */
+    public static final int INPUT_ROW_X = 97;
+    public static final int INPUT_ROW_Y = 44;
+    public static final int INPUT_COLUMNS = 4;
+
+    /** The backdrop's left edge for input slot {@code index} (0 is the first slot of the bottom row). */
+    public static int getInputSlotX(int index) {
+        return INPUT_ROW_X + (index % INPUT_COLUMNS) * SLOT_SIZE;
+    }
+
+    /** The backdrop's top edge for input slot {@code index}. */
+    public static int getInputSlotY(int index) {
+        return INPUT_ROW_Y - (index / INPUT_COLUMNS) * SLOT_SIZE;
+    }
+
     /** The output buffer row, nine slots across. */
     public static final int BUFFER_ROW_X = 7;
     public static final int BUFFER_ROW_Y = 64;

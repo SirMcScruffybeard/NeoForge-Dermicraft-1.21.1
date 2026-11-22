@@ -41,7 +41,8 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
 
     @SuppressWarnings("unchecked")
     protected AbstractFarmMenu(MenuType<?> menuType, int containerId, Inventory inv, BlockEntity blockEntity, int blockEntitySlots) {
-        super(menuType, containerId, blockEntitySlots + ((AbstractFarmBlockEntity) blockEntity).getModuleSlotCount() + 1);
+        super(menuType, containerId, blockEntitySlots + ((AbstractFarmBlockEntity) blockEntity).getInputSlotCount()
+                + ((AbstractFarmBlockEntity) blockEntity).getModuleSlotCount() + 1);
         this.BE = (B) blockEntity;
         this.level = inv.player.level();
 
@@ -59,10 +60,24 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
         });
     }
 
+    /** The input row's slots (seeds, saplings, feed), active only on Home. Call it after the machine's other Home slots. */
+    protected void addInputSlots() {
+        for (int i = 0; i < BE.getInputSlotCount(); i++) {
+            this.addSlot(new SlotItemHandler(BE.getInputInventory(), i,
+                    FarmLayout.getInputSlotX(i) + 1, FarmLayout.getInputSlotY(i) + 1) {
+                @Override
+                public boolean isActive() {
+                    return getActiveTab() == HOME_TAB;
+                }
+            });
+        }
+    }
+
     /**
      * The general Module slots, then the Evolution slot last, both active only on the Module tab, at the same screen
-     * coordinates as the processing machines' Module tab. Call it after the machine's own Home slots; it also limits
-     * shift-click from the player's inventory to the Home slots, so nothing lands in a hidden Module or Evolution slot.
+     * coordinates as the processing machines' Module tab. Call it after the machine's own Home slots and
+     * {@link #addInputSlots}; it also limits shift-click from the player's inventory to the input row, so nothing lands in a
+     * hidden Module or Evolution slot.
      */
     protected void addModuleTabSlots() {
         for (int i = 0; i < BE.getModuleSlotCount(); i++) {
@@ -84,7 +99,8 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
             }
         });
 
-        setQuickMoveInputSlots(0, BE.getInventorySize());
+        // Shift-click from the player's inventory goes to the input row only (the slots registered right after the main inventory).
+        setQuickMoveInputSlots(BE.getInventorySize(), BE.getInputSlotCount());
     }
 
     protected void addFuelSlot() {

@@ -123,6 +123,11 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
         return List.of();
     }
 
+    /** The role label of an empty input slot (seeds by default). */
+    protected Component getInputSlotTooltip() {
+        return Component.translatable("tooltip.dermicraft.slot.seed");
+    }
+
     /** Draws the machine's own Home-tab backdrops (its extra slots, gauges). Runs after the shared Home art. */
     protected void renderHomeExtras(GuiGraphics guiGraphics, int x, int y) {
     }
@@ -258,6 +263,9 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
             for (int i = 0; i < menu.BE.getBufferSlotCount(); i++) {
                 renderSlotBackdrop(guiGraphics, x + FarmLayout.BUFFER_ROW_X + i * FarmLayout.SLOT_SIZE, y + FarmLayout.BUFFER_ROW_Y);
             }
+            for (int i = 0; i < menu.BE.getInputSlotCount(); i++) {
+                renderSlotBackdrop(guiGraphics, x + FarmLayout.getInputSlotX(i), y + FarmLayout.getInputSlotY(i));
+            }
             renderGauge(guiGraphics, fuelRenderer, menu.BE.getFuelTank().getFluid(),
                     x + FarmLayout.FUEL_GAUGE_X, y + FarmLayout.FUEL_GAUGE_Y);
             renderHomeExtras(guiGraphics, x, y);
@@ -315,6 +323,11 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
                         FarmLayout.BUFFER_ROW_X + 1 + i * FarmLayout.SLOT_SIZE, FarmLayout.BUFFER_ROW_Y + 1,
                         menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getBufferStartSlot() + i),
                         Component.translatable("tooltip.dermicraft.slot.output_buffer"));
+            }
+            for (int i = 0; i < menu.BE.getInputSlotCount(); i++) {
+                renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
+                        FarmLayout.getInputSlotX(i) + 1, FarmLayout.getInputSlotY(i) + 1,
+                        menu.BE.getInputInventory().getStackInSlot(i), getInputSlotTooltip());
             }
             renderHomeLabels(guiGraphics, mouseX, mouseY, x, y);
         } else if (tab == AbstractFarmMenu.FIELD_TAB) {

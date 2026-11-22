@@ -97,6 +97,12 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     protected final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
             stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULE_WORK_SPEED));
     private boolean moduleTabActive = false;
+    // The input row: the seeds (Farmer), saplings (Logger) or feed (Shepherd) the machine works with, as visible slots the
+    // player and automation fill. Its own handler, sized by the tier (see SimpleMachineStats#getInputSlots), so it can
+    // grow while the fuel slot and the output buffer keep their fixed indexes in INVENTORY.
+    protected final ItemStackHandler INPUT_INVENTORY = createInputInventory(getInputSlotCount());
+    // Pipes and the Gate may fill the input row but never empty it.
+    protected final IItemHandler INPUT_CHANNEL = new net.scruffy.dermicraft.util.InsertOnlyItemHandler(INPUT_INVENTORY);
     private float fuelOwed = 0f; // the fractional part of the fuel a burn owes, carried to the next burn (not saved)
 
     /**
@@ -119,6 +125,9 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     /** The machine's key in the stat config (its section of overrides). */
     @Override
     protected abstract MachineStatKey getStatKey();
+
+    /** Whether a stack may go in the input row (what the machine plants, plants out, or feeds with). */
+    protected abstract boolean isInputItemValid(ItemStack stack);
 
     /** The machine's block, for its display name and the menu's range check. */
     public abstract DeferredBlock<Block> getFarmBlock();
@@ -179,6 +188,42 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         return MODULE_INVENTORY;
     }
 
+    public ItemStackHandler getInputInventory() {
+        return INPUT_INVENTORY;
+    }
+
+    /** How many slots the input row has at this machine's tier. */
+    public int getInputSlotCount() {
+        return SimpleMachineStats.getInputSlots(getStatKey(), getEvolutionState());
+    }
+
+    private ItemStackHandler createInputInventory(int size) {
+        return new ItemStackHandler(size) {
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                return isInputItemValid(stack);
+            }
+
+            @Override
+            protected void onContentsChanged(int slot) {
+                if (level != null && !level.isClientSide) {
+                    setChanged();
+                    updateBlock();
+                }
+            }
+        };
+    }
+
+    /** Puts a stack into the input row, merging into matching stacks first; returns what did not fit. */
+    protected ItemStack insertIntoInput(ItemStack stack) {
+        return net.neoforged.neoforge.items.ItemHandlerHelper.insertItemStacked(INPUT_INVENTORY, stack, false);
+    }
+
+    /** The Gate channel for the input row (fill only). */
+    protected Channel inputChannel(String id, String name) {
+        return new Channel.ItemChannel(id, Component.literal(name), Channel.IO.IN, INPUT_CHANNEL);
+    }
+
     @Override
     public boolean isModuleTabActive() {
         return moduleTabActive;
@@ -195,6 +240,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     protected void onEvolutionStateChanged() {
         super.onEvolutionStateChanged();
         resizeModuleInventory(MODULE_INVENTORY, getModuleSlotCount());
+        resizeModuleInventory(INPUT_INVENTORY, getInputSlotCount());
         FUEL_TANK.setCapacity(SimpleMachineStats.getTankCapacityMb(getStatKey(), getEvolutionState()));
         fieldWidth = snapFieldSize(fieldWidth);
         fieldLength = snapFieldSize(fieldLength);
@@ -470,20 +516,31 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
 
     private IItemHandler createAutomationHandler() {
         return new IItemHandler() {
-            @Override public int getSlots() { return INVENTORY.getSlots(); }
-            @Override public ItemStack getStackInSlot(int slot) { return INVENTORY.getStackInSlot(slot); }
-            @Override public int getSlotLimit(int slot) { return INVENTORY.getSlotLimit(slot); }
+            // The slots are the main inventory's, then the input row's (fill only).
+            private boolean isInput(int slot) { return slot >= INVENTORY.getSlots(); }
+            private int inputIndex(int slot) { return slot - INVENTORY.getSlots(); }
+
+            @Override public int getSlots() { return INVENTORY.getSlots() + INPUT_INVENTORY.getSlots(); }
+            @Override public ItemStack getStackInSlot(int slot) {
+                return isInput(slot) ? INPUT_INVENTORY.getStackInSlot(inputIndex(slot)) : INVENTORY.getStackInSlot(slot);
+            }
+            @Override public int getSlotLimit(int slot) {
+                return isInput(slot) ? INPUT_INVENTORY.getSlotLimit(inputIndex(slot)) : INVENTORY.getSlotLimit(slot);
+            }
 
             @Override public boolean isItemValid(int slot, ItemStack stack) {
+                if (isInput(slot)) return INPUT_INVENTORY.isItemValid(inputIndex(slot), stack);
                 return canAutomationInsert(slot, stack) && INVENTORY.isItemValid(slot, stack);
             }
 
             @Override public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+                if (isInput(slot)) return INPUT_INVENTORY.insertItem(inputIndex(slot), stack, simulate);
                 if (!canAutomationInsert(slot, stack)) return stack;
                 return INVENTORY.insertItem(slot, stack, simulate);
             }
 
             @Override public ItemStack extractItem(int slot, int amount, boolean simulate) {
+                if (isInput(slot)) return ItemStack.EMPTY;
                 if (slot < bufferStartSlot || slot >= bufferStartSlot + bufferSlotCount) return ItemStack.EMPTY;
                 return INVENTORY.extractItem(slot, amount, simulate);
             }
@@ -526,6 +583,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     public void drops() {
         super.drops(INVENTORY);
         super.drops(MODULE_INVENTORY);
+        super.drops(INPUT_INVENTORY);
         super.drops(EVOLUTION_INVENTORY);
         dropExtras();
     }
@@ -629,6 +687,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         tag.putInt("fieldLength", fieldLength);
         tag.putInt("fieldDistance", fieldDistance);
         tag.put("module_inventory", MODULE_INVENTORY.serializeNBT(registries));
+        tag.put("input_inventory", INPUT_INVENTORY.serializeNBT(registries));
     }
 
     @Override
@@ -642,6 +701,9 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         if (tag.contains("fieldWidth")) fieldWidth = snapFieldSize(tag.getInt("fieldWidth"));
         if (tag.contains("fieldLength")) fieldLength = snapFieldSize(tag.getInt("fieldLength"));
         if (tag.contains("fieldDistance")) fieldDistance = snapFieldDistance(tag.getInt("fieldDistance"));
+        if (tag.contains("input_inventory")) {
+            loadItemHandler(INPUT_INVENTORY, getInputSlotCount(), registries, tag.getCompound("input_inventory"));
+        }
         if (tag.contains("module_inventory")) {
             loadItemHandler(MODULE_INVENTORY, getModuleSlotCount(), registries, tag.getCompound("module_inventory"));
         }

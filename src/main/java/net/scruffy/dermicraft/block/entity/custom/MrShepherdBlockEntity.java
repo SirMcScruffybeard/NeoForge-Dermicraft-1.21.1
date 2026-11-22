@@ -85,7 +85,6 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     private static final int PREVIEW_EMIT_INTERVAL = 10;   // re-emit twice a second
     private static final int PREVIEW_PARTICLES_PER_CELL = 2;
 
-    private static final int FOOD_SLOT_COUNT = 4;
     private static final int BUFFER_SLOT_COUNT = 9;
 
     // XP-gathering tank -- locked to Knowledge Colloid, same fixed-target-fluid lock the Knowledge
@@ -93,19 +92,15 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     // 1000mB (10 levels at the Vat's own 100mB/level rate) -- a compact catch-tray, not a Vat-sized
     // reservoir; this machine is meant to gather in passing, not act as long-term storage.
     private static final int XP_TANK_CAPACITY = ModFluidTank.BUCKET_VOLUME;
-    private static final int XP_SLOT_INDEX = 1 + FOOD_SLOT_COUNT + BUFFER_SLOT_COUNT;
+    private static final int XP_SLOT_INDEX = 1 + BUFFER_SLOT_COUNT;
     private static final int INVENTORY_SIZE = XP_SLOT_INDEX + 1;
 
     private final DroolingTank XP_TANK = createDroolingTank(XP_TANK_CAPACITY, XP_SLOT_INDEX, ModFluids.SOURCE_KNOWLEDGE_COLLOID::get);
     // The bottom face is an output: the XP tank as a drain-only view (see getTank).
     private final IFluidHandler XP_DRAIN = new DrainOnlyFluidHandler(XP_TANK);
-    // slot 0 = fuel container, 1..FOOD_SLOT_COUNT = breeding food, next BUFFER_SLOT_COUNT =
-    // pickup/wool buffer, last slot = XP tank's own fill/drain container.
-
-    // Per-channel views for the Gate (see getChannels). Feed only accepts pushes, the buffer is
-    // drain-only -- the fuel container slot is deliberately in neither, staying player-only.
-    private final IItemHandler FEED_CHANNEL =
-            new SlotRangeItemHandler(INVENTORY, 1, FOOD_SLOT_COUNT, true, false);
+    // slot 0 = fuel container, 1..BUFFER_SLOT_COUNT = pickup/wool buffer, last slot = XP tank's own fill/drain container.
+    // The breeding food is the input row (INPUT_INVENTORY in the base), sized by the tier. The Gate sees the feed as fill-only
+    // and the buffer as drain-only -- the fuel container slot is deliberately in neither, staying player-only.
 
     private int waveTimer = 0;
     private int populationCap = DEFAULT_POPULATION_CAP;
@@ -120,7 +115,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
     public MrShepherdBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MR_SHEPHERD_BE.get(), pos, blockState,
-                INVENTORY_SIZE, 1 + FOOD_SLOT_COUNT, BUFFER_SLOT_COUNT);
+                INVENTORY_SIZE, 1, BUFFER_SLOT_COUNT);
     }
 
     @Override
@@ -398,13 +393,13 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
             int slotA = findMatchingFood(first);
             if (slotA < 0) continue; // out of matching food for this species
-            ItemStack takenA = INVENTORY.extractItem(slotA, 1, false);
+            ItemStack takenA = INPUT_INVENTORY.extractItem(slotA, 1, false);
             int slotB = findMatchingFood(second);
             if (slotB < 0) {
-                INVENTORY.insertItem(slotA, takenA, false); // don't waste food on a half-pair
+                INPUT_INVENTORY.insertItem(slotA, takenA, false); // don't waste food on a half-pair
                 continue;
             }
-            INVENTORY.extractItem(slotB, 1, false);
+            INPUT_INVENTORY.extractItem(slotB, 1, false);
 
             first.setInLove(null);
             second.setInLove(null);
@@ -414,8 +409,8 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     }
 
     private int findMatchingFood(Animal animal) {
-        for (int slot = 1; slot <= FOOD_SLOT_COUNT; slot++) {
-            ItemStack stack = INVENTORY.getStackInSlot(slot);
+        for (int slot = 0; slot < INPUT_INVENTORY.getSlots(); slot++) {
+            ItemStack stack = INPUT_INVENTORY.getStackInSlot(slot);
             if (!stack.isEmpty() && animal.isFood(stack)) return slot;
         }
         return -1;
@@ -555,11 +550,10 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
                 : super.describeFluidFace(face);
     }
 
-    /** Automation: only the food slots take input (the feed channel); the buffer is extract-only, and the fuel and XP
-     * container slots are player-only. */
+    /** Any item may sit in the feed row (a stack that is not food for any animal just stays unused), as before. */
     @Override
-    protected boolean canAutomationInsert(int slot, ItemStack stack) {
-        return slot >= 1 && slot <= FOOD_SLOT_COUNT;
+    protected boolean isInputItemValid(ItemStack stack) {
+        return true;
     }
 
     /**
@@ -574,7 +568,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
             channels.add(fuelChannel());
         }
         if (exposeItem) {
-            channels.add(new Channel.ItemChannel("feed", Component.literal("Animal Feed"), Channel.IO.IN, FEED_CHANNEL));
+            channels.add(inputChannel("feed", "Animal Feed"));
             channels.add(new Channel.ItemChannel("output", Component.literal("Output Buffer"), Channel.IO.OUT, BUFFER_CHANNEL));
         }
         if (exposeFluid) {

@@ -12,8 +12,8 @@ record MachineOverrides(
         @Nullable double[] evolutionTierSeconds, @Nullable Double evolutionHazardNewSeconds,
         @Nullable Double evolutionHazardUpgradeSeconds, @Nullable Double evolutionOvergrowthSeconds,
         @Nullable Double evolutionOvergrowthGrowthPercent,
-        @Nullable int[] fieldSize, @Nullable int[] fieldDistance) {
+        @Nullable int[] fieldSize, @Nullable int[] fieldDistance, @Nullable int[] inputSlots) {
 
     /** No overrides: everything comes from the shared values. */
-    static final MachineOverrides NONE = new MachineOverrides(null, null, null, null, null, null, null, null, null, null, null, null, null);
+    static final MachineOverrides NONE = new MachineOverrides(null, null, null, null, null, null, null, null, null, null, null, null, null, null);
 }

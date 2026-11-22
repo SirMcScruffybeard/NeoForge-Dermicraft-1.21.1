@@ -15,6 +15,7 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -97,11 +98,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     // Invisible Light blocks this machine has placed over its field. Persisted so they can always be
     // cleaned up (on unfuel, field change, or removal) even across a reload.
     private final Set<BlockPos> placedLights = new HashSet<>();
-
-    // Hidden seed reserve: crop block -> banked seed count. Harvest feeds it, replant draws from it,
-    // surplus above the per-type cap flows to the public buffer (held here if the buffer is full).
-    // Persisted; dropped on block break. Same-crop replant means the crop block IS the key.
-    private final Map<Block, Integer> seedReserve = new HashMap<>();
 
     public MrFarmerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MR_FARMER_BE.get(), pos, blockState, 1 + BUFFER_SLOT_COUNT, 1, BUFFER_SLOT_COUNT);
@@ -214,8 +210,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
             // worked cell still gets collected, even if that neighbor tile isn't itself farmland.
             harvestFruitNear(serverLevel, cropPos);
         }
-        // Push any seeds now over the cap toward the buffer (in case the buffer freed up since last pass).
-        drainAllExcessSeeds(level);
         // Lighting isn't per-step -- it's a minimal covering set recomputed at sweep start (see tickFarming).
     }
 
@@ -233,15 +227,14 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     }
 
     /**
-     * Harvests a mature crop and immediately replants the SAME crop from the seed reserve (falling back
-     * to a random reserved seed, else leaving the cell empty). Seeds go to the reserve, products to the
+     * Harvests a mature crop and immediately replants the SAME crop from the seed row (falling back
+     * to a random seed from the row, else leaving the cell empty). Seeds go to the seed row, products to the
      * buffer -- so no persistent crop-per-cell tracking is needed, the crop is known right here.
      *
      * <p>Carrot/Potato are self-seeding -- their "seed" item IS the product (getSeedItem() returns
      * Items.CARROT/Items.POTATO), so every drop matches seedItem and would otherwise route entirely
-     * into the hidden reserve, starving the visible buffer until the reserve cap fills. For those two,
-     * each drop is split instead: the greater half goes to the buffer like a normal product, the rest
-     * (still subject to the existing cap/overflow) goes to the reserve.
+     * into the seed row, starving the output buffer. For those two, each drop is split instead: the greater
+     * half goes to the buffer like a normal product, the rest goes to the seed row.
      */
     private void harvestAndReplant(ServerLevel level, BlockPos cropPos, BlockState state) {
         matureSinceTick.remove(cropPos);
@@ -259,9 +252,9 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
                     int toBuffer = (total + 1) / 2; // greater half, rounds up
                     int toReserve = total - toBuffer;
                     if (toBuffer > 0) overflowToBufferOrDrop(level, cropPos, new ItemStack(seedItem, toBuffer));
-                    if (toReserve > 0) bankSeeds(level, cropBlock, toReserve);
+                    if (toReserve > 0) bankSeeds(level, cropPos, new ItemStack(seedItem, toReserve));
                 } else {
-                    bankSeeds(level, cropBlock, drop.getCount()); // seeds -> reserve (overflow to buffer)
+                    bankSeeds(level, cropPos, drop); // seeds -> the input row (overflow to the buffer)
                 }
             } else {
                 overflowToBufferOrDrop(level, cropPos, drop); // products -> buffer, spill if full
@@ -352,48 +345,36 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         }
     }
 
-    // ---- Seed reserve -----------------------------------------------------------------------
+    // ---- Seeds (the visible input row) ------------------------------------------------------
 
-    /** Per-crop-type reserve cap = ceil(field cells * 1.1) -- a full replant plus a 10% bumper. */
-    private int seedCap() {
-        int cells = getFieldWidth() * getFieldLength();
-        return (int) Math.ceil(cells * 1.1);
+    /** Whether a stack is a seed this machine can plant: an item that places a crop or a stem (wheat and beetroot seeds,
+     * carrots, potatoes, pumpkin and melon seeds). Torchflower and nether wart are left out; Mr. Farmer does not handle them. */
+    private static boolean isPlantableSeed(ItemStack stack) {
+        return stack.getItem() instanceof BlockItem blockItem
+                && (blockItem.getBlock() instanceof CropBlock || blockItem.getBlock() instanceof StemBlock);
     }
 
-    /** Banks harvested seeds; anything over the cap is pushed to the buffer (held here if buffer full). */
-    private void bankSeeds(Level level, Block cropBlock, int count) {
-        seedReserve.merge(cropBlock, count, Integer::sum);
-        drainExcessSeeds(level, cropBlock);
-        setChanged();
+    @Override
+    protected boolean isInputItemValid(ItemStack stack) {
+        return isPlantableSeed(stack);
     }
 
-    /** Moves seeds above the cap for one crop type into the buffer; leftovers stay held in the reserve. */
-    private void drainExcessSeeds(Level level, Block cropBlock) {
-        int count = seedReserve.getOrDefault(cropBlock, 0);
-        int excess = count - seedCap();
-        if (excess <= 0) return;
-        Item seed = getSeedItem(level, cropBlock.defaultBlockState());
-        int moved = insertCountIntoBuffer(seed, excess);
-        if (moved > 0) {
-            seedReserve.put(cropBlock, count - moved);
-            setChanged();
-        }
+    /** Banks harvested seeds in the input row; what does not fit goes to the output buffer (dropped if that is full). */
+    private void bankSeeds(ServerLevel level, BlockPos pos, ItemStack seeds) {
+        ItemStack leftover = insertIntoInput(seeds);
+        if (!leftover.isEmpty()) overflowToBufferOrDrop(level, pos, leftover);
     }
 
-    private void drainAllExcessSeeds(Level level) {
-        for (Block b : new ArrayList<>(seedReserve.keySet())) {
-            drainExcessSeeds(level, b);
-        }
-    }
-
-    /** Consumes one seed of the given crop from the reserve; returns false if none banked. */
+    /** Consumes one seed of the given crop from the input row; returns false if none is there. */
     private boolean takeSeed(Block cropBlock) {
-        int count = seedReserve.getOrDefault(cropBlock, 0);
-        if (count <= 0) return false;
-        if (count == 1) seedReserve.remove(cropBlock);
-        else seedReserve.put(cropBlock, count - 1);
-        setChanged();
-        return true;
+        for (int slot = 0; slot < INPUT_INVENTORY.getSlots(); slot++) {
+            ItemStack stack = INPUT_INVENTORY.getStackInSlot(slot);
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() == cropBlock) {
+                INPUT_INVENTORY.extractItem(slot, 1, false);
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Plants an age-0 crop of the given type at the cell. */
@@ -401,15 +382,17 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         level.setBlock(cropPos, cropBlock.defaultBlockState(), Block.UPDATE_CLIENTS);
     }
 
-    /** Plants a random reserved crop at an empty cell (no-op if the reserve is empty). */
+    /** Plants a random seed from the input row at an empty cell (no-op if the row has none). */
     private void replantRandom(Level level, BlockPos cropPos) {
-        List<Block> available = new ArrayList<>();
-        for (Map.Entry<Block, Integer> e : seedReserve.entrySet()) {
-            if (e.getValue() > 0) available.add(e.getKey());
+        List<Integer> filled = new ArrayList<>();
+        for (int slot = 0; slot < INPUT_INVENTORY.getSlots(); slot++) {
+            if (isPlantableSeed(INPUT_INVENTORY.getStackInSlot(slot))) filled.add(slot);
         }
-        if (available.isEmpty()) return;
-        Block chosen = available.get(level.getRandom().nextInt(available.size()));
-        if (takeSeed(chosen)) plantCrop(level, cropPos, chosen);
+        if (filled.isEmpty()) return;
+        int slot = filled.get(level.getRandom().nextInt(filled.size()));
+        Block chosen = ((BlockItem) INPUT_INVENTORY.getStackInSlot(slot).getItem()).getBlock();
+        INPUT_INVENTORY.extractItem(slot, 1, false);
+        plantCrop(level, cropPos, chosen);
     }
 
     /** The plantable seed item for a crop (wheat->seeds, carrot->carrot, etc.). */
@@ -707,9 +690,8 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
 
     /**
      * Both channels are exposed on all six faces. Order is the Gate's priority order, so fuel (machine stops dead without
-     * it) comes before the harvest buffer (which only backs up). The hidden seed reserve is deliberately NOT a channel --
-     * it's internal replant stock, not storage, and surplus above its cap already flows into the buffer where automation
-     * can reach it.
+     * it) comes before the harvest buffer (which only backs up). The seed row (fill only) comes next, so a field is never short of seed
+     * for long, then the harvest.
      */
     @Override
     protected void addChannels(List<Channel> channels, boolean exposeFluid, boolean exposeItem) {
@@ -717,6 +699,7 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
             channels.add(fuelChannel());
         }
         if (exposeItem) {
+            channels.add(inputChannel("seeds", "Seeds"));
             channels.add(new Channel.ItemChannel("harvest", Component.literal("Harvest"), Channel.IO.OUT, BUFFER_CHANNEL));
         }
     }
@@ -724,24 +707,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     @Override
     protected void dropExtras() {
         extinguishLights();
-        dropSeedReserve();
-    }
-
-    /** Spills the hidden seed reserve as items so breaking the machine never silently eats banked seeds. */
-    private void dropSeedReserve() {
-        if (level == null) return;
-        for (Map.Entry<Block, Integer> e : seedReserve.entrySet()) {
-            Item seed = getSeedItem(level, e.getKey().defaultBlockState());
-            int count = e.getValue();
-            int maxStack = new ItemStack(seed).getMaxStackSize();
-            while (count > 0) {
-                int size = Math.min(count, maxStack);
-                Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(),
-                        new ItemStack(seed, size));
-                count -= size;
-            }
-        }
-        seedReserve.clear();
     }
 
     @Override
@@ -752,15 +717,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         for (BlockPos p : placedLights) lights[i++] = p.asLong();
         tag.putLongArray("lights", lights);
 
-        ListTag reserve = new ListTag();
-        for (Map.Entry<Block, Integer> e : seedReserve.entrySet()) {
-            if (e.getValue() <= 0) continue;
-            CompoundTag entry = new CompoundTag();
-            entry.putString("block", BuiltInRegistries.BLOCK.getKey(e.getKey()).toString());
-            entry.putInt("count", e.getValue());
-            reserve.add(entry);
-        }
-        tag.put("seedReserve", reserve);
     }
 
     @Override
@@ -769,13 +725,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         placedLights.clear();
         for (long l : tag.getLongArray("lights")) placedLights.add(BlockPos.of(l));
 
-        seedReserve.clear();
-        ListTag reserve = tag.getList("seedReserve", Tag.TAG_COMPOUND);
-        for (int i = 0; i < reserve.size(); i++) {
-            CompoundTag entry = reserve.getCompound(i);
-            Block b = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(entry.getString("block")));
-            if (b != Blocks.AIR) seedReserve.put(b, entry.getInt("count"));
-        }
     }
 
     @Nullable

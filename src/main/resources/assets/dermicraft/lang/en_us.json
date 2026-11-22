@@ -621,6 +621,7 @@
   "tooltip.dermicraft.slot.input_a_container": "Input A Container",
   "tooltip.dermicraft.slot.input_b_container": "Input B Container",
   "tooltip.dermicraft.slot.animal_feed": "Animal Feed",
+  "tooltip.dermicraft.slot.seed": "Seeds",
   "tooltip.dermicraft.slot.output_buffer": "Output Buffer",
   "tooltip.dermicraft.slot.ingredient": "Ingredient",
   "tooltip.dermicraft.slot.pattern": "Pattern",

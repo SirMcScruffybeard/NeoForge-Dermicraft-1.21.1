@@ -37,6 +37,11 @@ public class MrShepherdScreen extends AbstractFarmScreen<MrShepherdMenu> {
     }
 
     @Override
+    protected Component getInputSlotTooltip() {
+        return Component.translatable("tooltip.dermicraft.slot.animal_feed");
+    }
+
+    @Override
     protected List<FarmTab> createExtraTabs() {
         return List.of(farmTab("population"));
     }
@@ -45,9 +50,6 @@ public class MrShepherdScreen extends AbstractFarmScreen<MrShepherdMenu> {
     protected void renderHomeExtras(GuiGraphics guiGraphics, int x, int y) {
         renderSlotBackdrop(guiGraphics, x + MrShepherdMenu.XP_SLOT_X, y + MrShepherdMenu.XP_SLOT_Y);
         renderGauge(guiGraphics, xpRenderer, menu.BE.getXpTank().getFluid(), x + XP_GAUGE_X, y + XP_GAUGE_Y);
-        for (int i = 0; i < MrShepherdMenu.FOOD_SLOT_COUNT; i++) {
-            renderSlotBackdrop(guiGraphics, x + MrShepherdMenu.FOOD_ROW_X + i * FarmLayout.SLOT_SIZE, y + MrShepherdMenu.FOOD_ROW_Y);
-        }
     }
 
     @Override
@@ -58,15 +60,6 @@ public class MrShepherdScreen extends AbstractFarmScreen<MrShepherdMenu> {
         renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y, MrShepherdMenu.XP_SLOT_X + 1, MrShepherdMenu.XP_SLOT_Y + 1,
                 menu.BE.getItemHandler(null).getStackInSlot(menu.BE.getXpTank().SLOT),
                 Component.translatable("tooltip.dermicraft.slot.xp_container"));
-
-        // The feed row and the output row are visually identical, so without these labels there's nothing telling the
-        // player which is which.
-        for (int i = 0; i < MrShepherdMenu.FOOD_SLOT_COUNT; i++) {
-            renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
-                    MrShepherdMenu.FOOD_ROW_X + 1 + i * FarmLayout.SLOT_SIZE, MrShepherdMenu.FOOD_ROW_Y + 1,
-                    menu.BE.getItemHandler(null).getStackInSlot(1 + i),
-                    Component.translatable("tooltip.dermicraft.slot.animal_feed"));
-        }
     }
 
     @Override

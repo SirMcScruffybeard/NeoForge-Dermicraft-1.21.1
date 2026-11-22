@@ -282,3 +282,20 @@ the light mount `l1` to `l4` and the port ring `l1_port` to `l4_port`, nothing n
 - The old `block/mr_farmer(_on)` and `block/mr_shepherd(_on)` models are gone; the new parts are under `models/block/<machine>/`.
 - Not tested in game. The Farmer and Shepherd faces still draw over the plate, so an Overgrowth plate shows only where the face
   textures are transparent.
+
+## Input rows (built 2026-11-22)
+
+User decision: the hidden seed reserve is gone. Every farm machine has a **visible input row** the player can use freely (put in and take
+out); automation and the Gate may only fill it. The row holds what the machine works with: seeds (Mr. Farmer), feed (Mr. Shepherd),
+saplings (Mr. Logger, later).
+- **Slots per tier: 3 / 6 / 9 / 12** (up to three rows of four; `farm.inputSlots`, overridable per family or machine), the same for
+  all three machines, so Shepherd's feed row went from four slots to three at tier 1. A tier adds the next slots on top: the first row sits
+  level with the fuel gauge and later rows stack above it (x 97, y 44, 26, 8).
+- The row is its own handler (`INPUT_INVENTORY` in `AbstractFarmBlockEntity`), sized by the tier and resized with the Module slots'
+  routine (stacks in removed slots drop). The machine's main inventory keeps fixed indexes: Shepherd's feed slots moved out of it.
+- **Mr. Farmer:** harvested seeds go to the row (merged into matching stacks); what does not fit goes to the output buffer, dropped if
+  that is full. Replant takes the same crop's seed first, then a random seed from the row. Carrots and potatoes keep the half and half
+  split. The row accepts only seeds that place a crop or a stem (torchflower and nether wart are out). There is no cap now, and the
+  old reserve and its save data are gone (no old-world compatibility).
+- **Shift-click** from the player's inventory goes only to the input row (a bucket no longer shift-clicks into the fuel slot).
+- **Gate:** an input channel (fill only) between fuel and the output; `describeFace` is unchanged since every face routes the same.

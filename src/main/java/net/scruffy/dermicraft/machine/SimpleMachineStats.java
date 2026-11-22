@@ -68,6 +68,11 @@ public final class SimpleMachineStats {
         return StatTable.toInt(StatConfig.getCurrent().fieldSizeFor(machine)[state.tier() - 1]) | 1;
     }
 
+    /** Slots in a farm machine's input row (seeds, saplings or feed) at this tier, 0 to 12 (three rows of four); Overgrowth adds none. */
+    public static int getInputSlots(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        return Math.max(0, Math.min(12, StatTable.toInt(StatConfig.getCurrent().inputSlotsFor(machine)[state.tier() - 1])));
+    }
+
     /** The furthest a farm machine's field may sit from it at this tier; Overgrowth adds none. */
     public static int getMaxFieldDistance(@Nullable MachineStatKey machine, EvolutionStateData state) {
         return Math.max(1, StatTable.toInt(StatConfig.getCurrent().fieldDistanceFor(machine)[state.tier() - 1]));
