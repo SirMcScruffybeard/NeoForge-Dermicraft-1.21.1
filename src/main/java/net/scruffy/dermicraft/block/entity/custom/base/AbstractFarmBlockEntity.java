@@ -384,6 +384,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
 
     public void tick(Level level) {
         if (level.isClientSide) return;
+        syncEvolutionBlockState(); // mirrors the tier and Overgrowth stage into the block state, which picks the plate and accents
 
         tickRangePreview(level); // free, runs unfueled: it's a siting guide, not machine work
 
