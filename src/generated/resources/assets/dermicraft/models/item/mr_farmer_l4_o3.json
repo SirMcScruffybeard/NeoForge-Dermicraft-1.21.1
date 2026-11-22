@@ -4,27 +4,21 @@
     {
       "faces": {
         "down": {
-          "cullface": "down",
           "texture": "#plate"
         },
         "east": {
-          "cullface": "east",
           "texture": "#plate"
         },
         "north": {
-          "cullface": "north",
           "texture": "#plate"
         },
         "south": {
-          "cullface": "south",
           "texture": "#plate"
         },
         "up": {
-          "cullface": "up",
           "texture": "#plate"
         },
         "west": {
-          "cullface": "west",
           "texture": "#plate"
         }
       },
@@ -116,12 +110,12 @@
         }
       },
       "from": [
-        2,
+        5,
         6,
         -0.05
       ],
       "to": [
-        8,
+        11,
         12,
         -0.05
       ]
@@ -129,10 +123,6 @@
     {
       "faces": {
         "north": {
-          "neoforge_data": {
-            "block_light": 15,
-            "sky_light": 15
-          },
           "texture": "#light",
           "uv": [
             0.0,
@@ -143,12 +133,12 @@
         }
       },
       "from": [
-        3,
+        6,
         7,
         -0.05
       ],
       "to": [
-        7,
+        10,
         11,
         -0.05
       ]
@@ -204,16 +194,16 @@
   ],
   "render_type": "minecraft:cutout",
   "textures": {
-    "back": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_back",
+    "back": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_back",
     "center": "dermicraft:block/simple_machine/port/port_center",
-    "front": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_front",
-    "left": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_left",
-    "light": "dermicraft:block/simple_machine/light/light_on",
-    "mount": "dermicraft:block/simple_machine/light_mount/l1",
+    "front": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_front",
+    "left": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_left",
+    "light": "dermicraft:block/simple_machine/light/light_off",
+    "mount": "dermicraft:block/simple_machine/light_mount/l4",
     "particle": "dermicraft:block/simple_machine/plate/l_plate",
-    "plate": "dermicraft:block/simple_machine/plate/l_plate",
-    "right": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_right",
-    "ring": "dermicraft:block/simple_machine/port/l1_port",
-    "top": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_top"
+    "plate": "dermicraft:block/simple_machine/plate/o3_plate",
+    "right": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_right",
+    "ring": "dermicraft:block/simple_machine/port/l4_port",
+    "top": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_top"
   }
 }

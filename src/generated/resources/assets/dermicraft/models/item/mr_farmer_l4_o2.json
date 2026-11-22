@@ -4,27 +4,21 @@
     {
       "faces": {
         "down": {
-          "cullface": "down",
           "texture": "#plate"
         },
         "east": {
-          "cullface": "east",
           "texture": "#plate"
         },
         "north": {
-          "cullface": "north",
           "texture": "#plate"
         },
         "south": {
-          "cullface": "south",
           "texture": "#plate"
         },
         "up": {
-          "cullface": "up",
           "texture": "#plate"
         },
         "west": {
-          "cullface": "west",
           "texture": "#plate"
         }
       },
@@ -205,11 +199,11 @@
     "front": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_front",
     "left": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_left",
     "light": "dermicraft:block/simple_machine/light/light_off",
-    "mount": "dermicraft:block/simple_machine/light_mount/l1",
+    "mount": "dermicraft:block/simple_machine/light_mount/l4",
     "particle": "dermicraft:block/simple_machine/plate/l_plate",
-    "plate": "dermicraft:block/simple_machine/plate/l_plate",
+    "plate": "dermicraft:block/simple_machine/plate/o2_plate",
     "right": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_right",
-    "ring": "dermicraft:block/simple_machine/port/l1_port",
+    "ring": "dermicraft:block/simple_machine/port/l4_port",
     "top": "dermicraft:block/farm_machine/mr_farmer/mr_farmer_top"
   }
 }

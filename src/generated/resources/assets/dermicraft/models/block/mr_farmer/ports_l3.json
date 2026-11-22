@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#ring",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        -0.05,
+        -0.05,
+        -0.05
+      ],
+      "to": [
+        16.05,
+        16.05,
+        16.05
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "particle": "dermicraft:block/simple_machine/plate/l_plate",
+    "ring": "dermicraft:block/simple_machine/port/l3_port"
+  }
+}

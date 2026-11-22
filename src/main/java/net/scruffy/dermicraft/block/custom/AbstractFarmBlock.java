@@ -25,6 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
+import net.scruffy.dermicraft.block.custom.EvolutionBlockProperties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +43,7 @@ public abstract class AbstractFarmBlock extends ModBaseEntityBlock {
 
     protected AbstractFarmBlock(Properties properties) {
         super(properties.noLootTable());
-        this.registerDefaultState(this.stateDefinition.any().setValue(ACTIVE, false));
+        this.registerDefaultState(EvolutionBlockProperties.withDefaults(this.stateDefinition.any().setValue(ACTIVE, false)));
     }
 
     /** The block entity type this block's ticker is bound to. */
@@ -68,6 +69,7 @@ public abstract class AbstractFarmBlock extends ModBaseEntityBlock {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, ACTIVE);
+        EvolutionBlockProperties.add(builder); // the tier and Overgrowth stage, for the model's plate and accents
     }
 
     @SuppressWarnings("unchecked")

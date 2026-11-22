@@ -178,14 +178,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 MachineLayouts.RENDER_KILN, RenderKilnBlock.FACING);
 
 
-        mrFarmerBlockState();
-        // The item is the block model itself, like every other machine (the old flat icon is no longer used).
-        itemModels().withExistingParent(ModBlocks.MR_FARMER.getId().getPath(),
-                modLoc("block/" + ModBlocks.MR_FARMER.getId().getPath()));
+        new FarmMachineModels(this).register(ModBlocks.MR_FARMER.get(), "mr_farmer", FarmMachineModels.FRONT,
+                AbstractFarmBlock.FACING, AbstractFarmBlock.ACTIVE);
 
-        mrShepherdBlockState();
-        itemModels().withExistingParent(ModBlocks.MR_SHEPHERD.getId().getPath(),
-                modLoc("block/" + ModBlocks.MR_SHEPHERD.getId().getPath()));
+        new FarmMachineModels(this).register(ModBlocks.MR_SHEPHERD.get(), "mr_shepherd", FarmMachineModels.SHEPHERD_FRONT,
+                AbstractFarmBlock.FACING, AbstractFarmBlock.ACTIVE);
+
 
         ////////////////////Innards Gate\\\\\\\\\\\\\\\\\\\\
         simpleBlockWithItem(ModBlocks.INNARDS_GATE_CONTROLLER.get(), models().cubeAll("innards_gate_controller",
@@ -195,57 +193,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(ModBlocks.INNARDS_GATE_PORT.get(), models().cubeAll("innards_gate_port",
                 modLoc("block/innards_gate/innards_gate_port")));
 
-    }
-
-    // Explicit 6-way facing so we control rotation exactly (the generic directionalBlock helper uses the
-    // vanilla dispenser convention, which doesn't match Mr. Farmer's model: hat authored on +Y, face on north).
-    // Intent: the FACE points in the FACING direction (the direction range extends from the mounted surface).
-    // Model faces north by default, so the four horizontal mounts stay upright and just spin around Y
-    // (same convention as a vanilla furnace); only up/down tip the head to look up or down.
-    private void mrFarmerBlockState() {
-        // The plate, the machine's faces, the light and the bottom ports, built per state (see FarmMachineModels).
-        FarmMachineModels farmModels = new FarmMachineModels(this);
-        ModelFile off = farmModels.build("mr_farmer", false);
-        ModelFile on = farmModels.build("mr_farmer", true);
-        var builder = getVariantBuilder(ModBlocks.MR_FARMER.get());
-
-        putFarmerVariant(builder, off, on, Direction.UP, 270, 0);     // floor mount: face tips up
-        putFarmerVariant(builder, off, on, Direction.DOWN, 90, 0);    // ceiling mount: face tips down
-        putFarmerVariant(builder, off, on, Direction.NORTH, 0, 0);    // upright, face north (identity)
-        putFarmerVariant(builder, off, on, Direction.SOUTH, 0, 180);  // upright, face south
-        putFarmerVariant(builder, off, on, Direction.EAST, 0, 90);    // upright, face east
-        putFarmerVariant(builder, off, on, Direction.WEST, 0, 270);   // upright, face west
-    }
-
-    private void putFarmerVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                  ModelFile off, ModelFile on, Direction facing, int rotX, int rotY) {
-        builder.partialState().with(MrFarmerBlock.FACING, facing).with(MrFarmerBlock.ACTIVE, false)
-                .modelForState().modelFile(off).rotationX(rotX).rotationY(rotY).addModel();
-        builder.partialState().with(MrFarmerBlock.FACING, facing).with(MrFarmerBlock.ACTIVE, true)
-                .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
-    }
-
-    // Mirrors mrFarmerBlockState() exactly -- same 6-way facing convention, same on/off swap.
-    private void mrShepherdBlockState() {
-        FarmMachineModels farmModels = new FarmMachineModels(this);
-        ModelFile off = farmModels.build("mr_shepherd", false, FarmMachineModels.SHEPHERD_FRONT);
-        ModelFile on = farmModels.build("mr_shepherd", true, FarmMachineModels.SHEPHERD_FRONT);
-        var builder = getVariantBuilder(ModBlocks.MR_SHEPHERD.get());
-
-        putShepherdVariant(builder, off, on, Direction.UP, 270, 0);
-        putShepherdVariant(builder, off, on, Direction.DOWN, 90, 0);
-        putShepherdVariant(builder, off, on, Direction.NORTH, 0, 0);
-        putShepherdVariant(builder, off, on, Direction.SOUTH, 0, 180);
-        putShepherdVariant(builder, off, on, Direction.EAST, 0, 90);
-        putShepherdVariant(builder, off, on, Direction.WEST, 0, 270);
-    }
-
-    private void putShepherdVariant(net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder builder,
-                                   ModelFile off, ModelFile on, Direction facing, int rotX, int rotY) {
-        builder.partialState().with(MrShepherdBlock.FACING, facing).with(MrShepherdBlock.ACTIVE, false)
-                .modelForState().modelFile(off).rotationX(rotX).rotationY(rotY).addModel();
-        builder.partialState().with(MrShepherdBlock.FACING, facing).with(MrShepherdBlock.ACTIVE, true)
-                .modelForState().modelFile(on).rotationX(rotX).rotationY(rotY).addModel();
     }
 
     // The Masticator is a multipart: a plate per Overgrowth stage plus the light, mouth and port layers, and its

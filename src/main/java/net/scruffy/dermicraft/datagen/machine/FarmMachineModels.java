@@ -1,18 +1,27 @@
 package net.scruffy.dermicraft.datagen.machine;
 
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ModelBuilder;
+import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.scruffy.dermicraft.block.custom.EvolutionBlockProperties;
 
 import java.util.List;
 
 import static net.scruffy.dermicraft.datagen.machine.Dirs.*;
 
 /**
- * Builds a farm machine's block model, one piece per state (the light is off or on), in the style of the simple machines:
- * the L-tier plate as the base cube, the machine's own faces over it (front, back, left, right and top, each a 16 x 16
- * texture that may have transparent parts), the status light and its mount on the front, and the port ring and center on
- * the bottom. The model is authored with its front on the north face; the blockstate turns it to the machine's facing.
+ * Builds a farm machine's multipart blockstate and item model in the style of the simple machines. The stacking order is:
+ * the plate for the machine's Overgrowth stage (the same plates the other machines use), the machine's own faces over it
+ * (front, back, left, right and top, each a 16 x 16 texture that may have transparent parts), the light mount (by tier)
+ * and the light (off, or lit and emissive while the machine runs) on the front, and the port ring (by tier) and center on
+ * the bottom. Every part but the plate is authored with the front on the north face and turned to the machine's facing by
+ * the blockstate, which uses the six-way facing of the farm machines (up and down tip the front to look up or down).
  *
  * <p>The machine's own textures live in {@code textures/block/farm_machine/<machine>/} as {@code <machine>_front},
  * {@code _back}, {@code _left}, {@code _right} and {@code _top}. Left and right are as seen looking at the front, so on the
@@ -28,10 +37,8 @@ public class FarmMachineModels {
 
     private static final String FARM_MACHINE_DIR = BLOCK_DIR + "/farm_machine";
     private static final String PLATE = SIMPLE_MACHINE_DIR + "/plate/l_plate";
-    private static final String MOUNT = SIMPLE_MACHINE_DIR + LIGHT_MOUNT_DIR + "/l1";
     private static final String LIGHT_OFF = SIMPLE_MACHINE_DIR + LIGHT_DIR + "/light_off";
     private static final String LIGHT_ON = SIMPLE_MACHINE_DIR + LIGHT_DIR + "/light_on";
-    private static final String PORT_RING = SIMPLE_MACHINE_DIR + PORT_DIR + "/l1_port";
     private static final String PORT_CENTER = SIMPLE_MACHINE_DIR + PORT_DIR + "/port_center";
 
     /** How far the machine's faces sit off the plate, half a decal layer, so the light and ports (a full layer) draw over them. */
@@ -46,37 +53,98 @@ public class FarmMachineModels {
     }
 
     /**
-     * The model for one state: {@code block/<machine>} with the light off, {@code block/<machine>_on} with it lit. Call
-     * once per state: the provider hands back the same builder for a name it already has.
+     * Registers the machine's blockstate and item model.
+     *
+     * @param machine the model folder name and the item's name, for example "mr_farmer"
+     * @param front   where the light mount sits on the front
      */
-    public BlockModelBuilder build(String machine, boolean lit) {
-        return build(machine, lit, FRONT);
+    public void register(Block block, String machine, MachineFaceLayout front, DirectionProperty facing, BooleanProperty lit) {
+        MultiPartBlockStateBuilder builder = provider.getMultipartBuilder(block);
+
+        // The plate: one full-block model per Overgrowth stage, shared by every machine.
+        for (int stage = 0; stage <= 3; stage++) {
+            builder.part().modelFile(parts.buildPlate(stage)).addModel()
+                    .condition(EvolutionBlockProperties.OVERGROWTH, stage).end();
+        }
+
+        BlockModelBuilder faces = buildFaces(machine);
+        BlockModelBuilder lightOff = parts.buildLight(machine, front, PartModels.Lamp.OFF);
+        BlockModelBuilder lightOn = parts.buildLight(machine, front, PartModels.Lamp.ON);
+        BlockModelBuilder[] mounts = new BlockModelBuilder[5];  // indexed by tier, 1 to 4
+        BlockModelBuilder[] rings = new BlockModelBuilder[5];
+        for (int tier = 1; tier <= 4; tier++) {
+            mounts[tier] = parts.buildLightMount(machine, front, tier);
+            rings[tier] = buildRing(machine, tier);
+        }
+        BlockModelBuilder center = buildCenter(machine);
+
+        for (Direction direction : Direction.values()) {
+            int rotX = getRotationX(direction);
+            int rotY = getRotationY(direction);
+
+            builder.part().modelFile(faces).rotationX(rotX).rotationY(rotY).addModel()
+                    .condition(facing, direction).end();
+            for (int tier = 1; tier <= 4; tier++) {
+                builder.part().modelFile(mounts[tier]).rotationX(rotX).rotationY(rotY).addModel()
+                        .condition(facing, direction).condition(EvolutionBlockProperties.TIER, tier).end();
+            }
+            builder.part().modelFile(lightOff).rotationX(rotX).rotationY(rotY).addModel()
+                    .condition(facing, direction).condition(lit, false).end();
+            builder.part().modelFile(lightOn).rotationX(rotX).rotationY(rotY).addModel()
+                    .condition(facing, direction).condition(lit, true).end();
+            builder.part().modelFile(center).rotationX(rotX).rotationY(rotY).addModel()
+                    .condition(facing, direction).end();
+            for (int tier = 1; tier <= 4; tier++) {
+                builder.part().modelFile(rings[tier]).rotationX(rotX).rotationY(rotY).addModel()
+                        .condition(facing, direction).condition(EvolutionBlockProperties.TIER, tier).end();
+            }
+        }
+
+        registerItemModels(machine, front);
     }
 
-    /** As {@link #build(String, boolean)}, with the light mount placed by {@code front}. */
-    public BlockModelBuilder build(String machine, boolean lit, MachineFaceLayout front) {
-        String textures = FARM_MACHINE_DIR + "/" + machine + "/" + machine;
-        BlockModelBuilder model = provider.models().getBuilder(MODEL_DIR + machine + (lit ? "_on" : ""))
+    /** The blockstate X rotation that turns a model authored facing north to look up or down; 0 for the sideways ones. */
+    private static int getRotationX(Direction direction) {
+        return switch (direction) {
+            case UP -> 270;
+            case DOWN -> 90;
+            default -> 0;
+        };
+    }
+
+    /** The blockstate Y rotation that turns a model authored facing north to face a sideways direction. */
+    private static int getRotationY(Direction direction) {
+        return switch (direction) {
+            case SOUTH -> 180;
+            case EAST -> 90;
+            case WEST -> 270;
+            default -> 0;
+        };
+    }
+
+    /** The machine's own faces as a slightly oversize cube over the plate: {@code block/<machine>/faces}. */
+    private BlockModelBuilder buildFaces(String machine) {
+        BlockModelBuilder model = provider.models().getBuilder(MODEL_DIR + machine + "/faces")
                 .parent(provider.models().getExistingFile(provider.mcLoc("block/block")))
                 .renderType("cutout")
-                .texture("particle", provider.modLoc(PLATE))
-                .texture("plate", provider.modLoc(PLATE))
-                .texture("front", provider.modLoc(textures + "_front"))
+                .texture("particle", provider.modLoc(PLATE));
+        addFacesTextures(model, machine);
+        addFaceElements(model);
+        return model;
+    }
+
+    private <T extends ModelBuilder<T>> void addFacesTextures(T model, String machine) {
+        String textures = FARM_MACHINE_DIR + "/" + machine + "/" + machine;
+        model.texture("front", provider.modLoc(textures + "_front"))
                 .texture("back", provider.modLoc(textures + "_back"))
                 .texture("left", provider.modLoc(textures + "_left"))
                 .texture("right", provider.modLoc(textures + "_right"))
-                .texture("top", provider.modLoc(textures + "_top"))
-                .texture("mount", provider.modLoc(MOUNT))
-                .texture("light", provider.modLoc(lit ? LIGHT_ON : LIGHT_OFF))
-                .texture("ring", provider.modLoc(PORT_RING))
-                .texture("center", provider.modLoc(PORT_CENTER));
+                .texture("top", provider.modLoc(textures + "_top"));
+    }
 
-        // The plate, the base cube on every side.
-        model.element().from(0, 0, 0).to(16, 16, 16)
-                .allFaces((side, face) -> face.texture("#plate").cullface(side)).end();
-
-        // The machine's own faces, over the plate. Seen from outside the north face the player's left is east, so the
-        // left texture is on the east side and the right on the west. The bottom has none: it carries the ports.
+    /** Seen from outside the north face the player's left is east, so the left texture is on the east side and the right on
+     * the west. The bottom has none: it carries the ports. */
+    private static <T extends ModelBuilder<T>> void addFaceElements(T model) {
         var faces = model.element().from(-FACE_OFFSET, -FACE_OFFSET, -FACE_OFFSET)
                 .to(16 + FACE_OFFSET, 16 + FACE_OFFSET, 16 + FACE_OFFSET);
         faces.face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#front").cullface(Direction.NORTH).end();
@@ -85,8 +153,67 @@ public class FarmMachineModels {
         faces.face(Direction.WEST).uvs(0, 0, 16, 16).texture("#right").cullface(Direction.WEST).end();
         faces.face(Direction.UP).uvs(0, 0, 16, 16).texture("#top").cullface(Direction.UP).end();
         faces.end();
+    }
 
-        parts.addLightMountAndLight(model, front, "mount", "light", lit);
+    /** The port ring for one tier on the bottom only: {@code block/<machine>/ports_l<tier>}. */
+    private BlockModelBuilder buildRing(String machine, int tier) {
+        BlockModelBuilder model = provider.models().getBuilder(MODEL_DIR + machine + "/ports_l" + tier)
+                .parent(provider.models().getExistingFile(provider.mcLoc("block/block")))
+                .renderType("cutout")
+                .texture("particle", provider.modLoc(PLATE))
+                .texture("ring", provider.modLoc(SIMPLE_MACHINE_DIR + PORT_DIR + "/l" + tier + "_port"));
+        parts.addPortSides(model, "ring", side -> side == Direction.DOWN);
+        return model;
+    }
+
+    /** The center that fills the ring's hole, the same at every tier: {@code block/<machine>/ports_center}. */
+    private BlockModelBuilder buildCenter(String machine) {
+        BlockModelBuilder model = provider.models().getBuilder(MODEL_DIR + machine + "/ports_center")
+                .parent(provider.models().getExistingFile(provider.mcLoc("block/block")))
+                .renderType("cutout")
+                .texture("particle", provider.modLoc(PLATE))
+                .texture("center", provider.modLoc(PORT_CENTER));
+        parts.addPortSides(model, "center", side -> side == Direction.DOWN);
+        return model;
+    }
+
+    /**
+     * The machine's item: tier 1 as the base model, with overrides that swap in the model for a higher tier and, at tier 4,
+     * for each Overgrowth stage. Vanilla resolves overrides to the LAST matching entry, so they go in ascending order.
+     */
+    private void registerItemModels(String machine, MachineFaceLayout front) {
+        ItemModelBuilder base = buildItemModel(machine, machine, front, 1, 0);
+
+        for (int tier = 2; tier <= 4; tier++) {
+            base.override()
+                    .predicate(EvolutionBlockProperties.ITEM_TIER, tier)
+                    .model(buildItemModel(machine + "_l" + tier, machine, front, tier, 0))
+                    .end();
+        }
+        for (int stage = 1; stage <= 3; stage++) {
+            base.override()
+                    .predicate(EvolutionBlockProperties.ITEM_OVERGROWTH, stage)
+                    .model(buildItemModel(machine + "_l4_o" + stage, machine, front, 4, stage))
+                    .end();
+        }
+    }
+
+    /** The inventory model at a tier and Overgrowth stage: the plate, the machine's faces, the mount, the unlit light and the
+     * bottom ports, all in one model, since an item can only have the one. */
+    private ItemModelBuilder buildItemModel(String itemName, String machine, MachineFaceLayout front, int tier, int stage) {
+        ItemModelBuilder model = provider.itemModels().withExistingParent(itemName, "block/block")
+                .renderType("cutout")
+                .texture("particle", provider.modLoc(PLATE))
+                .texture("plate", provider.modLoc(SIMPLE_MACHINE_DIR + "/plate/" + (stage == 0 ? "l" : "o" + stage) + "_plate"))
+                .texture("mount", provider.modLoc(SIMPLE_MACHINE_DIR + LIGHT_MOUNT_DIR + "/l" + tier))
+                .texture("light", provider.modLoc(LIGHT_OFF))
+                .texture("ring", provider.modLoc(SIMPLE_MACHINE_DIR + PORT_DIR + "/l" + tier + "_port"))
+                .texture("center", provider.modLoc(PORT_CENTER));
+        addFacesTextures(model, machine);
+
+        model.element().from(0, 0, 0).to(16, 16, 16).textureAll("#plate").end();
+        addFaceElements(model);
+        parts.addLightMountAndLight(model, front, "mount", "light", false);
         parts.addPortSides(model, "ring", side -> side == Direction.DOWN);
         parts.addPortSides(model, "center", side -> side == Direction.DOWN);
         return model;

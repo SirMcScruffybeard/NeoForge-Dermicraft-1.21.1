@@ -1,3 +1,247 @@
 {
-  "parent": "dermicraft:block/mr_shepherd"
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#plate"
+        },
+        "east": {
+          "texture": "#plate"
+        },
+        "north": {
+          "texture": "#plate"
+        },
+        "south": {
+          "texture": "#plate"
+        },
+        "up": {
+          "texture": "#plate"
+        },
+        "west": {
+          "texture": "#plate"
+        }
+      },
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#left",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#front",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#right",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        -0.025,
+        -0.025,
+        -0.025
+      ],
+      "to": [
+        16.025,
+        16.025,
+        16.025
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#mount",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        2,
+        6,
+        -0.05
+      ],
+      "to": [
+        8,
+        12,
+        -0.05
+      ]
+    },
+    {
+      "faces": {
+        "north": {
+          "texture": "#light",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        3,
+        7,
+        -0.05
+      ],
+      "to": [
+        7,
+        11,
+        -0.05
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#ring",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        -0.05,
+        -0.05,
+        -0.05
+      ],
+      "to": [
+        16.05,
+        16.05,
+        16.05
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "cullface": "down",
+          "texture": "#center",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        -0.05,
+        -0.05,
+        -0.05
+      ],
+      "to": [
+        16.05,
+        16.05,
+        16.05
+      ]
+    }
+  ],
+  "overrides": [
+    {
+      "model": "dermicraft:item/mr_shepherd_l2",
+      "predicate": {
+        "dermicraft:tier": 2.0
+      }
+    },
+    {
+      "model": "dermicraft:item/mr_shepherd_l3",
+      "predicate": {
+        "dermicraft:tier": 3.0
+      }
+    },
+    {
+      "model": "dermicraft:item/mr_shepherd_l4",
+      "predicate": {
+        "dermicraft:tier": 4.0
+      }
+    },
+    {
+      "model": "dermicraft:item/mr_shepherd_l4_o1",
+      "predicate": {
+        "dermicraft:overgrowth": 1.0
+      }
+    },
+    {
+      "model": "dermicraft:item/mr_shepherd_l4_o2",
+      "predicate": {
+        "dermicraft:overgrowth": 2.0
+      }
+    },
+    {
+      "model": "dermicraft:item/mr_shepherd_l4_o3",
+      "predicate": {
+        "dermicraft:overgrowth": 3.0
+      }
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "back": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_back",
+    "center": "dermicraft:block/simple_machine/port/port_center",
+    "front": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_front",
+    "left": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_left",
+    "light": "dermicraft:block/simple_machine/light/light_off",
+    "mount": "dermicraft:block/simple_machine/light_mount/l1",
+    "particle": "dermicraft:block/simple_machine/plate/l_plate",
+    "plate": "dermicraft:block/simple_machine/plate/l_plate",
+    "right": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_right",
+    "ring": "dermicraft:block/simple_machine/port/l1_port",
+    "top": "dermicraft:block/farm_machine/mr_shepherd/mr_shepherd_top"
+  }
 }

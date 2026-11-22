@@ -269,3 +269,16 @@ Built for Mr. Farmer and Mr. Shepherd (Logger and Hunter will inherit it):
   same coordinates as the processing machines. The general Module slots accept **Work Speed Modules only** for now, since nothing else
   does anything on a farm machine yet (no Capacity, no Safety). Shift-click from the player's inventory only reaches the Home slots.
 - Not done: the block-state tier/Overgrowth properties and their textures (accents later), Capacity Modules, Flesh Lab routes.
+
+## Overgrowth plates and tier accents (built 2026-11-22)
+
+User decision: Overgrowth uses the same plates the other machines use (`plate_o0` to `plate_o3`, from `l_plate`, `o1_plate`, `o2_plate`,
+`o3_plate`, stage 0 to 3 from the Overgrowth level as for the processing machines). The tier accents use the shared parts that exist now:
+the light mount `l1` to `l4` and the port ring `l1_port` to `l4_port`, nothing new drawn yet.
+- `AbstractFarmBlock` has the `tier` and `overgrowth` block-state properties (mirrored from the block entity's evolution state).
+- `FarmMachineModels.register(...)` replaced the per-state model build: a multipart blockstate (plate by stage, the machine's own faces,
+  mount by tier, light off or lit, port center, port ring by tier), each part turned to the six-way facing, and an item model with the same
+  tier and Overgrowth-stage overrides as the other machines (the item's look follows its `EVOLUTION_STATE` component).
+- The old `block/mr_farmer(_on)` and `block/mr_shepherd(_on)` models are gone; the new parts are under `models/block/<machine>/`.
+- Not tested in game. The Farmer and Shepherd faces still draw over the plate, so an Overgrowth plate shows only where the face
+  textures are transparent.
