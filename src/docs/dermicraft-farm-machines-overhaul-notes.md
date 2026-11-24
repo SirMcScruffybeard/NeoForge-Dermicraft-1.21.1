@@ -391,3 +391,14 @@ taller than the machine's height).
   red when off), and while on it **costs fuel**: one fuel step per three saplings boosted, the same per-cell baseline as planting.
 - **Open, Logger 2x2 planting** (user's idea: a tag marks the saplings that need a 2x2, e.g. dark oak; the machine plants those only as a
   full 2x2 of four when it has four saplings and the four cells are free, and never plants one alone). Assessed in chat, not built.
+
+## Logger 2x2 planting (built 2026-11-23)
+
+Checked first: the vanilla and NeoForge common tags have nothing for saplings that need a 2 x 2 (the only sapling tag is `minecraft:saplings`,
+which lists them all), so there is our own item tag, **`dermicraft:saplings_2x2`**, with **dark oak only** for now (jungle and spruce grow
+alone, so "not when not needed" keeps them out; add them to the tag to change that).
+- A tagged species is planted only as a full 2 x 2: the cell is the **north-west corner** (the cells east and south of it complete the square,
+  in world axes, so it does not depend on the machine's facing); all four must be cells of the field, empty, with ground the sapling survives
+  on, and the input row must hold four of it. It plants all four at once (four cells for fuel). Otherwise that species is skipped at that cell,
+  never planted alone, and another species is tried (the felled species is still preferred when it can be planted).
+- Every other species goes in one per cell, as before. Saplings planted next to each other grow normally, and the growth boost already covers them.

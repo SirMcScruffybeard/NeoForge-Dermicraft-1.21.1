@@ -117,6 +117,10 @@ public class ModTags {
         // resource until Eater itself gets strengthened later -- see the beam design discussion).
         public static final TagKey<Item> MODULE_BEAM = createTag("module/beam");
 
+        /** Saplings that only grow as a 2 x 2 of four (dark oak). Mr. Logger plants these only as a full 2 x 2 and never alone.
+         * No vanilla or common tag covers this (only minecraft:saplings, which lists them all), so it is ours. */
+        public static final TagKey<Item> SAPLINGS_2X2 = createTag("saplings_2x2");
+
         // "Fluid" family -- mundane "can target through plain fluid at all," kept deliberately
         // separate from hazard tolerance (see the Safety Modules) so kelp/fish-style combos (which
         // live in ordinary water) stay cheap regardless of hazard progression.

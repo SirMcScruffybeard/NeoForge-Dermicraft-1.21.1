@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.scruffy.dermicraft.datagen.tag.ModTags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.scruffy.dermicraft.block.ModBlocks;
 import net.scruffy.dermicraft.block.entity.ModBlockEntities;
@@ -73,6 +74,8 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     private List<List<BlockPos>> waveSteps = null;
     private int waveCursor = 0;
     private int waveTimer = 0;
+    // Every cell of the current sweep, for checking that a 2 x 2 lies wholly inside the field.
+    private Set<BlockPos> fieldCells = Set.of();
 
     public MrLoggerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MR_LOGGER_BE.get(), pos, blockState, 1 + BUFFER_SLOT_COUNT, 1, BUFFER_SLOT_COUNT);
@@ -176,6 +179,8 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
         if (waveSteps == null || waveCursor >= waveSteps.size()) {
             waveSteps = resolveWaveSteps(level, this::isSoil, true);
             waveCursor = 0;
+            fieldCells = new HashSet<>();
+            for (List<BlockPos> row : waveSteps) fieldCells.addAll(row);
             // The lights go in at the start of a sweep as a minimal covering set of the whole field, so the saplings can grow.
             Set<BlockPos> desiredLights = computeLightPositions(waveSteps);
             reconcileLights(level, desiredLights);
@@ -201,9 +206,12 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
                     accelerateSapling(serverLevel, cell, state);
                     boosted++;
                 }
-            } else if (plantSapling(serverLevel, cell, species)) {
-                planted++;
-                worked = true;
+            } else {
+                int put = plantSapling(serverLevel, cell, species);
+                if (put > 0) {
+                    planted += put;
+                    worked = true;
+                }
             }
         }
         if (collectItems(serverLevel, getPickupArea())) worked = true;
@@ -356,39 +364,85 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     }
 
     /**
-     * Plants a sapling at the cell if it is empty and the ground suits one: the species just felled here if the input row has
-     * it, otherwise a random sapling from the row. Returns whether one was planted.
+     * Plants at the cell if it is empty: the species just felled here if the input row has it and it can be planted, otherwise a
+     * random species that can be. Returns how many saplings went in (0, 1, or 4 for a 2 x 2).
+     *
+     * <p>A species in {@link ModTags.Items#SAPLINGS_2X2} (dark oak) only grows as a 2 x 2 of four, so it is planted only as one:
+     * the cell is the north-west corner of the square (the cells east and south of it complete it), all four must be field cells that
+     * are empty with ground the sapling survives on, and the row must hold four of it. Otherwise that species is skipped here, never
+     * planted alone. Every other species goes in one per cell, as before.
      */
-    private boolean plantSapling(ServerLevel level, BlockPos cell, @Nullable Block felledLog) {
+    private int plantSapling(ServerLevel level, BlockPos cell, @Nullable Block felledLog) {
         BlockState there = level.getBlockState(cell);
-        if (!(there.isAir() || there.canBeReplaced()) || !there.getFluidState().isEmpty()) return false;
+        if (!(there.isAir() || there.canBeReplaced()) || !there.getFluidState().isEmpty()) return 0;
 
         Block preferred = felledLog == null ? null : saplingFor(felledLog);
-        int slot = -1;
-        if (preferred != null) slot = findSaplingSlot(preferred);
-        if (slot < 0) {
-            List<Integer> filled = new ArrayList<>();
-            for (int i = 0; i < INPUT_INVENTORY.getSlots(); i++) {
-                if (isSapling(INPUT_INVENTORY.getStackInSlot(i))) filled.add(i);
-            }
-            if (filled.isEmpty()) return false;
-            slot = filled.get(level.getRandom().nextInt(filled.size()));
+        List<Integer> feasible = new ArrayList<>();
+        int preferredSlot = -1;
+        for (int i = 0; i < INPUT_INVENTORY.getSlots(); i++) {
+            ItemStack stack = INPUT_INVENTORY.getStackInSlot(i);
+            if (!isSapling(stack)) continue;
+            Block sapling = ((BlockItem) stack.getItem()).getBlock();
+            boolean fits = stack.is(ModTags.Items.SAPLINGS_2X2)
+                    ? countInInput(stack) >= 4 && canPlantSquare(level, cell, sapling)
+                    : sapling.defaultBlockState().canSurvive(level, cell);
+            if (!fits) continue;
+            feasible.add(i);
+            if (sapling == preferred && preferredSlot < 0) preferredSlot = i;
         }
+        if (feasible.isEmpty()) return 0;
 
-        Block sapling = ((BlockItem) INPUT_INVENTORY.getStackInSlot(slot).getItem()).getBlock();
+        int slot = preferredSlot >= 0 ? preferredSlot : feasible.get(level.getRandom().nextInt(feasible.size()));
+        ItemStack chosen = INPUT_INVENTORY.getStackInSlot(slot).copy();
+        Block sapling = ((BlockItem) chosen.getItem()).getBlock();
         BlockState plant = sapling.defaultBlockState();
-        if (!plant.canSurvive(level, cell)) return false;
+
+        if (chosen.is(ModTags.Items.SAPLINGS_2X2)) {
+            takeFromInput(chosen, 4);
+            for (BlockPos spot : squareAt(cell)) {
+                level.setBlock(spot, plant, Block.UPDATE_ALL);
+            }
+            return 4;
+        }
         INPUT_INVENTORY.extractItem(slot, 1, false);
         level.setBlock(cell, plant, Block.UPDATE_ALL);
+        return 1;
+    }
+
+    /** The four cells of the 2 x 2 whose north-west corner is {@code corner} (east and south in world axes, so it never depends
+     * on which way the machine faces). */
+    private static BlockPos[] squareAt(BlockPos corner) {
+        return new BlockPos[]{corner, corner.east(), corner.south(), corner.south().east()};
+    }
+
+    /** Whether all four cells of the 2 x 2 at {@code corner} are field cells, empty, and suit the sapling. */
+    private boolean canPlantSquare(ServerLevel level, BlockPos corner, Block sapling) {
+        BlockState plant = sapling.defaultBlockState();
+        for (BlockPos spot : squareAt(corner)) {
+            if (!fieldCells.contains(spot)) return false;
+            BlockState state = level.getBlockState(spot);
+            if (!(state.isAir() || state.canBeReplaced()) || !state.getFluidState().isEmpty()) return false;
+            if (!plant.canSurvive(level, spot)) return false;
+        }
         return true;
     }
 
-    private int findSaplingSlot(Block sapling) {
+    /** How many of this item the input row holds in all. */
+    private int countInInput(ItemStack like) {
+        int total = 0;
         for (int i = 0; i < INPUT_INVENTORY.getSlots(); i++) {
             ItemStack stack = INPUT_INVENTORY.getStackInSlot(i);
-            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() == sapling) return i;
+            if (ItemStack.isSameItemSameComponents(stack, like)) total += stack.getCount();
         }
-        return -1;
+        return total;
+    }
+
+    /** Takes {@code count} of this item out of the input row, across its slots. */
+    private void takeFromInput(ItemStack like, int count) {
+        for (int i = 0; i < INPUT_INVENTORY.getSlots() && count > 0; i++) {
+            if (!ItemStack.isSameItemSameComponents(INPUT_INVENTORY.getStackInSlot(i), like)) continue;
+            count -= INPUT_INVENTORY.extractItem(i, count, false).getCount();
+        }
     }
 
     /** Extra random ticks for a sapling, scaled by the fuel's heal rate (see Mr. Farmer's crop acceleration). */

@@ -120,6 +120,9 @@ public class ModItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.AGGREGATE_MODULE.get())
         ;
 
+        tag(ModTags.Items.SAPLINGS_2X2)
+                .add(Items.DARK_OAK_SAPLING);
+
         tag(ModTags.Items.MODULE_BEAM)
                 .add(ModItems.BEAM_MODULE.get())
         ;
