@@ -330,3 +330,11 @@ light to grow), not only the status light. Both are built.
   routing hook, the output-or-drop rule, and the growth constant. Farmer and Shepherd use them unchanged.
 - **Not done:** a crafting recipe (so it is reachable only from the creative tab for now; flagged, the machine recipes are yours to
   decide) and its place in the stage timeline. Untested in game.
+
+## Recipes (2026-11-23)
+
+User: Mr. Logger is buildable the same way as Mr. Farmer and Mr. Shepherd, and Mr. Hunter's recipe is decided with them.
+- **Mr. Logger (built):** early implant `mr_logger_implant`: Carved Pumpkin, Iron Axe, 2 Dense Muscle, Proto Brain, sutured, injected
+  with 100 mB Primitive Catalyst. The same shape as the other two; only the defining tool differs (Farmer: Iron Hoe, Shepherd: Shears).
+- **Mr. Hunter (proposed, not built because the machine does not exist yet):** the same shape with an Iron Sword as the defining item.
+  Needs confirming, along with whether combat automation should cost more than the other three (for example a second Proto Brain).

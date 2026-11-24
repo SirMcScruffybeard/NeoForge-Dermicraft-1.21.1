@@ -2310,6 +2310,19 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                 RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
                 ModBlocks.MR_SHEPHERD.asItem());
 
+        ////////////////////Mr. Logger\\\\\\\\\\\\\\\\\\\\
+        // Same implant as Mr. Farmer and Mr. Shepherd, buildable at the same stage: an Iron Axe as the defining item (the felling
+        // duty), the Carved Pumpkin head, two Dense Muscle and the Proto Brain, sutured, injected with 100 mB Primitive Catalyst.
+        RecipeBuilders.buildEarlyImplant(recipeOutput, "mr_logger_implant",
+                List.of(
+                        Ingredient.of(Items.CARVED_PUMPKIN),
+                        Ingredient.of(Items.IRON_AXE),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.DENSE_MUSCLE.get()),
+                        Ingredient.of(ModItems.PROTO_BRAIN.get())),
+                RecipeBuilders.sutureToolIngredient(), ModFluids.SOURCE_PRIMITIVE_CATALYST.get(), 100,
+                ModBlocks.MR_LOGGER.asItem());
+
         ////////////////////Flesh Lab Floor\\\\\\\\\\\\\\\\\\\\
         // Crafting-table roster: structural block in the center, Nerve Cluster on the four edge-middles
         // (plumbing), Dense Muscle on the four corners (connective casing). Structural block is the
