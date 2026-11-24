@@ -40,7 +40,8 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
     protected final Level level;
 
     @SuppressWarnings("unchecked")
-    protected AbstractFarmMenu(MenuType<?> menuType, int containerId, Inventory inv, BlockEntity blockEntity, int blockEntitySlots) {
+    protected AbstractFarmMenu(MenuType<?> menuType, int containerId, Inventory inv, BlockEntity blockEntity, int blockEntitySlots,
+                               int initialTab) {
         super(menuType, containerId, blockEntitySlots + ((AbstractFarmBlockEntity) blockEntity).getInputSlotCount()
                 + ((AbstractFarmBlockEntity) blockEntity).getModuleSlotCount() + 1);
         this.BE = (B) blockEntity;
@@ -48,6 +49,7 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
+        setActiveTab(initialTab);
     }
 
     /** A Home-tab slot for inventory slot {@code index}, at a backdrop position (the slot sits one pixel in). */

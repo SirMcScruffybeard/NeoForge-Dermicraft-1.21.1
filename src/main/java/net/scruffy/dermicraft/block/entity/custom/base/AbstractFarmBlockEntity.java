@@ -115,6 +115,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     protected final ItemStackHandler MODULE_INVENTORY = createModuleInventory(getModuleSlotCount(),
             stack -> stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULE_WORK_SPEED));
     private boolean moduleTabActive = false;
+    private int requestedTab = 0;
     // The input row: the seeds (Farmer), saplings (Logger) or feed (Shepherd) the machine works with, as visible slots the
     // player and automation fill. Its own handler, sized by the tier (see SimpleMachineStats#getInputSlots), so it can
     // grow while the fuel slot and the output buffer keep their fixed indexes in INVENTORY.
@@ -207,6 +208,17 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     @Override
     public ItemStackHandler getModuleInventory() {
         return MODULE_INVENTORY;
+    }
+
+    /** The tab the next menu opens on (set by the block when a Module is right-clicked); read once by the menu. */
+    public void requestOpenTab(int tab) {
+        requestedTab = tab;
+    }
+
+    public int consumeRequestedTab() {
+        int tab = requestedTab;
+        requestedTab = 0;
+        return tab;
     }
 
     public ItemStackHandler getInputInventory() {

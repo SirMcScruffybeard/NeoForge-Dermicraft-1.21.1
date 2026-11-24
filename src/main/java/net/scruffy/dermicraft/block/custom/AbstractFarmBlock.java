@@ -25,6 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
+import net.scruffy.dermicraft.screen.AbstractFarmMenu;
 import net.scruffy.dermicraft.block.custom.EvolutionBlockProperties;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -91,29 +92,53 @@ public abstract class AbstractFarmBlock extends ModBaseEntityBlock {
         }
     }
 
-    // Any fluid-container item (bucket, flask, syringe, ...) fills/drains the fuel tank through the
-    // block's registered FluidHandler capability; the FuelTank's biofuel filter + fluid-type matching
-    // mean only a biofuel -- and, once the tank holds one, only the matching biofuel -- is accepted.
-    // Non-container interactions fall through to useWithoutItem, which opens the GUI directly.
+    // A fluid-container item (bucket, flask, syringe, ...) fills/drains the fuel tank through the block's registered
+    // FluidHandler capability; the FuelTank's biofuel filter + fluid-type matching mean only a biofuel -- and, once the tank
+    // holds one, only the matching biofuel -- is accepted. When the container can do nothing here (a fluid the tank refuses, an
+    // empty container with nothing to take, anything the tank cannot use) the click falls through and opens the GUI like a
+    // bare hand. A Module in hand opens the GUI on the Module tab instead. The client always says "handled" for a container,
+    // so the click reaches the server, whose answer decides.
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if (isModule(stack)) {
+            if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+            openMenu(level, pos, player, AbstractFarmMenu.MODULE_TAB);
+            return ItemInteractionResult.SUCCESS;
+        }
         if (stack.getCapability(Capabilities.FluidHandler.ITEM) != null) {
-            if (!level.isClientSide && level.getBlockEntity(pos) instanceof AbstractFarmBlockEntity be
+            if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+            if (level.getBlockEntity(pos) instanceof AbstractFarmBlockEntity be
                     && FluidUtil.interactWithFluidHandler(player, hand, level, pos, hitResult.getDirection())) {
                 be.setChanged();
                 be.updateBlock();
+                return ItemInteractionResult.SUCCESS;
             }
-            return ItemInteractionResult.SUCCESS;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION; // not usable on the fuel tank: open the GUI
         }
         return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
+    /** Whether the stack is a Module (a general Module or an Evolution Module): right-clicking with one opens the Module tab. */
+    private static boolean isModule(ItemStack stack) {
+        return stack.is(net.scruffy.dermicraft.datagen.tag.ModTags.Items.MODULES)
+                || net.scruffy.dermicraft.block.entity.custom.base.EvolvingMachineBlockEntity.isEvolutionModule(stack);
+    }
+
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide && level.getBlockEntity(pos) instanceof MenuProvider menuProvider
-                && player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.openMenu(menuProvider, buf -> buf.writeBlockPos(pos));
-        }
+        if (!level.isClientSide) openMenu(level, pos, player, AbstractFarmMenu.HOME_TAB);
         return InteractionResult.sidedSuccess(level.isClientSide);
+    }
+
+    /** Opens the machine's screen on the given tab: the server's menu reads the request off the block entity and the client's
+     * from the extra data, so both start on the same tab. */
+    private static void openMenu(Level level, BlockPos pos, Player player, int tab) {
+        if (level.getBlockEntity(pos) instanceof AbstractFarmBlockEntity be && player instanceof ServerPlayer serverPlayer) {
+            be.requestOpenTab(tab);
+            serverPlayer.openMenu(be, buf -> {
+                buf.writeBlockPos(pos);
+                buf.writeVarInt(tab);
+            });
+        }
     }
 }

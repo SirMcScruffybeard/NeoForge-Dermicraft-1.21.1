@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.screen.custom.mr_shepherd;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MrShepherdBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractFarmMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
@@ -24,12 +25,17 @@ public class MrShepherdMenu extends AbstractFarmMenu<MrShepherdBlockEntity> {
     public static final int BUTTON_CAP_DOWN = 1;
 
     public MrShepherdMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), extraData.readVarInt());
     }
 
+    /** Opens on the tab the block asked for (the Module tab after a Module is right-clicked). */
     public MrShepherdMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
+        this(containerId, inv, blockEntity, ((AbstractFarmBlockEntity) blockEntity).consumeRequestedTab());
+    }
+
+    public MrShepherdMenu(int containerId, Inventory inv, BlockEntity blockEntity, int initialTab) {
         super(ModMenuTypes.MR_SHEPHERD_MENU.get(), containerId, inv, blockEntity,
-                ((MrShepherdBlockEntity) blockEntity).getInventorySize());
+                ((MrShepherdBlockEntity) blockEntity).getInventorySize(), initialTab);
 
         addFuelSlot();
         addBufferSlots();

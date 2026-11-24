@@ -3,6 +3,7 @@ package net.scruffy.dermicraft.screen.custom.mr_logger;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 import net.scruffy.dermicraft.block.entity.custom.MrLoggerBlockEntity;
 import net.scruffy.dermicraft.screen.AbstractFarmMenu;
 import net.scruffy.dermicraft.screen.ModMenuTypes;
@@ -18,12 +19,17 @@ public class MrLoggerMenu extends AbstractFarmMenu<MrLoggerBlockEntity> {
     public static final int LEAF_TOGGLE_Y = 24;
 
     public MrLoggerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
-        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), extraData.readVarInt());
     }
 
+    /** Opens on the tab the block asked for (the Module tab after a Module is right-clicked). */
     public MrLoggerMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
+        this(containerId, inv, blockEntity, ((AbstractFarmBlockEntity) blockEntity).consumeRequestedTab());
+    }
+
+    public MrLoggerMenu(int containerId, Inventory inv, BlockEntity blockEntity, int initialTab) {
         super(ModMenuTypes.MR_LOGGER_MENU.get(), containerId, inv, blockEntity,
-                ((MrLoggerBlockEntity) blockEntity).getInventorySize());
+                ((MrLoggerBlockEntity) blockEntity).getInventorySize(), initialTab);
 
         addFuelSlot();
         addBufferSlots();

@@ -338,3 +338,10 @@ User: Mr. Logger is buildable the same way as Mr. Farmer and Mr. Shepherd, and M
   with 100 mB Primitive Catalyst. The same shape as the other two; only the defining tool differs (Farmer: Iron Hoe, Shepherd: Shears).
 - **Mr. Hunter (proposed, not built because the machine does not exist yet):** the same shape with an Iron Sword as the defining item.
   Needs confirming, along with whether combat automation should cost more than the other three (for example a second Proto Brain).
+
+## Right-click behavior (built 2026-11-23)
+
+All farm machines (`AbstractFarmBlock`): a fluid container the fuel tank cannot use (a refused fluid, nothing to take) now opens the GUI like a
+bare hand instead of doing nothing; a usable one still fills or drains the fuel tank. A Module in hand (a general Module or an Evolution
+Module) opens the GUI on the Module tab. The server's menu reads the requested tab off the block entity and the client's from the open
+packet's extra data. The Mr. Logger recipe stays as built, the same implant as the other two (user, 2026-11-23).
