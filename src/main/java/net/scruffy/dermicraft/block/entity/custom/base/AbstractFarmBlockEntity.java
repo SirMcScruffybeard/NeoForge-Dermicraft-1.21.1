@@ -76,7 +76,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     // currentWaveStepTicks() scales it down for faster fuel so the work visibly speeds up.)
     protected static final int WAVE_STEP_TICKS_BASE = 40; // 2s at speed 1.0
     protected static final int PREVIEW_EMIT_INTERVAL = 10;       // the preview outline re-emits twice a second
-    protected static final int PREVIEW_PARTICLES_PER_CELL = 2;
+    protected static final double PREVIEW_POINT_SPACING = 0.5;  // blocks between the particles along an edge of the box
     protected static final int WAVE_COOLDOWN_TICKS = 40;  // pause between full sweeps (not fuel-speed-scaled)
     protected static final int HORIZONTAL_Y_TOLERANCE = 2; // a sideways field: ±this many Y around the machine's own plane
     // Average extra random-ticks per crop, stem or sapling per wave visit, per unit of fuel heal rate. Kept fractional (not a flat
@@ -167,48 +167,58 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     }
 
     /**
-     * One tick of the range preview, shared by every farm machine: twice a second the outline of the field (see
-     * {@link #getFieldOutline}) is marked with particles, fading out over the last few seconds. The outline, not a filled field or
-     * a sweep, because the question it answers is "how big is it and where does it sit?"; at 9 x 9 that is 32 edge cells, not 81.
-     * Only called while the preview is running.
+     * One tick of the range preview, shared by every farm machine: twice a second the edges of the field's box are drawn with
+     * particles, thinning out over the last few seconds so it fades. A box, not a sweep or a filled field, because the question it
+     * answers is "how big is it and where does it sit?". Only called while the preview is running.
      */
     protected void tickPreview(Level level) {
         if (getPreviewTicksRemaining() % PREVIEW_EMIT_INTERVAL != 0) return;
-        emitPreviewParticles(level, getFieldOutline(level), previewParticleCount(PREVIEW_PARTICLES_PER_CELL));
+        if (!(level instanceof ServerLevel serverLevel)) return;
+
+        float keep = previewParticleCount(100) / 100f; // 1 at full strength, down to 0 as the preview ends
+        AABB box = getFieldBox(level);
+        double step = PREVIEW_POINT_SPACING;
+        for (int edge = 0; edge < 12; edge++) {
+            // Each edge runs along one axis (0 = x, 1 = y, 2 = z) from a corner, the other two coordinates fixed at min or max.
+            int axis = edge / 4;
+            boolean highA = (edge & 1) != 0;
+            boolean highB = (edge & 2) != 0;
+            double length = axis == 0 ? box.getXsize() : axis == 1 ? box.getYsize() : box.getZsize();
+            for (double t = 0; t <= length + 1.0E-6; t += step) {
+                if (level.getRandom().nextFloat() > keep) continue;
+                double x = axis == 0 ? box.minX + t : (axis == 1 ? (highA ? box.maxX : box.minX) : (highA ? box.maxX : box.minX));
+                double y = axis == 1 ? box.minY + t : (axis == 0 ? (highA ? box.maxY : box.minY) : (highB ? box.maxY : box.minY));
+                double z = axis == 2 ? box.minZ + t : (highB ? box.maxZ : box.minZ);
+                serverLevel.sendParticles(ParticleTypes.HAPPY_VILLAGER, x, y, z, 1, 0, 0, 0, 0);
+            }
+        }
     }
 
-    /** The ground test the preview places the outline on; any solid top by default, so the whole field shows even where it
-     * is not farmable yet. A machine whose ground differs (Mr. Logger's soil) overrides it. */
+    /** The ground test the default box is placed on; any solid top, so the box shows even where the field is not farmable yet.
+     * A machine whose ground differs (Mr. Logger's soil) overrides it. */
     protected GroundTest getPreviewGround() {
         return this::isGroundSurface;
     }
 
     /**
-     * The cells that mark the edge of the field: the work layer's cells (the same ones the machine sweeps, kept even where there
-     * is no ground) with a neighbor missing across the field's width or length. A machine whose field is shaped differently
-     * (Mr. Shepherd's box starts at its own row) overrides this.
+     * The box the preview draws: the work layer's cells (the ones the machine sweeps, kept even where there is no ground) as one
+     * block-tall box around them. A machine that works a taller or differently placed volume (Mr. Shepherd's pen) overrides this.
      */
-    protected List<BlockPos> getFieldOutline(Level level) {
-        Set<Long> columns = new HashSet<>();
-        List<BlockPos> cells = new ArrayList<>();
+    protected AABB getFieldBox(Level level) {
+        int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
         for (List<BlockPos> step : resolveWaveSteps(level, getPreviewGround(), true)) {
             for (BlockPos cell : step) {
-                cells.add(cell);
-                columns.add(columnKey(cell.getX(), cell.getZ()));
+                minX = Math.min(minX, cell.getX());
+                minY = Math.min(minY, cell.getY());
+                minZ = Math.min(minZ, cell.getZ());
+                maxX = Math.max(maxX, cell.getX());
+                maxY = Math.max(maxY, cell.getY());
+                maxZ = Math.max(maxZ, cell.getZ());
             }
         }
-        List<BlockPos> outline = new ArrayList<>();
-        for (BlockPos cell : cells) {
-            if (!columns.contains(columnKey(cell.getX() + 1, cell.getZ())) || !columns.contains(columnKey(cell.getX() - 1, cell.getZ()))
-                    || !columns.contains(columnKey(cell.getX(), cell.getZ() + 1)) || !columns.contains(columnKey(cell.getX(), cell.getZ() - 1))) {
-                outline.add(cell);
-            }
-        }
-        return outline;
-    }
-
-    private static long columnKey(int x, int z) {
-        return ((long) x << 32) ^ (z & 0xFFFFFFFFL);
+        if (minX == Integer.MAX_VALUE) return new AABB(worldPosition);
+        return new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
     }
 
     /** Runs when a preview starts (or restarts), so a sweep can be recomputed against the current field. */

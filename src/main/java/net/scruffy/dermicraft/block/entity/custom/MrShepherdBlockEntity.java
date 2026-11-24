@@ -428,47 +428,11 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     }
 
     // ---- Range preview -----------------------------------------------------------------------------
-    // The particle effect is the shared one (AbstractFarmBlockEntity#tickPreview); only the shape is the Shepherd's, because its
-    // box starts at the machine's own row.
+    // The particle box is the shared one (AbstractFarmBlockEntity#tickPreview); only the volume is the Shepherd's: its real work area.
 
-    /** The edge cells of the working footprint -- mirrors {@link #workArea()}'s placement exactly. */
     @Override
-    protected List<BlockPos> getFieldOutline(Level level) {
-        int halfWidth = getHalfWidth();
-        int halfLength = getHalfLength();
-        Direction facing = getFacing();
-        List<BlockPos> cells = new ArrayList<>();
-
-        if (facing.getAxis().isVertical()) {
-            BlockPos center = worldPosition.relative(facing, getFieldDistance());
-            if (halfWidth == 0 && halfLength == 0) { // a 1 x 1 field -- the machine only reaches its own spot
-                cells.add(center);
-                return cells;
-            }
-            for (int dx = -halfWidth; dx <= halfWidth; dx++) {
-                for (int dz = -halfLength; dz <= halfLength; dz++) {
-                    if (Math.abs(dx) != halfWidth && Math.abs(dz) != halfLength) continue; // interior, skip
-                    cells.add(center.offset(dx, 0, dz));
-                }
-            }
-            return cells;
-        }
-
-        // Horizontal: outline the (length+1) deep x width wide field, starting at the machine's own row
-        // so the guide shows the pen wall running through the machine rather than in front of it.
-        Direction side = facing.getClockWise();
-        int start = getFieldDistance() - 1;
-        int end = start + getFieldLength();
-        for (int depth = start; depth <= end; depth++) {
-            for (int lateral = -halfWidth; lateral <= halfWidth; lateral++) {
-                boolean edge = depth == start || depth == end || lateral == -halfWidth || lateral == halfWidth;
-                if (!edge) continue;
-                BlockPos cell = worldPosition.relative(facing, depth).relative(side, lateral);
-                if (cell.equals(worldPosition)) continue; // no particles inside the machine itself
-                cells.add(cell);
-            }
-        }
-        return cells;
+    protected AABB getFieldBox(Level level) {
+        return workArea();
     }
 
     private Map<EntityType<?>, List<Animal>> groupBySpecies(ServerLevel level, AABB area) {

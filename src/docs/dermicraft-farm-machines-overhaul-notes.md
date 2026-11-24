@@ -360,3 +360,7 @@ The in-world field preview is one effect in `AbstractFarmBlockEntity#tickPreview
 shape: the default `getFieldOutline` takes the work layer's cells (kept even over no ground) and marks the ones with a missing neighbor
 across the width or length, on the ground `getPreviewGround()` gives (any solid top; Mr. Logger's soil). Mr. Shepherd overrides the shape
 because its box starts at its own row. Mr. Farmer's and Mr. Logger's swept-row preview is gone, so Farmer now shows the outline too.
+
+**Revision (2026-11-23, same day):** the user tried the 3D box and preferred it to the flat outline, so the shared preview is now the **edges of
+a box** drawn with single particles every half block (`getFieldBox`, default one block tall around the work layer's cells; Mr. Shepherd
+overrides it with its real work area, which is taller). The edge-outline version above is replaced.
