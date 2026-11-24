@@ -364,3 +364,21 @@ because its box starts at its own row. Mr. Farmer's and Mr. Logger's swept-row p
 **Revision (2026-11-23, same day):** the user tried the 3D box and preferred it to the flat outline, so the shared preview is now the **edges of
 a box** drawn with single particles every half block (`getFieldBox`, default one block tall around the work layer's cells; Mr. Shepherd
 overrides it with its real work area, which is taller). The edge-outline version above is replaced.
+
+## Field height (built 2026-11-23)
+
+User decisions: height is the vertical size of the work volume, counted **upward from the base work layer**, and **every valid work cell inside
+it is worked** (stories happen naturally, no layer spacing); the per-tier maximums are **9 / 13 / 17 / 21** for now and may change after
+playtesting; **for Mr. Logger it only affects the planting area** (its felling reach stays 40 blocks, so a tall tree is never missed for being
+taller than the machine's height).
+- A new per-tier stat `farm.fieldHeight` (overridable per family or machine); the machine's own setting is 1 up to the tier's tallest
+  (`AbstractFarmBlockEntity.fieldHeight`, saved, menu buttons 16 and 17).
+- **Defaults:** Farmer and Logger start at 1 (the one layer they worked before); Shepherd starts at 9 (the nine blocks it always reached).
+- **Geometry (shared, in the base):** sideways facing scans each column for ground from the tolerance below the machine's plane up to the
+  tolerance plus the height above it, and every ground block that is the top of its run is a work cell. Up or down facing takes each layer
+  from the base work layer upward that has ground under its cells. Farmer's fuel is per farmland cell, so more stories cost more automatically.
+- **Shepherd:** the pen runs from one block below its layer up to the height (this replaced the fixed 4 up and 4 down).
+- **The preview box** is as tall as the height (Shepherd's is its real work area).
+- **Field tab:** the square field display is gone. The readout (now "Field: W x L x H") moved here from Home, and the four steppers are in two
+  columns: Width and Length on the left, Height and Distance on the right, with short labels ("W: 9") and the full name and the tier's maximum
+  on hover.

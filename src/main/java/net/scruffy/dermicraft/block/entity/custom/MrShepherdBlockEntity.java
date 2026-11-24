@@ -58,7 +58,6 @@ import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
 
-    private static final int VERTICAL_REACH = 4; // AABB extends this far above/below the machine's plane
     private static final int PICKUP_MARGIN = 1;  // pickup-only overreach on each horizontal side
     // A fuel step pays for this many kinds of work in one cycle (pick-up, XP, shearing, growing, breeding, culling are the six
     // kinds), so a typical cycle of about three costs one step, as it did when a cycle with any work cost a whole step.
@@ -122,6 +121,12 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     @Override
     protected String getMachineName() {
         return "mr_shepherd";
+    }
+
+    /** A pen is naturally tall: it starts at the nine blocks the Shepherd always reached (four either side of its plane). */
+    @Override
+    protected int getDefaultFieldHeight() {
+        return 9;
     }
 
     @Override
@@ -235,7 +240,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
      * The working volume, the player's field. Horizontal mounts cover from {@code distance - 1} blocks ahead (the machine's
      * OWN row at the default distance of 1) through {@code length} blocks further, {@code width} blocks across, centered on
      * the machine. Vertical mounts cover a width (X) x length (Z) box centered {@code distance} blocks out along the facing,
-     * the layer the animals stand on, reaching {@code VERTICAL_REACH} above and below it.
+     * the layer the animals stand on. Both reach from one block below that layer up to the field's height (the pen's height).
      */
     private AABB workArea() {
         int halfWidth = getHalfWidth();
@@ -245,8 +250,8 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         if (facing.getAxis().isVertical()) {
             BlockPos center = worldPosition.relative(facing, getFieldDistance());
             return new AABB(
-                    center.getX() - halfWidth, center.getY() - VERTICAL_REACH, center.getZ() - halfLength,
-                    center.getX() + halfWidth + 1, center.getY() + VERTICAL_REACH + 1, center.getZ() + halfLength + 1);
+                    center.getX() - halfWidth, center.getY() - 1, center.getZ() - halfLength,
+                    center.getX() + halfWidth + 1, center.getY() - 1 + getFieldHeight(), center.getZ() + halfLength + 1);
         }
 
         // Depth starts at 0 -- the machine's own row -- not 1 block ahead like Mr. Farmer's. A Shepherd
@@ -256,7 +261,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         int start = getFieldDistance() - 1;
         AABB box = new AABB(worldPosition.relative(facing, start).relative(side, -halfWidth))
                 .minmax(new AABB(worldPosition.relative(facing, start + getFieldLength()).relative(side, halfWidth)));
-        return box.inflate(0, VERTICAL_REACH, 0);
+        return new AABB(box.minX, box.minY - 1, box.minZ, box.maxX, box.minY - 1 + getFieldHeight(), box.maxZ);
     }
 
     /**

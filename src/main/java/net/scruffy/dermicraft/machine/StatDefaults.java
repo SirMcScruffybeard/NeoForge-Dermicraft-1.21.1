@@ -33,7 +33,8 @@ final class StatDefaults {
     static final double[] FIELD_SIZE = {9, 13, 17, 21};          // largest width or length of a farm machine's field, odd, per tier (Overgrowth adds none)
     static final double[] INPUT_SLOTS = {3, 6, 9, 12};           // slots in a farm machine's input row (seeds, saplings, feed), per tier: three rows of four at most
     static final double LOGS_PER_FUEL_STEP = 8;                   // logs Mr. Logger fells for one fuel step
-    static final double[] FIELD_DISTANCE = {8, 12, 16, 20};      // furthest a farm machine's field may sit from it, per tier
+    static final double[] FIELD_DISTANCE = {8, 12, 16, 20};
+    static final double[] FIELD_HEIGHT = {9, 13, 17, 21};        // tallest a farm machine's work volume may be, per tier (Overgrowth adds none)      // furthest a farm machine's field may sit from it, per tier
 
     // ---- Single values ----
     static final double OVERGROWTH_PERCENT = 5;                  // of the L4 value, per level, for every numeric stat
@@ -68,7 +69,7 @@ final class StatDefaults {
             ITEM_TRANSFER, FLUID_TRANSFER, MODULE_SLOTS,
             SIMPLE_MACHINE_SPEED, SIMPLE_MACHINE_FUEL_USE,
             SIMPLE_MACHINE_MAX_HEALTH, SIMPLE_MACHINE_TANK_CAPACITY_MB, SIMPLE_MACHINE_PASSIVE_YIELD,
-            SKIN_TANK_CAPACITY_MB, CRAW_STACKS, FIELD_SIZE, FIELD_DISTANCE, INPUT_SLOTS, LOGS_PER_FUEL_STEP,
+            SKIN_TANK_CAPACITY_MB, CRAW_STACKS, FIELD_SIZE, FIELD_DISTANCE, FIELD_HEIGHT, INPUT_SLOTS, LOGS_PER_FUEL_STEP,
             OVERGROWTH_PERCENT, OVERGROWTH_MAX_LEVEL,
             HUNGER_DAMAGE_PER_CYCLE, UNFUELED_SPEED,
             EVOLUTION_TIER_SECONDS, EVOLUTION_HAZARD_NEW_SECONDS, EVOLUTION_HAZARD_UPGRADE_SECONDS,

@@ -20,13 +20,6 @@ import java.util.Optional;
 
 public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends AbstractContainerScreen<T> {
 
-    // Self-tiling range-grid cell shared by the auto-farmer machines' GUIs. The tile carries a blank
-    // margin so butting copies together forms a grid; tiled top-left anchored to depict an NxN workspace.
-    private static final ResourceLocation GRID_SQUARE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/patterns/grid_square.png");
-    private static final int GRID_CELL = 3;
-    private static final int FIELD_OUTLINE_COLOR = 0x66FFFFFF;
-
     // screen_background is now a blank panel (no baked-in inventory art), so every screen needs
     // these drawn on top, near the coordinates AbstractModMenu.addPlayerInventory/addPlayerHotbar
     // place their slots (x=8,y=84 for the 3x9 grid; x=8,y=142 for the hotbar row) -- shifted 1px
@@ -87,23 +80,6 @@ public abstract class AbstractModScreen<T extends AbstractContainerMenu> extends
 
     public AbstractModScreen(T menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-    }
-
-    /**
-     * Draws a field of {@code width} x {@code length} cells of the shared grid_square tile (the 3 pixel tile scaled to
-     * {@code cell} pixels), centered inside a faint outline of the largest field, {@code maxSize} x {@code maxSize} cells,
-     * with the outline's top-left at (x, y). The farm machines' Field tab uses it to show the field the player set.
-     */
-    protected void renderFieldGrid(GuiGraphics guiGraphics, int x, int y, int width, int length, int maxSize, int cell) {
-        guiGraphics.renderOutline(x - 1, y - 1, maxSize * cell + 2, maxSize * cell + 2, FIELD_OUTLINE_COLOR);
-        int originX = x + (maxSize - width) * cell / 2;
-        int originY = y + (maxSize - length) * cell / 2;
-        for (int row = 0; row < length; row++) {
-            for (int col = 0; col < width; col++) {
-                guiGraphics.blit(GRID_SQUARE, originX + col * cell, originY + row * cell, cell, cell,
-                        0, 0, GRID_CELL, GRID_CELL, GRID_CELL, GRID_CELL);
-            }
-        }
     }
 
     /**

@@ -27,6 +27,7 @@ public final class StatConfig {
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> MODULE_SLOTS;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_SIZE;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_DISTANCE;
+    private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_HEIGHT;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> INPUT_SLOTS;
     private static final ModConfigSpec.DoubleValue LOGS_PER_FUEL_STEP;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_SPEED;
@@ -75,6 +76,7 @@ public final class StatConfig {
             ModConfigSpec.DoubleValue evolutionOvergrowthGrowthPercent,
             ModConfigSpec.ConfigValue<List<? extends Number>> fieldSize,
             ModConfigSpec.ConfigValue<List<? extends Number>> fieldDistance,
+            ModConfigSpec.ConfigValue<List<? extends Number>> fieldHeight,
             ModConfigSpec.ConfigValue<List<? extends Number>> inputSlots) {}
 
     private static final Map<MachineStatKey, MachineSection> MACHINE_SECTIONS = new EnumMap<>(MachineStatKey.class);
@@ -107,6 +109,7 @@ public final class StatConfig {
                 .push("farm");
         FIELD_SIZE = tierList("fieldSize", "Largest width or length of a farm machine's field per tier. Odd numbers (an even one rounds up). Overgrowth adds none.", StatDefaults.FIELD_SIZE, 1, 99);
         FIELD_DISTANCE = tierList("fieldDistance", "Furthest a farm machine's field may sit from it, in blocks, per tier. Overgrowth adds none.", StatDefaults.FIELD_DISTANCE, 1, 99);
+        FIELD_HEIGHT = tierList("fieldHeight", "Tallest a farm machine's work volume may be, in blocks, per tier (the machine's own height setting goes up to this). Overgrowth adds none.", StatDefaults.FIELD_HEIGHT, 1, 99);
         INPUT_SLOTS = tierList("inputSlots", "Slots in a farm machine's input row (seeds, saplings or feed) per tier, 0 to 12 (three rows of four). Overgrowth adds none.", StatDefaults.INPUT_SLOTS, 0, 12);
         LOGS_PER_FUEL_STEP = BUILDER.comment("How many logs Mr. Logger fells for one fuel step (a fuel step is what one step of the other farm machines costs). Planting costs one step per three cells planted.")
                 .defineInRange("logsPerFuelStep", StatDefaults.LOGS_PER_FUEL_STEP, 1.0, 1000.0);
@@ -312,6 +315,7 @@ public final class StatConfig {
                 table(SKIN_TANK_CAPACITY_MB, StatDefaults.SKIN_TANK_CAPACITY_MB),
                 table(CRAW_STACKS, StatDefaults.CRAW_STACKS),
                 table(FIELD_SIZE, StatDefaults.FIELD_SIZE), table(FIELD_DISTANCE, StatDefaults.FIELD_DISTANCE),
+                table(FIELD_HEIGHT, StatDefaults.FIELD_HEIGHT),
                 table(INPUT_SLOTS, StatDefaults.INPUT_SLOTS), LOGS_PER_FUEL_STEP.get(),
                 OVERGROWTH_PERCENT.get(), OVERGROWTH_MAX_LEVEL.get(),
                 HUNGER_DAMAGE_PER_CYCLE.get(), UNFUELED_SPEED.get().floatValue(),
@@ -346,6 +350,7 @@ public final class StatConfig {
                 overrideNumber("overgrowthGrowthPercent", "Percent of the level 1 time each further Overgrowth level adds.", 1000),
                 usesField ? overrideList("fieldSize", "Largest width or length of the field per tier (odd).", 1, 99, TIERS, "L1 to L4") : null,
                 usesField ? overrideList("fieldDistance", "Furthest the field may sit from the machine per tier, in blocks.", 1, 99, TIERS, "L1 to L4") : null,
+                usesField ? overrideList("fieldHeight", "Tallest the work volume may be per tier, in blocks.", 1, 99, TIERS, "L1 to L4") : null,
                 usesField ? overrideList("inputSlots", "Slots in the input row (seeds, saplings or feed) per tier (0 to 12).", 0, 12, TIERS, "L1 to L4") : null);
     }
 
@@ -364,6 +369,7 @@ public final class StatConfig {
                 optionalNumber(section.evolutionOvergrowthGrowthPercent()),
                 optionalSlots(section.fieldSize()),
                 optionalSlots(section.fieldDistance()),
+                optionalSlots(section.fieldHeight()),
                 optionalSlots(section.inputSlots()));
     }
 

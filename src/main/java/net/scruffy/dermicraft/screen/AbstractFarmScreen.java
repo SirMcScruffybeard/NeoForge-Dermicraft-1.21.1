@@ -100,17 +100,21 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
     protected AbstractFarmScreen(M menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_WIDTH_DOWN, false,
-                FarmLayout.FIELD_MINUS_X, FarmLayout.FIELD_WIDTH_ROW_Y);
+                FarmLayout.FIELD_LEFT_MINUS_X, FarmLayout.FIELD_ROW_1_Y);
         addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_WIDTH_UP, true,
-                FarmLayout.FIELD_PLUS_X, FarmLayout.FIELD_WIDTH_ROW_Y);
+                FarmLayout.FIELD_LEFT_PLUS_X, FarmLayout.FIELD_ROW_1_Y);
         addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_LENGTH_DOWN, false,
-                FarmLayout.FIELD_MINUS_X, FarmLayout.FIELD_LENGTH_ROW_Y);
+                FarmLayout.FIELD_LEFT_MINUS_X, FarmLayout.FIELD_ROW_2_Y);
         addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_LENGTH_UP, true,
-                FarmLayout.FIELD_PLUS_X, FarmLayout.FIELD_LENGTH_ROW_Y);
+                FarmLayout.FIELD_LEFT_PLUS_X, FarmLayout.FIELD_ROW_2_Y);
+        addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_HEIGHT_DOWN, false,
+                FarmLayout.FIELD_RIGHT_MINUS_X, FarmLayout.FIELD_ROW_1_Y);
+        addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_HEIGHT_UP, true,
+                FarmLayout.FIELD_RIGHT_PLUS_X, FarmLayout.FIELD_ROW_1_Y);
         addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_DISTANCE_DOWN, false,
-                FarmLayout.FIELD_MINUS_X, FarmLayout.FIELD_DISTANCE_ROW_Y);
+                FarmLayout.FIELD_RIGHT_MINUS_X, FarmLayout.FIELD_ROW_2_Y);
         addStepper(AbstractFarmMenu.FIELD_TAB, AbstractFarmMenu.BUTTON_DISTANCE_UP, true,
-                FarmLayout.FIELD_PLUS_X, FarmLayout.FIELD_DISTANCE_ROW_Y);
+                FarmLayout.FIELD_RIGHT_PLUS_X, FarmLayout.FIELD_ROW_2_Y);
     }
 
     // ---- What a machine supplies -------------------------------------------------------------------
@@ -291,10 +295,7 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
             }
             renderHomeExtras(guiGraphics, x, y);
         } else if (tab == AbstractFarmMenu.FIELD_TAB) {
-            int maxSize = menu.BE.getMaxFieldSize();
-            renderFieldGrid(guiGraphics, x + FarmLayout.FIELD_GRID_X, y + FarmLayout.FIELD_GRID_Y,
-                    menu.BE.getFieldWidth(), menu.BE.getFieldLength(),
-                    maxSize, Math.max(1, FarmLayout.FIELD_GRID_PIXELS / maxSize));
+            // Nothing behind the steppers: the readout and labels are text (see renderLabels).
         } else if (tab == AbstractFarmMenu.MODULE_TAB) {
             renderModuleTab(guiGraphics, x, y);
         } else {
@@ -327,10 +328,6 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
         }
 
         if (tab == AbstractFarmMenu.HOME_TAB) {
-            guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.farm.field",
-                            menu.BE.getFieldWidth(), menu.BE.getFieldLength()),
-                    FarmLayout.READOUT_X, FarmLayout.READOUT_Y, TEXT_COLOR, false);
-
             renderFluidTooltipArea(guiGraphics, mouseX, mouseY, x, y, menu.BE.getFuelTank().getFluid(),
                     FarmLayout.FUEL_GAUGE_X + GAUGE_INTERIOR_INSET, FarmLayout.FUEL_GAUGE_Y + GAUGE_INTERIOR_INSET, fuelRenderer,
                     Component.translatable("tooltip.dermicraft.gauge.fuel"));
@@ -357,12 +354,17 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
             }
             renderHomeLabels(guiGraphics, mouseX, mouseY, x, y);
         } else if (tab == AbstractFarmMenu.FIELD_TAB) {
-            drawRowLabel(guiGraphics, Component.translatable("gui.dermicraft.farm.width", menu.BE.getFieldWidth()),
-                    FarmLayout.FIELD_WIDTH_ROW_Y);
-            drawRowLabel(guiGraphics, Component.translatable("gui.dermicraft.farm.length", menu.BE.getFieldLength()),
-                    FarmLayout.FIELD_LENGTH_ROW_Y);
-            drawRowLabel(guiGraphics, Component.translatable("gui.dermicraft.farm.distance", menu.BE.getFieldDistance()),
-                    FarmLayout.FIELD_DISTANCE_ROW_Y);
+            guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.farm.field",
+                            menu.BE.getFieldWidth(), menu.BE.getFieldLength(), menu.BE.getFieldHeight()),
+                    FarmLayout.READOUT_X, FarmLayout.READOUT_Y, TEXT_COLOR, false);
+            renderFieldLabel(guiGraphics, mouseX, mouseY, x, y, "width", menu.BE.getFieldWidth(), menu.BE.getMaxFieldSize(),
+                    FarmLayout.FIELD_LEFT_LABEL_X, FarmLayout.FIELD_ROW_1_Y);
+            renderFieldLabel(guiGraphics, mouseX, mouseY, x, y, "length", menu.BE.getFieldLength(), menu.BE.getMaxFieldSize(),
+                    FarmLayout.FIELD_LEFT_LABEL_X, FarmLayout.FIELD_ROW_2_Y);
+            renderFieldLabel(guiGraphics, mouseX, mouseY, x, y, "height", menu.BE.getFieldHeight(), menu.BE.getMaxFieldHeight(),
+                    FarmLayout.FIELD_RIGHT_LABEL_X, FarmLayout.FIELD_ROW_1_Y);
+            renderFieldLabel(guiGraphics, mouseX, mouseY, x, y, "distance", menu.BE.getFieldDistance(), menu.BE.getMaxFieldDistance(),
+                    FarmLayout.FIELD_RIGHT_LABEL_X, FarmLayout.FIELD_ROW_2_Y);
         } else if (tab == AbstractFarmMenu.MODULE_TAB) {
             if (EvolutionPanel.isEvolutionSlot(hoveredSlot, menu.BE.EVOLUTION_INVENTORY) && !hoveredSlot.hasItem()) {
                 guiGraphics.renderComponentTooltip(this.font, EvolutionPanel.getEmptySlotTooltip(), mouseX - x, mouseY - y);
@@ -398,6 +400,17 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
                     y + AbstractEvolvingMachineMenu.MODULE_SLOT_Y, 0, 0, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE, SLOT_SIZE);
         }
         EvolutionPanel.render(guiGraphics, font, x, y, panelLayout, getEvolutionPanelCells());
+    }
+
+    /** A Field tab stepper's short label ("W: 9"), with its full name and the tier's largest value on hover. */
+    private void renderFieldLabel(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y, String name, int value, int max,
+                                  int labelX, int rowY) {
+        guiGraphics.drawString(this.font, Component.translatable("gui.dermicraft.farm." + name, value),
+                labelX, rowY + (STEPPER_SIZE - 8) / 2, TEXT_COLOR, false);
+        if (MouseUtil.isMouseOver(mouseX, mouseY, x + labelX, y + rowY, FarmLayout.FIELD_LABEL_WIDTH, STEPPER_SIZE)) {
+            guiGraphics.renderTooltip(this.font, Component.translatable("tooltip.dermicraft.farm." + name, value, max),
+                    mouseX - x, mouseY - y);
+        }
     }
 
     /** A text label vertically centered against a stepper row. */

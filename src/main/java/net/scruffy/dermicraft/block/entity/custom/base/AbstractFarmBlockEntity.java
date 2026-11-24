@@ -110,6 +110,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     private int fieldWidth = DEFAULT_FIELD_SIZE;
     private int fieldLength = DEFAULT_FIELD_SIZE;
     private int fieldDistance = MIN_FIELD_DISTANCE;
+    private int fieldHeight = getDefaultFieldHeight();
     private int previewTicksRemaining = 0;
     // General Module slots: their own handler, sized by the tier (see EvolvingMachineBlockEntity#getModuleSlotCount). Only
     // Work Speed Modules do anything on a farm machine today, so they are the only ones the slots take. Evolution Modules
@@ -218,7 +219,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
             }
         }
         if (minX == Integer.MAX_VALUE) return new AABB(worldPosition);
-        return new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
+        return new AABB(minX, minY, minZ, maxX + 1, maxY + getFieldHeight(), maxZ + 1);
     }
 
     /** Runs when a preview starts (or restarts), so a sweep can be recomputed against the current field. */
@@ -332,6 +333,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         fieldWidth = snapFieldSize(fieldWidth);
         fieldLength = snapFieldSize(fieldLength);
         fieldDistance = snapFieldDistance(fieldDistance);
+        fieldHeight = snapFieldHeight(fieldHeight);
     }
 
     /** Work Speed Module bonus across the Module slots, with the diminishing-return stacking rule of
@@ -458,6 +460,42 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         setFieldSize(fieldWidth, fieldLength + 2 * Integer.signum(direction));
     }
 
+    /** The height a new machine starts with: a single layer, the work the machine did before height was a setting. A machine
+     * whose volume is naturally tall (Mr. Shepherd's pen) overrides it. */
+    protected int getDefaultFieldHeight() {
+        return 1;
+    }
+
+    /** The tallest work volume this machine's tier allows, in blocks. */
+    public int getMaxFieldHeight() {
+        return SimpleMachineStats.getMaxFieldHeight(getStatKey(), getEvolutionState());
+    }
+
+    private int snapFieldHeight(int height) {
+        return Math.max(1, Math.min(getMaxFieldHeight(), height));
+    }
+
+    /** How tall the work volume is, in blocks, counted upward from the base work layer. Every valid work cell inside it is
+     * worked, so a column with farmland at several levels is tended on all of them. */
+    public int getFieldHeight() {
+        return fieldHeight;
+    }
+
+    /** Sets the height, clamped to 1 up to the tier's tallest. */
+    public void setFieldHeight(int height) {
+        int newHeight = snapFieldHeight(height);
+        if (newHeight == fieldHeight) return;
+        fieldHeight = newHeight;
+        onFieldChanged();
+        setChanged();
+        updateBlock();
+    }
+
+    /** One block taller (positive) or shorter (negative). */
+    public void stepFieldHeight(int direction) {
+        setFieldHeight(fieldHeight + Integer.signum(direction));
+    }
+
     /**
      * How far the field sits from the machine along its facing, 1 to 8. Facing up or down it is the number of blocks from
      * the machine to the field's work layer (the block right above the ground: the crop cells for Mr. Farmer), so 1 is the
@@ -505,7 +543,9 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
 
     // Horizontal facing: a width-wide x length-deep field projected in front, starting {distance} blocks out and swept row by row
     // (nearest first).
-    // Each column scans ±HORIZONTAL_Y_TOLERANCE around the machine's own plane for the topmost ground.
+    // Each column is scanned for ground from HORIZONTAL_Y_TOLERANCE below the machine's own plane up to HORIZONTAL_Y_TOLERANCE plus
+    // the field's height above it; every ground block there that is the top of its run (nothing of the same kind on it) is a
+    // work cell, so a column with ground at several levels is worked at each (the field's stories).
     protected List<List<BlockPos>> resolveHorizontalRows(Level level, Direction facing, GroundTest ground,
                                                           boolean showWholeField) {
         int half = getHalfWidth();
@@ -516,9 +556,12 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
             List<BlockPos> row = new ArrayList<>();
             for (int s = -half; s <= half; s++) {
                 BlockPos columnBase = worldPosition.relative(facing, depth).relative(side, s);
-                BlockPos target = scanColumnForGround(level, columnBase, HORIZONTAL_Y_TOLERANCE, ground);
-                if (target == null && showWholeField) target = columnBase; // no ground: mark the machine's own plane
-                if (target != null) row.add(target);
+                int before = row.size();
+                for (int dy = -HORIZONTAL_Y_TOLERANCE; dy <= HORIZONTAL_Y_TOLERANCE + getFieldHeight() - 1; dy++) {
+                    BlockPos groundPos = columnBase.offset(0, dy, 0);
+                    if (ground.test(level, groundPos) && !ground.test(level, groundPos.above())) row.add(groundPos.above());
+                }
+                if (row.size() == before && showWholeField) row.add(columnBase); // no ground: mark the machine's own plane
             }
             steps.add(row); // keep empty rows so the wave keeps a uniform cadence
         }
@@ -526,8 +569,8 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     }
 
     // Vertical facing: a width (X) x length (Z) field centered under/over the machine on the work layer exactly {distance}
-    // blocks along the facing axis (the block right above the ground: the crop cells), swept as concentric square rings
-    // clipped to the field (center first). The distance is the player's setting; the machine does not search for the ground,
+    // blocks along the facing axis (the block right above the ground: the crop cells), and the field's height upward from it
+    // (every layer with ground under its cells), swept as concentric square rings clipped to the field (center first). The distance is the player's setting; the machine does not search for the ground,
     // so a field with no farmland on that layer simply has nothing to work.
     protected List<List<BlockPos>> resolveVerticalRings(Level level, Direction facing, GroundTest ground,
                                                          boolean showWholeField) {
@@ -540,7 +583,12 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         for (int r = 0; r <= Math.max(halfWidth, halfLength); r++) {
             List<BlockPos> ring = new ArrayList<>();
             for (BlockPos p : ringPositions(center, r, halfWidth, halfLength)) {
-                if (showWholeField || ground.test(level, p.below())) ring.add(p);
+                int before = ring.size();
+                for (int dy = 0; dy < getFieldHeight(); dy++) {
+                    BlockPos cell = p.above(dy);
+                    if (ground.test(level, cell.below()) && !ground.test(level, cell)) ring.add(cell);
+                }
+                if (ring.size() == before && showWholeField) ring.add(p);
             }
             steps.add(ring);
         }
@@ -1012,6 +1060,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         tag.putInt("fieldWidth", fieldWidth);
         tag.putInt("fieldLength", fieldLength);
         tag.putInt("fieldDistance", fieldDistance);
+        tag.putInt("fieldHeight", fieldHeight);
         long[] lights = new long[placedLights.size()];
         int lightIndex = 0;
         for (BlockPos p : placedLights) lights[lightIndex++] = p.asLong();
@@ -1031,6 +1080,7 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         if (tag.contains("fieldWidth")) fieldWidth = snapFieldSize(tag.getInt("fieldWidth"));
         if (tag.contains("fieldLength")) fieldLength = snapFieldSize(tag.getInt("fieldLength"));
         if (tag.contains("fieldDistance")) fieldDistance = snapFieldDistance(tag.getInt("fieldDistance"));
+        if (tag.contains("fieldHeight")) fieldHeight = snapFieldHeight(tag.getInt("fieldHeight"));
         placedLights.clear();
         for (long l : tag.getLongArray("lights")) placedLights.add(BlockPos.of(l));
         if (tag.contains("input_inventory")) {

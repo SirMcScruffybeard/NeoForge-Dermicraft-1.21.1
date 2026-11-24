@@ -17,7 +17,7 @@ public final class FarmLayout {
     public static final int AUTO_DISPENSE_X = 77;
     public static final int AUTO_DISPENSE_Y = 7;
 
-    /** The "Field: W x L" readout at the top. */
+    /** The "Field: W x L x H" readout, at the top of the Field tab. */
     public static final int READOUT_X = 7;
     public static final int READOUT_Y = 8;
 
@@ -56,9 +56,17 @@ public final class FarmLayout {
     public static final int FIELD_LENGTH_ROW_Y = 38;
     public static final int FIELD_DISTANCE_ROW_Y = 60;
 
-    /** The preview grid: a box 54 pixels across (9 cells of 6 pixels at the smallest tier), each cell shrinking as the tier's
-     * largest field grows so the same box always fits it. */
-    public static final int FIELD_GRID_PIXELS = 54;
-    public static final int FIELD_GRID_X = 108;
-    public static final int FIELD_GRID_Y = 14;
+    /**
+     * The Field tab's four steppers in two columns of two, each a short label then a minus and a plus: Width and Length down the
+     * left, Height and Distance down the right. The labels are short ('W: 9'); hovering one gives the full name.
+     */
+    public static final int FIELD_ROW_1_Y = 24;
+    public static final int FIELD_ROW_2_Y = 48;
+    public static final int FIELD_LEFT_LABEL_X = 7;
+    public static final int FIELD_LEFT_MINUS_X = 37;
+    public static final int FIELD_LEFT_PLUS_X = 57;
+    public static final int FIELD_RIGHT_LABEL_X = 93;
+    public static final int FIELD_RIGHT_MINUS_X = 123;
+    public static final int FIELD_RIGHT_PLUS_X = 143;
+    public static final int FIELD_LABEL_WIDTH = 28;
 }

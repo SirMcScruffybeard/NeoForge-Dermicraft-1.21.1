@@ -33,6 +33,8 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
     public static final int BUTTON_LENGTH_DOWN = 13;
     public static final int BUTTON_DISTANCE_UP = 14;
     public static final int BUTTON_DISTANCE_DOWN = 15;
+    public static final int BUTTON_HEIGHT_UP = 16;
+    public static final int BUTTON_HEIGHT_DOWN = 17;
 
     private static final int PLAYER_SLOT_COUNT = 36;
 
@@ -134,6 +136,8 @@ public abstract class AbstractFarmMenu<B extends AbstractFarmBlockEntity> extend
             case BUTTON_LENGTH_DOWN -> BE.stepFieldLength(-1);
             case BUTTON_DISTANCE_UP -> BE.stepFieldDistance(1);
             case BUTTON_DISTANCE_DOWN -> BE.stepFieldDistance(-1);
+            case BUTTON_HEIGHT_UP -> BE.stepFieldHeight(1);
+            case BUTTON_HEIGHT_DOWN -> BE.stepFieldHeight(-1);
             default -> {
                 return clickExtraButton(id);
             }
