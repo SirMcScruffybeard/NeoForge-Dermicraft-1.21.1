@@ -21,7 +21,8 @@ public enum MachineStatKey {
     DROOLING_CRUCIBLE("drooling_crucible", MachineFamily.DROOLING),
     DROOLING_GEODE("drooling_geode", MachineFamily.DROOLING),
     MR_FARMER("mr_farmer", MachineFamily.FARM),
-    MR_SHEPHERD("mr_shepherd", MachineFamily.FARM);
+    MR_SHEPHERD("mr_shepherd", MachineFamily.FARM),
+    MR_LOGGER("mr_logger", MachineFamily.FARM);
 
     private final String SECTION_NAME;
     @Nullable

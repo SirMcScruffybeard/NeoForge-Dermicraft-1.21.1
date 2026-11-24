@@ -53,25 +53,13 @@ import net.scruffy.dermicraft.block.entity.custom.base.AbstractFarmBlockEntity;
 public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
 
     // --- Range/wave geometry (see the "Range shape & wave" spec in dermicraft-machine-notes.md) ---
-    private static final int HORIZONTAL_Y_TOLERANCE = 2; // forward: ±this many Y around the machine's own plane
-
     private static final int MAX_MOISTURE = 7; // FarmBlock.MOISTURE range is 0-7; 7 = fully hydrated
-    // Average extra random-ticks per crop/stem per wave visit, per unit of fuel heal rate. Kept
-    // fractional (not a flat int) so early fuel (Crude Slurry, heal ~1.0) averages under 1 extra tick
-    // per visit -- a guaranteed 2 was way too strong for tier-1 fuel (crops grew as fast as they could
-    // be harvested). Better fuel (higher heal) still scales the boost up from here.
-    private static final float GROWTH_ATTEMPTS_PER_HEAL = 0.3f;
     // Extra time a crop stays visibly ripe before the wave harvests it, so maturity is noticeable
     // rather than instant-harvested the moment it ticks over. This is the BASE value at fuel speed
     // 1.0 (Crude Slurry); currentMatureGraceTicks() scales it down for faster fuel -- better fuel
     // both speeds up the wave AND shortens how long ripe crops sit waiting to be picked.
     private static final int MATURE_GRACE_TICKS_BASE = 40; // ~2 extra seconds at speed 1.0
-    private static final int LIGHT_LEVEL = 15;  // invisible Light block brightness placed over the field
-    // Block light is LIGHT_LEVEL at the source and drops 1/block; crops need >=9 to grow, so one light
-    // covers every crop within this many blocks. Used to place a minimal covering set, not one-per-cell.
-    private static final int LIGHT_REACH = LIGHT_LEVEL - 9; // = 6
 
-    private static final int WAVE_COOLDOWN_TICKS = 40;  // pause between full sweeps (not fuel-speed-scaled)
     private static final int BASELINE_ROW_CELLS = 3; // cells in the 3 x 3 field's row: the work one fuel step pays for
     private static final int PREVIEW_PARTICLES_PER_TARGET = 3;
 
@@ -94,10 +82,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     // rather than harvesting the instant a crop ticks over. Transient (not persisted) -- a reload just
     // means an already-ripe crop may be harvested a little early rather than waiting out the remainder.
     private final Map<BlockPos, Long> matureSinceTick = new HashMap<>();
-
-    // Invisible Light blocks this machine has placed over its field. Persisted so they can always be
-    // cleaned up (on unfuel, field change, or removal) even across a reload.
-    private final Set<BlockPos> placedLights = new HashSet<>();
 
     public MrFarmerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MR_FARMER_BE.get(), pos, blockState, 1 + BUFFER_SLOT_COUNT, 1, BUFFER_SLOT_COUNT);
@@ -416,100 +400,12 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         return count - remaining;
     }
 
-    /** Buffer-full rule for products: into the buffer, spilling on the ground if there's no room. */
-    private void overflowToBufferOrDrop(ServerLevel level, BlockPos pos, ItemStack stack) {
-        ItemStack leftover = insertIntoBuffer(stack);
-        if (!leftover.isEmpty()) {
-            Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), leftover);
-        }
-    }
-
     /** Forces farmland to max moisture -- no water source required (re-applied every sweep, so it stays wet). */
     private void hydrate(Level level, BlockPos farmlandPos) {
         BlockState state = level.getBlockState(farmlandPos);
         if (state.is(Blocks.FARMLAND) && state.getValue(FarmBlock.MOISTURE) < MAX_MOISTURE) {
             level.setBlock(farmlandPos, state.setValue(FarmBlock.MOISTURE, MAX_MOISTURE), Block.UPDATE_CLIENTS);
         }
-    }
-
-    // ---- Lighting (invisible Light blocks, tracked for cleanup) ------------------------------
-
-    /** Places an invisible Light block in the given air position and tracks it for later cleanup. */
-    private void placeLight(Level level, BlockPos pos) {
-        if (level.getBlockState(pos).isAir()) {
-            level.setBlock(pos, Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, LIGHT_LEVEL),
-                    Block.UPDATE_CLIENTS);
-            placedLights.add(pos.immutable());
-        }
-    }
-
-    /** Removes one tracked Light block from the world if it's still ours (leaves other blocks alone). */
-    private void removeLight(Level level, BlockPos pos) {
-        if (level.getBlockState(pos).is(Blocks.LIGHT)) {
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
-        }
-    }
-
-    /** Extinguishes and forgets every placed Light block. No-op if none are placed. */
-    private void clearAllLights(Level level) {
-        if (placedLights.isEmpty()) return;
-        for (BlockPos p : placedLights) removeLight(level, p);
-        placedLights.clear();
-        setChanged();
-    }
-
-    /**
-     * Greedy minimal covering set: walk the field's crop cells and only choose a new light where the
-     * cell isn't already lit >=9 by an already-chosen one. Lights are placed one block ABOVE the chosen
-     * crop cell (so no crop cell is blocked). Returns the light-block positions to maintain.
-     */
-    private Set<BlockPos> computeLightPositions(List<List<BlockPos>> steps) {
-        List<BlockPos> chosen = new ArrayList<>(); // crop cells picked to host an above-light
-        for (List<BlockPos> step : steps) {
-            for (BlockPos cell : step) {
-                boolean covered = false;
-                for (BlockPos c : chosen) {
-                    if (c.above().distManhattan(cell) <= LIGHT_REACH) { covered = true; break; }
-                }
-                if (!covered) chosen.add(cell);
-            }
-        }
-        Set<BlockPos> lights = new HashSet<>();
-        for (BlockPos c : chosen) lights.add(c.above().immutable());
-        return lights;
-    }
-
-    /** Removes any placed lights not in the desired covering set (e.g. after the range shrank). */
-    private void reconcileLights(Level level, Set<BlockPos> desired) {
-        Iterator<BlockPos> it = placedLights.iterator();
-        boolean removedAny = false;
-        while (it.hasNext()) {
-            BlockPos p = it.next();
-            if (!desired.contains(p)) {
-                removeLight(level, p);
-                it.remove();
-                removedAny = true;
-            }
-        }
-        if (removedAny) setChanged();
-    }
-
-    /** Called from the block on removal so the field doesn't keep our lights after the machine is gone. */
-    public void extinguishLights() {
-        if (level != null) clearAllLights(level);
-    }
-
-    private boolean isAllEmpty(List<List<BlockPos>> steps) {
-        for (List<BlockPos> s : steps) {
-            if (!s.isEmpty()) return false;
-        }
-        return true;
-    }
-
-    // Strict farmland test used by the farming wave (vs. the preview's permissive surface test).
-    // TODO: broaden to modded farmland (no vanilla farmland tag exists; revisit when needed).
-    private boolean isFarmland(Level level, BlockPos pos) {
-        return level.getBlockState(pos).is(Blocks.FARMLAND);
     }
 
     // ---- Range preview (particle-only; loops the sweep, then fades) --------------------------
@@ -551,111 +447,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         } else {
             previewWaveTimer = currentWaveStepTicks(); // mirrors the real wave's fuel-speed pacing
         }
-    }
-
-    // ---- Target resolution -------------------------------------------------------------------
-    // Returns the sweep as an ordered list of steps; each step is the set of crop positions (the
-    // block directly above a qualifying ground block) processed together in one wave tick. The
-    // ground test decides what counts as a valid base -- any surface for the preview, farmland
-    // for actual farming. The field is the player's width x length (both odd, see AbstractFarmBlockEntity).
-
-    @FunctionalInterface
-    private interface GroundTest {
-        boolean test(Level level, BlockPos groundPos);
-    }
-
-    /** {@code showWholeField}: keep a cell even where there is no qualifying ground (the preview, so the field's boundary shows
-     *  wherever it is; the work passes false and only ever gets real ground). */
-    private List<List<BlockPos>> resolveWaveSteps(Level level, GroundTest ground, boolean showWholeField) {
-        Direction facing = getFacing();
-        if (facing.getAxis().isVertical()) {
-            return resolveVerticalRings(level, facing, ground, showWholeField);
-        }
-        return resolveHorizontalRows(level, facing, ground, showWholeField);
-    }
-
-    // Horizontal facing: a width-wide x length-deep field projected in front, starting {distance} blocks out and swept row by row
-    // (nearest first).
-    // Each column scans ±HORIZONTAL_Y_TOLERANCE around the machine's own plane for the topmost ground.
-    private List<List<BlockPos>> resolveHorizontalRows(Level level, Direction facing, GroundTest ground,
-                                                          boolean showWholeField) {
-        int half = getHalfWidth();
-        Direction side = facing.getClockWise();
-        List<List<BlockPos>> steps = new ArrayList<>();
-
-        for (int depth = getFieldDistance(); depth < getFieldDistance() + getFieldLength(); depth++) {
-            List<BlockPos> row = new ArrayList<>();
-            for (int s = -half; s <= half; s++) {
-                BlockPos columnBase = worldPosition.relative(facing, depth).relative(side, s);
-                BlockPos target = scanColumnForGround(level, columnBase, HORIZONTAL_Y_TOLERANCE, ground);
-                if (target == null && showWholeField) target = columnBase; // no ground: mark the machine's own plane
-                if (target != null) row.add(target);
-            }
-            steps.add(row); // keep empty rows so the wave keeps a uniform cadence
-        }
-        return steps;
-    }
-
-    // Vertical facing: a width (X) x length (Z) field centered under/over the machine on the work layer exactly {distance}
-    // blocks along the facing axis (the block right above the ground: the crop cells), swept as concentric square rings
-    // clipped to the field (center first). The distance is the player's setting; the machine does not search for the ground,
-    // so a field with no farmland on that layer simply has nothing to work.
-    private List<List<BlockPos>> resolveVerticalRings(Level level, Direction facing, GroundTest ground,
-                                                         boolean showWholeField) {
-        int halfWidth = getHalfWidth();
-        int halfLength = getHalfLength();
-
-        BlockPos center = worldPosition.relative(facing, getFieldDistance());
-
-        List<List<BlockPos>> steps = new ArrayList<>();
-        for (int r = 0; r <= Math.max(halfWidth, halfLength); r++) {
-            List<BlockPos> ring = new ArrayList<>();
-            for (BlockPos p : ringPositions(center, r, halfWidth, halfLength)) {
-                if (showWholeField || ground.test(level, p.below())) ring.add(p);
-            }
-            steps.add(ring);
-        }
-        return steps;
-    }
-
-    /** Scans a column ±yTolerance (topmost first) for qualifying ground; returns the crop position above it, or null. */
-    @Nullable
-    private BlockPos scanColumnForGround(Level level, BlockPos base, int yTolerance, GroundTest ground) {
-        for (int dy = yTolerance; dy >= -yTolerance; dy--) {
-            BlockPos groundPos = base.offset(0, dy, 0);
-            if (ground.test(level, groundPos)) {
-                return groundPos.above();
-            }
-        }
-        return null;
-    }
-
-    /** Crop positions on the horizontal plane at exactly Chebyshev distance r from center (r=0 is the center),
-     *  clipped to the field's rectangle (halfWidth along X, halfLength along Z). */
-    private List<BlockPos> ringPositions(BlockPos center, int r, int halfWidth, int halfLength) {
-        List<BlockPos> ring = new ArrayList<>();
-        if (r == 0) {
-            ring.add(center);
-            return ring;
-        }
-        for (int x = -r; x <= r; x++) {
-            for (int z = -r; z <= r; z++) {
-                if (Math.abs(x) > halfWidth || Math.abs(z) > halfLength) continue; // outside the field
-                if (Math.max(Math.abs(x), Math.abs(z)) == r) {
-                    ring.add(center.offset(x, 0, z));
-                }
-            }
-        }
-        return ring;
-    }
-
-    // Preview ground test: any solid top a crop could sit on (dirt, grass, path, stone, farmland...),
-    // so the preview lights up the whole reachable footprint and the player can see what still needs
-    // tilling. The top-down column scan naturally passes over vegetation/crops to the real ground.
-    private boolean isGroundSurface(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        if (state.isAir() || !state.getFluidState().isEmpty()) return false;
-        return state.isFaceSturdy(level, pos, Direction.UP) || state.is(Blocks.FARMLAND);
     }
 
     // The bottom face is an output only: the harvest buffer out, nothing in. The Farmer's only tank is the fuel tank, so the
@@ -705,25 +496,13 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     }
 
     @Override
-    protected void dropExtras() {
-        extinguishLights();
-    }
-
-    @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        long[] lights = new long[placedLights.size()];
-        int i = 0;
-        for (BlockPos p : placedLights) lights[i++] = p.asLong();
-        tag.putLongArray("lights", lights);
-
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        placedLights.clear();
-        for (long l : tag.getLongArray("lights")) placedLights.add(BlockPos.of(l));
 
     }
 

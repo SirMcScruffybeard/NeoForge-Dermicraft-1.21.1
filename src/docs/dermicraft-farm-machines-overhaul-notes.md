@@ -299,3 +299,34 @@ saplings (Mr. Logger, later).
   old reserve and its save data are gone (no old-world compatibility).
 - **Shift-click** from the player's inventory goes only to the input row (a bucket no longer shift-clicks into the fuel slot).
 - **Gate:** an input channel (fill only) between fuel and the output; `describeFace` is unchanged since every face routes the same.
+
+## Mr. Logger built (2026-11-23)
+
+Decisions this round (user): **any log in the field counts** (no natural-leaves check: a log structure in the field is the player's
+own fault); a felling takes everything connected (reach and cap as proposed); **fuel for felling is a number of logs per fuel step,
+adjustable** (`farm.logsPerFuelStep`, default 8); **it speeds up sapling growth** like Farmer does crops; **the leaf toggle lives on Home**.
+Correction to the earlier record: "Logger produces light like Farmer" meant the **invisible Light blocks over the field** (saplings need
+light to grow), not only the status light. Both are built.
+
+- `MrLoggerBlock`/`MrLoggerBlockEntity` (extends `AbstractFarmBlockEntity`), `MrLoggerMenu`/`MrLoggerScreen`, `MR_LOGGER_BE`,
+  `MR_LOGGER_MENU`, the Gate and capability registrations, the overlay renderer, the creative tab, the tags, `MachineStatKey.MR_LOGGER`
+  (FARM family: the same tiers, 9/13/17/21 field, 3/6/9/12 input row, Module tab). Textures: `block/farm_machine/mr_logger/`; the light
+  mount is centered both ways (x 5, y 5).
+- **Work:** one row or ring of the field per step. For each cell, the first log in the column above it (up to 40 blocks) is a tree; every
+  log connected to it (corners count) is felled, up to 256. The leaves within 5 blocks of a felled log are broken too when the toggle is
+  on (up to 1024); with it off they decay as in vanilla and the drops are picked up. Everything it breaks goes to the output buffer
+  except saplings: the greater half to the buffer, the rest to the input row (the same split as Farmer's carrots), whether broken or
+  picked up. Pickup covers the field, a block wider, and as tall as a tree; never a player's own thrown items.
+- **Planting:** every empty cell with ground a sapling survives on gets one, the species it just felled if the input row has it, else a
+  random sapling from the row. The species comes from the log's name (`oak_log` to `oak_sapling`, mangrove to its propagule, and any mod
+  wood named the same way). Saplings get extra random ticks from the fuel's heal rate (`GROWTH_ATTEMPTS_PER_HEAL`, shared with Farmer).
+- **Fuel:** felling, one step per `logsPerFuelStep` logs; planting, one step per three cells planted (the other machines' baseline);
+  breaking leaves and gathering are free. The input row takes saplings only.
+- **Lights:** a minimal covering set of invisible Light blocks over the field, as Farmer. A tree grows through them because
+  `minecraft:light` is added to the `replaceable_by_trees` block tag (generated at `data/minecraft/tags/block/`); the next sweep puts the
+  light back where it is air.
+- **Home tab:** a leaf button (a leaf block, crossed out while leaves are left alone) above the fuel row.
+- Shared code moved into `AbstractFarmBlockEntity` for it: the field geometry (rows and rings), the Light blocks, item pickup with a
+  routing hook, the output-or-drop rule, and the growth constant. Farmer and Shepherd use them unchanged.
+- **Not done:** a crafting recipe (so it is reachable only from the creative tab for now; flagged, the machine recipes are yours to
+  decide) and its place in the stage timeline. Untested in game.

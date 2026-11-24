@@ -25,6 +25,10 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
 
         ;
 
+        // A tree grows through Mr. Logger's invisible Light blocks instead of failing to grow around them.
+        tag(net.minecraft.tags.BlockTags.REPLACEABLE_BY_TREES)
+                .add(net.minecraft.world.level.block.Blocks.LIGHT);
+
         tag(ModTags.Blocks.UPGRADE_STICK_TARGETS)
                 .add(ModBlocks.MASTICATOR.get())
                 .add(ModBlocks.METASTASIZER.get())
@@ -36,7 +40,8 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.SKIN_TANK.get())
                 .add(ModBlocks.CRAW.get())
                 .add(ModBlocks.MR_FARMER.get())
-                .add(ModBlocks.MR_SHEPHERD.get());
+                .add(ModBlocks.MR_SHEPHERD.get())
+                .add(ModBlocks.MR_LOGGER.get());
 
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)
@@ -66,6 +71,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.INNARDS_GATE_PORT.get())
                 .add(ModBlocks.MR_FARMER.get())
                 .add(ModBlocks.MR_SHEPHERD.get())
+                .add(ModBlocks.MR_LOGGER.get())
                 .addTag(ModTags.Blocks.LAB_FLOOR)
                 // Bottom half only -- the top is a purely visual companion with no item of its own
                 // worth recovering; WorkbenchBlock's own onRemove already takes it with the bottom.
@@ -151,6 +157,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.CRAW.get())
                 .add(ModBlocks.MR_FARMER.get())
                 .add(ModBlocks.MR_SHEPHERD.get())
+                .add(ModBlocks.MR_LOGGER.get())
         ;
 
         tag(ModTags.Blocks.INJECTABLE)

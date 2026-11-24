@@ -72,6 +72,9 @@ public class ModMenuTypes {
     public static final DeferredHolder<MenuType<?>, MenuType<net.scruffy.dermicraft.screen.custom.mr_shepherd.MrShepherdMenu>> MR_SHEPHERD_MENU =
             registerMenuType("mr_shepherd_menu", net.scruffy.dermicraft.screen.custom.mr_shepherd.MrShepherdMenu::new);
 
+    public static final DeferredHolder<MenuType<?>, MenuType<net.scruffy.dermicraft.screen.custom.mr_logger.MrLoggerMenu>> MR_LOGGER_MENU =
+            registerMenuType("mr_logger_menu", net.scruffy.dermicraft.screen.custom.mr_logger.MrLoggerMenu::new);
+
     public static final DeferredHolder<MenuType<?>, MenuType<MutatorMenu>> MUTATOR_MENU =
             registerMenuType("mutator_menu", MutatorMenu::new);
 

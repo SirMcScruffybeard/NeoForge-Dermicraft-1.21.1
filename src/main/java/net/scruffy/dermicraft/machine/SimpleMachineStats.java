@@ -73,6 +73,11 @@ public final class SimpleMachineStats {
         return Math.max(0, Math.min(12, StatTable.toInt(StatConfig.getCurrent().inputSlotsFor(machine)[state.tier() - 1])));
     }
 
+    /** How many logs Mr. Logger fells for one fuel step (a server config number, the same at every tier). */
+    public static int getLogsPerFuelStep() {
+        return Math.max(1, StatTable.toInt(StatConfig.getCurrent().logsPerFuelStep()));
+    }
+
     /** The furthest a farm machine's field may sit from it at this tier; Overgrowth adds none. */
     public static int getMaxFieldDistance(@Nullable MachineStatKey machine, EvolutionStateData state) {
         return Math.max(1, StatTable.toInt(StatConfig.getCurrent().fieldDistanceFor(machine)[state.tier() - 1]));

@@ -13,7 +13,7 @@ record StatValues(
         double[] itemTransfer, double[] fluidTransfer, int[] moduleSlots,
         double[] simpleMachineSpeed, double[] simpleMachineFuelUse,
         double[] simpleMachineMaxHealth, double[] simpleMachineTankCapacityMb, double[] simpleMachinePassiveYield,
-        double[] skinTankCapacityMb, double[] crawStacks, double[] fieldSize, double[] fieldDistance, double[] inputSlots,
+        double[] skinTankCapacityMb, double[] crawStacks, double[] fieldSize, double[] fieldDistance, double[] inputSlots, double logsPerFuelStep,
         double overgrowthPercent, int overgrowthMaxLevel,
         int hungerDamagePerCycle, float unfueledSpeed,
         double[] evolutionTierSeconds, double evolutionHazardNewSeconds, double evolutionHazardUpgradeSeconds,

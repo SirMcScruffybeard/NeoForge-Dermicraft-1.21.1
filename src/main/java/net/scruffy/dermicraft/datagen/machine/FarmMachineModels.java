@@ -35,6 +35,9 @@ public class FarmMachineModels {
     /** Mr. Shepherd's front: the mount 4 pixels down and 2 in from the right edge (x 8 to 13, y 6 to 11). */
     public static final MachineFaceLayout SHEPHERD_FRONT = new MachineFaceLayout(Direction.NORTH, 8, 6, List.of());
 
+    /** Mr. Logger's front: the mount centered both ways (x 5 to 10, y 5 to 10). */
+    public static final MachineFaceLayout LOGGER_FRONT = new MachineFaceLayout(Direction.NORTH, 5, 5, List.of());
+
     private static final String FARM_MACHINE_DIR = BLOCK_DIR + "/farm_machine";
     private static final String PLATE = SIMPLE_MACHINE_DIR + "/plate/l_plate";
     private static final String LIGHT_OFF = SIMPLE_MACHINE_DIR + LIGHT_DIR + "/light_off";

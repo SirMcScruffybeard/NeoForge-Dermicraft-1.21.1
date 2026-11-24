@@ -411,6 +411,13 @@
   "blockEntity.dermicraft.mr_farmer_be": "Mr. Farmer",
 
   "block.dermicraft.mr_shepherd": "Mr. Shepherd",
+  "block.dermicraft.mr_logger": "Mr. Logger",
+  "blockEntity.dermicraft.mr_logger_be": "Mr. Logger",
+  "tooltip.dermicraft.idep.face.mr_logger": "Fuel tank (+ sapling row and output buffer)",
+  "tooltip.dermicraft.idep.face.mr_logger.bottom": "Output buffer (drain only)",
+  "tooltip.dermicraft.slot.sapling": "Saplings",
+  "tooltip.dermicraft.mr_logger.leaves_on": "Leaves: broken with the tree (click to leave them)",
+  "tooltip.dermicraft.mr_logger.leaves_off": "Leaves: left to decay (click to break them)",
   "blockEntity.dermicraft.mr_shepherd_be": "Mr. Shepherd",
 
   "block.dermicraft.innards_duct": "Innards Duct",

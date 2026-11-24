@@ -277,30 +277,6 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
 
     // ---- Item pickup ----------------------------------------------------------------------------
 
-    private boolean collectItems(ServerLevel level, AABB area) {
-        boolean any = false;
-        for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, area, ItemEntity::isAlive)) {
-            // Never take a player's own belongings. ItemEntity#getOwner() (TraceableEntity) returns
-            // whoever threw the stack, and Player#drop sets it -- for both deliberate throws and death
-            // drops -- so this is what actually stops Shepherd hoovering up your inventory when you die
-            // inside the pen. Machine output and mob loot both have a null thrower and pass through.
-            if (itemEntity.getOwner() instanceof Player) continue;
-
-            // Also honour the vanilla pickup grace period. On its own this is weak protection (only
-            // ~10 ticks, well under one work cycle), but it costs nothing and covers other sources.
-            if (itemEntity.hasPickUpDelay()) continue;
-
-            ItemStack stack = itemEntity.getItem();
-            ItemStack leftover = insertIntoBuffer(stack.copy());
-            int taken = stack.getCount() - leftover.getCount();
-            if (taken > 0) {
-                stack.shrink(taken);
-                if (stack.isEmpty()) itemEntity.discard();
-                any = true;
-            }
-        }
-        return any;
-    }
 
     // ---- XP pickup ------------------------------------------------------------------------------
     // Same pickup area and work cycle as collectItems() -- called right alongside it in tick(), so

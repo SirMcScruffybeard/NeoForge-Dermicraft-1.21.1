@@ -114,6 +114,13 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_SHEPHERD_BE.get(),
                 net.scruffy.dermicraft.block.entity.custom.MrShepherdBlockEntity::getAutomationItemHandler);
 
+        // Mr. Logger: the same shape as the other farm machines. Every machine with its own block entity type needs its
+        // own entries here, or pipes and buckets silently find nothing.
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MR_LOGGER_BE.get(),
+                net.scruffy.dermicraft.block.entity.custom.MrLoggerBlockEntity::getTank);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_LOGGER_BE.get(),
+                net.scruffy.dermicraft.block.entity.custom.MrLoggerBlockEntity::getAutomationItemHandler);
+
         // Node: item automation is exposed via getItemHandler(Direction), which restricts any
         // direction-based (capability) query to the transport buffer slot only -- the GUI-only
         // fluid-handler slot stays unreachable by pipes/hoppers/other Nodes regardless.

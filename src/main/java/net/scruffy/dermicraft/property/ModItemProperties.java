@@ -125,6 +125,7 @@ public class ModItemProperties {
         registerEvolutionLook(ModBlocks.CRAW.asItem());
         registerEvolutionLook(ModBlocks.MR_FARMER.asItem());
         registerEvolutionLook(ModBlocks.MR_SHEPHERD.asItem());
+        registerEvolutionLook(ModBlocks.MR_LOGGER.asItem());
     }
 
     /** The "tier" and "overgrowth" properties of a machine's item, read from its EVOLUTION_STATE component. Overgrowth

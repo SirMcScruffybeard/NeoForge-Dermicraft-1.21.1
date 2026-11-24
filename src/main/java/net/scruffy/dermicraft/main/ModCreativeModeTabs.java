@@ -75,6 +75,7 @@ public class ModCreativeModeTabs {
                         output.accept(ModBlocks.METASTASIZER);
                         output.accept(ModBlocks.MR_FARMER);
                         output.accept(ModBlocks.MR_SHEPHERD);
+                        output.accept(ModBlocks.MR_LOGGER);
                         output.accept(ModBlocks.MUTATOR);
                         output.accept(ModBlocks.OUTERFACE);
                         output.accept(ModBlocks.RENDER_FURNACE);

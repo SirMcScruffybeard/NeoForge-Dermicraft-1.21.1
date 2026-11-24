@@ -184,6 +184,9 @@ public class ModBlockStateProvider extends BlockStateProvider {
         new FarmMachineModels(this).register(ModBlocks.MR_SHEPHERD.get(), "mr_shepherd", FarmMachineModels.SHEPHERD_FRONT,
                 AbstractFarmBlock.FACING, AbstractFarmBlock.ACTIVE);
 
+        new FarmMachineModels(this).register(ModBlocks.MR_LOGGER.get(), "mr_logger", FarmMachineModels.LOGGER_FRONT,
+                AbstractFarmBlock.FACING, AbstractFarmBlock.ACTIVE);
+
 
         ////////////////////Innards Gate\\\\\\\\\\\\\\\\\\\\
         simpleBlockWithItem(ModBlocks.INNARDS_GATE_CONTROLLER.get(), models().cubeAll("innards_gate_controller",
