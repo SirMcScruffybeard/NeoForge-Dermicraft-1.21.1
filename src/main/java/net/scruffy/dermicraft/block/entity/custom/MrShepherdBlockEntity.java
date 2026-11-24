@@ -526,6 +526,13 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
                 : super.describeFluidFace(face);
     }
 
+    /** The output buffer as usual, plus the Knowledge Colloid into the block below. */
+    @Override
+    protected void drainOutputs(Level level) {
+        super.drainOutputs(level);
+        if (!XP_TANK.isEmpty()) XP_TANK.pushFluidToBelowNeighbour(level, worldPosition);
+    }
+
     /** Any item may sit in the feed row (a stack that is not food for any animal just stays unused), as before. */
     @Override
     protected boolean isInputItemValid(ItemStack stack) {

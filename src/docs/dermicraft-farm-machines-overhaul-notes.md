@@ -345,3 +345,10 @@ All farm machines (`AbstractFarmBlock`): a fluid container the fuel tank cannot 
 bare hand instead of doing nothing; a usable one still fills or drains the fuel tank. A Module in hand (a general Module or an Evolution
 Module) opens the GUI on the Module tab. The server's menu reads the requested tab off the block entity and the client's from the open
 packet's extra data. The Mr. Logger recipe stays as built, the same implant as the other two (user, 2026-11-23).
+
+## Auto-dispense (built 2026-11-23)
+
+Every farm machine has the processing machines' auto-dispense toggle (on by default, the shared `autoDrainEnabled` flag and its click
+packet) at x 77, y 7 on Home, between the "Field: W x L" readout and the input row. Every 5 seconds, fuel or no fuel, it pushes the output
+buffer into the block below (an inventory, a duct or a Gate Port); Mr. Shepherd also pushes its Knowledge Colloid there. Mr. Logger's leaf
+toggle now crosses itself out with the new `no_use_red_overlay` texture.

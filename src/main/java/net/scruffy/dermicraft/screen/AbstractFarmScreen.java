@@ -66,6 +66,12 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
     private static final ResourceLocation MINUS_BUTTON_PRESSED =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "minus_button_pressed.png");
     protected static final int STEPPER_SIZE = 18;
+
+    // The auto-dispense toggle, the same icons the processing machines use (output arrow turned on its side for ON, no-use for OFF).
+    private static final ResourceLocation AUTO_DISPENSE_ON_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "output_button.png");
+    private static final ResourceLocation AUTO_DISPENSE_OFF_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, BUTTONS_DIR + "no_use_button.png");
     private static final int PRESS_FLASH_TICKS = 4; // how long the _pressed art stays up
 
     // Click for precision, hold to accelerate. The delay before the value starts running is what preserves precision --
@@ -218,6 +224,13 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
             return true;
         }
 
+        if (menu.getActiveTab() == AbstractFarmMenu.HOME_TAB && MouseUtil.isMouseOver((int) mouseX, (int) mouseY,
+                x + FarmLayout.AUTO_DISPENSE_X, y + FarmLayout.AUTO_DISPENSE_Y, STEPPER_SIZE, STEPPER_SIZE)) {
+            net.neoforged.neoforge.network.PacketDistributor.sendToServer(
+                    new net.scruffy.dermicraft.network.AutoDrainToggleClickPayload(menu.BE.getBlockPos()));
+            return true;
+        }
+
         for (Stepper stepper : steppers) {
             if (stepper.tab() == menu.getActiveTab() && MouseUtil.isMouseOver((int) mouseX, (int) mouseY,
                     x + stepper.x(), y + stepper.y(), STEPPER_SIZE, STEPPER_SIZE)) {
@@ -268,6 +281,14 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
             }
             renderGauge(guiGraphics, fuelRenderer, menu.BE.getFuelTank().getFluid(),
                     x + FarmLayout.FUEL_GAUGE_X, y + FarmLayout.FUEL_GAUGE_Y);
+            int dispenseX = x + FarmLayout.AUTO_DISPENSE_X;
+            int dispenseY = y + FarmLayout.AUTO_DISPENSE_Y;
+            if (menu.BE.isAutoDrainEnabled()) {
+                blitRotated90(guiGraphics, AUTO_DISPENSE_ON_TEXTURE, dispenseX, dispenseY, STEPPER_SIZE);
+            } else {
+                guiGraphics.blit(AUTO_DISPENSE_OFF_TEXTURE, dispenseX, dispenseY, 0, 0, STEPPER_SIZE, STEPPER_SIZE,
+                        STEPPER_SIZE, STEPPER_SIZE);
+            }
             renderHomeExtras(guiGraphics, x, y);
         } else if (tab == AbstractFarmMenu.FIELD_TAB) {
             int maxSize = menu.BE.getMaxFieldSize();
@@ -328,6 +349,11 @@ public abstract class AbstractFarmScreen<M extends AbstractFarmMenu<?>> extends 
                 renderItemSlotTooltipArea(guiGraphics, mouseX, mouseY, x, y,
                         FarmLayout.getInputSlotX(i) + 1, FarmLayout.getInputSlotY(i) + 1,
                         menu.BE.getInputInventory().getStackInSlot(i), getInputSlotTooltip());
+            }
+            if (MouseUtil.isMouseOver(mouseX, mouseY, x + FarmLayout.AUTO_DISPENSE_X, y + FarmLayout.AUTO_DISPENSE_Y,
+                    STEPPER_SIZE, STEPPER_SIZE)) {
+                guiGraphics.renderTooltip(this.font, Component.translatable("tooltip.dermicraft.machine.auto_dispense"
+                        + (menu.BE.isAutoDrainEnabled() ? "_on" : "_off")), mouseX - x, mouseY - y);
             }
             renderHomeLabels(guiGraphics, mouseX, mouseY, x, y);
         } else if (tab == AbstractFarmMenu.FIELD_TAB) {

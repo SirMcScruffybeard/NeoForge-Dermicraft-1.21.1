@@ -12,6 +12,11 @@ public final class FarmLayout {
     public static final int SLOT_SIZE = 18;
 
     // ---- Home tab ----
+    /** The auto-dispense button: the top band between the "Field: W x L" readout (which ends about x 74 at its widest) and the
+     * input row (which starts at x 97). */
+    public static final int AUTO_DISPENSE_X = 77;
+    public static final int AUTO_DISPENSE_Y = 7;
+
     /** The "Field: W x L" readout at the top. */
     public static final int READOUT_X = 7;
     public static final int READOUT_Y = 8;

@@ -22,7 +22,7 @@ public class MrLoggerScreen extends AbstractFarmScreen<MrLoggerMenu> {
     private static final ResourceLocation BUTTON_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/buttons/blank_button.png");
     private static final ResourceLocation OFF_OVERLAY_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/buttons/no_use_overlay.png");
+            ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/buttons/no_use_red_overlay.png");
     private static final ItemStack LEAF_ICON = new ItemStack(Items.OAK_LEAVES);
 
     public MrLoggerScreen(MrLoggerMenu menu, Inventory playerInventory, Component title) {

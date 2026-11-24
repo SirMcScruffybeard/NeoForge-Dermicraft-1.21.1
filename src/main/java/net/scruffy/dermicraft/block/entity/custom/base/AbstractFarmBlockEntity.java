@@ -650,6 +650,9 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         if (level.isClientSide) return;
         syncEvolutionBlockState(); // mirrors the tier and Overgrowth stage into the block state, which picks the plate and accents
 
+        // Auto-dispense: the output goes to whatever is below, fuel or no fuel (output is never held hostage by an empty tank).
+        if (autoDrainEnabled && net.scruffy.dermicraft.util.ModMath.Time.hasSecondsPassed(level, 5)) drainOutputs(level);
+
         tickRangePreview(level); // free, runs unfueled: it's a siting guide, not machine work
 
         if (!FUEL_TANK.hasEnoughFuel(fuelPerStep())) {
@@ -830,6 +833,16 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         List<Channel> channels = new ArrayList<>();
         addChannels(channels, exposeFluid, exposeItem);
         return channels;
+    }
+
+    /** Pushes the output buffer into the block below (an inventory, a duct or a Gate Port), as the processing machines do. A machine
+     * with another output (Mr. Shepherd's Knowledge Colloid) overrides this and adds it. */
+    protected void drainOutputs(Level level) {
+        for (int slot = bufferStartSlot; slot < bufferStartSlot + bufferSlotCount; slot++) {
+            if (!INVENTORY.getStackInSlot(slot).isEmpty()) {
+                net.scruffy.dermicraft.util.ModItemUtil.pushItemToBelowNeighbour(level, worldPosition, INVENTORY, slot);
+            }
+        }
     }
 
     /** The fuel channel every farm machine has. */
