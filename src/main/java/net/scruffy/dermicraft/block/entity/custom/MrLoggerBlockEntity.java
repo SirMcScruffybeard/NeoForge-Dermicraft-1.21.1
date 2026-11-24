@@ -66,6 +66,8 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
 
     /** Whether the leaves of a felled tree are broken (true) or left to decay (false). */
     private boolean breakLeaves = true;
+    /** Whether the saplings get extra random ticks (faster growth), which costs fuel. */
+    private boolean accelerateGrowth = true;
 
     // Transient sweep state: a sweep is a list of ordered steps (rows or rings), one per wave tick.
     private List<List<BlockPos>> waveSteps = null;
@@ -99,6 +101,16 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
 
     public void toggleBreakLeaves() {
         breakLeaves = !breakLeaves;
+        setChanged();
+        updateBlock();
+    }
+
+    public boolean isAcceleratingGrowth() {
+        return accelerateGrowth;
+    }
+
+    public void toggleAccelerateGrowth() {
+        accelerateGrowth = !accelerateGrowth;
         setChanged();
         updateBlock();
     }
@@ -174,6 +186,7 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
         boolean worked = false;
         int logs = 0;
         int planted = 0;
+        int boosted = 0;
         for (BlockPos cell : step) {
             Block species = null;
             int felled = fellTree(serverLevel, cell);
@@ -184,7 +197,10 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
             }
             BlockState state = level.getBlockState(cell);
             if (state.getBlock() instanceof SaplingBlock) {
-                accelerateSapling(serverLevel, cell, state);
+                if (accelerateGrowth) {
+                    accelerateSapling(serverLevel, cell, state);
+                    boosted++;
+                }
             } else if (plantSapling(serverLevel, cell, species)) {
                 planted++;
                 worked = true;
@@ -194,6 +210,7 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
 
         if (logs > 0) burnFuel(logs / (float) SimpleMachineStats.getLogsPerFuelStep());
         if (planted > 0) burnFuel(planted / (float) CELLS_PER_PLANTING_STEP);
+        if (boosted > 0) burnFuel(boosted / (float) CELLS_PER_PLANTING_STEP); // speeding saplings along costs fuel, per sapling, like planting
         if (worked) tickGradualProgress(currentWaveStepTicks()); // real production toward an evolution
 
         waveCursor++;
@@ -440,12 +457,14 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putBoolean("breakLeaves", breakLeaves);
+        tag.putBoolean("accelerateGrowth", accelerateGrowth);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         breakLeaves = !tag.contains("breakLeaves") || tag.getBoolean("breakLeaves");
+        accelerateGrowth = !tag.contains("accelerateGrowth") || tag.getBoolean("accelerateGrowth");
     }
 
     @Nullable

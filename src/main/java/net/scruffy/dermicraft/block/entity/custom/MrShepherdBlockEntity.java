@@ -123,10 +123,10 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         return "mr_shepherd";
     }
 
-    /** A pen is naturally tall: it starts at the nine blocks the Shepherd always reached (four either side of its plane). */
+    /** A pen starts two blocks tall: the machine's own layer and the one above it. */
     @Override
     protected int getDefaultFieldHeight() {
-        return 9;
+        return 2;
     }
 
     @Override
@@ -240,7 +240,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
      * The working volume, the player's field. Horizontal mounts cover from {@code distance - 1} blocks ahead (the machine's
      * OWN row at the default distance of 1) through {@code length} blocks further, {@code width} blocks across, centered on
      * the machine. Vertical mounts cover a width (X) x length (Z) box centered {@code distance} blocks out along the facing,
-     * the layer the animals stand on. Both reach from one block below that layer up to the field's height (the pen's height).
+     * the layer the animals stand on. Both reach from that layer up to the field's height (the pen's height).
      */
     private AABB workArea() {
         int halfWidth = getHalfWidth();
@@ -250,8 +250,8 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         if (facing.getAxis().isVertical()) {
             BlockPos center = worldPosition.relative(facing, getFieldDistance());
             return new AABB(
-                    center.getX() - halfWidth, center.getY() - 1, center.getZ() - halfLength,
-                    center.getX() + halfWidth + 1, center.getY() - 1 + getFieldHeight(), center.getZ() + halfLength + 1);
+                    center.getX() - halfWidth, center.getY(), center.getZ() - halfLength,
+                    center.getX() + halfWidth + 1, center.getY() + getFieldHeight(), center.getZ() + halfLength + 1);
         }
 
         // Depth starts at 0 -- the machine's own row -- not 1 block ahead like Mr. Farmer's. A Shepherd
@@ -261,7 +261,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         int start = getFieldDistance() - 1;
         AABB box = new AABB(worldPosition.relative(facing, start).relative(side, -halfWidth))
                 .minmax(new AABB(worldPosition.relative(facing, start + getFieldLength()).relative(side, halfWidth)));
-        return new AABB(box.minX, box.minY - 1, box.minZ, box.maxX, box.minY - 1 + getFieldHeight(), box.maxZ);
+        return new AABB(box.minX, box.minY, box.minZ, box.maxX, box.minY + getFieldHeight(), box.maxZ);
     }
 
     /**

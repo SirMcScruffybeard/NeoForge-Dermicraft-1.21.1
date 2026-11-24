@@ -382,3 +382,12 @@ taller than the machine's height).
 - **Field tab:** the square field display is gone. The readout (now "Field: W x L x H") moved here from Home, and the four steppers are in two
   columns: Width and Length on the left, Height and Distance on the right, with short labels ("W: 9") and the full name and the tier's maximum
   on hover.
+
+## Shepherd height and Logger growth toggle (built 2026-11-23)
+
+- **Shepherd's default height is 2** (its own layer and the one above), and its box now starts at its own layer instead of one block below it
+  (the preview showed a block under the machine). The old 9 / one-below behavior is gone.
+- **Mr. Logger: accelerated sapling growth is a toggle** (a bone meal button beside the leaf toggle on Home, on by default, crossed out in
+  red when off), and while on it **costs fuel**: one fuel step per three saplings boosted, the same per-cell baseline as planting.
+- **Open, Logger 2x2 planting** (user's idea: a tag marks the saplings that need a 2x2, e.g. dark oak; the machine plants those only as a
+  full 2x2 of four when it has four saplings and the four cells are free, and never plants one alone). Assessed in chat, not built.

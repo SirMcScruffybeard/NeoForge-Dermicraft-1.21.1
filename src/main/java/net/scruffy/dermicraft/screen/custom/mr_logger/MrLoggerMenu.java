@@ -14,9 +14,14 @@ public class MrLoggerMenu extends AbstractFarmMenu<MrLoggerBlockEntity> {
     /** The Home tab's leaf toggle button, below the tab buttons' base id like every other button. */
     public static final int BUTTON_LEAVES = 0;
 
-    /** Where the toggle sits on Home (its top-left), above the fuel row. */
+    /** The growth toggle button. */
+    public static final int BUTTON_GROWTH = 1;
+
+    /** Where the toggles sit on Home (their top-left), above the fuel row: the leaf toggle, then the growth toggle beside it. */
     public static final int LEAF_TOGGLE_X = 7;
     public static final int LEAF_TOGGLE_Y = 24;
+    public static final int GROWTH_TOGGLE_X = 27;
+    public static final int GROWTH_TOGGLE_Y = 24;
 
     public MrLoggerMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
         this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()), extraData.readVarInt());
@@ -39,9 +44,18 @@ public class MrLoggerMenu extends AbstractFarmMenu<MrLoggerBlockEntity> {
 
     @Override
     protected boolean clickExtraButton(int id) {
-        if (id != BUTTON_LEAVES) return false;
-        BE.toggleBreakLeaves();
+        switch (id) {
+            case BUTTON_LEAVES -> BE.toggleBreakLeaves();
+            case BUTTON_GROWTH -> BE.toggleAccelerateGrowth();
+            default -> {
+                return false;
+            }
+        }
         return true;
+    }
+
+    public boolean isAcceleratingGrowth() {
+        return BE.isAcceleratingGrowth();
     }
 
     public boolean isBreakingLeaves() {
