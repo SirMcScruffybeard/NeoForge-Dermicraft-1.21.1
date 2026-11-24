@@ -61,16 +61,8 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     private static final int MATURE_GRACE_TICKS_BASE = 40; // ~2 extra seconds at speed 1.0
 
     private static final int BASELINE_ROW_CELLS = 3; // cells in the 3 x 3 field's row: the work one fuel step pays for
-    private static final int PREVIEW_PARTICLES_PER_TARGET = 3;
 
     private static final int BUFFER_SLOT_COUNT = 9; // slot 0 = fuel container, 1-9 = output buffer
-
-    // Transient preview state -- a sweep is a list of ordered steps (rows or rings); not persisted.
-    // Runs only while previewTicksRemaining > 0 (set by startRangePreview() on GUI close), looping
-    // the sweep to show the working area, then fading out.
-    private List<List<BlockPos>> previewWaveSteps = null;
-    private int previewWaveCursor = 0;
-    private int previewWaveTimer = 0;
 
     // Transient farming-wave state -- the real work sweep (fuel-gated), separate from the free
     // preview. Not persisted; a reload just restarts the sweep from scratch.
@@ -106,7 +98,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
     @Override
     protected void onFieldChanged() {
         farmWaveSteps = null;
-        previewWaveSteps = null;
     }
 
     /** How long a ripe crop sits before harvest -- BASE at fuel speed 1.0, shorter with better fuel. */
@@ -405,47 +396,6 @@ public class MrFarmerBlockEntity extends AbstractFarmBlockEntity {
         BlockState state = level.getBlockState(farmlandPos);
         if (state.is(Blocks.FARMLAND) && state.getValue(FarmBlock.MOISTURE) < MAX_MOISTURE) {
             level.setBlock(farmlandPos, state.setValue(FarmBlock.MOISTURE, MAX_MOISTURE), Block.UPDATE_CLIENTS);
-        }
-    }
-
-    // ---- Range preview (particle-only; loops the sweep, then fades) --------------------------
-
-    @Override
-    protected void onPreviewStarted() {
-        previewWaveSteps = null;   // recompute against the current field
-        previewWaveCursor = 0;
-        previewWaveTimer = 0;      // begin sweeping immediately
-    }
-
-    @Override
-    protected void tickPreview(Level level) {
-        if (previewWaveTimer > 0) {
-            previewWaveTimer--;
-            return;
-        }
-
-        // (Re)start the sweep, looping it for the duration of the preview window.
-        if (previewWaveSteps == null || previewWaveCursor >= previewWaveSteps.size()) {
-            // Preview marks any ground surface (not just farmland) so the player can see which
-            // cells still need tilling. Farming logic passes a strict farmland test instead.
-            previewWaveSteps = resolveWaveSteps(level, this::isGroundSurface, true);
-            previewWaveCursor = 0;
-            if (previewWaveSteps.isEmpty()) {
-                previewWaveSteps = null;
-                previewWaveTimer = WAVE_COOLDOWN_TICKS; // nothing farmable in range; check again shortly
-                return;
-            }
-        }
-
-        emitPreviewParticles(level, previewWaveSteps.get(previewWaveCursor),
-                previewParticleCount(PREVIEW_PARTICLES_PER_TARGET));
-        previewWaveCursor++;
-
-        if (previewWaveCursor >= previewWaveSteps.size()) {
-            previewWaveSteps = null;
-            previewWaveTimer = WAVE_COOLDOWN_TICKS; // brief pause, then loop again
-        } else {
-            previewWaveTimer = currentWaveStepTicks(); // mirrors the real wave's fuel-speed pacing
         }
     }
 

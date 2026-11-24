@@ -81,10 +81,6 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
     // First-pass anchor, open to tuning.
     private static final float GROWTH_SECONDS_PER_HEAL = 1.0f;
 
-    // --- Range preview (static footprint guide, shown on GUI close) ---
-    private static final int PREVIEW_EMIT_INTERVAL = 10;   // re-emit twice a second
-    private static final int PREVIEW_PARTICLES_PER_CELL = 2;
-
     private static final int BUFFER_SLOT_COUNT = 9;
 
     // XP-gathering tank -- locked to Knowledge Colloid, same fixed-target-fluid lock the Knowledge
@@ -431,20 +427,13 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
         return true;
     }
 
-    // ---- Range preview (static footprint guide) -------------------------------------------------
-    // Deliberately NOT Mr. Farmer's swept preview: with no wave, a sweep would be communicating an
-    // ordering that doesn't exist. This shows the working footprint's PERIMETER all at once, because
-    // the question it answers is "where do I build the pen walls?" -- and at 9x9 that's 32 edge cells
-    // instead of 81 filled ones, so it reads as a wall line rather than particle soup.
-
-    @Override
-    protected void tickPreview(Level level) {
-        if (getPreviewTicksRemaining() % PREVIEW_EMIT_INTERVAL != 0) return;
-        emitPreviewParticles(level, footprintPerimeter(), previewParticleCount(PREVIEW_PARTICLES_PER_CELL));
-    }
+    // ---- Range preview -----------------------------------------------------------------------------
+    // The particle effect is the shared one (AbstractFarmBlockEntity#tickPreview); only the shape is the Shepherd's, because its
+    // box starts at the machine's own row.
 
     /** The edge cells of the working footprint -- mirrors {@link #workArea()}'s placement exactly. */
-    private List<BlockPos> footprintPerimeter() {
+    @Override
+    protected List<BlockPos> getFieldOutline(Level level) {
         int halfWidth = getHalfWidth();
         int halfLength = getHalfLength();
         Direction facing = getFacing();

@@ -63,7 +63,6 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     private static final int MAX_LEAVES_PER_TREE = 1024;
     /** Cells planted that one fuel step pays for: the 3 x 3 field's row, the other machines' per-cell baseline. */
     private static final int CELLS_PER_PLANTING_STEP = 3;
-    private static final int PREVIEW_PARTICLES_PER_TARGET = 3;
 
     /** Whether the leaves of a felled tree are broken (true) or left to decay (false). */
     private boolean breakLeaves = true;
@@ -72,9 +71,6 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     private List<List<BlockPos>> waveSteps = null;
     private int waveCursor = 0;
     private int waveTimer = 0;
-    private List<List<BlockPos>> previewSteps = null;
-    private int previewCursor = 0;
-    private int previewTimer = 0;
 
     public MrLoggerBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.MR_LOGGER_BE.get(), pos, blockState, 1 + BUFFER_SLOT_COUNT, 1, BUFFER_SLOT_COUNT);
@@ -141,7 +137,6 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     @Override
     protected void onFieldChanged() {
         waveSteps = null;
-        previewSteps = null;
     }
 
     @Override
@@ -392,37 +387,11 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     }
 
     // ---- Range preview ---------------------------------------------------------------------------
+    // The outline is the shared one (AbstractFarmBlockEntity#tickPreview); only the ground it is placed on is the Logger's.
 
     @Override
-    protected void onPreviewStarted() {
-        previewSteps = null;
-        previewCursor = 0;
-        previewTimer = 0;
-    }
-
-    @Override
-    protected void tickPreview(Level level) {
-        if (previewTimer > 0) {
-            previewTimer--;
-            return;
-        }
-        if (previewSteps == null || previewCursor >= previewSteps.size()) {
-            previewSteps = resolveWaveSteps(level, this::isSoil, true);
-            previewCursor = 0;
-            if (previewSteps.isEmpty()) {
-                previewSteps = null;
-                previewTimer = WAVE_COOLDOWN_TICKS;
-                return;
-            }
-        }
-        emitPreviewParticles(level, previewSteps.get(previewCursor), previewParticleCount(PREVIEW_PARTICLES_PER_TARGET));
-        previewCursor++;
-        if (previewCursor >= previewSteps.size()) {
-            previewSteps = null;
-            previewTimer = WAVE_COOLDOWN_TICKS;
-        } else {
-            previewTimer = currentWaveStepTicks();
-        }
+    protected GroundTest getPreviewGround() {
+        return this::isSoil;
     }
 
     // ---- Faces and the Gate ---------------------------------------------------------------------------

@@ -75,6 +75,8 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     // --- Wave sweep pacing --- (WAVE_STEP_TICKS_BASE is the delay between steps at fuel speed 1.0 (Crude Slurry);
     // currentWaveStepTicks() scales it down for faster fuel so the work visibly speeds up.)
     protected static final int WAVE_STEP_TICKS_BASE = 40; // 2s at speed 1.0
+    protected static final int PREVIEW_EMIT_INTERVAL = 10;       // the preview outline re-emits twice a second
+    protected static final int PREVIEW_PARTICLES_PER_CELL = 2;
     protected static final int WAVE_COOLDOWN_TICKS = 40;  // pause between full sweeps (not fuel-speed-scaled)
     protected static final int HORIZONTAL_Y_TOLERANCE = 2; // a sideways field: ±this many Y around the machine's own plane
     // Average extra random-ticks per crop, stem or sapling per wave visit, per unit of fuel heal rate. Kept fractional (not a flat
@@ -164,8 +166,50 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
     protected void onOutOfFuel(Level level) {
     }
 
-    /** Draws or emits the range preview for one tick; only called while the preview is running. */
-    protected abstract void tickPreview(Level level);
+    /**
+     * One tick of the range preview, shared by every farm machine: twice a second the outline of the field (see
+     * {@link #getFieldOutline}) is marked with particles, fading out over the last few seconds. The outline, not a filled field or
+     * a sweep, because the question it answers is "how big is it and where does it sit?"; at 9 x 9 that is 32 edge cells, not 81.
+     * Only called while the preview is running.
+     */
+    protected void tickPreview(Level level) {
+        if (getPreviewTicksRemaining() % PREVIEW_EMIT_INTERVAL != 0) return;
+        emitPreviewParticles(level, getFieldOutline(level), previewParticleCount(PREVIEW_PARTICLES_PER_CELL));
+    }
+
+    /** The ground test the preview places the outline on; any solid top by default, so the whole field shows even where it
+     * is not farmable yet. A machine whose ground differs (Mr. Logger's soil) overrides it. */
+    protected GroundTest getPreviewGround() {
+        return this::isGroundSurface;
+    }
+
+    /**
+     * The cells that mark the edge of the field: the work layer's cells (the same ones the machine sweeps, kept even where there
+     * is no ground) with a neighbor missing across the field's width or length. A machine whose field is shaped differently
+     * (Mr. Shepherd's box starts at its own row) overrides this.
+     */
+    protected List<BlockPos> getFieldOutline(Level level) {
+        Set<Long> columns = new HashSet<>();
+        List<BlockPos> cells = new ArrayList<>();
+        for (List<BlockPos> step : resolveWaveSteps(level, getPreviewGround(), true)) {
+            for (BlockPos cell : step) {
+                cells.add(cell);
+                columns.add(columnKey(cell.getX(), cell.getZ()));
+            }
+        }
+        List<BlockPos> outline = new ArrayList<>();
+        for (BlockPos cell : cells) {
+            if (!columns.contains(columnKey(cell.getX() + 1, cell.getZ())) || !columns.contains(columnKey(cell.getX() - 1, cell.getZ()))
+                    || !columns.contains(columnKey(cell.getX(), cell.getZ() + 1)) || !columns.contains(columnKey(cell.getX(), cell.getZ() - 1))) {
+                outline.add(cell);
+            }
+        }
+        return outline;
+    }
+
+    private static long columnKey(int x, int z) {
+        return ((long) x << 32) ^ (z & 0xFFFFFFFFL);
+    }
 
     /** Runs when a preview starts (or restarts), so a sweep can be recomputed against the current field. */
     protected void onPreviewStarted() {

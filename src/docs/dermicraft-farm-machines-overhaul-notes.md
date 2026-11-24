@@ -352,3 +352,11 @@ Every farm machine has the processing machines' auto-dispense toggle (on by defa
 packet) at x 77, y 7 on Home, between the "Field: W x L" readout and the input row. Every 5 seconds, fuel or no fuel, it pushes the output
 buffer into the block below (an inventory, a duct or a Gate Port); Mr. Shepherd also pushes its Knowledge Colloid there. Mr. Logger's leaf
 toggle now crosses itself out with the new `no_use_red_overlay` texture.
+
+## Shared range preview (built 2026-11-23)
+
+The in-world field preview is one effect in `AbstractFarmBlockEntity#tickPreview`, for all four machines (user's request): twice a second the
+**outline** of the field is marked with particles, fading over the last few seconds after the GUI closes. Each machine only supplies the
+shape: the default `getFieldOutline` takes the work layer's cells (kept even over no ground) and marks the ones with a missing neighbor
+across the width or length, on the ground `getPreviewGround()` gives (any solid top; Mr. Logger's soil). Mr. Shepherd overrides the shape
+because its box starts at its own row. Mr. Farmer's and Mr. Logger's swept-row preview is gone, so Farmer now shows the outline too.
