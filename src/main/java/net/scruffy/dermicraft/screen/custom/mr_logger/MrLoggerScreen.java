@@ -23,6 +23,7 @@ public class MrLoggerScreen extends AbstractFarmScreen<MrLoggerMenu> {
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/buttons/blank_button.png");
     private static final ResourceLocation OFF_OVERLAY_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, "textures/gui/buttons/no_use_red_overlay.png");
+    private static final ItemStack SHEARS_ICON = new ItemStack(Items.SHEARS);
     private static final ItemStack LEAF_ICON = new ItemStack(Items.OAK_LEAVES);
     private static final ItemStack GROWTH_ICON = new ItemStack(Items.BONE_MEAL);
 
@@ -37,7 +38,7 @@ public class MrLoggerScreen extends AbstractFarmScreen<MrLoggerMenu> {
 
     @Override
     protected void renderHomeExtras(GuiGraphics guiGraphics, int x, int y) {
-        renderToggle(guiGraphics, x + MrLoggerMenu.LEAF_TOGGLE_X, y + MrLoggerMenu.LEAF_TOGGLE_Y, LEAF_ICON, menu.isBreakingLeaves());
+        renderToggle(guiGraphics, x + MrLoggerMenu.LEAF_TOGGLE_X, y + MrLoggerMenu.LEAF_TOGGLE_Y, menu.isHarvestingLeaves() ? SHEARS_ICON : LEAF_ICON, true);
         renderToggle(guiGraphics, x + MrLoggerMenu.GROWTH_TOGGLE_X, y + MrLoggerMenu.GROWTH_TOGGLE_Y, GROWTH_ICON,
                 menu.isAcceleratingGrowth());
     }
@@ -57,7 +58,7 @@ public class MrLoggerScreen extends AbstractFarmScreen<MrLoggerMenu> {
     protected void renderHomeLabels(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y) {
         if (MouseUtil.isMouseOver(mouseX, mouseY, x + MrLoggerMenu.LEAF_TOGGLE_X, y + MrLoggerMenu.LEAF_TOGGLE_Y,
                 STEPPER_SIZE, STEPPER_SIZE)) {
-            guiGraphics.renderTooltip(this.font, Component.translatable(menu.isBreakingLeaves()
+            guiGraphics.renderTooltip(this.font, Component.translatable(menu.isHarvestingLeaves()
                     ? "tooltip.dermicraft.mr_logger.leaves_on" : "tooltip.dermicraft.mr_logger.leaves_off"), mouseX - x, mouseY - y);
         }
         if (MouseUtil.isMouseOver(mouseX, mouseY, x + MrLoggerMenu.GROWTH_TOGGLE_X, y + MrLoggerMenu.GROWTH_TOGGLE_Y,

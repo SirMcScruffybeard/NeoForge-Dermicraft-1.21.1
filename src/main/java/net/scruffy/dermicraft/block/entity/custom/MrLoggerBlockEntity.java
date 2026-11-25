@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SaplingBlock;
@@ -65,8 +66,8 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     /** Cells planted that one fuel step pays for: the 3 x 3 field's row, the other machines' per-cell baseline. */
     private static final int CELLS_PER_PLANTING_STEP = 3;
 
-    /** Whether the leaves of a felled tree are broken (true) or left to decay (false). */
-    private boolean breakLeaves = true;
+    /** Whether a felled tree's leaves are harvested like shears (true, the leaf blocks themselves drop) or broken by hand (false, saplings, sticks and apples). */
+    private boolean harvestLeaves = true;
     /** Whether the saplings get extra random ticks (faster growth), which costs fuel. */
     private boolean accelerateGrowth = true;
 
@@ -98,12 +99,12 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
 
     // ---- The leaf toggle --------------------------------------------------------------------------
 
-    public boolean isBreakingLeaves() {
-        return breakLeaves;
+    public boolean isHarvestingLeaves() {
+        return harvestLeaves;
     }
 
-    public void toggleBreakLeaves() {
-        breakLeaves = !breakLeaves;
+    public void toggleHarvestLeaves() {
+        harvestLeaves = !harvestLeaves;
         setChanged();
         updateBlock();
     }
@@ -297,9 +298,11 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
         lastFelledSpecies = level.getBlockState(first).getBlock();
         List<ItemStack> drops = new ArrayList<>();
         for (BlockPos pos : logs) {
-            breakInto(level, pos, drops);
+            breakInto(level, pos, drops, ItemStack.EMPTY);
         }
-        if (breakLeaves) {
+        {
+            // The leaves always come down with the tree; the toggle only decides what they give (shears or bare hands).
+            ItemStack leafTool = harvestLeaves ? new ItemStack(Items.SHEARS) : ItemStack.EMPTY;
             Set<BlockPos> leaves = new HashSet<>();
             for (BlockPos log : logs) {
                 for (BlockPos near : BlockPos.betweenClosed(log.offset(-LEAF_RADIUS, -LEAF_RADIUS, -LEAF_RADIUS),
@@ -310,7 +313,7 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
                 }
             }
             for (BlockPos pos : leaves) {
-                breakInto(level, pos, drops);
+                breakInto(level, pos, drops, leafTool);
             }
         }
         for (ItemStack drop : drops) {
@@ -320,9 +323,9 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     }
 
     /** Breaks the block, adding what it drops to {@code drops} (merged into matching stacks, so a big felling stays a few stacks). */
-    private static void breakInto(ServerLevel level, BlockPos pos, List<ItemStack> drops) {
+    private static void breakInto(ServerLevel level, BlockPos pos, List<ItemStack> drops, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
-        for (ItemStack drop : Block.getDrops(state, level, pos, null)) {
+        for (ItemStack drop : Block.getDrops(state, level, pos, null, null, tool)) {
             boolean merged = false;
             for (ItemStack have : drops) {
                 if (ItemStack.isSameItemSameComponents(have, drop) && have.getCount() < have.getMaxStackSize()) {
@@ -510,14 +513,14 @@ public class MrLoggerBlockEntity extends AbstractFarmBlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
-        tag.putBoolean("breakLeaves", breakLeaves);
+        tag.putBoolean("harvestLeaves", harvestLeaves);
         tag.putBoolean("accelerateGrowth", accelerateGrowth);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        breakLeaves = !tag.contains("breakLeaves") || tag.getBoolean("breakLeaves");
+        harvestLeaves = !tag.contains("harvestLeaves") || tag.getBoolean("harvestLeaves");
         accelerateGrowth = !tag.contains("accelerateGrowth") || tag.getBoolean("accelerateGrowth");
     }
 

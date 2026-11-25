@@ -45,7 +45,7 @@ public class MrLoggerMenu extends AbstractFarmMenu<MrLoggerBlockEntity> {
     @Override
     protected boolean clickExtraButton(int id) {
         switch (id) {
-            case BUTTON_LEAVES -> BE.toggleBreakLeaves();
+            case BUTTON_LEAVES -> BE.toggleHarvestLeaves();
             case BUTTON_GROWTH -> BE.toggleAccelerateGrowth();
             default -> {
                 return false;
@@ -58,7 +58,7 @@ public class MrLoggerMenu extends AbstractFarmMenu<MrLoggerBlockEntity> {
         return BE.isAcceleratingGrowth();
     }
 
-    public boolean isBreakingLeaves() {
-        return BE.isBreakingLeaves();
+    public boolean isHarvestingLeaves() {
+        return BE.isHarvestingLeaves();
     }
 }

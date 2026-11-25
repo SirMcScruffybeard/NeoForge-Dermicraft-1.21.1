@@ -402,3 +402,6 @@ alone, so "not when not needed" keeps them out; add them to the tag to change th
   on, and the input row must hold four of it. It plants all four at once (four cells for fuel). Otherwise that species is skipped at that cell,
   never planted alone, and another species is tried (the felled species is still preferred when it can be planted).
 - Every other species goes in one per cell, as before. Saplings planted next to each other grow normally, and the growth boost already covers them.
+
+## Logger leaf toggle revised (2026-11-25)
+The leaf toggle no longer decides whether leaves are cleared: the leaves near a felled tree always come down. The toggle picks how. On: harvested like shears, so the leaf blocks drop. Off: broken by hand, so the normal leaf loot (saplings, sticks, apples). The button shows shears when on and oak leaves when off, with no red overlay (the overlay stays on the growth toggle). NBT key is now `harvestLeaves`.

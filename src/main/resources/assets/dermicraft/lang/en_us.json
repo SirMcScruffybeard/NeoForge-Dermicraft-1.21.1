@@ -416,10 +416,10 @@
   "tooltip.dermicraft.idep.face.mr_logger": "Fuel tank (+ sapling row and output buffer)",
   "tooltip.dermicraft.idep.face.mr_logger.bottom": "Output buffer (drain only)",
   "tooltip.dermicraft.slot.sapling": "Saplings",
-  "tooltip.dermicraft.mr_logger.leaves_on": "Leaves: broken with the tree (click to leave them)",
+  "tooltip.dermicraft.mr_logger.leaves_on": "Leaves: harvested like shears, the leaf blocks drop (click for hand breaking)",
   "tooltip.dermicraft.mr_logger.growth_on": "Faster sapling growth: On, costs fuel (click to turn off)",
   "tooltip.dermicraft.mr_logger.growth_off": "Faster sapling growth: Off (click to turn on)",
-  "tooltip.dermicraft.mr_logger.leaves_off": "Leaves: left to decay (click to break them)",
+  "tooltip.dermicraft.mr_logger.leaves_off": "Leaves: broken by hand, saplings, sticks and apples (click for shears)",
   "blockEntity.dermicraft.mr_shepherd_be": "Mr. Shepherd",
 
   "block.dermicraft.innards_duct": "Innards Duct",
