@@ -1,7 +1,11 @@
 package net.scruffy.dermicraft.screen.custom.mr_logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import java.util.ArrayList;
+import java.util.List;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -58,8 +62,16 @@ public class MrLoggerScreen extends AbstractFarmScreen<MrLoggerMenu> {
     protected void renderHomeLabels(GuiGraphics guiGraphics, int mouseX, int mouseY, int x, int y) {
         if (MouseUtil.isMouseOver(mouseX, mouseY, x + MrLoggerMenu.LEAF_TOGGLE_X, y + MrLoggerMenu.LEAF_TOGGLE_Y,
                 STEPPER_SIZE, STEPPER_SIZE)) {
-            guiGraphics.renderTooltip(this.font, Component.translatable(menu.isHarvestingLeaves()
-                    ? "tooltip.dermicraft.mr_logger.leaves_on" : "tooltip.dermicraft.mr_logger.leaves_off"), mouseX - x, mouseY - y);
+            List<Component> lines = new ArrayList<>();
+            lines.add(Component.translatable(menu.isHarvestingLeaves()
+                    ? "tooltip.dermicraft.mr_logger.leaves_on" : "tooltip.dermicraft.mr_logger.leaves_off"));
+            if (Screen.hasShiftDown()) {
+                lines.add(Component.translatable("tooltip.dermicraft.mr_logger.leaves_on_info").withStyle(ChatFormatting.GRAY));
+                lines.add(Component.translatable("tooltip.dermicraft.mr_logger.leaves_off_info").withStyle(ChatFormatting.GRAY));
+            } else {
+                lines.add(Component.translatable("tooltip.dermicraft.hold_shift_for_info", Component.literal("Shift").withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.DARK_GRAY));
+            }
+            guiGraphics.renderComponentTooltip(this.font, lines, mouseX - x, mouseY - y);
         }
         if (MouseUtil.isMouseOver(mouseX, mouseY, x + MrLoggerMenu.GROWTH_TOGGLE_X, y + MrLoggerMenu.GROWTH_TOGGLE_Y,
                 STEPPER_SIZE, STEPPER_SIZE)) {
