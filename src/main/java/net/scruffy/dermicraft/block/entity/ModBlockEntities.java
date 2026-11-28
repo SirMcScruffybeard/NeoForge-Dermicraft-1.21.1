@@ -109,6 +109,10 @@ public class ModBlockEntities {
             BLOCK_ENTITIES.register("mr_logger_be", () -> BlockEntityType.Builder.of(
                     net.scruffy.dermicraft.block.entity.custom.MrLoggerBlockEntity::new, ModBlocks.MR_LOGGER.get()).build(null));
 
+    public static final Supplier<BlockEntityType<net.scruffy.dermicraft.block.entity.custom.MrHunterBlockEntity>> MR_HUNTER_BE =
+            BLOCK_ENTITIES.register("mr_hunter_be", () -> BlockEntityType.Builder.of(
+                    net.scruffy.dermicraft.block.entity.custom.MrHunterBlockEntity::new, ModBlocks.MR_HUNTER.get()).build(null));
+
     public static final Supplier<BlockEntityType<WorkbenchBlockEntity>> WORKBENCH_BE =
             BLOCK_ENTITIES.register("workbench_be", () -> BlockEntityType.Builder.of(
                     WorkbenchBlockEntity::new, ModBlocks.WORKBENCH.get()).build(null));

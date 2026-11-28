@@ -226,6 +226,9 @@ public class ModBlocks {
     public static final DeferredBlock<Block> MR_LOGGER = registerBlock("mr_logger",
             () -> new net.scruffy.dermicraft.block.custom.MrLoggerBlock(machineProperties()));
 
+    public static final DeferredBlock<Block> MR_HUNTER = registerBlock("mr_hunter",
+            () -> new net.scruffy.dermicraft.block.custom.MrHunterBlock(machineProperties()));
+
     // Ducts and Nodes are the exception to the "destroyed on normal break" rule: they drop
     // themselves (see ModBlockLootTableProvider) so players aren't punished for pipe re-fiddling.
     // They still keep the mod-wide Forceps pickup via the COLLECTIBLE tag.

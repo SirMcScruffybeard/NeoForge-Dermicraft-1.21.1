@@ -163,6 +163,10 @@ public class ModTags {
         // the game (or another mod) is bleedable by default without needing to be added here.
         public static final TagKey<EntityType<?>> NOT_BLEEDABLE = createTag("not_bleedable");
 
+        /** Hostile mobs Mr. Hunter never hits: bosses (the common {@code c:bosses} tag) and the Warden. Add an entity type here
+         * (or in a datapack) to make Hunter leave it alone. */
+        public static final TagKey<EntityType<?>> HUNTER_IGNORES = createTag("hunter_ignores");
+
         private static TagKey<EntityType<?>> createTag(String name) {
             return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(Dermicraft.MOD_ID, name));
         }

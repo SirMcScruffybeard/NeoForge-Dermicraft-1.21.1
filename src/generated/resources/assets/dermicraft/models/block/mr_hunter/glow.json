@@ -1,0 +1,29 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "neoforge_data": {
+            "block_light": 15,
+            "sky_light": 15
+          },
+          "texture": "#decal"
+        }
+      },
+      "from": [
+        5,
+        1,
+        -0.05
+      ],
+      "to": [
+        6,
+        2,
+        -0.05
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "decal": "dermicraft:block/farm_machine/mr_hunter/mr_hunter_front"
+  }
+}

@@ -405,3 +405,49 @@ alone, so "not when not needed" keeps them out; add them to the tag to change th
 
 ## Logger leaf toggle revised (2026-11-25)
 The leaf toggle no longer decides whether leaves are cleared: the leaves near a felled tree always come down. The toggle picks how. On: harvested like shears, so the leaf blocks drop. Off: broken by hand, so the normal leaf loot (saplings, sticks, apples). The button shows shears when on and oak leaves when off, with no red overlay (the overlay stays on the growth toggle). NBT key is now `harvestLeaves`.
+
+## Mr. Hunter design pass (2026-11-27)
+Decided with the user. Mr. Hunter is not built yet.
+
+**Build in passes (user's plan):** (1) get it in the game with the base features working; (2) extras: weapon slot, bait; (3) troubleshooting passes.
+
+**Pass 1 (base):**
+- **Field:** a box like Shepherd's pen (width, length, height steppers, Shepherd's "starts at its own layer" rule, the shared preview). It targets mobs inside the box.
+- **Targets:** hostile mobs only. No bosses. Never players or pets. Mobs Shepherd manages are not hostile, so they are excluded by that rule.
+- **Kill method:** direct damage that just happens to any hostile mob in the field; no swing, no hit animation. Each hit costs one unit of fuel (per work, like Shepherd). It stops when fuel runs out. It produces no light. User flagged this as "may need further discussion".
+- **Targeting:** no ring or row sweep. It picks mobs in the box nearest-first, one per work cycle.
+- **Drops and XP:** the best method for normal drops and XP. Plan: damage dealt as a fake player's attack, so the kill credits as a player kill (loot, looting rules, player-only drops, XP). Drops are captured into the output buffer (overflow as the family already does); XP goes to a Shepherd-style XP tank.
+- **Works without a weapon.** Damage per hit comes from the machine's stats (tier and modules).
+- **Recipe:** Iron Sword version of the Logger recipe (Carved Pumpkin, Iron Sword, 2 Dense Muscle, Proto Brain, suture tool, 100 mB Primitive Catalyst). A second Proto Brain was proposed and is not confirmed.
+- **No spawning of its own** in the normal design.
+
+**Pass 2 (extras), to be discussed:**
+- **Weapon slot:** optional. A better weapon hits harder and wears out. The machine must remain fully usable with it empty.
+- **Bait:** a way to raise spawn rates. The user wants to talk this through before it is designed.
+- **Interdiction module:** a module to work against endermen. Also to be discussed.
+
+**Pass 3:** troubleshooting.
+
+**Open:** where Hunter sits in the stage and tier timeline; the fuel-per-hit and damage-per-hit numbers; whether the fuel-optional/HP pattern applies; fake-player setup details (damage invulnerability frames, capturing drops and XP for these kills).
+
+## Mr. Hunter pass 1 built (2026-11-27)
+Built from the decisions above. Not tested in game yet.
+- **Files:** `MrHunterBlock`, `MrHunterBlockEntity`, `MrHunterMenu`, `MrHunterScreen`, `HunterKillEvents`; registered everywhere the Logger is (block, block entity, menu, capabilities, renderer, creative tab, item looks, blockstate datagen, three block tags, recipe `mr_hunter_implant`, lang). Placeholder textures are in `farm_machine/mr_hunter/`; the light mount uses the shared `FRONT` layout (x5, y6), to be moved when the final front texture says otherwise.
+- **Field:** a box, shared with Shepherd: the pen volume moved up into `AbstractFarmBlockEntity#getVolumeBox`, and both machines use it. Default height 3 (a mob up to an enderman's height).
+- **Work:** each cycle, collect loose loot in the box (overflow), then find hostile mobs (`net.minecraft.world.entity.monster.Enemy`, alive, hittable, not a player, not in `dermicraft:hunter_ignores`) nearest first and hit up to `hunterHitsPerCycle` of them once each. Each hit costs `hunterFuelStepsPerHit` fuel steps (the machine stops mid-cycle if fuel runs out). The cycle pace is the farm's usual (fuel speed x tier x Work Speed modules).
+- **The hit:** `hurt(playerAttack(fakePlayer), damage)` with the mob's invulnerability time cleared. The fake player (`[Mr. Hunter]`) stands on the machine, so knockback points away from it. Because it is a player attack the kill is a player kill: the normal loot table, player-only drops and XP.
+- **Loot and XP:** `HunterKillEvents` marks the struck mob for the duration of the call; `LivingDropsEvent` (lowest priority) moves the drops to the output buffer (overflow spills at the mob), and `LivingExperienceDropEvent` zeroes the orbs and fills the Knowledge Colloid tank (1 XP = 1 mB); XP that does not fit becomes orbs at the mob.
+- **Ignored mobs (`dermicraft:hunter_ignores`):** `c:bosses` (Ender Dragon, Wither) and the Warden. Anything added to the tag (or a datapack) is left alone.
+- **No input row:** `MachineStatKey` has a new `hasInputRow` flag (false for Hunter), so Hunter's input slots are 0 and its config section has no `inputSlots` key. Turn it on when pass 2 adds the weapon or bait slots.
+- **Stats (config, `farm` section, defaults):** `hunterDamage` {8, 12, 16, 24} half hearts per tier (a 20 HP zombie, creeper or skeleton falls in 3, 2, 2, 1 hits); `hunterHitsPerCycle` {1, 2, 3, 4}; `hunterFuelStepsPerHit` 1. Overgrowth adds to damage and hits like any numeric stat. Field size, distance, height, tanks, module slots, speed and fuel use come from the shared FARM family tables (its own `machines.mr_hunter` section overrides any of them).
+- **Rough numbers:** at Crude Slurry speed a cycle is 2 s, so a tier 1 Hunter kills a 20 HP mob in about 6 s for 3 fuel steps; tier 4 hits four mobs a cycle and one-shots most.
+- **Light:** none.
+
+### Mr. Hunter model adjustments (2026-11-27)
+- Light mount moved to `HUNTER_FRONT`: 1 pixel from the right edge and 3 from the top (x 9 to 14, y 7 to 12 as the player sees the face, origin lower left); the light sits centered in it.
+- New **glow pixel**: one pixel of the front texture, 1 pixel up from the bottom and 5 in from the right edge (x 10, y 1), glows while the machine is lit, like the light. It is a second, emissive copy of that exact pixel of `mr_hunter_front` drawn over the face (model `block/mr_hunter/glow`, shown only in the `active` state), so it looks identical by day and stays bright in the dark. It is a reusable option: `FarmMachineModels.register(..., GlowPixel, ...)` and `PartModels#buildGlowPixel`. If the pixel moves in the final texture, change `HUNTER_GLOW`.
+- Light mount lowered one pixel (same day): now 4 pixels from the top, still 1 from the right edge (x 9 to 14, y 6 to 11). The glow pixel did not move.
+- **Tier accent ("scar"), same day:** `mr_hunter_scar_l1` to `l4` (16 x 16, at 0,0) lie over the whole front face, one per tier. They sit just above the machine's own faces (0.0375 off the face, between the faces' 0.025 and the mount's 0.05) so they never fight the face, and below the light mount and light. They are in the blockstate by tier and in each item model. `FarmMachineModels.register` takes an optional accent name for any farm machine (pass "scar" or another name; textures are `<machine>_<accent>_l<tier>` in the machine's folder).
+
+## Later ideas for Mr. Hunter (2026-11-28)
+- A module that prevents creeper explosions when a creeper is damaged in the field. (Noted by the user for later; belongs with the pass 2 extras next to the bait and the enderman interdiction module. Not designed yet.)

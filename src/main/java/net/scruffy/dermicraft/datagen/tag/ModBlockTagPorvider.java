@@ -41,7 +41,8 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.CRAW.get())
                 .add(ModBlocks.MR_FARMER.get())
                 .add(ModBlocks.MR_SHEPHERD.get())
-                .add(ModBlocks.MR_LOGGER.get());
+                .add(ModBlocks.MR_LOGGER.get())
+                .add(ModBlocks.MR_HUNTER.get());
 
         tag(ModTags.Blocks.COLLECTIBLE)
                 .addTag(ModTags.Blocks.TUMORS)
@@ -72,6 +73,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.MR_FARMER.get())
                 .add(ModBlocks.MR_SHEPHERD.get())
                 .add(ModBlocks.MR_LOGGER.get())
+                .add(ModBlocks.MR_HUNTER.get())
                 .addTag(ModTags.Blocks.LAB_FLOOR)
                 // Bottom half only -- the top is a purely visual companion with no item of its own
                 // worth recovering; WorkbenchBlock's own onRemove already takes it with the bottom.
@@ -158,6 +160,7 @@ public class ModBlockTagPorvider extends BlockTagsProvider {
                 .add(ModBlocks.MR_FARMER.get())
                 .add(ModBlocks.MR_SHEPHERD.get())
                 .add(ModBlocks.MR_LOGGER.get())
+                .add(ModBlocks.MR_HUNTER.get())
         ;
 
         tag(ModTags.Blocks.INJECTABLE)

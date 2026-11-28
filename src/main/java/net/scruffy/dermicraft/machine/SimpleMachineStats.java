@@ -75,12 +75,28 @@ public final class SimpleMachineStats {
 
     /** Slots in a farm machine's input row (seeds, saplings or feed) at this tier, 0 to 12 (three rows of four); Overgrowth adds none. */
     public static int getInputSlots(@Nullable MachineStatKey machine, EvolutionStateData state) {
+        if (machine != null && !machine.hasInputRow()) return 0;
         return Math.max(0, Math.min(12, StatTable.toInt(StatConfig.getCurrent().inputSlotsFor(machine)[state.tier() - 1])));
     }
 
     /** How many logs Mr. Logger fells for one fuel step (a server config number, the same at every tier). */
     public static int getLogsPerFuelStep() {
         return Math.max(1, StatTable.toInt(StatConfig.getCurrent().logsPerFuelStep()));
+    }
+
+    /** Damage Mr. Hunter deals with each hit at this tier, in half hearts; Overgrowth adds to it like any numeric stat. */
+    public static float getHunterDamage(EvolutionStateData state) {
+        return (float) value(StatConfig.getCurrent().hunterDamage(), state);
+    }
+
+    /** How many mobs Mr. Hunter hits in one work cycle at this tier (one hit each, nearest first); at least 1. */
+    public static int getHunterHitsPerCycle(EvolutionStateData state) {
+        return Math.max(1, StatTable.toInt(value(StatConfig.getCurrent().hunterHitsPerCycle(), state)));
+    }
+
+    /** How many fuel steps each of Mr. Hunter's hits costs (a server config number, the same at every tier). */
+    public static float getHunterFuelStepsPerHit() {
+        return (float) StatConfig.getCurrent().hunterFuelStepsPerHit();
     }
 
     /** The furthest a farm machine's field may sit from it at this tier; Overgrowth adds none. */

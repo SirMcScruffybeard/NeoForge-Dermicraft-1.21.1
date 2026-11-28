@@ -222,6 +222,34 @@ public abstract class AbstractFarmBlockEntity extends EvolvingMachineBlockEntity
         return new AABB(minX, minY, minZ, maxX + 1, maxY + getFieldHeight(), maxZ + 1);
     }
 
+    /**
+     * The working volume of a machine that works a box rather than cells, the player's field. Horizontal mounts cover from
+     * {@code distance - 1} blocks ahead (the machine's OWN row at the default distance of 1) through {@code length} blocks
+     * further, {@code width} blocks across, centered on the machine. Vertical mounts cover a width (X) x length (Z) box
+     * centered {@code distance} blocks out along the facing. Both start at that layer and reach up to the field's height.
+     * Mr. Shepherd's pen and Mr. Hunter's kill zone are this box.
+     */
+    protected AABB getVolumeBox() {
+        int halfWidth = getHalfWidth();
+        int halfLength = getHalfLength();
+        Direction facing = getFacing();
+
+        if (facing.getAxis().isVertical()) {
+            BlockPos center = worldPosition.relative(facing, getFieldDistance());
+            return new AABB(
+                    center.getX() - halfWidth, center.getY(), center.getZ() - halfLength,
+                    center.getX() + halfWidth + 1, center.getY() + getFieldHeight(), center.getZ() + halfLength + 1);
+        }
+
+        // Depth starts at 0 (the machine's own row), not 1 block ahead like Mr. Farmer's: a machine set into a fence or wall line
+        // is flush with the pen, so what sits directly beside it is in the machine's own plane.
+        Direction side = facing.getClockWise();
+        int start = getFieldDistance() - 1;
+        AABB box = new AABB(worldPosition.relative(facing, start).relative(side, -halfWidth))
+                .minmax(new AABB(worldPosition.relative(facing, start + getFieldLength()).relative(side, halfWidth)));
+        return new AABB(box.minX, box.minY, box.minZ, box.maxX, box.minY + getFieldHeight(), box.maxZ);
+    }
+
     /** Runs when a preview starts (or restarts), so a sweep can be recomputed against the current field. */
     protected void onPreviewStarted() {
     }

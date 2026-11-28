@@ -243,25 +243,7 @@ public class MrShepherdBlockEntity extends AbstractFarmBlockEntity {
      * the layer the animals stand on. Both reach from that layer up to the field's height (the pen's height).
      */
     private AABB workArea() {
-        int halfWidth = getHalfWidth();
-        int halfLength = getHalfLength();
-        Direction facing = getFacing();
-
-        if (facing.getAxis().isVertical()) {
-            BlockPos center = worldPosition.relative(facing, getFieldDistance());
-            return new AABB(
-                    center.getX() - halfWidth, center.getY(), center.getZ() - halfLength,
-                    center.getX() + halfWidth + 1, center.getY() + getFieldHeight(), center.getZ() + halfLength + 1);
-        }
-
-        // Depth starts at 0 -- the machine's own row -- not 1 block ahead like Mr. Farmer's. A Shepherd
-        // set into a fence or wall line is flush with the pen, so items dropped directly beside it sit
-        // in the machine's own plane; starting a block ahead would leave them permanently uncollected.
-        Direction side = facing.getClockWise();
-        int start = getFieldDistance() - 1;
-        AABB box = new AABB(worldPosition.relative(facing, start).relative(side, -halfWidth))
-                .minmax(new AABB(worldPosition.relative(facing, start + getFieldLength()).relative(side, halfWidth)));
-        return new AABB(box.minX, box.minY, box.minZ, box.maxX, box.minY + getFieldHeight(), box.maxZ);
+        return getVolumeBox(); // shared with Mr. Hunter, see AbstractFarmBlockEntity#getVolumeBox
     }
 
     /**

@@ -98,6 +98,27 @@ public class PartModels {
                 FEATURE_LAYER, 0);
     }
 
+    /**
+     * One pixel of a texture drawn again over the face as an emissive layer, so that pixel glows in the dark: {@code <machine>/glow}.
+     * It is a copy of the pixel already on the face, so the machine looks the same by day and the pixel stays bright at night.
+     * The position is in the player's view of the face (origin lower left), like every other part's.
+     */
+    public BlockModelBuilder buildGlowPixel(String machine, MachineFaceLayout layout, int pixelX, int pixelY, String texturePath) {
+        if (layout.face() != Direction.NORTH) throw new IllegalArgumentException("A glow pixel is on the north face");
+        return built.computeIfAbsent(MODEL_DIR + machine + "/glow", name -> {
+            BlockModelBuilder model = provider.models().getBuilder(name)
+                    .renderType("cutout")
+                    .texture("decal", provider.modLoc(texturePath));
+            float offset = LAYER_OFFSET * LIGHT_LAYER;
+            model.element()
+                    .from(16 - (pixelX + 1), pixelY, -offset)
+                    .to(16 - pixelX, pixelY + 1, -offset)
+                    .face(Direction.NORTH).uvs(pixelX, 15 - pixelY, pixelX + 1, 16 - pixelY).texture("#decal")
+                    .emissivity(15, 15).end().end();
+            return model;
+        });
+    }
+
     /** The port ring for one tier on every side except the face: {@code <machine>/ports_l<tier>}. */
     public BlockModelBuilder buildPorts(String machine, MachineFaceLayout layout, int tier) {
         return buildPortSides(MODEL_DIR + machine + "/ports_l" + tier, layout,

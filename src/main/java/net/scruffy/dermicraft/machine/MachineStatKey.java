@@ -22,7 +22,9 @@ public enum MachineStatKey {
     DROOLING_GEODE("drooling_geode", MachineFamily.DROOLING),
     MR_FARMER("mr_farmer", MachineFamily.FARM),
     MR_SHEPHERD("mr_shepherd", MachineFamily.FARM),
-    MR_LOGGER("mr_logger", MachineFamily.FARM);
+    MR_LOGGER("mr_logger", MachineFamily.FARM),
+    /** No input row yet: its config section leaves out {@code inputSlots} until it has something to put in one. */
+    MR_HUNTER("mr_hunter", MachineFamily.FARM, false);
 
     private final String SECTION_NAME;
     @Nullable
@@ -32,6 +34,7 @@ public enum MachineStatKey {
     private final boolean USES_HEALTH;
     private final boolean USES_PASSIVE_YIELD;
     private final boolean USES_FIELD;
+    private final boolean HAS_INPUT_ROW;
 
     /** An ordinary fueled machine: no family, fuel and HP, hazards, no passive yield. */
     MachineStatKey(String sectionName) {
@@ -44,10 +47,22 @@ public enum MachineStatKey {
                 family.usesField());
     }
 
+    /** A machine in a family that does or does not have an input row, the rest following the family's flags. */
+    MachineStatKey(String sectionName, MachineFamily family, boolean hasInputRow) {
+        this(sectionName, family, family.handlesHazards(), family.usesFuel(), family.usesHealth(), family.usesPassiveYield(),
+                family.usesField(), hasInputRow);
+    }
+
     /** The full form, for a machine with no family but unusual keys (for example a future non-Drooling machine that
      * makes fluid with no input: {@code (name, null, true, true, true)}). */
     MachineStatKey(String sectionName, @Nullable MachineFamily family, boolean handlesHazards, boolean usesFuel,
                    boolean usesHealth, boolean usesPassiveYield, boolean usesField) {
+        this(sectionName, family, handlesHazards, usesFuel, usesHealth, usesPassiveYield, usesField, usesField);
+    }
+
+    private MachineStatKey(String sectionName, @Nullable MachineFamily family, boolean handlesHazards, boolean usesFuel,
+                           boolean usesHealth, boolean usesPassiveYield, boolean usesField, boolean hasInputRow) {
+        HAS_INPUT_ROW = hasInputRow;
         SECTION_NAME = sectionName;
         FAMILY = family;
         HANDLES_HAZARDS = handlesHazards;
@@ -91,6 +106,12 @@ public enum MachineStatKey {
      * distance keys. */
     public boolean usesField() {
         return USES_FIELD;
+    }
+
+    /** Whether the machine has an input row (seeds, saplings, feed). Only those machines' config sections have the
+     * {@code inputSlots} key. */
+    public boolean hasInputRow() {
+        return HAS_INPUT_ROW;
     }
 
     /** Whether the machine makes fluid with no input at a rate set in the config. Only those machines' config

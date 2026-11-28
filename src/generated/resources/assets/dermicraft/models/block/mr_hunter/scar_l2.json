@@ -1,0 +1,25 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#decal"
+        }
+      },
+      "from": [
+        0,
+        0,
+        -0.0375
+      ],
+      "to": [
+        16,
+        16,
+        -0.0375
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "decal": "dermicraft:block/farm_machine/mr_hunter/mr_hunter_scar_l2"
+  }
+}

@@ -14,6 +14,7 @@ record StatValues(
         double[] simpleMachineSpeed, double[] simpleMachineFuelUse,
         double[] simpleMachineMaxHealth, double[] simpleMachineTankCapacityMb, double[] simpleMachinePassiveYield,
         double[] skinTankCapacityMb, double[] crawStacks, double[] fieldSize, double[] fieldDistance, double[] fieldHeight, double[] inputSlots, double logsPerFuelStep,
+        double[] hunterDamage, double[] hunterHitsPerCycle, double hunterFuelStepsPerHit,
         double overgrowthPercent, int overgrowthMaxLevel,
         int hungerDamagePerCycle, float unfueledSpeed,
         double[] evolutionTierSeconds, double evolutionHazardNewSeconds, double evolutionHazardUpgradeSeconds,

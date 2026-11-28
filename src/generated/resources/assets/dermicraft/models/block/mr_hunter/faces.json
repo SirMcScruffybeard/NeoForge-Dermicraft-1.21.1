@@ -1,0 +1,78 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "cullface": "east",
+          "texture": "#left",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "texture": "#front",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "south": {
+          "cullface": "south",
+          "texture": "#back",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "texture": "#top",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "texture": "#right",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        -0.025,
+        -0.025,
+        -0.025
+      ],
+      "to": [
+        16.025,
+        16.025,
+        16.025
+      ]
+    }
+  ],
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "back": "dermicraft:block/farm_machine/mr_hunter/mr_hunter_back",
+    "front": "dermicraft:block/farm_machine/mr_hunter/mr_hunter_front",
+    "left": "dermicraft:block/farm_machine/mr_hunter/mr_hunter_left",
+    "particle": "dermicraft:block/simple_machine/plate/l_plate",
+    "right": "dermicraft:block/farm_machine/mr_hunter/mr_hunter_right",
+    "top": "dermicraft:block/farm_machine/mr_hunter/mr_hunter_top"
+  }
+}

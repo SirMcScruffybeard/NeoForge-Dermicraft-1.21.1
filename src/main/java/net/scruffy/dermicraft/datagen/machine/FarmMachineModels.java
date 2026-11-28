@@ -9,6 +9,7 @@ import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelBuilder;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import org.jetbrains.annotations.Nullable;
 import net.scruffy.dermicraft.block.custom.EvolutionBlockProperties;
 
 import java.util.List;
@@ -38,6 +39,16 @@ public class FarmMachineModels {
     /** Mr. Logger's front: the mount centered both ways (x 5 to 10, y 5 to 10). */
     public static final MachineFaceLayout LOGGER_FRONT = new MachineFaceLayout(Direction.NORTH, 5, 5, List.of());
 
+    /** Mr. Hunter's front: the mount 4 pixels down and 1 in from the right edge (x 9 to 14, y 6 to 11). */
+    public static final MachineFaceLayout HUNTER_FRONT = new MachineFaceLayout(Direction.NORTH, 9, 6, List.of());
+
+    /** A pixel of the machine's own front texture that glows while the machine is lit, as the light does. Position in pixels, as
+     * the player sees the face (origin lower left). */
+    public record GlowPixel(int x, int y) {}
+
+    /** Mr. Hunter's glow pixel: 1 pixel up from the bottom and 5 in from the right edge (x 10, y 1). */
+    public static final GlowPixel HUNTER_GLOW = new GlowPixel(10, 1);
+
     private static final String FARM_MACHINE_DIR = BLOCK_DIR + "/farm_machine";
     private static final String PLATE = SIMPLE_MACHINE_DIR + "/plate/l_plate";
     private static final String LIGHT_OFF = SIMPLE_MACHINE_DIR + LIGHT_DIR + "/light_off";
@@ -62,6 +73,23 @@ public class FarmMachineModels {
      * @param front   where the light mount sits on the front
      */
     public void register(Block block, String machine, MachineFaceLayout front, DirectionProperty facing, BooleanProperty lit) {
+        register(block, machine, front, null, facing, lit);
+    }
+
+    /** As {@link #register(Block, String, MachineFaceLayout, DirectionProperty, BooleanProperty)}, with a pixel of the front that
+     * glows while the machine is lit ({@code glow} null for none). */
+    public void register(Block block, String machine, MachineFaceLayout front, @Nullable GlowPixel glow,
+                         DirectionProperty facing, BooleanProperty lit) {
+        register(block, machine, front, glow, null, facing, lit);
+    }
+
+    /**
+     * As above, with a tier accent: a 16 x 16 texture per tier laid over the whole front face, just above the machine's own faces
+     * and below the light mount, named {@code <machine>_<accent>_l<tier>} in the machine's texture folder (Mr. Hunter's is
+     * {@code scar}: {@code mr_hunter_scar_l1} to {@code l4}). {@code accent} null for none.
+     */
+    public void register(Block block, String machine, MachineFaceLayout front, @Nullable GlowPixel glow, @Nullable String accent,
+                         DirectionProperty facing, BooleanProperty lit) {
         MultiPartBlockStateBuilder builder = provider.getMultipartBuilder(block);
 
         // The plate: one full-block model per Overgrowth stage, shared by every machine.
@@ -73,13 +101,17 @@ public class FarmMachineModels {
         BlockModelBuilder faces = buildFaces(machine);
         BlockModelBuilder lightOff = parts.buildLight(machine, front, PartModels.Lamp.OFF);
         BlockModelBuilder lightOn = parts.buildLight(machine, front, PartModels.Lamp.ON);
+        BlockModelBuilder[] accents = new BlockModelBuilder[5]; // indexed by tier, 1 to 4; null entries without an accent
         BlockModelBuilder[] mounts = new BlockModelBuilder[5];  // indexed by tier, 1 to 4
         BlockModelBuilder[] rings = new BlockModelBuilder[5];
         for (int tier = 1; tier <= 4; tier++) {
+            if (accent != null) accents[tier] = buildAccent(machine, accent, tier);
             mounts[tier] = parts.buildLightMount(machine, front, tier);
             rings[tier] = buildRing(machine, tier);
         }
         BlockModelBuilder center = buildCenter(machine);
+        BlockModelBuilder glowModel = glow == null ? null
+                : parts.buildGlowPixel(machine, front, glow.x(), glow.y(), FARM_MACHINE_DIR + "/" + machine + "/" + machine + "_front");
 
         for (Direction direction : Direction.values()) {
             int rotX = getRotationX(direction);
@@ -87,6 +119,10 @@ public class FarmMachineModels {
 
             builder.part().modelFile(faces).rotationX(rotX).rotationY(rotY).addModel()
                     .condition(facing, direction).end();
+            for (int tier = 1; tier <= 4 && accent != null; tier++) {
+                builder.part().modelFile(accents[tier]).rotationX(rotX).rotationY(rotY).addModel()
+                        .condition(facing, direction).condition(EvolutionBlockProperties.TIER, tier).end();
+            }
             for (int tier = 1; tier <= 4; tier++) {
                 builder.part().modelFile(mounts[tier]).rotationX(rotX).rotationY(rotY).addModel()
                         .condition(facing, direction).condition(EvolutionBlockProperties.TIER, tier).end();
@@ -95,6 +131,10 @@ public class FarmMachineModels {
                     .condition(facing, direction).condition(lit, false).end();
             builder.part().modelFile(lightOn).rotationX(rotX).rotationY(rotY).addModel()
                     .condition(facing, direction).condition(lit, true).end();
+            if (glowModel != null) {
+                builder.part().modelFile(glowModel).rotationX(rotX).rotationY(rotY).addModel()
+                        .condition(facing, direction).condition(lit, true).end();
+            }
             builder.part().modelFile(center).rotationX(rotX).rotationY(rotY).addModel()
                     .condition(facing, direction).end();
             for (int tier = 1; tier <= 4; tier++) {
@@ -103,7 +143,28 @@ public class FarmMachineModels {
             }
         }
 
-        registerItemModels(machine, front);
+        registerItemModels(machine, front, accent);
+    }
+
+    /** How far the tier accent sits off the front, between the faces (0.025) and the light mount and port ring (0.05). */
+    private static final float ACCENT_OFFSET = 0.0375f;
+
+    /** The tier accent for one tier: {@code block/<machine>/<accent>_l<tier>}, a 16 x 16 quad over the front face. */
+    private BlockModelBuilder buildAccent(String machine, String accent, int tier) {
+        BlockModelBuilder model = provider.models().getBuilder(MODEL_DIR + machine + "/" + accent + "_l" + tier)
+                .renderType("cutout")
+                .texture("decal", provider.modLoc(accentTexture(machine, accent, tier)));
+        addAccentElement(model, "decal");
+        return model;
+    }
+
+    private static String accentTexture(String machine, String accent, int tier) {
+        return FARM_MACHINE_DIR + "/" + machine + "/" + machine + "_" + accent + "_l" + tier;
+    }
+
+    private static <T extends ModelBuilder<T>> void addAccentElement(T model, String textureKey) {
+        model.element().from(0, 0, -ACCENT_OFFSET).to(16, 16, -ACCENT_OFFSET)
+                .face(Direction.NORTH).uvs(0, 0, 16, 16).texture("#" + textureKey).end().end();
     }
 
     /** The blockstate X rotation that turns a model authored facing north to look up or down; 0 for the sideways ones. */
@@ -184,26 +245,27 @@ public class FarmMachineModels {
      * The machine's item: tier 1 as the base model, with overrides that swap in the model for a higher tier and, at tier 4,
      * for each Overgrowth stage. Vanilla resolves overrides to the LAST matching entry, so they go in ascending order.
      */
-    private void registerItemModels(String machine, MachineFaceLayout front) {
-        ItemModelBuilder base = buildItemModel(machine, machine, front, 1, 0);
+    private void registerItemModels(String machine, MachineFaceLayout front, @Nullable String accent) {
+        ItemModelBuilder base = buildItemModel(machine, machine, front, accent, 1, 0);
 
         for (int tier = 2; tier <= 4; tier++) {
             base.override()
                     .predicate(EvolutionBlockProperties.ITEM_TIER, tier)
-                    .model(buildItemModel(machine + "_l" + tier, machine, front, tier, 0))
+                    .model(buildItemModel(machine + "_l" + tier, machine, front, accent, tier, 0))
                     .end();
         }
         for (int stage = 1; stage <= 3; stage++) {
             base.override()
                     .predicate(EvolutionBlockProperties.ITEM_OVERGROWTH, stage)
-                    .model(buildItemModel(machine + "_l4_o" + stage, machine, front, 4, stage))
+                    .model(buildItemModel(machine + "_l4_o" + stage, machine, front, accent, 4, stage))
                     .end();
         }
     }
 
     /** The inventory model at a tier and Overgrowth stage: the plate, the machine's faces, the mount, the unlit light and the
      * bottom ports, all in one model, since an item can only have the one. */
-    private ItemModelBuilder buildItemModel(String itemName, String machine, MachineFaceLayout front, int tier, int stage) {
+    private ItemModelBuilder buildItemModel(String itemName, String machine, MachineFaceLayout front, @Nullable String accent,
+                                            int tier, int stage) {
         ItemModelBuilder model = provider.itemModels().withExistingParent(itemName, "block/block")
                 .renderType("cutout")
                 .texture("particle", provider.modLoc(PLATE))
@@ -216,6 +278,10 @@ public class FarmMachineModels {
 
         model.element().from(0, 0, 0).to(16, 16, 16).textureAll("#plate").end();
         addFaceElements(model);
+        if (accent != null) {
+            model.texture("accent", provider.modLoc(accentTexture(machine, accent, tier)));
+            addAccentElement(model, "accent");
+        }
         parts.addLightMountAndLight(model, front, "mount", "light", false);
         parts.addPortSides(model, "ring", side -> side == Direction.DOWN);
         parts.addPortSides(model, "center", side -> side == Direction.DOWN);

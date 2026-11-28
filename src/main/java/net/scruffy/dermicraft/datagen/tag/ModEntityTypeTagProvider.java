@@ -26,5 +26,9 @@ public class ModEntityTypeTagProvider extends EntityTypeTagsProvider {
                 .add(EntityType.SNOW_GOLEM)
 
         ;
+
+        tag(ModTags.EntityTypes.HUNTER_IGNORES)
+                .addTag(net.neoforged.neoforge.common.Tags.EntityTypes.BOSSES)
+                .add(EntityType.WARDEN);
     }
 }

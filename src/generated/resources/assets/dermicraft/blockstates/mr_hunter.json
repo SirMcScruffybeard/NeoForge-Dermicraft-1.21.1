@@ -1,0 +1,1027 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o0"
+      },
+      "when": {
+        "overgrowth": "0"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o1"
+      },
+      "when": {
+        "overgrowth": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o2"
+      },
+      "when": {
+        "overgrowth": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/plate_o3"
+      },
+      "when": {
+        "overgrowth": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/faces",
+        "x": 90
+      },
+      "when": {
+        "facing": "down"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l1",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l2",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l3",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l4",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l1",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l2",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l3",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l4",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_off",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_on",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/glow",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_center",
+        "x": 90
+      },
+      "when": {
+        "facing": "down"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l1",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l2",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l3",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l4",
+        "x": 90
+      },
+      "when": {
+        "facing": "down",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/faces",
+        "x": 270
+      },
+      "when": {
+        "facing": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l1",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l2",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l3",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l4",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l1",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l2",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l3",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l4",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_off",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_on",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/glow",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_center",
+        "x": 270
+      },
+      "when": {
+        "facing": "up"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l1",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l2",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l3",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l4",
+        "x": 270
+      },
+      "when": {
+        "facing": "up",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/faces"
+      },
+      "when": {
+        "facing": "north"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l1"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l2"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l3"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l4"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l1"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l2"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l3"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l4"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_off"
+      },
+      "when": {
+        "facing": "north",
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_on"
+      },
+      "when": {
+        "facing": "north",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/glow"
+      },
+      "when": {
+        "facing": "north",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_center"
+      },
+      "when": {
+        "facing": "north"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l1"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l2"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l3"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l4"
+      },
+      "when": {
+        "facing": "north",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/faces",
+        "y": 180
+      },
+      "when": {
+        "facing": "south"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l1",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l2",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l3",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l4",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l1",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l2",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l3",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l4",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_off",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_on",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/glow",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_center",
+        "y": 180
+      },
+      "when": {
+        "facing": "south"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l1",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l2",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l3",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l4",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/faces",
+        "y": 270
+      },
+      "when": {
+        "facing": "west"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l1",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l2",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l3",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l4",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l1",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l2",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l3",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l4",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_off",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_on",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/glow",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_center",
+        "y": 270
+      },
+      "when": {
+        "facing": "west"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l1",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l2",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l3",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l4",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/faces",
+        "y": 90
+      },
+      "when": {
+        "facing": "east"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l1",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l2",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l3",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/scar_l4",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l1",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l2",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l3",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_mount_l4",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_off",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "lit": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/light_on",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/glow",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "lit": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_center",
+        "y": 90
+      },
+      "when": {
+        "facing": "east"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l1",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "1"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l2",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "2"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l3",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "3"
+      }
+    },
+    {
+      "apply": {
+        "model": "dermicraft:block/mr_hunter/ports_l4",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "tier": "4"
+      }
+    }
+  ]
+}

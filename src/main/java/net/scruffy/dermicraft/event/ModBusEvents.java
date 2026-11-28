@@ -121,6 +121,12 @@ public class ModBusEvents {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_LOGGER_BE.get(),
                 net.scruffy.dermicraft.block.entity.custom.MrLoggerBlockEntity::getAutomationItemHandler);
 
+        // Mr. Hunter: the same shape again (its own block entity type needs its own entries).
+        event.registerBlockEntity(Capabilities.FluidHandler.BLOCK, ModBlockEntities.MR_HUNTER_BE.get(),
+                net.scruffy.dermicraft.block.entity.custom.MrHunterBlockEntity::getTank);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MR_HUNTER_BE.get(),
+                net.scruffy.dermicraft.block.entity.custom.MrHunterBlockEntity::getAutomationItemHandler);
+
         // Node: item automation is exposed via getItemHandler(Direction), which restricts any
         // direction-based (capability) query to the transport buffer slot only -- the GUI-only
         // fluid-handler slot stays unreachable by pipes/hoppers/other Nodes regardless.

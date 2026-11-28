@@ -30,6 +30,8 @@ public final class StatConfig {
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> FIELD_HEIGHT;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> INPUT_SLOTS;
     private static final ModConfigSpec.DoubleValue LOGS_PER_FUEL_STEP;
+    private static final ModConfigSpec.ConfigValue<List<? extends Number>> HUNTER_DAMAGE, HUNTER_HITS_PER_CYCLE;
+    private static final ModConfigSpec.DoubleValue HUNTER_FUEL_STEPS_PER_HIT;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_SPEED;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_FUEL_USE;
     private static final ModConfigSpec.ConfigValue<List<? extends Number>> SIMPLE_MACHINE_MAX_HEALTH;
@@ -113,6 +115,10 @@ public final class StatConfig {
         INPUT_SLOTS = tierList("inputSlots", "Slots in a farm machine's input row (seeds, saplings or feed) per tier, 0 to 12 (three rows of four). Overgrowth adds none.", StatDefaults.INPUT_SLOTS, 0, 12);
         LOGS_PER_FUEL_STEP = BUILDER.comment("How many logs Mr. Logger fells for one fuel step (a fuel step is what one step of the other farm machines costs). Planting costs one step per three cells planted.")
                 .defineInRange("logsPerFuelStep", StatDefaults.LOGS_PER_FUEL_STEP, 1.0, 1000.0);
+        HUNTER_DAMAGE = tierList("hunterDamage", "Damage each Mr. Hunter hit deals per tier, in half hearts (a zombie, creeper or skeleton has 20, an enderman 40). The hit is a player's attack, so armor reduces it. Overgrowth adds to it like any numeric stat.", StatDefaults.HUNTER_DAMAGE, 0.5, 10000);
+        HUNTER_HITS_PER_CYCLE = tierList("hunterHitsPerCycle", "How many mobs Mr. Hunter hits in one work cycle per tier, one hit each, nearest first. Overgrowth adds to it like any numeric stat.", StatDefaults.HUNTER_HITS_PER_CYCLE, 1, 100);
+        HUNTER_FUEL_STEPS_PER_HIT = BUILDER.comment("Fuel steps each Mr. Hunter hit costs (a fuel step is what one step of the other farm machines costs). Mr. Hunter stops when its fuel runs out.")
+                .defineInRange("hunterFuelStepsPerHit", StatDefaults.HUNTER_FUEL_STEPS_PER_HIT, 0.01, 1000.0);
         BUILDER.pop();
 
         BUILDER.push("skin_tank");
@@ -207,7 +213,7 @@ public final class StatConfig {
             BUILDER.comment("Shared overrides for the " + family.getSectionName() + " family. They replace the global values for these machines, and a machine's own section replaces them in turn. Leave a list empty (or a number at -1) to use the global value.")
                     .push(family.getSectionName());
             FAMILY_SECTIONS.put(family, buildSection(family.usesFuel(), family.usesHealth(), family.handlesHazards(),
-                    family.usesPassiveYield(), family.usesField()));
+                    family.usesPassiveYield(), family.usesField(), family.usesField()));
             BUILDER.pop();
         }
 
@@ -220,7 +226,7 @@ public final class StatConfig {
         for (MachineStatKey machine : MachineStatKey.values()) {
             BUILDER.push(machine.getSectionName());
             MACHINE_SECTIONS.put(machine, buildSection(machine.usesFuel(), machine.usesHealth(), machine.handlesHazards(),
-                    machine.usesPassiveYield(), machine.usesField()));
+                    machine.usesPassiveYield(), machine.usesField(), machine.hasInputRow()));
             BUILDER.pop();
         }
         BUILDER.pop();
@@ -317,6 +323,8 @@ public final class StatConfig {
                 table(FIELD_SIZE, StatDefaults.FIELD_SIZE), table(FIELD_DISTANCE, StatDefaults.FIELD_DISTANCE),
                 table(FIELD_HEIGHT, StatDefaults.FIELD_HEIGHT),
                 table(INPUT_SLOTS, StatDefaults.INPUT_SLOTS), LOGS_PER_FUEL_STEP.get(),
+                table(HUNTER_DAMAGE, StatDefaults.HUNTER_DAMAGE), table(HUNTER_HITS_PER_CYCLE, StatDefaults.HUNTER_HITS_PER_CYCLE),
+                HUNTER_FUEL_STEPS_PER_HIT.get(),
                 OVERGROWTH_PERCENT.get(), OVERGROWTH_MAX_LEVEL.get(),
                 HUNGER_DAMAGE_PER_CYCLE.get(), UNFUELED_SPEED.get().floatValue(),
                 table(EVOLUTION_TIER_SECONDS, StatDefaults.EVOLUTION_TIER_SECONDS),
@@ -335,7 +343,7 @@ public final class StatConfig {
 
     /** One section of optional overrides (a family's or a machine's), with only the keys the flags say apply. */
     private static MachineSection buildSection(boolean usesFuel, boolean usesHealth, boolean handlesHazards,
-                                               boolean usesPassiveYield, boolean usesField) {
+                                               boolean usesPassiveYield, boolean usesField, boolean hasInputRow) {
         return new MachineSection(
                 overrideList("speedMultiplier", usesPassiveYield ? "Craft speed multiplier per tier. For the food-boost craft only; the no-input trickle is passiveYield." : "Processing speed multiplier per tier.", 0.1, 1000, TIERS, "L1 to L4"),
                 usesFuel ? overrideList("fuelUseMultiplier", "Fuel used per cycle, relative to L1, per tier.", 0.1, 1000, TIERS, "L1 to L4") : null,
@@ -351,7 +359,7 @@ public final class StatConfig {
                 usesField ? overrideList("fieldSize", "Largest width or length of the field per tier (odd).", 1, 99, TIERS, "L1 to L4") : null,
                 usesField ? overrideList("fieldDistance", "Furthest the field may sit from the machine per tier, in blocks.", 1, 99, TIERS, "L1 to L4") : null,
                 usesField ? overrideList("fieldHeight", "Tallest the work volume may be per tier, in blocks.", 1, 99, TIERS, "L1 to L4") : null,
-                usesField ? overrideList("inputSlots", "Slots in the input row (seeds, saplings or feed) per tier (0 to 12).", 0, 12, TIERS, "L1 to L4") : null);
+                hasInputRow ? overrideList("inputSlots", "Slots in the input row (seeds, saplings or feed) per tier (0 to 12).", 0, 12, TIERS, "L1 to L4") : null);
     }
 
     private static MachineOverrides toOverrides(MachineSection section) {
